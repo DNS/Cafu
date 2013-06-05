@@ -740,6 +740,10 @@ namespace
         OutFile << "    self:GetTransform():set(\"Origin\", " << Entity->GetTransform()->GetOrigin().x << ", " << Entity->GetTransform()->GetOrigin().y << ", " << Entity->GetTransform()->GetOrigin().z << ")\n";
      // OutFile << "    self:GetTransform():set(\"Size\", " << Entity->GetTransform()->GetSize().x << ", " << Entity->GetTransform()->GetSize().y << ")\n";
 
+        const Vector3fT QuatXYZ = Entity->GetTransform()->GetQuat().GetXYZ();
+        if (QuatXYZ != Vector3fT(0, 0, 0))
+            OutFile << "    self:GetTransform():set(\"Orientation\", " << QuatXYZ.x << ", " << QuatXYZ.y << ", " << QuatXYZ.z << ")\n";
+
 
         if (Entity->GetComponents().Size() == 0)
             return;

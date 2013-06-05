@@ -598,30 +598,9 @@ void EntPropertyT::Save_cmap(std::ostream& OutFile) const
     // Don't save properties with default values into the file.
     if (Key=="" || Value=="" || Value=="0") return;
 
-    wxString WriteValue=Value;
-
-    if (Key=="angles")
-    {
-        const Vector3fT Angles=GetVector3f();
-
-        float Pitch=Angles.x;
-        float Yaw  =Angles.y;
-        float Roll =Angles.z;
-
-        // Angles get special treatment because we measure angles a little differently:
-        // Pitch      :  Up (0) is along the z-axis. CaWE: Measured counter-clockwise. Cafu engine: Measured clockwise.
-        // Heading/Yaw:  CaWE: North (0) is along the x-axis, measured counter-clockwise. Cafu engine: North is along the y-axis, measured clockwise.
-        // Bank/Roll  :  Up (0) is along the z-axis. CaWE: Measured counter-clockwise. Cafu engine: Measured clockwise.
-        Pitch=  -Pitch; while (Pitch<0.0) Pitch+=360.0; while (Pitch>360.0) Pitch-=360.0;
-        Yaw  =90-Yaw;   while (Yaw  <0.0) Yaw  +=360.0; while (Yaw  >360.0) Yaw  -=360.0;
-        Roll =  -Roll;  while (Roll <0.0) Roll +=360.0; while (Roll >360.0) Roll -=360.0;
-
-        WriteValue=wxString::Format("%g %g %g", Pitch, Yaw, Roll);
-    }
-
     // Keys may contain white-space, e.g. importing D3 map files may sometimes bring some with them.
-    if (Key.Find(' ')==-1) OutFile << "  "   << Key << " \""   << WriteValue << "\"\n";
-                      else OutFile << "  \"" << Key << "\" \"" << WriteValue << "\"\n";
+    if (Key.Find(' ')==-1) OutFile << "  "   << Key << " \""   << Value << "\"\n";
+                      else OutFile << "  \"" << Key << "\" \"" << Value << "\"\n";
 }
 
 
