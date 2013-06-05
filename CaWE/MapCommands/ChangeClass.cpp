@@ -44,9 +44,7 @@ bool CommandChangeClassT::Do()
     wxASSERT(!m_Done);
     if (m_Done) return false;
 
-    // For now a simple implementation of class change is implemented: We change the class and check for new unique keys.
     m_Entity->SetClass(m_NewClass);
-    m_Entity->CheckUniqueValues();
 
     ArrayT<MapElementT*> MapElements;
     MapElements.PushBack(m_Entity->GetRepres());

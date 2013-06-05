@@ -22,7 +22,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CompMapEntity.hpp"
 #include "EntityClass.hpp"
 #include "EntityClassVar.hpp"
-#include "LuaAux.hpp"
 #include "MapDocument.hpp"
 #include "MapEntRepres.hpp"
 #include "MapPrimitive.hpp"
@@ -227,92 +226,4 @@ BoundingBox3fT CompMapEntityT::GetElemsBB() const
         BB += m_Primitives[PrimNr]->GetBB();
 
     return BB;
-}
-
-
-ArrayT<EntPropertyT> CompMapEntityT::CheckUniqueValues(bool Repair)
-{
-    // All nonunique properties that are found (and repaired if Repair is true).
-    ArrayT<EntPropertyT> FoundVars;
-
-    // Only handle entities that have a class.
-    if (m_Class==NULL) return FoundVars;
-
-    const ArrayT<const EntClassVarT*>& ClassVars=m_Class->GetVariables();
-
-    // For all class vars (only class vars can be unique).
-    for (unsigned long i=0; i<ClassVars.Size(); i++)
-    {
-        // Check if class var is unique.
-        // FIXME: At the moment only the "name" variable is supported, as this is the only unique variable at this time.
-        if (ClassVars[i]->IsUnique() && ClassVars[i]->GetName()=="name")
-        {
-            // Remember current value.
-            EntPropertyT*                       FoundProp = FindProperty("name");
-            IntrusivePtrT<const CompMapEntityT> FoundEnt  = NULL;
-
-            // If value is set.
-            if (FoundProp!=NULL)
-            {
-                for (unsigned long EntNr=1/*skip world*/; EntNr<m_MapDoc.GetEntities().Size(); EntNr++)
-                {
-                    IntrusivePtrT<const CompMapEntityT> Ent     = m_MapDoc.GetEntities()[EntNr];
-                    const EntPropertyT*                 EntProp = Ent->FindProperty("name");
-
-                    if (Ent != this && EntProp && EntProp->Value == FoundProp->Value)
-                    {
-                        FoundEnt=Ent;
-                        break;
-                    }
-                }
-            }
-
-            // Found a faulty value.
-            if (FoundEnt!=NULL || FoundProp==NULL)
-            {
-                // Set property value to default.
-                wxString ValueTmp=ClassVars[i]->GetDefault();
-
-                // Overwrite default value by concrete value if property is set.
-                if (FoundProp!=NULL) ValueTmp=FoundProp->Value;
-
-                FoundVars.PushBack(EntPropertyT("name", ValueTmp));
-            }
-
-            // User doesn't want the faulty value to be repaired or there is nothing to repair.
-            if (!Repair || (FoundEnt==NULL && FoundProp!=NULL)) continue;
-
-            // Repair faulty value.
-            for (unsigned long Count=1; true; Count++)
-            {
-                const wxString UniqueValue=CheckLuaIdentifier(m_Class->GetName())+wxString::Format("_%03lu", Count);
-                unsigned long  EntNr;
-
-                for (EntNr=1/*skip world*/; EntNr<m_MapDoc.GetEntities().Size(); EntNr++)
-                {
-                    IntrusivePtrT<const CompMapEntityT> Ent     = m_MapDoc.GetEntities()[EntNr];
-                    const EntPropertyT*                 EntProp = Ent->FindProperty("name");
-
-                    if (Ent != this && EntProp && EntProp->Value == UniqueValue)
-                    {
-                        FoundEnt=Ent;
-                        break;
-                    }
-                }
-
-                if (EntNr>=m_MapDoc.GetEntities().Size())
-                {
-                    FindProperty("name", NULL, true)->Value=UniqueValue;
-
-                    ArrayT< IntrusivePtrT<CompMapEntityT> > MapElements;
-                    MapElements.PushBack(this);
-
-                    m_MapDoc.UpdateAllObservers_Modified(MapElements, MEMD_ENTITY_PROPERTY_MODIFIED, "name");
-                    break;
-                }
-            }
-        }
-    }
-
-    return FoundVars;
 }

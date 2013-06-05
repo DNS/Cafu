@@ -55,8 +55,6 @@ using namespace MapEditor;
  *      Or the first command manipulates the properties that the subsequent commands directly or indirectly referred to?
  *      Have the ObserverT::Notify*() handlers deal with the issue? Special case code? ...?
  *      One very important requirement seems to be to only ever find and keep at most ONE problem per map entity!
- *   3. Add an MP_CheckUniqueValuesT checker, to find all entity properties that are supposed to be unique, but aren't.
- *   4. This needs WAY MORE testing - make a problem-cmap test file...
  */
 
 

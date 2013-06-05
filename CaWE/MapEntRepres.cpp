@@ -154,11 +154,7 @@ wxString MapEntRepresT::GetDescription() const
     wxString Desc = "The representation of an entity in the map";
 
     Desc += ", class \"" + m_Parent->GetClass()->GetName() + "\"";
-
-    const EntPropertyT* NameProp = m_Parent->FindProperty("name");
-
-    if (NameProp)
-        Desc += ", name \"" + NameProp->Value + "\"";
+    Desc += ", name \"" + m_Parent->GetEntity()->GetBasics()->GetEntityName() + "\"";
 
     return Desc + ".";
 }
@@ -186,8 +182,7 @@ void MapEntRepresT::Render2D(Renderer2DT& Renderer) const
         Renderer.SetTextColor(Color, Options.Grid.ColorBackground);
         Renderer.DrawText(m_Parent->GetClass()->GetName(), Point1 + wxPoint(2, 1));
 
-        const EntPropertyT* NameProp = m_Parent->FindProperty("name");
-        if (NameProp!=NULL) Renderer.DrawText(NameProp->Value, Point1 + wxPoint(2, 12));
+        Renderer.DrawText(m_Parent->GetEntity()->GetBasics()->GetEntityName(), Point1 + wxPoint(2, 12));
     }
 
     if (Options.view2d.ShowEntityTargets)
@@ -201,9 +196,7 @@ void MapEntRepresT::Render2D(Renderer2DT& Renderer) const
 
             for (unsigned long EntNr = 1/*skip world*/; EntNr < Entities.Size(); EntNr++)
             {
-                const EntPropertyT* FoundProp = Entities[EntNr]->FindProperty("name");
-
-                if (FoundProp!=NULL && FoundProp->Value == TargetProp->Value)
+                if (Entities[EntNr]->GetEntity()->GetBasics()->GetEntityName() == TargetProp->Value)
                 {
                     FoundEntities.PushBack(Entities[EntNr]);
                 }

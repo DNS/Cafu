@@ -583,7 +583,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
         m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
 
         const EntPropertyT* NameProp = MapEnt->FindProperty("name");
-        if (NameProp)
+        if (NameProp && NameProp->Value != "")
         {
             NewEnt->GetBasics()->SetEntityName(NameProp->Value.ToStdString());
             MapEnt->RemoveProperty("name");

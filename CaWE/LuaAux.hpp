@@ -22,8 +22,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_LUA_AUX_HPP_INCLUDED
 #define CAFU_LUA_AUX_HPP_INCLUDED
 
-class wxString;
-
 
 // MOVEMENT INFO
 // CF: Achtung: Diese Konstanten zu entfernen und durch AngleT's pitch(), roll() und yaw() zu ersetzen *kann*
@@ -36,21 +34,5 @@ enum
     YAW,        // Heading.
     ROLL        // Bank angle.
 };
-
-
-/// Determines if the given string is a valid Lua identifier.
-///
-/// @param id   The identifier name to check.
-/// @return Whether \c id is a valid Lua identifier.
-bool IsLuaIdentifier(const wxString& id);
-
-
-/// Determines if the given string is a valid Lua identifier.
-/// If valid, \c id is returned unchanged.
-/// Otherwise, for the return value a variant of \c id is created that is valid.
-///
-/// @param id   The identifier name to check.
-/// @return A valid Lua identifier derived from \c id.
-wxString CheckLuaIdentifier(const wxString& id);
 
 #endif
