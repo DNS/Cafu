@@ -225,7 +225,7 @@ void ViewWindow2DT::NotifySubjectChanged_Modified(SubjectT* Subject, const Array
 
 void ViewWindow2DT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const ArrayT<BoundingBox3fT>& OldBounds)
 {
-    if (Detail!=MEMD_PRIMITIVE_PROPS_CHANGED && Detail!=MEMD_TRANSFORM && Detail!=MEMD_MORPH && Detail!=MEMD_GENERIC) return;
+    if (Detail!=MEMD_PRIMITIVE_PROPS_CHANGED && Detail!=MEMD_TRANSFORM && Detail!=MEMD_GENERIC) return;
 
     BoundingBox3fT UpdateBounds;
 

@@ -59,7 +59,6 @@ enum MapElemModDetailE
     MEMD_TRANSFORM,                 ///< A map element has been transformed.
     MEMD_PRIMITIVE_PROPS_CHANGED,   ///< The properties of a map primitve have been modified.
     MEMD_SURFACE_INFO_CHANGED,      ///< The surface info of a map element has changed. Note that surface info changes also include the selection of faces.
-    MEMD_MORPH,                     ///< The vertices of a map primitive have been transformed. This is actually UNUSED now that \c CommandMorphT has been removed (r447, 2011-12-20).
     MEMD_ASSIGN_PRIM_TO_ENTITY,     ///< A map primitive has been assigned to another entity (the world or any custom entity).
     MEMD_VISIBILITY                 ///< The visibility of a map element has changed.
 };
@@ -132,7 +131,7 @@ class ObserverT
     /// @param Subject       The map document in which the elements have been modified.
     /// @param MapElements   List of modified map elements.
     /// @param Detail        Information about what has been modified:
-    ///                      Can be one of MEMD_TRANSFORM, MEMD_PRIMITIVE_PROPS_CHANGED and MEMD_MORPH.
+    ///                      Can be MEMD_TRANSFORM or MEMD_PRIMITIVE_PROPS_CHANGED.
     ///                      In the case of MEMD_PRIMITIVE_PROPS_CHANGED one can assume that
     ///                      only map primitives (no entities) are in the MapElements array.
     /// @param OldBounds     Holds the bounds of each objects BEFORE the modification (has the same size as MapElements).
