@@ -22,13 +22,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ToolbarMaterials.hpp"
 #include "ChildFrame.hpp"
 #include "CompMapEntity.hpp"
+#include "DocumentAdapter.hpp"
 #include "MapDocument.hpp"
 #include "GameConfig.hpp"
 #include "EditorMaterial.hpp"
 #include "DialogReplaceMaterials.hpp"
 #include "DialogEditSurfaceProps.hpp"
 #include "EditorMaterialManager.hpp"
-#include "MaterialBrowser/DocAccess.hpp"
 #include "MaterialBrowser/MaterialBrowserDialog.hpp"
 
 #include "wx/image.h"
@@ -233,7 +233,7 @@ void MaterialsToolbarT::OnButtonBrowse(wxCommandEvent& Event)
 {
     int Index=ChoiceCurrentMat->GetSelection();
 
-    MaterialBrowser::DialogT MatBrowser(this, MaterialBrowser::MapDocAccessT(*m_MapDoc), MaterialBrowser::ConfigT()
+    MaterialBrowser::DialogT MatBrowser(this, MapDocAdapterT(*m_MapDoc), MaterialBrowser::ConfigT()
         .InitialMaterial(Index!=-1 ? (EditorMaterialI*)ChoiceCurrentMat->GetClientData(Index) : NULL));
 
     if (MatBrowser.ShowModal()!=wxID_OK) return;

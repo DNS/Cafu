@@ -27,8 +27,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Commands/SetMeshShadows.hpp"
 #include "Commands/SetMeshTSMethod.hpp"
 
+#include "../DocumentAdapter.hpp"
 #include "../EditorMaterial.hpp"
-#include "../MaterialBrowser/DocAccess.hpp"
 #include "../MaterialBrowser/MaterialBrowserDialog.hpp"
 
 #include "MaterialSystem/Material.hpp"
@@ -64,7 +64,7 @@ namespace
                     break;
                 }
 
-            MaterialBrowser::DialogT MatBrowser(GetGrid(), MaterialBrowser::ModelDocAccessT(*m_ModelDoc), MaterialBrowser::ConfigT()
+            MaterialBrowser::DialogT MatBrowser(GetGrid(), ModelDocAdapterT(*m_ModelDoc), MaterialBrowser::ConfigT()
                 .InitialMaterial(InitMat)
                 .NoFilterEditorMatsOnly()
                 .NoButtonMark()

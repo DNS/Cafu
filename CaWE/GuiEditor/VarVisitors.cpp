@@ -24,8 +24,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GuiDocument.hpp"
 #include "Commands/SetCompVar.hpp"
 
+#include "../DocumentAdapter.hpp"
 #include "../EditorMaterial.hpp"
-#include "../MaterialBrowser/DocAccess.hpp"
 #include "../MaterialBrowser/MaterialBrowserDialog.hpp"
 
 #include "wx/propgrid/manager.h"
@@ -106,7 +106,7 @@ namespace
                     break;
                 }
 
-            MaterialBrowser::DialogT MatBrowser(GetGrid(), MaterialBrowser::GuiDocAccessT(*m_GuiDocument), MaterialBrowser::ConfigT()
+            MaterialBrowser::DialogT MatBrowser(GetGrid(), GuiDocAdapterT(*m_GuiDocument), MaterialBrowser::ConfigT()
                 .InitialMaterial(InitMat)
                 .NoFilterEditorMatsOnly()
                 .NoButtonMark()

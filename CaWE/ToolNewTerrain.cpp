@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ToolNewTerrain.hpp"
 #include "CompMapEntity.hpp"
 #include "CursorMan.hpp"
+#include "DocumentAdapter.hpp"
 #include "GameConfig.hpp"
 #include "CommandHistory.hpp"
 #include "ChildFrame.hpp"
@@ -35,7 +36,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ToolOptionsBars.hpp"
 #include "EditorMaterial.hpp"
 #include "MapCommands/AddPrim.hpp"
-#include "MaterialBrowser/DocAccess.hpp"
 #include "MaterialBrowser/MaterialBrowserDialog.hpp"
 #include "MaterialSystem/Material.hpp"
 
@@ -138,7 +138,7 @@ bool ToolNewTerrainT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
             return true;
         }
 
-        MaterialBrowser::DialogT MatBrowser(&ViewWindow, MaterialBrowser::MapDocAccessT(m_MapDoc), MaterialBrowser::ConfigT()
+        MaterialBrowser::DialogT MatBrowser(&ViewWindow, MapDocAdapterT(m_MapDoc), MaterialBrowser::ConfigT()
             .InitialMaterial(NULL)  // No initial material.
             .InitialNameFilter("Terrains"));
 
@@ -167,7 +167,7 @@ bool ToolNewTerrainT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
                          "Press OK now to select the material to be applied.\n"
                          "Press Cancel to create no walls and no ceiling.", "Select material for walls and ceiling", wxOK | wxCANCEL)==wxOK)
         {
-            MaterialBrowser::DialogT MatBrowser(&ViewWindow, MaterialBrowser::MapDocAccessT(m_MapDoc), MaterialBrowser::ConfigT()
+            MaterialBrowser::DialogT MatBrowser(&ViewWindow, MapDocAdapterT(m_MapDoc), MaterialBrowser::ConfigT()
                 .InitialMaterial(NULL)  // No initial material.
                 .InitialNameFilter("sky"));
 

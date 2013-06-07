@@ -21,13 +21,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "MaterialBrowserDialog.hpp"
 
-#include "DocAccess.hpp"
 #include "ScrolledMaterialWin.hpp"
 #include "ControlsBar.hpp"
 #include "MaterialTree.hpp"
 #include "MaterialProperties.hpp"
 #include "FilterSettings.hpp"
 
+#include "../DocumentAdapter.hpp"
 #include "../EditorMaterial.hpp"
 
 #include "wx/confbase.h"
@@ -139,7 +139,7 @@ void DialogT::Init(const ArrayT<EditorMaterialI*>& Materials)
 }
 
 
-DialogT::DialogT(wxWindow* Parent, const DocAccessI& DocAccess, const ConfigT& Config)
+DialogT::DialogT(wxWindow* Parent, const DocAdapterI& DocAccess, const ConfigT& Config)
     : wxDialog(Parent, -1, wxString("CaWE Material Browser"), wxDefaultPosition, wxSize(800, 600), wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxMAXIMIZE_BOX),
       m_DocAccess(DocAccess),       // Must use a fixed size in place of wxDefaultSize, see <http://trac.wxwidgets.org/ticket/12490> for details.
       m_Config(Config),

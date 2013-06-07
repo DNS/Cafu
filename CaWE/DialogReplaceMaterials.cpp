@@ -21,6 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "DialogReplaceMaterials.hpp"
 #include "AppCaWE.hpp"
+#include "DocumentAdapter.hpp"
 #include "GameConfig.hpp"
 #include "ParentFrame.hpp"
 #include "ChildFrame.hpp"
@@ -29,7 +30,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "EditorMaterial.hpp"
 #include "EditorMaterialManager.hpp"
 
-#include "MaterialBrowser/DocAccess.hpp"
 #include "MaterialBrowser/MaterialBrowserDialog.hpp"
 #include "MapCommands/ReplaceMat.hpp"
 #include "MapCommands/Select.hpp"
@@ -233,7 +233,7 @@ void ReplaceMaterialsDialogT::OnOK(wxCommandEvent& Event)
 
 void ReplaceMaterialsDialogT::OnButtonBrowseFind(wxCommandEvent& Event)
 {
-    MaterialBrowser::DialogT MatBrowser(this, MaterialBrowser::MapDocAccessT(m_MapDoc), MaterialBrowser::ConfigT()
+    MaterialBrowser::DialogT MatBrowser(this, MapDocAdapterT(m_MapDoc), MaterialBrowser::ConfigT()
         .InitialMaterial(m_MapDoc.GetGameConfig()->GetMatMan().FindMaterial(TextCtrlFindMatName->GetValue(), false))
         .OnlyShowUsed());
 
@@ -244,7 +244,7 @@ void ReplaceMaterialsDialogT::OnButtonBrowseFind(wxCommandEvent& Event)
 
 void ReplaceMaterialsDialogT::OnButtonBrowseReplace(wxCommandEvent& Event)
 {
-    MaterialBrowser::DialogT MatBrowser(this, MaterialBrowser::MapDocAccessT(m_MapDoc), MaterialBrowser::ConfigT()
+    MaterialBrowser::DialogT MatBrowser(this, MapDocAdapterT(m_MapDoc), MaterialBrowser::ConfigT()
         .InitialMaterial(m_MapDoc.GetGameConfig()->GetMatMan().FindMaterial(TextCtrlReplaceMatName->GetValue(), false)));
 
     if (MatBrowser.ShowModal()==wxID_OK)

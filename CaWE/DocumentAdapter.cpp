@@ -19,43 +19,44 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "DocAccess.hpp"
-#include "../DialogReplaceMaterials.hpp"
-#include "../EditorMaterial.hpp"
-#include "../GameConfig.hpp"
-#include "../MapDocument.hpp"
-#include "../GuiEditor/GuiDocument.hpp"
-#include "../MapCommands/ReplaceMat.hpp"
-#include "../ModelEditor/ModelDocument.hpp"
+#include "DocumentAdapter.hpp"
+#include "DialogReplaceMaterials.hpp"
+#include "EditorMaterial.hpp"
+#include "GameConfig.hpp"
+#include "MapDocument.hpp"
+#include "GuiEditor/GuiDocument.hpp"
+#include "MapCommands/ReplaceMat.hpp"
+#include "ModelEditor/ModelDocument.hpp"
+
 #include "GuiSys/CompImage.hpp"
 #include "GuiSys/Window.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "Models/Model_cmdl.hpp"
 
 
-/*********************/
-/*** MapDocAccessT ***/
-/*********************/
+/**********************/
+/*** MapDocAdapterT ***/
+/**********************/
 
-MaterialBrowser::MapDocAccessT::MapDocAccessT(MapDocumentT& MapDoc)
+MapDocAdapterT::MapDocAdapterT(MapDocumentT& MapDoc)
     : m_MapDoc(MapDoc)
 {
 }
 
 
-const ArrayT<EditorMaterialI*>& MaterialBrowser::MapDocAccessT::GetMaterials() const
+const ArrayT<EditorMaterialI*>& MapDocAdapterT::GetMaterials() const
 {
     return m_MapDoc.GetGameConfig()->GetMatMan().GetMaterials();
 }
 
 
-void MaterialBrowser::MapDocAccessT::GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const
+void MapDocAdapterT::GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const
 {
     m_MapDoc.GetUsedMaterials(UsedMaterials);
 }
 
 
-void MaterialBrowser::MapDocAccessT::OnMarkMaterial(EditorMaterialI* Mat) const
+void MapDocAdapterT::OnMarkMaterial(EditorMaterialI* Mat) const
 {
     CommandReplaceMatT* Command=new CommandReplaceMatT(
         m_MapDoc,
@@ -74,7 +75,7 @@ void MaterialBrowser::MapDocAccessT::OnMarkMaterial(EditorMaterialI* Mat) const
 }
 
 
-void MaterialBrowser::MapDocAccessT::OnReplaceMaterial(EditorMaterialI* Mat) const
+void MapDocAdapterT::OnReplaceMaterial(EditorMaterialI* Mat) const
 {
     ReplaceMaterialsDialogT ReplaceMatsDlg(m_MapDoc.GetSelection().Size()>0, m_MapDoc, Mat->GetName());
 
@@ -82,23 +83,23 @@ void MaterialBrowser::MapDocAccessT::OnReplaceMaterial(EditorMaterialI* Mat) con
 }
 
 
-/*********************/
-/*** GuiDocAccessT ***/
-/*********************/
+/**********************/
+/*** GuiDocAdapterT ***/
+/**********************/
 
-MaterialBrowser::GuiDocAccessT::GuiDocAccessT(GuiEditor::GuiDocumentT& GuiDoc)
+GuiDocAdapterT::GuiDocAdapterT(GuiEditor::GuiDocumentT& GuiDoc)
     : m_GuiDoc(GuiDoc)
 {
 }
 
 
-const ArrayT<EditorMaterialI*>& MaterialBrowser::GuiDocAccessT::GetMaterials() const
+const ArrayT<EditorMaterialI*>& GuiDocAdapterT::GetMaterials() const
 {
     return m_GuiDoc.GetEditorMaterials();
 }
 
 
-void MaterialBrowser::GuiDocAccessT::GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const
+void GuiDocAdapterT::GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const
 {
     UsedMaterials.Overwrite();
 
@@ -129,33 +130,33 @@ void MaterialBrowser::GuiDocAccessT::GetUsedMaterials(ArrayT<EditorMaterialI*>& 
 }
 
 
-void MaterialBrowser::GuiDocAccessT::OnMarkMaterial(EditorMaterialI* Mat) const
+void GuiDocAdapterT::OnMarkMaterial(EditorMaterialI* Mat) const
 {
 }
 
 
-void MaterialBrowser::GuiDocAccessT::OnReplaceMaterial(EditorMaterialI* Mat) const
+void GuiDocAdapterT::OnReplaceMaterial(EditorMaterialI* Mat) const
 {
 }
 
 
-/***********************/
-/*** ModelDocAccessT ***/
-/***********************/
+/************************/
+/*** ModelDocAdapterT ***/
+/************************/
 
-MaterialBrowser::ModelDocAccessT::ModelDocAccessT(ModelEditor::ModelDocumentT& ModelDoc)
+ModelDocAdapterT::ModelDocAdapterT(ModelEditor::ModelDocumentT& ModelDoc)
     : m_ModelDoc(ModelDoc)
 {
 }
 
 
-const ArrayT<EditorMaterialI*>& MaterialBrowser::ModelDocAccessT::GetMaterials() const
+const ArrayT<EditorMaterialI*>& ModelDocAdapterT::GetMaterials() const
 {
     return m_ModelDoc.GetEditorMaterials();
 }
 
 
-void MaterialBrowser::ModelDocAccessT::GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const
+void ModelDocAdapterT::GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const
 {
     UsedMaterials.Overwrite();
 
@@ -179,11 +180,11 @@ void MaterialBrowser::ModelDocAccessT::GetUsedMaterials(ArrayT<EditorMaterialI*>
 }
 
 
-void MaterialBrowser::ModelDocAccessT::OnMarkMaterial(EditorMaterialI* Mat) const
+void ModelDocAdapterT::OnMarkMaterial(EditorMaterialI* Mat) const
 {
 }
 
 
-void MaterialBrowser::ModelDocAccessT::OnReplaceMaterial(EditorMaterialI* Mat) const
+void ModelDocAdapterT::OnReplaceMaterial(EditorMaterialI* Mat) const
 {
 }

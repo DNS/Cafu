@@ -28,13 +28,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/aui/framemanager.h"
 
 
+class DocAdapterI;
 class EditorMaterialI;
 
 
 namespace MaterialBrowser
 {
     class ControlsBarT;
-    class DocAccessI;
     class FilterSettingsT;
     class MaterialPropertiesT;
     class MaterialTreeT;
@@ -77,7 +77,7 @@ namespace MaterialBrowser
         public:
 
         /// The constructor.
-        DialogT(wxWindow* Parent, const DocAccessI& DocAccess, const ConfigT& Config);
+        DialogT(wxWindow* Parent, const DocAdapterI& DocAccess, const ConfigT& Config);
 
         /// The destructor.
         ~DialogT();
@@ -88,7 +88,7 @@ namespace MaterialBrowser
 
         private:
 
-        const DocAccessI&         m_DocAccess;          ///< The (access interface to the) document that this dialog is for.
+        const DocAdapterI&        m_DocAccess;          ///< The (access interface to the) document that this dialog is for.
         const ConfigT&            m_Config;
         wxAuiManager              m_AUIManager;
 
