@@ -26,6 +26,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 namespace cf { namespace TypeSys { class TypeInfoT; } }
+class CommandT;
+class DocAdapterI;
 class wxPGProperty;
 class wxPropertyGridEvent;
 class wxPropertyGridManager;
@@ -33,17 +35,13 @@ class wxPropertyGridManager;
 
 namespace GuiEditor
 {
-    class ChildFrameT;
-    class GuiDocumentT;
-
-
     /// This visitor creates a wxPGProperty for the visited variable
     /// and adds it to the given wxPropertyGridManager.
     class VarVisitorAddPropT : public cf::TypeSys::VisitorT
     {
         public:
 
-        VarVisitorAddPropT(wxPropertyGridManager& PropMan, GuiDocumentT* GuiDoc, const cf::TypeSys::TypeInfoT* TI);
+        VarVisitorAddPropT(wxPropertyGridManager& PropMan, DocAdapterI& DocAdapter, const cf::TypeSys::TypeInfoT* TI);
 
         void visit(cf::TypeSys::VarT<float>& Var);
         void visit(cf::TypeSys::VarT<double>& Var);
@@ -61,7 +59,7 @@ namespace GuiEditor
         void SetHelpString(wxPGProperty* Prop, wxPGProperty* SourceProp = NULL) const;
 
         wxPropertyGridManager&        m_PropMan;
-        GuiDocumentT*                 m_GuiDoc;
+        DocAdapterI&                  m_DocAdapter;
         const cf::TypeSys::TypeInfoT* m_TI;
     };
 
@@ -90,14 +88,16 @@ namespace GuiEditor
     };
 
 
-    /// This visitor updates the value of the visited variable according to the given EVT_PG_CHANGING event.
+    /// This visitor creates a command for updating the value of the visited variable according to
+    /// the given EVT_PG_CHANGING event.
     class VarVisitorHandlePropChangingEventT : public cf::TypeSys::VisitorT
     {
         public:
 
-        VarVisitorHandlePropChangingEventT(wxPropertyGridEvent& Event, ChildFrameT* ChildFrame);
+        VarVisitorHandlePropChangingEventT(wxPropertyGridEvent& Event, DocAdapterI& DocAdapter);
+        ~VarVisitorHandlePropChangingEventT();
 
-        const bool Ok() const { return m_Ok; }
+        CommandT* TransferCommand();
 
         void visit(cf::TypeSys::VarT<float>& Var);
         void visit(cf::TypeSys::VarT<double>& Var);
@@ -113,22 +113,22 @@ namespace GuiEditor
         private:
 
         wxPropertyGridEvent& m_Event;
-        ChildFrameT*         m_ChildFrame;
-        GuiDocumentT*        m_GuiDoc;
-        bool                 m_Ok;
+        DocAdapterI&         m_DocAdapter;
+        CommandT*            m_Command;
     };
 
 
     /// This visitor is similar to VarVisitorHandlePropChangingEventT:
-    /// It updates the value of the visited variable when a *sub-property* of the variable has changed.
-    /// The given EVT_PG_CHANGING event refers to the change of the sub-property.
+    /// It creates a command for updating the value the value of the visited variable when a *sub-property*
+    /// of the variable has changed. The given EVT_PG_CHANGING event refers to the change of the sub-property.
     class VarVisitorHandleSubChangingEventT : public cf::TypeSys::VisitorT
     {
         public:
 
-        VarVisitorHandleSubChangingEventT(wxPropertyGridEvent& Event, ChildFrameT* ChildFrame);
+        VarVisitorHandleSubChangingEventT(wxPropertyGridEvent& Event, DocAdapterI& DocAdapter);
+        ~VarVisitorHandleSubChangingEventT();
 
-        const bool Ok() const { return m_Ok; }
+        CommandT* TransferCommand();
 
         void visit(cf::TypeSys::VarT<float>& Var);
         void visit(cf::TypeSys::VarT<double>& Var);
@@ -144,9 +144,8 @@ namespace GuiEditor
         private:
 
         wxPropertyGridEvent& m_Event;
-        ChildFrameT*         m_ChildFrame;
-        GuiDocumentT*        m_GuiDoc;
-        bool                 m_Ok;
+        DocAdapterI&         m_DocAdapter;
+        CommandT*            m_Command;
     };
 }
 

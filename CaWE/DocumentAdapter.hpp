@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 class EditorMaterialI;
 class MapDocumentT;
+namespace cf { namespace TypeSys { class VarBaseT; } }
 namespace GuiEditor { class GuiDocumentT; }
 namespace ModelEditor { class ModelDocumentT; }
 
@@ -44,6 +45,7 @@ class DocAdapterI
     virtual void GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const=0;
     virtual void OnMarkMaterial(EditorMaterialI* Mat) const=0;
     virtual void OnReplaceMaterial(EditorMaterialI* Mat) const=0;
+    virtual void UpdateAllObservers_Modified(const cf::TypeSys::VarBaseT& Var)=0;
 };
 
 
@@ -57,6 +59,7 @@ class MapDocAdapterT : public DocAdapterI
     void GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const;
     void OnMarkMaterial(EditorMaterialI* Mat) const;
     void OnReplaceMaterial(EditorMaterialI* Mat) const;
+    void UpdateAllObservers_Modified(const cf::TypeSys::VarBaseT& Var);
 
 
     private:
@@ -75,6 +78,7 @@ class GuiDocAdapterT : public DocAdapterI
     void GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const;
     void OnMarkMaterial(EditorMaterialI* Mat) const;
     void OnReplaceMaterial(EditorMaterialI* Mat) const;
+    void UpdateAllObservers_Modified(const cf::TypeSys::VarBaseT& Var);
 
 
     private:
@@ -93,6 +97,7 @@ class ModelDocAdapterT : public DocAdapterI
     void GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const;
     void OnMarkMaterial(EditorMaterialI* Mat) const;
     void OnReplaceMaterial(EditorMaterialI* Mat) const;
+    void UpdateAllObservers_Modified(const cf::TypeSys::VarBaseT& Var);
 
 
     private:

@@ -874,7 +874,7 @@ void GuiEditor::ChildFrameT::OnToolbar(wxCommandEvent& CE)
                 {
                     const float NewRotAngle = Rotation->Get() + (CE.GetId() == ID_TOOLBAR_WINDOW_ROTATE_CW ? 15.0f : 345.0f);
 
-                    SubCommands.PushBack(new CommandSetCompVarT<float>(m_GuiDocument, *Rotation, fmod(NewRotAngle, 360.0f)));
+                    SubCommands.PushBack(new CommandSetCompVarT<float>(m_GuiDocument->GetAdapter(), *Rotation, fmod(NewRotAngle, 360.0f)));
                 }
             }
 
@@ -911,7 +911,7 @@ void GuiEditor::ChildFrameT::OnToolbar(wxCommandEvent& CE)
                                               (CE.GetId() == ID_TOOLBAR_TEXT_ALIGN_CENTER) ? cf::GuiSys::ComponentTextT::VarTextAlignHorT::CENTER :
                                                                                              cf::GuiSys::ComponentTextT::VarTextAlignHorT::RIGHT;
 
-                        SubCommands.PushBack(new CommandSetCompVarT<int>(m_GuiDocument, *AlignHor, HOR_ALIGN));
+                        SubCommands.PushBack(new CommandSetCompVarT<int>(m_GuiDocument->GetAdapter(), *AlignHor, HOR_ALIGN));
                     }
                 }
             }

@@ -355,7 +355,7 @@ void WindowTreeT::OnTreeLeftClick(wxMouseEvent& ME)
 
         if (Show)
         {
-            m_Parent->SubmitCommand(new CommandSetCompVarT<bool>(m_GuiDocument, *Show, !Show->Get()));
+            m_Parent->SubmitCommand(new CommandSetCompVarT<bool>(m_GuiDocument->GetAdapter(), *Show, !Show->Get()));
             SetItemImage(ClickedItem, Show->Get() ? 0 : 1);   // Set the "is visible" or "is invisible" icon.
         }
 
@@ -400,7 +400,7 @@ void WindowTreeT::OnEndLabelEdit(wxTreeEvent& TE)
 
     if (Name)
     {
-        m_Parent->SubmitCommand(new CommandSetCompVarT<std::string>(m_GuiDocument, *Name, std::string(TE.GetLabel())));
+        m_Parent->SubmitCommand(new CommandSetCompVarT<std::string>(m_GuiDocument->GetAdapter(), *Name, std::string(TE.GetLabel())));
     }
 
     m_IsRecursiveSelfNotify=false;

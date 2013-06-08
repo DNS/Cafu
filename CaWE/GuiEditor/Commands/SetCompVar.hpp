@@ -26,25 +26,23 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Network/State.hpp"
 
 
+class DocAdapterI;
 namespace cf { namespace TypeSys { template<class T> class VarT; } }
 
 
 namespace GuiEditor
 {
-    class GuiDocumentT;
-
-
     template<class T>
     class CommandSetCompVarT : public CommandT
     {
         public:
 
         /// The constructor for setting the given variable to a new value.
-        CommandSetCompVarT(GuiDocumentT* GuiDoc, cf::TypeSys::VarT<T>& Var, const T& NewValue);
+        CommandSetCompVarT(DocAdapterI& DocAdapter, cf::TypeSys::VarT<T>& Var, const T& NewValue);
 
         /// The constructor to be used when the variable has already been set to the new value.
         /// With this constructor, the command is initialized in the "already done" state.
-        CommandSetCompVarT(GuiDocumentT* GuiDoc, cf::TypeSys::VarT<T>& Var, const cf::Network::StateT& OldState);
+        CommandSetCompVarT(DocAdapterI& DocAdapter, cf::TypeSys::VarT<T>& Var, const cf::Network::StateT& OldState);
 
         // CommandT implementation.
         bool Do();
@@ -54,7 +52,7 @@ namespace GuiEditor
 
         private:
 
-        GuiDocumentT*             m_GuiDoc;
+        DocAdapterI&              m_DocAdapter;
         cf::TypeSys::VarT<T>&     m_Var;
         const cf::Network::StateT m_OldState;
         const T                   m_NewValue;

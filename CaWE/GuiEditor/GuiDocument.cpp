@@ -46,7 +46,8 @@ GuiDocumentT::GuiDocumentT(GameConfigT* GameConfig, const wxString& GuiInitFileN
     : m_Gui(NULL),
       m_Selection(),
       m_EditorMaterials(),
-      m_GameConfig(GameConfig)
+      m_GameConfig(GameConfig),
+      m_DocAdapter(*this)
 {
     // Load GUI initialization script and create documents window hierarchy.
     if (GuiInitFileName!="")

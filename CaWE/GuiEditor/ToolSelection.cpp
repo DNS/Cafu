@@ -184,7 +184,7 @@ bool ToolSelectionT::OnLMouseUp(RenderWindowT* RenderWindow, wxMouseEvent& ME)
                 const Vector2fT NewValue = Pos->Get();
                 Pos->Set(m_WindowStates[SelNr].Position);
 
-                SubCommands.PushBack(new CommandSetCompVarT<Vector2fT>(m_GuiDocument, *Pos, NewValue));
+                SubCommands.PushBack(new CommandSetCompVarT<Vector2fT>(m_GuiDocument->GetAdapter(), *Pos, NewValue));
             }
 
             if (Size && Size->Get() != m_WindowStates[SelNr].Size)
@@ -192,7 +192,7 @@ bool ToolSelectionT::OnLMouseUp(RenderWindowT* RenderWindow, wxMouseEvent& ME)
                 const Vector2fT NewValue = Size->Get();
                 Size->Set(m_WindowStates[SelNr].Size);
 
-                SubCommands.PushBack(new CommandSetCompVarT<Vector2fT>(m_GuiDocument, *Size, NewValue));
+                SubCommands.PushBack(new CommandSetCompVarT<Vector2fT>(m_GuiDocument->GetAdapter(), *Size, NewValue));
             }
 
             if (RotAngle && RotAngle->Get() != m_WindowStates[SelNr].Rotation)
@@ -200,7 +200,7 @@ bool ToolSelectionT::OnLMouseUp(RenderWindowT* RenderWindow, wxMouseEvent& ME)
                 const float NewValue = RotAngle->Get();
                 RotAngle->Set(m_WindowStates[SelNr].Rotation);
 
-                SubCommands.PushBack(new CommandSetCompVarT<float>(m_GuiDocument, *RotAngle, NewValue));
+                SubCommands.PushBack(new CommandSetCompVarT<float>(m_GuiDocument->GetAdapter(), *RotAngle, NewValue));
             }
         }
 

@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "CompSelection.hpp"
 #include "ObserverPattern.hpp"
+#include "../DocumentAdapter.hpp"
 
 #include "GuiSys/GuiImpl.hpp"
 #include "GuiSys/Window.hpp"
@@ -66,6 +67,7 @@ namespace GuiEditor
 
         const ArrayT<EditorMaterialI*>& GetEditorMaterials() const { return m_EditorMaterials; }
         GameConfigT* GetGameConfig() { return m_GameConfig; }
+        GuiDocAdapterT& GetAdapter() { return m_DocAdapter; }
 
         bool SaveInit_cgui(std::ostream& OutFile);
 
@@ -82,6 +84,7 @@ namespace GuiEditor
         GuiPropertiesT                               m_GuiProperties;
         ArrayT<EditorMaterialI*>                     m_EditorMaterials; ///< One editor material for each material in the GUI (its material manager).
         GameConfigT*                                 m_GameConfig;
+        GuiDocAdapterT                               m_DocAdapter;      ///< Kept here because it sometimes needs the same lifetime as the GuiDocumentT itself, e.g. when referenced by a "material" property of the Window Inspector, or by commands in the command history.
     };
 }
 

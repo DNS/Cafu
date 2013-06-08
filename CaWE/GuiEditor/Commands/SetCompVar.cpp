@@ -43,8 +43,8 @@ namespace
 
 
 template<class T>
-CommandSetCompVarT<T>::CommandSetCompVarT(GuiDocumentT* GuiDoc, cf::TypeSys::VarT<T>& Var, const T& NewValue)
-    : m_GuiDoc(GuiDoc),
+CommandSetCompVarT<T>::CommandSetCompVarT(DocAdapterI& DocAdapter, cf::TypeSys::VarT<T>& Var, const T& NewValue)
+    : m_DocAdapter(DocAdapter),
       m_Var(Var),
       m_OldState(GetOldState(Var)),
       m_NewValue(NewValue)
@@ -53,8 +53,8 @@ CommandSetCompVarT<T>::CommandSetCompVarT(GuiDocumentT* GuiDoc, cf::TypeSys::Var
 
 
 template<class T>
-CommandSetCompVarT<T>::CommandSetCompVarT(GuiDocumentT* GuiDoc, cf::TypeSys::VarT<T>& Var, const cf::Network::StateT& OldState)
-    : m_GuiDoc(GuiDoc),
+CommandSetCompVarT<T>::CommandSetCompVarT(DocAdapterI& DocAdapter, cf::TypeSys::VarT<T>& Var, const cf::Network::StateT& OldState)
+    : m_DocAdapter(DocAdapter),
       m_Var(Var),
       m_OldState(OldState),
       m_NewValue(Var.Get())
@@ -71,7 +71,7 @@ bool CommandSetCompVarT<T>::Do()
 
     m_Var.Set(m_NewValue);
 
-    m_GuiDoc->UpdateAllObservers_Modified(m_Var);
+    m_DocAdapter.UpdateAllObservers_Modified(m_Var);
     m_Done=true;
     return true;
 }
@@ -90,7 +90,7 @@ void CommandSetCompVarT<T>::Undo()
     // A call like `m_Var.Set(m_OldValue);` would properly address only the former, but not the latter.
     m_Var.Deserialize(Stream);
 
-    m_GuiDoc->UpdateAllObservers_Modified(m_Var);
+    m_DocAdapter.UpdateAllObservers_Modified(m_Var);
     m_Done=false;
 }
 

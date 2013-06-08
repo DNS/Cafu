@@ -187,7 +187,7 @@ void WindowInspectorT::AppendComponent(IntrusivePtrT<cf::GuiSys::ComponentBaseT>
     CatProp->SetHelpString(Comp->GetType()->DocClass ? Comp->GetType()->DocClass : "");
     Append(CatProp);
 
-    VarVisitorAddPropT AddProp(*this, m_GuiDocument, Comp->GetType());
+    VarVisitorAddPropT AddProp(*this, m_GuiDocument->GetAdapter(), Comp->GetType());
 
     for (unsigned long VarNr = 0; VarNr < MemberVars.Size(); VarNr++)
         MemberVars[VarNr]->accept(AddProp);
@@ -267,10 +267,10 @@ void WindowInspectorT::OnPropertyGridChanging(wxPropertyGridEvent& Event)
     if (Var)
     {
         // Handle cases a1) and c1).
-        VarVisitorHandlePropChangingEventT PropChange(Event, m_Parent);
+        VarVisitorHandlePropChangingEventT PropChange(Event, m_GuiDocument->GetAdapter());
 
         Var->accept(PropChange);
-        if (!PropChange.Ok()) Event.Veto();
+        if (!m_Parent->SubmitCommand(PropChange.TransferCommand())) Event.Veto();
     }
     else
     {
@@ -280,10 +280,10 @@ void WindowInspectorT::OnPropertyGridChanging(wxPropertyGridEvent& Event)
 
         if (Var)
         {
-            VarVisitorHandleSubChangingEventT PropChange(Event, m_Parent);
+            VarVisitorHandleSubChangingEventT PropChange(Event, m_GuiDocument->GetAdapter());
 
             Var->accept(PropChange);
-            if (!PropChange.Ok()) Event.Veto();
+            if (!m_Parent->SubmitCommand(PropChange.TransferCommand())) Event.Veto();
         }
     }
 

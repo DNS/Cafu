@@ -87,9 +87,9 @@ namespace
         MaterialPropertyT(const wxString& label,
                           const wxString& name,
                           const wxString& value,
-                          GuiDocumentT* GuiDoc)
+                          DocAdapterI&    DocAdapter)
             : wxLongStringProperty(label, name, value),
-              m_GuiDocument(GuiDoc)
+              m_DocAdapter(DocAdapter)
         {
         }
 
@@ -97,7 +97,7 @@ namespace
         virtual bool OnButtonClick(wxPropertyGrid* propGrid, wxString& value)
         {
             EditorMaterialI*                InitMat = NULL;
-            const ArrayT<EditorMaterialI*>& EditorMaterials = m_GuiDocument->GetEditorMaterials();
+            const ArrayT<EditorMaterialI*>& EditorMaterials = m_DocAdapter.GetMaterials();
 
             for (unsigned long EMNr = 0; EMNr < EditorMaterials.Size(); EMNr++)
                 if (EditorMaterials[EMNr]->GetName() == value)
@@ -106,7 +106,7 @@ namespace
                     break;
                 }
 
-            MaterialBrowser::DialogT MatBrowser(GetGrid(), GuiDocAdapterT(*m_GuiDocument), MaterialBrowser::ConfigT()
+            MaterialBrowser::DialogT MatBrowser(GetGrid(), m_DocAdapter, MaterialBrowser::ConfigT()
                 .InitialMaterial(InitMat)
                 .NoFilterEditorMatsOnly()
                 .NoButtonMark()
@@ -124,7 +124,7 @@ namespace
 
         private:
 
-        GuiDocumentT* m_GuiDocument;
+        DocAdapterI& m_DocAdapter;
     };
 
 
@@ -178,9 +178,9 @@ namespace
 /*** VarVisitorAddPropT ***/
 /**************************/
 
-VarVisitorAddPropT::VarVisitorAddPropT(wxPropertyGridManager& PropMan, GuiDocumentT* GuiDoc, const cf::TypeSys::TypeInfoT* TI)
+VarVisitorAddPropT::VarVisitorAddPropT(wxPropertyGridManager& PropMan, DocAdapterI& DocAdapter, const cf::TypeSys::TypeInfoT* TI)
     : m_PropMan(PropMan),
-      m_GuiDoc(GuiDoc),
+      m_DocAdapter(DocAdapter),
       m_TI(TI)
 {
 }
@@ -303,7 +303,7 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT<std::string>& Var)
 
     if (Var.HasFlag("IsMaterial"))
     {
-        Prop = new MaterialPropertyT(Var.GetName(), wxString::Format("%p", &Var), Var.Get(), m_GuiDoc);
+        Prop = new MaterialPropertyT(Var.GetName(), wxString::Format("%p", &Var), Var.Get(), m_DocAdapter);
     }
     else if (Var.HasFlag("IsLongString"))
     {
@@ -545,12 +545,29 @@ void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT< ArrayT<std::string> >
 /*** VarVisitorHandlePropChangingEventT ***/
 /******************************************/
 
-VarVisitorHandlePropChangingEventT::VarVisitorHandlePropChangingEventT(wxPropertyGridEvent& Event, ChildFrameT* ChildFrame)
+VarVisitorHandlePropChangingEventT::VarVisitorHandlePropChangingEventT(wxPropertyGridEvent& Event, DocAdapterI& DocAdapter)
     : m_Event(Event),
-      m_ChildFrame(ChildFrame),
-      m_GuiDoc(ChildFrame->GetGuiDoc()),
-      m_Ok(false)
+      m_DocAdapter(DocAdapter),
+      m_Command(NULL)
 {
+}
+
+
+VarVisitorHandlePropChangingEventT::~VarVisitorHandlePropChangingEventT()
+{
+    // If m_Command != NULL, then TransferCommand() was not called and we're leaking memory.
+    wxASSERT(m_Command == NULL);
+}
+
+
+CommandT* VarVisitorHandlePropChangingEventT::TransferCommand()
+{
+    wxASSERT(m_Command);
+
+    CommandT* Cmd = m_Command;
+    m_Command = NULL;
+
+    return Cmd;
 }
 
 
@@ -558,7 +575,8 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<float>& Var)
 {
     const float f = m_Event.GetValue().GetDouble();
 
-    m_Ok = m_ChildFrame->SubmitCommand(new CommandSetCompVarT<float>(m_GuiDoc, Var, f));
+    wxASSERT(m_Command == NULL);
+    m_Command = new CommandSetCompVarT<float>(m_DocAdapter, Var, f);
 }
 
 
@@ -566,7 +584,8 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<double>& Var)
 {
     const double d = m_Event.GetValue().GetDouble();
 
-    m_Ok = m_ChildFrame->SubmitCommand(new CommandSetCompVarT<double>(m_GuiDoc, Var, d));
+    wxASSERT(m_Command == NULL);
+    m_Command = new CommandSetCompVarT<double>(m_DocAdapter, Var, d);
 }
 
 
@@ -574,7 +593,8 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<int>& Var)
 {
     const int i = m_Event.GetValue().GetLong();
 
-    m_Ok = m_ChildFrame->SubmitCommand(new CommandSetCompVarT<int>(m_GuiDoc, Var, i));
+    wxASSERT(m_Command == NULL);
+    m_Command = new CommandSetCompVarT<int>(m_DocAdapter, Var, i);
 }
 
 
@@ -582,7 +602,8 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<unsigned int>& 
 {
     const unsigned int ui = m_Event.GetValue().GetLong();   // Uh! There is no GetULong() method.
 
-    m_Ok = m_ChildFrame->SubmitCommand(new CommandSetCompVarT<unsigned int>(m_GuiDoc, Var, ui));
+    wxASSERT(m_Command == NULL);
+    m_Command = new CommandSetCompVarT<unsigned int>(m_DocAdapter, Var, ui);
 }
 
 
@@ -590,7 +611,8 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<bool>& Var)
 {
     const bool b = m_Event.GetValue().GetBool();
 
-    m_Ok = m_ChildFrame->SubmitCommand(new CommandSetCompVarT<bool>(m_GuiDoc, Var, b));
+    wxASSERT(m_Command == NULL);
+    m_Command = new CommandSetCompVarT<bool>(m_DocAdapter, Var, b);
 }
 
 
@@ -598,7 +620,8 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<std::string>& V
 {
     const std::string s = std::string(m_Event.GetValue().GetString());
 
-    m_Ok = m_ChildFrame->SubmitCommand(new CommandSetCompVarT<std::string>(m_GuiDoc, Var, s));
+    wxASSERT(m_Command == NULL);
+    m_Command = new CommandSetCompVarT<std::string>(m_DocAdapter, Var, s);
 }
 
 
@@ -623,7 +646,8 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<Vector2fT>& Var
 
     if (Tokenizer.HasMoreTokens()) return;
 
-    m_Ok = m_ChildFrame->SubmitCommand(new CommandSetCompVarT<Vector2fT>(m_GuiDoc, Var, v));
+    wxASSERT(m_Command == NULL);
+    m_Command = new CommandSetCompVarT<Vector2fT>(m_DocAdapter, Var, v);
 }
 
 
@@ -660,7 +684,8 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<Vector3fT>& Var
         if (Tokenizer.HasMoreTokens()) return;
     }
 
-    m_Ok = m_ChildFrame->SubmitCommand(new CommandSetCompVarT<Vector3fT>(m_GuiDoc, Var, v));
+    wxASSERT(m_Command == NULL);
+    m_Command = new CommandSetCompVarT<Vector3fT>(m_DocAdapter, Var, v);
 }
 
 
@@ -672,7 +697,8 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT< ArrayT<std::st
     while (Tokenizer.HasMoreTokens())
         A.PushBack(std::string(Tokenizer.GetNextToken()));
 
-    m_Ok = m_ChildFrame->SubmitCommand(new CommandSetCompVarT< ArrayT<std::string> >(m_GuiDoc, Var, A));
+    wxASSERT(m_Command == NULL);
+    m_Command = new CommandSetCompVarT< ArrayT<std::string> >(m_DocAdapter, Var, A);
 }
 
 
@@ -680,12 +706,29 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT< ArrayT<std::st
 /*** VarVisitorHandleSubChangingEventT ***/
 /*****************************************/
 
-VarVisitorHandleSubChangingEventT::VarVisitorHandleSubChangingEventT(wxPropertyGridEvent& Event, ChildFrameT* ChildFrame)
+VarVisitorHandleSubChangingEventT::VarVisitorHandleSubChangingEventT(wxPropertyGridEvent& Event, DocAdapterI& DocAdapter)
     : m_Event(Event),
-      m_ChildFrame(ChildFrame),
-      m_GuiDoc(ChildFrame->GetGuiDoc()),
-      m_Ok(false)
+      m_DocAdapter(DocAdapter),
+      m_Command(NULL)
 {
+}
+
+
+VarVisitorHandleSubChangingEventT::~VarVisitorHandleSubChangingEventT()
+{
+    // If m_Command != NULL, then TransferCommand() was not called and we're leaking memory.
+    wxASSERT(m_Command == NULL);
+}
+
+
+CommandT* VarVisitorHandleSubChangingEventT::TransferCommand()
+{
+    wxASSERT(m_Command);
+
+    CommandT* Cmd = m_Command;
+    m_Command = NULL;
+
+    return Cmd;
 }
 
 
@@ -707,7 +750,9 @@ void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<Vector2fT>& Var)
     if (i >= 2) return;
 
     v[i] = m_Event.GetValue().GetDouble();
-    m_Ok = m_ChildFrame->SubmitCommand(new CommandSetCompVarT<Vector2fT>(m_GuiDoc, Var, v));
+
+    wxASSERT(m_Command == NULL);
+    m_Command = new CommandSetCompVarT<Vector2fT>(m_DocAdapter, Var, v);
 }
 
 
@@ -722,7 +767,9 @@ void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<Vector3fT>& Var)
     if (i >= 3) return;
 
     v[i] = m_Event.GetValue().GetDouble();
-    m_Ok = m_ChildFrame->SubmitCommand(new CommandSetCompVarT<Vector3fT>(m_GuiDoc, Var, v));
+
+    wxASSERT(m_Command == NULL);
+    m_Command = new CommandSetCompVarT<Vector3fT>(m_DocAdapter, Var, v);
 }
 
 
