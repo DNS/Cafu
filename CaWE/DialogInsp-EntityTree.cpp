@@ -242,16 +242,6 @@ void InspDlgEntityTreeT::Notify_EntChanged(SubjectT* Subject, const ArrayT< Intr
 }
 
 
-void InspDlgEntityTreeT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail)
-{
-    if (Detail!=MEMD_ENTITY_CLASS_CHANGED) return;
-
-    if (IsRecursiveSelfNotify) return;
-
-    UpdateEntityListBox();
-}
-
-
 void InspDlgEntityTreeT::NotifySubjectDies(SubjectT* dyingSubject)
 {
     assert(dyingSubject==MapDoc);

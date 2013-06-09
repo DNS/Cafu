@@ -51,7 +51,6 @@ class MapPrimitiveT;
 enum MapElemModDetailE
 {
     MEMD_GENERIC,                   ///< Generic change of map elements (useful if the subject doesn't know what exactly has been changed).
-    MEMD_ENTITY_CLASS_CHANGED,      ///< An entities class has changed.
     MEMD_TRANSFORM,                 ///< A map element has been transformed.
     MEMD_PRIMITIVE_PROPS_CHANGED,   ///< The properties of a map primitve have been modified.
     MEMD_SURFACE_INFO_CHANGED,      ///< The surface info of a map element has changed. Note that surface info changes also include the selection of faces.
@@ -143,7 +142,6 @@ class ObserverT
     /// @param Subject    The map document in which the entities have been modified.
     /// @param Entities   List of modified map entities.
     /// @param Detail     Information about what has been modified.
-    /// @todo move MEMD_ENTITY_CLASS_CHANGED into general modification method.
     virtual void Notify_EntChanged(SubjectT* Subject, const ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> >& Entities, EntityModDetailE Detail) { }
     //@}
 

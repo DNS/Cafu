@@ -313,7 +313,7 @@ void InspDlgEntityPropsT::Notify_EntChanged(SubjectT* Subject, const ArrayT< Int
 
 void InspDlgEntityPropsT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail)
 {
-    if (Detail!=MEMD_ENTITY_CLASS_CHANGED && Detail!=MEMD_GENERIC) return;
+    if (Detail!=MEMD_GENERIC) return;
 
     if (IsRecursiveSelfNotify) return;
 

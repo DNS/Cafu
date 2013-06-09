@@ -46,11 +46,11 @@ bool CommandChangeClassT::Do()
 
     m_Entity->SetClass(m_NewClass);
 
-    ArrayT<MapElementT*> MapElements;
-    MapElements.PushBack(m_Entity->GetRepres());
+    ArrayT< IntrusivePtrT<CompMapEntityT> > MapEnts;
+    MapEnts.PushBack(m_Entity);
 
-    // This is a bit hacky: Should have a separate UpdateAllObservers_* method that takes a (array-of-)IntrusivePtrT<CompMapEntityT> parameter!
-    m_MapDoc.UpdateAllObservers_Modified(MapElements, MEMD_ENTITY_CLASS_CHANGED);
+    // Treat changes in entity class like any other (old-style) property change.
+    m_MapDoc.UpdateAllObservers_EntChanged(MapEnts, EMD_PROPERTIES);
 
     m_Done=true;
     return true;
@@ -67,11 +67,11 @@ void CommandChangeClassT::Undo()
     // Reset previous properties.
     m_Entity->GetProperties()=m_PrevProps;
 
-    ArrayT<MapElementT*> MapElements;
-    MapElements.PushBack(m_Entity->GetRepres());
+    ArrayT< IntrusivePtrT<CompMapEntityT> > MapEnts;
+    MapEnts.PushBack(m_Entity);
 
-    // This is a bit hacky: Should have a separate UpdateAllObservers_* method that takes a (array-of-)IntrusivePtrT<CompMapEntityT> parameter!
-    m_MapDoc.UpdateAllObservers_Modified(MapElements, MEMD_ENTITY_CLASS_CHANGED);
+    // Treat changes in entity class like any other (old-style) property change.
+    m_MapDoc.UpdateAllObservers_EntChanged(MapEnts, EMD_PROPERTIES);
 
     m_Done=false;
 }
