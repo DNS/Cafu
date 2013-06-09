@@ -22,10 +22,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "WindowInspector.hpp"
 #include "ChildFrame.hpp"
 #include "GuiDocument.hpp"
-#include "VarVisitors.hpp"
 #include "Commands/AddComponent.hpp"
 #include "Commands/DeleteComponent.hpp"
-#include "GuiSys/CompBase.hpp"
+
+#include "../VarVisitors.hpp"
 
 #include "wx/artprov.h"
 #include "wx/notifmsg.h"

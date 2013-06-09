@@ -20,19 +20,15 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "VarVisitors.hpp"
-#include "ChildFrame.hpp"
-#include "GuiDocument.hpp"
-#include "Commands/SetCompVar.hpp"
+#include "DocumentAdapter.hpp"
+#include "EditorMaterial.hpp"
+#include "SetCompVar.hpp"
+#include "MaterialBrowser/MaterialBrowserDialog.hpp"
 
-#include "../DocumentAdapter.hpp"
-#include "../EditorMaterial.hpp"
-#include "../MaterialBrowser/MaterialBrowserDialog.hpp"
+#include "TypeSys.hpp"
 
 #include "wx/propgrid/manager.h"
 #include "wx/propgrid/advprops.h"
-
-
-using namespace GuiEditor;
 
 
 namespace

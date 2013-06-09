@@ -19,10 +19,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef CAFU_GUIEDITOR_SET_COMPONENT_VARIABLE_HPP_INCLUDED
-#define CAFU_GUIEDITOR_SET_COMPONENT_VARIABLE_HPP_INCLUDED
+#ifndef CAFU_SET_COMPONENT_VARIABLE_HPP_INCLUDED
+#define CAFU_SET_COMPONENT_VARIABLE_HPP_INCLUDED
 
-#include "../../CommandPattern.hpp"
+#include "CommandPattern.hpp"
 #include "Network/State.hpp"
 
 
@@ -30,33 +30,30 @@ class DocAdapterI;
 namespace cf { namespace TypeSys { template<class T> class VarT; } }
 
 
-namespace GuiEditor
+template<class T>
+class CommandSetCompVarT : public CommandT
 {
-    template<class T>
-    class CommandSetCompVarT : public CommandT
-    {
-        public:
+    public:
 
-        /// The constructor for setting the given variable to a new value.
-        CommandSetCompVarT(DocAdapterI& DocAdapter, cf::TypeSys::VarT<T>& Var, const T& NewValue);
+    /// The constructor for setting the given variable to a new value.
+    CommandSetCompVarT(DocAdapterI& DocAdapter, cf::TypeSys::VarT<T>& Var, const T& NewValue);
 
-        /// The constructor to be used when the variable has already been set to the new value.
-        /// With this constructor, the command is initialized in the "already done" state.
-        CommandSetCompVarT(DocAdapterI& DocAdapter, cf::TypeSys::VarT<T>& Var, const cf::Network::StateT& OldState);
+    /// The constructor to be used when the variable has already been set to the new value.
+    /// With this constructor, the command is initialized in the "already done" state.
+    CommandSetCompVarT(DocAdapterI& DocAdapter, cf::TypeSys::VarT<T>& Var, const cf::Network::StateT& OldState);
 
-        // CommandT implementation.
-        bool Do();
-        void Undo();
-        wxString GetName() const;
+    // CommandT implementation.
+    bool Do();
+    void Undo();
+    wxString GetName() const;
 
 
-        private:
+    private:
 
-        DocAdapterI&              m_DocAdapter;
-        cf::TypeSys::VarT<T>&     m_Var;
-        const cf::Network::StateT m_OldState;
-        const T                   m_NewValue;
-    };
-}
+    DocAdapterI&              m_DocAdapter;
+    cf::TypeSys::VarT<T>&     m_Var;
+    const cf::Network::StateT m_OldState;
+    const T                   m_NewValue;
+};
 
 #endif

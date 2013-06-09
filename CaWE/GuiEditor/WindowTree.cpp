@@ -27,7 +27,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Commands/Create.hpp"
 #include "Commands/ModifyGui.hpp"
 #include "Commands/ChangeWindowHierarchy.hpp"
-#include "Commands/SetCompVar.hpp"
+
+#include "../SetCompVar.hpp"
 
 #include "GuiSys/Window.hpp"
 #include "Templates/Array.hpp"

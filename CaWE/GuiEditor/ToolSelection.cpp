@@ -28,9 +28,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Commands/Select.hpp"
 #include "Commands/Create.hpp"
 #include "Commands/Delete.hpp"
-#include "Commands/SetCompVar.hpp"
 
 #include "../CursorMan.hpp"
+#include "../SetCompVar.hpp"
 
 #include "Math3D/Angles.hpp"
 

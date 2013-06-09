@@ -20,12 +20,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "SetCompVar.hpp"
-#include "../GuiDocument.hpp"
-#include "GuiSys/Window.hpp"
+#include "DocumentAdapter.hpp"
 #include "Variables.hpp"
-
-
-using namespace GuiEditor;
 
 
 namespace

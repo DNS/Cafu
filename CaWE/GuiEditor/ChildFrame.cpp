@@ -33,10 +33,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Commands/Select.hpp"
 #include "Commands/ChangeWindowHierarchy.hpp"
 #include "Commands/Paste.hpp"
-#include "Commands/SetCompVar.hpp"
 
-#include "../ParentFrame.hpp"
 #include "../GameConfig.hpp"
+#include "../ParentFrame.hpp"
+#include "../SetCompVar.hpp"
 
 #include "GuiSys/AllComponents.hpp"
 #include "GuiSys/CompBase.hpp"
