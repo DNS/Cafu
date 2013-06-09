@@ -557,7 +557,7 @@ bool ToolSelectionT::OnMouseMove2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
                 // as the reference point for the transformation, not the transformation boxes center.
                 if (m_MapDoc.GetSelection().Size() == 1 && m_MapDoc.GetSelection()[0]->GetType() == &MapEntRepresT::TypeInfo)
                 {
-                    IntrusivePtrT<CompMapEntityT> Entity = static_cast<MapEntRepresT*>(m_MapDoc.GetSelection()[0])->GetParent();
+                    IntrusivePtrT<CompMapEntityT> Entity = m_MapDoc.GetSelection()[0]->GetParent();
 
                     if (!Entity->GetClass()->IsSolidClass() /*Entity->GetClass()->HasOrigin()*/)
                     {
@@ -922,7 +922,7 @@ void ToolSelectionT::NotifySubjectChanged_Modified(SubjectT* Subject, const Arra
 /// This is called when a property of an entity changed, such as the "model" property.
 /// As changes of such properties can have broad effects, such as changes in the bounding-boxes of the affected elements,
 /// we update accordingly.
-void ToolSelectionT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<CompMapEntityT> >& Entities, MapElemModDetailE Detail, const wxString& Key)
+void ToolSelectionT::Notify_EntChanged(SubjectT* Subject, const ArrayT< IntrusivePtrT<CompMapEntityT> >& Entities, EntityModDetailE Detail)
 {
     if (!IsActiveTool()) return;
 

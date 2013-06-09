@@ -59,7 +59,7 @@ bool CommandDeletePropertyT::Do()
     ArrayT< IntrusivePtrT<CompMapEntityT> > MapElements;
     MapElements.PushBack(m_Entity);
 
-    m_MapDoc.UpdateAllObservers_Modified(MapElements, MEMD_ENTITY_PROPERTY_DELETED, m_PropBackup.Key);
+    m_MapDoc.UpdateAllObservers_EntChanged(MapElements, EMD_PROPERTIES);
 
     m_Done=true;
     return true;
@@ -76,7 +76,7 @@ void CommandDeletePropertyT::Undo()
     ArrayT< IntrusivePtrT<CompMapEntityT> > MapElements;
     MapElements.PushBack(m_Entity);
 
-    m_MapDoc.UpdateAllObservers_Modified(MapElements, MEMD_ENTITY_PROPERTY_CREATED, m_PropBackup.Key);
+    m_MapDoc.UpdateAllObservers_EntChanged(MapElements, EMD_PROPERTIES);
 
     m_Done=false;
 }

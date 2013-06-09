@@ -236,7 +236,7 @@ void InspDlgEntityTreeT::NotifySubjectChanged_Deleted(SubjectT* Subject, const A
 }
 
 
-void InspDlgEntityTreeT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<CompMapEntityT> >& Entities, MapElemModDetailE Detail, const wxString& Key)
+void InspDlgEntityTreeT::Notify_EntChanged(SubjectT* Subject, const ArrayT< IntrusivePtrT<CompMapEntityT> >& Entities, EntityModDetailE Detail)
 {
     UpdateEntityListBox();
 }

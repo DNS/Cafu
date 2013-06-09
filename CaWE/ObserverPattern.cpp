@@ -117,10 +117,10 @@ void SubjectT::UpdateAllObservers_Modified(const ArrayT<MapElementT*>& MapElemen
 }
 
 
-void SubjectT::UpdateAllObservers_Modified(const ArrayT< IntrusivePtrT<CompMapEntityT> >& Entities, MapElemModDetailE Detail, const wxString& Key)
+void SubjectT::UpdateAllObservers_EntChanged(const ArrayT< IntrusivePtrT<CompMapEntityT> >& Entities, EntityModDetailE Detail)
 {
-    for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
-        m_Observers[ObsNr]->NotifySubjectChanged_Modified(this, Entities, Detail, Key);
+    for (unsigned long ObsNr = 0; ObsNr < m_Observers.Size(); ObsNr++)
+        m_Observers[ObsNr]->Notify_EntChanged(this, Entities, Detail);
 }
 
 

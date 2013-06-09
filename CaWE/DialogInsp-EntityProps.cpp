@@ -295,7 +295,7 @@ void InspDlgEntityPropsT::NotifySubjectChanged_Deleted(SubjectT* Subject, const 
 }
 
 
-void InspDlgEntityPropsT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<CompMapEntityT> >& Entities, MapElemModDetailE Detail, const wxString& Key)
+void InspDlgEntityPropsT::Notify_EntChanged(SubjectT* Subject, const ArrayT< IntrusivePtrT<CompMapEntityT> >& Entities, EntityModDetailE Detail)
 {
     if (IsRecursiveSelfNotify) return;
 
@@ -884,7 +884,7 @@ void InspDlgEntityPropsT::OnPropertyGridChanged(wxPropertyGridEvent& event)
                 wxMessageBox("Entities have different entity classes.", "Error: Couldn't change entity class.", wxOK | wxICON_ERROR);
 
                 // Intentionally update also this dialog to restore previous property value. TODO: Can the event be vetoed instead?
-                NotifySubjectChanged_Modified(MapDoc, SelectedEntities, MEMD_ENTITY_PROPERTY_MODIFIED, "");
+                Notify_EntChanged(MapDoc, SelectedEntities, EMD_PROPERTIES);
                 return;
             }
         }
@@ -896,7 +896,7 @@ void InspDlgEntityPropsT::OnPropertyGridChanged(wxPropertyGridEvent& event)
             wxMessageBox("Could not find entity class \""+NewValue+"\" in the game config.", "Error: Couldn't change entity class.", wxOK | wxICON_ERROR);
 
             // Intentionally update also this dialog to restore previous property value. TODO: Can the event be vetoed instead?
-            NotifySubjectChanged_Modified(MapDoc, SelectedEntities, MEMD_ENTITY_PROPERTY_MODIFIED, "");
+            Notify_EntChanged(MapDoc, SelectedEntities, EMD_PROPERTIES);
             return;
         }
 
@@ -928,7 +928,7 @@ void InspDlgEntityPropsT::OnPropertyGridChanged(wxPropertyGridEvent& event)
                     || SelectedEntities[i]->FindProperty(Key)==NULL)
                 {
                     wxMessageBox("Value is not defined by all entities.", "Error: Couldn't change property value.", wxOK | wxICON_ERROR);
-                    NotifySubjectChanged_Modified(MapDoc, SelectedEntities, MEMD_ENTITY_PROPERTY_MODIFIED, ""); // Intentionally update also this dialog to restore previous property value.
+                    Notify_EntChanged(MapDoc, SelectedEntities, EMD_PROPERTIES); // Intentionally update also this dialog to restore previous property value.
                     return;
                 }
             }
@@ -939,7 +939,7 @@ void InspDlgEntityPropsT::OnPropertyGridChanged(wxPropertyGridEvent& event)
                     || SelectedEntities[i]->GetClass()->FindVar(Key)->GetType()!=SelectedEntities[0]->GetClass()->FindVar(Key)->GetType())
                 {
                     wxMessageBox("Value is not defined by all entities or hasn't the same type.", "Error: Couldn't change property value.", wxOK | wxICON_ERROR);
-                    NotifySubjectChanged_Modified(MapDoc, SelectedEntities, MEMD_ENTITY_PROPERTY_MODIFIED, ""); // Intentionally update also this dialog to restore previous property value.
+                    Notify_EntChanged(MapDoc, SelectedEntities, EMD_PROPERTIES); // Intentionally update also this dialog to restore previous property value.
                     return;
                 }
             }
@@ -957,7 +957,7 @@ void InspDlgEntityPropsT::OnPropertyGridChanged(wxPropertyGridEvent& event)
             if (SelectedEntities.Size()>1)
             {
                 wxMessageBox("Unique keys can only be changed if one entity is selected.", "Error: Couldn't change unique key.", wxOK | wxICON_ERROR);
-                NotifySubjectChanged_Modified(MapDoc, SelectedEntities, MEMD_ENTITY_PROPERTY_MODIFIED, ""); // Intentionally update also this dialog to restore previous property value.
+                Notify_EntChanged(MapDoc, SelectedEntities, EMD_PROPERTIES); // Intentionally update also this dialog to restore previous property value.
                 return;
             }
 
@@ -976,7 +976,7 @@ void InspDlgEntityPropsT::OnPropertyGridChanged(wxPropertyGridEvent& event)
                 {
                     // Set value in property grid to old value and return.
                     wxMessageBox("This unique value is already used by another entity.", "Error: Couldn't change unique key.", wxOK | wxICON_ERROR);
-                    NotifySubjectChanged_Modified(MapDoc, SelectedEntities, MEMD_ENTITY_PROPERTY_MODIFIED, ""); // Intentionally update also this dialog to restore previous property value.
+                    Notify_EntChanged(MapDoc, SelectedEntities, EMD_PROPERTIES); // Intentionally update also this dialog to restore previous property value.
                     return;
                 }
             }
@@ -999,7 +999,7 @@ void InspDlgEntityPropsT::OnPropertyGridChanged(wxPropertyGridEvent& event)
     if (!MapDoc->GetHistory().SubmitCommand(MacroCommand) || event.GetProperty()->GetName()=="classname")
     {
         IsRecursiveSelfNotify=false;
-        NotifySubjectChanged_Modified(MapDoc, SelectedEntities, MEMD_ENTITY_PROPERTY_MODIFIED, "");
+        Notify_EntChanged(MapDoc, SelectedEntities, EMD_PROPERTIES);
         return;
     }
 

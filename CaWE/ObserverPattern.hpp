@@ -51,16 +51,19 @@ class MapPrimitiveT;
 enum MapElemModDetailE
 {
     MEMD_GENERIC,                   ///< Generic change of map elements (useful if the subject doesn't know what exactly has been changed).
- // MEMD_ENTITY_PROPERTY,
-    MEMD_ENTITY_PROPERTY_CREATED,   ///< A new property has been created for an entity.
-    MEMD_ENTITY_PROPERTY_DELETED,   ///< A property has been deleted from an entity.
-    MEMD_ENTITY_PROPERTY_MODIFIED,  ///< An entities property has been modified.
     MEMD_ENTITY_CLASS_CHANGED,      ///< An entities class has changed.
     MEMD_TRANSFORM,                 ///< A map element has been transformed.
     MEMD_PRIMITIVE_PROPS_CHANGED,   ///< The properties of a map primitve have been modified.
     MEMD_SURFACE_INFO_CHANGED,      ///< The surface info of a map element has changed. Note that surface info changes also include the selection of faces.
     MEMD_ASSIGN_PRIM_TO_ENTITY,     ///< A map primitive has been assigned to another entity (the world or any custom entity).
     MEMD_VISIBILITY                 ///< The visibility of a map element has changed.
+};
+
+enum EntityModDetailE
+{
+    EMD_PROPERTIES      ///< The (old-style, pre-component-system) set of properties has changed.
+  //EMD_GENERIC,        ///< Generic change of entities (useful if the subject doesn't know what exactly has been changed).
+  //EMD_HIERARCHY       ///< The position of an entity in the entity hierarchy has been changed.
 };
 
 enum MapDocOtherDetailT
@@ -139,11 +142,9 @@ class ObserverT
 
     /// @param Subject    The map document in which the entities have been modified.
     /// @param Entities   List of modified map entities.
-    /// @param Detail     Information about what has been modified:
-    ///                   Can be one of MEMD_ENTITY_PROPERTY_CREATED, MEMD_ENTITY_PROPERTY_DELETED, MEMD_ENTITY_PROPERTY_MODIFIED or MEMD_ENTITY_CLASS_CHANGED.
-    /// @param Key        Holds the keyname of the changed property or an empty string if Detail is MEMD_ENTITY_CLASS_CHANGED.
+    /// @param Detail     Information about what has been modified.
     /// @todo move MEMD_ENTITY_CLASS_CHANGED into general modification method.
-    virtual void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> >& Entities, MapElemModDetailE Detail, const wxString& Key) { }
+    virtual void Notify_EntChanged(SubjectT* Subject, const ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> >& Entities, EntityModDetailE Detail) { }
     //@}
 
     //############################################
@@ -182,6 +183,9 @@ class SubjectT
     //###################################################################################################################################
     //# New observer notifications methods. These methods differ from the basic observer pattern from the GoF and are CaWE specific!    #
     //# For detailed comments on the parameters, see the equivalent methods in ObserverT                                                #
+    //#                                                                                                                                 #
+    //#         TODO: Why are these methods *virtual*???                                                                                #
+    //#                                                                                                                                 #
     //###################################################################################################################################
     virtual void UpdateAllObservers(MapDocOtherDetailT OtherDetail);
     virtual void UpdateAllObservers_SelectionChanged(const ArrayT<MapElementT*>& OldSelection, const ArrayT<MapElementT*>& NewSelection);
@@ -192,7 +196,7 @@ class SubjectT
     virtual void UpdateAllObservers_Deleted(const ArrayT<MapPrimitiveT*>& Primitives);
     virtual void UpdateAllObservers_Modified(const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail);
     virtual void UpdateAllObservers_Modified(const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const ArrayT<BoundingBox3fT>& OldBounds);
-    virtual void UpdateAllObservers_Modified(const ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> >& Entities, MapElemModDetailE Detail, const wxString& Key);
+    virtual void UpdateAllObservers_EntChanged(const ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> >& Entities, EntityModDetailE Detail);
     //############################################
     //# End of new observer notification methods #
     //############################################

@@ -244,8 +244,10 @@ void ViewWindow2DT::NotifySubjectChanged_Modified(SubjectT* Subject, const Array
 }
 
 
-void ViewWindow2DT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<CompMapEntityT> >& Entities, MapElemModDetailE Detail, const wxString& Key)
+void ViewWindow2DT::Notify_EntChanged(SubjectT* Subject, const ArrayT< IntrusivePtrT<CompMapEntityT> >& Entities, EntityModDetailE Detail)
 {
+// TODO: These days, changes in properties don't bother us. Changes in cf::TypeSys::VarT variables do.
+/*
     if ((Detail==MEMD_ENTITY_PROPERTY_CREATED || Detail==MEMD_ENTITY_PROPERTY_DELETED || Detail==MEMD_ENTITY_PROPERTY_MODIFIED) && (Key=="angles" || Key=="name"))
     {
         wxASSERT(Entities.Size() > 0);
@@ -263,6 +265,7 @@ void ViewWindow2DT::NotifySubjectChanged_Modified(SubjectT* Subject, const Array
 
         RefreshRect(wxRect(WorldToWindow(ElementBounds.Min), WorldToWindow(ElementBounds.Max)));
     }
+*/
 }
 
 
