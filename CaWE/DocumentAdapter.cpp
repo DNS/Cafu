@@ -83,8 +83,9 @@ void MapDocAdapterT::OnReplaceMaterial(EditorMaterialI* Mat) const
 }
 
 
-void MapDocAdapterT::UpdateAllObservers_Modified(const cf::TypeSys::VarBaseT& Var)
+void MapDocAdapterT::UpdateAllObservers_VarChanged(const cf::TypeSys::VarBaseT& Var)
 {
+    m_MapDoc.UpdateAllObservers_VarChanged(Var);
 }
 
 
@@ -145,7 +146,7 @@ void GuiDocAdapterT::OnReplaceMaterial(EditorMaterialI* Mat) const
 }
 
 
-void GuiDocAdapterT::UpdateAllObservers_Modified(const cf::TypeSys::VarBaseT& Var)
+void GuiDocAdapterT::UpdateAllObservers_VarChanged(const cf::TypeSys::VarBaseT& Var)
 {
     m_GuiDoc.UpdateAllObservers_Modified(Var);
 }
@@ -201,6 +202,6 @@ void ModelDocAdapterT::OnReplaceMaterial(EditorMaterialI* Mat) const
 }
 
 
-void ModelDocAdapterT::UpdateAllObservers_Modified(const cf::TypeSys::VarBaseT& Var)
+void ModelDocAdapterT::UpdateAllObservers_VarChanged(const cf::TypeSys::VarBaseT& Var)
 {
 }

@@ -246,8 +246,8 @@ void ViewWindow2DT::NotifySubjectChanged_Modified(SubjectT* Subject, const Array
 
 void ViewWindow2DT::Notify_EntChanged(SubjectT* Subject, const ArrayT< IntrusivePtrT<CompMapEntityT> >& Entities, EntityModDetailE Detail)
 {
-// TODO: These days, changes in properties don't bother us. Changes in cf::TypeSys::VarT variables do.
-/*
+    // TODO: These days, changes in entity properties or components don't bother us. Changes in cf::TypeSys::VarT variables do.
+#if 0
     if ((Detail==MEMD_ENTITY_PROPERTY_CREATED || Detail==MEMD_ENTITY_PROPERTY_DELETED || Detail==MEMD_ENTITY_PROPERTY_MODIFIED) && (Key=="angles" || Key=="name"))
     {
         wxASSERT(Entities.Size() > 0);
@@ -265,7 +265,21 @@ void ViewWindow2DT::Notify_EntChanged(SubjectT* Subject, const ArrayT< Intrusive
 
         RefreshRect(wxRect(WorldToWindow(ElementBounds.Min), WorldToWindow(ElementBounds.Max)));
     }
-*/
+#endif
+}
+
+
+void ViewWindow2DT::Notify_VarChanged(SubjectT* Subject, const cf::TypeSys::VarBaseT& Var)
+{
+    if (strcmp(Var.GetName(), "Name") != 0 &&       // A variable of the Basics component?
+        strcmp(Var.GetName(), "Show") != 0 &&
+        strcmp(Var.GetName(), "Origin") != 0 &&     // A variable of the Transform component?
+        strcmp(Var.GetName(), "Orientation") != 0) return;
+
+    // Unfortunately, it seems that there is little we can do to restrict the refresh area, is there?
+    // It would help performance if we refreshed only those parts that need it, but as we don't even
+    // know the *old* value of Var, it is probably not reliably possible to figure them out.
+    Refresh(false);
 }
 
 

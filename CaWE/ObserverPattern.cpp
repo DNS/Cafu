@@ -124,6 +124,13 @@ void SubjectT::UpdateAllObservers_EntChanged(const ArrayT< IntrusivePtrT<CompMap
 }
 
 
+void SubjectT::UpdateAllObservers_VarChanged(const cf::TypeSys::VarBaseT& Var)
+{
+    for (unsigned long ObsNr = 0; ObsNr < m_Observers.Size(); ObsNr++)
+        m_Observers[ObsNr]->Notify_VarChanged(this, Var);
+}
+
+
 SubjectT::~SubjectT()
 {
     for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)

@@ -937,6 +937,22 @@ void ToolSelectionT::Notify_EntChanged(SubjectT* Subject, const ArrayT< Intrusiv
 }
 
 
+void ToolSelectionT::Notify_VarChanged(SubjectT* Subject, const cf::TypeSys::VarBaseT& Var)
+{
+    if (!IsActiveTool()) return;
+    if (strcmp(Var.GetName(), "Origin") != 0 && strcmp(Var.GetName(), "Orientation") != 0) return;
+
+    // Just assume that Var is a variable of an entity that is in the selection,
+    // because updating ourselves to the current selection is really all that we can do.
+
+    // Update our transformation box according to the new selection.
+    UpdateTrafoBox();
+
+    // Notify all observers that this tool changed.
+    m_ToolMan.UpdateAllObservers(this, UPDATE_SOON);
+}
+
+
 void ToolSelectionT::NotifySubjectDies(SubjectT* dyingSubject)
 {
     // We should never get here, since the map document always dies after the tool.

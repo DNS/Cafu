@@ -39,6 +39,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 namespace cf { namespace GameSys { class EntityT; } }
+namespace cf { namespace TypeSys { class VarBaseT; } }
 namespace MapEditor { class CompMapEntityT; }
 class SubjectT;
 class MapElementT;
@@ -143,6 +144,11 @@ class ObserverT
     /// @param Entities   List of modified map entities.
     /// @param Detail     Information about what has been modified.
     virtual void Notify_EntChanged(SubjectT* Subject, const ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> >& Entities, EntityModDetailE Detail) { }
+
+    /// Notifies the observer that a variable has changed.
+    /// @param Subject   The map document in which a variable has changed.
+    /// @param Var       The variable whose value has changed.
+    virtual void Notify_VarChanged(SubjectT* Subject, const cf::TypeSys::VarBaseT& Var) { }
     //@}
 
     //############################################
@@ -195,6 +201,7 @@ class SubjectT
     virtual void UpdateAllObservers_Modified(const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail);
     virtual void UpdateAllObservers_Modified(const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const ArrayT<BoundingBox3fT>& OldBounds);
     virtual void UpdateAllObservers_EntChanged(const ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> >& Entities, EntityModDetailE Detail);
+    virtual void UpdateAllObservers_VarChanged(const cf::TypeSys::VarBaseT& Var);
     //############################################
     //# End of new observer notification methods #
     //############################################

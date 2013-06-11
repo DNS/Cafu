@@ -67,7 +67,7 @@ bool CommandSetCompVarT<T>::Do()
 
     m_Var.Set(m_NewValue);
 
-    m_DocAdapter.UpdateAllObservers_Modified(m_Var);
+    m_DocAdapter.UpdateAllObservers_VarChanged(m_Var);
     m_Done=true;
     return true;
 }
@@ -86,7 +86,7 @@ void CommandSetCompVarT<T>::Undo()
     // A call like `m_Var.Set(m_OldValue);` would properly address only the former, but not the latter.
     m_Var.Deserialize(Stream);
 
-    m_DocAdapter.UpdateAllObservers_Modified(m_Var);
+    m_DocAdapter.UpdateAllObservers_VarChanged(m_Var);
     m_Done=false;
 }
 
