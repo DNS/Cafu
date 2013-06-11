@@ -138,7 +138,7 @@ bool ToolNewTerrainT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
             return true;
         }
 
-        MaterialBrowser::DialogT MatBrowser(&ViewWindow, MapDocAdapterT(m_MapDoc), MaterialBrowser::ConfigT()
+        MaterialBrowser::DialogT MatBrowser(&ViewWindow, m_MapDoc.GetAdapter(), MaterialBrowser::ConfigT()
             .InitialMaterial(NULL)  // No initial material.
             .InitialNameFilter("Terrains"));
 
@@ -167,7 +167,7 @@ bool ToolNewTerrainT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
                          "Press OK now to select the material to be applied.\n"
                          "Press Cancel to create no walls and no ceiling.", "Select material for walls and ceiling", wxOK | wxCANCEL)==wxOK)
         {
-            MaterialBrowser::DialogT MatBrowser(&ViewWindow, MapDocAdapterT(m_MapDoc), MaterialBrowser::ConfigT()
+            MaterialBrowser::DialogT MatBrowser(&ViewWindow, m_MapDoc.GetAdapter(), MaterialBrowser::ConfigT()
                 .InitialMaterial(NULL)  // No initial material.
                 .InitialNameFilter("sky"));
 

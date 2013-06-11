@@ -22,8 +22,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_MAP_DOCUMENT_HPP_INCLUDED
 #define CAFU_MAP_DOCUMENT_HPP_INCLUDED
 
-#include "ObserverPattern.hpp"
 #include "CommandHistory.hpp"
+#include "DocumentAdapter.hpp"
+#include "ObserverPattern.hpp"
+
 #include "Math3D/Angles.hpp"
 #include "Plants/PlantDescrMan.hpp"
 #include "Templates/Array.hpp"
@@ -101,6 +103,7 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     void                           SetChildFrame(ChildFrameT* ChildFrame) { m_ChildFrame=ChildFrame; }   // This should be in the ctor!
     ChildFrameT*                   GetChildFrame() const { return m_ChildFrame; }
     const wxString&                GetFileName() const   { return m_FileName; }
+    MapDocAdapterT&                GetAdapter() { return m_DocAdapter; }
     cf::GameSys::WorldT&           GetScriptWorld() { return *m_ScriptWorld; }
 
     /// Returns all entities that exist in this map. The world entity is always first at index 0, followed by an arbitrary number of "regular" entities.
@@ -176,6 +179,7 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
 
     ChildFrameT*                 m_ChildFrame;          ///< The child frame within which this document lives.
     wxString                     m_FileName;            ///< This documents file name.
+    MapDocAdapterT               m_DocAdapter;          ///< Kept here because it sometimes needs the same lifetime as the MapDocumentT itself, e.g. when referenced by a "material" property of the Entity Inspector, or by commands in the command history.
     cf::GameSys::WorldT*         m_ScriptWorld;         ///< The "script world" contains the entity hierarchy and their components. Each m_Entities member has a pointer to its related instance herein.
     OrthoBspTreeT*               m_BspTree;             ///< The BSP tree that spatially organizes the map elements in the m_MapWorld.
     GameConfigT*                 m_GameConfig;          ///< The game configuration that is used with this map.

@@ -233,7 +233,7 @@ void MaterialsToolbarT::OnButtonBrowse(wxCommandEvent& Event)
 {
     int Index=ChoiceCurrentMat->GetSelection();
 
-    MaterialBrowser::DialogT MatBrowser(this, MapDocAdapterT(*m_MapDoc), MaterialBrowser::ConfigT()
+    MaterialBrowser::DialogT MatBrowser(this, m_MapDoc->GetAdapter(), MaterialBrowser::ConfigT()
         .InitialMaterial(Index!=-1 ? (EditorMaterialI*)ChoiceCurrentMat->GetClientData(Index) : NULL));
 
     if (MatBrowser.ShowModal()!=wxID_OK) return;

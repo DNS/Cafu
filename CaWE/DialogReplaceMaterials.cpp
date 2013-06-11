@@ -233,7 +233,7 @@ void ReplaceMaterialsDialogT::OnOK(wxCommandEvent& Event)
 
 void ReplaceMaterialsDialogT::OnButtonBrowseFind(wxCommandEvent& Event)
 {
-    MaterialBrowser::DialogT MatBrowser(this, MapDocAdapterT(m_MapDoc), MaterialBrowser::ConfigT()
+    MaterialBrowser::DialogT MatBrowser(this, m_MapDoc.GetAdapter(), MaterialBrowser::ConfigT()
         .InitialMaterial(m_MapDoc.GetGameConfig()->GetMatMan().FindMaterial(TextCtrlFindMatName->GetValue(), false))
         .OnlyShowUsed());
 
@@ -244,7 +244,7 @@ void ReplaceMaterialsDialogT::OnButtonBrowseFind(wxCommandEvent& Event)
 
 void ReplaceMaterialsDialogT::OnButtonBrowseReplace(wxCommandEvent& Event)
 {
-    MaterialBrowser::DialogT MatBrowser(this, MapDocAdapterT(m_MapDoc), MaterialBrowser::ConfigT()
+    MaterialBrowser::DialogT MatBrowser(this, m_MapDoc.GetAdapter(), MaterialBrowser::ConfigT()
         .InitialMaterial(m_MapDoc.GetGameConfig()->GetMatMan().FindMaterial(TextCtrlReplaceMatName->GetValue(), false)));
 
     if (MatBrowser.ShowModal()==wxID_OK)
