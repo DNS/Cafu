@@ -20,6 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "ObserverPattern.hpp"
+#include "CompMapEntity.hpp"
 
 
 using namespace MapEditor;
@@ -121,6 +122,26 @@ void SubjectT::UpdateAllObservers_EntChanged(const ArrayT< IntrusivePtrT<CompMap
 {
     for (unsigned long ObsNr = 0; ObsNr < m_Observers.Size(); ObsNr++)
         m_Observers[ObsNr]->Notify_EntChanged(this, Entities, Detail);
+}
+
+
+void SubjectT::UpdateAllObservers_EntChanged(const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities, EntityModDetailE Detail)
+{
+    ArrayT< IntrusivePtrT<CompMapEntityT> > MapEnts;
+
+    for (unsigned long EntNr = 0; EntNr < Entities.Size(); EntNr++)
+        MapEnts.PushBack(GetMapEnt(Entities[EntNr]));
+
+    UpdateAllObservers_EntChanged(MapEnts, Detail);
+}
+
+
+void SubjectT::UpdateAllObservers_EntChanged(IntrusivePtrT<cf::GameSys::EntityT> Entity, EntityModDetailE Detail)
+{
+    ArrayT< IntrusivePtrT<CompMapEntityT> > MapEnts;
+    MapEnts.PushBack(GetMapEnt(Entity));
+
+    UpdateAllObservers_EntChanged(MapEnts, Detail);
 }
 
 

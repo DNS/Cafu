@@ -61,9 +61,9 @@ enum MapElemModDetailE
 
 enum EntityModDetailE
 {
-    EMD_PROPERTIES      ///< The (old-style, pre-component-system) set of properties has changed.
-  //EMD_GENERIC,        ///< Generic change of entities (useful if the subject doesn't know what exactly has been changed).
-  //EMD_HIERARCHY       ///< The position of an entity in the entity hierarchy has been changed.
+    EMD_PROPERTIES,     ///< The (old-style, pre-component-system) set of properties has changed.
+    EMD_COMPONENTS      ///< The set of components has changed (e.g. added, deleted, order changed).
+  //EMD_HIERARCHY       ///< The position of an entity in the entity hierarchy has changed.
 };
 
 enum MapDocOtherDetailT
@@ -201,6 +201,8 @@ class SubjectT
     virtual void UpdateAllObservers_Modified(const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail);
     virtual void UpdateAllObservers_Modified(const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const ArrayT<BoundingBox3fT>& OldBounds);
     virtual void UpdateAllObservers_EntChanged(const ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> >& Entities, EntityModDetailE Detail);
+    virtual void UpdateAllObservers_EntChanged(const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities, EntityModDetailE Detail);
+    virtual void UpdateAllObservers_EntChanged(IntrusivePtrT<cf::GameSys::EntityT> Entity, EntityModDetailE Detail);
     virtual void UpdateAllObservers_VarChanged(const cf::TypeSys::VarBaseT& Var);
     //############################################
     //# End of new observer notification methods #
