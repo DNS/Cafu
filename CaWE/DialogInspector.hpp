@@ -26,13 +26,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/panel.h"
 
 
-class wxNotebook;
+namespace MapEditor { class EntityInspectorT; }
 class InspDlgEntityTreeT;
 class InspDlgEntityPropsT;
 class InspDlgPrimitivePropsT;
 class InspDlgMapScriptT;
 class MapDocumentT;
 class MapElementT;
+class wxNotebook;
 
 
 class InspectorDialogT : public wxPanel
@@ -49,11 +50,12 @@ class InspectorDialogT : public wxPanel
 
     private:
 
-    wxNotebook*             Notebook;
-    InspDlgEntityTreeT*     EntityTree;
-    InspDlgEntityPropsT*    EntityProps;
-    InspDlgPrimitivePropsT* PrimitiveProps;
-    InspDlgMapScriptT*      MapScript;
+    wxNotebook*                  Notebook;
+    InspDlgEntityTreeT*          EntityTree;
+    MapEditor::EntityInspectorT* m_EntityInspector;
+    InspDlgEntityPropsT*         EntityProps;
+    InspDlgPrimitivePropsT*      PrimitiveProps;
+    InspDlgMapScriptT*           MapScript;
 };
 
 #endif

@@ -156,6 +156,7 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     //@{
     void                        SetSelection(const ArrayT<MapElementT*>& NewSelection);
     const ArrayT<MapElementT*>& GetSelection() const { return m_Selection; }
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > GetSelectedEntities() const;
     const BoundingBox3fT&       GetMostRecentSelBB() const;     ///< Returns the most recent bounding-box of the selection. That is, it returns the bounding-box of the current selection, or (if nothing is selected) the bounding-box of the previous selection.
     //@}
 

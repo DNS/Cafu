@@ -1196,6 +1196,18 @@ void MapDocumentT::SetSelection(const ArrayT<MapElementT*>& NewSelection)
 }
 
 
+ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > MapDocumentT::GetSelectedEntities() const
+{
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > SelEnts;
+
+    for (unsigned long SelNr = 0; SelNr < m_Selection.Size(); SelNr++)
+        if (m_Selection[SelNr]->GetType() == &MapEntRepresT::TypeInfo)
+            SelEnts.PushBack(m_Selection[SelNr]->GetParent()->GetEntity());
+
+    return SelEnts;
+}
+
+
 void MapDocumentT::GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const
 {
     const ArrayT< IntrusivePtrT<CompMapEntityT> >& MapEntities = GetEntities();

@@ -24,36 +24,60 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "DialogInsp-EntityProps.hpp"
 #include "DialogInsp-PrimitiveProps.hpp"
 #include "DialogInsp-MapScript.hpp"
+#include "EntityInspector.hpp"
 #include "MapDocument.hpp"
 #include "MapEntRepres.hpp"
 
 #include "wx/notebook.h"
 
 
+using namespace MapEditor;
+
+
 InspectorDialogT::InspectorDialogT(wxWindow* Parent, MapDocumentT* MapDoc)
     : wxPanel(Parent, -1),
+      Notebook(NULL),
       EntityTree(NULL),
+      m_EntityInspector(NULL),
       EntityProps(NULL),
       MapScript(NULL)
 {
     wxSizer* mainSizer=new wxBoxSizer(wxVERTICAL);
 
-    Notebook      =new wxNotebook(this, -1, wxDefaultPosition, wxSize(350, 450));
+    Notebook          = new wxNotebook(this, -1, wxDefaultPosition, wxSize(350, 450));
 
-    EntityTree    =new InspDlgEntityTreeT    (Notebook, MapDoc);
-    EntityProps   =new InspDlgEntityPropsT   (Notebook, MapDoc);
-    PrimitiveProps=new InspDlgPrimitivePropsT(Notebook, MapDoc);
-    MapScript     =new InspDlgMapScriptT     (Notebook, MapDoc);
+    EntityTree        = new InspDlgEntityTreeT    (Notebook, MapDoc);
+    m_EntityInspector = new EntityInspectorT      (Notebook, MapDoc->GetChildFrame(), wxSize(300, 200));
+    EntityProps       = new InspDlgEntityPropsT   (Notebook, MapDoc);
+    PrimitiveProps    = new InspDlgPrimitivePropsT(Notebook, MapDoc);
+    MapScript         = new InspDlgMapScriptT     (Notebook, MapDoc);
 
-    Notebook->AddPage(EntityTree,     "Entity Report");
-    Notebook->AddPage(EntityProps,    "Properties");
-    Notebook->AddPage(PrimitiveProps, "Primitive Properties");
-    Notebook->AddPage(MapScript,      "Map Script");
+    Notebook->AddPage(EntityTree,        "Entity Report");
+    Notebook->AddPage(m_EntityInspector, "Entity Inspector");
+    Notebook->AddPage(EntityProps,       "Properties");
+    Notebook->AddPage(PrimitiveProps,    "Primitive Properties");
+    Notebook->AddPage(MapScript,         "Map Script");
 
     mainSizer->Add(Notebook, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 2);
 
     this->SetSizer(mainSizer);
     mainSizer->SetSizeHints(this);
+
+    // The following code is analogous to the GUI Editor's child frame,
+    // where observers don't register themselves at the document automatically.
+    // In contrast, most observers in the Map Editor register themselves and run the initial update themselves.
+    // I'm not sure why this is so, and which variant is "best".
+    // Does the GUI Editor's child frame's Show() call play a role? See (A) below.
+
+    // Register observers.
+    MapDoc->RegisterObserver(m_EntityInspector);
+
+    // This is code from the GUI Editor's child frame; see (A) above.
+    // if (!IsMaximized()) Maximize(true);     // Also have wxMAXIMIZE set as frame style.
+    // Show(true);
+
+    // Initial update of the gui documents observers.
+    m_EntityInspector->RefreshPropGrid();
 }
 
 
@@ -74,7 +98,7 @@ int InspectorDialogT::GetBestPage(const ArrayT<MapElementT*>& Selection) const
     {
         MapElementT* MapElement=Selection[0];
 
-        return (MapElement->GetType() == &MapEntRepresT::TypeInfo) ? 1 : 2;
+        return (MapElement->GetType() == &MapEntRepresT::TypeInfo) ? 1 : 3;
     }
     else
     {
@@ -95,6 +119,6 @@ int InspectorDialogT::GetBestPage(const ArrayT<MapElementT*>& Selection) const
             }
         }
 
-        return HaveEntities ? 1 : 2;
+        return HaveEntities ? 1 : 3;
     }
 }
