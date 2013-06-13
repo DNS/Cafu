@@ -110,6 +110,14 @@ void EntityInspectorT::NotifySubjectChanged_Modified(SubjectT* Subject, const Ar
             RefreshPropGrid();
             break;
         }
+
+        case MEMD_PRIMITIVE_PROPS_CHANGED:  // Intentional fall-through.
+        case MEMD_SURFACE_INFO_CHANGED:
+        case MEMD_ASSIGN_PRIM_TO_ENTITY:
+        {
+            // Neither of these affects the entity inspector.
+            break;
+        }
     }
 }
 
