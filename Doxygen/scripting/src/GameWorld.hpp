@@ -1,0 +1,86 @@
+namespace Game
+{
+
+
+/**
+ * This class represents the world that is defined in a `.cent` script file as a whole.
+ * Its methods affect the entire world, not just a single entity of its entity hierarchy.
+ * (The new() method described below is an exception: It is used to create new entities and new components.)
+ *
+ * Note that you never create WorldT instances yourself:
+ * Instead, each game script accesses the global `world` variable that is automatically predefined.
+ * Thus, the methods of the WorldT class are always used like this:
+ * @code
+ *     -- The "world" object is a predefined global variable.
+ *     world:someMethod(true)
+ * @endcode
+ */
+class WorldT
+{
+    public:
+
+    /// This method creates new game entities or new entity components.
+    ///
+    /// @par Example
+    /// \code{.lua}
+    ///     --// Create a new EntityT instance and set its object name.
+    ///     local soldier1 = gui:new("EntityT", "Alex")
+    ///
+    ///     --// Create another entity, but set its name in a separate step.
+    ///     local soldier2 = gui:new("EntityT")
+    ///     soldier2:GetBasics():set("Name", "Bob")
+    ///
+    ///     --// Create some components and add them to soldier1.
+    ///     local c1 = gui:new("ComponentTextT")
+    ///     c1:set("Text", "OK")
+    ///     c1:set("hor. Align", 0)
+    ///
+    ///     local c2 = gui:new("ComponentBorderT")
+    ///     c2:set("Width", 0.6)
+    ///
+    ///     local c3 = gui:new("ComponentImageT")
+    ///     c3:set("Alpha", 0.5)
+    ///
+    ///     soldier1:AddComponent(c1, c2, c3)
+    /// \endcode
+    ///
+    /// @param class_name
+    ///     The name of the class of which an object should be created.
+    ///     Use `"EntityT"` in order to create a new EntityT.
+    ///     Use any class name from the ComponentBaseT hierarchy in order to create a new component,
+    ///     for example `"ComponentModelT"` in order to create a new model component.
+    ///
+    /// @param inst_name
+    ///     The name that the newly created entity instance is assigned.
+    ///     Specifying a name for an entity is equivalent to setting the `Name` attribute of its Basics component;
+    ///     see the example above and ComponentBasicsT.Name for details.
+    ///     Setting a proper entity instance name is important so that other script code can unambiguously find
+    ///     and identify the entity by name later. The CaWE %Map Editor also uses it in order to automatically create
+    ///     the initialization script code in the `.cent` files.
+    ///     This parameter is not used (and in fact ignored) for components, which have no individual object names.
+    ///
+    /// @returns The newly created object.
+    any new(string class_name, string inst_name="");
+
+    /// Sets the root entity for this world.
+    /// If you use the %Map Editor that is part of the CaWE application, a proper call to this method is automatically included in the generated files.
+    /// @param ent   The entity that is set as the root entity of this world.
+    SetRootEntity(EntityT ent);
+
+    /// This method calls the `OnInit()` script methods of all entities.
+    ///
+    /// Normally, the `OnInit()` callback is automatically called for each entity as soon as the
+    /// `.cent` file has been read. That is, there is an automatic implicit call to Init()
+    /// at the end of the `.cent` script.
+    /// However, sometimes that's not enough, and you need all the entities' `OnInit()` methods already
+    /// run e.g. at the top of the `.cent` script, e.g. in order to make sure that all components
+    /// of all entities have been created, so that in `.cent` you can grab their instances and
+    /// attach callback methods to them.
+    /// In this case, call Init() manually at the top of `.cent`.
+    /// (It automatically makes sure not to initialize things twice when called multiple times.)
+    // /// See `DeathMatch/GUIs/MainMenu/MainMenu_main.cgui` for an example.
+    Init();
+};
+
+
+}   // namespace Game

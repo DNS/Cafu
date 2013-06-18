@@ -541,6 +541,163 @@ namespace
             Out << "    " << Visitor.GetLuaType() << " " << Var.GetName() << ";\n";
         }
     }
+
+
+    // Write template file for the given cf::GameSys::EntityT or cf::GuiSys::WindowT hierarchy.
+    void WriteObjectHierarchy(const char* FileName, cf::TypeSys::TypeInfoManT& TIM, const char* ScriptNamespace, const char* CppNamespace)
+    {
+        std::ofstream Out(FileName);
+
+        if (!Out.is_open()) return;
+
+        Out << "namespace " << ScriptNamespace << "\n";
+        Out << "{\n";
+
+        const ArrayT<const cf::TypeSys::TypeInfoT*>& TIs = TIM.GetTypeInfosByName();
+
+        for (unsigned int TypeNr = 0; TypeNr < TIs.Size(); TypeNr++)
+        {
+            const cf::TypeSys::TypeInfoT* TI = TIs[TypeNr];
+
+            Out << "\n\n";
+            Out << FormatDoxyComment(TI->DocClass, "");
+
+            const std::string InfoNew = (&TIM == &cf::GuiSys::GetWindowTIM()) ?
+                std::string(
+                    "\n"
+                    "If you would like to create a new window explicitly "
+                    "(those defined in the CaWE %GUI Editor are instantiated automatically), "  // Don't auto-link "GUI".
+                    "use GuiT::new():\n"
+                    "\\code{.lua}\n"
+                    "    local win = gui:new(\"") + TI->ClassName + std::string("\", \"my_window\")\n"
+                    "\\endcode\n") :
+                std::string(
+                    "\n"
+                    "If you would like to create a new entity explicitly "
+                    "(those defined in the CaWE %Map Editor are instantiated automatically), "  // Don't auto-link "Map".
+                    "use WorldT::new():\n"
+                    "\\code{.lua}\n"
+                    "    local entity = world:new(\"") + TI->ClassName + std::string("\", \"my_entity\")\n"
+                    "\\endcode\n");
+
+            if (!TI->Child)   // Only do this for "leaf" classes.
+                Out << FormatDoxyComment(InfoNew.c_str(), "");
+
+            // We need this so that the "Event Handlers (Callbacks)" group is not made a sub-group of
+            // "Public Member Functions", but at the same level (next to it) instead.
+            Out << "/// @nosubgrouping\n";
+
+            Out << "/// @cppName{cf," << CppNamespace << "," << TI->ClassName << "}\n";
+            Out << "class " << TI->ClassName;
+            if (TI->Base) Out << " : public " << TI->BaseClassName;
+            Out << "\n";
+            Out << "{\n";
+
+            WriteDoxyMethods(Out, TI);
+            WriteDoxyCallbacks(Out, TI);
+
+            Out << "};\n";
+        }
+
+        Out << "\n";
+        Out << "\n";
+        Out << "}   // namespace " << ScriptNamespace << "\n";
+    }
+
+
+    // Write template file for the cf::GameSys::ComponentBaseT or cf::GuiSys::ComponentBaseT hierarchy.
+    void WriteComponentHierarchy(const char* FileName, cf::TypeSys::TypeInfoManT& TIM, const char* ScriptNamespace, const char* CppNamespace)
+    {
+        std::ofstream Out(FileName);
+
+        if (!Out.is_open()) return;
+
+        Out << "namespace " << ScriptNamespace << "\n";
+        Out << "{\n";
+
+        const ArrayT<const cf::TypeSys::TypeInfoT*>& TIs = TIM.GetTypeInfosByName();
+
+        for (unsigned int TypeNr = 0; TypeNr < TIs.Size(); TypeNr++)
+        {
+            const cf::TypeSys::TypeInfoT* TI = TIs[TypeNr];
+
+            // Skip the CaWE implementation-specific component.
+            if (strcmp(TI->ClassName, "ComponentSelectionT") == 0)
+                continue;
+
+            Out << "\n\n";
+            Out << FormatDoxyComment(TI->DocClass, "");
+
+            if (TI->DocVars)
+            {
+                Out << FormatDoxyComment("\n"
+                    "Note that the variables of this class (also referred to as \"Public Attributes\" or \"Member Data\")\n"
+                    "must be used with the get() and set() methods at this time -- see get() and set() for details.", "");
+            }
+
+            const std::string InfoNew = (&TIM == &cf::GuiSys::GetComponentTIM()) ?
+                std::string(
+                    "\n"
+                    "If you would like to create a new component of this type explicitly "
+                    "(those defined in the CaWE %GUI Editor are instantiated automatically), "  // Don't auto-link "GUI".
+                    "use GuiT::new():\n"
+                    "\\code{.lua}\n"
+                    "    local comp = gui:new(\"") + TI->ClassName + std::string("\")\n"
+                    "\\endcode\n") :
+                std::string(
+                    "\n"
+                    "If you would like to create a new component of this type explicitly "
+                    "(those defined in the CaWE %Map Editor are instantiated automatically), "  // Don't auto-link "Map".
+                    "use WorldT::new():\n"
+                    "\\code{.lua}\n"
+                    "    local comp = world:new(\"") + TI->ClassName + std::string("\")\n"
+                    "\\endcode\n");
+
+            if (!TI->Child)   // Only do this for "leaf" classes.
+                Out << FormatDoxyComment(InfoNew.c_str(), "");
+
+            // We need this so that the "Event Handlers (Callbacks)" group is not made a sub-group of
+            // "Public Member Functions", but at the same level (next to it) instead.
+            Out << "/// @nosubgrouping\n";
+
+            Out << "/// @cppName{cf," << CppNamespace << "," << TI->ClassName << "}\n";
+            Out << "class " << TI->ClassName;
+            if (TI->Base) Out << " : public " << TI->BaseClassName;
+            Out << "\n";
+            Out << "{\n";
+
+            WriteDoxyMethods(Out, TI);
+            WriteDoxyCallbacks(Out, TI);
+
+            // Write variables.
+            if (&TIM == &cf::GuiSys::GetComponentTIM())
+            {
+                IntrusivePtrT<cf::GuiSys::ComponentBaseT> Comp = static_cast<cf::GuiSys::ComponentBaseT*>(
+                    TI->CreateInstance(
+                        cf::TypeSys::CreateParamsT()));
+
+                cf::TypeSys::VarManT& VarMan = Comp->GetMemberVars();
+
+                WriteDoxyVars(Out, VarMan, TI);
+            }
+            else if (&TIM == &cf::GameSys::GetComponentTIM())
+            {
+                IntrusivePtrT<cf::GameSys::ComponentBaseT> Comp = static_cast<cf::GameSys::ComponentBaseT*>(
+                    TI->CreateInstance(
+                        cf::TypeSys::CreateParamsT()));
+
+                cf::TypeSys::VarManT& VarMan = Comp->GetMemberVars();
+
+                WriteDoxyVars(Out, VarMan, TI);
+            }
+
+            Out << "};\n"; Out.flush();
+        }
+
+        Out << "\n";
+        Out << "\n";
+        Out << "}   // namespace " << ScriptNamespace << "\n";
+    }
 }
 
 
@@ -550,127 +707,9 @@ namespace
 /// related reference documentation.
 void AppCaWE::WriteLuaDoxygenHeaders() const
 {
-    // Write template file for the cf::GuiSyS::WindowT hierarchy.
-    {
-        std::ofstream Out("Doxygen/scripting/tmpl/GuiWindows.hpp");
+    WriteObjectHierarchy("Doxygen/scripting/tmpl/GameEntities.hpp", cf::GameSys::GetGameSysEntityTIM(), "Game", "GameSys");
+    WriteComponentHierarchy("Doxygen/scripting/tmpl/GameComponents.hpp", cf::GameSys::GetComponentTIM(), "Game", "GameSys");
 
-        if (Out.is_open())
-        {
-            Out << "namespace GUI\n";
-            Out << "{\n";
-
-            const ArrayT<const cf::TypeSys::TypeInfoT*>& TIs = cf::GuiSys::GetWindowTIM().GetTypeInfosByName();
-
-            for (unsigned int TypeNr = 0; TypeNr < TIs.Size(); TypeNr++)
-            {
-                const cf::TypeSys::TypeInfoT* TI = TIs[TypeNr];
-
-                Out << "\n\n";
-                Out << FormatDoxyComment(TI->DocClass, "");
-
-                const std::string InfoNew = std::string(
-                    "\n"
-                    "If you would like to create a new window explicitly "
-                    "(those defined in the CaWE %GUI Editor are instantiated automatically),"   // Don't auto-link "GUI".
-                    "use GuiT::new():\n"
-                    "\\code{.lua}\n"
-                    "    local win = gui:new(\"") + TI->ClassName + std::string("\", \"my_window\")\n"
-                    "\\endcode\n");
-
-                if (!TI->Child)   // Only do this for "leaf" classes.
-                    Out << FormatDoxyComment(InfoNew.c_str(), "");
-
-                // We need this so that the "Event Handlers (Callbacks)" group is not made a sub-group of
-                // "Public Member Functions", but at the same level (next to it) instead.
-                Out << "/// @nosubgrouping\n";
-
-                Out << "/// @cppName{cf,GuiSys," << TI->ClassName << "}\n";
-                Out << "class " << TI->ClassName;
-                if (TI->Base) Out << " : public " << TI->BaseClassName;
-                Out << "\n";
-                Out << "{\n";
-
-                WriteDoxyMethods(Out, TI);
-                WriteDoxyCallbacks(Out, TI);
-
-                Out << "};\n";
-            }
-
-            Out << "\n";
-            Out << "\n";
-            Out << "}   // namespace GUI\n";
-        }
-    }
-
-    // Write template file for the cf::GuiSyS::ComponentBaseT hierarchy.
-    {
-        std::ofstream Out("Doxygen/scripting/tmpl/GuiComponents.hpp");
-
-        if (Out.is_open())
-        {
-            Out << "namespace GUI\n";
-            Out << "{\n";
-
-            const ArrayT<const cf::TypeSys::TypeInfoT*>& TIs = cf::GuiSys::GetComponentTIM().GetTypeInfosByName();
-
-            for (unsigned int TypeNr = 0; TypeNr < TIs.Size(); TypeNr++)
-            {
-                const cf::TypeSys::TypeInfoT* TI = TIs[TypeNr];
-
-                // Skip the CaWE implementation-specific component.
-                if (strcmp(TI->ClassName, "ComponentSelectionT") == 0)
-                    continue;
-
-                Out << "\n\n";
-                Out << FormatDoxyComment(TI->DocClass, "");
-
-                if (TI->DocVars)
-                {
-                    Out << FormatDoxyComment("\n"
-                        "Note that the variables of this class (also referred to as \"Public Attributes\" or \"Member Data\")\n"
-                        "must be used with the get() and set() methods at this time -- see get() and set() for details.", "");
-                }
-
-                const std::string InfoNew = std::string(
-                    "\n"
-                    "If you would like to create a new component of this type explicitly "
-                    "(those defined in the CaWE %GUI Editor are instantiated automatically),"   // Don't auto-link "GUI".
-                    "use GuiT::new():\n"
-                    "\\code{.lua}\n"
-                    "    local comp = gui:new(\"") + TI->ClassName + std::string("\")\n"
-                    "\\endcode\n");
-
-                if (!TI->Child)   // Only do this for "leaf" classes.
-                    Out << FormatDoxyComment(InfoNew.c_str(), "");
-
-                // We need this so that the "Event Handlers (Callbacks)" group is not made a sub-group of
-                // "Public Member Functions", but at the same level (next to it) instead.
-                Out << "/// @nosubgrouping\n";
-
-                Out << "/// @cppName{cf,GuiSys," << TI->ClassName << "}\n";
-                Out << "class " << TI->ClassName;
-                if (TI->Base) Out << " : public " << TI->BaseClassName;
-                Out << "\n";
-                Out << "{\n";
-
-                WriteDoxyMethods(Out, TI);
-                WriteDoxyCallbacks(Out, TI);
-
-                // Write variables.
-                IntrusivePtrT<cf::GuiSys::ComponentBaseT> Comp = static_cast<cf::GuiSys::ComponentBaseT*>(
-                    TI->CreateInstance(
-                        cf::TypeSys::CreateParamsT()));
-
-                cf::TypeSys::VarManT& VarMan = Comp->GetMemberVars();
-
-                WriteDoxyVars(Out, VarMan, TI);
-
-                Out << "};\n"; Out.flush();
-            }
-
-            Out << "\n";
-            Out << "\n";
-            Out << "}   // namespace GUI\n";
-        }
-    }
+    WriteObjectHierarchy("Doxygen/scripting/tmpl/GuiWindows.hpp", cf::GuiSys::GetWindowTIM(), "GUI", "GuiSys");
+    WriteComponentHierarchy("Doxygen/scripting/tmpl/GuiComponents.hpp", cf::GuiSys::GetComponentTIM(), "GUI", "GuiSys");
 }

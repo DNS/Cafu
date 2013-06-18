@@ -451,7 +451,7 @@ void EntityInspectorT::OnPropertyGridRightClick(wxPropertyGridEvent& Event)
     AppendMI(Menu, ID_MENU_PASTE_COMPONENT, "Paste Component", wxART_PASTE, false);
     Menu.AppendSeparator();
     AppendMI(Menu, ID_MENU_REMOVE_COMPONENT, "Remove Component", wxART_DELETE, IsCustom);
-    AppendMI(Menu, ID_MENU_HELP_COMPONENT, "Help", "help-browser", false /* inactive, because not yet implemented (TODO!) */);
+    AppendMI(Menu, ID_MENU_HELP_COMPONENT, "Help", "help-browser", true);
 
     switch (GetPopupMenuSelectionFromUser(Menu))
     {
@@ -502,13 +502,11 @@ void EntityInspectorT::OnPropertyGridRightClick(wxPropertyGridEvent& Event)
 
         case ID_MENU_HELP_COMPONENT:
         {
-#if 0       // TODO: This is the code for GUI Window components, needs to be updated for Game Entity components!
-            const wxString URL = wxString("http://api.cafu.de/scripting/classGUI_1_1") + wxString(Comp->GetType()->ClassName) + ".html";
+            const wxString URL = wxString("http://api.cafu.de/scripting/classGame_1_1") + wxString(Comp->GetType()->ClassName) + ".html";
 
             if (!wxLaunchDefaultBrowser(URL))
                 wxMessageBox("Could not open the help URL in your default browser.", URL, wxOK | wxICON_ERROR);
 
-#endif
             break;
         }
     }

@@ -9,7 +9,7 @@ namespace GUI
 /// Each window essentially represents a rectangular shape, but only has very little features of its own.
 /// Instead, a window contains a set of components, each of which implements a specific feature for the window.
 ///
-/// If you would like to create a new window explicitly (those defined in the CaWE %GUI Editor are instantiated automatically),use GuiT::new():
+/// If you would like to create a new window explicitly (those defined in the CaWE %GUI Editor are instantiated automatically), use GuiT::new():
 /// \code{.lua}
 ///     local win = gui:new("WindowT", "my_window")
 /// \endcode
