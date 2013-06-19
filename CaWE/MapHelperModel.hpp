@@ -28,7 +28,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/string.h"
 
 
-class HelperInfoT;
 class Renderer2DT;
 class Renderer3DT;
 
@@ -41,7 +40,7 @@ class MapHelperModelT : public MapHelperT
     public:
 
     /// The constructor.
-    MapHelperModelT(MapEntRepresT& Repres, const HelperInfoT* HelperInfo);
+    MapHelperModelT(MapEntRepresT& Repres);
 
     /// The copy constructor for copying a model.
     /// @param Model   The model to copy-construct this model from.
@@ -64,7 +63,6 @@ class MapHelperModelT : public MapHelperT
     void UpdateModelCache() const;
     int  GetSequenceNr() const;
 
-    const HelperInfoT*                       m_HelperInfo;  ///< The HelperInfoT instance that caused the instantiation of this helper.
     mutable const CafuModelT*                m_Model;       ///< Our model (obtained from the game config's model manager).
     mutable IntrusivePtrT<AnimExpressionT>   m_AnimExpr;    ///< The current expression used for configuring the pose of the model.
     mutable IntrusivePtrT<AnimExprStandardT> m_LastStdAE;   ///< The most recent standard expression that we set (as a subexpression of m_AnimExpr).

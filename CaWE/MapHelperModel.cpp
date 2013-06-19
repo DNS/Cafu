@@ -23,7 +23,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Camera.hpp"
 #include "ChildFrameViewWin3D.hpp"
 #include "CompMapEntity.hpp"
-#include "EntityClass.hpp"
 #include "GameConfig.hpp"
 #include "LuaAux.hpp"
 #include "MapDocument.hpp"
@@ -42,9 +41,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Renderer.hpp"
 
 
-MapHelperModelT::MapHelperModelT(MapEntRepresT& Repres, const HelperInfoT* HelperInfo)
+MapHelperModelT::MapHelperModelT(MapEntRepresT& Repres)
     : MapHelperT(Repres),
-      m_HelperInfo(HelperInfo),
       m_Model(NULL),
       m_AnimExpr(),
       m_LastStdAE(),
@@ -57,7 +55,6 @@ MapHelperModelT::MapHelperModelT(MapEntRepresT& Repres, const HelperInfoT* Helpe
 
 MapHelperModelT::MapHelperModelT(const MapHelperModelT& Model)
     : MapHelperT(Model),
-      m_HelperInfo(Model.m_HelperInfo),
       m_Model(NULL),    // Don't start with Model.m_Model, so that m_AnimExpr and m_LastStdAE are properly inited in UpdateModelCache().
       m_AnimExpr(),
       m_LastStdAE(),
@@ -210,18 +207,10 @@ void MapHelperModelT::UpdateModelCache() const
     wxString ModelName="";
     wxString ErrorMsg ="";
 
-    if (m_HelperInfo->Parameters.Size() > 0)
-    {
-        ModelName=m_HelperInfo->Parameters[0];
-    }
-    else
-    {
-        // If we weren't passed a model name as an argument, get it from our parent entity's "model" property.
-        // Calling FindProperty() each render frame is not particularly efficient...
-        const EntPropertyT* ModelProp = m_Repres.GetParent()->FindProperty("model");
+    // Calling FindProperty() each render frame is not particularly efficient...
+    const EntPropertyT* ModelProp = m_Repres.GetParent()->FindProperty("model");
 
-        if (ModelProp) ModelName=ModelProp->Value;
-    }
+    if (ModelProp) ModelName=ModelProp->Value;
 
     const CafuModelT* Model=GameConfig.GetModel(ModelName, &ErrorMsg);
 

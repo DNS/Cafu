@@ -40,8 +40,7 @@ EntityClassT::EntityClassT(const GameConfigT& GameConfig, lua_State* LuaState)
       m_BoundingBox(Vector3fT(-8, -8, -8), Vector3fT(8, 8, 8)),
       m_Solid(false),
       m_Point(false),
-      m_Variables(),
-      m_Helpers()
+      m_Variables()
 {
     // The key at stack index -2 is the name of the class.
     if (lua_type(LuaState, -2)!=LUA_TSTRING) throw InitErrorT();
@@ -140,45 +139,8 @@ EntityClassT::EntityClassT(const GameConfigT& GameConfig, lua_State* LuaState)
         }
         else if (Key=="helpers")
         {
-            lua_pushnil(LuaState);  // The initial key for the traversal.
-
-            while (lua_next(LuaState, -2)!=0)
-            {
-                if (lua_type(LuaState, -2)!=LUA_TSTRING)
-                {
-                    // Just skip table entries whose keys are not of type string.
-                    lua_pop(LuaState, 1);
-                    continue;
-                }
-
-                HelperInfoT* Helper=new HelperInfoT;
-                Helper->Name=lua_tostring(LuaState, -2);
-
-                if (lua_isstring(LuaState, -1))
-                {
-                    Helper->Parameters.PushBack(lua_tostring(LuaState, -1));
-                }
-                else if (lua_istable(LuaState, -1))
-                {
-                    lua_pushnil(LuaState);  // The initial key for the traversal.
-
-                    while (lua_next(LuaState, -2)!=0)
-                    {
-                        const char* Param=lua_tostring(LuaState, -1);
-
-                        if (Param!=NULL)
-                            Helper->Parameters.PushBack(Param);
-
-                        // Remove the value, keep the key for the next iteration.
-                        lua_pop(LuaState, 1);
-                    }
-                }
-
-                m_Helpers.PushBack(Helper);
-
-                // Remove the value, keep the key for the next iteration.
-                lua_pop(LuaState, 1);
-            }
+            // With the introduction of the component-system for entities,
+            // helpers are no longer needed.
         }
         else
         {
@@ -190,7 +152,6 @@ EntityClassT::EntityClassT(const GameConfigT& GameConfig, lua_State* LuaState)
             catch (const EntClassVarT::InitErrorT&)
             {
                 for (unsigned long VarNr=0; VarNr<m_Variables.Size(); VarNr++) delete m_Variables[VarNr];
-                for (unsigned long HlpNr=0; HlpNr<m_Helpers  .Size(); HlpNr++) delete m_Helpers  [HlpNr];
 
                 throw InitErrorT();
             }
@@ -212,8 +173,7 @@ EntityClassT::EntityClassT(const GameConfigT& GameConfig, const wxString& Name, 
       m_BoundingBox(Vector3fT(-8, -8, -8), Vector3fT(8, 8, 8)),
       m_Solid(!HasOrigin),
       m_Point(HasOrigin),
-      m_Variables(),
-      m_Helpers()
+      m_Variables()
 {
 }
 
@@ -221,7 +181,6 @@ EntityClassT::EntityClassT(const GameConfigT& GameConfig, const wxString& Name, 
 EntityClassT::~EntityClassT()
 {
     for (unsigned long VarNr=0; VarNr<m_Variables.Size(); VarNr++) delete m_Variables[VarNr];
-    for (unsigned long HlpNr=0; HlpNr<m_Helpers  .Size(); HlpNr++) delete m_Helpers  [HlpNr];
 }
 
 

@@ -197,17 +197,6 @@ GameConfigT::GameConfigT(wxFileConfig& CfgFile, const wxString& Name_, const wxS
 
         if (EC->IsSolidClass()) out+="isSolid, ";
 
-        out+="Helpers: ";
-        for (unsigned long HNr=0; HNr<EC->GetHelpers().Size(); HNr++)
-        {
-            const HelperInfoT* HI=EC->GetHelpers()[HNr];
-
-            out+=HI->Name+"(";
-            for (unsigned long PNr=0; PNr<HI->Parameters.Size(); PNr++) out+=HI->Parameters[PNr]+" ";
-            out+=") ";
-        }
-        out+="\n";
-
         // out+="Vars:\n";
         for (unsigned long VarNr=0; VarNr<EC->GetVariables().Size(); VarNr++)
         {

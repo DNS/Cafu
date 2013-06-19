@@ -32,15 +32,6 @@ class GameConfigT;
 struct lua_State;
 
 
-class HelperInfoT
-{
-    public:
-
-    wxString         Name;
-    ArrayT<wxString> Parameters;
-};
-
-
 class EntityClassT
 {
     public:
@@ -78,8 +69,6 @@ class EntityClassT
     const EntClassVarT* FindVar(const wxString& Name, unsigned long* Index=NULL) const;
     const ArrayT<const EntClassVarT*>& GetVariables() const { return m_Variables; }
 
-    const ArrayT<const HelperInfoT*>& GetHelpers() const { return m_Helpers; }
-
 
     private:
 
@@ -93,7 +82,6 @@ class EntityClassT
     bool                        m_Point;        ///< Point class, not tied to solids.
 
     ArrayT<const EntClassVarT*> m_Variables;    ///< Variables for this class.
-    ArrayT<const HelperInfoT*>  m_Helpers;      ///< Helpers for this class.
 };
 
 #endif

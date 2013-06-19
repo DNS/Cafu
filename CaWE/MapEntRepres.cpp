@@ -93,9 +93,7 @@ void MapEntRepresT::Update()
 
     if (m_Parent->FindProperty("model"))
     {
-        static const HelperInfoT HelperInfo;
-
-        m_Helper = new MapHelperModelT(*this, &HelperInfo);
+        m_Helper = new MapHelperModelT(*this);
     }
     else
     {
