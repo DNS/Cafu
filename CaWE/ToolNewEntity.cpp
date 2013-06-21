@@ -151,8 +151,8 @@ bool ToolNewEntityT::OnLMouseDown3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
         NewEnt->SetApp(MapEnt);
         MapEnt->SetClass(EntClass);
 
-        const BoundingBox3fT EntBB   = MapEnt->GetRepres()->GetBB();
-        const float          OffsetZ = (HitPlane.Normal.z > 0.0f) ? HitPos.z - EntBB.Min.z : EntBB.Max.z - HitPos.z;
+        const BoundingBox3fT EntBB   = MapEnt->GetRepres()->GetBB();                    // Note that NewEnt and thus EntBB are still centered at the origin.
+        const float          OffsetZ = (HitPlane.Normal.z > 0.0f) ? -EntBB.Min.z : EntBB.Max.z;
 
         NewEnt->GetTransform()->SetOrigin(HitPos + HitPlane.Normal*(OffsetZ + 1.0f));   // The +1.0f is some additional epsilon for the OffsetZ.
 
