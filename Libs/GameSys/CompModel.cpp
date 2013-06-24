@@ -24,10 +24,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Entity.hpp"
 #include "World.hpp"
 
+#include "GuiSys/GuiImpl.hpp"
+#include "GuiSys/Window.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "Models/Model_cmdl.hpp"
 #include "Models/ModelManager.hpp"
 #include "Network/State.hpp"
+#include "String.hpp"
 #include "UniScriptState.hpp"
 
 extern "C"
@@ -170,6 +173,37 @@ void ComponentModelT::VarModelSkinNrT::GetChoices(ArrayT<std::string>& Strings, 
 }
 
 
+/************************************/
+/*** ComponentModelT::VarGuiNameT ***/
+/************************************/
+
+ComponentModelT::VarGuiNameT::VarGuiNameT(const char* Name, const std::string& Value, const char* Flags[], ComponentModelT& Comp)
+    : TypeSys::VarT<std::string>(Name, Value, Flags),
+      m_Comp(Comp)
+{
+}
+
+
+// The compiler-written copy constructor would copy m_Comp from Var.m_Comp,
+// but we must obviously use the reference to the proper parent instance instead.
+ComponentModelT::VarGuiNameT::VarGuiNameT(const VarGuiNameT& Var, ComponentModelT& Comp)
+    : TypeSys::VarT<std::string>(Var),
+      m_Comp(Comp)
+{
+}
+
+
+void ComponentModelT::VarGuiNameT::Set(const std::string& v)
+{
+    TypeSys::VarT<std::string>::Set(v);
+
+    // For now, simply delete the m_Gui instance.
+    // It is lazily updated in ComponentModelT::GetGui() as required.
+    delete m_Comp.m_Gui;
+    m_Comp.m_Gui = NULL;
+}
+
+
 /***********************/
 /*** ComponentModelT ***/
 /***********************/
@@ -177,6 +211,7 @@ void ComponentModelT::VarModelSkinNrT::GetChoices(ArrayT<std::string>& Strings, 
 namespace
 {
     const char* FlagsIsModelFileName[] = { "IsModelFileName", NULL };
+    const char* FlagsIsGuiFileName[]   = { "IsGuiFileName",   NULL };
 }
 
 
@@ -189,10 +224,8 @@ const cf::TypeSys::VarsDocT ComponentModelT::DocVars[] =
     { "Name",      "The file name of the model." },
     { "Animation", "The animation sequence number of the model." },
     { "Skin",      "The skin used for rendering the model." },
-    { "Pos",       "The position of the model in world space." },
     { "Scale",     "The scale factor applied to the model coordinates when converted to world space." },
-    { "Angles",    "The angles around the axes that determine the orientation of the model in world space." },
-    { "CameraPos", "The position of the camera in world space." },
+    { "Gui",       "The file name of the GUI to be used with the models GUI fixtures (if there are any)." },
     { NULL, NULL }
 };
 
@@ -202,12 +235,11 @@ ComponentModelT::ComponentModelT()
       m_ModelName("Name", "", FlagsIsModelFileName, *this),
       m_ModelAnimNr("Animation", 0, NULL, *this),
       m_ModelSkinNr("Skin", -1, NULL, *this),   // -1 is the default skin of the model.
-      m_ModelPos("Pos", Vector3fT()),
       m_ModelScale("Scale", 1.0f),
-      m_ModelAngles("Angles", Vector3fT()),
-      m_CameraPos("CameraPos", Vector3fT()),
+      m_GuiName("Gui", "", FlagsIsGuiFileName, *this),
       m_Model(NULL),
-      m_Pose(NULL)
+      m_Pose(NULL),
+      m_Gui(NULL)
 {
     // There is no need to init the NULL members here:
     assert(GetEntity() == NULL);
@@ -221,12 +253,11 @@ ComponentModelT::ComponentModelT(const ComponentModelT& Comp)
       m_ModelName(Comp.m_ModelName, *this),
       m_ModelAnimNr(Comp.m_ModelAnimNr, *this),
       m_ModelSkinNr(Comp.m_ModelSkinNr, *this),
-      m_ModelPos(Comp.m_ModelPos),
       m_ModelScale(Comp.m_ModelScale),
-      m_ModelAngles(Comp.m_ModelAngles),
-      m_CameraPos(Comp.m_CameraPos),
+      m_GuiName(Comp.m_GuiName, *this),
       m_Model(NULL),
-      m_Pose(NULL)
+      m_Pose(NULL),
+      m_Gui(NULL)
 {
     // There is no need to init the NULL members here:
     assert(GetEntity() == NULL);
@@ -240,27 +271,27 @@ void ComponentModelT::FillMemberVars()
     GetMemberVars().Add(&m_ModelName);
     GetMemberVars().Add(&m_ModelAnimNr);
     GetMemberVars().Add(&m_ModelSkinNr);
-    GetMemberVars().Add(&m_ModelPos);
     GetMemberVars().Add(&m_ModelScale);
-    GetMemberVars().Add(&m_ModelAngles);
-    GetMemberVars().Add(&m_CameraPos);
+    GetMemberVars().Add(&m_GuiName);
 }
 
 
 ComponentModelT::~ComponentModelT()
 {
+    delete m_Gui;
+    m_Gui = NULL;
+
     delete m_Pose;
     m_Pose = NULL;
 }
 
 
-void ComponentModelT::Set(const std::string& Name, const std::string& CollMdl, int AnimNr, float Scale, const std::string& GuiName)
+void ComponentModelT::Set(const std::string& Name, int AnimNr, float Scale, const std::string& GuiName)
 {
     m_ModelName.Set(Name);
- // m_CollMdlName.Set(CollMdl);     // TODO!!!
     m_ModelAnimNr.Set(AnimNr);
     m_ModelScale.Set(Scale);
- // m_ModelGuiName.Set(GuiName);    // TODO!!!
+    m_GuiName.Set(GuiName);
 }
 
 
@@ -280,8 +311,12 @@ void ComponentModelT::UpdateDependencies(EntityT* Entity)
 
     if (EntityChanged)
     {
+        delete m_Gui;
+        m_Gui = NULL;
+
         delete m_Pose;
         m_Pose  = NULL;
+
         m_Model = NULL;
     }
 
@@ -306,38 +341,44 @@ void ComponentModelT::UpdateDependencies(EntityT* Entity)
 }
 
 
+BoundingBox3fT ComponentModelT::GetEditorBB() const
+{
+    return m_Pose ? m_Pose->GetBB() : BoundingBox3fT();
+}
+
+
 void ComponentModelT::Render() const
 {
     if (!m_Pose) return;
 
-    // Limitations:
-    // Any meshes (images) in the background of this model should use only materials with "ambientMask d" set.
-    MatSys::Renderer->PushMatrix(MatSys::RendererI::PROJECTION    );
     MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
-    MatSys::Renderer->PushMatrix(MatSys::RendererI::WORLD_TO_VIEW );
+    MatSys::Renderer->Scale(MatSys::RendererI::MODEL_TO_WORLD, m_ModelScale.Get());
 
-    MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());
-    MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, m_ModelPos.Get().x, m_ModelPos.Get().y, m_ModelPos.Get().z);
-    MatSys::Renderer->Scale    (MatSys::RendererI::MODEL_TO_WORLD, m_ModelScale.Get());
-    if (m_ModelAngles.Get().x!=0) MatSys::Renderer->RotateX(MatSys::RendererI::MODEL_TO_WORLD, m_ModelAngles.Get().x);
-    if (m_ModelAngles.Get().y!=0) MatSys::Renderer->RotateY(MatSys::RendererI::MODEL_TO_WORLD, m_ModelAngles.Get().y);
-    if (m_ModelAngles.Get().z!=0) MatSys::Renderer->RotateZ(MatSys::RendererI::MODEL_TO_WORLD, m_ModelAngles.Get().z);
+    m_Pose->Draw(m_ModelSkinNr.Get(), 0.0f /*LodDist*/);
 
-    MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW, MatrixT::GetRotateXMatrix(-90.0f));   // Rotate coordinate system axes to Cafu standard.
-    MatSys::Renderer->Translate(MatSys::RendererI::WORLD_TO_VIEW, -m_CameraPos.Get().x, -m_CameraPos.Get().y, -m_CameraPos.Get().z);
+    const MatrixT ModelToWorld = MatSys::Renderer->GetMatrix(MatSys::RendererI::MODEL_TO_WORLD);
 
-    const MatrixT ProjectionMatrix = MatrixT::GetProjPerspectiveMatrix(67.5f, 640.0f/480.0f, 10.0f, 10000.0f);
-    MatSys::Renderer->SetMatrix(MatSys::RendererI::PROJECTION, ProjectionMatrix);
+    for (unsigned long GFNr = 0; GFNr < m_Model->GetGuiFixtures().Size(); GFNr++)
+    {
+        Vector3fT GuiOrigin;
+        Vector3fT GuiAxisX;
+        Vector3fT GuiAxisY;
 
-    MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::AMBIENT);
-    MatSys::Renderer->SetCurrentAmbientLightColor(1.0f, 1.0f, 1.0f);
-    MatSys::Renderer->SetCurrentEyePosition(m_CameraPos.Get().x, m_CameraPos.Get().y, m_CameraPos.Get().z); // Required in some ambient shaders.
+        if (m_Pose->GetGuiPlane(GFNr, GuiOrigin, GuiAxisX, GuiAxisY))
+        {
+            // It's pretty easy to derive this matrix geometrically, see my TechArchive note from 2006-08-22.
+            const MatrixT M(GuiAxisX.x / 640.0f, GuiAxisY.x / 480.0f, 0.0f, GuiOrigin.x,
+                            GuiAxisX.y / 640.0f, GuiAxisY.y / 480.0f, 0.0f, GuiOrigin.y,
+                            GuiAxisX.z / 640.0f, GuiAxisY.z / 480.0f, 0.0f, GuiOrigin.z,
+                                           0.0f,                0.0f, 0.0f,        1.0f);
 
-    m_Pose->Draw(m_ModelSkinNr.Get(), 0.0f);
+            MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, ModelToWorld * M);
 
-    MatSys::Renderer->PopMatrix(MatSys::RendererI::PROJECTION    );
+            GetGui()->Render(true /*zLayerCoating*/);
+        }
+    }
+
     MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
-    MatSys::Renderer->PopMatrix(MatSys::RendererI::WORLD_TO_VIEW );
 }
 
 
@@ -345,9 +386,11 @@ void ComponentModelT::OnClockTickEvent(float t)
 {
     ComponentBaseT::OnClockTickEvent(t);
 
-    if (!m_Pose) return;
+    if (m_Pose)
+        m_Pose->GetAnimExpr()->AdvanceTime(t);
 
-    m_Pose->GetAnimExpr()->AdvanceTime(t);
+    if (m_Gui)
+        m_Gui->DistributeClockTickEvents(t);
 }
 
 
@@ -362,6 +405,10 @@ std::string ComponentModelT::SetModel(const std::string& FileName, std::string& 
 
     // If the model didn't change, there is nothing else to do.
     if (PrevModel == m_Model) return m_Model->GetFileName();
+
+    // The new model may or may not have GUI fixtures, so make sure that the GUI instance is reset.
+    delete m_Gui;
+    m_Gui = NULL;
 
     // Need a new pose and updated parameters for the new model.
     delete m_Pose;
@@ -401,6 +448,83 @@ int ComponentModelT::SetAnimNr(int AnimNr, float BlendTime, bool ForceLoop)
     }
 
     return StdAE->GetSequNr();
+}
+
+
+cf::GuiSys::GuiImplT* ComponentModelT::GetGui() const
+{
+    // If we have a model with GUI fixtures, return a valid GUI instance in any case.
+    if (m_Model && m_Model->GetGuiFixtures().Size())
+    {
+        if (m_Gui) return m_Gui;
+
+        static const char* FallbackGUI =
+            "Root = gui:new('WindowT', 'Root')\n"
+            "gui:SetRootWindow(Root)\n"
+            "\n"
+            "function Root:OnInit()\n"
+            "    self:GetTransform():set('Pos', 0, 0)\n"
+            "    self:GetTransform():set('Size', 640, 480)\n"
+            "\n"
+            "    local c1 = gui:new('ComponentTextT')\n"
+            "    c1:set('Text', [=====[%s]=====])\n"    // This is indended for use with e.g. wxString::Format().
+            " -- c1:set('Font', 'Fonts/Impact')\n"
+            "    c1:set('Scale', 0.6)\n"
+            "    c1:set('Padding', 0, 0)\n"
+            "    c1:set('Color', 15/255, 49/255, 106/255)\n"
+            " -- c1:set('Alpha', 0.5)\n"
+            "    c1:set('hor. Align', 0)\n"
+            "    c1:set('ver. Align', 0)\n"
+            "\n"
+            "    local c2 = gui:new('ComponentImageT')\n"
+            "    c2:set('Material', '')\n"
+            "    c2:set('Color', 150/255, 170/255, 204/255)\n"
+            "    c2:set('Alpha', 0.8)\n"
+            "\n"
+            "    self:AddComponent(c1, c2)\n"
+            "\n"
+            "    gui:activate      (true)\n"
+            "    gui:setInteractive(true)\n"
+            "    gui:showMouse     (false)\n"
+            "    gui:setFocus      (Root)\n"
+            "end\n";
+
+        try
+        {
+            if (m_GuiName.Get() == "")
+            {
+                m_Gui = new cf::GuiSys::GuiImplT(
+                    GetEntity()->GetWorld().GetGuiResources(),
+                    cf::String::Replace(FallbackGUI, "%s", "This is a\nfull-scale sample GUI.\n\n"
+                        "Set the 'Gui' property\nof the Model component\nto assign the real GUI."),
+                    cf::GuiSys::GuiImplT::InitFlag_InlineCode);
+            }
+            else
+            {
+                m_Gui = new cf::GuiSys::GuiImplT(GetEntity()->GetWorld().GetGuiResources(), m_GuiName.Get());
+
+                // Active status is not really relevant for our Gui that is not managed by the GuiMan,
+                // but still make sure that clock tick events are properly propagated to all windows.
+                m_Gui->Activate();
+                m_Gui->SetMouseCursorSize(40.0f);
+            }
+        }
+        catch (const cf::GuiSys::GuiImplT::InitErrorT& IE)
+        {
+            // This one must not throw again...
+            m_Gui = new cf::GuiSys::GuiImplT(
+                GetEntity()->GetWorld().GetGuiResources(),
+                cf::String::Replace(FallbackGUI, "%s", "Could not load GUI\n" + m_GuiName.Get() + "\n\n" + IE.what()),
+                cf::GuiSys::GuiImplT::InitFlag_InlineCode);
+        }
+    }
+    else
+    {
+        // Not a model with GUI fixtures.
+        assert(m_Gui == NULL);
+    }
+
+    return m_Gui;
 }
 
 

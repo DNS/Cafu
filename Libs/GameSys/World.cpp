@@ -38,12 +38,13 @@ WorldT::InitErrorT::InitErrorT(const std::string& Message)
 }
 
 
-WorldT::WorldT(const std::string& ScriptName, ModelManagerT& ModelMan, int Flags)
+WorldT::WorldT(const std::string& ScriptName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, int Flags)
     : m_ScriptName((Flags & InitFlag_InlineCode) ? "" : ScriptName),
       m_ScriptState(),
       m_RootEntity(NULL),
       m_IsInited(false),
-      m_ModelMan(ModelMan)
+      m_ModelMan(ModelMan),
+      m_GuiResources(GuiRes)
 {
     lua_State* LuaState = m_ScriptState.GetLuaState();
 
@@ -192,7 +193,12 @@ void WorldT::Init()
 
 void WorldT::Render() const
 {
-    m_RootEntity->Render();
+    // Well... is WorldT::Render() really a useful method?
+    // Contrary to the windows in a GUI, it seems like our entities are organized for special-purposes in
+    // "draw worlds", "physics worlds", "sound worlds", "editor worlds", etc., so that having a Render()
+    // method here seems inappropriate. (We might consider this WorldT as a "script world".)
+
+    // m_RootEntity->Render();
 }
 
 

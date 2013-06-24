@@ -44,6 +44,9 @@ namespace cf
             /// @param Comp   The component to create a copy of.
             ComponentTransformT(const ComponentTransformT& Comp);
 
+            /// Returns whether the transformation described by this component is the identity ("no") transform.
+            bool IsIdentity() const { return m_Origin.Get() == Vector3fT() && m_Quat.Get() == Vector3fT(); }
+
             /// Returns the origin of the entity (in the coordinate system of its parent).
             const Vector3fT& GetOrigin() const { return m_Origin.Get(); }
 

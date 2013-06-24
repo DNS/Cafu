@@ -24,6 +24,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "CompBasics.hpp"
 #include "CompTransform.hpp"
+
+#include "Math3D/Matrix.hpp"
 #include "Templates/Array.hpp"
 #include "Templates/Pointer.hpp"
 
@@ -167,19 +169,20 @@ namespace cf
             void DeleteComponent(unsigned long CompNr);
 
 
-            /// Returns the position of this entity in absolute (vs. relative to the parent) coordinates.
-            Vector3fT GetAbsoluteOrigin() const;
-
             /// Finds the entity with the name WantedName in the hierachy tree of this entity.
             /// Use `GetRoot()->Find("xy")` in order to search the entire world for the entity with name `xy`.
             /// @param WantedName   The name of the entity that is to be found.
             /// @returns The pointer to the desired entity, or `NULL` if no entity with this name exists.
             IntrusivePtrT<EntityT> Find(const std::string& WantedName);   // Method cannot be const because return type is not const -- see implementation.
 
-            /// Renders this entity.
-            /// Note that this method does *not* setup any of the MatSys's model, view or projection matrices:
-            /// it's up to the caller to do that.
-            virtual void Render() const;
+            /// Returns the matrix that transforms points from local entity space to world space,
+            /// i.e. into "absolute" coordinates (as opposed to "relative" coordinates in the space of the parent).
+            MatrixT GetModelToWorld() const;
+
+            /// Renders the components of this entity.
+            /// Note that this method does *not* recurse into the children, and it does *not* setup any of the
+            /// MatSys's model, view or projection matrices: it's up to the caller to do that.
+            void RenderComponents() const;
 
             /// Keyboard input event handler.
             /// @param KE   Keyboard event.

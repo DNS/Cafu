@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <stdexcept>
 
 
+namespace cf { namespace GuiSys { class GuiResourcesT; } }
 class ModelManagerT;
 struct CaKeyboardEventT;
 struct CaMouseEventT;
@@ -60,9 +61,10 @@ namespace cf
             /// Constructor for creating an entity hierarchy (== "a world") from the given script file.
             /// @param ScriptName   The file name of the script to load.
             /// @param ModelMan     The manager for all models that are used in this world.
+            /// @param GuiRes       The provider for resources (fonts and models) for all GUIs in this world.
             /// @param Flags        A combination of the flags in InitFlagsT.
             /// @throws Throws an InitErrorT object on problems initializing the world.
-            WorldT(const std::string& ScriptName, ModelManagerT& ModelMan, int Flags = 0);
+            WorldT(const std::string& ScriptName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, int Flags = 0);
 
             /// The destructor.
             ~WorldT();
@@ -78,6 +80,10 @@ namespace cf
 
             /// Returns the manager for all models that are used in this world.
             ModelManagerT& GetModelMan() const { return m_ModelMan; }
+
+            /// Returns the resource provider for commonly used GUI fonts and models.
+            /// All GUIs that are created in this world share their font and model resources via the returned GuiResourcesT instance.
+            cf::GuiSys::GuiResourcesT& GetGuiResources() const { return m_GuiResources; }
 
             /// Renders this world.
             /// Note that this method does *not* setup any of the MatSys's model, view or projection matrices:
@@ -107,11 +113,12 @@ namespace cf
             void Init();    ///< Calls the OnInit() script methods of all entities.
 
 
-            const std::string      m_ScriptName;    ///< The name of the script file that this world instance was loaded from.
-            UniScriptStateT        m_ScriptState;   ///< The script state of this world.
-            IntrusivePtrT<EntityT> m_RootEntity;    ///< The root of the entity hierarchy that forms this world.
-            bool                   m_IsInited;      ///< Has the Init() method already been called?
-            ModelManagerT&         m_ModelMan;      ///< The manager for all models that are used in this world.
+            const std::string          m_ScriptName;    ///< The name of the script file that this world instance was loaded from.
+            UniScriptStateT            m_ScriptState;   ///< The script state of this world.
+            IntrusivePtrT<EntityT>     m_RootEntity;    ///< The root of the entity hierarchy that forms this world.
+            bool                       m_IsInited;      ///< Has the Init() method already been called?
+            ModelManagerT&             m_ModelMan;      ///< The manager for all models that are used in this world.
+            cf::GuiSys::GuiResourcesT& m_GuiResources;  ///< The provider for resources (fonts and models) for all GUIs in this world.
 
 
             // Methods called from Lua scripts on cf::GameSys::WorldT instances.

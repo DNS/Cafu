@@ -202,6 +202,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig)
     m_ScriptWorld = new cf::GameSys::WorldT(
         "MapEnt = world:new('EntityT', 'Map'); world:SetRootEntity(MapEnt);",
         m_GameConfig->GetModelMan(),
+        m_GameConfig->GetGuiResources(),
         cf::GameSys::WorldT::InitFlag_InlineCode | cf::GameSys::WorldT::InitFlag_InMapEditor);
 
     IntrusivePtrT<cf::GameSys::EntityT> ScriptRootEnt = m_ScriptWorld->GetRootEntity();
@@ -302,6 +303,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         m_ScriptWorld = new cf::GameSys::WorldT(
             centFileName.ToStdString(),
             m_GameConfig->GetModelMan(),
+            m_GameConfig->GetGuiResources(),
             cf::GameSys::WorldT::InitFlag_InMapEditor);
     }
     else
@@ -310,6 +312,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         m_ScriptWorld = new cf::GameSys::WorldT(
             "MapEnt = world:new('EntityT', 'Map'); world:SetRootEntity(MapEnt);",
             m_GameConfig->GetModelMan(),
+            m_GameConfig->GetGuiResources(),
             cf::GameSys::WorldT::InitFlag_InlineCode | cf::GameSys::WorldT::InitFlag_InMapEditor);
     }
 

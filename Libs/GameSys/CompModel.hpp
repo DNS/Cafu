@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CompBase.hpp"
 
 
+namespace cf { namespace GuiSys { class GuiImplT; } }
 class AnimPoseT;
 class CafuModelT;
 
@@ -49,12 +50,13 @@ namespace cf
             ~ComponentModelT();
 
             /// The Map Editor uses this method to initialize this component from old or imported key/value property pairs.
-            void Set(const std::string& Name, const std::string& CollMdl, int AnimNr, float Scale, const std::string& GuiName);
+            void Set(const std::string& Name, int AnimNr, float Scale, const std::string& GuiName);
 
             // Base class overrides.
             ComponentModelT* Clone() const;
             const char* GetName() const { return "Model"; }
             void UpdateDependencies(EntityT* Entity);
+            BoundingBox3fT GetEditorBB() const;
             void Render() const;
             void OnClockTickEvent(float t);
 
@@ -142,20 +144,39 @@ namespace cf
             };
 
 
+            /// A variable of type std::string, specifically for GUI file names. It updates the related
+            /// GUI instance in the parent ComponentModelT whenever a new GUI file name is set.
+            class VarGuiNameT : public TypeSys::VarT<std::string>
+            {
+                public:
+
+                VarGuiNameT(const char* Name, const std::string& Value, const char* Flags[], ComponentModelT& Comp);
+                VarGuiNameT(const VarGuiNameT& Var, ComponentModelT& Comp);
+
+                // Base class overrides.
+                void Set(const std::string& v);
+
+
+                private:
+
+                ComponentModelT& m_Comp;    ///< The parent ComponentModelT that contains this variable.
+            };
+
+
             void FillMemberVars();                                                ///< A helper method for the constructors.
             std::string SetModel(const std::string& FileName, std::string& Msg);  ///< m_ModelName::Set() delegates here.
             int SetAnimNr(int AnimNr, float BlendTime, bool ForceLoop);           ///< m_ModelAnimNr::Set() and SetAnim(LuaState) delegate here.
+            cf::GuiSys::GuiImplT* GetGui() const;                                 ///< Updates the m_Gui instance, and returns it (can be `NULL`).
 
-            VarModelNameT            m_ModelName;   ///< The file name of the model.
-            VarModelAnimNrT          m_ModelAnimNr; ///< The animation sequence number of the model.
-            VarModelSkinNrT          m_ModelSkinNr; ///< The skin used for rendering the model.
-            TypeSys::VarT<Vector3fT> m_ModelPos;    ///< The position of the model in world space.
-            TypeSys::VarT<float>     m_ModelScale;  ///< The scale factor applied to the model coordinates when converted to world space.
-            TypeSys::VarT<Vector3fT> m_ModelAngles; ///< The angles around the axes that determine the orientation of the model in world space.
-            TypeSys::VarT<Vector3fT> m_CameraPos;   ///< The position of the camera in world space.
+            VarModelNameT                 m_ModelName;      ///< The file name of the model.
+            VarModelAnimNrT               m_ModelAnimNr;    ///< The animation sequence number of the model.
+            VarModelSkinNrT               m_ModelSkinNr;    ///< The skin used for rendering the model.
+            TypeSys::VarT<float>          m_ModelScale;     ///< The scale factor applied to the model coordinates when converted to world space.
+            VarGuiNameT                   m_GuiName;        ///< The file name of the GUI to be used with the models GUI fixtures (if there are any).
 
-            const CafuModelT*        m_Model;       ///< The model instance, updated by changes to m_ModelName.
-            AnimPoseT*               m_Pose;        ///< The pose of the model.
+            const CafuModelT*             m_Model;          ///< The model instance, updated by changes to m_ModelName.
+            AnimPoseT*                    m_Pose;           ///< The pose of the model.
+            mutable cf::GuiSys::GuiImplT* m_Gui;            ///< The GUI instance, updated by changes to m_GuiName.
         };
     }
 }

@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_GAMESYS_COMPONENT_BASE_HPP_INCLUDED
 
 #include "Variables.hpp"
+#include "Math3D/BoundingBox.hpp"
 #include "Templates/Pointer.hpp"
 
 // This macro is introduced by some header (gtk?) under Linux...
@@ -113,6 +114,11 @@ namespace cf
             /// of an entity will leave a memory leak.
             /// @param Entity   The parent entity that contains this component, or `NULL` to indicate that this component is removed from the entity that it used to be a part of.
             virtual void UpdateDependencies(EntityT* Entity);
+
+            /// This method returns the component's bounding-box (with coordinates in the entity's local system).
+            /// It is intended to cover the visual representation of the entity in the Map Editor.
+            /// Note that the returned bounding-box can be uninitialized, i.e. `GetEditorBB().IsInited() == false` is possible.
+            virtual BoundingBox3fT GetEditorBB() const { return BoundingBox3fT(); }
 
             /// This method implements the graphical output of this component.
             virtual void Render() const { }

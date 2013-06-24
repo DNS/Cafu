@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CompBase.hpp"
 #include "EntityCreateParams.hpp"
 #include "World.hpp"
+
 #include "TypeSys.hpp"
 
 extern "C"
@@ -285,26 +286,6 @@ void EntityT::DeleteComponent(unsigned long CompNr)
 }
 
 
-Vector3fT EntityT::GetAbsoluteOrigin() const
-{
-#if 1
-    Vector3fT Origin = m_Transform->GetOrigin();
-
-    for (const EntityT* P = m_Parent; P; P = P->m_Parent)
-        Origin += P->m_Transform->GetOrigin();
-
-    return Origin;
-#else
-    // Recursive implementation:
-    if (m_Parent==NULL)
-        return m_Transform->GetPos();
-
-    // We have a parent, so get it's absolute position first, then add our relative position.
-    return m_Parent->GetAbsolutePos() + m_Transform->GetPos();
-#endif
-}
-
-
 IntrusivePtrT<EntityT> EntityT::Find(const std::string& WantedName)
 {
     if (WantedName == m_Basics->GetEntityName()) return this;
@@ -321,15 +302,30 @@ IntrusivePtrT<EntityT> EntityT::Find(const std::string& WantedName)
 }
 
 
-void EntityT::Render() const
+MatrixT EntityT::GetModelToWorld() const
+{
+    MatrixT ModelToWorld(m_Transform->GetOrigin(), m_Transform->GetQuat());
+
+    for (const EntityT* P = m_Parent; P; P = P->m_Parent)
+        if (!P->m_Transform->IsIdentity())
+            ModelToWorld = MatrixT(P->m_Transform->GetOrigin(), P->m_Transform->GetQuat()) * ModelToWorld;
+
+    return ModelToWorld;
+}
+
+
+void EntityT::RenderComponents() const
 {
     if (!m_Basics->IsShown()) return;
 
-    // MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
-    // {
-    //     // ...
-    // }
-    // MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
+    // Render the "custom" components in the proper order -- bottom-up.
+    for (unsigned long CompNr = m_Components.Size(); CompNr > 0; CompNr--)
+        m_Components[CompNr-1]->Render();
+
+    // Render the "fixed" components.
+    // m_Transform->Render();
+    // m_Basics->Render();
+    if (m_App != NULL) m_App->Render();
 }
 
 

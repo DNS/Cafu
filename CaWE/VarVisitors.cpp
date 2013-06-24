@@ -311,6 +311,13 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT<std::string>& Var)
         // either. TODO!
         Prop->ChangeFlag(wxPG_PROP_NO_ESCAPE, true);
     }
+    else if (Var.HasFlag("IsGuiFileName"))
+    {
+        const wxString Wildcard = "Cafu GUI Files (*_main.cgui)|*.cgui|"
+                                  "All Files (*.*)|*.*";
+
+        Prop = new GameFileNamePropertyT(Var.GetName(), wxString::Format("%p", &Var), Var.Get(), Wildcard);
+    }
     else if (Var.HasFlag("IsModelFileName"))
     {
         const wxString Wildcard = "Cafu Model Files (*.cmdl)|*.cmdl|"
