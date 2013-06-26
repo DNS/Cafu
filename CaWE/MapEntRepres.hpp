@@ -27,7 +27,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 namespace cf { namespace GameSys { class EntityT; } }
-class MapHelperT;
 
 
 /// This class provides a graphical representation of an entity in the Map Editor.
@@ -52,12 +51,6 @@ class MapEntRepresT : public MapElementT
     ///
     /// @param EntRepres   The entity representation to copy-construct the new instance from.
     MapEntRepresT(const MapEntRepresT& EntRepres);
-
-    /// The destructor.
-    ~MapEntRepresT();
-
-    /// Called by the hosting entity instance whenever it has changed.
-    void Update();
 
 
     // Implementations and overrides for base class methods.
@@ -90,7 +83,9 @@ class MapEntRepresT : public MapElementT
 
     private:
 
-    MapHelperT*                         m_Helper;
+    BoundingBox3fT GetComponentsBB() const;
+    BoundingBox3fT GetRepresBB() const;
+
     IntrusivePtrT<cf::GameSys::EntityT> m_Cloned;   ///< If the MapEntRepresT has been cloned, the related (cloned) entity instance is stored here. Note that we can *not* get rid of this variable by turning m_Parent into an IntrusivePtrT<>: Doing so would create a cycle and cause entity instances to never get freed, leaking memory.
 };
 

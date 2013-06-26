@@ -30,6 +30,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ToolManager.hpp"
 #include "ToolCamera.hpp"
 
+#include "GameSys/Entity.hpp"
+#include "GameSys/World.hpp"
 #include "MaterialSystem/Mesh.hpp"
 #include "MaterialSystem/Renderer.hpp"
 
@@ -436,7 +438,7 @@ void ViewWindow3DT::OnContextMenu(wxContextMenuEvent& CE)
 
 void ViewWindow3DT::OnPaint(wxPaintEvent& PE)
 {
-    const MapDocumentT& MapDoc=GetMapDoc();
+    MapDocumentT& MapDoc=GetMapDoc();
 
     // Guard against accessing an already deleted MapDoc. This can otherwise happen when closing this window/view/document,
     // namely during the continued event processing between the call to Destroy() and our final deletion.
@@ -450,6 +452,9 @@ void ViewWindow3DT::OnPaint(wxPaintEvent& PE)
     const float         FrameTime=std::min(float(TimeNow-m_TimeOfLastPaint)/1000.0f, 0.5f);
 
     m_TimeOfLastPaint=TimeNow;
+
+    if (Options.view3d.AnimateModels)
+        MapDoc.GetScriptWorld().DistributeClockTickEvents(FrameTime);
 
 
     /*********************/

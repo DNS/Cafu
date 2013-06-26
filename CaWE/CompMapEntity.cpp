@@ -99,10 +99,6 @@ void CompMapEntityT::SetClass(const EntityClassT* NewClass)
         if (FindProperty(ClassVar->GetName())==NULL)
             m_Properties.PushBack(ClassVar->GetInstance());
     }
-
-
-    // Now that we have a new class, update the entity representation in the map.
-    m_Repres->Update();
 }
 
 

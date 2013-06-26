@@ -20,18 +20,18 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "MapEntRepres.hpp"
+#include "Camera.hpp"
 #include "ChildFrameViewWin2D.hpp"
+#include "ChildFrameViewWin3D.hpp"
 #include "CompMapEntity.hpp"
 #include "EntityClass.hpp"
 #include "LuaAux.hpp"
 #include "MapDocument.hpp"
-#include "MapHelperBB.hpp"
-#include "MapHelperModel.hpp"
 #include "Options.hpp"
 #include "Renderer2D.hpp"
 #include "Renderer3D.hpp"
 
-#include "Math3D/Matrix.hpp"
+#include "MaterialSystem/Renderer.hpp"
 
 
 using namespace MapEditor;
@@ -51,19 +51,15 @@ const cf::TypeSys::TypeInfoT MapEntRepresT::TypeInfo(GetMapElemTIM(), "MapEntRep
 
 MapEntRepresT::MapEntRepresT(IntrusivePtrT<MapEditor::CompMapEntityT> Parent)
     : MapElementT(Options.colors.Entity),
-      m_Helper(NULL),
       m_Cloned(NULL)
 {
     wxASSERT(Parent != NULL);
     m_Parent = Parent;
-
-    Update();
 }
 
 
 MapEntRepresT::MapEntRepresT(const MapEntRepresT& EntRepres)
     : MapElementT(EntRepres),
-      m_Helper(NULL),
       m_Cloned(NULL)
 {
     m_Cloned = EntRepres.GetParent()->GetEntity()->Clone(false /*Recursive?*/);
@@ -72,34 +68,6 @@ MapEntRepresT::MapEntRepresT(const MapEntRepresT& EntRepres)
     // The entity was copied...
     wxASSERT(m_Cloned->GetChildren().Size() == 0);    /// ... non-recursively,
     wxASSERT(m_Parent->GetPrimitives().Size() == 0);  /// ... without any primitives.
-
-    Update();
-}
-
-
-MapEntRepresT::~MapEntRepresT()
-{
-    delete m_Helper;
-    m_Helper = NULL;
-}
-
-
-void MapEntRepresT::Update()
-{
-    delete m_Helper;
-    m_Helper = NULL;
-
-    wxASSERT(m_Parent != NULL);
-
-    if (m_Parent->FindProperty("model"))
-    {
-        m_Helper = new MapHelperModelT(*this);
-    }
-    else
-    {
-        m_Helper = new MapHelperBoundingBoxT(*this,
-            m_Parent->GetClass() ? m_Parent->GetClass()->GetBoundingBox() : BoundingBox3fT(Vector3fT(-8, -8, -8), Vector3fT(8, 8, 8)));
-    }
 }
 
 
@@ -129,9 +97,6 @@ void MapEntRepresT::Assign(const MapElementT* Elem)
 
     ThisEnt->GetEntity()->GetTransform()->SetOrigin(OtherEnt->GetOrigin());
     ThisEnt->GetEntity()->GetTransform()->SetQuat(OtherEnt->GetEntity()->GetTransform()->GetQuat());
-
-    // Now that we (possibly) have a new class, update our helper.
-    Update();
 }
 
 
@@ -214,24 +179,42 @@ void MapEntRepresT::Render2D(Renderer2DT& Renderer) const
     {
         Renderer.BasisVectors(m_Parent->GetOrigin(), cf::math::Matrix3x3fT(m_Parent->GetEntity()->GetTransform()->GetQuat()));
     }
-
-    // Render the helper.
-    if (m_Helper)
-        m_Helper->Render2D(Renderer);
 }
 
 
 void MapEntRepresT::Render3D(Renderer3DT& Renderer) const
 {
-    // Render the coordinate axes of our local system.
-    if (IsSelected())
+    const float EntDist = length(m_Parent->GetOrigin() - Renderer.GetViewWin3D().GetCamera().Pos);
+
+    if (GetComponentsBB().IsInited() && EntDist < float(Options.view3d.ModelDistance))
     {
-        Renderer.BasisVectors(m_Parent->GetOrigin(), cf::math::Matrix3x3fT(m_Parent->GetEntity()->GetTransform()->GetQuat()));
+        // Render the cf::GameSys::EntityT instance itself.
+        IntrusivePtrT<cf::GameSys::EntityT> Ent = m_Parent->GetEntity();
+
+        MatSys::Renderer->SetCurrentAmbientLightColor(1.0f, 1.0f, 1.0f);
+        MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
+        MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, Ent->GetModelToWorld());
+
+        // TODO: There is no support for LoD-parameters at this time, add it!
+        // const float CAFU_ENG_SCALE = 25.4f;
+        // Ent->RenderComponents(CAFU_ENG_SCALE * EntDist);
+        Ent->RenderComponents();
+
+        MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
+
+        if (IsSelected())
+            Renderer.RenderBox(GetBB(), Options.colors.Selection, false /*Solid?*/);
+    }
+    else
+    {
+        // Did not render the real entity (the distance was too great), thus render a replacement bounding-box.
+        Renderer.RenderBox(GetBB(),
+            IsSelected() ? Options.colors.Selection : GetColor(Options.view2d.UseGroupColors), true /*Solid?*/);
     }
 
-    // Render the helper.
-    if (m_Helper)
-        m_Helper->Render3D(Renderer);
+    // Render the coordinate axes of our local system.
+    if (IsSelected())
+        Renderer.BasisVectors(m_Parent->GetOrigin(), cf::math::Matrix3x3fT(m_Parent->GetEntity()->GetTransform()->GetQuat()));
 }
 
 
@@ -243,10 +226,31 @@ bool MapEntRepresT::IsTranslucent() const
 
 BoundingBox3fT MapEntRepresT::GetBB() const
 {
-    if (m_Helper)
-        return m_Helper->GetBB();
+    BoundingBox3fT BB = GetComponentsBB();
 
-    return BoundingBox3fT(m_Parent->GetOrigin()).GetEpsilonBox(8.0f);
+    if (!BB.IsInited())
+    {
+        // If the components didn't come up with something, fall back to the old, bare-bones, humble bounding-box.
+        return GetRepresBB();
+    }
+
+    // Transform BB from the entity's local space into world space.
+    const MatrixT Mat = m_Parent->GetEntity()->GetModelToWorld();
+    Vector3fT     VerticesBB[8];
+
+    BB.GetCornerVertices(VerticesBB);
+
+    // Rotate all eight vertices.
+    for (unsigned int VertexNr = 0; VertexNr < 8; VertexNr++)
+        VerticesBB[VertexNr] = Mat.Mul1(VerticesBB[VertexNr]);
+
+    // Build a new BB of the rotated BB.
+    BB = BoundingBox3fT(VerticesBB[0]);
+
+    for (unsigned int VertexNr = 1; VertexNr < 8; VertexNr++)
+        BB += VerticesBB[VertexNr];
+
+    return BB;
 }
 
 
@@ -340,4 +344,37 @@ void MapEntRepresT::Transform(const MatrixT& Matrix)
     m_Parent->GetEntity()->GetTransform()->SetOrigin(Matrix.Mul1(Origin));
 
     MapElementT::Transform(Matrix);
+}
+
+
+BoundingBox3fT MapEntRepresT::GetComponentsBB() const
+{
+    BoundingBox3fT BB;
+
+    // Augment BB with the bounding-boxes of the components.
+    // The CompMapEntityT application component (the set of primitives) is intentionally not included,
+    // because we intend to cover the entity's *representation*, not its whole.
+    // Map primitives are more like children of an entity (and have explicit treatment in the Map Editor anyway).
+    IntrusivePtrT<cf::GameSys::EntityT> Ent = m_Parent->GetEntity();
+
+    for (unsigned long CompNr = 0; CompNr < Ent->GetComponents().Size(); CompNr++)
+    {
+        const BoundingBox3fT CompBB = Ent->GetComponents()[CompNr]->GetEditorBB();
+
+        if (CompBB.IsInited())
+            BB += CompBB;
+    }
+
+    return BB;
+}
+
+
+BoundingBox3fT MapEntRepresT::GetRepresBB() const
+{
+    BoundingBox3fT BB = m_Parent->GetClass() ? m_Parent->GetClass()->GetBoundingBox() : BoundingBox3fT(Vector3fT(-8, -8, -8), Vector3fT(8, 8, 8));
+
+    BB.Min += m_Parent->GetOrigin();
+    BB.Max += m_Parent->GetOrigin();
+
+    return BB;
 }
