@@ -1,6 +1,6 @@
 // Cafu Map File
 // Written by CaWE, the Cafu World Editor.
-Version 13
+Version 14
 
 
 {
@@ -151,8 +151,6 @@ PatchDef
 
 {
   classname "info_player_start"
-  angles "0 270 0"
-  origin "16 -16 56"
 }
 
 {
@@ -225,19 +223,12 @@ PatchDef
 
 {
   classname "static_detail_model"
-  angles "-0 102 -0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Terminals/Terminal_2.cmdl"
-  collisionModel "Models/Terminals/Terminal_2.cmap"
-  gui "GUIs/Test.cgui"
-  origin "-48 96 0"
 }
 
 {
   classname "func_mover"
-  name "MyFirstLift"
 
   {
     ( -128 24 8 ) ( -64 24 8 ) ( -64 -40 8 ) "TechDemo/floors/gho_floor1a" ( 2 0 0.375 0 ( 64 0 0 ) ( 0 -64 0 ) )
@@ -251,43 +242,30 @@ PatchDef
 
 {
   classname "PointLightSource"
-  name "MyLight"
-  angles "-0 90 -0"
   light_radius "125"
   light_color_diff "0 128 255"
   light_color_spec "0 128 255"
   light_casts_shadows "1"
-  origin "-160 40 145.80531"
 }
 
 {
   classname "static_detail_model"
-  angles "-0 90 -0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/WeldTank_blue.mdl"
-  collisionModel "Models/Static/WeldTank.cmap"
-  name "LiftWeldTank"
-  origin "-120 -30.947224 8"
 }
 
 {
   classname "PointLightSource"
-  angles "-0 90 -0"
   light_radius "30"
   light_color_diff "255 128 64"
   light_color_spec "255 128 64"
-  name "LiftLight"
   light_casts_shadows "1"
-  origin "-120 -16 17"
 }
 
 {
   classname "Trigger"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  name "TestTrigger"
 
   {
     ( -80 -240 120 ) ( 160 -240 120 ) ( 160 -280 120 ) "Textures/meta/trigger" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
@@ -301,7 +279,6 @@ PatchDef
 
 {
   classname "Trigger"
-  name "SoundTrigger"
   rendertranslucency "255"
 
   {
@@ -316,25 +293,19 @@ PatchDef
 
 {
   classname "speaker"
-  name "TestSpeaker"
   soundshader "Ambient/Jungle"
   interval "2.1"
-  angles "-0 270 -0"
   innerCone "45"
   innerVolume "1"
   outerCone "90"
   outerVolume "0.2"
   autoplay "1"
-  origin "48 -416 72"
 }
 
 {
   classname "PointLightSource"
-  angles "-0 90 -0"
   light_radius "120"
   light_color_diff "255 128 64"
   light_color_spec "255 128 64"
-  name "PointLightSource_001"
   light_casts_shadows "1"
-  origin "-24 88 80"
 }
