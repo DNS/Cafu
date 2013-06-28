@@ -67,6 +67,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/ConsoleInterpreter.hpp"
 #include "ConsoleCommands/ConsoleStdout.hpp"
 #include "FileSys/FileManImpl.hpp"
+#include "GuiSys/GuiResources.hpp"
 #include "Math3D/BoundingBox.hpp"
 #include "Math3D/Vector3.hpp"
 #include "Bitmap/Bitmap.hpp"
@@ -1260,8 +1261,11 @@ int main(int ArgC, const char* ArgV[])
 
         const char          Save_NrOfBands=cf::SceneGraph::SHLMapManT::NrOfBands;
         const unsigned long Save_NrOfReps =cf::SceneGraph::SHLMapManT::NrOfRepres;
-        ModelManagerT ModelMan;
-        CaSHLWorldT   CaSHLWorld(ArgV[1], ModelMan);
+
+        ModelManagerT             ModelMan;
+        cf::GuiSys::GuiResourcesT GuiRes(ModelMan);
+        CaSHLWorldT               CaSHLWorld(ArgV[1], ModelMan, GuiRes);
+
         cf::SceneGraph::SHLMapManT::NrOfBands =Save_NrOfBands;
         cf::SceneGraph::SHLMapManT::NrOfRepres=Save_NrOfReps;
 

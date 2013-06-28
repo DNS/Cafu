@@ -53,6 +53,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/ConsoleInterpreter.hpp"
 #include "ConsoleCommands/ConsoleStdout.hpp"
 #include "FileSys/FileManImpl.hpp"
+#include "GuiSys/GuiResources.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/MaterialManagerImpl.hpp"
 #include "Models/ModelManager.hpp"
@@ -866,8 +867,9 @@ int main(int ArgC, const char* ArgV[])
         printf("*** Load World %s ***\n", ArgV[1]);
 
         // 1. Load the 'CaPVSWorld'.
-        ModelManagerT ModelMan;
-        CaPVSWorldT*  CaPVSWorld=new CaPVSWorldT(ArgV[1], ModelMan, MaxRecDepthSL, MinAreaSL);
+        ModelManagerT             ModelMan;
+        cf::GuiSys::GuiResourcesT GuiRes(ModelMan);
+        CaPVSWorldT*              CaPVSWorld = new CaPVSWorldT(ArgV[1], ModelMan, GuiRes, MaxRecDepthSL, MinAreaSL);
 
         // 2. Create the 'SuperLeaves'.
         CaPVSWorld->CreateSuperLeaves(SuperLeaves);

@@ -42,6 +42,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 namespace cf { namespace SceneGraph { class BspTreeNodeT; } }
 namespace cf { namespace ClipSys    { class CollisionModelStaticT; } }
+namespace cf { namespace GuiSys     { class GuiResourcesT; } }
 
 
 struct PointLightT
@@ -129,7 +130,7 @@ class WorldT
     ~WorldT();
 
     /// Constructor for creating a world from a .cw file.
-    WorldT(const char* FileName, ModelManagerT& ModelMan, ProgressFunctionT ProgressFunction=NULL) /*throw (LoadErrorT)*/;
+    WorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, ProgressFunctionT ProgressFunction=NULL) /*throw (LoadErrorT)*/;
 
     /// Saves the world to disk.
     void SaveToDisk(const char* FileName) const /*throw (SaveErrorT)*/;

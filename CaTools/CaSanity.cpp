@@ -50,6 +50,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/ConsoleStdout.hpp"
 #include "FileSys/FileManImpl.hpp"
 #include "FileSys/Password.hpp"
+#include "GuiSys/GuiResources.hpp"
 #include "Math3D/Brush.hpp"
 #include "Bitmap/Bitmap.hpp"
 #include "OpenGL/OpenGLWindow.hpp"
@@ -653,8 +654,9 @@ int main(int ArgC, char* ArgV[])
     try
     {
         if (ArgC==2) printf("Loading world %s...\n\n", ArgV[1]);
-        ModelManagerT ModelMan;
-        World=new WorldT(ArgV[1], ModelMan);
+        ModelManagerT             ModelMan;
+        cf::GuiSys::GuiResourcesT GuiRes(ModelMan);
+        World = new WorldT(ArgV[1], ModelMan, GuiRes);
 
         // Gib ggf. nur die gewünschten Infos aus
         if (ArgC==3)

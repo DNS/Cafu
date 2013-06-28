@@ -46,6 +46,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/ConsoleInterpreter.hpp"
 #include "ConsoleCommands/ConsoleStdout.hpp"
 #include "FileSys/FileManImpl.hpp"
+#include "GuiSys/GuiResources.hpp"
 #include "Templates/Array.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
@@ -249,11 +250,12 @@ int main(int ArgC, const char* ArgV[])
     }
 
 
-    ModelManagerT   ModelMan;
-    WorldT          World;
-    ArrayT<VectorT> DrawWorldOutsidePointSamples;
+    ModelManagerT             ModelMan;
+    cf::GuiSys::GuiResourcesT GuiRes(ModelMan);
+    WorldT                    World;
+    ArrayT<VectorT>           DrawWorldOutsidePointSamples;
 
-    LoadWorld(ArgV[1], GameDirectory, ModelMan, World, DrawWorldOutsidePointSamples);
+    LoadWorld(ArgV[1], GameDirectory, ModelMan, GuiRes, World, DrawWorldOutsidePointSamples);
 
     // What we need:
     // For each entity: The BspTree itself, OutsidePointSamples, FloodFillSources.

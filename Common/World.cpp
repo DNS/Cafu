@@ -158,7 +158,7 @@ static std::string GetModDir(const char* FileName)
 }
 
 
-WorldT::WorldT(const char* FileName, ModelManagerT& ModelMan, ProgressFunctionT ProgressFunction) /*throw (LoadErrorT)*/
+WorldT::WorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, ProgressFunctionT ProgressFunction) /*throw (LoadErrorT)*/
     : BspTree(NULL),
       CollModel(NULL)
 {

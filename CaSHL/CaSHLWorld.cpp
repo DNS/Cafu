@@ -32,8 +32,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <stdio.h>
 
 
-CaSHLWorldT::CaSHLWorldT(const char* FileName, ModelManagerT& ModelMan)
-    : World(FileName, ModelMan)
+CaSHLWorldT::CaSHLWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes)
+    : World(FileName, ModelMan, GuiRes)
 {
 }
 

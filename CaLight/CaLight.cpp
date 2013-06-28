@@ -63,6 +63,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/ConsoleInterpreter.hpp"
 #include "ConsoleCommands/ConsoleStdout.hpp"
 #include "FileSys/FileManImpl.hpp"
+#include "GuiSys/GuiResources.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/MaterialManagerImpl.hpp"
@@ -1423,8 +1424,9 @@ int main(int ArgC, const char* ArgV[])
     try
     {
         printf("Loading World '%s'.\n", ArgV[1]);
-        ModelManagerT ModelMan;
-        CaLightWorldT CaLightWorld(ArgV[1], ModelMan);
+        ModelManagerT             ModelMan;
+        cf::GuiSys::GuiResourcesT GuiRes(ModelMan);
+        CaLightWorldT             CaLightWorld(ArgV[1], ModelMan, GuiRes);
 
         unsigned long IterationCount=0;
 

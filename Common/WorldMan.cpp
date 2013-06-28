@@ -23,7 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/ConVar.hpp"
 
 
-const WorldT* WorldManT::LoadWorld(const char* FileName, ModelManagerT& ModelMan, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction)
+const WorldT* WorldManT::LoadWorld(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction)
 {
     for (unsigned long WorldNr=0; WorldNr<Worlds.Size(); WorldNr++)
     {
@@ -40,7 +40,7 @@ const WorldT* WorldManT::LoadWorld(const char* FileName, ModelManagerT& ModelMan
 
 
     // FileName not found in cache, create a new instance.
-    WorldT* NewWorld=new WorldT(FileName, ModelMan, ProgressFunction);    // Must do this here in case WorldT::WorldT() throws.
+    WorldT* NewWorld=new WorldT(FileName, ModelMan, GuiRes, ProgressFunction);    // Must do this here in case WorldT::WorldT() throws.
 
     Worlds.PushBackEmpty();
     WorldInfoT& WI=Worlds[Worlds.Size()-1];

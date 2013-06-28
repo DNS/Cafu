@@ -250,7 +250,7 @@ void ComputeBrushFaces(const MapFileBrushT& MFBrush, WorldT& World, cf::SceneGra
 // Ließt ein MapFile, das die der Version entsprechenden "MapFile Specifications" erfüllen muß, in die World ein.
 // Dabei werden folgende Komponenten der World modifiziert (ausgefüllt, u.U. nur teilweise):
 // Map.Faces, Map.TexInfos, Map.PointLights, InfoPlayerStarts und GameEntities.
-void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelManagerT& ModelMan, WorldT& World, ArrayT<VectorT>& DrawWorldOutsidePointSamples)
+void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, WorldT& World, ArrayT<VectorT>& DrawWorldOutsidePointSamples)
 {
     World.PlantDescrMan.SetModDir(GameDirectory);
 
