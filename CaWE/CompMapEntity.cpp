@@ -174,6 +174,20 @@ void CompMapEntityT::RemoveProperty(const wxString& Key)
 }
 
 
+std::string CompMapEntityT::GetAndRemove(const wxString& Key, const char* Default)
+{
+    const EntPropertyT* Prop = FindProperty(Key);
+
+    if (!Prop) return Default;
+
+    const wxString Value = Prop->Value;
+
+    RemoveProperty(Key);
+
+    return Value.ToStdString();
+}
+
+
 void CompMapEntityT::CopyPrimitives(const CompMapEntityT& MapEnt)
 {
     for (unsigned long PrimNr = 0; PrimNr < MapEnt.m_Primitives.Size(); PrimNr++)

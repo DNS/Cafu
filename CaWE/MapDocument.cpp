@@ -74,6 +74,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Group.hpp"
 #include "Camera.hpp"
 
+#include "GameSys/CompCollisionModel.hpp"
+#include "GameSys/CompModel.hpp"
 #include "GameSys/Entity.hpp"
 #include "GameSys/EntityCreateParams.hpp"
 #include "GameSys/World.hpp"
@@ -647,48 +649,71 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             MapEnt->RemoveProperty("angles");
         }
 
-#if 0
-        // Convert helpers into components.
-        bool HaveModelComponent = false;
-
-        for (unsigned long HelperNr = 0; HelperNr < MapEnt->GetClass()->GetHelpers().Size(); HelperNr++)
-        {
-            if (MapEnt->GetClass()->GetHelpers()[HelperNr]->Name == "model")
-            {
-                IntrusivePtrT<cf::GameSys::ComponentModelT> ModelComp = new cf::GameSys::ComponentModelT();
-
-                const EntPropertyT* ModelProp   = MapEnt->FindProperty("model");
-                const EntPropertyT* CollMdlProp = MapEnt->FindProperty("collisionModel");
-                const EntPropertyT* SequProp    = MapEnt->FindProperty("sequence");
-                const EntPropertyT* ScaleProp   = MapEnt->FindProperty("scale");
-                const EntPropertyT* GuiProp     = MapEnt->FindProperty("gui");
-
-                ModelComp->Set(
-                    ModelProp   ? ModelProp->Value.ToStdString()   : "",
-                    CollMdlProp ? CollMdlProp->Value.ToStdString() : "",    // Should this be in a separate "collision body" component of its own?
-                    SequProp    ? wxAtoi(SequProp->Value)          : 0,
-                    ScaleProp   ? wxAtof(ScaleProp->Value)         : 1.0f,
-                    GuiProp     ? GuiProp->Value.ToStdString()     : "");
-
-                NewEnt->AddComponent(ModelComp);
-                HaveModelComponent = true;
-                break;
-            }
-        }
-#endif
-
         EntNr++;
     }
 
 
-    // Convert entity properties (old-style) into entity components (new-style) as much as possible.
-    // This should be done in a manner that allows us to account for new components as they are developed.
-    // The key idea is to consider whether a (new-style) component for an (old-style) property already exists.
-    // If a related component does not yet exist, create one and initialize it from the value of the property.
+    // Automatically migrate "old-style" properties (e.g. from cmap files version <= 13, or foreign imported map files)
+    // to "new-style" entity components as much as possible.
+    // Do this in a manner that allows us a smooth, backwards-compatible transition: It should be possible to account
+    // for the existing components today and to develop new components in the future, and to account for them as they
+    // become available.
+    // The key idea is to examine whether a (new-style) component for an (old-style) property already exists.
+    // If a related component does not yet exist, create one, initialize it from the value of the property, then remove
+    // the property (so that any old code that might still use properties is made ineffective).
     // Otherwise, assume that the component has been created by this process before, and don't touch it.
-    // old-style properties are not(??) deleted
     // Obviously, this works with optional components only -- Basics and Transform must immediately be handled above.
-    ;
+    AllScriptEnts.Overwrite();
+    GetAll(m_ScriptWorld->GetRootEntity(), AllScriptEnts);
+
+    for (EntNr = 0; EntNr < AllScriptEnts.Size(); EntNr++)
+    {
+        IntrusivePtrT<cf::GameSys::EntityT> Ent    = AllScriptEnts[EntNr];
+        IntrusivePtrT<CompMapEntityT>       MapEnt = GetMapEnt(Ent);
+
+        if (Ent->GetComponent("Model") == NULL && MapEnt->FindProperty("model") && MapEnt->FindProperty("model")->Value != "")
+        {
+            IntrusivePtrT<cf::GameSys::ComponentModelT> ModelComp = new cf::GameSys::ComponentModelT();
+
+            std::string ModelName = MapEnt->GetAndRemove("model");
+            if (ModelName != "")
+            {
+                // The "model" value used to be relative to the ModDir, e.g. "Models/Static/Gelaender01.mdl".
+                ModelName = m_GameConfig->ModDir + "/" + ModelName;
+            }
+
+            std::string GuiName = MapEnt->GetAndRemove("gui");
+            if (GuiName != "")
+            {
+                // The "gui" value used to be relative to the ModDir, e.g. "GUIs/Test.cgui".
+                GuiName = m_GameConfig->ModDir + "/" + GuiName;
+            }
+
+            ModelComp->Set(
+                ModelName,
+                wxAtoi(MapEnt->GetAndRemove("sequence", "0")),
+                wxAtof(MapEnt->GetAndRemove("scale", "1.0")),
+                GuiName);
+
+            Ent->AddComponent(ModelComp);
+        }
+
+        if (Ent->GetComponent("CollisionModel") == NULL && MapEnt->FindProperty("collisionModel") && MapEnt->FindProperty("collisionModel")->Value != "")
+        {
+            IntrusivePtrT<cf::GameSys::ComponentCollisionModelT> CollMdlComp = new cf::GameSys::ComponentCollisionModelT();
+
+            std::string CollMdlName = MapEnt->GetAndRemove("collisionModel");
+            if (CollMdlName != "")
+            {
+                // The "collisionModel" value used to be relative to the ModDir, e.g. "Models/Static/Tonne01.cmap".
+                CollMdlName = m_GameConfig->ModDir + "/" + CollMdlName;
+            }
+
+            CollMdlComp->SetCollMdlName(CollMdlName);
+
+            Ent->AddComponent(CollMdlComp);
+        }
+    }
 }
 
 

@@ -97,6 +97,7 @@ namespace MapEditor
         const EntPropertyT* FindProperty     (const wxString& Key, int* Index=NULL) const;              ///< Find the property.
         int                 FindPropertyIndex(const wxString& Key) const;                               ///< Get the index of the property.
         void                RemoveProperty(const wxString& Key);                                        ///< Remove this property.
+        std::string         GetAndRemove(const wxString& Key, const char* Default="");                  ///< Returns the value of this property, using the default if not found, and removes it.
 
         void CopyPrimitives(const CompMapEntityT& MapEnt);  ///< Creates a copy of each primitive in MapEnt and adds it to this instance.
         const ArrayT<MapPrimitiveT*>& GetPrimitives() const { return m_Primitives; }
