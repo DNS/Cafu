@@ -46,14 +46,20 @@ namespace cf
             /// Returns the name of the entity.
             const std::string& GetEntityName() const { return m_Name.Get(); }
 
-            /// Returns `true` if the entity is currently shown. Returns `false` if the entity is currently hidden.
-            bool IsShown() const { return m_Show.Get(); }
-
             /// Sets a new name for the entity.
             /// Entity names must be valid Lua script identifiers and unique among their siblings, and the method
             /// modifies the given string as necessary. As a result, GetEntityName() can return a string that is
             /// different from the string given to a preceeding call to SetEntityName().
             void SetEntityName(const std::string& Name) { m_Name.Set(Name); }
+
+            /// Returns `true` if the entity is currently shown. Returns `false` if the entity is currently hidden.
+            bool IsShown() const { return m_Show.Get(); }
+
+            /// Returns `true` if the entity is declared as static. Returns `false` if (the primitives of) the entity can move.
+            bool IsStatic() const { return m_Static.Get(); }
+
+            /// Sets whether the entity is static or movable.
+            void SetStatic(bool Static) { m_Static.Set(Static); }
 
             // Base class overrides.
             ComponentBasicsT* Clone() const;
@@ -116,8 +122,9 @@ namespace cf
             };
 
 
-            EntityNameT m_Name;   ///< The name of the entity. Entity names must be valid Lua script identifiers and unique among their siblings.
-            EntityShowT m_Show;   ///< Is this entity currently shown?
+            EntityNameT         m_Name;     ///< The name of the entity. Entity names must be valid Lua script identifiers and unique among their siblings.
+            EntityShowT         m_Show;     ///< Is this entity currently shown?
+            TypeSys::VarT<bool> m_Static;   ///< Are the map primitives of this entity fixed and immovable, never moving around in the game world?
         };
     }
 }

@@ -202,7 +202,9 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig)
       m_ShowGrid(true)
 {
     m_ScriptWorld = new cf::GameSys::WorldT(
-        "MapEnt = world:new('EntityT', 'Map'); world:SetRootEntity(MapEnt);",
+        "Map = world:new('EntityT', 'Map')\n"
+        "Map:GetBasics():set('Static', true)\n"
+        "world:SetRootEntity(Map)\n",
         m_GameConfig->GetModelMan(),
         m_GameConfig->GetGuiResources(),
         cf::GameSys::WorldT::InitFlag_InlineCode | cf::GameSys::WorldT::InitFlag_InMapEditor);
@@ -312,7 +314,9 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     {
         // Before `.cmap` file format version 14, related `.cent` files did not exist.
         m_ScriptWorld = new cf::GameSys::WorldT(
-            "MapEnt = world:new('EntityT', 'Map'); world:SetRootEntity(MapEnt);",
+            "Map = world:new('EntityT', 'Map')\n"
+            "Map:GetBasics():set('Static', true)\n"
+            "world:SetRootEntity(Map)\n",
             m_GameConfig->GetModelMan(),
             m_GameConfig->GetGuiResources(),
             cf::GameSys::WorldT::InitFlag_InlineCode | cf::GameSys::WorldT::InitFlag_InMapEditor);
@@ -595,6 +599,27 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             NewEnt->GetBasics()->SetEntityName(NameProp->Value.ToStdString());
             MapEnt->RemoveProperty("name");
         }
+        else
+        {
+            // If we found no name for the entity above, just use the classname instead.
+            if (MapEnt->GetClass() && MapEnt->GetClass()->GetName() != "")
+                NewEnt->GetBasics()->SetEntityName(MapEnt->GetClass()->GetName().ToStdString());
+        }
+
+        if (MapEnt->GetClass() && MapEnt->GetClass()->GetName() != "")
+        {
+            const wxString ClassName = MapEnt->GetClass()->GetName();
+
+            // This is a relic from CaBSP's LoadWorld() code, which was hard-coded to move the primitives of
+            // entities of these classes into the world entity. Thus, for compatibility, set the "Static" flag here.
+            if (ClassName == "func_group" ||
+                ClassName == "func_wall" ||
+                ClassName == "func_water" ||
+                ClassName == "light")
+            {
+                NewEnt->GetBasics()->SetStatic(true);
+            }
+        }
 
         const EntPropertyT* OriginProp = MapEnt->FindProperty("origin");
         if (OriginProp)
@@ -766,6 +791,9 @@ namespace
     {
         if (!Entity->GetBasics()->IsShown())
             OutFile << "    self:GetBasics():set(\"Show\", false)\n";
+
+        if (Entity->GetBasics()->IsStatic())
+            OutFile << "    self:GetBasics():set(\"Static\", true)\n";
 
         OutFile << "    self:GetTransform():set(\"Origin\", " << Entity->GetTransform()->GetOrigin().x << ", " << Entity->GetTransform()->GetOrigin().y << ", " << Entity->GetTransform()->GetOrigin().z << ")\n";
      // OutFile << "    self:GetTransform():set(\"Size\", " << Entity->GetTransform()->GetSize().x << ", " << Entity->GetTransform()->GetSize().y << ")\n";

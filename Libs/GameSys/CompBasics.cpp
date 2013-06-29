@@ -139,13 +139,14 @@ void ComponentBasicsT::EntityShowT::Set(const bool& v)
 /************************/
 
 const char* ComponentBasicsT::DocClass =
-    "This component adds the basics of the entity (its name and the \"is shown?\" flag).";
+    "This component adds the basics of the entity (its name and the \"is shown?\" and \"is static?\" flags).";
 
 
 const cf::TypeSys::VarsDocT ComponentBasicsT::DocVars[] =
 {
-    { "Name", "The name of the entity. Entity names must be valid Lua script identifiers and unique among their siblings." },
-    { "Show", "Is this entity currently shown?" },
+    { "Name",   "The name of the entity. Entity names must be valid Lua script identifiers and unique among their siblings." },
+    { "Show",   "Is this entity currently shown?" },
+    { "Static", "Are the map primitives of this entity fixed and immovable, never moving around in the game world?" },
     { NULL, NULL }
 };
 
@@ -153,20 +154,24 @@ const cf::TypeSys::VarsDocT ComponentBasicsT::DocVars[] =
 ComponentBasicsT::ComponentBasicsT()
     : ComponentBaseT(),
       m_Name("Name", "Entity", NULL, *this),
-      m_Show("Show", true, NULL, *this)
+      m_Show("Show", true, NULL, *this),
+      m_Static("Static", false)
 {
     GetMemberVars().Add(&m_Name);
     GetMemberVars().Add(&m_Show);
+    GetMemberVars().Add(&m_Static);
 }
 
 
 ComponentBasicsT::ComponentBasicsT(const ComponentBasicsT& Comp)
     : ComponentBaseT(Comp),
       m_Name(Comp.m_Name, *this),
-      m_Show(Comp.m_Show)
+      m_Show(Comp.m_Show, *this),
+      m_Static(Comp.m_Static)
 {
     GetMemberVars().Add(&m_Name);
     GetMemberVars().Add(&m_Show);
+    GetMemberVars().Add(&m_Static);
 }
 
 
