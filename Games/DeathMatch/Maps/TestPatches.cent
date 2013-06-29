@@ -13,10 +13,10 @@
 -- ******************************
 
 Map = world:new("EntityT", "Map")
-Map.Entity = world:new("EntityT", "Entity")
-Map.Entity_1 = world:new("EntityT", "Entity_1")
-Map.Entity_2 = world:new("EntityT", "Entity_2")
-Map.Entity_3 = world:new("EntityT", "Entity_3")
+Map.info_player_start = world:new("EntityT", "info_player_start")
+Map.func_group = world:new("EntityT", "func_group")
+Map.func_group_1 = world:new("EntityT", "func_group_1")
+Map.static_detail_model = world:new("EntityT", "static_detail_model")
 Map.MyFirstLift = world:new("EntityT", "MyFirstLift")
 Map.MyLight = world:new("EntityT", "MyLight")
 Map.LiftWeldTank = world:new("EntityT", "LiftWeldTank")
@@ -36,10 +36,10 @@ world:SetRootEntity(Map)
 -- Setup the entity hierarchy.
 -- ***************************
 
-Map:AddChild(Map.Entity)
-Map:AddChild(Map.Entity_1)
-Map:AddChild(Map.Entity_2)
-Map:AddChild(Map.Entity_3)
+Map:AddChild(Map.info_player_start)
+Map:AddChild(Map.func_group)
+Map:AddChild(Map.func_group_1)
+Map:AddChild(Map.static_detail_model)
 Map:AddChild(Map.MyFirstLift)
 Map:AddChild(Map.MyLight)
 Map:AddChild(Map.LiftWeldTank)
@@ -54,23 +54,26 @@ Map:AddChild(Map.PointLightSource_001)
 -- *******************************************************
 
 function Map:OnInit()
+    self:GetBasics():set("Static", true)
     self:GetTransform():set("Origin", 0, 0, 0)
 end
 
-function Map.Entity:OnInit()
+function Map.info_player_start:OnInit()
     self:GetTransform():set("Origin", 16, -16, 56)
     self:GetTransform():set("Orientation", -0, 0, -1)
 end
 
-function Map.Entity_1:OnInit()
+function Map.func_group:OnInit()
+    self:GetBasics():set("Static", true)
     self:GetTransform():set("Origin", 84, -72, 40)
 end
 
-function Map.Entity_2:OnInit()
+function Map.func_group_1:OnInit()
+    self:GetBasics():set("Static", true)
     self:GetTransform():set("Origin", 108, -128, 40)
 end
 
-function Map.Entity_3:OnInit()
+function Map.static_detail_model:OnInit()
     self:GetTransform():set("Origin", -48, 96, 0)
     self:GetTransform():set("Orientation", 0, 0, 0.104528494)
 
