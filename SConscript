@@ -4,23 +4,29 @@ import CompilerSetup
 Import('env', 'buildMode', 'compiler')
 
 
-CommonWorldObject = env.StaticObject("Common/World.cpp")
+envMapCompilers = env.Clone()
 
-env.Program('CaBSP/CaBSP',   # I had preferred writing 'CaBSP' instead of 'CaBSP/CaBSP' here, but then under Linux we would get both a directory *and* an executeable with name 'CaBSP' in the build directory, which is not allowed/possible.
-    Split("CaBSP/CaBSP.cpp CaBSP/BspTreeBuilder/BspTreeBuilder.cpp") + CommonWorldObject,
-    LIBS=Split("SceneGraph MatSys ClipSys cfsLib cfs_jpeg bulletcollision lua minizip lightwave png z"))
+envMapCompilers.Append(CPPPATH=['ExtLibs/lua/src'])
+envMapCompilers.Append(LIBS=Split("SceneGraph MatSys ClipSys cfsLib cfs_jpeg bulletcollision lua minizip lightwave png z"))
 
-env.Program('CaPVS/CaPVS',
-    Split("CaPVS/CaPVS.cpp CaPVS/CaPVSWorld.cpp") + CommonWorldObject,
-    LIBS=Split("SceneGraph MatSys ClipSys cfsLib cfs_jpeg bulletcollision lua minizip lightwave png z"))
+if sys.platform=="win32":
+    envMapCompilers.Append(LIBS=Split("wsock32"))
+elif sys.platform=="linux2":
+    pass # envMapCompilers.Append(LIBS=Split(""))
 
-env.Program('CaLight/CaLight',
-    Split("CaLight/CaLight.cpp CaLight/CaLightWorld.cpp") + CommonWorldObject,
-    LIBS=Split("SceneGraph MatSys ClipSys cfsLib cfs_jpeg bulletcollision lua minizip lightwave png z"))
+CommonWorldObject = envMapCompilers.StaticObject("Common/World.cpp")
 
-env.Program('CaSHL/CaSHL',
-    Split("CaSHL/CaSHL.cpp CaSHL/CaSHLWorld.cpp") + CommonWorldObject,
-    LIBS=Split("SceneGraph MatSys ClipSys cfsLib cfs_jpeg bulletcollision lua minizip lightwave png z"))
+envMapCompilers.Program('CaBSP/CaBSP',   # I had preferred writing 'CaBSP' instead of 'CaBSP/CaBSP' here, but then under Linux we would get both a directory *and* an executeable with name 'CaBSP' in the build directory, which is not allowed/possible.
+    Split("CaBSP/CaBSP.cpp CaBSP/BspTreeBuilder/BspTreeBuilder.cpp") + CommonWorldObject)
+
+envMapCompilers.Program('CaPVS/CaPVS',
+    Split("CaPVS/CaPVS.cpp CaPVS/CaPVSWorld.cpp") + CommonWorldObject)
+
+envMapCompilers.Program('CaLight/CaLight',
+    Split("CaLight/CaLight.cpp CaLight/CaLightWorld.cpp") + CommonWorldObject)
+
+envMapCompilers.Program('CaSHL/CaSHL',
+    Split("CaSHL/CaSHL.cpp CaSHL/CaSHLWorld.cpp") + CommonWorldObject)
 
 
 
@@ -30,7 +36,7 @@ if sys.platform=="win32":
     envTools.Append(LIBPATH=['ExtLibs/DirectX7/lib'])
     # glu32 is only needed for the TerrainViewerOld...
     envTools.Append(LIBS=Split("SceneGraph MatSys ClipSys cfsLib cfs_jpeg bulletcollision lua minizip lightwave png z")
-                       + Split("gdi32 glu32 opengl32 user32") + ['cfsOpenGL', 'dinput', 'dxguid'])
+                       + Split("gdi32 glu32 opengl32 user32 wsock32") + ['cfsOpenGL', 'dinput', 'dxguid'])
 elif sys.platform=="linux2":
     # GLU is only needed for the TerrainViewerOld...
     envTools.Append(CPPPATH=['/usr/include/freetype2'])         # As of 2009-09-10, this line is to become unnecessary in the future, see /usr/include/ftbuild.h for details.

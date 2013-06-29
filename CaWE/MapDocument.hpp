@@ -181,7 +181,7 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     ChildFrameT*                 m_ChildFrame;          ///< The child frame within which this document lives.
     wxString                     m_FileName;            ///< This documents file name.
     MapDocAdapterT               m_DocAdapter;          ///< Kept here because it sometimes needs the same lifetime as the MapDocumentT itself, e.g. when referenced by a "material" property of the Entity Inspector, or by commands in the command history.
-    cf::GameSys::WorldT*         m_ScriptWorld;         ///< The "script world" contains the entity hierarchy and their components. Each m_Entities member has a pointer to its related instance herein.
+    cf::GameSys::WorldT*         m_ScriptWorld;         ///< The "script world" contains the entity hierarchy and their components.
     OrthoBspTreeT*               m_BspTree;             ///< The BSP tree that spatially organizes the map elements in the m_MapWorld.
     GameConfigT*                 m_GameConfig;          ///< The game configuration that is used with this map.
     ArrayT<const EntityClassT*>  m_UnknownEntClasses;   ///< The entity classes that are used by entities loaded into this map but who are unknown/undefined in this game config. This list complements GameConfigT::m_EntityClasses.

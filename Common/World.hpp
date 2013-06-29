@@ -42,6 +42,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 namespace cf { namespace SceneGraph { class BspTreeNodeT; } }
 namespace cf { namespace ClipSys    { class CollisionModelStaticT; } }
+namespace cf { namespace GameSys    { class WorldT; } }
 namespace cf { namespace GuiSys     { class GuiResourcesT; } }
 
 
@@ -126,11 +127,13 @@ class WorldT
     /// Constructor for creating an empty world.
     WorldT();
 
+    /// Constructor for creating a world from a .cw file.
+    WorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, ProgressFunctionT ProgressFunction=NULL) /*throw (LoadErrorT)*/;
+
     /// Destructor.
     ~WorldT();
 
-    /// Constructor for creating a world from a .cw file.
-    WorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, ProgressFunctionT ProgressFunction=NULL) /*throw (LoadErrorT)*/;
+    cf::GameSys::WorldT& GetScriptWorld() { return *m_ScriptWorld; }
 
     /// Saves the world to disk.
     void SaveToDisk(const char* FileName) const /*throw (SaveErrorT)*/;
@@ -139,6 +142,7 @@ class WorldT
     ArrayT<SharedTerrainT*>             Terrains;
     cf::SceneGraph::BspTreeNodeT*       BspTree;
     cf::ClipSys::CollisionModelStaticT* CollModel;
+    cf::GameSys::WorldT*                m_ScriptWorld;  ///< The "script world" contains the entity hierarchy and their components. Each m_Entities member has a pointer to its related instance herein.
     ArrayT<InfoPlayerStartT>            InfoPlayerStarts;
     ArrayT<PointLightT>                 PointLights;
     ArrayT<GameEntityT*>                GameEntities;

@@ -26,12 +26,15 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "World.hpp"
 #include "Bitmap/Bitmap.hpp"
 #include "ClipSys/CollisionModel_static.hpp"
+#include "GameSys/Entity.hpp"
+#include "GameSys/World.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 #include "SceneGraph/_aux.hpp"
 #include "SceneGraph/Node.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
 #include "SceneGraph/FaceNode.hpp"
+#include "String.hpp"
 
 #include <cassert>
 #include <cstring>
@@ -121,7 +124,8 @@ GameEntityT::~GameEntityT()
 
 WorldT::WorldT()
     : BspTree(new cf::SceneGraph::BspTreeNodeT),
-      CollModel(NULL)
+      CollModel(NULL),
+      m_ScriptWorld(NULL)
 {
 }
 
@@ -137,6 +141,8 @@ WorldT::~WorldT()
 
     for (unsigned long EntityNr=0; EntityNr<GameEntities.Size(); EntityNr++)
         delete GameEntities[EntityNr];
+
+    delete m_ScriptWorld;
 }
 
 
@@ -160,10 +166,24 @@ static std::string GetModDir(const char* FileName)
 
 WorldT::WorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, ProgressFunctionT ProgressFunction) /*throw (LoadErrorT)*/
     : BspTree(NULL),
-      CollModel(NULL)
+      CollModel(NULL),
+      m_ScriptWorld(NULL)
 {
     // Set the plant descriptions manager mod directory to the one from the world to load.
     PlantDescrMan.SetModDir(GetModDir(FileName));
+
+    try
+    {
+        m_ScriptWorld = new cf::GameSys::WorldT(
+            cf::String::StripExt(FileName) + ".cent",
+            ModelMan,
+            GuiRes,
+            0 /*cf::GameSys::WorldT::InitFlag_InMapEditor*/);
+    }
+    catch (const cf::GameSys::WorldT::InitErrorT& IE)
+    {
+        throw LoadErrorT(IE.what());
+    }
 
     std::ifstream InFile(FileName, std::ios::in | std::ios::binary);
     if (InFile.bad()) throw LoadErrorT("Unable to open Cafu world file.");

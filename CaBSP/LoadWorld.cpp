@@ -34,8 +34,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SceneGraph/PlantNode.hpp"
 #include "SceneGraph/ModelNode.hpp"
 #include "MapFile.hpp"
+#include "GameSys/Entity.hpp"
+#include "GameSys/World.hpp"
 #include "Models/ModelManager.hpp"
 #include "Plants/PlantDescrMan.hpp"
+#include "String.hpp"
 
 
 using namespace cf;
@@ -255,6 +258,19 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
     World.PlantDescrMan.SetModDir(GameDirectory);
 
     Console->Print(cf::va("\n*** Load World %s ***\n", LoadName));
+
+    try
+    {
+        World.m_ScriptWorld = new cf::GameSys::WorldT(
+            cf::String::StripExt(LoadName) + ".cent",
+            ModelMan,
+            GuiRes,
+            cf::GameSys::WorldT::InitFlag_InMapEditor);
+    }
+    catch (const cf::GameSys::WorldT::InitErrorT& IE)
+    {
+        Error(IE.what());
+    }
 
 
     // Parse all map entities into the MFEntityList.
