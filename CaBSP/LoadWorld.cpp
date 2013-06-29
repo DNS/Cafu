@@ -250,6 +250,19 @@ void ComputeBrushFaces(const MapFileBrushT& MFBrush, WorldT& World, cf::SceneGra
 }
 
 
+namespace
+{
+    /// Returns the entire hierarchy rooted at Entity in depth-first order.
+    void GetAll(IntrusivePtrT<cf::GameSys::EntityT> Entity, ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Result)
+    {
+        Result.PushBack(Entity);
+
+        for (unsigned int ChildNr = 0; ChildNr < Entity->GetChildren().Size(); ChildNr++)
+            GetAll(Entity->GetChildren()[ChildNr], Result);
+    }
+}
+
+
 // Ließt ein MapFile, das die der Version entsprechenden "MapFile Specifications" erfüllen muß, in die World ein.
 // Dabei werden folgende Komponenten der World modifiziert (ausgefüllt, u.U. nur teilweise):
 // Map.Faces, Map.TexInfos, Map.PointLights, InfoPlayerStarts und GameEntities.
@@ -296,114 +309,52 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
     MapFileSanityCheck(MFEntityList);
 
 
-    // 'func_group' entities are just for editor convenience, thus toss all their brushes into the 'worldspawn' entity.
-    // 'func_wall' and 'func_water' entities exist for historic reasons (render walls specially, treat water specially),
-    //     but are largely obsolete now with the Material System and Clip System and should probably be removed from
-    //     the maps and the EntityClassDefs.lua files.
-    // Assumptions:
-    // 1.) Entity 0 is the 'worldspawn' entity.
-    // 2.) Each entity has the "classname" property.
-    for (unsigned long EntityNr=1; EntityNr<MFEntityList.Size(); EntityNr++)
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllScriptEnts;
+    GetAll(World.m_ScriptWorld->GetRootEntity(), AllScriptEnts);
+
+    if (AllScriptEnts.Size() > MFEntityList.Size())
+        Console->Print("Note: There are more entities in the .cent file than in the .cmap file.\n"
+                       "This is a bit unusual, but normally not a problem.");
+
+    if (AllScriptEnts.Size() < MFEntityList.Size())
+        Console->Warning("There are fewer entities in the .cent file than in the .cmap file.\n"
+                         "Let's try to proceed, but something may not be right that will cause a more serious problem later.");
+
+    // Move map primitives of "static" entities into the "worldspawn" entity.
+    for (unsigned long EntNr = 1; EntNr < AllScriptEnts.Size() && EntNr < MFEntityList.Size(); EntNr++)
     {
-        const std::string EntClassName=MFEntityList[EntityNr].MFProperties["classname"];
-
-        if (EntClassName=="func_group" || EntClassName=="func_wall" || EntClassName=="func_water")
+        if (AllScriptEnts[EntNr]->GetBasics()->IsStatic())
         {
-            // Copy all brushes of this entity into the 'worldspawn' entity.
-            for (unsigned long BrushNr=0; BrushNr<MFEntityList[EntityNr].MFBrushes.Size(); BrushNr++)
-                MFEntityList[0].MFBrushes.PushBack(MFEntityList[EntityNr].MFBrushes[BrushNr]);
+            MapFileEntityT& E = MFEntityList[EntNr];
 
-            // Copy all bezier patches of this entity into the 'worldspawn' entity.
-            for (unsigned long BPNr=0; BPNr<MFEntityList[EntityNr].MFPatches.Size(); BPNr++)
-                MFEntityList[0].MFPatches.PushBack(MFEntityList[EntityNr].MFPatches[BPNr]);
-
-            // Delete this entity.
-            MFEntityList[EntityNr]=MFEntityList[MFEntityList.Size()-1];
-            MFEntityList.DeleteBack();
-            EntityNr--;
-        }
-    }
-
-
-    // *** HACK HACK HACK HACK ***   (In fact, two hacks total.)
-    //
-    // In TechDemo.cmap, "light" entities sometimes have Bezier Patches (and brushes?).
-    // However, Cafu can currently not render them as such, thus let's move them into the "worldspawn" entity.
-    for (unsigned long EntityNr=1; EntityNr<MFEntityList.Size(); EntityNr++)
-    {
-        MapFileEntityT& E=MFEntityList[EntityNr];
-
-        if (E.MFProperties["classname"]=="light")
-        {
             // Move all brushes of this entity into the 'worldspawn' entity.
-            for (unsigned long BrushNr=0; BrushNr<E.MFBrushes.Size(); BrushNr++)
-                MFEntityList[0].MFBrushes.PushBack(E.MFBrushes[BrushNr]);
+            MFEntityList[0].MFBrushes.PushBack(E.MFBrushes);
             E.MFBrushes.Clear();
 
             // Move all bezier patches of this entity into the 'worldspawn' entity.
-            for (unsigned long BPNr=0; BPNr<E.MFPatches.Size(); BPNr++)
-                MFEntityList[0].MFPatches.PushBack(E.MFPatches[BPNr]);
+            MFEntityList[0].MFPatches.PushBack(E.MFPatches);
             E.MFPatches.Clear();
 
-#if 1
-            // Delete this entity.
-            MFEntityList[EntityNr]=MFEntityList[MFEntityList.Size()-1];
-            MFEntityList.DeleteBack();
-            EntityNr--;
-#else
-            // Now the 2nd part of the hack: Convert the "light" entity into a "PointLightSource" entity,
-            // it will be included with the other regular game entities below.
-            // NOTE: "PointLight" and "PointLightSource" are NOT THE SAME!
-            bool HaveColor =false;
-            bool HaveRadius=false;
+            // TODO:
+            // Should other types of primitives (terrains, plants, models) be moved as well??
 
-            for (unsigned long PPairNr=1; PPairNr<E.MFPropPairs.Size(); PPairNr++)
-                     if (E.MFPropPairs[PPairNr].Key=="_color") HaveColor=true;
-                else if (E.MFPropPairs[PPairNr].Key=="light_radius") HaveRadius=true;
+            // Note that these days we no longer delete the now empty `E`.
+            // Doing so would bring AllScriptEnts and MFEntityList out of sync,
+            // and be unexpected for the user, who may still refer to `E` e.g. in scripts.
+        }
+    }
 
-            if (!HaveColor || !HaveRadius) continue;
+    // Move/migrate/insert the map primitives of each entity into the entity's BSP tree.
+    for (unsigned long EntNr = 0; EntNr < AllScriptEnts.Size(); EntNr++)
+    {
+        if (EntNr == 0)
+        {
+            ;
+        }
 
-            // Okay, it's a point light source.
-            E.MFPropPairs[0].Value="PointLightSource";
-
-            for (unsigned long PPairNr=1; PPairNr<E.MFPropPairs.Size(); PPairNr++)
-            {
-                if (E.MFPropPairs[PPairNr].Key=="_color")
-                {
-                    const Vector3dT LightColor=GetVectorFromTripleToken(E.MFPropPairs[PPairNr].Value);
-                    char            str[256];
-
-                    sprintf(str, "%i %i %i", int(LightColor.x*255), int(LightColor.y*255), int(LightColor.z*255));
-
-                    E.MFPropPairs[PPairNr].Key  ="light_color_diff";
-                    E.MFPropPairs[PPairNr].Value=str;
-
-                    MapFilePropPairT SpecCol;
-                    SpecCol.Key  ="light_color_spec";
-                    SpecCol.Value=str;
-                    E.MFPropPairs.PushBack(SpecCol);
-                }
-                else if (E.MFPropPairs[PPairNr].Key=="light_radius")
-                {
-                    const Vector3dT LightRadius=GetVectorFromTripleToken(E.MFPropPairs[PPairNr].Value);
-                    const double    LightRAvg  =(LightRadius.x+LightRadius.y+LightRadius.z)/3.0 * CA3DE_SCALE;
-                    char            str[256];
-
-                    sprintf(str, "%i", int(LightRAvg));
-
-                    E.MFPropPairs[PPairNr].Value=str;
-                }
-                else if (E.MFPropPairs[PPairNr].Key=="light_origin")
-                {
-                    // Update our "origin" with this value??
-                    // E.MFPropPairs[OriginPPairNr].Value=E.MFPropPairs[PPairNr].Value;
-                }
-                else if (E.MFPropPairs[PPairNr].Key=="light_target" || E.MFPropPairs[PPairNr].Key=="light_up" || E.MFPropPairs[PPairNr].Key=="light_right")
-                {
-                    Console->Warning("\"light\" entity %lu, mixed point and projected light keys?\n", EntityNr);
-                }
-            }
-#endif
+        if (EntNr < MFEntityList.Size())
+        {
+            ;
         }
     }
 
