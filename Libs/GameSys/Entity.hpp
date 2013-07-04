@@ -108,6 +108,11 @@ namespace cf
             /// @param Recurse   Determines if also the grand-children, grand-grand-children etc. are returned.
             void GetChildren(ArrayT< IntrusivePtrT<EntityT> >& Chld, bool Recurse=false) const;
 
+            /// Traverses the hierarchy (sub-tree) that is rooted at this entity in depth-first order
+            /// and records all encountered entities in the given list.
+            /// @param List   All nodes in this sub-tree are added to this list in depth-first order.
+            void GetAll(ArrayT< IntrusivePtrT<EntityT> >& List);
+
             /// Adds the given entity to the children of this entity, and sets this entity as the parent of the child.
             ///
             /// This method also makes sure that the name of the Child is unique among its siblings,

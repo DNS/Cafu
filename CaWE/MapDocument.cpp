@@ -527,25 +527,12 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
 }
 
 
-namespace
-{
-    /// Returns the entire hierarchy rooted at Entity in depth-first order.
-    void GetAll(IntrusivePtrT<cf::GameSys::EntityT> Entity, ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Result)
-    {
-        Result.PushBack(Entity);
-
-        for (unsigned int ChildNr = 0; ChildNr < Entity->GetChildren().Size(); ChildNr++)
-            GetAll(Entity->GetChildren()[ChildNr], Result);
-    }
-}
-
-
 /// Align the entities in the m_ScriptWorld and those in AllMapEnts with each other.
 void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const ArrayT< IntrusivePtrT<CompMapEntityT> >& AllMapEnts)
 {
     ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllScriptEnts;
 
-    GetAll(m_ScriptWorld->GetRootEntity(), AllScriptEnts);
+    m_ScriptWorld->GetRootEntity()->GetAll(AllScriptEnts);
 
     unsigned int EntNr = 0;
 
@@ -689,7 +676,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
     // Otherwise, assume that the component has been created by this process before, and don't touch it.
     // Obviously, this works with optional components only -- Basics and Transform must immediately be handled above.
     AllScriptEnts.Overwrite();
-    GetAll(m_ScriptWorld->GetRootEntity(), AllScriptEnts);
+    m_ScriptWorld->GetRootEntity()->GetAll(AllScriptEnts);
 
     for (EntNr = 0; EntNr < AllScriptEnts.Size(); EntNr++)
     {

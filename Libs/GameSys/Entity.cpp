@@ -206,6 +206,15 @@ void EntityT::GetChildren(ArrayT< IntrusivePtrT<EntityT> >& Chld, bool Recurse) 
 }
 
 
+void EntityT::GetAll(ArrayT< IntrusivePtrT<EntityT> >& List)
+{
+    List.PushBack(this);
+
+    for (unsigned int ChildNr = 0; ChildNr < m_Children.Size(); ChildNr++)
+        m_Children[ChildNr]->GetAll(List);
+}
+
+
 IntrusivePtrT<EntityT> EntityT::GetRoot()
 {
     EntityT* Root = this;

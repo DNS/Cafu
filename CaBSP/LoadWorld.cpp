@@ -250,19 +250,6 @@ void ComputeBrushFaces(const MapFileBrushT& MFBrush, WorldT& World, cf::SceneGra
 }
 
 
-namespace
-{
-    /// Returns the entire hierarchy rooted at Entity in depth-first order.
-    void GetAll(IntrusivePtrT<cf::GameSys::EntityT> Entity, ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Result)
-    {
-        Result.PushBack(Entity);
-
-        for (unsigned int ChildNr = 0; ChildNr < Entity->GetChildren().Size(); ChildNr++)
-            GetAll(Entity->GetChildren()[ChildNr], Result);
-    }
-}
-
-
 // Ließt ein MapFile, das die der Version entsprechenden "MapFile Specifications" erfüllen muß, in die World ein.
 // Dabei werden folgende Komponenten der World modifiziert (ausgefüllt, u.U. nur teilweise):
 // Map.Faces, Map.TexInfos, Map.PointLights, InfoPlayerStarts und GameEntities.
@@ -310,7 +297,7 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
 
 
     ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllScriptEnts;
-    GetAll(World.m_ScriptWorld->GetRootEntity(), AllScriptEnts);
+    World.m_ScriptWorld->GetRootEntity()->GetAll(AllScriptEnts);
 
     if (AllScriptEnts.Size() > MFEntityList.Size())
         Console->Print("Note: There are more entities in the .cent file than in the .cmap file.\n"
