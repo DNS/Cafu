@@ -26,14 +26,18 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CaSHLWorld.hpp"
 #include "ClipSys/CollisionModel_static.hpp"
 #include "ClipSys/TraceResult.hpp"
+#include "GameSys/World.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
 #include "SceneGraph/FaceNode.hpp"
+#include "../Common/CompGameEntity.hpp"
 #include <stdio.h>
 
 
 CaSHLWorldT::CaSHLWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes)
-    : World(FileName, ModelMan, GuiRes)
+    : m_World(FileName, ModelMan, GuiRes),
+      m_BspTree(GetGameEnt(m_World.m_ScriptWorld->GetRootEntity())->m_BspTree),
+      m_CollModel(GetGameEnt(m_World.m_ScriptWorld->GetRootEntity())->m_CollModel)
 {
 }
 
@@ -43,11 +47,11 @@ double CaSHLWorldT::TraceRay(const Vector3dT& Start, const Vector3dT& Ray) const
 #if 1
     cf::ClipSys::TraceResultT Result(1.0);
 
-    World.CollModel->TraceRay(Start, Ray, MaterialT::Clip_Radiance, Result);
+    m_CollModel->TraceRay(Start, Ray, MaterialT::Clip_Radiance, Result);
 
     return Result.Fraction;
 #else
-    return World.BspTree->TraceRay(Start, Ray, 0.0, 1.0, cf::SceneGraph::ConsiderAll, MaterialT::Clip_Radiance);
+    return m_BspTree->TraceRay(Start, Ray, 0.0, 1.0, cf::SceneGraph::ConsiderAll, MaterialT::Clip_Radiance);
 #endif
 }
 
@@ -73,16 +77,16 @@ inline double GetSqrDist(const ArrayT<double>& A, const ArrayT<double>& B)
 
 void CaSHLWorldT::PatchesToSHLMaps(const ArrayT< ArrayT<PatchT> >& Patches)
 {
-    const cf::SceneGraph::BspTreeNodeT& Map=*World.BspTree;
+    const cf::SceneGraph::BspTreeNodeT& Map = *m_BspTree;
 
     // Clear everything - the code below will fill in the new data.
-    for (unsigned long SHLMapNr=0; SHLMapNr<World.SHLMapMan.SHLMaps.Size(); SHLMapNr++)
+    for (unsigned long SHLMapNr = 0; SHLMapNr < m_World.SHLMapMan.SHLMaps.Size(); SHLMapNr++)
     {
-        World.SHLMapMan.SHLMaps[SHLMapNr]->Coeffs .Clear();
-        World.SHLMapMan.SHLMaps[SHLMapNr]->Indices.Clear();
+        m_World.SHLMapMan.SHLMaps[SHLMapNr]->Coeffs .Clear();
+        m_World.SHLMapMan.SHLMaps[SHLMapNr]->Indices.Clear();
     }
 
-    World.SHLMapMan.SHLCoeffsTable.Clear();
+    m_World.SHLMapMan.SHLCoeffsTable.Clear();
 
 
     // Proceed depending on whether the data is to be stored compressed or not.
@@ -210,11 +214,11 @@ void CaSHLWorldT::PatchesToSHLMaps(const ArrayT< ArrayT<PatchT> >& Patches)
 
 
         // Allocate space for the indices.
-        for (unsigned long SHLMapNr=0; SHLMapNr<World.SHLMapMan.SHLMaps.Size(); SHLMapNr++)
+        for (unsigned long SHLMapNr = 0; SHLMapNr < m_World.SHLMapMan.SHLMaps.Size(); SHLMapNr++)
         {
             // Make sure that all indices are initialized to zero.
-            while (World.SHLMapMan.SHLMaps[SHLMapNr]->Indices.Size()<(unsigned long)cf::SceneGraph::SHLMapManT::SIZE_S*cf::SceneGraph::SHLMapManT::SIZE_T)
-                World.SHLMapMan.SHLMaps[SHLMapNr]->Indices.PushBack(0);
+            while (m_World.SHLMapMan.SHLMaps[SHLMapNr]->Indices.Size() < (unsigned long)cf::SceneGraph::SHLMapManT::SIZE_S * cf::SceneGraph::SHLMapManT::SIZE_T)
+                m_World.SHLMapMan.SHLMaps[SHLMapNr]->Indices.PushBack(0);
         }
 
 
@@ -227,27 +231,27 @@ void CaSHLWorldT::PatchesToSHLMaps(const ArrayT< ArrayT<PatchT> >& Patches)
 
             for (unsigned long t=0; t<SMI.SizeT; t++)
                 for (unsigned long s=0; s<SMI.SizeS; s++)
-                    World.SHLMapMan.SHLMaps[SMI.SHLMapNr]->Indices[(SMI.PosT+t)*cf::SceneGraph::SHLMapManT::SIZE_S+SMI.PosS+s]=(unsigned short)BestRepForVector[VectorNr++];
+                    m_World.SHLMapMan.SHLMaps[SMI.SHLMapNr]->Indices[(SMI.PosT+t) * cf::SceneGraph::SHLMapManT::SIZE_S+SMI.PosS+s] = (unsigned short)BestRepForVector[VectorNr++];
         }
 
 
         // Finally, write the representatives into the SHLCoeffsTable.
         for (unsigned long RepNr=0; RepNr<Representatives.Size(); RepNr++)
             for (unsigned long CoeffNr=0; CoeffNr<Representatives[RepNr].Size(); CoeffNr++)
-                World.SHLMapMan.SHLCoeffsTable.PushBack(float(Representatives[RepNr][CoeffNr]));
+                m_World.SHLMapMan.SHLCoeffsTable.PushBack(float(Representatives[RepNr][CoeffNr]));
     }
     else
     {
         // Store the SHL coeffs uncompressed.
         const unsigned long NR_OF_SH_COEFFS=cf::SceneGraph::SHLMapManT::NrOfBands * cf::SceneGraph::SHLMapManT::NrOfBands;
 
-        for (unsigned long SHLMapNr=0; SHLMapNr<World.SHLMapMan.SHLMaps.Size(); SHLMapNr++)
+        for (unsigned long SHLMapNr = 0; SHLMapNr < m_World.SHLMapMan.SHLMaps.Size(); SHLMapNr++)
         {
-            const unsigned long SHLMapCoeffSize=cf::SceneGraph::SHLMapManT::SIZE_S * cf::SceneGraph::SHLMapManT::SIZE_T * NR_OF_SH_COEFFS;
+            const unsigned long SHLMapCoeffSize = cf::SceneGraph::SHLMapManT::SIZE_S * cf::SceneGraph::SHLMapManT::SIZE_T * NR_OF_SH_COEFFS;
 
             // Make sure that all coefficients are initialized with zeros.
-            while (World.SHLMapMan.SHLMaps[SHLMapNr]->Coeffs.Size()<SHLMapCoeffSize)
-                World.SHLMapMan.SHLMaps[SHLMapNr]->Coeffs.PushBack(0.0);
+            while (m_World.SHLMapMan.SHLMaps[SHLMapNr]->Coeffs.Size() < SHLMapCoeffSize)
+                m_World.SHLMapMan.SHLMaps[SHLMapNr]->Coeffs.PushBack(0.0);
         }
 
         // Übertrage die Patches-Werte zurück in die SHLMaps.
@@ -258,8 +262,8 @@ void CaSHLWorldT::PatchesToSHLMaps(const ArrayT< ArrayT<PatchT> >& Patches)
             for (unsigned long t=0; t<SMI.SizeT; t++)
                 for (unsigned long s=0; s<SMI.SizeS; s++)
                     for (unsigned long CoeffNr=0; CoeffNr<NR_OF_SH_COEFFS; CoeffNr++)
-                        World.SHLMapMan.SHLMaps[SMI.SHLMapNr]->Coeffs[((SMI.PosT+t)*cf::SceneGraph::SHLMapManT::SIZE_S+SMI.PosS+s)*NR_OF_SH_COEFFS+CoeffNr]
-                            =float(Patches[FaceNr][t*SMI.SizeS+s].SHCoeffs_TotalTransfer[CoeffNr]);
+                        m_World.SHLMapMan.SHLMaps[SMI.SHLMapNr]->Coeffs[((SMI.PosT+t)*cf::SceneGraph::SHLMapManT::SIZE_S + SMI.PosS + s) * NR_OF_SH_COEFFS + CoeffNr]
+                            = float(Patches[FaceNr][t*SMI.SizeS + s].SHCoeffs_TotalTransfer[CoeffNr]);
         }
     }
 }
@@ -267,5 +271,5 @@ void CaSHLWorldT::PatchesToSHLMaps(const ArrayT< ArrayT<PatchT> >& Patches)
 
 void CaSHLWorldT::SaveToDisk(const char* FileName) const
 {
-    World.SaveToDisk(FileName);
+    m_World.SaveToDisk(FileName);
 }

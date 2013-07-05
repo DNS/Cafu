@@ -50,6 +50,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/ConsoleStdout.hpp"
 #include "FileSys/FileManImpl.hpp"
 #include "FileSys/Password.hpp"
+#include "GameSys/AllComponents.hpp"
+#include "GameSys/World.hpp"
 #include "GuiSys/GuiResources.hpp"
 #include "Math3D/Brush.hpp"
 #include "Bitmap/Bitmap.hpp"
@@ -63,6 +65,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SceneGraph/FaceNode.hpp"
 #include "ClipSys/CollisionModelMan_impl.hpp"
 
+#include "../Common/CompGameEntity.hpp"
 #include "../Common/World.hpp"
 
 
@@ -80,14 +83,15 @@ MaterialManagerI*    MaterialManager   =NULL;
 
 
 WorldT* World=NULL;
+cf::SceneGraph::BspTreeNodeT* g_BspTree = NULL;
 
 
 bool Visible(unsigned long L1, unsigned long L2)
 {
-    unsigned long PVSTotalBitNr=L1*World->BspTree->Leaves.Size()+L2;
+    unsigned long PVSTotalBitNr=L1*g_BspTree->Leaves.Size()+L2;
     unsigned long PVS_W32_Nr   =PVSTotalBitNr >> 5;
 
-    return bool((World->BspTree->PVS[PVS_W32_Nr] >> (PVSTotalBitNr & 31)) & 1);
+    return bool((g_BspTree->PVS[PVS_W32_Nr] >> (PVSTotalBitNr & 31)) & 1);
 }
 
 
@@ -126,18 +130,18 @@ void ExportLightMaps(const char* WorldPathName)
 
 void ExportPVS()
 {
-    for (unsigned long Leaf1Nr=0; Leaf1Nr<World->BspTree->Leaves.Size(); Leaf1Nr++)
+    for (unsigned long Leaf1Nr=0; Leaf1Nr<g_BspTree->Leaves.Size(); Leaf1Nr++)
     {
         printf("%5lu: ", Leaf1Nr);
 
-        for (unsigned long Leaf2Nr=0; Leaf2Nr<World->BspTree->Leaves.Size(); Leaf2Nr++)
+        for (unsigned long Leaf2Nr=0; Leaf2Nr<g_BspTree->Leaves.Size(); Leaf2Nr++)
         {
-            const unsigned long PVSTotalBitNr=Leaf1Nr*World->BspTree->Leaves.Size()+Leaf2Nr;
+            const unsigned long PVSTotalBitNr=Leaf1Nr*g_BspTree->Leaves.Size()+Leaf2Nr;
 
-            if ((World->BspTree->PVS[PVSTotalBitNr >> 5] >> (PVSTotalBitNr & 31)) & 1)
+            if ((g_BspTree->PVS[PVSTotalBitNr >> 5] >> (PVSTotalBitNr & 31)) & 1)
             {
                 printf("%5lu", Leaf2Nr);
-                if (Leaf2Nr<World->BspTree->Leaves.Size()-1) printf(" ");
+                if (Leaf2Nr<g_BspTree->Leaves.Size()-1) printf(" ");
             }
         }
 
@@ -156,21 +160,21 @@ void PrintMaterialCounts(int Mode)
     if (Mode & 1)
     {
         printf("Counts and areas for faces...\n");
-        for (unsigned long FaceNr=0; FaceNr<World->BspTree->FaceChildren.Size(); FaceNr++)
+        for (unsigned long FaceNr=0; FaceNr<g_BspTree->FaceChildren.Size(); FaceNr++)
         {
-            MaterialT* Mat  =World->BspTree->FaceChildren[FaceNr]->Material;
+            MaterialT* Mat  =g_BspTree->FaceChildren[FaceNr]->Material;
             int        Index=Materials.Find(Mat);
 
             if (Index>=0)
             {
                 Counts[Index]++;
-                Areas [Index]+=World->BspTree->FaceChildren[FaceNr]->Polygon.GetArea()/1000000.0;
+                Areas [Index]+=g_BspTree->FaceChildren[FaceNr]->Polygon.GetArea()/1000000.0;
             }
             else
             {
                 Materials.PushBack(Mat);
                 Counts.PushBack(1);
-                Areas .PushBack(World->BspTree->FaceChildren[FaceNr]->Polygon.GetArea()/1000000.0);
+                Areas .PushBack(g_BspTree->FaceChildren[FaceNr]->Polygon.GetArea()/1000000.0);
             }
         }
     }
@@ -203,8 +207,8 @@ void ViewWorld()
     ArrayT<bool>          FaceIsInPVS;
     ArrayT<unsigned long> OrderedFaces;
 
-    FaceIsInPVS .PushBackEmpty(World->BspTree->FaceChildren.Size());
-    OrderedFaces.PushBackEmpty(World->BspTree->FaceChildren.Size());
+    FaceIsInPVS .PushBackEmpty(g_BspTree->FaceChildren.Size());
+    OrderedFaces.PushBackEmpty(g_BspTree->FaceChildren.Size());
 
 
     const char* ErrorMsg=SingleOpenGLWindow->Open("Simple World Viewer", 1024, 768, 16, false);
@@ -231,17 +235,17 @@ void ViewWorld()
 
 
         static ArrayT<unsigned long> OrderedLeaves;
-        const unsigned long ViewerLeafNr=World->BspTree->WhatLeaf(Viewer);
-        World->BspTree->GetLeavesOrderedBackToFront(OrderedLeaves, Viewer);
+        const unsigned long ViewerLeafNr=g_BspTree->WhatLeaf(Viewer);
+        g_BspTree->GetLeavesOrderedBackToFront(OrderedLeaves, Viewer);
 
-        for (unsigned long FaceNr=0; FaceNr<World->BspTree->FaceChildren.Size(); FaceNr++) FaceIsInPVS[FaceNr]=false;
+        for (unsigned long FaceNr=0; FaceNr<g_BspTree->FaceChildren.Size(); FaceNr++) FaceIsInPVS[FaceNr]=false;
 
         for (unsigned long OrderNr=0; OrderNr<OrderedLeaves.Size(); OrderNr++)
         {
             const unsigned long LeafNr=OrderedLeaves[OrderNr];
-            const cf::SceneGraph::BspTreeNodeT::LeafT& L=World->BspTree->Leaves[LeafNr];
+            const cf::SceneGraph::BspTreeNodeT::LeafT& L=g_BspTree->Leaves[LeafNr];
 
-            if (r_pvs_enabled && !World->BspTree->IsInPVS(LeafNr, ViewerLeafNr)) continue;
+            if (r_pvs_enabled && !g_BspTree->IsInPVS(LeafNr, ViewerLeafNr)) continue;
 
             OrderedFaces.PushBack(L.FaceChildrenSet);
 
@@ -258,8 +262,8 @@ void ViewWorld()
             for (unsigned long OrderedFaceNr=0; OrderedFaceNr<OrderedFaces.Size(); OrderedFaceNr++)
             {
                 const unsigned long FaceNr=OrderedFaces[OrderedFaceNr];
-                const Polygon3T<double>& F=World->BspTree->FaceChildren[FaceNr]->Polygon;
-                char                Alpha =255; // World->BspTree->FaceChildren[FaceNr]->TI.Alpha;
+                const Polygon3T<double>& F=g_BspTree->FaceChildren[FaceNr]->Polygon;
+                char                Alpha =255; // g_BspTree->FaceChildren[FaceNr]->TI.Alpha;
 
                 if (Alpha>80) Alpha-=40; else Alpha/=2;
 
@@ -281,11 +285,11 @@ void ViewWorld()
                 glColor3f(0.5, 0.5, 1.0);
                 glDisable(GL_DEPTH_TEST);
 
-                if (DrawLeafNr<World->BspTree->Leaves.Size())
+                if (DrawLeafNr<g_BspTree->Leaves.Size())
                 {
-                    for (unsigned long PortalNr=0; PortalNr<World->BspTree->Leaves[DrawLeafNr].Portals.Size(); PortalNr++)
+                    for (unsigned long PortalNr=0; PortalNr<g_BspTree->Leaves[DrawLeafNr].Portals.Size(); PortalNr++)
                     {
-                        const Polygon3T<double>& Portal=World->BspTree->Leaves[DrawLeafNr].Portals[PortalNr];
+                        const Polygon3T<double>& Portal=g_BspTree->Leaves[DrawLeafNr].Portals[PortalNr];
 
                         glBegin(GL_LINE_LOOP);
                             for (unsigned long VertexNr=0; VertexNr<Portal.Vertices.Size(); VertexNr++)
@@ -318,19 +322,19 @@ void ViewWorld()
                     if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_LSHIFT] || SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_RSHIFT])
                     {
                         // Großes 'L'.
-                        DrawLeafNr=World->BspTree->WhatLeaf(Viewer);
+                        DrawLeafNr=g_BspTree->WhatLeaf(Viewer);
                         printf("DrawLeafNr==%lu\n", DrawLeafNr);
                         break;
                     }
                     else
                     {
                         // Kleines 'l'.
-                        unsigned long LeafNr=World->BspTree->WhatLeaf(Viewer);
-                        bool          InnerL=World->BspTree->Leaves[LeafNr].IsInnerLeaf;
+                        unsigned long LeafNr=g_BspTree->WhatLeaf(Viewer);
+                        bool          InnerL=g_BspTree->Leaves[LeafNr].IsInnerLeaf;
 
                         printf("WhatLeaf(Viewer)==%lu (\"%s\")\n", LeafNr, InnerL ? "inner" : "outer");
-                        printf("%5lu Faces: ", World->BspTree->Leaves[LeafNr].FaceChildrenSet.Size());
-                        for (unsigned long SetNr=0; SetNr<World->BspTree->Leaves[LeafNr].FaceChildrenSet.Size(); SetNr++) printf("%5lu", World->BspTree->Leaves[LeafNr].FaceChildrenSet[SetNr]);
+                        printf("%5lu Faces: ", g_BspTree->Leaves[LeafNr].FaceChildrenSet.Size());
+                        for (unsigned long SetNr=0; SetNr<g_BspTree->Leaves[LeafNr].FaceChildrenSet.Size(); SetNr++) printf("%5lu", g_BspTree->Leaves[LeafNr].FaceChildrenSet[SetNr]);
                         printf("\n");
                         break;
                     }
@@ -338,7 +342,7 @@ void ViewWorld()
                     if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_LSHIFT] || SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_RSHIFT])
                     {
                         // Großes 'O'.
-                        if (DrawLeafNr==0) DrawLeafNr=World->BspTree->Leaves.Size()-1;
+                        if (DrawLeafNr==0) DrawLeafNr=g_BspTree->Leaves.Size()-1;
                                       else DrawLeafNr--;
                         printf("DrawLeafNr==%lu\n", DrawLeafNr);
                         break;
@@ -347,7 +351,7 @@ void ViewWorld()
                     {
                         // Kleines 'o'.
                         DrawLeafNr++;
-                        if (DrawLeafNr>=World->BspTree->Leaves.Size()) DrawLeafNr=0;
+                        if (DrawLeafNr>=g_BspTree->Leaves.Size()) DrawLeafNr=0;
                         printf("DrawLeafNr==%lu\n", DrawLeafNr);
                         break;
                     }
@@ -382,7 +386,7 @@ void PrintMapInfo()
 {
     struct HelperT
     {
-        const WorldT* HelperWorld;
+        const cf::SceneGraph::BspTreeNodeT* HelperBsp;
 
         unsigned long CurrentDepth;
         unsigned long MinDepth;
@@ -391,7 +395,7 @@ void PrintMapInfo()
         unsigned long SeperateLeafCount;
 
 
-        HelperT(const WorldT* World_) : HelperWorld(World_)
+        HelperT(const cf::SceneGraph::BspTreeNodeT* Bsp_) : HelperBsp(Bsp_)
         {
             CurrentDepth     =0;
             MinDepth         =0xFFFFFFFF;
@@ -405,7 +409,7 @@ void PrintMapInfo()
         {
             CurrentDepth++;
 
-            if (HelperWorld->BspTree->Nodes[NodeNr].FrontIsLeaf)
+            if (HelperBsp->Nodes[NodeNr].FrontIsLeaf)
             {
                 if (MinDepth>CurrentDepth) MinDepth=CurrentDepth;
                 if (MaxDepth<CurrentDepth) MaxDepth=CurrentDepth;
@@ -413,9 +417,9 @@ void PrintMapInfo()
                 TotalDepthSum+=CurrentDepth;
                 SeperateLeafCount++;
             }
-            else WalkDepthTree(HelperWorld->BspTree->Nodes[NodeNr].FrontChild);
+            else WalkDepthTree(HelperBsp->Nodes[NodeNr].FrontChild);
 
-            if (HelperWorld->BspTree->Nodes[NodeNr].BackIsLeaf)
+            if (HelperBsp->Nodes[NodeNr].BackIsLeaf)
             {
                 if (MinDepth>CurrentDepth) MinDepth=CurrentDepth;
                 if (MaxDepth<CurrentDepth) MaxDepth=CurrentDepth;
@@ -423,16 +427,16 @@ void PrintMapInfo()
                 TotalDepthSum+=CurrentDepth;
                 SeperateLeafCount++;
             }
-            else WalkDepthTree(HelperWorld->BspTree->Nodes[NodeNr].BackChild);
+            else WalkDepthTree(HelperBsp->Nodes[NodeNr].BackChild);
 
             CurrentDepth--;
         }
-    } Helper(World);
+    } Helper(g_BspTree);
 
     printf("Map summary:\n");
-    printf("Faces         : %6lu\n", World->BspTree->FaceChildren.Size());
-    printf("Nodes         : %6lu\n", World->BspTree->Nodes.Size());
-    printf("Leaves        : %6lu\n", World->BspTree->Leaves.Size());
+    printf("Faces         : %6lu\n", g_BspTree->FaceChildren.Size());
+    printf("Nodes         : %6lu\n", g_BspTree->Nodes.Size());
+    printf("Leaves        : %6lu\n", g_BspTree->Leaves.Size());
 
     printf("\nBSP tree data:\n");
     Helper.WalkDepthTree(0);
@@ -442,14 +446,14 @@ void PrintMapInfo()
     printf("Average tree depth : %6lu\n", Helper.TotalDepthSum/Helper.SeperateLeafCount);
 
     printf("\nPVS, LightMap, and SHL info:\n");
-    printf("PVS size (bytes)         : %12lu\n", World->BspTree->PVS.Size()*4);
+    printf("PVS size (bytes)         : %12lu\n", g_BspTree->PVS.Size()*4);
     unsigned long Checksum=0;
-    for (unsigned long Count=0; Count<World->BspTree->PVS.Size(); Count++)
+    for (unsigned long Count=0; Count<g_BspTree->PVS.Size(); Count++)
     {
-        Checksum+=(World->BspTree->PVS[Count] >> 24) & 0xFF;
-        Checksum+=(World->BspTree->PVS[Count] >> 16) & 0xFF;
-        Checksum+=(World->BspTree->PVS[Count] >>  8) & 0xFF;
-        Checksum+=(World->BspTree->PVS[Count]      ) & 0xFF;
+        Checksum+=(g_BspTree->PVS[Count] >> 24) & 0xFF;
+        Checksum+=(g_BspTree->PVS[Count] >> 16) & 0xFF;
+        Checksum+=(g_BspTree->PVS[Count] >>  8) & 0xFF;
+        Checksum+=(g_BspTree->PVS[Count]      ) & 0xFF;
     }
     printf("PVS checksum             : %12lu\n", Checksum);
     printf("\n");
@@ -476,9 +480,9 @@ void PrintMapInfo()
 
     printf("\n\nDo you want to see the face details? (press 'y' to confirm)\n");
     if (_getch()=='y')
-        for (unsigned long FaceNr=0; FaceNr<World->BspTree->FaceChildren.Size(); FaceNr++)
+        for (unsigned long FaceNr=0; FaceNr<g_BspTree->FaceChildren.Size(); FaceNr++)
         {
-            const cf::SceneGraph::FaceNodeT* FN=World->BspTree->FaceChildren[FaceNr];
+            const cf::SceneGraph::FaceNodeT* FN=g_BspTree->FaceChildren[FaceNr];
 
             printf("\n");
             printf("Face%5lu, MatName '%s', LightMap %3u, Plane (%7.4f %7.4f %7.4f) %14.3f\n", FaceNr, FN->Material->Name.c_str(), FN->LightMapInfo.LightMapNr, FN->Polygon.Plane.Normal.x, FN->Polygon.Plane.Normal.y, FN->Polygon.Plane.Normal.z, FN->Polygon.Plane.Dist);
@@ -491,17 +495,17 @@ void PrintMapInfo()
 
 void TestValidityOfFacesAndPortals()
 {
-    for (unsigned long FaceNr=0; FaceNr<World->BspTree->FaceChildren.Size(); FaceNr++)
-        if (!World->BspTree->FaceChildren[FaceNr]->Polygon.IsValid(MapT::RoundEpsilon, MapT::MinVertexDist))
+    for (unsigned long FaceNr=0; FaceNr<g_BspTree->FaceChildren.Size(); FaceNr++)
+        if (!g_BspTree->FaceChildren[FaceNr]->Polygon.IsValid(MapT::RoundEpsilon, MapT::MinVertexDist))
             printf("Face   %4lu is INVALID!\n", FaceNr);
 
-    for (unsigned long LeafNr=0; LeafNr<World->BspTree->Leaves.Size(); LeafNr++)
+    for (unsigned long LeafNr=0; LeafNr<g_BspTree->Leaves.Size(); LeafNr++)
     {
-        const cf::SceneGraph::BspTreeNodeT::LeafT& L=World->BspTree->Leaves[LeafNr];
+        const cf::SceneGraph::BspTreeNodeT::LeafT& L=g_BspTree->Leaves[LeafNr];
 
         if (!L.IsInnerLeaf && L.FaceChildrenSet.Size()>0)
         {
-            VectorT Near=World->BspTree->FaceChildren[L.FaceChildrenSet[0]]->Polygon.Vertices[0];
+            VectorT Near=g_BspTree->FaceChildren[L.FaceChildrenSet[0]]->Polygon.Vertices[0];
 
             printf("Outer Leaf %4lu has a non-empty FaceChildrenSet!\n",   LeafNr);
             printf("FaceChildrenSet of that leaf:\n");
@@ -522,16 +526,16 @@ void TestPVSIntegrity()
 {
     unsigned long Leaf1Nr;
 
-    for (Leaf1Nr=0; Leaf1Nr<World->BspTree->Leaves.Size(); Leaf1Nr++)
-        for (unsigned long Leaf2Nr=0; Leaf2Nr<World->BspTree->Leaves.Size(); Leaf2Nr++)
+    for (Leaf1Nr=0; Leaf1Nr<g_BspTree->Leaves.Size(); Leaf1Nr++)
+        for (unsigned long Leaf2Nr=0; Leaf2Nr<g_BspTree->Leaves.Size(); Leaf2Nr++)
             if (Visible(Leaf1Nr, Leaf2Nr) && !Visible(Leaf2Nr, Leaf1Nr))
                 printf("WARNING: Can see from%5lu to%5lu, but not vice versa!\n", Leaf1Nr, Leaf2Nr);
 
-    for (Leaf1Nr=0; Leaf1Nr<World->BspTree->Leaves.Size(); Leaf1Nr++)
-        for (unsigned long Leaf2Nr=0; Leaf2Nr<World->BspTree->Leaves.Size(); Leaf2Nr++)
-            if (Visible(Leaf1Nr, Leaf2Nr) && (!World->BspTree->Leaves[Leaf1Nr].IsInnerLeaf || !World->BspTree->Leaves[Leaf2Nr].IsInnerLeaf))
+    for (Leaf1Nr=0; Leaf1Nr<g_BspTree->Leaves.Size(); Leaf1Nr++)
+        for (unsigned long Leaf2Nr=0; Leaf2Nr<g_BspTree->Leaves.Size(); Leaf2Nr++)
+            if (Visible(Leaf1Nr, Leaf2Nr) && (!g_BspTree->Leaves[Leaf1Nr].IsInnerLeaf || !g_BspTree->Leaves[Leaf2Nr].IsInnerLeaf))
                 printf("WARNING: Can see from%5lu to%5lu, but%5lu is \"%s\", and%5lu is \"%s\"!\n",
-                    Leaf1Nr, Leaf2Nr, Leaf1Nr, World->BspTree->Leaves[Leaf1Nr].IsInnerLeaf ? "inner" : "outer", Leaf2Nr, World->BspTree->Leaves[Leaf2Nr].IsInnerLeaf ? "inner" : "outer");
+                    Leaf1Nr, Leaf2Nr, Leaf1Nr, g_BspTree->Leaves[Leaf1Nr].IsInnerLeaf ? "inner" : "outer", Leaf2Nr, g_BspTree->Leaves[Leaf2Nr].IsInnerLeaf ? "inner" : "outer");
 }
 
 
@@ -542,13 +546,13 @@ void Test10SmallestPortals()
     for (char Nr=0; Nr<10; Nr++)
     {
         static double LastWinnerArea=0;
-        unsigned long CurrentLNr    =World->BspTree->Leaves.Size();
+        unsigned long CurrentLNr    =g_BspTree->Leaves.Size();
         unsigned long CurrentPNr    =0;
         double        CurrentArea   =1000000.0;
 
-        for (unsigned long LeafNr=0; LeafNr<World->BspTree->Leaves.Size(); LeafNr++)
+        for (unsigned long LeafNr=0; LeafNr<g_BspTree->Leaves.Size(); LeafNr++)
         {
-            const cf::SceneGraph::BspTreeNodeT::LeafT& L=World->BspTree->Leaves[LeafNr];
+            const cf::SceneGraph::BspTreeNodeT::LeafT& L=g_BspTree->Leaves[LeafNr];
 
             for (unsigned long PortalNr=0; PortalNr<L.Portals.Size(); PortalNr++)
             {
@@ -563,9 +567,9 @@ void Test10SmallestPortals()
             }
         }
 
-        if (CurrentLNr==World->BspTree->Leaves.Size()) { printf("WARNING: NOT SO MANY PORTALS!?!\n"); break; }
+        if (CurrentLNr==g_BspTree->Leaves.Size()) { printf("WARNING: NOT SO MANY PORTALS!?!\n"); break; }
 
-        VectorT V=World->BspTree->Leaves[CurrentLNr].Portals[CurrentPNr].Vertices[0];
+        VectorT V=g_BspTree->Leaves[CurrentLNr].Portals[CurrentPNr].Vertices[0];
         printf("%2u, L#%5lu, P#%3lu, Vertex0 (%9.2f %9.2f %9.2f), Area: %10.2f\n", Nr+1, CurrentLNr, CurrentPNr, V.x, V.y, V.z, CurrentArea);
 
         LastWinnerArea=CurrentArea;
@@ -590,6 +594,9 @@ void Usage()
 
 int main(int ArgC, char* ArgV[])
 {
+    cf::GameSys::GetComponentTIM().Init();      // The one-time init of the GameSys components type info manager.
+    cf::GameSys::GetGameSysEntityTIM().Init();  // The one-time init of the GameSys entity type info manager.
+
     if (ArgC>1 && std::string(ArgV[1])=="-p")
     {
         // Generate a password
@@ -657,6 +664,7 @@ int main(int ArgC, char* ArgV[])
         ModelManagerT             ModelMan;
         cf::GuiSys::GuiResourcesT GuiRes(ModelMan);
         World = new WorldT(ArgV[1], ModelMan, GuiRes);
+        g_BspTree = GetGameEnt(World->m_ScriptWorld->GetRootEntity())->m_BspTree;
 
         // Gib ggf. nur die gewünschten Infos aus
         if (ArgC==3)
@@ -694,6 +702,8 @@ int main(int ArgC, char* ArgV[])
         // TO DO: Bestimme die maximale Lightmap.Size und prüfe, ob SizeS oder SizeT > 128 !
 
         delete World;
+        World = NULL;
+        g_BspTree = NULL;
         printf("--- All tests are completed! Press any key to leave. ---\n");
         _getch();
     }

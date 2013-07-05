@@ -27,12 +27,16 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Bitmap/Bitmap.hpp"
 #include "ClipSys/CollisionModel_static.hpp"
 #include "ClipSys/TraceResult.hpp"
+#include "GameSys/World.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
+#include "../Common/CompGameEntity.hpp"
 
 
 CaLightWorldT::CaLightWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes)
-    : World(FileName, ModelMan, GuiRes)
+    : m_World(FileName, ModelMan, GuiRes),
+      m_BspTree(GetGameEnt(m_World.m_ScriptWorld->GetRootEntity())->m_BspTree),
+      m_CollModel(GetGameEnt(m_World.m_ScriptWorld->GetRootEntity())->m_CollModel)
 {
 }
 
@@ -42,18 +46,18 @@ double CaLightWorldT::TraceRay(const Vector3dT& Start, const Vector3dT& Ray) con
 #if 1
     cf::ClipSys::TraceResultT Result(1.0);
 
-    World.CollModel->TraceRay(Start, Ray, MaterialT::Clip_Radiance, Result);
+    m_CollModel->TraceRay(Start, Ray, MaterialT::Clip_Radiance, Result);
 
     return Result.Fraction;
 #else
-    return World.BspTree->TraceRay(Start, Ray, 0.0, 1.0, cf::SceneGraph::ConsiderAll, MaterialT::Clip_Radiance);
+    return m_BspTree->TraceRay(Start, Ray, 0.0, 1.0, cf::SceneGraph::ConsiderAll, MaterialT::Clip_Radiance);
 #endif
 }
 
 
 void CaLightWorldT::SaveToDisk(const char* FileName) const
 {
-    World.SaveToDisk(FileName);
+    m_World.SaveToDisk(FileName);
 }
 
 
@@ -77,9 +81,12 @@ void CaLightWorldT::CreateLightMapsForEnts()
         }
 
 
-    for (unsigned long EntNr=0; EntNr<World.GameEntities.Size(); EntNr++)
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
+    m_World.m_ScriptWorld->GetRootEntity()->GetAll(AllEnts);
+
+    for (unsigned long EntNr = 1 /*non-world only*/; EntNr < AllEnts.Size(); EntNr++)
     {
-        cf::SceneGraph::BspTreeNodeT* EntBspTree=World.GameEntities[EntNr]->BspTree;
+        cf::SceneGraph::BspTreeNodeT* EntBspTree = GetGameEnt(AllEnts[EntNr])->m_BspTree;
 
 
         // Obtain the patch meshes for this entity.
@@ -134,13 +141,13 @@ void CaLightWorldT::CreateLightMapsForEnts()
                         if (HitFrac==1.0) continue;     // Ray did not hit anything.
 
                         const Vector3dT     HitPos=Patch.Coord+SampleDirs[SampleNr]*(HitFrac*RayLength-0.1);
-                        const unsigned long LeafNr=World.BspTree->WhatLeaf(HitPos);
+                        const unsigned long LeafNr=m_BspTree->WhatLeaf(HitPos);
 
                         // printf("    HitFrac %f, HitPos %s, LeafNr %lu\n", HitFrac, convertToString(HitPos).c_str(), LeafNr);
 
-                        for (unsigned long FNr=0; FNr<World.BspTree->Leaves[LeafNr].FaceChildrenSet.Size(); FNr++)
+                        for (unsigned long FNr=0; FNr<m_BspTree->Leaves[LeafNr].FaceChildrenSet.Size(); FNr++)
                         {
-                            cf::SceneGraph::FaceNodeT* FaceNode=World.BspTree->FaceChildren[World.BspTree->Leaves[LeafNr].FaceChildrenSet[FNr]];
+                            cf::SceneGraph::FaceNodeT* FaceNode=m_BspTree->FaceChildren[m_BspTree->Leaves[LeafNr].FaceChildrenSet[FNr]];
                             Vector3fT                  HitColor;
 
                             if (!FaceNode->GetLightmapColorNearPosition(HitPos, HitColor)) continue;

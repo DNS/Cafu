@@ -25,6 +25,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClipSys/CollisionModel_static.hpp"
 #include "ClipSys/CollisionModelMan.hpp"
 #include "ConsoleCommands/ConVar.hpp"
+#include "GameSys/Entity.hpp"
+#include "GameSys/World.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix.hpp"
 #include "Network/Network.hpp"
@@ -33,6 +35,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SceneGraph/FaceNode.hpp"
 #include "Win32/Win32PrintHelp.hpp"
 #include "DebugLog.hpp"
+#include "../Common/CompGameEntity.hpp"
 #include "../../Games/Game.hpp"
 
 #include <cassert>
@@ -47,10 +50,11 @@ CaClientWorldT::CaClientWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::Ga
       m_PlayerCommands()
 {
     ProgressFunction(-1.0f, "InitDrawing()");
-    m_World->BspTree->InitDrawing();
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
+    m_World->m_ScriptWorld->GetRootEntity()->GetAll(AllEnts);
 
-    for (unsigned long EntityNr=0; EntityNr<m_World->GameEntities.Size(); EntityNr++)
-        m_World->GameEntities[EntityNr]->BspTree->InitDrawing();
+    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
+        GetGameEnt(AllEnts[EntNr])->m_BspTree->InitDrawing();
 
     Frames.PushBackEmpty(MAX_FRAMES);
     m_PlayerCommands.PushBackEmpty(128);    // The size MUST be a power of 2.
@@ -73,15 +77,18 @@ void CaClientWorldT::RemoveEntity(unsigned long EntityID)
 
 bool CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
 {
-    unsigned long EntityID    =InData.ReadLong();
-    unsigned long EntityTypeID=InData.ReadLong();
-    unsigned long EntityWFI   =InData.ReadLong();   // Short for: EntityWorldFileIndex
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
+    m_World->m_ScriptWorld->GetRootEntity()->GetAll(AllEnts);
+
+    const unsigned long EntityID     = InData.ReadLong();
+    const unsigned long EntityTypeID = InData.ReadLong();
+    const unsigned long EntityWFI    = InData.ReadLong();   // Short for: EntityWorldFileIndex
 
     const std::map<std::string, std::string>  EmptyMap;
-    const unsigned long                       MFIndex =EntityWFI<m_World->GameEntities.Size() ? m_World->GameEntities[EntityWFI]->MFIndex : 0xFFFFFFFF;
-    const std::map<std::string, std::string>& Props   =EntityWFI<m_World->GameEntities.Size() ? m_World->GameEntities[EntityWFI]->Properties : EmptyMap;
-    const cf::SceneGraph::GenericNodeT*       RootNode=EntityWFI<m_World->GameEntities.Size() ? m_World->GameEntities[EntityWFI]->BspTree : NULL;
-    const cf::ClipSys::CollisionModelT*       CollMdl =EntityWFI<m_World->GameEntities.Size() ? m_World->GameEntities[EntityWFI]->CollModel : NULL;
+    const unsigned long                       MFIndex  = EntityWFI < AllEnts.Size() ? GetGameEnt(AllEnts[EntityWFI])->m_MFIndex    : 0xFFFFFFFF;
+    const std::map<std::string, std::string>& Props    = EntityWFI < AllEnts.Size() ? GetGameEnt(AllEnts[EntityWFI])->m_Properties : EmptyMap;
+    const cf::SceneGraph::GenericNodeT*       RootNode = EntityWFI < AllEnts.Size() ? GetGameEnt(AllEnts[EntityWFI])->m_BspTree    : NULL;
+    const cf::ClipSys::CollisionModelT*       CollMdl  = EntityWFI < AllEnts.Size() ? GetGameEnt(AllEnts[EntityWFI])->m_CollModel  : NULL;
 
     // Register CollMdl also with the cf::ClipSys::CollModelMan, so that both the owner (Ca3DEWorld.GameEntities[EntityWFI])
     // as well as the game code can free/delete it in their destructors (one by "delete", the other by cf::ClipSys::CollModelMan->FreeCM()).
@@ -418,7 +425,8 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
     MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::AMBIENT);
     MatSys::Renderer->SetCurrentEyePosition(float(DrawOrigin.x), float(DrawOrigin.y), float(DrawOrigin.z)+EyeOffsetZ);    // Also required in some ambient shaders.
 
-    m_World->BspTree->DrawAmbientContrib(DrawOrigin);
+    const cf::SceneGraph::BspTreeNodeT* BspTree = GetGameEnt(m_World->m_ScriptWorld->GetRootEntity())->m_BspTree;
+    BspTree->DrawAmbientContrib(DrawOrigin);
 
 
     if (!CurrentFrame.IsValid)
@@ -483,7 +491,7 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
 
         if (LightCastsShadows)
         {
-            m_World->BspTree->DrawStencilShadowVolumes(LightPosition, LightRadius);
+            BspTree->DrawStencilShadowVolumes(LightPosition, LightRadius);
 
          // static ConVarT LocalPlayerStencilShadows("cl_LocalPlayerStencilShadows", false, ConVarT::FLAG_MAIN_EXE, "Whether the local player casts stencil shadows.");
          // if (LocalPlayerStencilShadows.GetValueBool())
@@ -509,7 +517,7 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
         // Render the light-source dependent terms.
         MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::LIGHTING);
 
-        m_World->BspTree->DrawLightSourceContrib(DrawOrigin, LightPosition);
+        BspTree->DrawLightSourceContrib(DrawOrigin, LightPosition);
         DrawEntities(OurEntityID,
                      false,
                      DrawOrigin,
@@ -521,7 +529,7 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
     MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::AMBIENT);
 
     // Render translucent nodes back-to-front.
-    m_World->BspTree->DrawTranslucentContrib(DrawOrigin);
+    BspTree->DrawTranslucentContrib(DrawOrigin);
 
     // Zuletzt halbtransparente HUD-Elemente, Fonts usw. zeichnen.
     PostDrawEntities(FrameTime, CurrentFrame.EntityIDsInPVS);

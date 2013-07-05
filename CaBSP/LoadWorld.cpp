@@ -39,6 +39,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Models/ModelManager.hpp"
 #include "Plants/PlantDescrMan.hpp"
 #include "String.hpp"
+#include "../Common/CompGameEntity.hpp"
 
 
 using namespace cf;
@@ -334,27 +335,21 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
     // Move/migrate/insert the map primitives of each entity into the entity's BSP tree.
     for (unsigned long EntNr = 0; EntNr < AllScriptEnts.Size(); EntNr++)
     {
-        if (EntNr == 0)
-        {
-            ;
-        }
+        IntrusivePtrT<CompGameEntityT> GameEnt = new CompGameEntityT(EntNr);
 
-        if (EntNr < MFEntityList.Size())
-        {
-            ;
-        }
-    }
+        assert(AllScriptEnts[EntNr]->GetApp().IsNull());
+        AllScriptEnts[EntNr]->SetApp(GameEnt);
 
+        if (EntNr >= MFEntityList.Size())
+            continue;
 
-    // Finally, fill-in our World data structures!
-    for (unsigned long EntityNr=0; EntityNr<MFEntityList.Size(); EntityNr++)
-    {
-        const MapFileEntityT& E=MFEntityList[EntityNr];
-        const std::map<std::string, std::string>::const_iterator ClassNamePair=E.MFProperties.find("classname");
+        const MapFileEntityT& E = MFEntityList[EntNr];
+        const std::map<std::string, std::string>::const_iterator ClassNamePair = E.MFProperties.find("classname");
 
-        if (ClassNamePair==E.MFProperties.end()) Error("\"classname\" property not found in entity %lu.", EntityNr);
+        if (ClassNamePair == E.MFProperties.end())
+            Error("\"classname\" property not found in entity %lu.", EntNr);
 
-        if (ClassNamePair->second=="worldspawn")
+        if (ClassNamePair->second == "worldspawn")
         {
             std::map<std::string, std::string>::const_iterator It;
 
@@ -375,54 +370,18 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
                 if (cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize<  50.0) { cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize=  50.0; Console->Print("NOTE: SHLMap PatchSize clamped to 50.\n"  ); }
                 if (cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize>2000.0) { cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize=2000.0; Console->Print("NOTE: SHLMap PatchSize clamped to 2000.\n"); }
             }
-
-
-            for (unsigned long BrushNr=0; BrushNr<E.MFBrushes.Size(); BrushNr++)
-                ComputeBrushFaces(E.MFBrushes[BrushNr], World, World.BspTree, DrawWorldOutsidePointSamples, EntityNr, BrushNr);
-
-            for (unsigned long BPNr=0; BPNr<E.MFPatches.Size(); BPNr++)
-            {
-                const MapFileBezierPatchT& BP=E.MFPatches[BPNr];
-
-                World.BspTree->OtherChildren.PushBack(new cf::SceneGraph::BezierPatchNodeT(World.LightMapMan, BP.SizeX, BP.SizeY, BP.ControlPoints, BP.SubdivsHorz, BP.SubdivsVert, BP.Material));
-            }
-
-            for (unsigned long TerrainNr=0; TerrainNr<E.MFTerrains.Size(); TerrainNr++)
-            {
-                const MapFileTerrainT& Terrain=E.MFTerrains[TerrainNr];
-
-                World.Terrains.PushBack(new SharedTerrainT(Terrain.Bounds, Terrain.SideLength, Terrain.HeightData, Terrain.Material));
-                World.BspTree->OtherChildren.PushBack(new cf::SceneGraph::TerrainNodeT(Terrain.Bounds, World.Terrains[TerrainNr]->Terrain, TerrainNr, Terrain.Material->Name));
-            }
-
-            for (unsigned long PlantNr=0; PlantNr<E.MFPlants.Size(); PlantNr++)
-            {
-                const MapFilePlantT& Plant=E.MFPlants[PlantNr];
-
-                World.BspTree->OtherChildren.PushBack(new cf::SceneGraph::PlantNodeT(World.PlantDescrMan.GetPlantDescription(Plant.DescrFileName) , Plant.RandomSeed, Plant.Position, Plant.Angles));
-            }
-
-            for (unsigned long ModelNr=0; ModelNr<E.MFModels.Size(); ModelNr++)
-            {
-                std::string          ErrorMsg;
-                const MapFileModelT& Model=E.MFModels[ModelNr];
-                const CafuModelT*    CafuM=ModelMan.GetModel(GameDirectory+"/"+Model.Model, &ErrorMsg);
-
-                if (ErrorMsg!="") Console->Warning(ErrorMsg);
-                World.BspTree->OtherChildren.PushBack(new cf::SceneGraph::ModelNodeT(CafuM, Model.Label, Model.Origin, Model.Angles, Model.Scale, Model.SeqNumber, Model.FrameOffset, Model.FrameTimeScale, Model.Animate));
-            }
         }
-        else if (ClassNamePair->second=="PointLight")
+        else if (ClassNamePair->second == "PointLight")
         {
-            const double Pi=3.14159265358979323846;
+            const double Pi = 3.14159265358979323846;
 
             PointLightT PL;
             std::map<std::string, std::string>::const_iterator It;
 
-            PL.Dir  =VectorT(0.0, 1.0, 0.0);
-            PL.Angle=float(Pi);
+            PL.Origin = AllScriptEnts[EntNr]->GetTransform()->GetOrigin().AsVectorOfDouble() * CA3DE_SCALE;
+            PL.Dir    = VectorT(0.0, 1.0, 0.0);
+            PL.Angle  = float(Pi);
 
-            It=E.MFProperties.find("origin"       ); if (It!=E.MFProperties.end()) PL.Origin     =GetVectorFromTripleToken(It->second)*CA3DE_SCALE;
             It=E.MFProperties.find("angles"       ); if (It!=E.MFProperties.end()) PL.Dir        =Vector3dT(0, 0, -1);   // Sigh... yet another hack! :-/   // GetVectorFromTripleToken(It->second);
             It=E.MFProperties.find("opening_angle"); if (It!=E.MFProperties.end()) PL.Angle      =float(atof(It->second.c_str())/180.0*Pi);
             It=E.MFProperties.find("intensity_r"  ); if (It!=E.MFProperties.end()) PL.Intensity.x=atof(It->second.c_str());
@@ -434,156 +393,127 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
 
             World.PointLights.PushBack(PL);
         }
-     /* else if (ClassNamePair->second=="func_wall")    // Special case, handled above.
-        {
-        }
-        else if (ClassNamePair->second=="func_water")   // Special case, handled above.
-        {
-        } */
-        else if (ClassNamePair->second=="info_player_start")
+        else if (ClassNamePair->second == "info_player_start")
         {
             InfoPlayerStartT IPS;
             std::map<std::string, std::string>::const_iterator It;
 
-            IPS.Heading=0;
-            IPS.Pitch  =0;
-            IPS.Bank   =0;
+            IPS.Origin  = AllScriptEnts[EntNr]->GetTransform()->GetOrigin().AsVectorOfDouble() * CA3DE_SCALE;
+            IPS.Heading = 0;
+            IPS.Pitch   = 0;
+            IPS.Bank    = 0;
 
-            It=E.MFProperties.find("origin"); if (It!=E.MFProperties.end()) IPS.Origin =GetVectorFromTripleToken(It->second.c_str())*CA3DE_SCALE;
             It=E.MFProperties.find("angles"); if (It!=E.MFProperties.end()) IPS.Heading=(unsigned short)(GetVectorFromTripleToken(It->second).y*8192.0/45.0);
 
             World.InfoPlayerStarts.PushBack(IPS);
         }
-        else
+
+
+        // 1. Copy the properties.
+        GameEnt->m_Properties = E.MFProperties;
+
+        // 2. Copy the origin point.
+        // Der Origin ist etwas besonderes, denn er kommt bei allen "point entities" vor
+        // (bei "solid entities" idR in Form eines Origin-Brushes),
+        // und in der Engine (EntityStateT) sogar bei allen Entities.
+        GameEnt->m_Origin = AllScriptEnts[EntNr]->GetTransform()->GetOrigin().AsVectorOfDouble() * CA3DE_SCALE;
+
+        // 3. Fill-in the Terrains array.
+        for (unsigned long TerrainNr = 0; TerrainNr < E.MFTerrains.Size(); TerrainNr++)
         {
-            // Console->Print("INFO: PROCESSING GAME ENTITY "+cf::va("%lu", World.GameEntities.Size())+" (class \""+ClassNamePair->second+"\"):\n");
-            // Console->Print("***********************************************************************************\n\n");
+            const MapFileTerrainT& Terrain = E.MFTerrains[TerrainNr];
 
-            // Es ist ein Game/MOD/DLL-Entity, kein Engine-Entity!
-            GameEntityT* GE=new GameEntityT(E.MFIndex);
+            GameEnt->m_Terrains.PushBack(new SharedTerrainT(Terrain.Bounds, Terrain.SideLength, Terrain.HeightData, Terrain.Material));
+        }
 
-            // 1. Copy the properties.
-            GE->Properties=E.MFProperties;
+        // 4. Create a new BSP tree.
+        GameEnt->m_BspTree = new cf::SceneGraph::BspTreeNodeT;
 
-            // 2. Copy the origin point.
-            std::map<std::string, std::string>::const_iterator It=E.MFProperties.find("origin");
-            if (It!=E.MFProperties.end())
+        // 5. Build the collision model (if this entity has one that is made of map primitives).
+        if (EntNr == 0 || E.MFBrushes.Size() > 0 || E.MFPatches.Size() > 0 || GameEnt->m_Terrains.Size() > 0)
+        {
+            ArrayT<cf::ClipSys::CollisionModelStaticT::TerrainRefT> ShTe;
+
+            for (unsigned long TerrainNr = 0; TerrainNr < GameEnt->m_Terrains.Size(); TerrainNr++)
             {
-                // Der Origin ist etwas besonderes, denn er kommt bei allen "point entities" vor
-                // (bei "solid entities" idR in Form eines Origin-Brushes),
-                // und in der Engine (EntityStateT) sogar bei allen Entities.
-                GE->Origin=GetVectorFromTripleToken(It->second)*CA3DE_SCALE;
+                const SharedTerrainT* ST = GameEnt->m_Terrains[TerrainNr];
+
+                ShTe.PushBack(cf::ClipSys::CollisionModelStaticT::TerrainRefT(&ST->Terrain, ST->Material, ST->BB));
             }
 
-            // 3. Fill-in the Terrains array.
-            for (unsigned long TerrainNr=0; TerrainNr<E.MFTerrains.Size(); TerrainNr++)
-            {
-                const MapFileTerrainT& Terrain=E.MFTerrains[TerrainNr];
+            // false: Use brushes with precomputed bevel planes (for EntNr == 0).
+            // true:  Use generic brushes (for EntNr > 0).
+            GameEnt->m_CollModel = new cf::ClipSys::CollisionModelStaticT(E, ShTe, EntNr > 0);
+        }
 
-                GE->Terrains.PushBack(new SharedTerrainT(Terrain.Bounds, Terrain.SideLength, Terrain.HeightData, Terrain.Material));
-            }
+        // 6. Collect the geometry primitives for the BSP tree.
+        ArrayT<VectorT> GameEntityOutsidePointSamples;
 
-            // 4. Create a new BSP tree.
-            GE->BspTree=new cf::SceneGraph::BspTreeNodeT;
+        for (unsigned long BrushNr = 0; BrushNr < E.MFBrushes.Size(); BrushNr++)
+        {
+            ComputeBrushFaces(E.MFBrushes[BrushNr], World, GameEnt->m_BspTree, EntNr == 0 ? DrawWorldOutsidePointSamples : GameEntityOutsidePointSamples, EntNr, BrushNr);
+        }
 
-            // 5. Build the collision model (if this entity has one that is made of map primitives).
-            if (E.MFBrushes.Size()>0 || E.MFPatches.Size()>0 || GE->Terrains.Size()>0)
-            {
-                ArrayT<cf::ClipSys::CollisionModelStaticT::TerrainRefT> ShTe;
+        for (unsigned long BPNr = 0; BPNr < E.MFPatches.Size(); BPNr++)
+        {
+            const MapFileBezierPatchT& BP = E.MFPatches[BPNr];
 
-                for (unsigned long TerrainNr=0; TerrainNr<GE->Terrains.Size(); TerrainNr++)
-                {
-                    const SharedTerrainT* ST=GE->Terrains[TerrainNr];
+            GameEnt->m_BspTree->OtherChildren.PushBack(new cf::SceneGraph::BezierPatchNodeT(World.LightMapMan, BP.SizeX, BP.SizeY, BP.ControlPoints, BP.SubdivsHorz, BP.SubdivsVert, BP.Material));
+        }
 
-                    ShTe.PushBack(cf::ClipSys::CollisionModelStaticT::TerrainRefT(&ST->Terrain, ST->Material, ST->BB));
-                }
+        for (unsigned long TerrainNr = 0; TerrainNr < E.MFTerrains.Size(); TerrainNr++)
+        {
+            const MapFileTerrainT& Terrain = E.MFTerrains[TerrainNr];
 
-                GE->CollModel=new cf::ClipSys::CollisionModelStaticT(E, ShTe, true /*Use generic brushes.*/);
-            }
+            // This has already done been done above: GameEnt->Terrains.PushBack(new SharedTerrainT(...));
+            GameEnt->m_BspTree->OtherChildren.PushBack(new cf::SceneGraph::TerrainNodeT(Terrain.Bounds, GameEnt->m_Terrains[TerrainNr]->Terrain, TerrainNr, Terrain.Material->Name));
+        }
 
-            // 6. Collect the geometry primitives for the BSP tree.
-            ArrayT<VectorT> GameEntityOutsidePointSamples;
+        for (unsigned long PlantNr = 0; PlantNr < E.MFPlants.Size(); PlantNr++)
+        {
+            const MapFilePlantT& Plant = E.MFPlants[PlantNr];
 
-            for (unsigned long BrushNr=0; BrushNr<E.MFBrushes.Size(); BrushNr++)
-            {
-                ComputeBrushFaces(E.MFBrushes[BrushNr], World, GE->BspTree, GameEntityOutsidePointSamples, EntityNr, BrushNr);
-            }
+            GameEnt->m_BspTree->OtherChildren.PushBack(new cf::SceneGraph::PlantNodeT(World.PlantDescrMan.GetPlantDescription(Plant.DescrFileName) , Plant.RandomSeed, Plant.Position, Plant.Angles));
+        }
 
-            for (unsigned long BPNr=0; BPNr<E.MFPatches.Size(); BPNr++)
-            {
-                const MapFileBezierPatchT& BP=E.MFPatches[BPNr];
+        for (unsigned long ModelNr = 0; ModelNr < E.MFModels.Size(); ModelNr++)
+        {
+            std::string          ErrorMsg;
+            const MapFileModelT& Model = E.MFModels[ModelNr];
+            const CafuModelT*    CafuM = ModelMan.GetModel(GameDirectory+"/"+Model.Model, &ErrorMsg);
 
-                GE->BspTree->OtherChildren.PushBack(new cf::SceneGraph::BezierPatchNodeT(World.LightMapMan, BP.SizeX, BP.SizeY, BP.ControlPoints, BP.SubdivsHorz, BP.SubdivsVert, BP.Material));
-            }
+            if (ErrorMsg!="") Console->Warning(ErrorMsg);
+            GameEnt->m_BspTree->OtherChildren.PushBack(new cf::SceneGraph::ModelNodeT(CafuM, Model.Label, Model.Origin, Model.Angles, Model.Scale, Model.SeqNumber, Model.FrameOffset, Model.FrameTimeScale, Model.Animate));
+        }
 
-            for (unsigned long TerrainNr=0; TerrainNr<E.MFTerrains.Size(); TerrainNr++)
-            {
-                const MapFileTerrainT& Terrain=E.MFTerrains[TerrainNr];
-
-                // This has already done been done above: GE->Terrains.PushBack(new SharedTerrainT(...));
-                GE->BspTree->OtherChildren.PushBack(new cf::SceneGraph::TerrainNodeT(Terrain.Bounds, GE->Terrains[TerrainNr]->Terrain, TerrainNr, Terrain.Material->Name));
-            }
-
-            for (unsigned long PlantNr=0; PlantNr<E.MFPlants.Size(); PlantNr++)
-            {
-                const MapFilePlantT& Plant=E.MFPlants[PlantNr];
-
-                GE->BspTree->OtherChildren.PushBack(new cf::SceneGraph::PlantNodeT(World.PlantDescrMan.GetPlantDescription(Plant.DescrFileName) , Plant.RandomSeed, Plant.Position, Plant.Angles));
-            }
-
-            for (unsigned long ModelNr=0; ModelNr<E.MFModels.Size(); ModelNr++)
-            {
-                std::string          ErrorMsg;
-                const MapFileModelT& Model=E.MFModels[ModelNr];
-                const CafuModelT*    CafuM=ModelMan.GetModel(GameDirectory+"/"+Model.Model, &ErrorMsg);
-
-                if (ErrorMsg!="") Console->Warning(ErrorMsg);
-                GE->BspTree->OtherChildren.PushBack(new cf::SceneGraph::ModelNodeT(CafuM, Model.Label, Model.Origin, Model.Angles, Model.Scale, Model.SeqNumber, Model.FrameOffset, Model.FrameTimeScale, Model.Animate));
-            }
-
-
-            // 7. Compute the BSP tree.
-            // It's done immediately here rather than after the map has been loaded completely
-            // so that we don't have to keep the OutsidePointSamples array.
-            BspTreeBuilderT BspTreeBuilder(GE->BspTree, false /*most simple tree*/, false /*min face splits*/);
+        // 7. Compute the BSP tree.
+        // For non-world entities, this is done immediately here rather than after the map has been loaded
+        // completely, so that we don't have to keep the OutsidePointSamples array.
+        if (EntNr > 0)
+        {
+            BspTreeBuilderT BspTreeBuilder(GameEnt->m_BspTree, false /*most simple tree*/, false /*min face splits*/);
 
             ArrayT<Vector3dT> EmptyFloodFillSources;
-            std::string       EmptyMapFileName="";  // Entity BSP trees aren't flood-filled, so they cannot leak, so we never need to write a .pts point file for them.
+            std::string       EmptyMapFileName = "";  // Entity BSP trees aren't flood-filled, so they cannot leak, so we never need to write a .pts point file for them.
 
             // Temporarily filter the console output by redirecting everything through the warnings-only console.
             cf::ConsoleWarningsOnlyT ConWarnOnly(Console);
-            cf::ConsoleI* PrevConsole=Console;
-            Console=&ConWarnOnly;
+            cf::ConsoleI* PrevConsole = Console;
+            Console = &ConWarnOnly;
 
-            BspTreeBuilder.Build(ClassNamePair->second=="worldspawn", EmptyFloodFillSources, GameEntityOutsidePointSamples, EmptyMapFileName);
+            BspTreeBuilder.Build(false /*IsWorldspawn?*/, EmptyFloodFillSources, GameEntityOutsidePointSamples, EmptyMapFileName);
 
             // Restore the previous console.
-            Console=PrevConsole;
-
-            // 8. Add the entity to the worlds list.
-            World.GameEntities.PushBack(GE);
+            Console = PrevConsole;
         }
     }
 
 
     Console->Print("All game entities done, processing the worldspawn entity now.\n");
-    Console->Print(std::string("Preparing worldspawn clip data (")+GetTimeSinceProgramStart()+")...");
 
-    ArrayT<cf::ClipSys::CollisionModelStaticT::TerrainRefT> ShTe;
-
-    for (unsigned long TerrainNr=0; TerrainNr<World.Terrains.Size(); TerrainNr++)
-    {
-        const SharedTerrainT* ST=World.Terrains[TerrainNr];
-
-        ShTe.PushBack(cf::ClipSys::CollisionModelStaticT::TerrainRefT(&ST->Terrain, ST->Material, ST->BB));
-    }
-
-    World.CollModel=new cf::ClipSys::CollisionModelStaticT(MFEntityList[0], ShTe, false /*Use brushes with precomputed bevel planes.*/);
-    Console->Print(std::string(" done (")+GetTimeSinceProgramStart()+").\n");
-
-    Console->Print(cf::va("Face Children    : %10lu    Draw World Outer Point Samples: %5lu\n", World.BspTree->FaceChildren.Size(), DrawWorldOutsidePointSamples.Size()));
+    Console->Print(cf::va("Face Children    : %10lu    Draw World Outer Point Samples: %5lu\n", GetGameEnt(AllScriptEnts[0])->m_BspTree->FaceChildren.Size(), DrawWorldOutsidePointSamples.Size()));
     Console->Print(cf::va("PointLights      : %10lu\n", World.PointLights.Size()));
     Console->Print(cf::va("InfoPlayerStarts : %10lu\n", World.InfoPlayerStarts.Size()));
-    Console->Print(cf::va("Other Children   : %10lu\n", World.BspTree->OtherChildren.Size()));
-    Console->Print(cf::va("GameEntities     : %10lu\n", World.GameEntities.Size()));
+    Console->Print(cf::va("Other Children   : %10lu\n", GetGameEnt(AllScriptEnts[0])->m_BspTree->OtherChildren.Size()));
+    Console->Print(cf::va("Entities         : %10lu\n", AllScriptEnts.Size()));
 }

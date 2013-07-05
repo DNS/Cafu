@@ -25,13 +25,16 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include <stdio.h>
 #include "CaPVSWorld.hpp"
+#include "GameSys/World.hpp"
 #include "SceneGraph/Node.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
 #include "SceneGraph/FaceNode.hpp"
+#include "../Common/CompGameEntity.hpp"
 
 
 CaPVSWorldT::CaPVSWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, unsigned long SLC_MaxRecursionDepth_, double SLC_MinSubTreeFacesArea_)
-    : World(FileName, ModelMan, GuiRes),
+    : m_World(FileName, ModelMan, GuiRes),
+      m_BspTree(GetGameEnt(m_World.m_ScriptWorld->GetRootEntity())->m_BspTree),
       SLC_MaxRecursionDepth(SLC_MaxRecursionDepth_),
       SLC_MinSubTreeFacesArea(SLC_MinSubTreeFacesArea_)
 {
@@ -40,8 +43,8 @@ CaPVSWorldT::CaPVSWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiS
 
 double CaPVSWorldT::SubTreeFacesArea(unsigned long NodeNr) const
 {
-    ArrayT<cf::SceneGraph::BspTreeNodeT::NodeT>& Nodes =World.BspTree->Nodes;
-    ArrayT<cf::SceneGraph::BspTreeNodeT::LeafT>& Leaves=World.BspTree->Leaves;
+    const ArrayT<cf::SceneGraph::BspTreeNodeT::NodeT>& Nodes  = m_BspTree->Nodes;
+    const ArrayT<cf::SceneGraph::BspTreeNodeT::LeafT>& Leaves = m_BspTree->Leaves;
 
     // TODO: This method counts faces that are in multiple leaves multiply!
     // This is a BUG that should be fixed!!!
@@ -52,7 +55,7 @@ double CaPVSWorldT::SubTreeFacesArea(unsigned long NodeNr) const
         const cf::SceneGraph::BspTreeNodeT::LeafT& L=Leaves[Nodes[NodeNr].FrontChild];
 
         for (unsigned long SetNr=0; SetNr<L.FaceChildrenSet.Size(); SetNr++)
-            Area+=World.BspTree->FaceChildren[L.FaceChildrenSet[SetNr]]->Polygon.GetArea();
+            Area += m_BspTree->FaceChildren[L.FaceChildrenSet[SetNr]]->Polygon.GetArea();
     }
     else Area+=SubTreeFacesArea(Nodes[NodeNr].FrontChild);
 
@@ -61,7 +64,7 @@ double CaPVSWorldT::SubTreeFacesArea(unsigned long NodeNr) const
         const cf::SceneGraph::BspTreeNodeT::LeafT& L=Leaves[Nodes[NodeNr].BackChild];
 
         for (unsigned long SetNr=0; SetNr<L.FaceChildrenSet.Size(); SetNr++)
-            Area+=World.BspTree->FaceChildren[L.FaceChildrenSet[SetNr]]->Polygon.GetArea();
+            Area += m_BspTree->FaceChildren[L.FaceChildrenSet[SetNr]]->Polygon.GetArea();
     }
     else Area+=SubTreeFacesArea(Nodes[NodeNr].BackChild);
 
@@ -82,8 +85,8 @@ bool CaPVSWorldT::SuperLeafConditionIsMet(unsigned long NodeNr, unsigned long Re
 
 void CaPVSWorldT::CreateSuperLeafFromSubTreeRecursive(unsigned long NodeNr, SuperLeafT& SuperLeaf) const
 {
-    ArrayT<cf::SceneGraph::BspTreeNodeT::NodeT>& Nodes =World.BspTree->Nodes;
-    ArrayT<cf::SceneGraph::BspTreeNodeT::LeafT>& Leaves=World.BspTree->Leaves;
+    const ArrayT<cf::SceneGraph::BspTreeNodeT::NodeT>& Nodes  = m_BspTree->Nodes;
+    const ArrayT<cf::SceneGraph::BspTreeNodeT::LeafT>& Leaves = m_BspTree->Leaves;
 
     if (Nodes[NodeNr].FrontIsLeaf)
     {
@@ -137,8 +140,8 @@ SuperLeafT CaPVSWorldT::CreateSuperLeafFromSubTree(unsigned long NodeNr) const
 
 void CaPVSWorldT::CreateSuperLeavesRecursive(unsigned long NodeNr, ArrayT<SuperLeafT>& SuperLeaves, unsigned long RecursionDepth) const
 {
-    ArrayT<cf::SceneGraph::BspTreeNodeT::NodeT>& Nodes =World.BspTree->Nodes;
-    ArrayT<cf::SceneGraph::BspTreeNodeT::LeafT>& Leaves=World.BspTree->Leaves;
+    const ArrayT<cf::SceneGraph::BspTreeNodeT::NodeT>& Nodes  = m_BspTree->Nodes;
+    const ArrayT<cf::SceneGraph::BspTreeNodeT::LeafT>& Leaves = m_BspTree->Leaves;
 
     if (Nodes[NodeNr].FrontIsLeaf)
     {
@@ -184,7 +187,7 @@ void CaPVSWorldT::CreateSuperLeavesRecursive(unsigned long NodeNr, ArrayT<SuperL
 
 void CaPVSWorldT::CreateSuperLeaves(ArrayT<SuperLeafT>& SuperLeaves) const
 {
-    ArrayT<cf::SceneGraph::BspTreeNodeT::LeafT>& Leaves=World.BspTree->Leaves;
+    const ArrayT<cf::SceneGraph::BspTreeNodeT::LeafT>& Leaves = m_BspTree->Leaves;
 
     printf("\n*** Create SuperLeaves ***\n");
 
@@ -197,20 +200,20 @@ void CaPVSWorldT::CreateSuperLeaves(ArrayT<SuperLeafT>& SuperLeaves) const
 
 unsigned long CaPVSWorldT::WhatLeaf(const VectorT& Position) const
 {
-    return World.BspTree->WhatLeaf(Position);
+    return m_BspTree->WhatLeaf(Position);
 }
 
 
 double CaPVSWorldT::ClipLine(const VectorT& P, const VectorT& U) const
 {
-    return World.BspTree->ClipLine(P, U, 0.0, 1.0);
+    return m_BspTree->ClipLine(P, U, 0.0, 1.0);
 }
 
 
 void CaPVSWorldT::StorePVS(const ArrayT<SuperLeafT>& SuperLeaves, const ArrayT<unsigned long>& SuperLeavesPVS)
 {
-    ArrayT<cf::SceneGraph::BspTreeNodeT::LeafT>& Leaves=World.BspTree->Leaves;
-    ArrayT<uint32_t>&                            PVS   =World.BspTree->PVS;
+    const ArrayT<cf::SceneGraph::BspTreeNodeT::LeafT>& Leaves = m_BspTree->Leaves;
+    ArrayT<uint32_t>&                                  PVS    = m_BspTree->PVS;
 
     // 'PVS' zurücksetzen (völlige Blindheit).
     for (unsigned long Vis=0; Vis<PVS.Size(); Vis++) PVS[Vis]=0;
@@ -251,7 +254,7 @@ void CaPVSWorldT::StorePVS(const ArrayT<SuperLeafT>& SuperLeaves, const ArrayT<u
 
 unsigned long CaPVSWorldT::GetChecksumAndPrintStats() const
 {
-    ArrayT<uint32_t>& PVS=World.BspTree->PVS;
+    const ArrayT<uint32_t>& PVS = m_BspTree->PVS;
 
     printf("\n*** Statistics ***\n");
 
@@ -274,5 +277,5 @@ unsigned long CaPVSWorldT::GetChecksumAndPrintStats() const
 
 void CaPVSWorldT::SaveToDisk(const char* FileName) const
 {
-    World.SaveToDisk(FileName);
+    m_World.SaveToDisk(FileName);
 }

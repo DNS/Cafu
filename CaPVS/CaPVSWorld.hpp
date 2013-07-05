@@ -48,7 +48,8 @@ class CaPVSWorldT
 {
     private:
 
-    WorldT World;
+    WorldT                        m_World;
+    cf::SceneGraph::BspTreeNodeT* m_BspTree;
 
     unsigned long SLC_MaxRecursionDepth;
     double        SLC_MinSubTreeFacesArea;

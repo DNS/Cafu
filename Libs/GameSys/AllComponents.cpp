@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "AllComponents.hpp"
 #include "CompBase.hpp"
 #include "CompBasics.hpp"
+#include "CompCollisionModel.hpp"
 #include "CompModel.hpp"
 #include "CompTransform.hpp"
 
@@ -91,6 +92,7 @@ namespace cf
         {
             &ComponentBaseT::TypeInfo,
             &ComponentBasicsT::TypeInfo,
+            &ComponentCollisionModelT::TypeInfo,
             &ComponentModelT::TypeInfo,
             &ComponentTransformT::TypeInfo,
         };

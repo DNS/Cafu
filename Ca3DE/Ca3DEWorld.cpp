@@ -25,8 +25,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClipSys/CollisionModel_static.hpp"
 #include "ClipSys/TraceResult.hpp"
 #include "ClipSys/TraceSolid.hpp"
+#include "GameSys/World.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "Models/ModelManager.hpp"
+#include "../Common/CompGameEntity.hpp"
 #include "../Common/WorldMan.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
 
@@ -43,8 +45,8 @@ static WorldManT WorldMan;
 Ca3DEWorldT::Ca3DEWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* Game, const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction) /*throw (WorldT::LoadErrorT)*/
     : m_Game(Game),
       m_World(WorldMan.LoadWorld(FileName, ModelMan, GuiRes, InitForGraphics, ProgressFunction)),
-      m_ClipWorld(new cf::ClipSys::ClipWorldT(m_World->CollModel)),
-      m_PhysicsWorld(m_World->CollModel),
+      m_ClipWorld(new cf::ClipSys::ClipWorldT(GetGameEnt(m_World->m_ScriptWorld->GetRootEntity())->m_CollModel)),
+      m_PhysicsWorld(GetGameEnt(m_World->m_ScriptWorld->GetRootEntity())->m_CollModel),
       m_ScriptState(GameInfo, m_Game),
       m_EngineEntities(),
       m_ModelMan(ModelMan),
@@ -113,7 +115,8 @@ cf::UniScriptStateT& Ca3DEWorldT::GetScriptState()
 
 Vector3fT Ca3DEWorldT::GetAmbientLightColorFromBB(const BoundingBox3T<double>& Dimensions, const VectorT& Origin) const
 {
-    const Vector3dT BBCenter=scale(Dimensions.Min+Dimensions.Max, 0.5)+Origin;
+    const Vector3dT BBCenter = scale(Dimensions.Min+Dimensions.Max, 0.5) + Origin;
+    const cf::SceneGraph::BspTreeNodeT* BspTree = GetGameEnt(m_World->m_ScriptWorld->GetRootEntity())->m_BspTree;
 
 #if 0
     // Performance profiling revealed that this method is frequently called
@@ -127,13 +130,13 @@ Vector3fT Ca3DEWorldT::GetAmbientLightColorFromBB(const BoundingBox3T<double>& D
 #else
     // We therefore revert to this call, which is similarly limited (considers faces only) but is *much* faster!
     // Note that the proper future solution is to reimplement this method to use a precomputed lighting grid!!
-    const double    Trace   =m_World->BspTree->ClipLine(BBCenter, Vector3dT(0.0, 0.0, -1.0), 0.0, 999999.0);
+    const double    Trace   =BspTree->ClipLine(BBCenter, Vector3dT(0.0, 0.0, -1.0), 0.0, 999999.0);
     Vector3dT       Ground  =BBCenter+Vector3dT(0.0, 0.0, -(Trace-0.2));
 #endif
-    unsigned long   LeafNr  =m_World->BspTree->WhatLeaf(Ground);
+    unsigned long   LeafNr  =BspTree->WhatLeaf(Ground);
 
     // This is a relatively cheap (dumb) trick for dealing with problematic input (like some static detail models).
-    if (!m_World->BspTree->Leaves[LeafNr].IsInnerLeaf)
+    if (!BspTree->Leaves[LeafNr].IsInnerLeaf)
     {
         const VectorT TestPoints[4]={ VectorT(Dimensions.Min.x, Dimensions.Min.y, Dimensions.Max.z)+Origin,
                                       VectorT(Dimensions.Min.x, Dimensions.Max.y, Dimensions.Max.z)+Origin,
@@ -149,12 +152,12 @@ Vector3fT Ca3DEWorldT::GetAmbientLightColorFromBB(const BoundingBox3T<double>& D
             CollModel->TraceRay(TestPoints[TestNr], Ray, MaterialT::Clip_Radiance, Result);     // BUG / FIXME: I think we have to re-init Result here!
             const Vector3dT     TestGround=TestPoints[TestNr]+Ray*Result.Fraction+Vector3dT(0, 0, 0.2);
 #else
-            const double        TestTrace =m_World->BspTree->ClipLine(TestPoints[TestNr], Vector3dT(0.0, 0.0, -1.0), 0.0, 999999.0);
+            const double        TestTrace =BspTree->ClipLine(TestPoints[TestNr], Vector3dT(0.0, 0.0, -1.0), 0.0, 999999.0);
             const Vector3dT     TestGround=TestPoints[TestNr]+Vector3dT(0.0, 0.0, -(TestTrace-0.2));
 #endif
-            const unsigned long TestLeafNr=m_World->BspTree->WhatLeaf(TestGround);
+            const unsigned long TestLeafNr=BspTree->WhatLeaf(TestGround);
 
-            if (!m_World->BspTree->Leaves[TestLeafNr].IsInnerLeaf) continue;
+            if (!BspTree->Leaves[TestLeafNr].IsInnerLeaf) continue;
 
             if (TestGround.z>Ground.z)
             {
@@ -164,9 +167,9 @@ Vector3fT Ca3DEWorldT::GetAmbientLightColorFromBB(const BoundingBox3T<double>& D
         }
     }
 
-    for (unsigned long FNr=0; FNr<m_World->BspTree->Leaves[LeafNr].FaceChildrenSet.Size(); FNr++)
+    for (unsigned long FNr=0; FNr<BspTree->Leaves[LeafNr].FaceChildrenSet.Size(); FNr++)
     {
-        cf::SceneGraph::FaceNodeT* FaceNode=m_World->BspTree->FaceChildren[m_World->BspTree->Leaves[LeafNr].FaceChildrenSet[FNr]];
+        cf::SceneGraph::FaceNodeT* FaceNode=BspTree->FaceChildren[BspTree->Leaves[LeafNr].FaceChildrenSet[FNr]];
         Vector3fT                  AmbientLightColor;
 
         if (FaceNode->GetLightmapColorNearPosition(Ground, AmbientLightColor))

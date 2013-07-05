@@ -46,6 +46,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/ConsoleInterpreter.hpp"
 #include "ConsoleCommands/ConsoleStdout.hpp"
 #include "FileSys/FileManImpl.hpp"
+#include "GameSys/AllComponents.hpp"
 #include "GuiSys/GuiResources.hpp"
 #include "Templates/Array.hpp"
 #include "MaterialSystem/Material.hpp"
@@ -181,10 +182,13 @@ void Usage()
 
 int main(int ArgC, const char* ArgV[])
 {
+    cf::GameSys::GetComponentTIM().Init();      // The one-time init of the GameSys components type info manager.
+    cf::GameSys::GetGameSysEntityTIM().Init();  // The one-time init of the GameSys entity type info manager.
+
     bool Option_MostSimpleTree    =false;
     bool Option_MinimizeFaceSplits=false;
 
-    Console->Print(cf::va("\n*** Cafu Binary Space Partitioning Utility, Version 10a (%s) ***\n\n", __DATE__));
+    Console->Print(cf::va("\n*** Cafu Binary Space Partitioning Utility, Version 11 (%s) ***\n\n", __DATE__));
 
 
     // Initialize the FileMan by mounting the default file system.
@@ -260,7 +264,7 @@ int main(int ArgC, const char* ArgV[])
     // What we need:
     // For each entity: The BspTree itself, OutsidePointSamples, FloodFillSources.
     // One common instance, shared for all: LeakDetectMat
-    BspTreeBuilderT BspTreeBuilder(World.BspTree, Option_MostSimpleTree, Option_MinimizeFaceSplits);
+    BspTreeBuilderT BspTreeBuilder(GetGameEnt(World.m_ScriptWorld->GetRootEntity())->m_BspTree, Option_MostSimpleTree, Option_MinimizeFaceSplits);
 
     ArrayT<Vector3dT> FloodFillSources;
     for (unsigned long IPSNr=0; IPSNr<World.InfoPlayerStarts.Size(); IPSNr++)

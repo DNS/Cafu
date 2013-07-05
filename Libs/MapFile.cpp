@@ -317,11 +317,11 @@ MapFileEntityT::MapFileEntityT(unsigned long Index, TextParserT& TP)
 
 static void MapFileVersionError(const std::string& Msg)
 {
-    Console->Print("Bad map file version: Expected 13, "+Msg+".\n");
+    Console->Print("Bad map file version: Expected 14, " + Msg + ".\n");
     Console->Print("To fix this, you can load your cmap file into CaWE and re-save it.\n");
     Console->Print("This will automatically update your file to the required version!\n");
 
-    Console->Warning("Bad map file version: Expected 13, "+Msg+".\n");
+    Console->Warning("Bad map file version: Expected 14, " + Msg + ".\n");
     throw TextParserT::ParseError();
 }
 
@@ -340,7 +340,7 @@ void cf::MapFileReadHeader(TextParserT& TP)
     TP.AssertAndSkipToken("Version");
     const std::string Version=TP.GetNextToken();
 
-    if (Version!="13")
+    if (Version != "14")
         MapFileVersionError("got "+Version);
 
     // Skip any group definitions.

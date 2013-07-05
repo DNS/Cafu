@@ -14,7 +14,7 @@ if sys.platform=="win32":
 elif sys.platform=="linux2":
     pass # envMapCompilers.Append(LIBS=Split(""))
 
-CommonWorldObject = envMapCompilers.StaticObject("Common/World.cpp")
+CommonWorldObject = [envMapCompilers.StaticObject("Common/World.cpp"), envMapCompilers.StaticObject("Common/CompGameEntity.cpp")]
 
 envMapCompilers.Program('CaBSP/CaBSP',   # I had preferred writing 'CaBSP' instead of 'CaBSP/CaBSP' here, but then under Linux we would get both a directory *and* an executeable with name 'CaBSP' in the build directory, which is not allowed/possible.
     Split("CaBSP/CaBSP.cpp CaBSP/BspTreeBuilder/BspTreeBuilder.cpp") + CommonWorldObject)
@@ -31,6 +31,8 @@ envMapCompilers.Program('CaSHL/CaSHL',
 
 
 envTools = env.Clone()
+
+envTools.Append(CPPPATH=['ExtLibs/lua/src'])
 
 if sys.platform=="win32":
     envTools.Append(LIBPATH=['ExtLibs/DirectX7/lib'])

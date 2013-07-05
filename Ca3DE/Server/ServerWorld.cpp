@@ -27,11 +27,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClipSys/CollisionModelMan.hpp"
 #include "ConsoleCommands/ConVar.hpp"
 #include "ConsoleCommands/Console.hpp"      // For cf::va().
+#include "GameSys/Entity.hpp"
+#include "GameSys/World.hpp"
 #include "Network/Network.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
 #include "Win32/Win32PrintHelp.hpp"
 #include "TypeSys.hpp"
 #include "../NetConst.hpp"
+#include "../Common/CompGameEntity.hpp"
 #include "../../Games/Game.hpp"
 
 
@@ -45,26 +48,18 @@ CaServerWorldT::CaServerWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::Ga
       m_EntityRemoveList()
 {
     // Gehe alle GameEntities der Ca3DEWorld durch und erstelle dafür "echte" Entities.
-    for (unsigned long GENr=0; GENr<m_World->GameEntities.Size(); GENr++)
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
+    m_World->m_ScriptWorld->GetRootEntity()->GetAll(AllEnts);
+
+    for (unsigned int GENr = 1 /*skip the world!*/; GENr < AllEnts.Size(); GENr++)
     {
-        const GameEntityT* GE=m_World->GameEntities[GENr];
+        IntrusivePtrT<CompGameEntityT> GE = GetGameEnt(AllEnts[GENr]);
 
         // Register GE->CollModel also with the cf::ClipSys::CollModelMan, so that both the owner (the game entity GE)
         // as well as the game code can free/delete it in their destructors (one by "delete", the other by cf::ClipSys::CollModelMan->FreeCM()).
-        cf::ClipSys::CollModelMan->GetCM(GE->CollModel);
+        cf::ClipSys::CollModelMan->GetCM(GE->m_CollModel);
 
-        CreateNewEntityFromBasicInfo(GE->Properties, GE->BspTree, GE->CollModel, GENr, GE->MFIndex, m_ServerFrameNr, GE->Origin);
-    }
-
-    // Gehe alle InfoPlayerStarts der Ca3DEWorld durch und erstelle dafür "echte" Entities.
-    for (unsigned long IPSNr=0; IPSNr<m_World->InfoPlayerStarts.Size(); IPSNr++)
-    {
-        std::map<std::string, std::string> Props;
-
-        Props["classname"]="info_player_start";
-        Props["angles"]   =cf::va("0 %lu 0", (unsigned long)(m_World->InfoPlayerStarts[IPSNr].Heading/8192.0*45.0));
-
-        CreateNewEntityFromBasicInfo(Props, NULL, NULL, (unsigned long)-1, (unsigned long)-1, m_ServerFrameNr, m_World->InfoPlayerStarts[IPSNr].Origin);
+        CreateNewEntityFromBasicInfo(GE->m_Properties, GE->m_BspTree, GE->m_CollModel, GENr, GE->m_MFIndex, m_ServerFrameNr, GE->m_Origin);
     }
 
     // Zu Demonstrationszwecken fügen wir auch noch einen MonsterMaker vom Typ CompanyBot in die World ein.
@@ -240,9 +235,11 @@ void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID
     }
 
 
+    const cf::SceneGraph::BspTreeNodeT* BspTree = GetGameEnt(m_World->m_ScriptWorld->GetRootEntity())->m_BspTree;
+
     ArrayT<unsigned long>* NewStatePVSEntityIDs=&ClientOldStatesPVSEntityIDs[ClientCurrentStateIndex];
     ArrayT<unsigned long>* OldStatePVSEntityIDs=NULL;
-    unsigned long          ClientLeafNr        =(m_EngineEntities[ClientEntityID]!=NULL) ? m_World->BspTree->WhatLeaf(m_EngineEntities[ClientEntityID]->GetGameEntity()->GetOrigin()) : 0;
+    unsigned long          ClientLeafNr        =(m_EngineEntities[ClientEntityID]!=NULL) ? BspTree->WhatLeaf(m_EngineEntities[ClientEntityID]->GetGameEntity()->GetOrigin()) : 0;
 
     // Finde heraus, welche Entities im PVS von diesem Client liegen. Erhalte ein Array von EntityIDs.
     for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
@@ -254,7 +251,7 @@ void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID
             EntityBB.Min += EntityOrigin;
             EntityBB.Max += EntityOrigin;
 
-            if (m_World->BspTree->IsInPVS(EntityBB, ClientLeafNr)) NewStatePVSEntityIDs->PushBack(EntityNr);
+            if (BspTree->IsInPVS(EntityBB, ClientLeafNr)) NewStatePVSEntityIDs->PushBack(EntityNr);
         }
 
 

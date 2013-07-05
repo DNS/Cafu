@@ -54,7 +54,7 @@ class CaSHLWorldT
 
     CaSHLWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes);
 
-    const cf::SceneGraph::BspTreeNodeT& GetBspTree() const { return *World.BspTree; }
+    const cf::SceneGraph::BspTreeNodeT& GetBspTree() const { return *m_BspTree; }
 
     double TraceRay(const Vector3dT& Start, const Vector3dT& Ray) const;
 
@@ -66,7 +66,9 @@ class CaSHLWorldT
 
     private:
 
-    WorldT World;
+    WorldT                              m_World;
+    const cf::SceneGraph::BspTreeNodeT* m_BspTree;
+    cf::ClipSys::CollisionModelStaticT* m_CollModel;
 };
 
 #endif

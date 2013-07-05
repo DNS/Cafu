@@ -67,6 +67,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/ConsoleInterpreter.hpp"
 #include "ConsoleCommands/ConsoleStdout.hpp"
 #include "FileSys/FileManImpl.hpp"
+#include "GameSys/AllComponents.hpp"
+#include "GameSys/Entity.hpp"
 #include "GuiSys/GuiResources.hpp"
 #include "Math3D/BoundingBox.hpp"
 #include "Math3D/Vector3.hpp"
@@ -1113,6 +1115,9 @@ static void WriteLogFileEntry(const char* WorldPathName, double StopUT, char Blo
 
 int main(int ArgC, const char* ArgV[])
 {
+    cf::GameSys::GetComponentTIM().Init();      // The one-time init of the GameSys components type info manager.
+    cf::GameSys::GetGameSysEntityTIM().Init();  // The one-time init of the GameSys entity type info manager.
+
     struct CaSHLOptionsT
     {
         char          BlockSize;
