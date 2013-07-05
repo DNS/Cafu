@@ -74,13 +74,12 @@ namespace cf
             /// @param CollisionModel The collision model of this entity as defined by map primitives. NULL if no collision model was defined by map primitives (the entity may still have a collision model based on the Properties).
             /// @param ID             The global unique ID of this entity (in the current map).
             /// @param WorldFileIndex The index number of the entity in the world file.
-            /// @param MapFileIndex   The index number of the entity in the map file, for obtaining the information in the map file about it later.
             /// @param GameWorld      Pointer to the game world implementation.
             /// @param Origin         Where the new entity is supposed to be instantiated.
             /// @returns a pointer to the newly created game entity.
             virtual IntrusivePtrT<GameEntityI> CreateGameEntityFromMapFile(const cf::TypeSys::TypeInfoT* TI, const std::map<std::string, std::string>& Properties,
                 const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID,
-                unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld, const Vector3T<double>& Origin)=0;
+                unsigned long WorldFileIndex, cf::GameSys::GameWorldI* GameWorld, const Vector3T<double>& Origin)=0;
 
             /// Creates a new entity of the given type (specified by TypeNr).
             /// This method is used by the client after it received a related network message (which also contains the TypeNr).
@@ -90,12 +89,11 @@ namespace cf
             /// @param CollisionModel The collision model of this entity as defined by map primitives. NULL if no collision model was defined by map primitives (the entity may still have a collision model based on the Properties).
             /// @param ID             The global unique ID of this entity (in the current map).
             /// @param WorldFileIndex The index number of the entity in the world file.
-            /// @param MapFileIndex   The index number of the entity in the map file, for obtaining the information in the map file about it later.
             /// @param GameWorld      Pointer to the game world implementation.
             /// @returns a pointer to the newly created game entity.
             virtual IntrusivePtrT<GameEntityI> CreateGameEntityFromTypeNr(unsigned long TypeNr, const std::map<std::string, std::string>& Properties,
                 const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID,
-                unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld)=0;
+                unsigned long WorldFileIndex, cf::GameSys::GameWorldI* GameWorld)=0;
 
             /// The virtual destructor, so that derived classes can safely be deleted via a GameI (base class) pointer.
             virtual ~GameI() { }

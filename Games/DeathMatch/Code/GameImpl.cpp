@@ -312,11 +312,11 @@ const cf::TypeSys::TypeInfoManT& GameImplT::GetEntityTIM() const
 // This function is called by the server, in order to obtain a (pointer to a) 'BaseEntityT' from a map file entity.
 IntrusivePtrT<GameEntityI> GameImplT::CreateGameEntityFromMapFile(const cf::TypeSys::TypeInfoT* TI, const std::map<std::string, std::string>& Properties,
     const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID,
-    unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld, const Vector3T<double>& Origin)
+    unsigned long WorldFileIndex, cf::GameSys::GameWorldI* GameWorld, const Vector3T<double>& Origin)
 {
     // YES! THIS is how it SHOULD work!
     GameEntityI* NewEnt=static_cast<GameEntityI*>(TI->CreateInstance(
-        EntityCreateParamsT(ID, Properties, RootNode, CollisionModel, WorldFileIndex, MapFileIndex, GameWorld, Origin)));
+        EntityCreateParamsT(ID, Properties, RootNode, CollisionModel, WorldFileIndex, GameWorld, Origin)));
 
     assert(NewEnt!=NULL);
     assert(NewEnt->GetType()==TI);
@@ -336,7 +336,7 @@ IntrusivePtrT<GameEntityI> GameImplT::CreateGameEntityFromMapFile(const cf::Type
 // whose TypeNr and ID it got via a net message from the server.
 IntrusivePtrT<GameEntityI> GameImplT::CreateGameEntityFromTypeNr(unsigned long TypeNr, const std::map<std::string, std::string>& Properties,
     const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel,
-    unsigned long ID, unsigned long WorldFileIndex, unsigned long MapFileIndex, cf::GameSys::GameWorldI* GameWorld)
+    unsigned long ID, unsigned long WorldFileIndex, cf::GameSys::GameWorldI* GameWorld)
 {
     const cf::TypeSys::TypeInfoT* TI=GetBaseEntTIM().FindTypeInfoByNr(TypeNr);
 
@@ -345,7 +345,7 @@ IntrusivePtrT<GameEntityI> GameImplT::CreateGameEntityFromTypeNr(unsigned long T
     assert(TI->CreateInstance!=NULL);
 
     return static_cast<GameEntityI*>(TI->CreateInstance(
-        EntityCreateParamsT(ID, Properties, RootNode, CollisionModel, WorldFileIndex, MapFileIndex, GameWorld, VectorT())));
+        EntityCreateParamsT(ID, Properties, RootNode, CollisionModel, WorldFileIndex, GameWorld, VectorT())));
 }
 
 

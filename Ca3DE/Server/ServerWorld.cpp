@@ -59,7 +59,7 @@ CaServerWorldT::CaServerWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::Ga
         // as well as the game code can free/delete it in their destructors (one by "delete", the other by cf::ClipSys::CollModelMan->FreeCM()).
         cf::ClipSys::CollModelMan->GetCM(GE->m_CollModel);
 
-        CreateNewEntityFromBasicInfo(GE->m_Properties, GE->m_BspTree, GE->m_CollModel, GENr, GE->m_MFIndex, m_ServerFrameNr, GE->m_Origin);
+        CreateNewEntityFromBasicInfo(GE->m_Properties, GE->m_BspTree, GE->m_CollModel, GENr, m_ServerFrameNr, GE->m_Origin);
     }
 
     // Zu Demonstrationszwecken fügen wir auch noch einen MonsterMaker vom Typ CompanyBot in die World ein.
@@ -74,7 +74,7 @@ CaServerWorldT::CaServerWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::Ga
         Props["monstercount"]      ="1";
         Props["m_imaxlivechildren"]="1";
 
-        CreateNewEntityFromBasicInfo(Props, NULL, NULL, (unsigned long)-1, (unsigned long)-1, m_ServerFrameNr, m_World->InfoPlayerStarts[0].Origin);
+        CreateNewEntityFromBasicInfo(Props, NULL, NULL, (unsigned long)-1, m_ServerFrameNr, m_World->InfoPlayerStarts[0].Origin);
     }
 
     /// Finished calling CreateGameEntityFromMapFile() for all entities in the world file.
@@ -103,7 +103,7 @@ CaServerWorldT::~CaServerWorldT()
 
 unsigned long CaServerWorldT::CreateNewEntity(const std::map<std::string, std::string>& Properties, unsigned long CreationFrameNr, const VectorT& Origin)
 {
-    return CreateNewEntityFromBasicInfo(Properties, NULL, NULL, (unsigned long)(-1), (unsigned long)(-1), CreationFrameNr, Origin);
+    return CreateNewEntityFromBasicInfo(Properties, NULL, NULL, (unsigned long)(-1), CreationFrameNr, Origin);
 }
 
 
@@ -139,7 +139,7 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
     Props["name"]     =cf::va("Player%lu", ClientInfoNr+1);     // Setting the name is needed so that player entities can have a corresponding script instance.
     Props["angles"]   =cf::va("0 %lu 0", (unsigned long)(m_World->InfoPlayerStarts[0].Heading/8192.0*45.0));
 
-    return CreateNewEntityFromBasicInfo(Props, NULL, NULL, (unsigned long)-1, (unsigned long)-1, m_ServerFrameNr+1, m_World->InfoPlayerStarts[0].Origin+VectorT(0, 0, 1000), PlayerName, ModelName);
+    return CreateNewEntityFromBasicInfo(Props, NULL, NULL, (unsigned long)-1, m_ServerFrameNr+1, m_World->InfoPlayerStarts[0].Origin+VectorT(0, 0, 1000), PlayerName, ModelName);
 }
 
 
@@ -358,7 +358,7 @@ void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID
 
 unsigned long CaServerWorldT::CreateNewEntityFromBasicInfo(const std::map<std::string, std::string>& Properties,
     const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel,
-    unsigned long WorldFileIndex, unsigned long MapFileIndex, unsigned long CreationFrameNr, const VectorT& Origin, const char* PlayerName, const char* ModelName)
+    unsigned long WorldFileIndex, unsigned long CreationFrameNr, const VectorT& Origin, const char* PlayerName, const char* ModelName)
 {
     try
     {
@@ -397,7 +397,7 @@ unsigned long CaServerWorldT::CreateNewEntityFromBasicInfo(const std::map<std::s
 
         IntrusivePtrT<GameEntityI> NewEntity = m_Game->CreateGameEntityFromMapFile(
             TI, Properties, RootNode, CollisionModel, NewEntityID,
-            WorldFileIndex, MapFileIndex, this, Origin);
+            WorldFileIndex, this, Origin);
 
         if (NewEntity.IsNull())
             throw std::runtime_error("Could not create entity of class \""+EntClassName+"\" with C++ class name \""+CppClassName+"\".\n");

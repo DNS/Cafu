@@ -188,10 +188,7 @@ WorldT::WorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiRes
     {
         IntrusivePtrT<CompGameEntityT> GameEnt = EntNr < NumGameEnts
             ? new CompGameEntityT(InFile, Pool, ModelMan, LightMapMan, SHLMapMan, PlantDescrMan)
-            : new CompGameEntityT(EntNr);
-
-        // We really should be able to remove the m_MFIndex property sooner rather than later...
-        assert(GameEnt->m_MFIndex == EntNr);
+            : new CompGameEntityT();
 
         assert(AllEnts[EntNr]->GetApp().IsNull());
         AllEnts[EntNr]->SetApp(GameEnt);

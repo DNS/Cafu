@@ -94,7 +94,7 @@ class CaServerWorldT : public Ca3DEWorldT
     // Der Rückgabewert ist die ID des erzeugten Entities. (Verwendung: Der Server kann den Client damit wissen lassen, welcher Entity der Client ist).
     // Falls der Entity nicht erzeugt werden kann, wird 0xFFFFFFFF zurückgegeben.
     unsigned long CreateNewEntityFromBasicInfo(const std::map<std::string, std::string>& Properties, const cf::SceneGraph::GenericNodeT* RootNode,
-        const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long WorldFileIndex, unsigned long MapFileIndex, unsigned long CreationFrameNr, const VectorT& Origin,
+        const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long WorldFileIndex, unsigned long CreationFrameNr, const VectorT& Origin,
         const char* PlayerName=NULL, const char* ModelName=NULL);
 
 

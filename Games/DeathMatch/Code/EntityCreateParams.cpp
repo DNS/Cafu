@@ -30,7 +30,6 @@ EntityCreateParamsT::EntityCreateParamsT(
     const cf::SceneGraph::GenericNodeT*       RootNode_,
     const cf::ClipSys::CollisionModelT*       CollisionModel_,
     const unsigned long                       WorldFileIndex_,
-    const unsigned long                       MapFileIndex_,
     cf::GameSys::GameWorldI*                  GameWorld_,
     const Vector3dT&                          Origin_)
     : ID(ID_),
@@ -38,7 +37,6 @@ EntityCreateParamsT::EntityCreateParamsT(
       RootNode(RootNode_),
       CollisionModel(CollisionModel_),
       WorldFileIndex(WorldFileIndex_),
-      MapFileIndex(MapFileIndex_),
       GameWorld(GameWorld_),
       Origin(Origin_)
 {

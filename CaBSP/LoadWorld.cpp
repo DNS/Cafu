@@ -335,7 +335,7 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
     // Move/migrate/insert the map primitives of each entity into the entity's BSP tree.
     for (unsigned long EntNr = 0; EntNr < AllScriptEnts.Size(); EntNr++)
     {
-        IntrusivePtrT<CompGameEntityT> GameEnt = new CompGameEntityT(EntNr);
+        IntrusivePtrT<CompGameEntityT> GameEnt = new CompGameEntityT();
 
         assert(AllScriptEnts[EntNr]->GetApp().IsNull());
         AllScriptEnts[EntNr]->SetApp(GameEnt);

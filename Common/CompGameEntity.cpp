@@ -79,17 +79,15 @@ void SharedTerrainT::WriteTo(std::ostream& OutFile) const
 /*** CompGameEntityT ***/
 /***********************/
 
-CompGameEntityT::CompGameEntityT(unsigned long MFIndex_)
-    : m_MFIndex(MFIndex_),
-      m_BspTree(NULL),
+CompGameEntityT::CompGameEntityT()
+    : m_BspTree(NULL),
       m_CollModel(NULL)
 {
 }
 
 
 CompGameEntityT::CompGameEntityT(std::istream& InFile, cf::SceneGraph::aux::PoolT& Pool, ModelManagerT& ModelMan, cf::SceneGraph::LightMapManT& LightMapMan, cf::SceneGraph::SHLMapManT& SHLMapMan, PlantDescrManT& PlantDescrMan)
-    : m_MFIndex(cf::SceneGraph::aux::ReadUInt32(InFile)),
-      m_BspTree(NULL),
+    : m_BspTree(NULL),
       m_CollModel(NULL)
 {
     // Read the shared terrain data.
@@ -141,8 +139,7 @@ CompGameEntityT::CompGameEntityT(std::istream& InFile, cf::SceneGraph::aux::Pool
 
 
 CompGameEntityT::CompGameEntityT(const CompGameEntityT& Comp)
-    : m_MFIndex(Comp.m_MFIndex),
-      m_Origin(Comp.m_Origin)
+    : m_Origin(Comp.m_Origin)
 {
     // TODO...
     assert(false);
@@ -168,9 +165,6 @@ CompGameEntityT* CompGameEntityT::Clone() const
 
 void CompGameEntityT::WriteTo(std::ostream& OutFile, cf::SceneGraph::aux::PoolT& Pool) const
 {
-    // Write the how many-th entity in the map file this game entity corresponds to.
-    cf::SceneGraph::aux::Write(OutFile, cf::SceneGraph::aux::cnc_ui32(m_MFIndex));
-
     // Write the shared terrain data.
     cf::SceneGraph::aux::Write(OutFile, cf::SceneGraph::aux::cnc_ui32(m_Terrains.Size()));
 

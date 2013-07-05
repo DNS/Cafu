@@ -67,7 +67,7 @@ class CompGameEntityT : public cf::GameSys::ComponentBaseT
     public:
 
     /// The constructor.
-    CompGameEntityT(unsigned long MFIndex_);
+    CompGameEntityT();
     CompGameEntityT(std::istream& InFile, cf::SceneGraph::aux::PoolT& Pool, ModelManagerT& ModelMan, cf::SceneGraph::LightMapManT& LightMapMan, cf::SceneGraph::SHLMapManT& SHLMapMan, PlantDescrManT& PlantDescrMan);
 
     /// The copy constructor. It creates a new component as a copy of another component.
@@ -84,7 +84,6 @@ class CompGameEntityT : public cf::GameSys::ComponentBaseT
     void WriteTo(std::ostream& OutFile, cf::SceneGraph::aux::PoolT& Pool) const;
 
 
-    const unsigned long                 m_MFIndex;    ///< This game entity corresponds to (was loaded from) this entity in the cmap file. This index must explicitly be kept here, because the array of GameEntityTs does usually not correspond to the array of cmap file entities, as the CaBSP loader code may rearrange it. Note that this index should always be checked for validity: It defaults to 0xFFFFFFFF when for any reason no corresponding cmap file entity is known.
     Vector3dT                           m_Origin;
     ArrayT<SharedTerrainT*>             m_Terrains;   ///< Terrains are shared among the BspTree (graphics world) and the CollModel (physics world).
     cf::SceneGraph::BspTreeNodeT*       m_BspTree;

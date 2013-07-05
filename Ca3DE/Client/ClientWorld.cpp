@@ -85,7 +85,6 @@ bool CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
     const unsigned long EntityWFI    = InData.ReadLong();   // Short for: EntityWorldFileIndex
 
     const std::map<std::string, std::string>  EmptyMap;
-    const unsigned long                       MFIndex  = EntityWFI < AllEnts.Size() ? GetGameEnt(AllEnts[EntityWFI])->m_MFIndex    : 0xFFFFFFFF;
     const std::map<std::string, std::string>& Props    = EntityWFI < AllEnts.Size() ? GetGameEnt(AllEnts[EntityWFI])->m_Properties : EmptyMap;
     const cf::SceneGraph::GenericNodeT*       RootNode = EntityWFI < AllEnts.Size() ? GetGameEnt(AllEnts[EntityWFI])->m_BspTree    : NULL;
     const cf::ClipSys::CollisionModelT*       CollMdl  = EntityWFI < AllEnts.Size() ? GetGameEnt(AllEnts[EntityWFI])->m_CollModel  : NULL;
@@ -96,7 +95,7 @@ bool CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
 
     // Es ist nicht sinnvoll, CreateGameEntityFromTypeID() in Parametern die geparsten InData-Inhalte zu übergeben (Origin, Velocity, ...),
     // denn spätestens bei der SequenceNr und FrameNr kommt es zu Problemen. Deshalb lieber erstmal ein BaseEntitiy mit "falschem" State erzeugen.
-    IntrusivePtrT<GameEntityI> NewEntity=m_Game->CreateGameEntityFromTypeNr(EntityTypeID, Props, RootNode, CollMdl, EntityID, EntityWFI, MFIndex, this);
+    IntrusivePtrT<GameEntityI> NewEntity=m_Game->CreateGameEntityFromTypeNr(EntityTypeID, Props, RootNode, CollMdl, EntityID, EntityWFI, this);
 
     // Dies kann nur passieren, wenn EntityTypeID ein unbekannter Typ ist! Ein solcher Fehler ist also fatal.
     // Andererseits sollte ein Disconnect dennoch nicht notwendig sein, der Fehler sollte ohnehin niemals auftreten.
@@ -104,7 +103,7 @@ bool CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
     {
         // Finish reading InData, so that we can gracefully continue despite the error.
         InData.ReadDMsg();
-        EnqueueString("CLIENT ERROR: %s, L %u: Cannot create entity %u from SC1_EntityBaseLine msg: unknown type ID '%u' (WorldFileIndex %lu, MapFileIndex %lu)!\n", __FILE__, __LINE__, EntityID, EntityTypeID, EntityWFI, MFIndex);
+        EnqueueString("CLIENT ERROR: %s, L %u: Cannot create entity %u from SC1_EntityBaseLine msg: unknown type ID '%u' (WorldFileIndex %lu)!\n", __FILE__, __LINE__, EntityID, EntityTypeID, EntityWFI);
         return false;
     }
 

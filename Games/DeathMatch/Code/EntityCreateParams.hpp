@@ -44,7 +44,6 @@ namespace GAME_NAME
             const cf::SceneGraph::GenericNodeT*       RootNode_,
             const cf::ClipSys::CollisionModelT*       CollisionModel_,
             const unsigned long                       WorldFileIndex_,
-            const unsigned long                       MapFileIndex_,
             cf::GameSys::GameWorldI*                  GameWorld_,
             const Vector3dT&                          Origin_);
 
@@ -54,7 +53,6 @@ namespace GAME_NAME
         const cf::SceneGraph::GenericNodeT*       RootNode;
         const cf::ClipSys::CollisionModelT*       CollisionModel;
         const unsigned long                       WorldFileIndex;
-        const unsigned long                       MapFileIndex;
         cf::GameSys::GameWorldI*                  GameWorld;
         const Vector3dT&                          Origin;
     };
