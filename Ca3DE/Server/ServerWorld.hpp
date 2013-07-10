@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 namespace cf { namespace ClipSys { class CollisionModelT; } }
+class CompGameEntityT;
 class NetDataT;
 
 
@@ -93,9 +94,8 @@ class CaServerWorldT : public Ca3DEWorldT
     // 'CreationFrameNr' ist die Nummer des Frames, zu dem der Entity erzeugt wird, sollte also stets die 'ServerFrameNr' der ServerWorld sein.
     // Der Rückgabewert ist die ID des erzeugten Entities. (Verwendung: Der Server kann den Client damit wissen lassen, welcher Entity der Client ist).
     // Falls der Entity nicht erzeugt werden kann, wird 0xFFFFFFFF zurückgegeben.
-    unsigned long CreateNewEntityFromBasicInfo(const std::map<std::string, std::string>& Properties, const cf::SceneGraph::GenericNodeT* RootNode,
-        const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long WorldFileIndex, unsigned long CreationFrameNr, const VectorT& Origin,
-        const char* PlayerName=NULL, const char* ModelName=NULL);
+    unsigned long CreateNewEntityFromBasicInfo(IntrusivePtrT<const CompGameEntityT> CompGameEnt, unsigned long WorldFileIndex,
+        unsigned long CreationFrameNr, const VectorT& Origin, const char* PlayerName=NULL, const char* ModelName=NULL);
 
 
     unsigned long         m_ServerFrameNr;      ///< Nummer des aktuellen Frames/Zustands
