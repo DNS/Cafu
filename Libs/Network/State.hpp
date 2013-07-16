@@ -114,6 +114,13 @@ class OutStreamT
         return *this;
     }
 
+    OutStreamT& operator << (uint8_t b)
+    {
+        m_Data.PushBack(b);
+
+        return *this;
+    }
+
     OutStreamT& operator << (unsigned short w)
     {
         m_Data.PushBackEmpty(2);
@@ -234,6 +241,16 @@ class InStreamT
     //@{
     /// Reads a data item of the given type from the stream.
     InStreamT& operator >> (char& b)
+    {
+        if (m_ReadPos+1 > m_Data.Size()) { m_ReadOfl=true; return *this; }
+
+        b = m_Data[m_ReadPos];
+
+        m_ReadPos+=1;
+        return *this;
+    }
+
+    InStreamT& operator >> (uint8_t& b)
     {
         if (m_ReadPos+1 > m_Data.Size()) { m_ReadOfl=true; return *this; }
 
