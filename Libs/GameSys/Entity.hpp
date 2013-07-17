@@ -180,6 +180,30 @@ namespace cf
             /// @returns The pointer to the desired entity, or `NULL` if no entity with this name exists.
             IntrusivePtrT<EntityT> Find(const std::string& WantedName);   // Method cannot be const because return type is not const -- see implementation.
 
+            /// Writes the current state of this entity into the given stream.
+            /// This method is called to send the state of the entity over the network, to save it to disk,
+            /// or to store it in the clipboard.
+            ///
+            /// @param Stream
+            ///   The stream to write the state data to.
+            ///
+            /// @param WithChildren
+            ///   Should the children be recursively serialized as well?
+            void Serialize(cf::Network::OutStreamT& Stream, bool WithChildren=false) const;
+
+            /// Reads the state of this entity from the given stream, and updates the entity accordingly.
+            /// This method is called after the state of the entity has been received over the network,
+            /// has been loaded from disk, has been read from the clipboard, or must be "reset" for the purpose
+            /// of (re-)prediction.
+            ///
+            /// @param Stream
+            ///   The stream to read the state data from.
+            ///
+            /// @param IsIniting
+            ///   Used to indicate that the call is part of the construction / first-time initialization of the entity.
+            ///   The implementation will use this to not wrongly process the event counters, interpolation, etc.
+            void Deserialize(cf::Network::InStreamT& Stream, bool IsIniting);
+
             /// Returns the matrix that transforms points from local entity space to world space,
             /// i.e. into "absolute" coordinates (as opposed to "relative" coordinates in the space of the parent).
             MatrixT GetModelToWorld() const;

@@ -212,6 +212,7 @@ namespace
 {
     const char* FlagsIsModelFileName[] = { "IsModelFileName", NULL };
     const char* FlagsIsGuiFileName[]   = { "IsGuiFileName",   NULL };
+    const char* FlagsDontSerialize[]   = { "DontSerialize",   NULL };
 }
 
 
@@ -233,8 +234,8 @@ const cf::TypeSys::VarsDocT ComponentModelT::DocVars[] =
 ComponentModelT::ComponentModelT()
     : ComponentBaseT(),
       m_ModelName("Name", "", FlagsIsModelFileName, *this),
-      m_ModelAnimNr("Animation", 0, NULL, *this),
-      m_ModelSkinNr("Skin", -1, NULL, *this),   // -1 is the default skin of the model.
+      m_ModelAnimNr("Animation", 0, FlagsDontSerialize, *this),  // Already co-serialized along with m_ModelName.
+      m_ModelSkinNr("Skin", -1, FlagsDontSerialize, *this),      // -1 is the default skin of the model. Already co-serialized along with m_ModelName.
       m_ModelScale("Scale", 1.0f),
       m_GuiName("Gui", "", FlagsIsGuiFileName, *this),
       m_Model(NULL),

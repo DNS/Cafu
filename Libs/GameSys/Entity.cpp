@@ -20,10 +20,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Entity.hpp"
+#include "AllComponents.hpp"
 #include "CompBase.hpp"
 #include "EntityCreateParams.hpp"
 #include "World.hpp"
 
+#include "Network/State.hpp"
 #include "TypeSys.hpp"
 
 extern "C"
@@ -34,6 +36,12 @@ extern "C"
 }
 
 #include <cassert>
+
+#if defined(_WIN32) && _MSC_VER<1600
+#include "pstdint.h"            // Paul Hsieh's portable implementation of the stdint.h header.
+#else
+#include <stdint.h>
+#endif
 
 
 using namespace cf::GameSys;
@@ -308,6 +316,105 @@ IntrusivePtrT<EntityT> EntityT::Find(const std::string& WantedName)
     }
 
     return NULL;
+}
+
+
+// Note that this method is the twin of Deserialize(), whose implementation it must match.
+void EntityT::Serialize(cf::Network::OutStreamT& Stream, bool WithChildren) const
+{
+ // m_App->Serialize(Stream);       // Don't serialize anything that is application-specific.
+    m_Basics->Serialize(Stream);
+    m_Transform->Serialize(Stream);
+
+    // Serialize the "custom" components.
+    assert(m_Components.Size() < 256);
+    Stream << uint8_t(m_Components.Size());
+
+    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
+    {
+        assert(m_Components[CompNr]->GetType()->TypeNr < 256);
+        Stream << uint8_t(m_Components[CompNr]->GetType()->TypeNr);
+
+        m_Components[CompNr]->Serialize(Stream);
+    }
+
+    // Recursively serialize the children (if requested).
+    Stream << WithChildren;
+
+    if (WithChildren)
+    {
+        Stream << uint32_t(m_Children.Size());
+
+        for (unsigned int ChildNr = 0; ChildNr < m_Children.Size(); ChildNr++)
+            m_Children[ChildNr]->Serialize(Stream, WithChildren);
+    }
+}
+
+
+// Note that this method is the twin of Serialize(), whose implementation it must match.
+void EntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
+{
+ // m_App->Deserialize(Stream, IsIniting);
+    m_Basics->Deserialize(Stream, IsIniting);
+    m_Transform->Deserialize(Stream, IsIniting);
+
+    // Deserialize the "custom" components.
+    uint8_t NumComponents = 0;
+    Stream >> NumComponents;
+
+    while (m_Components.Size() > NumComponents)
+        m_Components.DeleteBack();
+
+    for (unsigned int CompNr = 0; CompNr < NumComponents; CompNr++)
+    {
+        uint8_t CompTypeNr = 0;
+        Stream >> CompTypeNr;
+
+        if (CompNr >= m_Components.Size())
+        {
+            // Note that if `TI == NULL`, there really is not much that we can do.
+            const cf::TypeSys::TypeInfoT* TI = GetComponentTIM().FindTypeInfoByNr(CompTypeNr);
+            IntrusivePtrT<ComponentBaseT> Comp(static_cast<ComponentBaseT*>(TI->CreateInstance(cf::TypeSys::CreateParamsT())));
+
+            m_Components.PushBack(Comp);
+        }
+
+        if (m_Components[CompNr]->GetType()->TypeNr != CompTypeNr)
+        {
+            // Note that if `TI == NULL`, there really is not much that we can do.
+            const cf::TypeSys::TypeInfoT* TI = GetComponentTIM().FindTypeInfoByNr(CompTypeNr);
+            IntrusivePtrT<ComponentBaseT> Comp(static_cast<ComponentBaseT*>(TI->CreateInstance(cf::TypeSys::CreateParamsT())));
+
+            m_Components[CompNr] = Comp;
+        }
+
+        m_Components[CompNr]->Deserialize(Stream, IsIniting);
+    }
+
+    // Recursively deserialize the children (if requested).
+    bool WithChildren = false;
+    Stream >> WithChildren;
+
+    if (WithChildren)
+    {
+        uint32_t NumChildren = 0;
+        Stream >> NumChildren;
+
+        while (m_Children.Size() > NumChildren)
+            m_Children.DeleteBack();
+
+        for (unsigned int ChildNr = 0; ChildNr < NumChildren; ChildNr++)
+        {
+            if (ChildNr >= m_Children.Size())
+            {
+                IntrusivePtrT<EntityT> NewEnt = new EntityT(EntityCreateParamsT(m_World));
+
+                m_Children.PushBack(NewEnt);
+            }
+
+            m_Children[ChildNr]->Deserialize(Stream, IsIniting);
+        }
+    }
 }
 
 

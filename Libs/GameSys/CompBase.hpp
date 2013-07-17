@@ -104,6 +104,27 @@ namespace cf
             /// Returns the name of this component.
             virtual const char* GetName() const { return "Base"; }
 
+            /// Writes the current state of this component into the given stream.
+            /// This method is called to send the state of the component over the network, to save it to disk,
+            /// or to store it in the clipboard.
+            ///
+            /// @param Stream
+            ///   The stream to write the state data to.
+            void Serialize(cf::Network::OutStreamT& Stream) const;
+
+            /// Reads the state of this component from the given stream, and updates the component accordingly.
+            /// This method is called after the state of the component has been received over the network,
+            /// has been loaded from disk, has been read from the clipboard, or must be "reset" for the purpose
+            /// of (re-)prediction.
+            ///
+            /// @param Stream
+            ///   The stream to read the state data from.
+            ///
+            /// @param IsIniting
+            ///   Used to indicate that the call is part of the construction / first-time initialization of the component.
+            ///   The implementation will use this to not wrongly process the event counters, interpolation, etc.
+            void Deserialize(cf::Network::InStreamT& Stream, bool IsIniting);
+
 
             /// This method is called whenever something "external" to this component has changed:
             ///   - if the parent entity has changed, because this component was added to or removed from it,
