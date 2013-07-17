@@ -314,7 +314,7 @@ unsigned long Ca3DEWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<const Comp
         if (PlayerName!=NULL) NewEntity->ProcessConfigString(PlayerName, "PlayerName");
         if (ModelName !=NULL) NewEntity->ProcessConfigString(ModelName , "ModelName" );
 
-        m_EngineEntities.PushBack(new EngineEntityT(NewEntity, CreationFrameNr));
+        m_EngineEntities.PushBack(new EngineEntityT(NewEntity, CompGameEnt->GetEntity(), CreationFrameNr));
 
         return NewEntityID;
     }

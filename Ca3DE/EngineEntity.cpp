@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Network/Network.hpp"
 #include "Win32/Win32PrintHelp.hpp"
 #include "Ca3DEWorld.hpp"
+#include "GameSys/Entity.hpp"
 
 
 namespace
@@ -78,6 +79,7 @@ cf::Network::StateT EngineEntityT::GetState() const
     cf::Network::OutStreamT Stream(State);
 
     Entity->Serialize(Stream);
+    m_Entity->Serialize(Stream);
 
     return State;
 }
@@ -88,6 +90,7 @@ void EngineEntityT::SetState(const cf::Network::StateT& State, bool IsIniting) c
     cf::Network::InStreamT Stream(State);
 
     Entity->Deserialize(Stream, IsIniting);
+    m_Entity->Deserialize(Stream, IsIniting);
 }
 
 
@@ -96,8 +99,9 @@ void EngineEntityT::SetState(const cf::Network::StateT& State, bool IsIniting) c
 /*******************/
 
 
-EngineEntityT::EngineEntityT(IntrusivePtrT<GameEntityI> Entity_, unsigned long CreationFrameNr)
+EngineEntityT::EngineEntityT(IntrusivePtrT<GameEntityI> Entity_, IntrusivePtrT<cf::GameSys::EntityT> Ent, unsigned long CreationFrameNr)
     : Entity(Entity_),
+      m_Entity(Ent),
       EntityStateFrameNr(CreationFrameNr),
       m_BaseLine(),
       m_BaseLineFrameNr(CreationFrameNr),
@@ -165,6 +169,8 @@ void EngineEntityT::WriteNewBaseLine(unsigned long SentClientBaseLineFrameNr, Ar
     NewBaseLineMsg.WriteLong(Entity->GetID());
     NewBaseLineMsg.WriteLong(Entity->GetType()->TypeNr);
     NewBaseLineMsg.WriteLong(Entity->GetWorldFileIndex());
+    NewBaseLineMsg.WriteLong(m_Entity->GetID());
+    NewBaseLineMsg.WriteLong(m_Entity->GetParent().IsNull() ? UINT_MAX : m_Entity->GetParent()->GetID());
     NewBaseLineMsg.WriteDMsg(m_BaseLine.GetDeltaMessage(cf::Network::StateT() /*::ALL_ZEROS*/));
 
     OutDatas.PushBack(NewBaseLineMsg.Data);
@@ -192,6 +198,7 @@ bool EngineEntityT::WriteDeltaEntity(bool SendFromBaseLine, unsigned long Client
     // Write the SC1_EntityUpdate message
     OutData.WriteByte(SC1_EntityUpdate);
     OutData.WriteLong(Entity->GetID());
+ // OutData.WriteLong(m_Entity->GetID());   // This is not needed at this time -- the client can find everything by the Entity->GetID() alone.
     OutData.WriteDMsg(DeltaMsg);
 
     return true;
@@ -205,8 +212,9 @@ bool EngineEntityT::WriteDeltaEntity(bool SendFromBaseLine, unsigned long Client
 /*******************/
 
 
-EngineEntityT::EngineEntityT(IntrusivePtrT<GameEntityI> Entity_, NetDataT& InData)
+EngineEntityT::EngineEntityT(IntrusivePtrT<GameEntityI> Entity_, IntrusivePtrT<cf::GameSys::EntityT> Ent, NetDataT& InData)
     : Entity(Entity_),
+      m_Entity(Ent),
       EntityStateFrameNr(0),
       m_BaseLine(),
       m_BaseLineFrameNr(1234),    // The m_BaseLineFrameNr is unused on the client.

@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClipSys/CollisionModelMan.hpp"
 #include "ConsoleCommands/ConVar.hpp"
 #include "GameSys/Entity.hpp"
+#include "GameSys/EntityCreateParams.hpp"
 #include "GameSys/World.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix.hpp"
@@ -78,6 +79,8 @@ bool CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
     const unsigned long EntityID     = InData.ReadLong();
     const unsigned long EntityTypeID = InData.ReadLong();
     const unsigned long EntityWFI    = InData.ReadLong();   // Short for: EntityWorldFileIndex
+    const unsigned int EntID    = InData.ReadLong();
+    const unsigned int ParentID = InData.ReadLong();
 
     const std::map<std::string, std::string>  EmptyMap;
     const std::map<std::string, std::string>& Props    = EntityWFI < m_World->m_StaticEntityData.Size() ? m_World->m_StaticEntityData[EntityWFI]->m_Properties : EmptyMap;
@@ -89,7 +92,7 @@ bool CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
     cf::ClipSys::CollModelMan->GetCM(CollMdl);
 
     // Es ist nicht sinnvoll, CreateGameEntityFromTypeID() in Parametern die geparsten InData-Inhalte zu übergeben (Origin, Velocity, ...),
-    // denn spätestens bei der SequenceNr und FrameNr kommt es zu Problemen. Deshalb lieber erstmal ein BaseEntitiy mit "falschem" State erzeugen.
+    // denn spätestens bei der SequenceNr und FrameNr kommt es zu Problemen. Deshalb lieber erstmal ein BaseEntity mit "falschem" State erzeugen.
     const cf::TypeSys::TypeInfoT* TI = m_Game->GetEntityTIM().FindTypeInfoByNr(EntityTypeID);
 
     IntrusivePtrT<GameEntityI> NewEntity = m_Game->CreateGameEntity(TI, Props, RootNode, CollMdl, EntityID, EntityWFI, this, Vector3dT());
@@ -104,6 +107,30 @@ bool CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
         return false;
     }
 
+
+    // Create a new entity with the given EntID and add it to the specified parent.
+    cf::GameSys::EntityCreateParamsT Params(*m_ScriptWorld);
+
+    Params.ForceID(EntID);
+
+    IntrusivePtrT<cf::GameSys::EntityT> Parent  = m_ScriptWorld->GetRootEntity()->FindID(ParentID);
+    IntrusivePtrT<cf::GameSys::EntityT> NewEnt  = new cf::GameSys::EntityT(Params);
+    IntrusivePtrT<CompGameEntityT>      GameEnt = new CompGameEntityT();
+
+    NewEnt->SetApp(GameEnt);
+
+    if (Parent.IsNull())
+    {
+        // Even though we handle it and try to continue here, this is actually a serious error that should never happen!
+        EnqueueString("CLIENT ERROR: Parent entity not found!\n");
+        m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
+    }
+    else
+    {
+        Parent->AddChild(NewEnt);
+    }
+
+
     // Falls notwendig, Platz für die neue EntityID schaffen.
     while (m_EngineEntities.Size()<=EntityID) m_EngineEntities.PushBack(NULL);
 
@@ -111,7 +138,7 @@ bool CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
     delete m_EngineEntities[EntityID];
 
     // Neuen Entity tatsächlich erschaffen.
-    m_EngineEntities[EntityID]=new EngineEntityT(NewEntity, InData);
+    m_EngineEntities[EntityID]=new EngineEntityT(NewEntity, NewEnt, InData);
     return true;
 }
 
