@@ -41,7 +41,21 @@ namespace cf
             /// @param World_   The world in which the entity should be created.
             EntityCreateParamsT(WorldT& World_);
 
+            /// This method is used on the client to create entities with the ID sent from the server,
+            /// not the automatically created ID that would otherwise (normally) be used.
+            void ForceID(unsigned int ID);
+
+            /// Returns the "forced" ID that is to be used for the new entity,
+            /// or `UINT_MAX` if the normal ID should be used.
+            unsigned int GetID() const { return m_ID; }
+
+
             WorldT& World;  ///< The world in which the entity should be created.
+
+
+            private:
+
+            unsigned int m_ID;
         };
     }
 }

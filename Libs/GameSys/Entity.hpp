@@ -96,6 +96,11 @@ namespace cf
 
             WorldT& GetWorld() const { return m_World; }
 
+            /// Returns the unique ID of this entity.
+            /// The ID is used to unambiguously identify the entity in network messages
+            /// and as entity index number into `.cw` world files.
+            unsigned int GetID() const { return m_ID; }
+
             /// Returns the parent entity of this entity.
             IntrusivePtrT<EntityT> GetParent() const { return m_Parent; }
 
@@ -173,6 +178,12 @@ namespace cf
             /// Deletes the component at the given index from this entity.
             void DeleteComponent(unsigned long CompNr);
 
+
+            /// Finds the entity with the given ID in the hierachy tree of this entity.
+            /// Use `GetRoot()->Find(xy)` in order to search the entire world for the entity with ID `xy`.
+            /// @param WantedID   The ID of the entity that is to be found.
+            /// @returns The pointer to the desired entity, or `NULL` if no entity with this ID exists.
+            IntrusivePtrT<EntityT> FindID(unsigned int WantedID);   // Method cannot be const because return type is not const -- see implementation.
 
             /// Finds the entity with the name WantedName in the hierachy tree of this entity.
             /// Use `GetRoot()->Find("xy")` in order to search the entire world for the entity with name `xy`.
@@ -266,6 +277,7 @@ namespace cf
             void operator = (const EntityT&);   ///< Use of the Assignment Operator is not allowed.
 
             WorldT&                                 m_World;        ///< The world instance in which this entity was created and exists. Useful in many regards, but especially for access to the commonly used resources, the script state, etc.
+            const unsigned int                      m_ID;           ///< The unique ID of this entity. The ID is used to unambiguously identify the entity in network messages and as entity index number into `.cw` world files.
             EntityT*                                m_Parent;       ///< The parent of this entity. May be NULL if there is no parent. In order to not create cycles of IntrusivePtrT's, the type is intentionally a raw pointer only.
             ArrayT< IntrusivePtrT<EntityT> >        m_Children;     ///< The list of children of this entity.
             IntrusivePtrT<ComponentBaseT>           m_App;          ///< A component for the sole use by the application / implementation.

@@ -58,6 +58,25 @@ cf::TypeSys::TypeInfoManT& cf::GameSys::GetGameSysEntityTIM()
 }
 
 
+namespace
+{
+    unsigned int CreateEntityID(unsigned int ForcedID = UINT_MAX)
+    {
+        static unsigned int ID = 0;
+
+        if (ForcedID != UINT_MAX)
+        {
+            if (ForcedID >= ID)
+                ID = std::max(ID, ForcedID) + 1;
+
+            return ForcedID;
+        }
+
+        return ID++;
+    }
+}
+
+
 const char* EntityT::DocClass =
     "An entity is the basic element in a game world.\n"
     "\n"
@@ -69,6 +88,7 @@ const char* EntityT::DocClass =
 
 EntityT::EntityT(const EntityCreateParamsT& Params)
     : m_World(Params.World),
+      m_ID(CreateEntityID(Params.GetID())),
       m_Parent(NULL),
       m_Children(),
       m_App(NULL),
@@ -85,6 +105,7 @@ EntityT::EntityT(const EntityCreateParamsT& Params)
 
 EntityT::EntityT(const EntityT& Entity, bool Recursive)
     : m_World(Entity.m_World),
+      m_ID(CreateEntityID()),
       m_Parent(NULL),
       m_Children(),
       m_App(NULL),
@@ -300,6 +321,22 @@ void EntityT::DeleteComponent(unsigned long CompNr)
     // Have the remaining components re-resolve their dependencies among themselves.
     for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
         m_Components[CompNr]->UpdateDependencies(this);
+}
+
+
+IntrusivePtrT<EntityT> EntityT::FindID(unsigned int WantedID)
+{
+    if (WantedID == m_ID) return this;
+
+    // Recursively see if any of the children has the desired name.
+    for (unsigned int ChildNr = 0; ChildNr < m_Children.Size(); ChildNr++)
+    {
+        IntrusivePtrT<EntityT> Ent = m_Children[ChildNr]->FindID(WantedID);
+
+        if (Ent != NULL) return Ent;
+    }
+
+    return NULL;
 }
 
 
