@@ -24,37 +24,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "GameSys/CompBase.hpp"
 #include "GameSys/Entity.hpp"       // For GetGameEnt() only.
-#include "Terrain/Terrain.hpp"
-
-namespace cf { namespace ClipSys    { class CollisionModelStaticT; } }
-namespace cf { namespace SceneGraph { namespace aux { class PoolT; } } }
-namespace cf { namespace SceneGraph { class BspTreeNodeT; } }
-namespace cf { namespace SceneGraph { class LightMapManT; } }
-namespace cf { namespace SceneGraph { class SHLMapManT; } }
-
-class MaterialT;
-class ModelManagerT;
-class PlantDescrManT;
 
 
-class SharedTerrainT
-{
-    public:
-
-    // Note that these constructors can theoretically throw because the TerrainT constructor can throw.
-    // In practice this should never happen though, because otherwise a .cmap or .cw file contained an invalid terrain.
-    SharedTerrainT(const BoundingBox3dT& BB_, unsigned long SideLength_, const ArrayT<unsigned short>& HeightData_, MaterialT* Material_);
-    SharedTerrainT(std::istream& InFile);
-
-    void WriteTo(std::ostream& OutFile) const;
-
-
-    BoundingBox3dT         BB;          ///< The lateral dimensions of the terrain.
-    unsigned long          SideLength;  ///< Side length of the terrain height data.
-    ArrayT<unsigned short> HeightData;  ///< The height data this terrain is created from (size==SideLength*SideLength).
-    MaterialT*             Material;    ///< The material for the terrain surface.
-    TerrainT               Terrain;
-};
+class StaticEntityDataT;
 
 
 /// This component houses the "engine-specific" parts of its entity.
@@ -67,8 +39,7 @@ class CompGameEntityT : public cf::GameSys::ComponentBaseT
     public:
 
     /// The constructor.
-    CompGameEntityT();
-    CompGameEntityT(std::istream& InFile, cf::SceneGraph::aux::PoolT& Pool, ModelManagerT& ModelMan, cf::SceneGraph::LightMapManT& LightMapMan, cf::SceneGraph::SHLMapManT& SHLMapMan, PlantDescrManT& PlantDescrMan);
+    CompGameEntityT(StaticEntityDataT* SED = NULL);
 
     /// The copy constructor. It creates a new component as a copy of another component.
     /// @param Comp   The component to copy-construct this component from.
@@ -77,18 +48,18 @@ class CompGameEntityT : public cf::GameSys::ComponentBaseT
     /// The destructor.
     ~CompGameEntityT();
 
+    const StaticEntityDataT* GetStaticEntityData() const { return m_StaticEntityData; }
+    StaticEntityDataT* GetStaticEntityData() { return m_StaticEntityData; }
+
     // Base class overrides.
     CompGameEntityT* Clone() const;
     const char* GetName() const { return "GameEntity"; }
 
-    void WriteTo(std::ostream& OutFile, cf::SceneGraph::aux::PoolT& Pool) const;
 
+    private:
 
-    Vector3dT                           m_Origin;
-    ArrayT<SharedTerrainT*>             m_Terrains;   ///< Terrains are shared among the BspTree (graphics world) and the CollModel (physics world).
-    cf::SceneGraph::BspTreeNodeT*       m_BspTree;
-    cf::ClipSys::CollisionModelStaticT* m_CollModel;
-    std::map<std::string, std::string>  m_Properties;
+    StaticEntityDataT* m_StaticEntityData;
+    const bool         m_DeleteSED;
 };
 
 

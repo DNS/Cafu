@@ -14,7 +14,7 @@ if sys.platform=="win32":
 elif sys.platform=="linux2":
     pass # envMapCompilers.Append(LIBS=Split(""))
 
-CommonWorldObject = [envMapCompilers.StaticObject("Common/World.cpp"), envMapCompilers.StaticObject("Common/CompGameEntity.cpp")]
+CommonWorldObject = envMapCompilers.StaticObject("Common/World.cpp")
 
 envMapCompilers.Program('CaBSP/CaBSP',   # I had preferred writing 'CaBSP' instead of 'CaBSP/CaBSP' here, but then under Linux we would get both a directory *and* an executeable with name 'CaBSP' in the build directory, which is not allowed/possible.
     Split("CaBSP/CaBSP.cpp CaBSP/BspTreeBuilder/BspTreeBuilder.cpp") + CommonWorldObject)
@@ -32,13 +32,11 @@ envMapCompilers.Program('CaSHL/CaSHL',
 
 envTools = env.Clone()
 
-envTools.Append(CPPPATH=['ExtLibs/lua/src'])
-
 if sys.platform=="win32":
     envTools.Append(LIBPATH=['ExtLibs/DirectX7/lib'])
     # glu32 is only needed for the TerrainViewerOld...
     envTools.Append(LIBS=Split("SceneGraph MatSys ClipSys cfsLib cfs_jpeg bulletcollision lua minizip lightwave png z")
-                       + Split("gdi32 glu32 opengl32 user32 wsock32") + ['cfsOpenGL', 'dinput', 'dxguid'])
+                       + Split("gdi32 glu32 opengl32 user32") + ['cfsOpenGL', 'dinput', 'dxguid'])
 elif sys.platform=="linux2":
     # GLU is only needed for the TerrainViewerOld...
     envTools.Append(CPPPATH=['/usr/include/freetype2'])         # As of 2009-09-10, this line is to become unnecessary in the future, see /usr/include/ftbuild.h for details.
@@ -138,7 +136,7 @@ appCafu = envCafu.Program('Ca3DE/Cafu',
     Glob("Ca3DE/Client/*.cpp") +
     Glob("Ca3DE/Server/*.cpp") +
     envCafu.FileFromValue("Ca3DE/auto-gen/AppCafu_InitGameInfos.cpp", envCafu.Value(genInitGameInfos())) +
-    CommonWorldObject + ["Common/WorldMan.cpp"] + WinResource)
+    CommonWorldObject + ["Common/CompGameEntity.cpp", "Common/WorldMan.cpp"] + WinResource)
 
 
 

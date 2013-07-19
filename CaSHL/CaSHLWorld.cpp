@@ -26,18 +26,17 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CaSHLWorld.hpp"
 #include "ClipSys/CollisionModel_static.hpp"
 #include "ClipSys/TraceResult.hpp"
-#include "GameSys/World.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
 #include "SceneGraph/FaceNode.hpp"
-#include "../Common/CompGameEntity.hpp"
+
 #include <stdio.h>
 
 
 CaSHLWorldT::CaSHLWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes)
     : m_World(FileName, ModelMan, GuiRes),
-      m_BspTree(GetGameEnt(m_World.m_ScriptWorld->GetRootEntity())->m_BspTree),
-      m_CollModel(GetGameEnt(m_World.m_ScriptWorld->GetRootEntity())->m_CollModel)
+      m_BspTree(m_World.m_StaticEntityData[0]->m_BspTree),
+      m_CollModel(m_World.m_StaticEntityData[0]->m_CollModel)
 {
 }
 

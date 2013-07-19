@@ -31,6 +31,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../Common/CompGameEntity.hpp"
 #include "../Common/WorldMan.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
+#include "String.hpp"
 
 
 #if defined(_WIN32) && defined(_MSC_VER)
@@ -45,13 +46,37 @@ static WorldManT WorldMan;
 Ca3DEWorldT::Ca3DEWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* Game, const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction) /*throw (WorldT::LoadErrorT)*/
     : m_Game(Game),
       m_World(WorldMan.LoadWorld(FileName, ModelMan, GuiRes, InitForGraphics, ProgressFunction)),
-      m_ClipWorld(new cf::ClipSys::ClipWorldT(GetGameEnt(m_World->m_ScriptWorld->GetRootEntity())->m_CollModel)),
-      m_PhysicsWorld(GetGameEnt(m_World->m_ScriptWorld->GetRootEntity())->m_CollModel),
+      m_ScriptWorld(NULL),
+      m_ClipWorld(new cf::ClipSys::ClipWorldT(m_World->m_StaticEntityData[0]->m_CollModel)),
+      m_PhysicsWorld(m_World->m_StaticEntityData[0]->m_CollModel),
       m_ScriptState(GameInfo, m_Game),
       m_EngineEntities(),
       m_ModelMan(ModelMan),
       m_GuiRes(GuiRes)
 {
+    try
+    {
+        std::string ScriptName = cf::String::StripExt(FileName) + ".cent";
+        ScriptName = cf::String::Replace(ScriptName, "/Worlds/", "/Maps/");
+        ScriptName = cf::String::Replace(ScriptName, "\\Worlds\\", "\\Maps\\");
+
+        m_ScriptWorld = new cf::GameSys::WorldT(
+            ScriptName,
+            ModelMan,
+            GuiRes,
+            0 /*cf::GameSys::WorldT::InitFlag_InMapEditor*/);
+    }
+    catch (const cf::GameSys::WorldT::InitErrorT& IE)
+    {
+        throw WorldT::LoadErrorT(IE.what());
+    }
+
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
+    m_ScriptWorld->GetRootEntity()->GetAll(AllEnts);
+
+    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
+        AllEnts[EntNr]->SetApp(
+            new CompGameEntityT(EntNr < m_World->m_StaticEntityData.Size() ? m_World->m_StaticEntityData[EntNr] : NULL));
 }
 
 
@@ -69,17 +94,14 @@ Ca3DEWorldT::~Ca3DEWorldT()
     // assert(!m_ScriptState.HasEntityInstances());
     // lua_gc(m_ScriptState.GetScriptState().GetLuaState(), LUA_GCCOLLECT, 0);
 
-    // if (m_PhysicsWorld)
-    // {
-    //     delete m_PhysicsWorld;
-    //     m_PhysicsWorld = NULL;
-    // }
+    // delete m_PhysicsWorld;
+    // m_PhysicsWorld = NULL;
 
-    if (m_ClipWorld)
-    {
-        delete m_ClipWorld;
-        m_ClipWorld = NULL;
-    }
+    delete m_ClipWorld;
+    m_ClipWorld = NULL;
+
+    delete m_ScriptWorld;
+    m_ScriptWorld = NULL;
 
     if (m_World)
     {
@@ -116,7 +138,7 @@ cf::UniScriptStateT& Ca3DEWorldT::GetScriptState()
 Vector3fT Ca3DEWorldT::GetAmbientLightColorFromBB(const BoundingBox3T<double>& Dimensions, const VectorT& Origin) const
 {
     const Vector3dT BBCenter = scale(Dimensions.Min+Dimensions.Max, 0.5) + Origin;
-    const cf::SceneGraph::BspTreeNodeT* BspTree = GetGameEnt(m_World->m_ScriptWorld->GetRootEntity())->m_BspTree;
+    const cf::SceneGraph::BspTreeNodeT* BspTree = m_World->m_StaticEntityData[0]->m_BspTree;
 
 #if 0
     // Performance profiling revealed that this method is frequently called

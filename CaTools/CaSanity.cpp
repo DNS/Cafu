@@ -50,8 +50,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/ConsoleStdout.hpp"
 #include "FileSys/FileManImpl.hpp"
 #include "FileSys/Password.hpp"
-#include "GameSys/AllComponents.hpp"
-#include "GameSys/World.hpp"
 #include "GuiSys/GuiResources.hpp"
 #include "Math3D/Brush.hpp"
 #include "Bitmap/Bitmap.hpp"
@@ -65,7 +63,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SceneGraph/FaceNode.hpp"
 #include "ClipSys/CollisionModelMan_impl.hpp"
 
-#include "../Common/CompGameEntity.hpp"
 #include "../Common/World.hpp"
 
 
@@ -594,8 +591,8 @@ void Usage()
 
 int main(int ArgC, char* ArgV[])
 {
-    cf::GameSys::GetComponentTIM().Init();      // The one-time init of the GameSys components type info manager.
-    cf::GameSys::GetGameSysEntityTIM().Init();  // The one-time init of the GameSys entity type info manager.
+    // cf::GameSys::GetComponentTIM().Init();      // The one-time init of the GameSys components type info manager.
+    // cf::GameSys::GetGameSysEntityTIM().Init();  // The one-time init of the GameSys entity type info manager.
 
     if (ArgC>1 && std::string(ArgV[1])=="-p")
     {
@@ -664,7 +661,7 @@ int main(int ArgC, char* ArgV[])
         ModelManagerT             ModelMan;
         cf::GuiSys::GuiResourcesT GuiRes(ModelMan);
         World = new WorldT(ArgV[1], ModelMan, GuiRes);
-        g_BspTree = GetGameEnt(World->m_ScriptWorld->GetRootEntity())->m_BspTree;
+        g_BspTree = World->m_StaticEntityData[0]->m_BspTree;
 
         // Gib ggf. nur die gewünschten Infos aus
         if (ArgC==3)

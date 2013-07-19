@@ -24,7 +24,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /********************/
 
 #include "World.hpp"
-#include "CompGameEntity.hpp"
 #include "Bitmap/Bitmap.hpp"
 #include "ClipSys/CollisionModel_static.hpp"
 #include "GameSys/Entity.hpp"
@@ -50,19 +49,174 @@ const double MapT::RoundEpsilon = 2.0;
 const double MapT::MinVertexDist=10.0;  // 1 cm
 
 
+/**********************/
+/*** SharedTerrainT ***/
+/**********************/
+
+SharedTerrainT::SharedTerrainT(const BoundingBox3dT& BB_, unsigned long SideLength_, const ArrayT<unsigned short>& HeightData_, MaterialT* Material_)
+    : BB(BB_),
+      SideLength(SideLength_),
+      HeightData(HeightData_),
+      Material(Material_),
+      Terrain(&HeightData[0], SideLength, BB.AsBoxOfFloat())
+{
+}
+
+
+SharedTerrainT::SharedTerrainT(std::istream& InFile)
+{
+    using namespace cf::SceneGraph;
+
+    BB.Min    =aux::ReadVector3d(InFile);
+    BB.Max    =aux::ReadVector3d(InFile);
+    SideLength=aux::ReadUInt32(InFile);
+    Material  =MaterialManager->GetMaterial(aux::ReadString(InFile));
+
+    HeightData.PushBackEmptyExact(SideLength*SideLength);
+
+    for (unsigned long i=0; i<HeightData.Size(); i++)
+        HeightData[i]=aux::ReadUInt16(InFile);
+
+    Terrain=TerrainT(&HeightData[0], SideLength, BB.AsBoxOfFloat());
+}
+
+
+void SharedTerrainT::WriteTo(std::ostream& OutFile) const
+{
+    using namespace cf::SceneGraph;
+
+    aux::Write(OutFile, BB.Min);
+    aux::Write(OutFile, BB.Max);
+    aux::Write(OutFile, aux::cnc_ui32(SideLength));
+    aux::Write(OutFile, Material->Name);    // There are only few terrains, no need for the Pool here.
+
+    for (unsigned long i=0; i<HeightData.Size(); i++)
+        aux::Write(OutFile, HeightData[i]);
+}
+
+
+/*************************/
+/*** StaticEntityDataT ***/
+/*************************/
+
+StaticEntityDataT::StaticEntityDataT()
+    : m_BspTree(NULL),
+      m_CollModel(NULL)
+{
+}
+
+
+StaticEntityDataT::StaticEntityDataT(std::istream& InFile, cf::SceneGraph::aux::PoolT& Pool, ModelManagerT& ModelMan, cf::SceneGraph::LightMapManT& LightMapMan, cf::SceneGraph::SHLMapManT& SHLMapMan, PlantDescrManT& PlantDescrMan)
+    : m_BspTree(NULL),
+      m_CollModel(NULL)
+{
+    // Read the shared terrain data.
+    ArrayT<const TerrainT*> ShTe_SceneGr;
+    ArrayT<cf::ClipSys::CollisionModelStaticT::TerrainRefT> ShTe_CollDet;
+
+    for (unsigned long TerrainNr = cf::SceneGraph::aux::ReadUInt32(InFile); TerrainNr > 0; TerrainNr--)
+    {
+        SharedTerrainT* ShTe = new SharedTerrainT(InFile);
+
+        m_Terrains.PushBack(ShTe);
+        ShTe_SceneGr.PushBack(&ShTe->Terrain);
+        ShTe_CollDet.PushBack(cf::ClipSys::CollisionModelStaticT::TerrainRefT(&ShTe->Terrain, ShTe->Material, ShTe->BB));
+    }
+
+    // Read the SceneGraph BSP tree.
+    // Don't call cf::SceneGraph::BspTreeNodeT::CreateFromFile_cw() directly, because it would expect
+    // that the "BspTree" string that states the identity of this NodeT has already been read!
+    m_BspTree = dynamic_cast<cf::SceneGraph::BspTreeNodeT*>(cf::SceneGraph::GenericNodeT::CreateFromFile_cw(InFile, Pool,
+        LightMapMan, SHLMapMan, PlantDescrMan, ShTe_SceneGr, ModelMan));
+
+    if (m_BspTree == NULL)
+    {
+        // TODO: Clean-up...
+        throw WorldT::LoadErrorT("Could not read scene graph bsp tree node for game entity!");
+    }
+
+    // Read the ClipSys collision model.
+    bool HasCollisionModel = false;
+    assert(sizeof(HasCollisionModel) == 1);
+    InFile.read((char*)&HasCollisionModel, sizeof(HasCollisionModel));
+
+    m_CollModel = HasCollisionModel ? new cf::ClipSys::CollisionModelStaticT(InFile, Pool, ShTe_CollDet) : NULL;
+
+    // Read the origin.
+    InFile.read((char*)&m_Origin.x, sizeof(m_Origin.x));
+    InFile.read((char*)&m_Origin.y, sizeof(m_Origin.y));
+    InFile.read((char*)&m_Origin.z, sizeof(m_Origin.z));
+
+    // Read the property pairs.
+    for (unsigned long NrOfPropertyPairs = cf::SceneGraph::aux::ReadUInt32(InFile); NrOfPropertyPairs > 0; NrOfPropertyPairs--)
+    {
+        const std::string Key   = cf::SceneGraph::aux::ReadString(InFile);
+        const std::string Value = cf::SceneGraph::aux::ReadString(InFile);
+
+        m_Properties[Key] = Value;
+    }
+}
+
+
+StaticEntityDataT::~StaticEntityDataT()
+{
+    delete m_BspTree;
+    delete m_CollModel;
+
+    // Delete the terrains that were shared by the BspTree and the CollModel.
+    for (unsigned int TerrainNr = 0; TerrainNr < m_Terrains.Size(); TerrainNr++)
+        delete m_Terrains[TerrainNr];
+}
+
+
+void StaticEntityDataT::WriteTo(std::ostream& OutFile, cf::SceneGraph::aux::PoolT& Pool) const
+{
+    // Write the shared terrain data.
+    cf::SceneGraph::aux::Write(OutFile, cf::SceneGraph::aux::cnc_ui32(m_Terrains.Size()));
+
+    for (unsigned long TerrainNr = 0; TerrainNr < m_Terrains.Size(); TerrainNr++)
+        m_Terrains[TerrainNr]->WriteTo(OutFile);
+
+    // Write the SceneGraph BSP tree.
+    m_BspTree->WriteTo(OutFile, Pool);
+
+    // Write the ClipSys collision model.
+    const bool HasCollisionModel = (m_CollModel!=NULL);
+    assert(sizeof(HasCollisionModel) == 1);
+
+    OutFile.write((char*)&HasCollisionModel, sizeof(HasCollisionModel));
+    if (m_CollModel)
+        m_CollModel->SaveToFile(OutFile, Pool);
+
+    // Write the origin.
+    OutFile.write((char*)&m_Origin.x, sizeof(m_Origin.x));
+    OutFile.write((char*)&m_Origin.y, sizeof(m_Origin.y));
+    OutFile.write((char*)&m_Origin.z, sizeof(m_Origin.z));
+
+    // Write the property pairs.
+    cf::SceneGraph::aux::Write(OutFile, cf::SceneGraph::aux::cnc_ui32(m_Properties.size()));
+
+    for (std::map<std::string, std::string>::const_iterator It = m_Properties.begin(); It != m_Properties.end(); ++It)
+    {
+        cf::SceneGraph::aux::Write(OutFile, It->first );
+        cf::SceneGraph::aux::Write(OutFile, It->second);
+    }
+}
+
+
 /**************/
 /*** WorldT ***/
 /**************/
 
 WorldT::WorldT()
-    : m_ScriptWorld(NULL)
 {
 }
 
 
 WorldT::~WorldT()
 {
-    delete m_ScriptWorld;
+    for (unsigned int EntNr = 0; EntNr < m_StaticEntityData.Size(); EntNr++)
+        delete m_StaticEntityData[EntNr];
 }
 
 
@@ -85,27 +239,9 @@ static std::string GetModDir(const char* FileName)
 
 
 WorldT::WorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, ProgressFunctionT ProgressFunction) /*throw (LoadErrorT)*/
-    : m_ScriptWorld(NULL)
 {
     // Set the plant descriptions manager mod directory to the one from the world to load.
     PlantDescrMan.SetModDir(GetModDir(FileName));
-
-    try
-    {
-        std::string ScriptName = cf::String::StripExt(FileName) + ".cent";
-        ScriptName = cf::String::Replace(ScriptName, "/Worlds/", "/Maps/");
-        ScriptName = cf::String::Replace(ScriptName, "\\Worlds\\", "\\Maps\\");
-
-        m_ScriptWorld = new cf::GameSys::WorldT(
-            ScriptName,
-            ModelMan,
-            GuiRes,
-            0 /*cf::GameSys::WorldT::InitFlag_InMapEditor*/);
-    }
-    catch (const cf::GameSys::WorldT::InitErrorT& IE)
-    {
-        throw LoadErrorT(IE.what());
-    }
 
     std::ifstream InFile(FileName, std::ios::in | std::ios::binary);
     if (InFile.bad()) throw LoadErrorT("Unable to open Cafu world file.");
@@ -179,19 +315,11 @@ WorldT::WorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiRes
     // 5. Read GameEntities
     if (ProgressFunction) ProgressFunction(float(InFile.tellg())/float(InFileSize), "Reading Game Entities.");
 
-    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
-    m_ScriptWorld->GetRootEntity()->GetAll(AllEnts);
-
     const unsigned int NumGameEnts = cf::SceneGraph::aux::ReadUInt32(InFile);
 
-    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
+    for (unsigned int EntNr = 0; EntNr < NumGameEnts; EntNr++)
     {
-        IntrusivePtrT<CompGameEntityT> GameEnt = EntNr < NumGameEnts
-            ? new CompGameEntityT(InFile, Pool, ModelMan, LightMapMan, SHLMapMan, PlantDescrMan)
-            : new CompGameEntityT();
-
-        assert(AllEnts[EntNr]->GetApp().IsNull());
-        AllEnts[EntNr]->SetApp(GameEnt);
+        m_StaticEntityData.PushBack(new StaticEntityDataT(InFile, Pool, ModelMan, LightMapMan, SHLMapMan, PlantDescrMan));
     }
 
     if (ProgressFunction) ProgressFunction(1.0f, "World file loaded.");
@@ -254,13 +382,10 @@ void WorldT::SaveToDisk(const char* FileName) const /*throw (SaveErrorT)*/
     }
 
     // 5. Write GameEntities
-    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
-    m_ScriptWorld->GetRootEntity()->GetAll(AllEnts);
+    cf::SceneGraph::aux::Write(OutFile, cf::SceneGraph::aux::cnc_ui32(m_StaticEntityData.Size()));
 
-    cf::SceneGraph::aux::Write(OutFile, cf::SceneGraph::aux::cnc_ui32(AllEnts.Size()));
-
-    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
+    for (unsigned int EntNr = 0; EntNr < m_StaticEntityData.Size(); EntNr++)
     {
-        GetGameEnt(AllEnts[EntNr])->WriteTo(OutFile, Pool);
+        m_StaticEntityData[EntNr]->WriteTo(OutFile, Pool);
     }
 }

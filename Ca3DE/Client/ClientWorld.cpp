@@ -50,11 +50,9 @@ CaClientWorldT::CaClientWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::Ga
       m_PlayerCommands()
 {
     ProgressFunction(-1.0f, "InitDrawing()");
-    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
-    m_World->m_ScriptWorld->GetRootEntity()->GetAll(AllEnts);
 
-    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
-        GetGameEnt(AllEnts[EntNr])->m_BspTree->InitDrawing();
+    for (unsigned int EntNr = 0; EntNr < m_World->m_StaticEntityData.Size(); EntNr++)
+        m_World->m_StaticEntityData[EntNr]->m_BspTree->InitDrawing();
 
     Frames.PushBackEmpty(MAX_FRAMES);
     m_PlayerCommands.PushBackEmpty(128);    // The size MUST be a power of 2.
@@ -77,17 +75,14 @@ void CaClientWorldT::RemoveEntity(unsigned long EntityID)
 
 bool CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
 {
-    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
-    m_World->m_ScriptWorld->GetRootEntity()->GetAll(AllEnts);
-
     const unsigned long EntityID     = InData.ReadLong();
     const unsigned long EntityTypeID = InData.ReadLong();
     const unsigned long EntityWFI    = InData.ReadLong();   // Short for: EntityWorldFileIndex
 
     const std::map<std::string, std::string>  EmptyMap;
-    const std::map<std::string, std::string>& Props    = EntityWFI < AllEnts.Size() ? GetGameEnt(AllEnts[EntityWFI])->m_Properties : EmptyMap;
-    const cf::SceneGraph::GenericNodeT*       RootNode = EntityWFI < AllEnts.Size() ? GetGameEnt(AllEnts[EntityWFI])->m_BspTree    : NULL;
-    const cf::ClipSys::CollisionModelT*       CollMdl  = EntityWFI < AllEnts.Size() ? GetGameEnt(AllEnts[EntityWFI])->m_CollModel  : NULL;
+    const std::map<std::string, std::string>& Props    = EntityWFI < m_World->m_StaticEntityData.Size() ? m_World->m_StaticEntityData[EntityWFI]->m_Properties : EmptyMap;
+    const cf::SceneGraph::GenericNodeT*       RootNode = EntityWFI < m_World->m_StaticEntityData.Size() ? m_World->m_StaticEntityData[EntityWFI]->m_BspTree    : NULL;
+    const cf::ClipSys::CollisionModelT*       CollMdl  = EntityWFI < m_World->m_StaticEntityData.Size() ? m_World->m_StaticEntityData[EntityWFI]->m_CollModel  : NULL;
 
     // Register CollMdl also with the cf::ClipSys::CollModelMan, so that both the owner (Ca3DEWorld.GameEntities[EntityWFI])
     // as well as the game code can free/delete it in their destructors (one by "delete", the other by cf::ClipSys::CollModelMan->FreeCM()).
@@ -424,7 +419,7 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
     MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::AMBIENT);
     MatSys::Renderer->SetCurrentEyePosition(float(DrawOrigin.x), float(DrawOrigin.y), float(DrawOrigin.z)+EyeOffsetZ);    // Also required in some ambient shaders.
 
-    const cf::SceneGraph::BspTreeNodeT* BspTree = GetGameEnt(m_World->m_ScriptWorld->GetRootEntity())->m_BspTree;
+    const cf::SceneGraph::BspTreeNodeT* BspTree = m_World->m_StaticEntityData[0]->m_BspTree;
     BspTree->DrawAmbientContrib(DrawOrigin);
 
 

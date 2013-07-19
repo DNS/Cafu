@@ -27,16 +27,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Bitmap/Bitmap.hpp"
 #include "ClipSys/CollisionModel_static.hpp"
 #include "ClipSys/TraceResult.hpp"
-#include "GameSys/World.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
-#include "../Common/CompGameEntity.hpp"
 
 
 CaLightWorldT::CaLightWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes)
     : m_World(FileName, ModelMan, GuiRes),
-      m_BspTree(GetGameEnt(m_World.m_ScriptWorld->GetRootEntity())->m_BspTree),
-      m_CollModel(GetGameEnt(m_World.m_ScriptWorld->GetRootEntity())->m_CollModel)
+      m_BspTree(m_World.m_StaticEntityData[0]->m_BspTree),
+      m_CollModel(m_World.m_StaticEntityData[0]->m_CollModel)
 {
 }
 
@@ -81,12 +79,9 @@ void CaLightWorldT::CreateLightMapsForEnts()
         }
 
 
-    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
-    m_World.m_ScriptWorld->GetRootEntity()->GetAll(AllEnts);
-
-    for (unsigned long EntNr = 1 /*non-world only*/; EntNr < AllEnts.Size(); EntNr++)
+    for (unsigned long EntNr = 1 /*non-world only*/; EntNr < m_World.m_StaticEntityData.Size(); EntNr++)
     {
-        cf::SceneGraph::BspTreeNodeT* EntBspTree = GetGameEnt(AllEnts[EntNr])->m_BspTree;
+        cf::SceneGraph::BspTreeNodeT* EntBspTree = m_World.m_StaticEntityData[EntNr]->m_BspTree;
 
 
         // Obtain the patch meshes for this entity.

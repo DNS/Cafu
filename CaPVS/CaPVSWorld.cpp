@@ -25,16 +25,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include <stdio.h>
 #include "CaPVSWorld.hpp"
-#include "GameSys/World.hpp"
 #include "SceneGraph/Node.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
 #include "SceneGraph/FaceNode.hpp"
-#include "../Common/CompGameEntity.hpp"
 
 
 CaPVSWorldT::CaPVSWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, unsigned long SLC_MaxRecursionDepth_, double SLC_MinSubTreeFacesArea_)
     : m_World(FileName, ModelMan, GuiRes),
-      m_BspTree(GetGameEnt(m_World.m_ScriptWorld->GetRootEntity())->m_BspTree),
+      m_BspTree(m_World.m_StaticEntityData[0]->m_BspTree),
       SLC_MaxRecursionDepth(SLC_MaxRecursionDepth_),
       SLC_MinSubTreeFacesArea(SLC_MinSubTreeFacesArea_)
 {

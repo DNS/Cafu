@@ -264,7 +264,7 @@ int main(int ArgC, const char* ArgV[])
     // What we need:
     // For each entity: The BspTree itself, OutsidePointSamples, FloodFillSources.
     // One common instance, shared for all: LeakDetectMat
-    BspTreeBuilderT BspTreeBuilder(GetGameEnt(World.m_ScriptWorld->GetRootEntity())->m_BspTree, Option_MostSimpleTree, Option_MinimizeFaceSplits);
+    BspTreeBuilderT BspTreeBuilder(World.m_StaticEntityData[0]->m_BspTree, Option_MostSimpleTree, Option_MinimizeFaceSplits);
 
     ArrayT<Vector3dT> FloodFillSources;
     for (unsigned long IPSNr=0; IPSNr<World.InfoPlayerStarts.Size(); IPSNr++)

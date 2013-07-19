@@ -53,8 +53,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/ConsoleInterpreter.hpp"
 #include "ConsoleCommands/ConsoleStdout.hpp"
 #include "FileSys/FileManImpl.hpp"
-#include "GameSys/AllComponents.hpp"
-#include "GameSys/Entity.hpp"
 #include "GuiSys/GuiResources.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/MaterialManagerImpl.hpp"
@@ -785,8 +783,8 @@ void Usage()
 
 int main(int ArgC, const char* ArgV[])
 {
-    cf::GameSys::GetComponentTIM().Init();      // The one-time init of the GameSys components type info manager.
-    cf::GameSys::GetGameSysEntityTIM().Init();  // The one-time init of the GameSys entity type info manager.
+    // cf::GameSys::GetComponentTIM().Init();      // The one-time init of the GameSys components type info manager.
+    // cf::GameSys::GetGameSysEntityTIM().Init();  // The one-time init of the GameSys entity type info manager.
 
     unsigned long MaxRecDepthSL  =0xFFFFFFFF;
     double        MinAreaSL      =0.0;

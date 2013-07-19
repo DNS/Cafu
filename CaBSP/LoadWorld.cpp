@@ -39,7 +39,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Models/ModelManager.hpp"
 #include "Plants/PlantDescrMan.hpp"
 #include "String.hpp"
-#include "../Common/CompGameEntity.hpp"
 
 
 using namespace cf;
@@ -260,9 +259,11 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
 
     Console->Print(cf::va("\n*** Load World %s ***\n", LoadName));
 
+    cf::GameSys::WorldT* ScriptWorld = NULL;
+
     try
     {
-        World.m_ScriptWorld = new cf::GameSys::WorldT(
+        ScriptWorld = new cf::GameSys::WorldT(
             cf::String::StripExt(LoadName) + ".cent",
             ModelMan,
             GuiRes,
@@ -298,7 +299,7 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
 
 
     ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllScriptEnts;
-    World.m_ScriptWorld->GetRootEntity()->GetAll(AllScriptEnts);
+    ScriptWorld->GetRootEntity()->GetAll(AllScriptEnts);
 
     if (AllScriptEnts.Size() > MFEntityList.Size())
         Console->Print("Note: There are more entities in the .cent file than in the .cmap file.\n"
@@ -333,15 +334,12 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
     }
 
     // Move/migrate/insert the map primitives of each entity into the entity's BSP tree.
-    for (unsigned long EntNr = 0; EntNr < AllScriptEnts.Size(); EntNr++)
+    for (unsigned long EntNr = 0; EntNr < AllScriptEnts.Size() && EntNr < MFEntityList.Size(); EntNr++)
     {
-        IntrusivePtrT<CompGameEntityT> GameEnt = new CompGameEntityT();
+        assert(World.m_StaticEntityData.Size() == EntNr);
 
-        assert(AllScriptEnts[EntNr]->GetApp().IsNull());
-        AllScriptEnts[EntNr]->SetApp(GameEnt);
-
-        if (EntNr >= MFEntityList.Size())
-            continue;
+        StaticEntityDataT* GameEnt = new StaticEntityDataT();
+        World.m_StaticEntityData.PushBack(GameEnt);
 
         const MapFileEntityT& E = MFEntityList[EntNr];
         const std::map<std::string, std::string>::const_iterator ClassNamePair = E.MFProperties.find("classname");
@@ -511,9 +509,11 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
 
     Console->Print("All game entities done, processing the worldspawn entity now.\n");
 
-    Console->Print(cf::va("Face Children    : %10lu    Draw World Outer Point Samples: %5lu\n", GetGameEnt(AllScriptEnts[0])->m_BspTree->FaceChildren.Size(), DrawWorldOutsidePointSamples.Size()));
+    Console->Print(cf::va("Face Children    : %10lu    Draw World Outer Point Samples: %5lu\n", World.m_StaticEntityData[0]->m_BspTree->FaceChildren.Size(), DrawWorldOutsidePointSamples.Size()));
     Console->Print(cf::va("PointLights      : %10lu\n", World.PointLights.Size()));
     Console->Print(cf::va("InfoPlayerStarts : %10lu\n", World.InfoPlayerStarts.Size()));
-    Console->Print(cf::va("Other Children   : %10lu\n", GetGameEnt(AllScriptEnts[0])->m_BspTree->OtherChildren.Size()));
+    Console->Print(cf::va("Other Children   : %10lu\n", World.m_StaticEntityData[0]->m_BspTree->OtherChildren.Size()));
     Console->Print(cf::va("Entities         : %10lu\n", AllScriptEnts.Size()));
+
+    delete ScriptWorld;
 }

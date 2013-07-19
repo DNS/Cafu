@@ -72,6 +72,52 @@ struct InfoPlayerStartT
 };
 
 
+class SharedTerrainT
+{
+    public:
+
+    // Note that these constructors can theoretically throw because the TerrainT constructor can throw.
+    // In practice this should never happen though, because otherwise a .cmap or .cw file contained an invalid terrain.
+    SharedTerrainT(const BoundingBox3dT& BB_, unsigned long SideLength_, const ArrayT<unsigned short>& HeightData_, MaterialT* Material_);
+    SharedTerrainT(std::istream& InFile);
+
+    void WriteTo(std::ostream& OutFile) const;
+
+
+    BoundingBox3dT         BB;          ///< The lateral dimensions of the terrain.
+    unsigned long          SideLength;  ///< Side length of the terrain height data.
+    ArrayT<unsigned short> HeightData;  ///< The height data this terrain is created from (size==SideLength*SideLength).
+    MaterialT*             Material;    ///< The material for the terrain surface.
+    TerrainT               Terrain;
+};
+
+
+class StaticEntityDataT
+{
+    public:
+
+    StaticEntityDataT();
+    StaticEntityDataT(std::istream& InFile, cf::SceneGraph::aux::PoolT& Pool, ModelManagerT& ModelMan, cf::SceneGraph::LightMapManT& LightMapMan, cf::SceneGraph::SHLMapManT& SHLMapMan, PlantDescrManT& PlantDescrMan);
+
+    ~StaticEntityDataT();
+
+    void WriteTo(std::ostream& OutFile, cf::SceneGraph::aux::PoolT& Pool) const;
+
+
+    Vector3dT                           m_Origin;
+    ArrayT<SharedTerrainT*>             m_Terrains;   ///< Terrains are shared among the BspTree (graphics world) and the CollModel (physics world).
+    cf::SceneGraph::BspTreeNodeT*       m_BspTree;
+    cf::ClipSys::CollisionModelStaticT* m_CollModel;
+    std::map<std::string, std::string>  m_Properties;
+
+
+    private:
+
+    StaticEntityDataT(const StaticEntityDataT&);    ///< Use of the Copy    Constructor is not allowed.
+    void operator = (const StaticEntityDataT&);     ///< Use of the Assignment Operator is not allowed.
+};
+
+
 class WorldT
 {
     public:
@@ -91,15 +137,13 @@ class WorldT
     /// Destructor.
     ~WorldT();
 
-    cf::GameSys::WorldT& GetScriptWorld() { return *m_ScriptWorld; }
-
     /// Saves the world to disk.
     void SaveToDisk(const char* FileName) const /*throw (SaveErrorT)*/;
 
 
-    cf::GameSys::WorldT*         m_ScriptWorld;   ///< The "script world" contains the entity hierarchy and their components. Each m_Entities member has a pointer to its related instance herein.
     ArrayT<InfoPlayerStartT>     InfoPlayerStarts;
     ArrayT<PointLightT>          PointLights;
+    ArrayT<StaticEntityDataT*>   m_StaticEntityData;
     cf::SceneGraph::LightMapManT LightMapMan;
     cf::SceneGraph::SHLMapManT   SHLMapMan;
     PlantDescrManT               PlantDescrMan;

@@ -50,7 +50,7 @@ CaServerWorldT::CaServerWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::Ga
 {
     // Gehe alle GameEntities der Ca3DEWorld durch und erstelle dafür "echte" Entities.
     ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
-    m_World->m_ScriptWorld->GetRootEntity()->GetAll(AllEnts);
+    m_ScriptWorld->GetRootEntity()->GetAll(AllEnts);
 
     for (unsigned int GENr = 1 /*skip the world!*/; GENr < AllEnts.Size(); GENr++)
     {
@@ -58,26 +58,26 @@ CaServerWorldT::CaServerWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::Ga
 
         // Register GE->CollModel also with the cf::ClipSys::CollModelMan, so that both the owner (the game entity GE)
         // as well as the game code can free/delete it in their destructors (one by "delete", the other by cf::ClipSys::CollModelMan->FreeCM()).
-        cf::ClipSys::CollModelMan->GetCM(GE->m_CollModel);
+        cf::ClipSys::CollModelMan->GetCM(GE->GetStaticEntityData()->m_CollModel);
 
-        CreateNewEntityFromBasicInfo(GE, GENr, m_ServerFrameNr, GE->m_Origin);
+        CreateNewEntityFromBasicInfo(GE, GENr, m_ServerFrameNr, GE->GetStaticEntityData()->m_Origin);
     }
 
     // Zu Demonstrationszwecken fügen wir auch noch einen MonsterMaker vom Typ CompanyBot in die World ein.
     // TODO! Dies sollte ins Map/Entity-Script wandern!!!
     if (AutoAddCompanyBot.GetValueBool())
     {
-        IntrusivePtrT<cf::GameSys::EntityT> NewEnt  = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_World->m_ScriptWorld));
+        IntrusivePtrT<cf::GameSys::EntityT> NewEnt  = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
         IntrusivePtrT<CompGameEntityT>      GameEnt = new CompGameEntityT();
 
         NewEnt->SetApp(GameEnt);
-        m_World->m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
+        m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
 
-        GameEnt->m_Properties["classname"]          = "LifeFormMaker";
-        GameEnt->m_Properties["angles"]             = cf::va("0 %lu 0", (unsigned long)(m_World->InfoPlayerStarts[0].Heading/8192.0*45.0));
-        GameEnt->m_Properties["monstertype"]        = "CompanyBot";
-        GameEnt->m_Properties["monstercount"]       = "1";
-        GameEnt->m_Properties["m_imaxlivechildren"] = "1";
+        GameEnt->GetStaticEntityData()->m_Properties["classname"]          = "LifeFormMaker";
+        GameEnt->GetStaticEntityData()->m_Properties["angles"]             = cf::va("0 %lu 0", (unsigned long)(m_World->InfoPlayerStarts[0].Heading/8192.0*45.0));
+        GameEnt->GetStaticEntityData()->m_Properties["monstertype"]        = "CompanyBot";
+        GameEnt->GetStaticEntityData()->m_Properties["monstercount"]       = "1";
+        GameEnt->GetStaticEntityData()->m_Properties["m_imaxlivechildren"] = "1";
 
         CreateNewEntityFromBasicInfo(GameEnt, (unsigned long)-1, m_ServerFrameNr, m_World->InfoPlayerStarts[0].Origin);
     }
@@ -108,13 +108,13 @@ CaServerWorldT::~CaServerWorldT()
 
 unsigned long CaServerWorldT::CreateNewEntity(const std::map<std::string, std::string>& Properties, unsigned long CreationFrameNr, const VectorT& Origin)
 {
-    IntrusivePtrT<cf::GameSys::EntityT> NewEnt  = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_World->m_ScriptWorld));
+    IntrusivePtrT<cf::GameSys::EntityT> NewEnt  = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
     IntrusivePtrT<CompGameEntityT>      GameEnt = new CompGameEntityT();
 
     NewEnt->SetApp(GameEnt);
-    m_World->m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
+    m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
 
-    GameEnt->m_Properties = Properties;
+    GameEnt->GetStaticEntityData()->m_Properties = Properties;
 
     return CreateNewEntityFromBasicInfo(GameEnt, (unsigned long)(-1), CreationFrameNr, Origin);
 }
@@ -146,15 +146,15 @@ void CaServerWorldT::RemoveEntity(unsigned long EntityID)
 
 unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* PlayerName, const char* ModelName, unsigned long ClientInfoNr)
 {
-    IntrusivePtrT<cf::GameSys::EntityT> NewEnt  = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_World->m_ScriptWorld));
+    IntrusivePtrT<cf::GameSys::EntityT> NewEnt  = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
     IntrusivePtrT<CompGameEntityT>      GameEnt = new CompGameEntityT();
 
     NewEnt->SetApp(GameEnt);
-    m_World->m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
+    m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
 
-    GameEnt->m_Properties["classname"] = "HumanPlayer";
-    GameEnt->m_Properties["name"]      = cf::va("Player%lu", ClientInfoNr+1);     // Setting the name is needed so that player entities can have a corresponding script instance.
-    GameEnt->m_Properties["angles"]    = cf::va("0 %lu 0", (unsigned long)(m_World->InfoPlayerStarts[0].Heading/8192.0*45.0));
+    GameEnt->GetStaticEntityData()->m_Properties["classname"] = "HumanPlayer";
+    GameEnt->GetStaticEntityData()->m_Properties["name"]      = cf::va("Player%lu", ClientInfoNr+1);     // Setting the name is needed so that player entities can have a corresponding script instance.
+    GameEnt->GetStaticEntityData()->m_Properties["angles"]    = cf::va("0 %lu 0", (unsigned long)(m_World->InfoPlayerStarts[0].Heading/8192.0*45.0));
 
     return CreateNewEntityFromBasicInfo(GameEnt, (unsigned long)-1, m_ServerFrameNr+1, m_World->InfoPlayerStarts[0].Origin+VectorT(0, 0, 1000), PlayerName, ModelName);
 }
@@ -252,7 +252,7 @@ void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID
     }
 
 
-    const cf::SceneGraph::BspTreeNodeT* BspTree = GetGameEnt(m_World->m_ScriptWorld->GetRootEntity())->m_BspTree;
+    const cf::SceneGraph::BspTreeNodeT* BspTree = m_World->m_StaticEntityData[0]->m_BspTree;
 
     ArrayT<unsigned long>* NewStatePVSEntityIDs=&ClientOldStatesPVSEntityIDs[ClientCurrentStateIndex];
     ArrayT<unsigned long>* OldStatePVSEntityIDs=NULL;
@@ -379,9 +379,9 @@ unsigned long CaServerWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<const C
     try
     {
         // 1. Determine from the entity class name (e.g. "monster_argrenade") the C++ class name (e.g. "EntARGrenadeT").
-        std::map<std::string, std::string>::const_iterator EntClassNamePair = CompGameEnt->m_Properties.find("classname");
+        std::map<std::string, std::string>::const_iterator EntClassNamePair = CompGameEnt->GetStaticEntityData()->m_Properties.find("classname");
 
-        if (EntClassNamePair == CompGameEnt->m_Properties.end())
+        if (EntClassNamePair == CompGameEnt->GetStaticEntityData()->m_Properties.end())
             throw std::runtime_error("\"classname\" property not found.\n");
 
         const std::string EntClassName = EntClassNamePair->second;
@@ -412,7 +412,7 @@ unsigned long CaServerWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<const C
         const unsigned long NewEntityID = m_EngineEntities.Size();
 
         IntrusivePtrT<GameEntityI> NewEntity = m_Game->CreateGameEntityFromMapFile(
-            TI, CompGameEnt->m_Properties, CompGameEnt->m_BspTree, CompGameEnt->m_CollModel, NewEntityID,
+            TI, CompGameEnt->GetStaticEntityData()->m_Properties, CompGameEnt->GetStaticEntityData()->m_BspTree, CompGameEnt->GetStaticEntityData()->m_CollModel, NewEntityID,
             WorldFileIndex, this, Origin);
 
         if (NewEntity.IsNull())
@@ -437,7 +437,7 @@ unsigned long CaServerWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<const C
 
         // Free the collision model in place of the (never instantiated) entity destructor,
         // so that the reference count of the CollModelMan gets right.
-        cf::ClipSys::CollModelMan->FreeCM(CompGameEnt->m_CollModel);
+        cf::ClipSys::CollModelMan->FreeCM(CompGameEnt->GetStaticEntityData()->m_CollModel);
     }
 
     // Return error code.
