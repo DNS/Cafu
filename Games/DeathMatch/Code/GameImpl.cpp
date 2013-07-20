@@ -309,19 +309,22 @@ const cf::TypeSys::TypeInfoManT& GameImplT::GetEntityTIM() const
 }
 
 
-// This function is called by the server, in order to obtain a (pointer to a) 'BaseEntityT' from a map file entity.
-IntrusivePtrT<GameEntityI> GameImplT::CreateGameEntityFromMapFile(const cf::TypeSys::TypeInfoT* TI, const std::map<std::string, std::string>& Properties,
+// This function is called both by the server and the client, in order to obtain a (pointer to a) 'BaseEntityT'.
+IntrusivePtrT<GameEntityI> GameImplT::CreateGameEntity(const cf::TypeSys::TypeInfoT* TI, const std::map<std::string, std::string>& Properties,
     const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID,
     unsigned long WorldFileIndex, cf::GameSys::GameWorldI* GameWorld, const Vector3T<double>& Origin)
 {
+    assert(TI != NULL);
+    assert(TI->CreateInstance != NULL);
+
     // YES! THIS is how it SHOULD work!
-    GameEntityI* NewEnt=static_cast<GameEntityI*>(TI->CreateInstance(
+    GameEntityI* NewEnt = static_cast<GameEntityI*>(TI->CreateInstance(
         EntityCreateParamsT(ID, Properties, RootNode, CollisionModel, WorldFileIndex, GameWorld, Origin)));
 
-    assert(NewEnt!=NULL);
-    assert(NewEnt->GetType()==TI);
+    assert(NewEnt != NULL);
+    assert(NewEnt->GetType() == TI);
 
-    if (NewEnt==NULL)
+    if (NewEnt == NULL)
     {
         Console->Warning("Could not create instance for type \"" + std::string(TI->ClassName) + "\".\n");
         TI->Print(false /*Don't print the child classes.*/);
@@ -329,23 +332,6 @@ IntrusivePtrT<GameEntityI> GameImplT::CreateGameEntityFromMapFile(const cf::Type
     }
 
     return NewEnt;
-}
-
-
-// This function is called by the client, in order to obtain a (pointer to a) 'BaseEntityT' for a new entity
-// whose TypeNr and ID it got via a net message from the server.
-IntrusivePtrT<GameEntityI> GameImplT::CreateGameEntityFromTypeNr(unsigned long TypeNr, const std::map<std::string, std::string>& Properties,
-    const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel,
-    unsigned long ID, unsigned long WorldFileIndex, cf::GameSys::GameWorldI* GameWorld)
-{
-    const cf::TypeSys::TypeInfoT* TI=GetBaseEntTIM().FindTypeInfoByNr(TypeNr);
-
-    assert(TI!=NULL);
-    assert(TI->TypeNr==TypeNr);
-    assert(TI->CreateInstance!=NULL);
-
-    return static_cast<GameEntityI*>(TI->CreateInstance(
-        EntityCreateParamsT(ID, Properties, RootNode, CollisionModel, WorldFileIndex, GameWorld, VectorT())));
 }
 
 

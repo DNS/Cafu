@@ -82,7 +82,7 @@ CaServerWorldT::CaServerWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::Ga
         CreateNewEntityFromBasicInfo(GameEnt, (unsigned long)-1, m_ServerFrameNr, m_World->InfoPlayerStarts[0].Origin);
     }
 
-    /// Finished calling CreateGameEntityFromMapFile() for all entities in the world file.
+    /// Finished calling CreateGameEntity() for all entities in the world file.
     /// Now load/insert the user provided map script (e.g. "TechDemo.lua") to the script state.
     std::string  LuaScriptName=FileName;
     const size_t SuffixPos    =LuaScriptName.rfind(".cw");
@@ -411,7 +411,7 @@ unsigned long CaServerWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<const C
         // 3. Create an instance of the desired entity type.
         const unsigned long NewEntityID = m_EngineEntities.Size();
 
-        IntrusivePtrT<GameEntityI> NewEntity = m_Game->CreateGameEntityFromMapFile(
+        IntrusivePtrT<GameEntityI> NewEntity = m_Game->CreateGameEntity(
             TI, CompGameEnt->GetStaticEntityData()->m_Properties, CompGameEnt->GetStaticEntityData()->m_BspTree, CompGameEnt->GetStaticEntityData()->m_CollModel, NewEntityID,
             WorldFileIndex, this, Origin);
 

@@ -232,8 +232,7 @@ namespace GAME_NAME
         protected:
 
         /// Protected constructor such that only concrete entities can call this for creating a BaseEntityT, but nobody else.
-        /// Concrete entities are created in the GameI::CreateGameEntityFromMapFile() method for the server-side,
-        /// and in the GameI::CreateGameEntityFromTypeNr() method for the client-side.
+        /// Concrete entities are created in the GameI::CreateGameEntity() method for both the server- and client-side.
         BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT& Dimensions, const unsigned int NUM_EVENT_TYPES);
 
         /// Concrete entities call this method in their constructors in order to have us automatically interpolate

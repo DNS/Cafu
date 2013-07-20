@@ -90,7 +90,9 @@ bool CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
 
     // Es ist nicht sinnvoll, CreateGameEntityFromTypeID() in Parametern die geparsten InData-Inhalte zu übergeben (Origin, Velocity, ...),
     // denn spätestens bei der SequenceNr und FrameNr kommt es zu Problemen. Deshalb lieber erstmal ein BaseEntitiy mit "falschem" State erzeugen.
-    IntrusivePtrT<GameEntityI> NewEntity=m_Game->CreateGameEntityFromTypeNr(EntityTypeID, Props, RootNode, CollMdl, EntityID, EntityWFI, this);
+    const cf::TypeSys::TypeInfoT* TI = m_Game->GetEntityTIM().FindTypeInfoByNr(EntityTypeID);
+
+    IntrusivePtrT<GameEntityI> NewEntity = m_Game->CreateGameEntity(TI, Props, RootNode, CollMdl, EntityID, EntityWFI, this, Vector3dT());
 
     // Dies kann nur passieren, wenn EntityTypeID ein unbekannter Typ ist! Ein solcher Fehler ist also fatal.
     // Andererseits sollte ein Disconnect dennoch nicht notwendig sein, der Fehler sollte ohnehin niemals auftreten.
