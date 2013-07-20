@@ -157,7 +157,7 @@ class EngineEntityT
     unsigned long               EntityStateFrameNr; // ==ServerFrameNr (the state number of Entity->State), used both on Client and Server side
 
     cf::Network::StateT         m_BaseLine;         ///< State of the entity immediately after it was created.
-    unsigned long               BaseLineFrameNr;    ///< Frame number on which the entity was created.
+    const unsigned long         m_BaseLineFrameNr;  ///< Frame number on which the entity was created. Only used on the server, unused on the client.
     ArrayT<cf::Network::StateT> m_OldStates;        ///< States of the last n (server) frames, kept on both client and server side for delta compression.
 };
 

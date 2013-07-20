@@ -100,7 +100,7 @@ EngineEntityT::EngineEntityT(IntrusivePtrT<GameEntityI> Entity_, unsigned long C
     : Entity(Entity_),
       EntityStateFrameNr(CreationFrameNr),
       m_BaseLine(),
-      BaseLineFrameNr(CreationFrameNr),
+      m_BaseLineFrameNr(CreationFrameNr),
       m_OldStates()
 {
     m_BaseLine=GetState();
@@ -134,7 +134,7 @@ void EngineEntityT::PreThink(unsigned long ServerFrameNr)
     // 1. Ein Entity, der für dieses zu erstellende Frame 'ServerFrameNr' erst neu erzeugt wurde, soll nicht gleich denken!
     //    Ein einfacher Vergleich '==' wäre ausreichend, '>=' nur zur Sicherheit.
     //    Diese Zeile ist nur wg. "extern" erzeugten Entities (new-joined clients) hier.
-    if (BaseLineFrameNr>=ServerFrameNr) return;
+    if (m_BaseLineFrameNr >= ServerFrameNr) return;
 
     // 2. Alten 'Entity->State' des vorherigen (aber noch aktuellen!) Server-Frames erstmal speichern.
     m_OldStates[(ServerFrameNr-1) & (m_OldStates.Size()-1)] = GetState();
@@ -145,7 +145,7 @@ void EngineEntityT::Think(float FrameTime, unsigned long ServerFrameNr)
 {
     // x. Ein Entity, der für dieses zu erstellende Frame 'ServerFrameNr' erst neu erzeugt wurde, soll nicht gleich denken!
     //    Ein einfacher Vergleich '==' wäre ausreichend, '>=' nur zur Sicherheit.
-    if (BaseLineFrameNr>=ServerFrameNr) return;
+    if (m_BaseLineFrameNr >= ServerFrameNr) return;
 
     // 3. Jetzt neuen 'Entity->State' ausdenken.
     Entity->Think(FrameTime, ServerFrameNr);
@@ -157,7 +157,7 @@ void EngineEntityT::WriteNewBaseLine(unsigned long SentClientBaseLineFrameNr, Ar
 {
     // Nur dann etwas tun, wenn unsere 'BaseLineFrameNr' größer (d.h. jünger) als 'SentClientBaseLineFrameNr' ist,
     // d.h. unsere 'BaseLineFrameNr' noch nie / noch nicht an den Client gesendet wurde.
-    if (SentClientBaseLineFrameNr>=BaseLineFrameNr) return;
+    if (SentClientBaseLineFrameNr >= m_BaseLineFrameNr) return;
 
     NetDataT NewBaseLineMsg;
 
@@ -178,9 +178,9 @@ bool EngineEntityT::WriteDeltaEntity(bool SendFromBaseLine, unsigned long Client
     {
         // EntityStateFrameNr wird in Think() gesetzt und ist gleich der ServerFrameNr!
         // Beachte: OldStates speichert die alten Zustände von ServerFrameNr-1 bis ServerFrameNr-16.
-        const unsigned long FrameDiff=EntityStateFrameNr-ClientFrameNr;
+        const unsigned long FrameDiff = EntityStateFrameNr - ClientFrameNr;
 
-        if (FrameDiff<1 || FrameDiff>m_OldStates.Size()) return false;
+        if (FrameDiff < 1 || FrameDiff > m_OldStates.Size()) return false;
     }
 
 
@@ -209,7 +209,7 @@ EngineEntityT::EngineEntityT(IntrusivePtrT<GameEntityI> Entity_, NetDataT& InDat
     : Entity(Entity_),
       EntityStateFrameNr(0),
       m_BaseLine(),
-      BaseLineFrameNr(1234),
+      m_BaseLineFrameNr(1234),    // The m_BaseLineFrameNr is unused on the client.
       m_OldStates()
 {
     const cf::Network::StateT CurrentState(cf::Network::StateT() /*::ALL_ZEROS*/, InData.ReadDMsg());

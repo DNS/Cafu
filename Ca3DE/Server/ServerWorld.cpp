@@ -256,7 +256,7 @@ void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID
 
     ArrayT<unsigned long>* NewStatePVSEntityIDs=&ClientOldStatesPVSEntityIDs[ClientCurrentStateIndex];
     ArrayT<unsigned long>* OldStatePVSEntityIDs=NULL;
-    unsigned long          ClientLeafNr        =(m_EngineEntities[ClientEntityID]!=NULL) ? BspTree->WhatLeaf(m_EngineEntities[ClientEntityID]->GetGameEntity()->GetOrigin()) : 0;
+    const unsigned long    ClientLeafNr        =(m_EngineEntities[ClientEntityID]!=NULL) ? BspTree->WhatLeaf(m_EngineEntities[ClientEntityID]->GetGameEntity()->GetOrigin()) : 0;
 
     // Finde heraus, welche Entities im PVS von diesem Client liegen. Erhalte ein Array von EntityIDs.
     for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
@@ -274,10 +274,10 @@ void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID
 
     unsigned long DeltaFrameNr;     // Kann dies entfernen, indem der Packet-Header direkt im if-else-Teil geschrieben wird!
 
-    if (ClientFrameNr==0 || ClientFrameNr>=m_ServerFrameNr || ClientFrameNr+ClientOldStatesPVSEntityIDs.Size()-1<m_ServerFrameNr)
+    if (ClientFrameNr == 0 || ClientFrameNr >= m_ServerFrameNr || ClientFrameNr+ClientOldStatesPVSEntityIDs.Size()-1 < m_ServerFrameNr)
     {
         // Erläuterung der obigen if-Bedingung:
-        // a) Der erste  Teil 'ClientFrameNr==0' ist klar!
+        // a) Der erste  Teil 'ClientFrameNr==0' ist klar! (Echt?? Vermutlich war gemeint, dass der Client in der letzten CS1_FrameInfoACK Nachricht explizit "0" geschickt und damit Baseline angefordert hat.)
         // b) Der zweite Teil 'ClientFrameNr>=ServerFrameNr' ist nur zur Sicherheit und sollte NIEMALS anspringen!
         // c) Der dritte Teil ist äquivalent zu 'ServerFrameNr-ClientFrameNr>=ClientOldStatesPVSEntityIDs.Size()'!
         static ArrayT<unsigned long> EmptyArray;
@@ -302,13 +302,13 @@ void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID
     OutData.WriteLong(DeltaFrameNr);        // What we are delta'ing from (Frame, auf das wir uns beziehen (0 für BaseLine))
 
 
-    unsigned long OldIndex=0;
-    unsigned long NewIndex=0;
+    unsigned long OldIndex = 0;
+    unsigned long NewIndex = 0;
 
-    while (OldIndex<OldStatePVSEntityIDs->Size() || NewIndex<NewStatePVSEntityIDs->Size())
+    while (OldIndex < OldStatePVSEntityIDs->Size() || NewIndex < NewStatePVSEntityIDs->Size())
     {
-        unsigned long OldEntityID=OldIndex<OldStatePVSEntityIDs->Size() ? (*OldStatePVSEntityIDs)[OldIndex] : 0x99999999;
-        unsigned long NewEntityID=NewIndex<NewStatePVSEntityIDs->Size() ? (*NewStatePVSEntityIDs)[NewIndex] : 0x99999999;
+        const unsigned long OldEntityID = OldIndex < OldStatePVSEntityIDs->Size() ? (*OldStatePVSEntityIDs)[OldIndex] : 0x99999999;
+        const unsigned long NewEntityID = NewIndex < NewStatePVSEntityIDs->Size() ? (*NewStatePVSEntityIDs)[NewIndex] : 0x99999999;
 
         // Consider the following situation:
         // There are (or were) A REALLY BIG NUMBER of entities in the PVS of the current client entity ('m_EngineEntities[ClientEntityID]').
@@ -325,9 +325,9 @@ void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID
         // It seems that the only reasonable solution is to omit update messages of "other" entities:
         // Better risk not-updated fields of other entities, than getting stuck with the own entity!
         // In order to achieve this, the introduction of the 'SkipEntity' variable is the best solution I could think of.
-        bool SkipEntity=OutData.Data.Size()>1250 && NewEntityID!=ClientEntityID;
+        const bool SkipEntity = OutData.Data.Size() > 1250 && NewEntityID != ClientEntityID;
 
-        if (OldEntityID==NewEntityID)
+        if (OldEntityID == NewEntityID)
         {
             // Diesen Entity gab es schon im alten Frame.
             // Hierhin kommen wir nur, wenn 'OldStatePVSEntityIDs' nicht leer ist, vergleiche mit obigem Code!
@@ -346,7 +346,7 @@ void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID
             continue;
         }
 
-        if (OldEntityID>NewEntityID)
+        if (OldEntityID > NewEntityID)
         {
             // Dies ist ein neuer Entity, sende ihn von der BaseLine aus.
             // Deswegen kann der folgende Aufruf (gemäß der Spezifikation von WriteDeltaEntity()) auch nicht scheitern!
@@ -357,7 +357,7 @@ void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID
             continue;
         }
 
-        if (OldEntityID<NewEntityID)
+        if (OldEntityID < NewEntityID)
         {
             // Diesen Entity gibt es im neuen Frame nicht mehr.
             if (!SkipEntity)
