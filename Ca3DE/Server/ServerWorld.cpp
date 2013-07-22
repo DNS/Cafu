@@ -39,9 +39,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../../Games/Game.hpp"
 
 
-static ConVarT AutoAddCompanyBot("sv_AutoAddCompanyBot", false, ConVarT::FLAG_MAIN_EXE, "If true, auto-inserts an entity of type \"Company Bot\" at the player start position into each newly loaded map.");
-
-
 CaServerWorldT::CaServerWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* Game, const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes)
     : Ca3DEWorldT(GameInfo, Game, FileName, ModelMan, GuiRes, false, NULL),
       m_ServerFrameNr(1),   // 0 geht nicht, denn die ClientInfoT::LastKnownFrameReceived werden mit 0 initialisiert!
@@ -63,24 +60,6 @@ CaServerWorldT::CaServerWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::Ga
         CreateNewEntityFromBasicInfo(GE, GENr, m_ServerFrameNr, GE->GetStaticEntityData()->m_Origin);
     }
 
-    // Zu Demonstrationszwecken fügen wir auch noch einen MonsterMaker vom Typ CompanyBot in die World ein.
-    // TODO! Dies sollte ins Map/Entity-Script wandern!!!
-    if (AutoAddCompanyBot.GetValueBool())
-    {
-        IntrusivePtrT<cf::GameSys::EntityT> NewEnt  = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
-        IntrusivePtrT<CompGameEntityT>      GameEnt = new CompGameEntityT();
-
-        NewEnt->SetApp(GameEnt);
-        m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
-
-        GameEnt->GetStaticEntityData()->m_Properties["classname"]          = "LifeFormMaker";
-        GameEnt->GetStaticEntityData()->m_Properties["angles"]             = cf::va("0 %lu 0", (unsigned long)(m_World->InfoPlayerStarts[0].Heading/8192.0*45.0));
-        GameEnt->GetStaticEntityData()->m_Properties["monstertype"]        = "CompanyBot";
-        GameEnt->GetStaticEntityData()->m_Properties["monstercount"]       = "1";
-        GameEnt->GetStaticEntityData()->m_Properties["m_imaxlivechildren"] = "1";
-
-        CreateNewEntityFromBasicInfo(GameEnt, (unsigned long)-1, m_ServerFrameNr, m_World->InfoPlayerStarts[0].Origin);
-    }
 
     /// Finished calling CreateGameEntity() for all entities in the world file.
     /// Now load/insert the user provided map script (e.g. "TechDemo.lua") to the script state.
