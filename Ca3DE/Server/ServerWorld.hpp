@@ -27,7 +27,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 namespace cf { namespace ClipSys { class CollisionModelT; } }
-class CompGameEntityT;
 class NetDataT;
 
 
@@ -85,18 +84,6 @@ class CaServerWorldT : public Ca3DEWorldT
 
     CaServerWorldT(const CaServerWorldT&);      ///< Use of the Copy Constructor    is not allowed.
     void operator = (const CaServerWorldT&);    ///< Use of the Assignment Operator is not allowed.
-
-    // Erzeugt einen neuen Entity. IdR wird dies [1] nach dem Laden einer neuen World aufgerufen werden, mit den im World-File enthaltenen Parametern.
-    // Denkbar ist aber auch [2] ein Aufruf aus dem 'EngineServiceInterface', wenn ein Entity einen neuen Entity erzeugen möchte.
-    // Dritte Möglichkeit: [3] Aufruf aus ServerWorldT::InsertHumanPlayerEntity(), zum Anlegen von HumanPlayer-Entities für Clients.
-    // (Dies erfolgt aus ClientInfoT::InitForNewWorld(): Entweder wenn ein Client neu dazukommt, oder nach einem World-change für die vorhandenen Clients.)
-    // 'EntityMapFileID' ist ein Handle zu den Map-File-Informationen des Entities, falls vorhanden (d.h. Fall [1]), sonst (Fälle [2] und [3]) -1.
-    // 'CreationFrameNr' ist die Nummer des Frames, zu dem der Entity erzeugt wird, sollte also stets die 'ServerFrameNr' der ServerWorld sein.
-    // Der Rückgabewert ist die ID des erzeugten Entities. (Verwendung: Der Server kann den Client damit wissen lassen, welcher Entity der Client ist).
-    // Falls der Entity nicht erzeugt werden kann, wird 0xFFFFFFFF zurückgegeben.
-    unsigned long CreateNewEntityFromBasicInfo(IntrusivePtrT<const CompGameEntityT> CompGameEnt, unsigned long WorldFileIndex,
-        unsigned long CreationFrameNr, const VectorT& Origin, const char* PlayerName=NULL, const char* ModelName=NULL);
-
 
     unsigned long         m_ServerFrameNr;      ///< Nummer des aktuellen Frames/Zustands
     bool                  m_IsThinking;         ///< Set to true while we're thinking, so that our methods can detect recursive calls.

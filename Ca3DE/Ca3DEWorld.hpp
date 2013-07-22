@@ -29,6 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 namespace cf { namespace ClipSys { class ClipWorldT; } }
+class CompGameEntityT;
 class EngineEntityT;
 
 
@@ -57,6 +58,20 @@ class Ca3DEWorldT : public cf::GameSys::GameWorldI
 
 
     protected:
+
+    /// Creates a new entity that is added to the m_EngineEntities array.
+    ///
+    ///   - This is called in the constructor (and thus both on the client *and* the server, whenever a new world has
+    ///     been loaded) with the parameters from the `.cw` world file.
+    ///   - On the server, this method is also called from the `GameWorldI::CreateNewEntity()` implementation,
+    ///     when an entity wants to create a new entity.
+    ///   - Third, this is called by `ServerWorldT::InsertHumanPlayerEntity()` for creating human player entities for
+    ///     newly joined clients or after a world-change for the existing clients.
+    ///
+    /// @returns The ID of the newly created entity, so that the server can let the client know which entity the
+    ///     client itself is. If it was not possible to create the entity, 0xFFFFFFFF is returned.
+    unsigned long CreateNewEntityFromBasicInfo(IntrusivePtrT<const CompGameEntityT> CompGameEnt, unsigned long WorldFileIndex,
+        unsigned long CreationFrameNr, const Vector3dT& Origin, const char* PlayerName = NULL, const char* ModelName = NULL);
 
     cf::GameSys::GameI*        m_Game;
     const WorldT*              m_World;

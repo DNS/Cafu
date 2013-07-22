@@ -33,7 +33,7 @@ ClientInfoT::ClientInfoT(const NetAddressT& ClientAddress_, const std::string& P
       ModelName(ModelName_),
       EntityID(0),
       LastKnownFrameReceived(0),
-      BaseLineFrameNr(0),
+      BaseLineFrameNr(1),
       OldStatesPVSEntityIDs(),
       CurrentStateIndex(0)
 {
@@ -42,11 +42,18 @@ ClientInfoT::ClientInfoT(const NetAddressT& ClientAddress_, const std::string& P
 
 void ClientInfoT::InitForNewWorld(unsigned long ClientEntityID)
 {
-    ClientState           =Wait4MapInfoACK;
+    ClientState            = Wait4MapInfoACK;
+    EntityID               = ClientEntityID;
 
-    EntityID              =ClientEntityID;
-    LastKnownFrameReceived=0;
-    BaseLineFrameNr       =0;
+    // From Ca3DEWorldT init (ctor), the client knows the baselines ("create states") for frame 1,
+    // so the server does not have to sent `SC1_EntityBaseLine` messages for the entities in the map file.
+    // However, the first `SC1_FrameInfo` message can *not* delta from frame 1, but must delta from the
+    // baselines, because the client's PVS info for frame 1 is not setup. And even if it was, the server
+    // frame is probably much much larger than 1, so that limited PVS information buffering would require
+    // sending from the baseline anyway. Thus LastKnownFrameReceived = 0.
+    LastKnownFrameReceived = 0;
+    BaseLineFrameNr        = 1;
+
     OldStatesPVSEntityIDs.Clear();
-    CurrentStateIndex     =0;
+    CurrentStateIndex      = 0;
 }

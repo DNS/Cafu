@@ -19,12 +19,16 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
+#include "wx/msgdlg.h"
+
 #include "Ca3DEWorld.hpp"
 #include "EngineEntity.hpp"
 #include "ClipSys/ClipWorld.hpp"
 #include "ClipSys/CollisionModel_static.hpp"
+#include "ClipSys/CollisionModelMan.hpp"
 #include "ClipSys/TraceResult.hpp"
 #include "ClipSys/TraceSolid.hpp"
+#include "ConsoleCommands/Console.hpp"      // For cf::va().
 #include "GameSys/World.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "Models/ModelManager.hpp"
@@ -32,6 +36,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../Common/WorldMan.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
 #include "String.hpp"
+#include "../../Games/Game.hpp"
 
 
 #if defined(_WIN32) && defined(_MSC_VER)
@@ -77,6 +82,19 @@ Ca3DEWorldT::Ca3DEWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* G
     for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
         AllEnts[EntNr]->SetApp(
             new CompGameEntityT(EntNr < m_World->m_StaticEntityData.Size() ? m_World->m_StaticEntityData[EntNr] : NULL));
+
+
+    // Create a matching EngineEntityT instance for each entity in the script world.
+    for (unsigned int GENr = 1 /*skip the world!*/; GENr < AllEnts.Size(); GENr++)
+    {
+        IntrusivePtrT<CompGameEntityT> GE = GetGameEnt(AllEnts[GENr]);
+
+        // Register GE->CollModel also with the cf::ClipSys::CollModelMan, so that both the owner (the game entity GE)
+        // as well as the game code can free/delete it in their destructors (one by "delete", the other by cf::ClipSys::CollModelMan->FreeCM()).
+        cf::ClipSys::CollModelMan->GetCM(GE->GetStaticEntityData()->m_CollModel);
+
+        CreateNewEntityFromBasicInfo(GE, GENr, 1 /*ServerFrameNr*/, GE->GetStaticEntityData()->m_Origin);
+    }
 }
 
 
@@ -235,4 +253,76 @@ const CafuModelT* Ca3DEWorldT::GetModel(const std::string& FileName) const
 cf::GuiSys::GuiResourcesT& Ca3DEWorldT::GetGuiResources() const
 {
     return m_GuiRes;
+}
+
+
+unsigned long Ca3DEWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<const CompGameEntityT> CompGameEnt, unsigned long WorldFileIndex,
+    unsigned long CreationFrameNr, const Vector3dT& Origin, const char* PlayerName, const char* ModelName)
+{
+    try
+    {
+        // 1. Determine from the entity class name (e.g. "monster_argrenade") the C++ class name (e.g. "EntARGrenadeT").
+        std::map<std::string, std::string>::const_iterator EntClassNamePair = CompGameEnt->GetStaticEntityData()->m_Properties.find("classname");
+
+        if (EntClassNamePair == CompGameEnt->GetStaticEntityData()->m_Properties.end())
+            throw std::runtime_error("\"classname\" property not found.\n");
+
+        const std::string EntClassName = EntClassNamePair->second;
+        const std::string CppClassName = m_ScriptState.GetCppClassNameFromEntityClassName(EntClassName);
+
+        if (CppClassName == "")
+            throw std::runtime_error("C++ class name for entity class name \""+EntClassName+"\" not found.\n");
+
+
+        // 2. Find the related type info.
+        const cf::TypeSys::TypeInfoT* TI = m_Game->GetEntityTIM().FindTypeInfoByName(CppClassName.c_str());
+
+        if (TI==NULL)
+        {
+            wxMessageBox("Entity with C++ class name \"" + CppClassName + "\" could not be instantiated.\n\n" +
+                "No type info for entity class \"" + EntClassName + "\" with C++ class name \"" + CppClassName +
+                "\" was found.\n\n" +
+                "If you are developing a new C++ entity class, did you update the AllTypeInfos[] list in file " +
+                "GameImpl.cpp in your game directory?\n\n" +
+                "If in doubt, please post at the Cafu forums for help.",
+                "Create new entity", wxOK | wxICON_EXCLAMATION);
+
+            throw std::runtime_error("No type info found for entity class \""+EntClassName+"\" with C++ class name \""+CppClassName+"\".\n");
+        }
+
+
+        // 3. Create an instance of the desired entity type.
+        const unsigned long NewEntityID = m_EngineEntities.Size();
+
+        IntrusivePtrT<GameEntityI> NewEntity = m_Game->CreateGameEntity(
+            TI, CompGameEnt->GetStaticEntityData()->m_Properties, CompGameEnt->GetStaticEntityData()->m_BspTree, CompGameEnt->GetStaticEntityData()->m_CollModel, NewEntityID,
+            WorldFileIndex, this, Origin);
+
+        if (NewEntity.IsNull())
+            throw std::runtime_error("Could not create entity of class \""+EntClassName+"\" with C++ class name \""+CppClassName+"\".\n");
+
+
+        // OPEN QUESTION:
+        // Should we copy the Properties into the Lua entity instance, into the C++ entity instance, or nowhere (just keep the std::map<> pointer around)?
+        // See   svn log -r 301   for one argument for the C++ instance.
+
+        // Muß dies VOR dem Erzeugen des EngineEntitys tun, denn sonst stimmt dessen BaseLine nicht!
+        if (PlayerName!=NULL) NewEntity->ProcessConfigString(PlayerName, "PlayerName");
+        if (ModelName !=NULL) NewEntity->ProcessConfigString(ModelName , "ModelName" );
+
+        m_EngineEntities.PushBack(new EngineEntityT(NewEntity, CreationFrameNr));
+
+        return NewEntityID;
+    }
+    catch (const std::runtime_error& RE)
+    {
+        Console->Warning(RE.what());
+
+        // Free the collision model in place of the (never instantiated) entity destructor,
+        // so that the reference count of the CollModelMan gets right.
+        cf::ClipSys::CollModelMan->FreeCM(CompGameEnt->GetStaticEntityData()->m_CollModel);
+    }
+
+    // Return error code.
+    return 0xFFFFFFFF;
 }
