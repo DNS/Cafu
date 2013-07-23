@@ -76,24 +76,28 @@ Ca3DEWorldT::Ca3DEWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* G
         throw WorldT::LoadErrorT(IE.what());
     }
 
+
     ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
     m_ScriptWorld->GetRootEntity()->GetAll(AllEnts);
 
+    // Create a matching
+    //     - CompGameEntityT instance and
+    //     - EngineEntityT instance
+    // for each entity in the script world (including the world (root) entity).
     for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
-        AllEnts[EntNr]->SetApp(
-            new CompGameEntityT(EntNr < m_World->m_StaticEntityData.Size() ? m_World->m_StaticEntityData[EntNr] : NULL));
-
-
-    // Create a matching EngineEntityT instance for each entity in the script world.
-    for (unsigned int GENr = 0 /*with the world!*/; GENr < AllEnts.Size(); GENr++)
     {
-        IntrusivePtrT<CompGameEntityT> GE = GetGameEnt(AllEnts[GENr]);
+        IntrusivePtrT<CompGameEntityT> GE =
+            new CompGameEntityT(EntNr < m_World->m_StaticEntityData.Size() ? m_World->m_StaticEntityData[EntNr] : NULL);
 
-        // Register GE->CollModel also with the cf::ClipSys::CollModelMan, so that both the owner (the game entity GE)
+        AllEnts[EntNr]->SetApp(GE);
+
+        // Register GE->CollModel also with the cf::ClipSys::CollModelMan, so that both the owner (the m_World->m_StaticEntityData[EntNr])
         // as well as the game code can free/delete it in their destructors (one by "delete", the other by cf::ClipSys::CollModelMan->FreeCM()).
         cf::ClipSys::CollModelMan->GetCM(GE->GetStaticEntityData()->m_CollModel);
 
-        CreateNewEntityFromBasicInfo(GE, GENr, 1 /*ServerFrameNr*/, GE->GetStaticEntityData()->m_Origin);
+        // Note that this can fail (and thus not add anything to the m_EngineEntities array),
+        // especially for now unsupported entity classes like "func_group"!
+        CreateNewEntityFromBasicInfo(GE, EntNr, 1 /*ServerFrameNr*/, GE->GetStaticEntityData()->m_Origin);
     }
 }
 
