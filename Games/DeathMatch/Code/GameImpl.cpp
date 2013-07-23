@@ -72,6 +72,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "WeaponRPG.hpp"
 #include "WeaponShotgun.hpp"
 #include "WeaponTripmine.hpp"
+#include "Worldspawn.hpp"
 
 #include "TypeSys.hpp"
 #include "Models/ModelManager.hpp"
@@ -162,6 +163,7 @@ namespace GAME_NAME
         &EntWeaponRPGT::TypeInfo,
         &EntWeaponShotgunT::TypeInfo,
         &EntWeaponTripmineT::TypeInfo,
+        &EntWorldspawnT::TypeInfo,
     };
 }
 

@@ -85,7 +85,7 @@ Ca3DEWorldT::Ca3DEWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* G
 
 
     // Create a matching EngineEntityT instance for each entity in the script world.
-    for (unsigned int GENr = 1 /*skip the world!*/; GENr < AllEnts.Size(); GENr++)
+    for (unsigned int GENr = 0 /*with the world!*/; GENr < AllEnts.Size(); GENr++)
     {
         IntrusivePtrT<CompGameEntityT> GE = GetGameEnt(AllEnts[GENr]);
 
