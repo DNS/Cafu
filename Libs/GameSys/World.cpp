@@ -139,20 +139,42 @@ WorldT::WorldT(const std::string& ScriptName, ModelManagerT& ModelMan, cf::GuiSy
 
 
     // Finally call the Lua OnInit() and OnInit2() methods of each entity.
-    ArrayT< IntrusivePtrT<EntityT> > AllChildren;
-
-    AllChildren.PushBack(m_RootEntity);
-    m_RootEntity->GetChildren(AllChildren, true);
+    ArrayT< IntrusivePtrT<EntityT> > AllEnts;
+    m_RootEntity->GetAll(AllEnts);
 
     Init();     // The script has the option to call this itself (via world:Init()) at an earlier time.
 
-    for (unsigned long ChildNr = 0; ChildNr < AllChildren.Size(); ChildNr++)
+    for (unsigned long EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
     {
+        // Script entities that are directly loaded from `.cent` files (as opposed to those that are created
+        // dynamically throughout the game) are normally associated to static entity data from the related
+        // `.cw` world file.
+        // For such entities, the Cafu Engine co-uses the entity ID as an index into the array of static entity data.
+        // Especially when the Cafu game client receives a new entity ID over the network, it uses the ID to lookup
+        // the static entity data with a statement like `cw_World.m_StaticEntityData[EntityID]`
+        // (if `EntityID < World.m_StaticEntityData.Size()`).
+        // As by convention we "align" entities from `.cent` files to their counterparts in `.cw` files by traversing
+        // them in depth-firsth order, the co-use of entity IDs implies that the IDs must match the entity's ordinal
+        // number in a depth first traversal. Make sure here that this condition is actually met.
+        // Note that the main motivation here is catching program bugs, like an assert() statement that is also checked
+        // in release builds. Although not impossible, it's very unlikely that a user action will ever trigger this.
+        if (AllEnts[EntNr]->GetID() != EntNr)
+        {
+            const std::string Msg = "ID of entity \"" + AllEnts[EntNr]->GetBasics()->GetEntityName() +
+                cf::va("\" is %u, expected %lu.\n", AllEnts[EntNr]->GetID(), EntNr) +
+                "(Are the entities in \"" + m_ScriptName + "\" created in depth-first order?)";
+
+            Console->Warning(Msg + "\n");
+
+            // The LuaState will be closed by the m_ScriptState.
+            throw InitErrorT(Msg);
+        }
+
         // The OnInit2() methods contain custom, hand-written code by the user (*_main.cgui files).
-        AllChildren[ChildNr]->CallLuaMethod("OnInit2");
+        AllEnts[EntNr]->CallLuaMethod("OnInit2");
 
         // Let each component know that the "static" part of initialization is now complete.
-        const ArrayT< IntrusivePtrT<ComponentBaseT> >& Components = AllChildren[ChildNr]->GetComponents();
+        const ArrayT< IntrusivePtrT<ComponentBaseT> >& Components = AllEnts[EntNr]->GetComponents();
 
         for (unsigned int CompNr = 0; CompNr < Components.Size(); CompNr++)
             Components[CompNr]->OnPostLoad((Flags & InitFlag_InMapEditor) != 0);

@@ -338,6 +338,10 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
     {
         assert(World.m_StaticEntityData.Size() == EntNr);
 
+        // This is also checked in the `cf::GameSys::WorldT` ctor, see there for details.
+        // It is repeated here as a remainder: entity IDs are used as indices into World.m_StaticEntityData[].
+        assert(AllScriptEnts[EntNr]->GetID() == EntNr);
+
         StaticEntityDataT* GameEnt = new StaticEntityDataT();
         World.m_StaticEntityData.PushBack(GameEnt);
 

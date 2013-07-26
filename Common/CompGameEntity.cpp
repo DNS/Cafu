@@ -23,6 +23,17 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "World.hpp"
 
 
+/*
+ * Note that as an alternative to using entity IDs as indices into WorldT::m_StaticEntityData[] as has been
+ * introduced in the revisions of 2013-07-26, it might be possible to let this class have a reference to the
+ * WorldT::m_StaticEntityData[] array, add an `unsigned int` member for the world file index, and to
+ * serialize/deserialize this index as part of the component. (`ComponentBaseT::Serialize()` would have to
+ * call a virtual `DoSerialize()` method that we had to override here.)
+ * This would liberate the entity ID from the requirements of double-purpose use, and would allow us to
+ * actually *copy* entities with associated world file information. But is it worth the effort?
+ * See the revisions of 2013-07-26 for additional details.
+ */
+
 CompGameEntityT::CompGameEntityT(StaticEntityDataT* SED)
     : m_StaticEntityData(SED ? SED : new StaticEntityDataT()),
       m_DeleteSED(SED == NULL)
@@ -35,7 +46,7 @@ CompGameEntityT::CompGameEntityT(const CompGameEntityT& Comp)
       m_DeleteSED(true)
 {
     // A CompGameEntityT should actually never be copied...
-    // (because the m_StaticEntityData cannot be copied).
+    // (because the m_StaticEntityData cannot be copied -- but see the /*...*/ comment above).
     assert(false);
 }
 
