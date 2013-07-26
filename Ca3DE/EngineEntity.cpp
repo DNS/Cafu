@@ -168,7 +168,6 @@ void EngineEntityT::WriteNewBaseLine(unsigned long SentClientBaseLineFrameNr, Ar
     NewBaseLineMsg.WriteByte(SC1_EntityBaseLine);
     NewBaseLineMsg.WriteLong(Entity->GetID());
     NewBaseLineMsg.WriteLong(Entity->GetType()->TypeNr);
-    NewBaseLineMsg.WriteLong(Entity->GetWorldFileIndex());
     NewBaseLineMsg.WriteLong(m_Entity->GetID());
     NewBaseLineMsg.WriteLong(m_Entity->GetParent().IsNull() ? UINT_MAX : m_Entity->GetParent()->GetID());
     NewBaseLineMsg.WriteDMsg(m_BaseLine.GetDeltaMessage(cf::Network::StateT() /*::ALL_ZEROS*/));

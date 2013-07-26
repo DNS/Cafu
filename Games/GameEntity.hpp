@@ -58,9 +58,6 @@ class GameEntityI : public RefCountedT
     /// Returns the map name of this entity.
     virtual std::string GetName() const=0;
 
-    /// Returns the world file index of this entity.
-    virtual unsigned long GetWorldFileIndex() const=0;
-
     /// Returns the game world that this entity is in.
     virtual cf::GameSys::GameWorldI* GetGameWorld() const=0;
 

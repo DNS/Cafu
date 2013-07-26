@@ -113,7 +113,6 @@ BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT
                          const unsigned int NUM_EVENT_TYPES)
     : ID(Params.ID),
       Properties(Params.Properties),
-      WorldFileIndex(Params.WorldFileIndex),
       ParentID(0xFFFFFFFF),
       GameWorld(Params.GameWorld),
       CollisionModel(Params.CollisionModel),

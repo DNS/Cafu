@@ -88,23 +88,12 @@ namespace GAME_NAME
         const unsigned long ID;             // The unique ID of this entity.
         const std::string   Name;           ///< The unique instance name of this entity, normally equal to and obtained from Properties["name"]. It's explicitly kept (possibly redundantly to Properties["name"]), because with it: a) there is no confusion when "name" is not found in the Properties list, b) its const-ness is more obvious and easier to guarantee (e.g. the ScriptStateT class relies on the name never changing throughout entity lifetime, because script objects are addressed and found by name, not by instance pointer (light userdata)!), and c) access like   MyEnt->Name   is much easier to write than using Properties.find().
         const std::map<std::string, std::string> Properties;    ///< The properties of this entities from the map file.
-        const unsigned long WorldFileIndex; // The index of this entity into the array in the world file, -1 if no such information exists. See [1].
         unsigned long       ParentID;       // The 'ID' of the entity that created us.
      // ID[]                ChildrenIDs;    // The entities that we have created (e.g. the rockets that a human player fired).
 
         cf::GameSys::GameWorldI*            GameWorld;      ///< Pointer to the game world implementation.
         const cf::ClipSys::CollisionModelT* CollisionModel; ///< The collision model of this entity, NULL for none.
         cf::ClipSys::ClipModelT             ClipModel;      ///< The clip model of this entity. Note that clip models can take NULL collision model pointers, so that the ClipModel instance is always non-NULL and available.
-
-        // [1]  I have been trying hard to save this variable, because 'ID' seems to handle the same purpose.
-        // This would mean to overload 'ID' with multiple purposes though, and that doesn't seem right to me:
-        // a) Care must be taken that 'ID's are always unique (never get re-used), but this should be the case anyway.
-        // b) Worse is the implied order assumption (both on server and on *CLIENT* side):
-        //    In order to conclude from the 'ID' to the (no-longer-present) 'MapFileID', assumptions must hold that are hard and dangerous to enforce.
-        //    For example, 'ID==MapFileID' must hold for all entities that have map file information associated with them.
-        // c) Even if all that worked, it would e.g. be impossible to duplicate such an entity.
-        // d) Moreover, it isn't worth the effort: 'MapFileID' causes network load only once, during the baseline message for this entity.
-        //    That doesn't happen all that often, so I rather keep it than introducing a lot of complicated dependencies and problems.
 
 
         /// The destructor.
@@ -121,7 +110,6 @@ namespace GAME_NAME
         virtual void NotifyLeaveMap() { }
         virtual unsigned long GetID() const { return ID; }
         virtual std::string GetName() const { return Name; }
-        virtual unsigned long GetWorldFileIndex() const { return WorldFileIndex; }
         virtual cf::GameSys::GameWorldI* GetGameWorld() const { return GameWorld; }
         virtual const Vector3dT& GetOrigin() const { return m_Origin; }
         virtual const BoundingBox3dT& GetDimensions() const { return m_Dimensions; }

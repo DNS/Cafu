@@ -110,7 +110,6 @@ BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT
     : ID(Params.ID),
       Name(ObtainEntityName(Params.Properties)),
       Properties(Params.Properties),
-      WorldFileIndex(Params.WorldFileIndex),
       ParentID(0xFFFFFFFF),
       GameWorld(Params.GameWorld),
       CollisionModel(Params.CollisionModel),

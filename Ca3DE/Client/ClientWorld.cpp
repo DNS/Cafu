@@ -78,16 +78,15 @@ bool CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
 {
     const unsigned long EntityID     = InData.ReadLong();
     const unsigned long EntityTypeID = InData.ReadLong();
-    const unsigned long EntityWFI    = InData.ReadLong();   // Short for: EntityWorldFileIndex
     const unsigned int EntID    = InData.ReadLong();
     const unsigned int ParentID = InData.ReadLong();
 
     const std::map<std::string, std::string>  EmptyMap;
-    const std::map<std::string, std::string>& Props    = EntityWFI < m_World->m_StaticEntityData.Size() ? m_World->m_StaticEntityData[EntityWFI]->m_Properties : EmptyMap;
-    const cf::SceneGraph::GenericNodeT*       RootNode = EntityWFI < m_World->m_StaticEntityData.Size() ? m_World->m_StaticEntityData[EntityWFI]->m_BspTree    : NULL;
-    const cf::ClipSys::CollisionModelT*       CollMdl  = EntityWFI < m_World->m_StaticEntityData.Size() ? m_World->m_StaticEntityData[EntityWFI]->m_CollModel  : NULL;
+    const std::map<std::string, std::string>& Props    = EntID < m_World->m_StaticEntityData.Size() ? m_World->m_StaticEntityData[EntID]->m_Properties : EmptyMap;
+    const cf::SceneGraph::GenericNodeT*       RootNode = EntID < m_World->m_StaticEntityData.Size() ? m_World->m_StaticEntityData[EntID]->m_BspTree    : NULL;
+    const cf::ClipSys::CollisionModelT*       CollMdl  = EntID < m_World->m_StaticEntityData.Size() ? m_World->m_StaticEntityData[EntID]->m_CollModel  : NULL;
 
-    // Register CollMdl also with the cf::ClipSys::CollModelMan, so that both the owner (Ca3DEWorld.GameEntities[EntityWFI])
+    // Register CollMdl also with the cf::ClipSys::CollModelMan, so that both the owner (Ca3DEWorld.GameEntities[EntID])
     // as well as the game code can free/delete it in their destructors (one by "delete", the other by cf::ClipSys::CollModelMan->FreeCM()).
     cf::ClipSys::CollModelMan->GetCM(CollMdl);
 
@@ -95,7 +94,7 @@ bool CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
     // denn spätestens bei der SequenceNr und FrameNr kommt es zu Problemen. Deshalb lieber erstmal ein BaseEntity mit "falschem" State erzeugen.
     const cf::TypeSys::TypeInfoT* TI = m_Game->GetEntityTIM().FindTypeInfoByNr(EntityTypeID);
 
-    IntrusivePtrT<GameEntityI> NewEntity = m_Game->CreateGameEntity(TI, Props, RootNode, CollMdl, EntityID, EntityWFI, this, Vector3dT());
+    IntrusivePtrT<GameEntityI> NewEntity = m_Game->CreateGameEntity(TI, Props, RootNode, CollMdl, EntityID, this, Vector3dT());
 
     // Dies kann nur passieren, wenn EntityTypeID ein unbekannter Typ ist! Ein solcher Fehler ist also fatal.
     // Andererseits sollte ein Disconnect dennoch nicht notwendig sein, der Fehler sollte ohnehin niemals auftreten.
@@ -103,7 +102,7 @@ bool CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
     {
         // Finish reading InData, so that we can gracefully continue despite the error.
         InData.ReadDMsg();
-        EnqueueString("CLIENT ERROR: %s, L %u: Cannot create entity %u from SC1_EntityBaseLine msg: unknown type ID '%u' (WorldFileIndex %lu)!\n", __FILE__, __LINE__, EntityID, EntityTypeID, EntityWFI);
+        EnqueueString("CLIENT ERROR: %s, L %u: Cannot create entity %u from SC1_EntityBaseLine msg: unknown type ID '%u' (EntID %lu)!\n", __FILE__, __LINE__, EntityID, EntityTypeID, EntID);
         return false;
     }
 
