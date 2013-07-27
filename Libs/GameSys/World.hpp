@@ -78,6 +78,9 @@ namespace cf
             /// Returns the root entity of this world.
             IntrusivePtrT<EntityT> GetRootEntity() const { return m_RootEntity; }
 
+            /// Returns the ID that the next newly created entity should get.
+            unsigned int GetNextEntityID(unsigned int ForcedID = UINT_MAX);
+
             /// Returns the manager for all models that are used in this world.
             ModelManagerT& GetModelMan() const { return m_ModelMan; }
 
@@ -117,6 +120,7 @@ namespace cf
             UniScriptStateT            m_ScriptState;   ///< The script state of this world.
             IntrusivePtrT<EntityT>     m_RootEntity;    ///< The root of the entity hierarchy that forms this world.
             bool                       m_IsInited;      ///< Has the Init() method already been called?
+            unsigned int               m_NextEntID;     ///< The ID that the next newly created entity should get.
             ModelManagerT&             m_ModelMan;      ///< The manager for all models that are used in this world.
             cf::GuiSys::GuiResourcesT& m_GuiResources;  ///< The provider for resources (fonts and models) for all GUIs in this world.
 

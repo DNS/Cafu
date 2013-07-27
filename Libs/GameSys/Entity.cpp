@@ -58,25 +58,6 @@ cf::TypeSys::TypeInfoManT& cf::GameSys::GetGameSysEntityTIM()
 }
 
 
-namespace
-{
-    unsigned int CreateEntityID(unsigned int ForcedID = UINT_MAX)
-    {
-        static unsigned int ID = 0;
-
-        if (ForcedID != UINT_MAX)
-        {
-            if (ForcedID >= ID)
-                ID = std::max(ID, ForcedID) + 1;
-
-            return ForcedID;
-        }
-
-        return ID++;
-    }
-}
-
-
 const char* EntityT::DocClass =
     "An entity is the basic element in a game world.\n"
     "\n"
@@ -88,7 +69,7 @@ const char* EntityT::DocClass =
 
 EntityT::EntityT(const EntityCreateParamsT& Params)
     : m_World(Params.World),
-      m_ID(CreateEntityID(Params.GetID())),
+      m_ID(m_World.GetNextEntityID(Params.GetID())),
       m_Parent(NULL),
       m_Children(),
       m_App(NULL),
@@ -105,7 +86,7 @@ EntityT::EntityT(const EntityCreateParamsT& Params)
 
 EntityT::EntityT(const EntityT& Entity, bool Recursive)
     : m_World(Entity.m_World),
-      m_ID(CreateEntityID()),
+      m_ID(m_World.GetNextEntityID()),
       m_Parent(NULL),
       m_Children(),
       m_App(NULL),

@@ -96,8 +96,8 @@ namespace cf
 
             WorldT& GetWorld() const { return m_World; }
 
-            /// Returns the unique ID of this entity.
-            /// The ID is used to unambiguously identify the entity in network messages
+            /// Returns the ID of this entity.
+            /// The ID is unique in the world, and used to unambiguously identify the entity in network messages
             /// and as entity index number into `.cw` world files.
             unsigned int GetID() const { return m_ID; }
 
@@ -277,7 +277,7 @@ namespace cf
             void operator = (const EntityT&);   ///< Use of the Assignment Operator is not allowed.
 
             WorldT&                                 m_World;        ///< The world instance in which this entity was created and exists. Useful in many regards, but especially for access to the commonly used resources, the script state, etc.
-            const unsigned int                      m_ID;           ///< The unique ID of this entity. The ID is used to unambiguously identify the entity in network messages and as entity index number into `.cw` world files.
+            const unsigned int                      m_ID;           ///< The ID of this entity. It is unique in the `m_World`, and used to unambiguously identify the entity in network messages and as entity index number into `.cw` world files.
             EntityT*                                m_Parent;       ///< The parent of this entity. May be NULL if there is no parent. In order to not create cycles of IntrusivePtrT's, the type is intentionally a raw pointer only.
             ArrayT< IntrusivePtrT<EntityT> >        m_Children;     ///< The list of children of this entity.
             IntrusivePtrT<ComponentBaseT>           m_App;          ///< A component for the sole use by the application / implementation.

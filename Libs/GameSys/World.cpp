@@ -43,6 +43,7 @@ WorldT::WorldT(const std::string& ScriptName, ModelManagerT& ModelMan, cf::GuiSy
       m_ScriptState(),
       m_RootEntity(NULL),
       m_IsInited(false),
+      m_NextEntID(0),
       m_ModelMan(ModelMan),
       m_GuiResources(GuiRes)
 {
@@ -210,6 +211,23 @@ void WorldT::Init()
     }
 
     m_IsInited = true;
+}
+
+
+unsigned int WorldT::GetNextEntityID(unsigned int ForcedID)
+{
+    if (ForcedID != UINT_MAX)
+    {
+        if (ForcedID >= m_NextEntID)
+            m_NextEntID = std::max(m_NextEntID, ForcedID) + 1;
+
+        // Make sure that an entity with ID `ForcedID` does not yet exist.
+        assert(m_RootEntity.IsNull() || m_RootEntity->FindID(ForcedID).IsNull());
+
+        return ForcedID;
+    }
+
+    return m_NextEntID++;
 }
 
 
