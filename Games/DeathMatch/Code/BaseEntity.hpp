@@ -86,7 +86,6 @@ namespace GAME_NAME
         public:
 
         const unsigned long ID;             // The unique ID of this entity.
-        const std::string   Name;           ///< The unique instance name of this entity, normally equal to and obtained from Properties["name"]. It's explicitly kept (possibly redundantly to Properties["name"]), because with it: a) there is no confusion when "name" is not found in the Properties list, b) its const-ness is more obvious and easier to guarantee (e.g. the ScriptStateT class relies on the name never changing throughout entity lifetime, because script objects are addressed and found by name, not by instance pointer (light userdata)!), and c) access like   MyEnt->Name   is much easier to write than using Properties.find().
         const std::map<std::string, std::string> Properties;    ///< The properties of this entities from the map file.
         unsigned long       ParentID;       // The 'ID' of the entity that created us.
      // ID[]                ChildrenIDs;    // The entities that we have created (e.g. the rockets that a human player fired).
@@ -109,7 +108,6 @@ namespace GAME_NAME
         // Implement GameEntityI base class methods.
         virtual void NotifyLeaveMap() { }
         virtual unsigned long GetID() const { return ID; }
-        virtual std::string GetName() const { return Name; }
         virtual cf::GameSys::GameWorldI* GetGameWorld() const { return GameWorld; }
         virtual const Vector3dT& GetOrigin() const { return m_Origin; }
         virtual const BoundingBox3dT& GetDimensions() const { return m_Dimensions; }

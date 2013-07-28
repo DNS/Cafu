@@ -252,6 +252,16 @@ IntrusivePtrT<GameEntityI> Ca3DEWorldT::GetGameEntityByID(unsigned long EntityID
 }
 
 
+std::string Ca3DEWorldT::GetEntityNameByID(unsigned long EntityID) const
+{
+    if (EntityID<m_EngineEntities.Size())
+        if (m_EngineEntities[EntityID]!=NULL)
+            return m_EngineEntities[EntityID]->GetEntity()->GetBasics()->GetEntityName();
+
+    return "";
+}
+
+
 const CafuModelT* Ca3DEWorldT::GetModel(const std::string& FileName) const
 {
     return m_ModelMan.GetModel(FileName);

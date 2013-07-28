@@ -52,7 +52,7 @@ EngineEntityT::~EngineEntityT()
     {
         // _G[GameEntityI->GetName()] = nil
         lua_pushnil(LuaState);
-        lua_setglobal(LuaState, Entity->GetName().c_str());
+        lua_setglobal(LuaState, m_Entity->GetBasics()->GetEntityName().c_str());
 
         Binder.Disconnect(Entity.get());
     }
@@ -114,21 +114,21 @@ EngineEntityT::EngineEntityT(IntrusivePtrT<GameEntityI> Entity_, IntrusivePtrT<c
 
     // For entities that are named in the map file (e.g. "Soldier_Barney"),
     // assign the alter ego to a global variable in the map script with the same name.
-    if (Entity->GetName() != "")
+    if (m_Entity->GetBasics()->GetEntityName() != "")
     {
         cf::UniScriptStateT& ScriptState = Entity->GetGameWorld()->GetScriptState();
         lua_State*           LuaState    = ScriptState.GetLuaState();
         cf::ScriptBinderT    Binder(LuaState);
 
-        // lua_getglobal(LuaState, Entity->GetName().c_str());
+        // lua_getglobal(LuaState, m_Entity->GetBasics()->GetEntityName().c_str());
         // if (!lua_isnil(LuaState, -1))
-        //     Console->Warning("Global variable \""+Entity->GetName()+"\" already exists, overwriting...\n");
+        //     Console->Warning("Global variable \""+m_Entity->GetBasics()->GetEntityName()+"\" already exists, overwriting...\n");
         // lua_pop(LuaState, 1);
 
         Binder.Push(Entity);
-        lua_setglobal(LuaState, Entity->GetName().c_str());
+        lua_setglobal(LuaState, m_Entity->GetBasics()->GetEntityName().c_str());
 
-        // Console->DevPrint("Info: Entity \""+Entity->GetName()+"\" of class \""+EntClassName+"\" (\""+CppClassName+"\") instantiated.\n");
+        // Console->DevPrint("Info: Entity \""+m_Entity->GetBasics()->GetEntityName()+"\" of class \""+EntClassName+"\" (\""+CppClassName+"\") instantiated.\n");
     }
 }
 

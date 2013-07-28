@@ -93,22 +93,8 @@ EntityStateT::EntityStateT(const VectorT& Velocity_,
 // Base Entity
 // ***********
 
-// Unfortunately, the BaseEntityT::GetProp("name", "") method can not yet replace this function,
-// due to initialization order in the BaseEntityT ctor below.
-// If we had a proper PropDictT class though, we could call Params.Properties.GetProp("name", "").
-static std::string ObtainEntityName(const std::map<std::string, std::string>& Properties)
-{
-    std::map<std::string, std::string>::const_iterator NamePair=Properties.find("name");
-
-    if (NamePair!=Properties.end()) return NamePair->second;
-
-    return "";
-}
-
-
 BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT& Dimensions, const unsigned int NUM_EVENT_TYPES)
     : ID(Params.ID),
-      Name(ObtainEntityName(Params.Properties)),
       Properties(Params.Properties),
       ParentID(0xFFFFFFFF),
       GameWorld(Params.GameWorld),
@@ -424,7 +410,7 @@ int BaseEntityT::GetName(lua_State* LuaState)
     cf::ScriptBinderT Binder(LuaState);
     IntrusivePtrT<BaseEntityT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<BaseEntityT> >(1);
 
-    lua_pushstring(LuaState, Ent->Name.c_str());
+    lua_pushstring(LuaState, Ent->GameWorld->GetEntityNameByID(Ent->ID).c_str());
     return 1;
 }
 

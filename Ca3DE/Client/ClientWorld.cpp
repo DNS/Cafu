@@ -90,8 +90,8 @@ bool CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
     // as well as the game code can free/delete it in their destructors (one by "delete", the other by cf::ClipSys::CollModelMan->FreeCM()).
     cf::ClipSys::CollModelMan->GetCM(CollMdl);
 
-    // Es ist nicht sinnvoll, CreateGameEntityFromTypeID() in Parametern die geparsten InData-Inhalte zu übergeben (Origin, Velocity, ...),
-    // denn spätestens bei der SequenceNr und FrameNr kommt es zu Problemen. Deshalb lieber erstmal ein BaseEntity mit "falschem" State erzeugen.
+    // Es ist nicht sinnvoll, CreateGameEntity() in Parametern die geparsten InData-Inhalte zu übergeben (Origin, Velocity, ...),
+    // denn spätestens bei der SequenceNr und FrameNr kommt es zu Problemen. Deshalb lieber erstmal ein GameEntityI mit "falschem" State erzeugen.
     const cf::TypeSys::TypeInfoT* TI = m_Game->GetEntityTIM().FindTypeInfoByNr(EntityTypeID);
 
     IntrusivePtrT<GameEntityI> NewEntity = m_Game->CreateGameEntity(TI, Props, RootNode, CollMdl, EntityID, this, Vector3dT());
