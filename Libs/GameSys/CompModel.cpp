@@ -375,7 +375,7 @@ void ComponentModelT::Render() const
 
             MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, ModelToWorld * M);
 
-            GetGui()->Render(true /*zLayerCoating*/);
+            // GetGui()->Render(true /*zLayerCoating*/);    // TODO: Why is this so slow???  (Is is drawn anywhere besides AMBIENT contrib?)
         }
     }
 

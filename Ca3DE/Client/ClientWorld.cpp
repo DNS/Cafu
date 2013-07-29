@@ -613,6 +613,72 @@ void CaClientWorldT::DrawEntities(unsigned long OurEntityID, bool SkipOurEntity,
                 if (EntityID==OurEntityID && SkipOurEntity) continue;
 
                 m_EngineEntities[EntityID]->Draw(FirstPersonView, ViewerPos);
+
+
+
+                IntrusivePtrT<cf::GameSys::EntityT> Ent     = m_EngineEntities[EntityID]->GetEntity();
+                const cf::SceneGraph::BspTreeNodeT* BspTree = GetGameEnt(Ent)->GetStaticEntityData()->m_BspTree;
+
+                if (Ent->GetID() == 0) continue;    // Skip the world, it is handled as a special case in the caller code.
+
+                MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
+                MatSys::Renderer->PushLightingParameters();
+                {
+                    const MatrixT ModelToWorld = Ent->GetModelToWorld();
+
+                    MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, ModelToWorld);
+
+                    // The lighting parameters are currently in world space, but must be given in model space.
+                    const float*    PosL        = MatSys::Renderer->GetCurrentLightSourcePosition();
+                    const Vector3fT LightPos    = ModelToWorld.InvXForm(Vector3fT(PosL));
+                    const float     LightRadius = MatSys::Renderer->GetCurrentLightSourceRadius();
+
+                    const float*    PosE   = MatSys::Renderer->GetCurrentEyePosition();
+                    const Vector3fT EyePos = ModelToWorld.InvXForm(Vector3fT(PosE));
+
+                    MatSys::Renderer->SetCurrentLightSourcePosition(LightPos.x, LightPos.y, LightPos.z);
+                 // MatSys::Renderer->SetCurrentLightSourceRadius(LightRadius);
+                    MatSys::Renderer->SetCurrentEyePosition(EyePos.x, EyePos.y, EyePos.z);
+
+                    // Set the ambient light color for this entity.
+                    // This is not a global, but rather a per-entity value that is derived from the lightmaps that are close to that entity.
+                    const Vector3fT AmbientEntityLight = GetAmbientLightColorFromBB(
+                        BoundingBox3dT(Vector3dT(-100, -100, -100), Vector3dT(100, 100, 100)), Ent->GetTransform()->GetOrigin().AsVectorOfDouble());
+
+                    MatSys::Renderer->SetCurrentAmbientLightColor(AmbientEntityLight.x, AmbientEntityLight.y, AmbientEntityLight.z);
+
+                    // TODO: Move this into the `CompGameEntityT` (application) component?
+                    // TODO: Is there a better way than `Nodes.Size() > 0` to check for empty (unusable) BSP trees??
+                    if (BspTree && BspTree->Nodes.Size() > 0)
+                    {
+                        switch (MatSys::Renderer->GetCurrentRenderAction())
+                        {
+                            case MatSys::RendererI::AMBIENT:
+                                BspTree->DrawAmbientContrib(EyePos.AsVectorOfDouble());
+                                BspTree->DrawTranslucentContrib(EyePos.AsVectorOfDouble());
+                                break;
+
+                            case MatSys::RendererI::LIGHTING:
+                                BspTree->DrawLightSourceContrib(EyePos.AsVectorOfDouble(), LightPos.AsVectorOfDouble());
+                                break;
+
+                            case MatSys::RendererI::STENCILSHADOW:
+                                BspTree->DrawStencilShadowVolumes(LightPos.AsVectorOfDouble(), LightRadius);
+                                break;
+                        }
+                    }
+
+                    MatSys::Renderer->Scale(MatSys::RendererI::MODEL_TO_WORLD, 25.4f);
+
+                    //MatSys::Renderer->SetCurrentLightSourcePosition(LightPos.x / 25.4f, LightPos.y / 25.4f, LightPos.z / 25.4f);
+                    //MatSys::Renderer->SetCurrentLightSourceRadius(LightRadius / 25.4f);
+                    //MatSys::Renderer->SetCurrentEyePosition(EyePos.x / 25.4f, EyePos.y / 25.4f, EyePos.z / 25.4f);
+
+                    // TODO: There is no support for LoD-parameters at this time / still to be added!
+                    Ent->RenderComponents();    // TODO: Does it differentiate the various render actions??
+                }
+                MatSys::Renderer->PopLightingParameters();
+                MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
             }
     }
 }

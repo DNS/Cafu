@@ -80,6 +80,8 @@ EntFuncMoverT::EntFuncMoverT(const EntityCreateParamsT& Params)
       RootNode(Params.RootNode)
 {
     Register(new InterpolatorT<Vector3dT>(m_Origin));
+
+    ClipModel.SetOrigin(m_Origin);
     ClipModel.Register();
 }
 
