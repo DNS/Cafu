@@ -420,6 +420,9 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
         // und in der Engine (EntityStateT) sogar bei allen Entities.
         GameEnt->m_Origin = AllScriptEnts[EntNr]->GetTransform()->GetOrigin().AsVectorOfDouble() * CA3DE_SCALE;
 
+        // Move all map primitives in this entity from world space into the local entity space.
+        MFEntityList[EntNr].Translate(-GameEnt->m_Origin);
+
         // 3. Fill-in the Terrains array.
         for (unsigned long TerrainNr = 0; TerrainNr < E.MFTerrains.Size(); TerrainNr++)
         {

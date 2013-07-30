@@ -315,6 +315,54 @@ MapFileEntityT::MapFileEntityT(unsigned long Index, TextParserT& TP)
 }
 
 
+void MapFileEntityT::Translate(const Vector3dT& Delta)
+{
+    const Vector3fT DeltaF = Delta.AsVectorOfFloat();
+
+    for (unsigned int i = 0; i < MFBrushes.Size(); i++)
+    {
+        for (unsigned int p = 0; p < MFBrushes[i].MFPlanes.Size(); p++)
+        {
+            MapFilePlaneT& MFP = MFBrushes[i].MFPlanes[p];
+
+            MFP.Plane.Dist += dot(MFP.Plane.Normal, Delta);
+
+            // This follows the code in FaceNodeT::InitRenderMeshesAndMats().
+            MFP.ShiftU -= dot(Delta, MFP.U) / dot(MFP.U, MFP.U);
+            MFP.ShiftV -= dot(Delta, MFP.V) / dot(MFP.V, MFP.V);
+        }
+    }
+
+    for (unsigned int i = 0; i < MFPatches.Size(); i++)
+    {
+        ArrayT<float>& CPs = MFPatches[i].ControlPoints;
+
+        for (unsigned long j = 0; j < CPs.Size(); j += 5)
+        {
+            CPs[j + 0] += DeltaF.x;
+            CPs[j + 1] += DeltaF.y;
+            CPs[j + 2] += DeltaF.z;
+        }
+    }
+
+    for (unsigned int i = 0; i < MFTerrains.Size(); i++)
+    {
+        MFTerrains[i].Bounds.Min += Delta;
+        MFTerrains[i].Bounds.Max += Delta;
+    }
+
+    for (unsigned int i = 0; i < MFPlants.Size(); i++)
+    {
+        MFPlants[i].Position += Delta;
+    }
+
+    for (unsigned int i = 0; i < MFModels.Size(); i++)
+    {
+        MFModels[i].Origin += DeltaF;
+    }
+}
+
+
 static void MapFileVersionError(const std::string& Msg)
 {
     Console->Print("Bad map file version: Expected 14, " + Msg + ".\n");

@@ -129,14 +129,15 @@ void CaLightWorldT::CreateLightMapsForEnts()
 
                         if (dot(Patch.Normal, SampleDirs[SampleNr])<0) continue;    // Don't try sample dirs against the normal.
 
-                        const double RayLength=50000.0;         // 50 meters max.
-                        const double HitFrac=TraceRay(Patch.Coord, SampleDirs[SampleNr]*RayLength);
+                        const Vector3dT RayOrigin = m_World.m_StaticEntityData[EntNr]->m_Origin + Patch.Coord;
+                        const double    RayLength = 50000.0;    // 50 meters max.
+                        const double    HitFrac   = TraceRay(RayOrigin, SampleDirs[SampleNr] * RayLength);
 
                         if (HitFrac==0.0) continue;     // Probably immediately stuck in solid.
                         if (HitFrac==1.0) continue;     // Ray did not hit anything.
 
-                        const Vector3dT     HitPos=Patch.Coord+SampleDirs[SampleNr]*(HitFrac*RayLength-0.1);
-                        const unsigned long LeafNr=m_BspTree->WhatLeaf(HitPos);
+                        const Vector3dT     HitPos = RayOrigin + SampleDirs[SampleNr] * (HitFrac * RayLength - 0.1);
+                        const unsigned long LeafNr = m_BspTree->WhatLeaf(HitPos);
 
                         // printf("    HitFrac %f, HitPos %s, LeafNr %lu\n", HitFrac, convertToString(HitPos).c_str(), LeafNr);
 
