@@ -397,15 +397,25 @@ template<class T> void BezierPatchT<T>::Subdivide(T MaxError, T MaxLength, bool 
             const Vector3T<T>& B=GetVertex(j+2, i).Coord;
             const Vector3T<T>& C=GetVertex(j+1, i).Coord;
 
-            Vector3T<T> AC=C-A;
-            Vector3T<T> CB=B-C;
-            Vector3T<T> N =(A+B+C*T(2.0))*T(0.25);
+            const Vector3T<T> AC=C-A;
+            const Vector3T<T> CB=B-C;
+            const Vector3T<T> N =(A+B+C*T(2.0))*T(0.25);
 
             // if the span length is too long, force a subdivision
             if (MaxLength>0 && (AC.GetLengthSqr()>maxLengthSqr || CB.GetLengthSqr()>maxLengthSqr)) break;
 
+            // const T lenHN = length((C * T(2.0) - A - B) * T(0.25));
+            // const T lenAB = length(B - A);
+
             // see if this midpoint is off far enough to subdivide
             if ((C-N).GetLengthSqr()>maxHorizontalErrorSqr) break;
+
+            // This is an alternative to the above `if` test that seems to work very well,
+            // but is prone to infinite looping if A, B and C are very close to each other, but not quite the same
+            // (e.g. `lenAB > T(0.0001)` in the first half of the test freezes CaWE when loading the TechDemo map).
+            // Maybe we should use something conservative like `lenAB > T(0.1) && lenAC > T(0.1) && lenBC > T(0.1)`?
+            // if (lenAB > T(0.001) &&
+            //     lenHN > T(0.2) * lenAB) break;
         }
 
         if (i==Height) continue;   // didn't need subdivision
@@ -445,15 +455,25 @@ template<class T> void BezierPatchT<T>::Subdivide(T MaxError, T MaxLength, bool 
             const Vector3T<T>& B=GetVertex(i, j+2).Coord;
             const Vector3T<T>& C=GetVertex(i, j+1).Coord;
 
-            Vector3T<T> AC=C-A;
-            Vector3T<T> CB=B-C;
-            Vector3T<T> N =(A+B+C*T(2.0))*T(0.25);
+            const Vector3T<T> AC=C-A;
+            const Vector3T<T> CB=B-C;
+            const Vector3T<T> N =(A+B+C*T(2.0))*T(0.25);
 
             // if the span length is too long, force a subdivision
             if (MaxLength>0 && (AC.GetLengthSqr()>maxLengthSqr || CB.GetLengthSqr()>maxLengthSqr)) break;
 
+            // const T lenHN = length((C * T(2.0) - A - B) * T(0.25));
+            // const T lenAB = length(B - A);
+
             // see if this midpoint is off far enough to subdivide
             if ((C-N).GetLengthSqr()>maxVerticalErrorSqr) break;
+
+            // This is an alternative to the above `if` test that seems to work very well,
+            // but is prone to infinite looping if A, B and C are very close to each other, but not quite the same
+            // (e.g. `lenAB > T(0.0001)` in the first half of the test freezes CaWE when loading the TechDemo map).
+            // Maybe we should use something conservative like `lenAB > T(0.1) && lenAC > T(0.1) && lenBC > T(0.1)`?
+            // if (lenAB > T(0.001) &&
+            //     lenHN > T(0.2) * lenAB) break;
         }
 
         if (i==Width) continue;     // didn't need subdivision

@@ -463,7 +463,9 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
         {
             const MapFileBezierPatchT& BP = E.MFPatches[BPNr];
 
-            GameEnt->m_BspTree->OtherChildren.PushBack(new cf::SceneGraph::BezierPatchNodeT(World.LightMapMan, BP.SizeX, BP.SizeY, BP.ControlPoints, BP.SubdivsHorz, BP.SubdivsVert, BP.Material));
+            GameEnt->m_BspTree->OtherChildren.PushBack(new cf::SceneGraph::BezierPatchNodeT(
+                World.LightMapMan, BP.SizeX, BP.SizeY, BP.ControlPoints, BP.SubdivsHorz, BP.SubdivsVert,
+                BP.Material, 400.0f));
         }
 
         for (unsigned long TerrainNr = 0; TerrainNr < E.MFTerrains.Size(); TerrainNr++)

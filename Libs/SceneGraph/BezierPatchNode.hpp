@@ -53,15 +53,15 @@ namespace cf
 
             /// The constructor for creating an "empty" bezier patch.
             /// Needed e.g. by the named constructor CreateFromFile_cw() below.
-            BezierPatchNodeT(LightMapManT& LMM, float maxError_=400.0f);
+            BezierPatchNodeT(LightMapManT& LMM, float MaxError);
 
             /// Constructor for creating a BezierPatchNodeT from components.
             /// This is currently only needed by the LoadWorld.cpp file of the CaBSP tool.
-            BezierPatchNodeT(LightMapManT& LMM, unsigned long SizeX_, unsigned long SizeY_, const ArrayT<float>& ControlPoints_, int SubdivsHorz_, int SubdivsVert_, MaterialT* Material_, float maxError_=400.0f);
+            BezierPatchNodeT(LightMapManT& LMM, unsigned long SizeX_, unsigned long SizeY_, const ArrayT<float>& ControlPoints_, int SubdivsHorz_, int SubdivsVert_, MaterialT* Material_, float MaxError);
 
             /// Constructor for creating a BezierPatchNodeT from components.
             /// This is currently only needed by the MapBezierPatch.cpp file for patch rendering in CaWE.
-            BezierPatchNodeT(LightMapManT& LMM, unsigned long SizeX_, unsigned long SizeY_, const ArrayT<Vector3fT>& ControlPointsXYZ_, const ArrayT<Vector3fT>& ControlPointsUV_, int SubdivsHorz_, int SubdivsVert_, MaterialT* Material_, float maxError_=400.0f);
+            BezierPatchNodeT(LightMapManT& LMM, unsigned long SizeX_, unsigned long SizeY_, const ArrayT<Vector3fT>& ControlPointsXYZ_, const ArrayT<Vector3fT>& ControlPointsUV_, int SubdivsHorz_, int SubdivsVert_, MaterialT* Material_, float MaxError);
 
             /// Named constructor.
             static BezierPatchNodeT* CreateFromFile_cw(std::istream& InFile, aux::PoolT& Pool, LightMapManT& LMM, SHLMapManT& SMM);
@@ -126,7 +126,7 @@ namespace cf
 
             int               SubdivsHorz;      ///< Number of subdivisions in horizontal direction, or auto-detection if -1.
             int               SubdivsVert;      ///< Number of subdivisions in vertical   direction, or auto-detection if -1.
-            float             MaxError;         ///< Maximal error distance when subdividing bezier patches. Applies only if SubdivsHorz and SubdivsVert are -1.
+            const float       m_MaxError;       ///< The maximal error distance for auto-subdividing bezier patches. Applies only if `SubdivsHorz` and `SubdivsVert` are -1.
 
             MaterialT*        Material;         ///< The material assigned to this patch.
             LightMapInfoT     LightMapInfo;     ///< The lightmap information for this patch.

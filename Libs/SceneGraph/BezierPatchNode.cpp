@@ -41,14 +41,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace cf::SceneGraph;
 
 
-BezierPatchNodeT::BezierPatchNodeT(LightMapManT& LMM, float MaxError_)
+BezierPatchNodeT::BezierPatchNodeT(LightMapManT& LMM, float MaxError)
     : SizeX(0),
       SizeY(0),
       ControlPointsXYZ(),
       ControlPointsUV(),
       SubdivsHorz(0),
       SubdivsVert(0),
-      MaxError(MaxError_),
+      m_MaxError(MaxError),
       Material(NULL),
       LightMapInfo(),
       LightMapMan(LMM),
@@ -58,14 +58,14 @@ BezierPatchNodeT::BezierPatchNodeT(LightMapManT& LMM, float MaxError_)
 }
 
 
-BezierPatchNodeT::BezierPatchNodeT(LightMapManT& LMM, unsigned long SizeX_, unsigned long SizeY_, const ArrayT<float>& ControlPoints_, int SubdivsHorz_, int SubdivsVert_, MaterialT* Material_, float MaxError_)
+BezierPatchNodeT::BezierPatchNodeT(LightMapManT& LMM, unsigned long SizeX_, unsigned long SizeY_, const ArrayT<float>& ControlPoints_, int SubdivsHorz_, int SubdivsVert_, MaterialT* Material_, float MaxError)
     : SizeX(SizeX_),
       SizeY(SizeY_),
       ControlPointsXYZ(),
       ControlPointsUV(),
       SubdivsHorz(SubdivsHorz_),
       SubdivsVert(SubdivsVert_),
-      MaxError(MaxError_),
+      m_MaxError(MaxError),
       Material(Material_),
       LightMapInfo(),
       LightMapMan(LMM),
@@ -81,14 +81,14 @@ BezierPatchNodeT::BezierPatchNodeT(LightMapManT& LMM, unsigned long SizeX_, unsi
 }
 
 
-BezierPatchNodeT::BezierPatchNodeT(LightMapManT& LMM, unsigned long SizeX_, unsigned long SizeY_, const ArrayT<Vector3fT>& ControlPointsXYZ_, const ArrayT<Vector3fT>& ControlPointsUV_, int SubdivsHorz_, int SubdivsVert_, MaterialT* Material_, float MaxError_)
+BezierPatchNodeT::BezierPatchNodeT(LightMapManT& LMM, unsigned long SizeX_, unsigned long SizeY_, const ArrayT<Vector3fT>& ControlPointsXYZ_, const ArrayT<Vector3fT>& ControlPointsUV_, int SubdivsHorz_, int SubdivsVert_, MaterialT* Material_, float MaxError)
     : SizeX(SizeX_),
       SizeY(SizeY_),
       ControlPointsXYZ(ControlPointsXYZ_),
       ControlPointsUV(ControlPointsUV_),
       SubdivsHorz(SubdivsHorz_),
       SubdivsVert(SubdivsVert_),
-      MaxError(MaxError_),
+      m_MaxError(MaxError),
       Material(Material_),
       LightMapInfo(),
       LightMapMan(LMM),
@@ -100,15 +100,15 @@ BezierPatchNodeT::BezierPatchNodeT(LightMapManT& LMM, unsigned long SizeX_, unsi
 
 BezierPatchNodeT* BezierPatchNodeT::CreateFromFile_cw(std::istream& InFile, aux::PoolT& Pool, LightMapManT& LMM, SHLMapManT& /*SMM*/)
 {
-    BezierPatchNodeT* BP=new BezierPatchNodeT(LMM);
+    const float MaxError = aux::ReadFloat(InFile);
+
+    BezierPatchNodeT* BP=new BezierPatchNodeT(LMM, MaxError);
 
     BP->SizeX=aux::ReadUInt32(InFile);
     BP->SizeY=aux::ReadUInt32(InFile);
 
     BP->SubdivsHorz=aux::ReadInt32(InFile);
     BP->SubdivsVert=aux::ReadInt32(InFile);
- // BP->MaxError   =aux::ReadFloat(InFile);
-    assert(BP->MaxError==400.0f);
 
     const std::string MaterialName=Pool.ReadString(InFile);
     BP->Material=MaterialManager->GetMaterial(MaterialName);
@@ -189,13 +189,12 @@ void BezierPatchNodeT::WriteTo(std::ostream& OutFile, aux::PoolT& Pool) const
 {
     aux::Write(OutFile, "BP");
 
+    aux::Write(OutFile, m_MaxError);
     aux::Write(OutFile, aux::cnc_ui32(SizeX));
     aux::Write(OutFile, aux::cnc_ui32(SizeY));
 
     aux::Write(OutFile, (int32_t)SubdivsHorz);
     aux::Write(OutFile, (int32_t)SubdivsVert);
- // aux::Write(OutFile, MaxError);
-    assert(MaxError==400.0f);
 
     Pool.Write(OutFile, Material->Name);
     for (unsigned long c=0; c<ControlPointsXYZ.Size(); c++)
@@ -724,7 +723,7 @@ void BezierPatchNodeT::Init()
 
     // The casts to unsigned long are needed in order to resolve ambiguity of the overloaded Subdivide() method.
     if (SubdivsHorz>0 && SubdivsVert>0) CurveMesh.Subdivide((unsigned long)SubdivsHorz, (unsigned long)SubdivsVert);
-                                   else CurveMesh.Subdivide(MaxError, -1.0f);
+                                   else CurveMesh.Subdivide(m_MaxError, -1.0f);
 #else
     // Use this for debugging the lightmap mesh code...
     cf::math::BezierPatchT<float> CurveMesh;
@@ -982,17 +981,17 @@ void BezierPatchNodeT::GenerateLightMapMesh(cf::math::BezierPatchT<float>& Light
         //
         // The casts to unsigned long are needed in order to resolve ambiguity of the overloaded Subdivide() method.
         if (SubdivsHorz>0 && SubdivsVert>0) LightMapMesh.Subdivide((unsigned long)SubdivsHorz, (unsigned long)SubdivsVert);
-                                       else LightMapMesh.Subdivide(/*MaxError*/ 400.0f, /*MaxLength*/ -1.0f);
+                                       else LightMapMesh.Subdivide(m_MaxError, /*MaxLength*/ -1.0f);
 
         LightMapMesh.ForceLinearMaxLength(MaxLength);
 #else
         // This doesn't work as desired - see the docs of BezierPatchT::ForceLinearMaxLength() for rationale.
         //
         // No matter what the user provided via the SubdivsHorz and SubdivsVert parameters, we subdivide on automatic metrics here.
-        // The MaxError is essentially an arbitrary number - we rely on the MaxLength parameter to get the mesh properly tesselated.
+        // The m_MaxError is essentially an arbitrary number - we rely on the MaxLength parameter to get the mesh properly tesselated.
         // The MaxLength could be set to PS*4/3 because the average of PS*4/3 and PS*4/3*1/2 is PS, but the resulting meshes look
         // really fine-grained to me, so I increase from *4/3 to *2.
-        LightMapMesh.Subdivide(MaxError, MaxLength, false /* Do not optimize "flat" rows and columns! */);
+        LightMapMesh.Subdivide(m_MaxError, MaxLength, false /* Do not optimize "flat" rows and columns! */);
 #endif
 
         // Maximum permitted size not exceeded? If so, we're done.
