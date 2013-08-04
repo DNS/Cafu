@@ -326,6 +326,36 @@ WorldT::WorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiRes
 }
 
 
+void WorldT::ScaleDown254()
+{
+    const double CA3DE_SCALE = 25.4;
+
+    for (unsigned int IPSNr = 0; IPSNr < InfoPlayerStarts.Size(); IPSNr++)
+        InfoPlayerStarts[IPSNr].Origin /= CA3DE_SCALE;
+
+    for (unsigned int PLNr = 0; PLNr < PointLights.Size(); PLNr++)
+        PointLights[PLNr].Origin /= CA3DE_SCALE;
+
+    for (unsigned int EntNr = 0; EntNr < m_StaticEntityData.Size(); EntNr++)
+    {
+        StaticEntityDataT* SED = m_StaticEntityData[EntNr];
+
+        SED->m_Origin /= CA3DE_SCALE;
+
+        for (unsigned int ShTe = 0; ShTe < SED->m_Terrains.Size(); ShTe++)
+        {
+            SED->m_Terrains[ShTe]->BB.Min /= CA3DE_SCALE;
+            SED->m_Terrains[ShTe]->BB.Max /= CA3DE_SCALE;
+        }
+
+        SED->m_BspTree->ScaleDown254();
+
+        if (SED->m_CollModel)
+            SED->m_CollModel->ScaleDown254();
+    }
+}
+
+
 void WorldT::SaveToDisk(const char* FileName) const /*throw (SaveErrorT)*/
 {
     std::ofstream OutFile(FileName, std::ios::out | std::ios::binary);

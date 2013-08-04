@@ -75,6 +75,7 @@ namespace cf
             // The NodeT interface.
             void WriteTo(std::ostream& OutFile, aux::PoolT& Pool) const;
             const BoundingBox3T<double>& GetBoundingBox() const;
+            void ScaleDown254();
 
          // void InitDrawing();
             bool IsOpaque() const;
@@ -126,7 +127,7 @@ namespace cf
 
             int               SubdivsHorz;      ///< Number of subdivisions in horizontal direction, or auto-detection if -1.
             int               SubdivsVert;      ///< Number of subdivisions in vertical   direction, or auto-detection if -1.
-            const float       m_MaxError;       ///< The maximal error distance for auto-subdividing bezier patches. Applies only if `SubdivsHorz` and `SubdivsVert` are -1.
+            /*const*/ float   m_MaxError;       ///< The maximal error distance for auto-subdividing bezier patches. Applies only if `SubdivsHorz` and `SubdivsVert` are -1.
 
             MaterialT*        Material;         ///< The material assigned to this patch.
             LightMapInfoT     LightMapInfo;     ///< The lightmap information for this patch.

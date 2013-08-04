@@ -137,6 +137,9 @@ class WorldT
     /// Destructor.
     ~WorldT();
 
+    /// Un-does the scaling by 25.4 that was applied when the world was initially loaded from the cmap file.
+    void ScaleDown254();
+
     /// Saves the world to disk.
     void SaveToDisk(const char* FileName) const /*throw (SaveErrorT)*/;
 

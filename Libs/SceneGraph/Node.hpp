@@ -70,6 +70,8 @@ namespace cf
                 return BB;
             }
 
+            virtual void ScaleDown254() { }
+
 
          // virtual void InitDrawing()
          // {

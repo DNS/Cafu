@@ -575,6 +575,20 @@ const BoundingBox3T<double>& FaceNodeT::GetBoundingBox() const
 }
 
 
+void cf::SceneGraph::FaceNodeT::ScaleDown254()
+{
+    TI.U /= 25.4f;
+    TI.V /= 25.4f;
+
+    Polygon.Plane.Dist /= 25.4;
+
+    for (unsigned long VertexNr=0; VertexNr<Polygon.Vertices.Size(); VertexNr++)
+        Polygon.Vertices[VertexNr] /= 25.4;
+
+    // No need to do anything with the BB here, it is setup in InitRenderMeshesAndMats().
+}
+
+
 bool FaceNodeT::IsOpaque() const
 {
     return Material->HasDefaultBlendFunc();

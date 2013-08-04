@@ -244,6 +244,8 @@ namespace cf
             /// Constructor for creating a collision model from a regular mesh.
             CollisionModelStaticT(unsigned long Width, unsigned long Height, const ArrayT<Vector3dT>& Mesh, MaterialT* Material);
 
+            void ScaleDown254();
+
             /// The destructor.
             ~CollisionModelStaticT();
 

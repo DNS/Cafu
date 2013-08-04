@@ -2021,6 +2021,45 @@ void CollisionModelStaticT::FreeTree(NodeT* Node)
 */
 
 
+static void ScaleDown254(CollisionModelStaticT::NodeT* Node)
+{
+    assert(Node);
+    if (Node->PlaneType == CollisionModelStaticT::NodeT::NONE) return;
+
+    Node->PlaneDist /= cf::CA3DE_SCALE;
+
+    ScaleDown254(Node->Children[0]);
+    ScaleDown254(Node->Children[1]);
+}
+
+
+void CollisionModelStaticT::ScaleDown254()
+{
+    m_BB.Min /= CA3DE_SCALE;
+    m_BB.Max /= CA3DE_SCALE;
+
+    ::ScaleDown254(m_RootNode);
+
+    for (unsigned int i = 0; i < m_Brushes.Size(); i++)
+    {
+        m_Brushes[i].BB.Min /= CA3DE_SCALE;
+        m_Brushes[i].BB.Max /= CA3DE_SCALE;
+    }
+
+    for (unsigned int i = 0; i < m_BrushSides.Size(); i++)
+        m_BrushSides[i].Plane.Dist /= CA3DE_SCALE;
+
+    for (unsigned int i = 0; i < m_Vertices.Size(); i++)
+        m_Vertices[i] /= CA3DE_SCALE;
+
+    for (unsigned int i = 0; i < m_Terrains.Size(); i++)
+    {
+        m_Terrains[i].BB.Min /= CA3DE_SCALE;
+        m_Terrains[i].BB.Max /= CA3DE_SCALE;
+    }
+}
+
+
 CollisionModelStaticT::~CollisionModelStaticT()
 {
     // It's not necessary to call FreeTree(), because m_NodesPool.Free() does actually nothing.

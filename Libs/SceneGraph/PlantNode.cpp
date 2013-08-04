@@ -91,6 +91,12 @@ const BoundingBox3T<double>& cf::SceneGraph::PlantNodeT::GetBoundingBox() const
 }
 
 
+void cf::SceneGraph::PlantNodeT::ScaleDown254()
+{
+    m_Position /= 25.4;
+}
+
+
 void cf::SceneGraph::PlantNodeT::DrawAmbientContrib(const Vector3dT& ViewerPos) const
 {
     // Nothing to do here. We could draw the root and all its branches here however.
