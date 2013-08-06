@@ -58,8 +58,6 @@ namespace cf
                 unsigned short PosT;        ///< T-Position unserer Teil-LightMap innerhalb der LightMap.
                 unsigned short SizeS;       ///< S-Größe unserer Teil-LightMap.
                 unsigned short SizeT;       ///< T-Größe unserer Teil-LightMap.
-
-                static float   PatchSize;   ///< Kantenlänge der Patches in World-Units. Für alle Faces gleich, ansonsten aufwendige Änderungen in CaLight notw.!
             };
 
             struct SHLMapInfoT
@@ -69,8 +67,6 @@ namespace cf
                 unsigned short PosT;        ///< T-Position unserer Teil-SHLMap innerhalb der SHLMap.
                 unsigned short SizeS;       ///< S-Größe unserer Teil-SHLMap.
                 unsigned short SizeT;       ///< T-Größe unserer Teil-SHLMap.
-
-                static float   PatchSize;   ///< Kantenlänge der Patches in World-Units. Für alle Faces gleich.
             };
 
 
@@ -91,7 +87,7 @@ namespace cf
             /// The destructor.
             ~FaceNodeT();
 
-            void InitRenderMeshesAndMats(const ArrayT<Vector3dT>& SharedVertices);
+            void InitRenderMeshesAndMats(const ArrayT<Vector3dT>& SharedVertices, const float LightMapPatchSize);
 
             /// Returns the DrawIndices. For CaBSP.
             ArrayT<unsigned long>& GetDrawIndices() { return DrawIndices; }
@@ -104,7 +100,7 @@ namespace cf
 
             /// Determines the lightmap color of this face near position Pos.
             /// @returns true if the lightmap color could be determined and written into the Red, Green and Blue parameters.
-            bool GetLightmapColorNearPosition(const Vector3dT& Pos, Vector3fT& LightMapColor) const;
+            bool GetLightmapColorNearPosition(const Vector3dT& Pos, Vector3fT& LightMapColor, const float LightMapPatchSize) const;
 
             // The NodeT interface.
             void WriteTo(std::ostream& OutFile, aux::PoolT& Pool) const;
@@ -118,9 +114,9 @@ namespace cf
             void DrawLightSourceContrib(const Vector3dT& ViewerPos, const Vector3dT& LightPos) const;
             void DrawTranslucentContrib(const Vector3dT& ViewerPos) const;
 
-            void InitDefaultLightMaps();
-            void CreatePatchMeshes(ArrayT<PatchMeshT>& PatchMeshes, ArrayT< ArrayT< ArrayT<Vector3dT> > >& SampleCoords) const;
-            void BackToLightMap(const PatchMeshT& PatchMesh);
+            void InitDefaultLightMaps(const float LightMapPatchSize);
+            void CreatePatchMeshes(ArrayT<PatchMeshT>& PatchMeshes, ArrayT< ArrayT< ArrayT<Vector3dT> > >& SampleCoords, const float LightMapPatchSize) const;
+            void BackToLightMap(const PatchMeshT& PatchMesh, const float LightMapPatchSize);
 
 
             // TODO: The stuff below should actually be protected or private rather than public.

@@ -29,7 +29,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "TextParser/TextParser.hpp"
 #include "SceneGraph/BezierPatchNode.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
-#include "SceneGraph/FaceNode.hpp"
 #include "SceneGraph/TerrainNode.hpp"
 #include "SceneGraph/PlantNode.hpp"
 #include "SceneGraph/ModelNode.hpp"
@@ -348,6 +347,9 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
         const MapFileEntityT& E = MFEntityList[EntNr];
         const std::map<std::string, std::string>::const_iterator ClassNamePair = E.MFProperties.find("classname");
 
+        float LightMapPatchSize = 200.0f;
+        float SHLMapPatchSize   = 200.0f;
+
         if (ClassNamePair == E.MFProperties.end())
             Error("\"classname\" property not found in entity %lu.", EntNr);
 
@@ -358,19 +360,19 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
             It=E.MFProperties.find("lightmap_patchsize");
             if (It!=E.MFProperties.end())
             {
-                cf::SceneGraph::FaceNodeT::LightMapInfoT::PatchSize=float(atof(It->second.c_str()));
+                LightMapPatchSize = float(atof(It->second.c_str()));
 
-                if (cf::SceneGraph::FaceNodeT::LightMapInfoT::PatchSize<  50.0) { cf::SceneGraph::FaceNodeT::LightMapInfoT::PatchSize=  50.0; Console->Print("NOTE: LightMap PatchSize clamped to 50.\n"  ); }
-                if (cf::SceneGraph::FaceNodeT::LightMapInfoT::PatchSize>2000.0) { cf::SceneGraph::FaceNodeT::LightMapInfoT::PatchSize=2000.0; Console->Print("NOTE: LightMap PatchSize clamped to 2000.\n"); }
+                if (LightMapPatchSize <   50.0) { LightMapPatchSize =   50.0; Console->Print("NOTE: LightMap PatchSize clamped to 50.\n"  ); }
+                if (LightMapPatchSize > 2000.0) { LightMapPatchSize = 2000.0; Console->Print("NOTE: LightMap PatchSize clamped to 2000.\n"); }
             }
 
             It=E.MFProperties.find("shlmap_patchsize");
             if (It!=E.MFProperties.end())
             {
-                cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize=float(atof(It->second.c_str()));
+                SHLMapPatchSize = float(atof(It->second.c_str()));
 
-                if (cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize<  50.0) { cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize=  50.0; Console->Print("NOTE: SHLMap PatchSize clamped to 50.\n"  ); }
-                if (cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize>2000.0) { cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize=2000.0; Console->Print("NOTE: SHLMap PatchSize clamped to 2000.\n"); }
+                if (SHLMapPatchSize <   50.0) { SHLMapPatchSize =   50.0; Console->Print("NOTE: SHLMap PatchSize clamped to 50.\n"  ); }
+                if (SHLMapPatchSize > 2000.0) { SHLMapPatchSize = 2000.0; Console->Print("NOTE: SHLMap PatchSize clamped to 2000.\n"); }
             }
         }
         else if (ClassNamePair->second == "PointLight")
@@ -432,7 +434,7 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
         }
 
         // 4. Create a new BSP tree.
-        GameEnt->m_BspTree = new cf::SceneGraph::BspTreeNodeT;
+        GameEnt->m_BspTree = new cf::SceneGraph::BspTreeNodeT(LightMapPatchSize, SHLMapPatchSize);
 
         // 5. Build the collision model (if this entity has one that is made of map primitives).
         if (EntNr == 0 || E.MFBrushes.Size() > 0 || E.MFPatches.Size() > 0 || GameEnt->m_Terrains.Size() > 0)
@@ -473,7 +475,7 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
             const MapFileTerrainT& Terrain = E.MFTerrains[TerrainNr];
 
             // This has already done been done above: GameEnt->Terrains.PushBack(new SharedTerrainT(...));
-            GameEnt->m_BspTree->OtherChildren.PushBack(new cf::SceneGraph::TerrainNodeT(Terrain.Bounds, GameEnt->m_Terrains[TerrainNr]->Terrain, TerrainNr, Terrain.Material->Name));
+            GameEnt->m_BspTree->OtherChildren.PushBack(new cf::SceneGraph::TerrainNodeT(Terrain.Bounds, GameEnt->m_Terrains[TerrainNr]->Terrain, TerrainNr, Terrain.Material->Name, LightMapPatchSize));
         }
 
         for (unsigned long PlantNr = 0; PlantNr < E.MFPlants.Size(); PlantNr++)

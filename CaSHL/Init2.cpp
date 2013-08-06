@@ -31,7 +31,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 // ergibt sich auch nahezu IMMER ein renomalisierter Mittelwert, der F.Plane.Normal entspricht. Sollte es dennoch Abweichungen geben, sind sie so klein,
 // daß man sie niemals wahrnimmt. (Die Rundungsfehler allein an anderer Stelle sind um Größenordnungen höher, z.B. die Komprimierung der Werte in "char"!!)
 // Daher würde   Patch.Normal=F.Plane.Normal;   normalerweise völlig ausreichen.
-void ComputePatchNormal(PatchT& Patch, const cf::SceneGraph::FaceNodeT::TexInfoT& TI, const BitmapT& NormalMap, const VectorT& SpanU, const VectorT& SpanV)
+void ComputePatchNormal(PatchT& Patch, const cf::SceneGraph::FaceNodeT::TexInfoT& TI, const BitmapT& NormalMap, const VectorT& SpanU, const VectorT& SpanV, const float SHLMapPatchSize)
 {
     const VectorT PlaneNormal=Patch.Normal;
     const VectorT TI_U       =TI.U.AsVectorOfDouble();
@@ -45,7 +45,7 @@ void ComputePatchNormal(PatchT& Patch, const cf::SceneGraph::FaceNodeT::TexInfoT
     // Simply taking some samples serves equally well, and saves us the huge overhead of a dedicated software rasterizer.
     for (unsigned long SampleNr=0; SampleNr<NrOfSamples; SampleNr++)
     {
-        const double  PatchRadius =cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize/2.0;
+        const double  PatchRadius =SHLMapPatchSize / 2.0;
         const double  OffsetU     =(2.0*double(rand())/double(RAND_MAX)-1.0)*PatchRadius;
         const double  OffsetV     =(2.0*double(rand())/double(RAND_MAX)-1.0)*PatchRadius;
         const VectorT SampleOrigin=Patch.Coord+scale(SpanU, OffsetU)+scale(SpanV, OffsetV);
@@ -168,8 +168,8 @@ void InitializePatches(const cf::SceneGraph::BspTreeNodeT& Map)
             if (v<SmallestV) SmallestV=v;
         }
 
-        SmallestU=floor(SmallestU/cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize);
-        SmallestV=floor(SmallestV/cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize);
+        SmallestU = floor(SmallestU / Map.GetSHLMapPatchSize());
+        SmallestV = floor(SmallestV / Map.GetSHLMapPatchSize());
 
         // Bereite folgende Schleife vor
         const VectorT UV_Origin=scale(F.Plane.Normal, F.Plane.Dist);
@@ -190,7 +190,7 @@ void InitializePatches(const cf::SceneGraph::BspTreeNodeT& Map)
         for (unsigned long t=0; t<FN->SHLMapInfo.SizeT; t++)
             for (unsigned long s=0; s<FN->SHLMapInfo.SizeS; s++)
             {
-                const double PATCH_SIZE=cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize;
+                const double PATCH_SIZE=Map.GetSHLMapPatchSize();
                 PatchT&      Patch     =Patches[FaceNr][t*FN->SHLMapInfo.SizeS+s];
 
                 Patch.Coord     =VectorT(0, 0, 0);
@@ -229,7 +229,7 @@ void InitializePatches(const cf::SceneGraph::BspTreeNodeT& Map)
                 // Siehe die Kommentare zur ComputePatchNormal Funktion für weitere Infos.
                 // Außerdem ist dieses Verfahren alles andere als effizient -- sollte die Normal-Map nicht für jede Face neu laden!
                 // Beachte: Die Patch.Normal muß mit der F.Plane.Normal initialisiert sein!
-                ComputePatchNormal(Patch, FN->TI, NormalMap, U, V);
+                ComputePatchNormal(Patch, FN->TI, NormalMap, U, V, Map.GetSHLMapPatchSize());
 #endif
             }
     }

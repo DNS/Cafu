@@ -609,7 +609,7 @@ void DirectLighting(const CaLightWorldT& CaLightWorld, const char BLOCK_SIZE)
 
                     if (CaLightWorld.TraceRay(PL.Origin, LightRay)<1.0) continue;
 
-                    if (LightRayLength>=cf::SceneGraph::FaceNodeT::LightMapInfoT::PatchSize)
+                    if (LightRayLength >= Map.GetLightMapPatchSize())
                     {
                         // Let I be an abbreviation for PL.Intensity, which is specified in [W/sr]. Then, any sphere centered at PL.Origin with radius
                         // r receives a total power of 4*pi*I [W] on its surface, which is equal to 4*pi*(r^2) [unit of r^2]. It follows immediately
@@ -639,9 +639,9 @@ void DirectLighting(const CaLightWorldT& CaLightWorld, const char BLOCK_SIZE)
                     {
                         // Physikalisch korrekt wäre eine bis zur Unendlichkeit zunehmende Intensität, je kleiner LightRayLength.
                         // Ist natürlich Blödsinn, da point light sources in der Realität nicht existieren.
-                        // Daher erzwingen wir hier einfach eine LightRayLength von cf::SceneGraph::FaceNodeT::LightMapInfoT::PatchSize und vernachlässigen
+                        // Daher erzwingen wir hier einfach eine LightRayLength von Map.GetLightMapPatchSize() und vernachlässigen
                         // die Orientierung des Patches.
-                        const double  c          =1000.0/cf::SceneGraph::FaceNodeT::LightMapInfoT::PatchSize;
+                        const double  c          =1000.0/Map.GetLightMapPatchSize();
                         const VectorT DeltaEnergy=scale(PL.Intensity, REFLECTIVITY*c*c);
 
                         Patch.UnradiatedEnergy+=DeltaEnergy;
@@ -778,7 +778,7 @@ void PostProcessBorders(const CaLightWorldT& CaLightWorld)
     // Existenz von inneren Patches, die nur teilweise innerhalb ihrer Face liegen: Hier wäre eine Verletzung der Eigenschaft
     // (*) durchaus möglich. In einigen wenigen Spezialfällen kann dies durch die Eigenschaften der Plane3T<double>::GetSpanVectors()
     // Funktion geheilt werden (ohne weitere Begründung), im Allgemeinfall jedoch nicht!
-    const double  PATCH_SIZE          =cf::SceneGraph::FaceNodeT::LightMapInfoT::PatchSize;
+    const double  PATCH_SIZE          =CaLightWorld.GetBspTree().GetLightMapPatchSize();
     unsigned long PatchesWorkedOnCount=0;
 
     for (unsigned long PatchMesh1Nr=0; PatchMesh1Nr<PatchMeshes.Size(); PatchMesh1Nr++)
@@ -1211,7 +1211,7 @@ unsigned long BounceLighting(const CaLightWorldT& CaLightWorld, const char BLOCK
                         cf::SceneGraph::GenericNodeT* PM_Node=const_cast<cf::SceneGraph::GenericNodeT*>(PM.Node);
 
                         // Need a non-const pointer to the "source" NodeT of the patch mesh here.
-                        PM_Node->BackToLightMap(PM);
+                        PM_Node->BackToLightMap(PM, CaLightWorld.GetBspTree().GetLightMapPatchSize());
                     }
 
                     printf("\n%-50s %s\n", "*** Saving World ***", GetTimeSinceProgramStart());
@@ -1470,7 +1470,7 @@ int main(int ArgC, const char* ArgV[])
                 cf::SceneGraph::GenericNodeT* PM_Node=const_cast<cf::SceneGraph::GenericNodeT*>(PM.Node);
 
                 // Need a non-const pointer to the "source" NodeT of the patch mesh here.
-                PM_Node->BackToLightMap(PM);
+                PM_Node->BackToLightMap(PM, CaLightWorld.GetBspTree().GetLightMapPatchSize());
             }
         }
 

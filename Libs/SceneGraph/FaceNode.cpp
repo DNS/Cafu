@@ -35,9 +35,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace cf::SceneGraph;
 
 
-float FaceNodeT::LightMapInfoT::PatchSize=200.0;    // Default value.
-float FaceNodeT::SHLMapInfoT  ::PatchSize=200.0;    // Default value.
-
 const double FaceNodeT::ROUND_EPSILON=2.0;
 
 
@@ -233,7 +230,7 @@ FaceNodeT::~FaceNodeT()
 }
 
 
-void FaceNodeT::InitRenderMeshesAndMats(const ArrayT<Vector3dT>& SharedVertices)
+void FaceNodeT::InitRenderMeshesAndMats(const ArrayT<Vector3dT>& SharedVertices, const float LightMapPatchSize)
 {
     // **********************
     // Create the basic mesh.
@@ -342,8 +339,8 @@ void FaceNodeT::InitRenderMeshesAndMats(const ArrayT<Vector3dT>& SharedVertices)
         const double PosS=LightMapInfo.PosS;
         const double PosT=LightMapInfo.PosT;
 
-        const double s=((dot(SharedVertices[DrawIndices[VertexNr]], U)-SmallestU)/LightMapInfoT::PatchSize+1.0+PosS)/double(cf::SceneGraph::LightMapManT::SIZE_S);
-        const double t=((dot(SharedVertices[DrawIndices[VertexNr]], V)-SmallestV)/LightMapInfoT::PatchSize+1.0+PosT)/double(cf::SceneGraph::LightMapManT::SIZE_T);
+        const double s=((dot(SharedVertices[DrawIndices[VertexNr]], U)-SmallestU)/LightMapPatchSize+1.0+PosS)/double(cf::SceneGraph::LightMapManT::SIZE_S);
+        const double t=((dot(SharedVertices[DrawIndices[VertexNr]], V)-SmallestV)/LightMapPatchSize+1.0+PosT)/double(cf::SceneGraph::LightMapManT::SIZE_T);
 
         Mesh.Vertices[VertexNr].LightMapCoord[0]=float(s);
         Mesh.Vertices[VertexNr].LightMapCoord[1]=float(t);
@@ -358,8 +355,8 @@ void FaceNodeT::InitRenderMeshesAndMats(const ArrayT<Vector3dT>& SharedVertices)
         const double PosS=Map.Faces[FaceNr].SHLMapInfo.PosS;
         const double PosT=Map.Faces[FaceNr].SHLMapInfo.PosT;
 
-        const double s=(dot(SharedVertices[DrawIndices[VertexNr]], U)/SHLMapInfoT::PatchSize-floor(SmallestU/SHLMapInfoT::PatchSize)+1.0+PosS)/double(cf::SceneGraph::SHLMapManT::SIZE_S);
-        const double t=(dot(SharedVertices[DrawIndices[VertexNr]], V)/SHLMapInfoT::PatchSize-floor(SmallestV/SHLMapInfoT::PatchSize)+1.0+PosT)/double(cf::SceneGraph::SHLMapManT::SIZE_T);
+        const double s=(dot(SharedVertices[DrawIndices[VertexNr]], U)/SHLMapPatchSize-floor(SmallestU/SHLMapPatchSize)+1.0+PosS)/double(cf::SceneGraph::SHLMapManT::SIZE_S);
+        const double t=(dot(SharedVertices[DrawIndices[VertexNr]], V)/SHLMapPatchSize-floor(SmallestV/SHLMapPatchSize)+1.0+PosT)/double(cf::SceneGraph::SHLMapManT::SIZE_T);
 
         Mesh.Vertices[VertexNr].SHLMapCoord[0]=float(s);
         Mesh.Vertices[VertexNr].SHLMapCoord[1]=float(t);
@@ -427,7 +424,7 @@ void FaceNodeT::InitRenderMeshesAndMats(const ArrayT<Vector3dT>& SharedVertices)
 }
 
 
-bool FaceNodeT::GetLightmapColorNearPosition(const Vector3dT& Ground, Vector3fT& LightMapColor) const
+bool FaceNodeT::GetLightmapColorNearPosition(const Vector3dT& Ground, Vector3fT& LightMapColor, const float LightMapPatchSize) const
 {
     if (!Material->UsesGeneratedLightMap()) return false;
     if (LightMapInfo.SizeS==0) return false;
@@ -459,8 +456,8 @@ bool FaceNodeT::GetLightmapColorNearPosition(const Vector3dT& Ground, Vector3fT&
         if (v<SmallestV) SmallestV=v;
     }
 
-    const double       s =(dot(Ground, SpanU)-SmallestU)/LightMapInfoT::PatchSize+1.0+LightMapInfo.PosS;
-    const double       t =(dot(Ground, SpanV)-SmallestV)/LightMapInfoT::PatchSize+1.0+LightMapInfo.PosT;
+    const double       s =(dot(Ground, SpanU)-SmallestU)/LightMapPatchSize+1.0+LightMapInfo.PosS;
+    const double       t =(dot(Ground, SpanV)-SmallestV)/LightMapPatchSize+1.0+LightMapInfo.PosT;
     const unsigned int s_=(unsigned int)(s+0.5);
     const unsigned int t_=(unsigned int)(t+0.5);
     const BitmapT*     Bm=LightMapMan.Bitmaps[LightMapInfo.LightMapNr];
@@ -693,7 +690,7 @@ void FaceNodeT::DrawTranslucentContrib(const Vector3dT& ViewerPos) const
 }
 
 
-void FaceNodeT::InitDefaultLightMaps()
+void FaceNodeT::InitDefaultLightMaps(const float LightMapPatchSize)
 {
     LightMapInfo.SizeS=0;
     LightMapInfo.SizeT=0;
@@ -728,8 +725,8 @@ void FaceNodeT::InitDefaultLightMaps()
     // Dies ist das einzige Mal, daß die Größen der LightMaps rechnerisch bestimmt werden.
     // Fortan werden sie von allen Tools und der Engine direkt aus dem CW-File geladen,
     // um Rundungsfehler, die beim Speichern durch Zusammenfassung entstehen, zu vermeiden.
-    LightMapInfo.SizeS=(unsigned short)ceil((MaxU-MinU)/cf::SceneGraph::FaceNodeT::LightMapInfoT::PatchSize)+2;
-    LightMapInfo.SizeT=(unsigned short)ceil((MaxV-MinV)/cf::SceneGraph::FaceNodeT::LightMapInfoT::PatchSize)+2;
+    LightMapInfo.SizeS=(unsigned short)ceil((MaxU-MinU)/LightMapPatchSize)+2;
+    LightMapInfo.SizeT=(unsigned short)ceil((MaxV-MinV)/LightMapPatchSize)+2;
 
     // Maximum permitted size exceeded?
     if (LightMapInfo.SizeS>cf::SceneGraph::LightMapManT::SIZE_S) { printf("LMI.SizeS exceeds maximum!\n"); LightMapInfo.SizeS=0; LightMapInfo.SizeT=0; return; }
@@ -756,7 +753,7 @@ void FaceNodeT::InitDefaultLightMaps()
 }
 
 
-void FaceNodeT::CreatePatchMeshes(ArrayT<cf::PatchMeshT>& PatchMeshes, ArrayT< ArrayT< ArrayT<Vector3dT> > >& SampleCoords) const
+void FaceNodeT::CreatePatchMeshes(ArrayT<cf::PatchMeshT>& PatchMeshes, ArrayT< ArrayT< ArrayT<Vector3dT> > >& SampleCoords, const float LightMapPatchSize) const
 {
     if (LightMapInfo.SizeS==0) return;
     if (LightMapInfo.SizeT==0) return;
@@ -817,7 +814,7 @@ void FaceNodeT::CreatePatchMeshes(ArrayT<cf::PatchMeshT>& PatchMeshes, ArrayT< A
     for (unsigned long t=0; t<PatchMesh.Height; t++)
         for (unsigned long s=0; s<PatchMesh.Width; s++)
         {
-            const double PATCH_SIZE=cf::SceneGraph::FaceNodeT::LightMapInfoT::PatchSize;
+            const double PATCH_SIZE=LightMapPatchSize;
             cf::PatchT&  Patch     =PatchMesh.Patches[t*PatchMesh.Width+s];
 
             Patch.Coord     =VectorT(0, 0, 0);
@@ -899,7 +896,7 @@ void FaceNodeT::CreatePatchMeshes(ArrayT<cf::PatchMeshT>& PatchMeshes, ArrayT< A
 }
 
 
-void FaceNodeT::BackToLightMap(const cf::PatchMeshT& PatchMesh)
+void FaceNodeT::BackToLightMap(const cf::PatchMeshT& PatchMesh, const float LightMapPatchSize)
 {
     assert(PatchMesh.Width ==LightMapInfo.SizeS);
     assert(PatchMesh.Height==LightMapInfo.SizeT);

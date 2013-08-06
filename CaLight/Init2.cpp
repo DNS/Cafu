@@ -133,7 +133,7 @@ void InitializePatches(const CaLightWorldT& CaLightWorld)
 
         ArrayT< ArrayT< ArrayT<Vector3dT> > > SampleCoords;
 
-        Map.FaceChildren[FaceNr]->CreatePatchMeshes(PatchMeshes, SampleCoords);
+        Map.FaceChildren[FaceNr]->CreatePatchMeshes(PatchMeshes, SampleCoords, Map.GetLightMapPatchSize());
 
         for (unsigned long SampleCoordsNr=0; SampleCoordsNr<SampleCoords.Size(); SampleCoordsNr++)
         {
@@ -151,7 +151,7 @@ void InitializePatches(const CaLightWorldT& CaLightWorld)
 
         ArrayT< ArrayT< ArrayT<Vector3dT> > > SampleCoords;
 
-        Map.OtherChildren[OtherNr]->CreatePatchMeshes(PatchMeshes, SampleCoords);
+        Map.OtherChildren[OtherNr]->CreatePatchMeshes(PatchMeshes, SampleCoords, Map.GetLightMapPatchSize());
 
         for (unsigned long SampleCoordsNr=0; SampleCoordsNr<SampleCoords.Size(); SampleCoordsNr++)
         {

@@ -84,9 +84,9 @@ namespace cf
             void DrawLightSourceContrib(const Vector3dT& ViewerPos, const Vector3dT& LightPos) const;
             void DrawTranslucentContrib(const Vector3dT& ViewerPos) const;
 
-            void InitDefaultLightMaps();
-            void CreatePatchMeshes(ArrayT<PatchMeshT>& PatchMeshes, ArrayT< ArrayT< ArrayT<Vector3dT> > >& SampleCoords) const;
-            void BackToLightMap(const PatchMeshT& PatchMesh);
+            void InitDefaultLightMaps(const float LightMapPatchSize);
+            void CreatePatchMeshes(ArrayT<PatchMeshT>& PatchMeshes, ArrayT< ArrayT< ArrayT<Vector3dT> > >& SampleCoords, const float LightMapPatchSize) const;
+            void BackToLightMap(const PatchMeshT& PatchMesh, const float LightMapPatchSize);
 
 
             private:
@@ -114,7 +114,7 @@ namespace cf
             unsigned long GetAutoSubdivsVert() const;
 
             /// Helper method, generates a mesh that is properly tesselated for lightmap purposes.
-            void GenerateLightMapMesh(cf::math::BezierPatchT<float>& LightMapMesh, bool ComputeTS) const;
+            void GenerateLightMapMesh(cf::math::BezierPatchT<float>& LightMapMesh, const float LightMapPatchSize, const bool ComputeTS) const;
 
             BezierPatchNodeT(const BezierPatchNodeT&);  ///< Use of the Copy    Constructor is not allowed.
             void operator = (const BezierPatchNodeT&);  ///< Use of the Assignment Operator is not allowed.

@@ -20,7 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "BezierPatchNode.hpp"
-#include "FaceNode.hpp"     // For FaceNodeT::LightMapInfoT::PatchSize.
+#include "FaceNode.hpp"     // For FaceNodeT::ROUND_EPSILON.
 #include "_aux.hpp"
 #include "LightMapMan.hpp"
 #include "Bitmap/Bitmap.hpp"
@@ -370,7 +370,7 @@ void BezierPatchNodeT::UpdateMeshColor(const float red, const float green, const
 }
 
 
-void BezierPatchNodeT::InitDefaultLightMaps()
+void BezierPatchNodeT::InitDefaultLightMaps(const float LightMapPatchSize)
 {
     LightMapInfo.SizeS=0;
     LightMapInfo.SizeT=0;
@@ -379,7 +379,7 @@ void BezierPatchNodeT::InitDefaultLightMaps()
     if (!Material->UsesGeneratedLightMap()) return;
 
     cf::math::BezierPatchT<float> LightMapMesh;
-    GenerateLightMapMesh(LightMapMesh, false);
+    GenerateLightMapMesh(LightMapMesh, LightMapPatchSize, false);
 
     // Note that contrary to faces, we need no "border" of 1 pixel width around our lightmap due to texture filtering,
     // because the philosophy for bezier patches is a bit different than that for faces:
@@ -426,13 +426,13 @@ void BezierPatchNodeT::InitDefaultLightMaps()
 }
 
 
-void BezierPatchNodeT::CreatePatchMeshes(ArrayT<cf::PatchMeshT>& PatchMeshes, ArrayT< ArrayT< ArrayT<Vector3dT> > >& SampleCoords) const
+void BezierPatchNodeT::CreatePatchMeshes(ArrayT<cf::PatchMeshT>& PatchMeshes, ArrayT< ArrayT< ArrayT<Vector3dT> > >& SampleCoords, const float LightMapPatchSize) const
 {
     if (LightMapInfo.SizeS==0) return;
     if (LightMapInfo.SizeT==0) return;
 
     cf::math::BezierPatchT<float> LightMapMesh;
-    GenerateLightMapMesh(LightMapMesh, true);
+    GenerateLightMapMesh(LightMapMesh, LightMapPatchSize, true);
 
     if (LightMapMesh.Width !=LightMapInfo.SizeS) { printf("WARNING: LightMapMesh.Width!=LightMapInfo.SizeS\n");  return; }
     if (LightMapMesh.Height!=LightMapInfo.SizeT) { printf("WARNING: LightMapMesh.Height!=LightMapInfo.SizeT\n"); return; }
@@ -613,7 +613,7 @@ void BezierPatchNodeT::CreatePatchMeshes(ArrayT<cf::PatchMeshT>& PatchMeshes, Ar
 }
 
 
-void BezierPatchNodeT::BackToLightMap(const cf::PatchMeshT& PatchMesh)
+void BezierPatchNodeT::BackToLightMap(const cf::PatchMeshT& PatchMesh, const float LightMapPatchSize)
 {
     assert(PatchMesh.Width ==(PatchMesh.WrapsHorz ? LightMapInfo.SizeS-1ul : LightMapInfo.SizeS));
     assert(PatchMesh.Height==(PatchMesh.WrapsVert ? LightMapInfo.SizeT-1ul : LightMapInfo.SizeT));
@@ -624,7 +624,7 @@ void BezierPatchNodeT::BackToLightMap(const cf::PatchMeshT& PatchMesh)
 
 
     cf::math::BezierPatchT<float> LightMapMesh;
-    GenerateLightMapMesh(LightMapMesh, true);
+    GenerateLightMapMesh(LightMapMesh, LightMapPatchSize, true);
 
     assert(LightMapMesh.Width ==LightMapInfo.SizeS);
     assert(LightMapMesh.Height==LightMapInfo.SizeT);
@@ -986,9 +986,9 @@ unsigned long BezierPatchNodeT::GetAutoSubdivsVert() const
 }
 
 
-void BezierPatchNodeT::GenerateLightMapMesh(cf::math::BezierPatchT<float>& LightMapMesh, bool ComputeTS) const
+void BezierPatchNodeT::GenerateLightMapMesh(cf::math::BezierPatchT<float>& LightMapMesh, const float LightMapPatchSize, const bool ComputeTS) const
 {
-    float MaxLength=FaceNodeT::LightMapInfoT::PatchSize * 2.0f;
+    float MaxLength = LightMapPatchSize * 2.0f;
 
     for (unsigned long RetryCount=0; RetryCount<10; RetryCount++)
     {

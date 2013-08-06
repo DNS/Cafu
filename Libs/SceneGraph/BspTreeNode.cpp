@@ -34,8 +34,10 @@ using namespace cf::SceneGraph;
 static ConVarT usePVS("usePVS", true, ConVarT::FLAG_MAIN_EXE, "Toggles whether the PVS is used for rendering (recommended!).");
 
 
-BspTreeNodeT::BspTreeNodeT()
-    : NextLightNeedsInit(true)
+BspTreeNodeT::BspTreeNodeT(float LightMapPatchSize, float SHLMapPatchSize)
+    : m_LightMapPatchSize(LightMapPatchSize),
+      m_SHLMapPatchSize(SHLMapPatchSize),
+      NextLightNeedsInit(true)
 {
 }
 
@@ -43,7 +45,10 @@ BspTreeNodeT::BspTreeNodeT()
 BspTreeNodeT* BspTreeNodeT::CreateFromFile_cw(std::istream& InFile, aux::PoolT& Pool,
     LightMapManT& LMM, SHLMapManT& SMM, PlantDescrManT& PDM, const ArrayT<const TerrainT*>& ShTe, ModelManagerT& ModelMan)
 {
-    BspTreeNodeT* BspTree=new BspTreeNodeT();
+    const float LightMapPatchSize = aux::ReadFloat(InFile);
+    const float SHLMapPatchSize   = aux::ReadFloat(InFile);
+
+    BspTreeNodeT* BspTree = new BspTreeNodeT(LightMapPatchSize, SHLMapPatchSize);
 
     // Read the FaceChildren.
     for (unsigned long Count=aux::ReadUInt32(InFile); Count>0; Count--)
@@ -164,11 +169,11 @@ void BspTreeNodeT::InitDrawing()
 
     // TODO: Need something like this for the OtherChildren, too?
     for (unsigned long ChildNr=0; ChildNr<FaceChildren.Size(); ChildNr++)
-        FaceChildren[ChildNr]->InitRenderMeshesAndMats(GlobalDrawVertices);
+        FaceChildren[ChildNr]->InitRenderMeshesAndMats(GlobalDrawVertices, m_LightMapPatchSize);
 
     // TODO: see above.
     // for (unsigned long ChildNr=0; ChildNr<OtherChildren.Size(); ChildNr++)
-    //     OtherChildren[ChildNr]->InitRenderMeshesAndMats(GlobalDrawVertices);
+    //     OtherChildren[ChildNr]->InitRenderMeshesAndMats(GlobalDrawVertices, m_LightMapPatchSize);
 }
 
 
@@ -209,6 +214,9 @@ double BspTreeNodeT::ClipLine(const VectorT& P, const VectorT& U, double Min, do
 void BspTreeNodeT::WriteTo(std::ostream& OutFile, aux::PoolT& Pool) const
 {
     aux::Write(OutFile, "BspTree");
+
+    aux::Write(OutFile, m_LightMapPatchSize);
+    aux::Write(OutFile, m_SHLMapPatchSize);
 
     // Write the FaceChildren.
     aux::Write(OutFile, aux::cnc_ui32(FaceChildren.Size()));
@@ -283,6 +291,9 @@ const BoundingBox3T<double>& BspTreeNodeT::GetBoundingBox() const
 
 void cf::SceneGraph::BspTreeNodeT::ScaleDown254()
 {
+    m_LightMapPatchSize /= 25.4f;
+    m_SHLMapPatchSize   /= 25.4f;
+
     for (unsigned long NodeNr=0; NodeNr<Nodes.Size(); NodeNr++)
         Nodes[NodeNr].Plane.Dist /= 25.4;
 

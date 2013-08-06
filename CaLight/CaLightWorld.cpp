@@ -91,14 +91,14 @@ void CaLightWorldT::CreateLightMapsForEnts()
         {
             ArrayT< ArrayT< ArrayT<Vector3dT> > > SampleCoords;
 
-            EntBspTree->FaceChildren[FaceNr]->CreatePatchMeshes(PatchMeshes, SampleCoords);
+            EntBspTree->FaceChildren[FaceNr]->CreatePatchMeshes(PatchMeshes, SampleCoords, EntBspTree->GetLightMapPatchSize());
         }
 
         for (unsigned long OtherNr=0; OtherNr<EntBspTree->OtherChildren.Size(); OtherNr++)
         {
             ArrayT< ArrayT< ArrayT<Vector3dT> > > SampleCoords;
 
-            EntBspTree->OtherChildren[OtherNr]->CreatePatchMeshes(PatchMeshes, SampleCoords);
+            EntBspTree->OtherChildren[OtherNr]->CreatePatchMeshes(PatchMeshes, SampleCoords, EntBspTree->GetLightMapPatchSize());
         }
 
 
@@ -146,7 +146,7 @@ void CaLightWorldT::CreateLightMapsForEnts()
                             cf::SceneGraph::FaceNodeT* FaceNode=m_BspTree->FaceChildren[m_BspTree->Leaves[LeafNr].FaceChildrenSet[FNr]];
                             Vector3fT                  HitColor;
 
-                            if (!FaceNode->GetLightmapColorNearPosition(HitPos, HitColor)) continue;
+                            if (!FaceNode->GetLightmapColorNearPosition(HitPos, HitColor, EntBspTree->GetLightMapPatchSize())) continue;
 
                             const double d1    =dot(Patch.Normal, SampleDirs[SampleNr]);
                             const double d2    =-dot(FaceNode->Polygon.Plane.Normal, SampleDirs[SampleNr]);
@@ -241,7 +241,7 @@ void CaLightWorldT::CreateLightMapsForEnts()
             cf::SceneGraph::GenericNodeT* PM_Node=const_cast<cf::SceneGraph::GenericNodeT*>(PM.Node);
 
             // Need a non-const pointer to the "source" NodeT of the patch mesh here.
-            PM_Node->BackToLightMap(PM);
+            PM_Node->BackToLightMap(PM, EntBspTree->GetLightMapPatchSize());
         }
     }
 }

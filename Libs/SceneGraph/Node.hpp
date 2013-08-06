@@ -113,7 +113,7 @@ namespace cf
             /// This method is intended to be called by CaBSP, after it is completely done with changing the geometry of the node
             /// (the implementation would be part of the nodes constructor otherwise).
             /// The method may or may not use the LightMapManT for its purposes, the caller should not care.
-            virtual void InitDefaultLightMaps()
+            virtual void InitDefaultLightMaps(const float LightMapPatchSize)
             {
             }
 
@@ -127,12 +127,13 @@ namespace cf
             ///     NOTE: There may be NO SAMPLES AT ALL for a patch if InsideFace==false for that patch, so the caller must not make any assumptions.
             ///     The calling code may use that for example for computing initial sunlight information.
             ///     The array is not initially cleared by this function.
-            virtual void CreatePatchMeshes(ArrayT<PatchMeshT>& PatchMeshes, ArrayT< ArrayT< ArrayT<Vector3dT> > >& SampleCoords) const
+            /// @param LightMapPatchSize   The size of the lightmap patches.
+            virtual void CreatePatchMeshes(ArrayT<PatchMeshT>& PatchMeshes, ArrayT< ArrayT< ArrayT<Vector3dT> > >& SampleCoords, const float LightMapPatchSize) const
             {
             }
 
             /// Takes the patches of the given patch mesh back into the lightmap of this node.
-            virtual void BackToLightMap(const PatchMeshT& PatchMesh)
+            virtual void BackToLightMap(const PatchMeshT& PatchMesh, const float LightMapPatchSize)
             {
             }
         };

@@ -48,7 +48,8 @@ namespace cf
             /// @param Terrain_          The TerrainT instance to create the TerrainNodeT from.
             /// @param TerrainShareID_   Used for sharing common TerrainT instances across several TerrainNodeT's. (TODO: Needs better documentation!)
             /// @param MaterialName_     Name of the material that is applied to this terrain.
-            TerrainNodeT(const BoundingBox3dT& BB_, const TerrainT& Terrain_, unsigned long TerrainShareID_, const std::string& MaterialName_);
+            /// @param LightMapPatchSize The size of the lightmap patches.
+            TerrainNodeT(const BoundingBox3dT& BB_, const TerrainT& Terrain_, unsigned long TerrainShareID_, const std::string& MaterialName_, const float LightMapPatchSize);
 
             /// Named constructor.
             static TerrainNodeT* CreateFromFile_cw(std::istream& InFile, aux::PoolT& Pool, LightMapManT& LMM, SHLMapManT& SMM, const ArrayT<const TerrainT*>& ShTe);

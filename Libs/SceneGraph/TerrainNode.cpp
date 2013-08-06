@@ -28,7 +28,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/TextureMap.hpp"
 #include "Math3D/Matrix.hpp"
 #include "Terrain/Terrain.hpp"
-#include "../Common/World.hpp"
 
 #include <cassert>
 
@@ -45,7 +44,7 @@ TerrainNodeT::TerrainNodeT()
 }
 
 
-TerrainNodeT::TerrainNodeT(const BoundingBox3dT& BB_, const TerrainT& Terrain_, unsigned long TerrainShareID_, const std::string& MaterialName_)
+TerrainNodeT::TerrainNodeT(const BoundingBox3dT& BB_, const TerrainT& Terrain_, unsigned long TerrainShareID_, const std::string& MaterialName_, const float LightMapPatchSize)
     : BB(BB_),
       Terrain(&Terrain_),
       TerrainShareID(TerrainShareID_),
@@ -59,7 +58,7 @@ TerrainNodeT::TerrainNodeT(const BoundingBox3dT& BB_, const TerrainT& Terrain_, 
     const double        BB_DiffX           =BB.Max.x-BB.Min.x;
     const double        BB_DiffY           =BB.Max.y-BB.Min.y;
     const double        BB_MinDiff         =(BB_DiffX<BB_DiffY) ? BB_DiffX : BB_DiffY;
-    const unsigned long NrOfLightMapPatches=(unsigned long)(BB_MinDiff/cf::SceneGraph::FaceNodeT::LightMapInfoT::PatchSize)+1;  // The +1 is for "ceil()".
+    const unsigned long NrOfLightMapPatches=(unsigned long)(BB_MinDiff / LightMapPatchSize) + 1;  // The +1 is for "ceil()".
 
     // Now find the next smaller power of two.
     unsigned long Pow2NrOfLightMapPatches=1;

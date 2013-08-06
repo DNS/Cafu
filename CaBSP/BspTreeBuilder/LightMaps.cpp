@@ -65,8 +65,8 @@ void BspTreeBuilderT::ChopUpForMaxLightMapSize()
         // Um hier Rundungsfehler zu vermeiden (die definitive Größe wird erst in CalculateFullBrightLightMaps() ermittelt)
         // bestimmen wir SizeS und SizeT mit einem Sicherheitszuschlag von 1. So wird sichergestellt, daß auch im Falle einer
         // fehlerhaften Rundung in CalculateFullBrightLightMaps() keine LightMap die zulässige Größe überschreitet!
-        unsigned long SizeS=(unsigned long)ceil((MaxU-MinU)/cf::SceneGraph::FaceNodeT::LightMapInfoT::PatchSize)+2+1;
-        unsigned long SizeT=(unsigned long)ceil((MaxV-MinV)/cf::SceneGraph::FaceNodeT::LightMapInfoT::PatchSize)+2+1;
+        unsigned long SizeS=(unsigned long)ceil((MaxU-MinU) / BspTree->GetLightMapPatchSize())+2+1;
+        unsigned long SizeT=(unsigned long)ceil((MaxV-MinV) / BspTree->GetLightMapPatchSize())+2+1;
 
         // If the face would generate really many splits for really many lightmaps, the user probably forgot
         // to apply a material with the meta_noLightMap property to it, or was not aware lacking it.
@@ -132,10 +132,10 @@ void BspTreeBuilderT::CreateFullBrightLightMaps()
     Console->Print(cf::va("\n%-50s %s\n", "*** Create Default LightMaps ***", GetTimeSinceProgramStart()));
 
     for (unsigned long FaceNr=0; FaceNr<FaceChildren.Size(); FaceNr++)
-        FaceChildren[FaceNr]->InitDefaultLightMaps();
+        FaceChildren[FaceNr]->InitDefaultLightMaps(BspTree->GetLightMapPatchSize());
 
     for (unsigned long OtherNr=0; OtherNr<OtherChildren.Size(); OtherNr++)
-        OtherChildren[OtherNr]->InitDefaultLightMaps();
+        OtherChildren[OtherNr]->InitDefaultLightMaps(BspTree->GetLightMapPatchSize());
 
     Console->Print("done\n");
 }

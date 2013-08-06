@@ -71,7 +71,7 @@ namespace cf
 
             /// The constructor.
             /// Needed e.g. by the named constructor CreateFromFile_cw() below.
-            BspTreeNodeT();
+            BspTreeNodeT(float LightMapPatchSize, float SHLMapPatchSize);
 
             /// Named constructor.
             static BspTreeNodeT* CreateFromFile_cw(std::istream& InFile, aux::PoolT& Pool,
@@ -79,6 +79,9 @@ namespace cf
 
             /// The destructor.
             ~BspTreeNodeT();
+
+            float GetLightMapPatchSize() const { return m_LightMapPatchSize; }
+            float GetSHLMapPatchSize() const { return m_SHLMapPatchSize; }
 
             void InitDrawing();
 
@@ -157,6 +160,9 @@ namespace cf
             // Helper methods.
             void GetLeavesOrderedBackToFrontHelper(unsigned long NodeNr) const;
             void InitForNextLight() const;
+
+            /*const*/ float m_LightMapPatchSize;  ///< The edge length of the lightmap patches. The same value is used for all child nodes in this BSP tree (or else CaLight would have to be costly updated).
+            /*const*/ float m_SHLMapPatchSize;    ///< The edge length of the SHL map  patches. The same value is used for all child nodes in this BSP tree (or else CaLight would have to be costly updated).
 
             // Helper data for the Draw...() methods.
             mutable ArrayT<bool>                          FaceChildIsInViewerPVS;

@@ -64,8 +64,8 @@ void BspTreeBuilderT::ChopUpForMaxSHLMapSize()
         // Die +0.5 sind nur da, um sicherzustellen, daß die Konversion von double nach unsigned short wie erwartet funktioniert.
         // Die +2 sind für den Rahmen (links und rechts bzw. oben und unten).
         // Die +1 sind der Sicherheitszuschlag.
-        unsigned long SizeS=(unsigned long)(ceil(MaxU/cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize)-floor(MinU/cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize)+0.5)+2+1;
-        unsigned long SizeT=(unsigned long)(ceil(MaxV/cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize)-floor(MinV/cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize)+0.5)+2+1;
+        unsigned long SizeS=(unsigned long)(ceil(MaxU / BspTree->GetSHLMapPatchSize()) - floor(MinU / BspTree->GetSHLMapPatchSize())+0.5)+2+1;
+        unsigned long SizeT=(unsigned long)(ceil(MaxV / BspTree->GetSHLMapPatchSize()) - floor(MinV / BspTree->GetSHLMapPatchSize())+0.5)+2+1;
 
         // If the face would generate really many splits for really many shl-maps, the user probably forgot
         // to apply a material with the meta_noSHLMap property to it, or was not aware lacking it.
@@ -169,8 +169,8 @@ void BspTreeBuilderT::CreateZeroBandSHLMaps()
         // um Rundungsfehler, die beim Speichern durch Zusammenfassung entstehen, zu vermeiden.
         cf::SceneGraph::FaceNodeT::SHLMapInfoT& SMI=FaceChildren[FaceNr]->SHLMapInfo;
 
-        SMI.SizeS=(unsigned short)(ceil(MaxU/cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize)-floor(MinU/cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize)+0.5)+2;
-        SMI.SizeT=(unsigned short)(ceil(MaxV/cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize)-floor(MinV/cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize)+0.5)+2;
+        SMI.SizeS=(unsigned short)(ceil(MaxU / BspTree->GetSHLMapPatchSize()) - floor(MinU / BspTree->GetSHLMapPatchSize())+0.5)+2;
+        SMI.SizeT=(unsigned short)(ceil(MaxV / BspTree->GetSHLMapPatchSize()) - floor(MinV / BspTree->GetSHLMapPatchSize())+0.5)+2;
 
         if (SMI.SizeS>cf::SceneGraph::SHLMapManT::SIZE_S) Error("SMI.SizeS exceeds maximum!");
         if (SMI.SizeT>cf::SceneGraph::SHLMapManT::SIZE_T) Error("SMI.SizeT exceeds maximum!");

@@ -33,7 +33,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SceneGraph/_aux.hpp"
 #include "SceneGraph/Node.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
-#include "SceneGraph/FaceNode.hpp"
 #include "String.hpp"
 
 #include <cassert>
@@ -263,11 +262,8 @@ WorldT::WorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiRes
     cf::SceneGraph::aux::PoolT Pool;
 
 
-    // 1.3. Read Map Faces, Map LightMaps, Map SHLMaps, and Map FacesDrawIndices.
-    InFile.read((char*)&cf::SceneGraph::FaceNodeT::LightMapInfoT::PatchSize, sizeof(cf::SceneGraph::FaceNodeT::LightMapInfoT::PatchSize));
-
-    InFile.read((char*)&cf::SceneGraph::SHLMapManT::NrOfBands , sizeof(cf::SceneGraph::SHLMapManT::NrOfBands ));
-    InFile.read((char*)&cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize , sizeof(cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize ));
+    // 1.3. Read global SHL map data.
+    InFile.read((char*)&cf::SceneGraph::SHLMapManT::NrOfBands,  sizeof(cf::SceneGraph::SHLMapManT::NrOfBands ));
     InFile.read((char*)&cf::SceneGraph::SHLMapManT::NrOfRepres, sizeof(cf::SceneGraph::SHLMapManT::NrOfRepres));
 
     // Read the lookup-table the indices are referring to (nothing is written when FaceT::SHLMapInfoT::NrOfRepres==0 (uncompressed data)).
@@ -367,11 +363,8 @@ void WorldT::SaveToDisk(const char* FileName) const /*throw (SaveErrorT)*/
     unsigned short FileVersion   =29;                        OutFile.write((char*)&FileVersion, sizeof(FileVersion));
 
 
-    // 1.3. Write Map Faces, Map LightMaps, Map SHLMaps, and Map FacesDrawIndices.
-    OutFile.write((char*)&cf::SceneGraph::FaceNodeT::LightMapInfoT::PatchSize, sizeof(cf::SceneGraph::FaceNodeT::LightMapInfoT::PatchSize));
-
+    // 1.3. Write global SHL map data.
     OutFile.write((char*)&cf::SceneGraph::SHLMapManT::NrOfBands , sizeof(cf::SceneGraph::SHLMapManT::NrOfBands ));
-    OutFile.write((char*)&cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize , sizeof(cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize ));
     OutFile.write((char*)&cf::SceneGraph::SHLMapManT::NrOfRepres, sizeof(cf::SceneGraph::SHLMapManT::NrOfRepres));
 
     // Write the lookup-table the indices are referring to (nothing is written when cf::SceneGraph::SHLMapManT::NrOfRepres==0 (uncompressed data)).

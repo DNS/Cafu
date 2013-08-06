@@ -167,7 +167,7 @@ void RadiateTransfer(const CaSHLWorldT& CaSHLWorld, unsigned long Face_i, unsign
 {
     const cf::SceneGraph::BspTreeNodeT& Map  =CaSHLWorld.GetBspTree();
     const unsigned long       NR_OF_SH_COEFFS=cf::SceneGraph::SHLMapManT::NrOfBands * cf::SceneGraph::SHLMapManT::NrOfBands;
-    const double              PATCH_SIZE     =cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize;
+    const double              PATCH_SIZE     =Map.GetSHLMapPatchSize();
     const cf::SceneGraph::FaceNodeT::SHLMapInfoT& SMI=Map.FaceChildren[Face_i]->SHLMapInfo;
 
     unsigned long  Big_P_i_Count=0;
@@ -781,7 +781,7 @@ void PostProcessBorders(const CaSHLWorldT& CaSHLWorld)
     // Zuletzt ist noch zu beachten, daß das Ausschließen von Patches wg. Light Bleeding dazu führen kann, daß die Summe der Gewichte beim
     // weighted average < 1.0 wird. In diesen Fällen müssen die Gewichte "renormalisiert" werden.
     // Zu diesen Ausführungen siehe auch die Skizze im Cafu Tech-Archive vom 10.12.2003!
-    const double  PATCH_SIZE          =cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize;
+    const double  PATCH_SIZE          =Map.GetSHLMapPatchSize();
     unsigned long PatchesWorkedOnCount=0;
 
     for (unsigned long Face1Nr=0; Face1Nr<Map.FaceChildren.Size(); Face1Nr++)

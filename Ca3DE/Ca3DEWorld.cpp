@@ -220,7 +220,7 @@ Vector3fT Ca3DEWorldT::GetAmbientLightColorFromBB(const BoundingBox3T<double>& D
         cf::SceneGraph::FaceNodeT* FaceNode=BspTree->FaceChildren[BspTree->Leaves[LeafNr].FaceChildrenSet[FNr]];
         Vector3fT                  AmbientLightColor;
 
-        if (FaceNode->GetLightmapColorNearPosition(Ground, AmbientLightColor))
+        if (FaceNode->GetLightmapColorNearPosition(Ground, AmbientLightColor, BspTree->GetLightMapPatchSize()))
             return AmbientLightColor;
     }
 

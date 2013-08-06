@@ -454,12 +454,12 @@ void PrintMapInfo()
     }
     printf("PVS checksum             : %12lu\n", Checksum);
     printf("\n");
-    printf("LightMapMan.Bitmaps      : %12lu  (at %ux%u, PatchSize %.2f)\n", World->LightMapMan.Bitmaps.Size(), cf::SceneGraph::LightMapManT::SIZE_S, cf::SceneGraph::LightMapManT::SIZE_T, cf::SceneGraph::FaceNodeT::LightMapInfoT::PatchSize);
+    printf("LightMapMan.Bitmaps      : %12lu  (at %ux%u, PatchSize %.2f)\n", World->LightMapMan.Bitmaps.Size(), cf::SceneGraph::LightMapManT::SIZE_S, cf::SceneGraph::LightMapManT::SIZE_T, g_BspTree->GetLightMapPatchSize());
     printf("LightMaps total size     : %12lu\n", World->LightMapMan.Bitmaps.Size()*(cf::SceneGraph::LightMapManT::SIZE_S*cf::SceneGraph::LightMapManT::SIZE_T*3+4));
     printf("\n");
     printf("SHL Bands                : %12u  (%u^2 == %u coefficients)\n", cf::SceneGraph::SHLMapManT::NrOfBands, cf::SceneGraph::SHLMapManT::NrOfBands, cf::SceneGraph::SHLMapManT::NrOfBands*cf::SceneGraph::SHLMapManT::NrOfBands);
     printf("SHL Representatives      : %12u  %s\n", cf::SceneGraph::SHLMapManT::NrOfRepres, cf::SceneGraph::SHLMapManT::NrOfRepres>0 ? "" : "(NO compression)");
-    printf("SHL patch size           : %12.1f\n", cf::SceneGraph::FaceNodeT::SHLMapInfoT::PatchSize);
+    printf("SHL patch size           : %12.1f\n", g_BspTree->GetSHLMapPatchSize());
     printf("SHLMaps                  : %12lu  (at %lux%lu)\n", World->SHLMapMan.SHLMaps.Size(), cf::SceneGraph::SHLMapManT::SIZE_S, cf::SceneGraph::SHLMapManT::SIZE_T);
 
     if (cf::SceneGraph::SHLMapManT::NrOfRepres>0)
