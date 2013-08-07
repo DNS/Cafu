@@ -36,7 +36,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../Common/WorldMan.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
 #include "String.hpp"
-#include "../../Games/Game.hpp"
+#include "../Games/Game.hpp"
 
 
 #if defined(_WIN32) && defined(_MSC_VER)

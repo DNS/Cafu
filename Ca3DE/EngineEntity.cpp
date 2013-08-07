@@ -364,16 +364,11 @@ void EngineEntityT::Draw(bool FirstPersonView, const VectorT& ViewerPos) const
     // Starting from world space, compute the position of the light source in model space.
     LightSourcePos=LightSourcePos-Entity->GetOrigin();         // Convert into unrotated model space.
     LightSourcePos=LightSourcePos.GetRotZ(-90.0+float(Ent_Heading)/8192.0*45.0);
-    LightSourcePos=scale(LightSourcePos, 1.0/25.4);
-
-    // Don't forget to scale the radius of the light source appropriately down (into model space), too.
-    LightSourceRadius/=25.4f;
 
 
     // Do the same for the eye: Starting from world space, compute the position of the eye in model space.
     EyePos=EyePos-Entity->GetOrigin();         // Convert into unrotated model space.
     EyePos=EyePos.GetRotZ(-90.0+float(Ent_Heading)/8192.0*45.0);
-    EyePos=scale(EyePos, 1.0/25.4);
 
 
     // Set the modified (now in model space) lighting parameters.
@@ -390,7 +385,6 @@ void EngineEntityT::Draw(bool FirstPersonView, const VectorT& ViewerPos) const
 
     MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, float(Entity->GetOrigin().x), float(Entity->GetOrigin().y), float(Entity->GetOrigin().z));
     MatSys::Renderer->RotateZ  (MatSys::RendererI::MODEL_TO_WORLD, 90.0f-float(Ent_Heading)/8192.0f*45.0f);
-    MatSys::Renderer->Scale    (MatSys::RendererI::MODEL_TO_WORLD, 25.4f);
 
     Entity->Draw(FirstPersonView, (float)length(ViewerPos-Entity->GetOrigin()));
 

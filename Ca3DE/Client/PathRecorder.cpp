@@ -61,17 +61,15 @@ PathRecorderT::~PathRecorderT()
 
 void PathRecorderT::WritePath(const Vector3dT& Origin, unsigned short Heading, float FrameTime)
 {
-    if (m_LineCount==0 || (m_Time-m_OldTime>=0.2f && length(Origin-m_OldOrigin)>=250.0))
+    if (m_LineCount==0 || (m_Time-m_OldTime>=0.2f && length(Origin-m_OldOrigin)>=8.0))
     {
-        const Vector3dT WriteOrigin=Origin/25.4;
-
         m_OutStream << "  { ";
-     // m_OutStream << m_LineCount   << "; ";
-        m_OutStream << m_Time        << "; " << "  ";
-        m_OutStream << WriteOrigin.x << ", ";
-        m_OutStream << WriteOrigin.y << ", ";
-        m_OutStream << WriteOrigin.z << "; " << "  ";
-        m_OutStream << Heading       << "; ";
+     // m_OutStream << m_LineCount << "; ";
+        m_OutStream << m_Time      << "; " << "  ";
+        m_OutStream << Origin.x    << ", ";
+        m_OutStream << Origin.y    << ", ";
+        m_OutStream << Origin.z    << "; " << "  ";
+        m_OutStream << Heading     << "; ";
         m_OutStream << "\"\" },\n";
 
         m_OldTime   =m_Time;

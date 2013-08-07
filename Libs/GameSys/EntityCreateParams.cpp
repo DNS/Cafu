@@ -21,6 +21,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "EntityCreateParams.hpp"
 
+#include <climits>
+
 
 using namespace cf::GameSys;
 

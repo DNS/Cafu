@@ -75,6 +75,10 @@ namespace cf
             /// Returns the script state of this world.
             UniScriptStateT& GetScriptState() { return m_ScriptState; }
 
+            /// Returns how many millimeters one world unit is large.
+            /// Used whenever we have to deal with concrete units of measurement (e.g. for physics computations).
+            float GetMillimetersPerWorldUnit() const { return 25.4f; }
+
             /// Returns the root entity of this world.
             IntrusivePtrT<EntityT> GetRootEntity() const { return m_RootEntity; }
 

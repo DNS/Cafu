@@ -42,7 +42,7 @@ const WorldT* WorldManT::LoadWorld(const char* FileName, ModelManagerT& ModelMan
     // FileName not found in cache, create a new instance.
     WorldT* NewWorld=new WorldT(FileName, ModelMan, GuiRes, ProgressFunction);    // Must do this here in case WorldT::WorldT() throws.
 
-    // NewWorld->ScaleDown254();
+    NewWorld->ScaleDown254();
 
     Worlds.PushBackEmpty();
     WorldInfoT& WI=Worlds[Worlds.Size()-1];

@@ -121,7 +121,7 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
     GameEnt->GetStaticEntityData()->m_Properties["name"]      = cf::va("Player%lu", ClientInfoNr+1);     // Setting the name is needed so that player entities can have a corresponding script instance.
     GameEnt->GetStaticEntityData()->m_Properties["angles"]    = cf::va("0 %lu 0", (unsigned long)(m_World->InfoPlayerStarts[0].Heading/8192.0*45.0));
 
-    return CreateNewEntityFromBasicInfo(GameEnt, m_ServerFrameNr+1, m_World->InfoPlayerStarts[0].Origin+VectorT(0, 0, 1000), PlayerName, ModelName);
+    return CreateNewEntityFromBasicInfo(GameEnt, m_ServerFrameNr+1, m_World->InfoPlayerStarts[0].Origin+VectorT(0, 0, 40), PlayerName, ModelName);
 }
 
 

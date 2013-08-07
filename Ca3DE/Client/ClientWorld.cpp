@@ -442,7 +442,7 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
     TotalTime+=FrameTime;
 
     // Add a small offset to the z-component of the eye position, which adds a mild nice moving effect to the specular highlights.
-    const float EyeOffsetZ=200.0f*sinf(TotalTime);
+    const float EyeOffsetZ=8.0f*sinf(TotalTime);
 
     MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::AMBIENT);
     MatSys::Renderer->SetCurrentEyePosition(float(DrawOrigin.x), float(DrawOrigin.y), float(DrawOrigin.z)+EyeOffsetZ);    // Also required in some ambient shaders.
@@ -643,7 +643,7 @@ void CaClientWorldT::DrawEntities(unsigned long OurEntityID, bool SkipOurEntity,
                     // Set the ambient light color for this entity.
                     // This is not a global, but rather a per-entity value that is derived from the lightmaps that are close to that entity.
                     const Vector3fT AmbientEntityLight = GetAmbientLightColorFromBB(
-                        BoundingBox3dT(Vector3dT(-100, -100, -100), Vector3dT(100, 100, 100)), Ent->GetTransform()->GetOrigin().AsVectorOfDouble());
+                        BoundingBox3dT(Vector3dT(-4, -4, -4), Vector3dT(4, 4, 4)), Ent->GetTransform()->GetOrigin().AsVectorOfDouble());
 
                     MatSys::Renderer->SetCurrentAmbientLightColor(AmbientEntityLight.x, AmbientEntityLight.y, AmbientEntityLight.z);
 
@@ -667,12 +667,6 @@ void CaClientWorldT::DrawEntities(unsigned long OurEntityID, bool SkipOurEntity,
                                 break;
                         }
                     }
-
-                    MatSys::Renderer->Scale(MatSys::RendererI::MODEL_TO_WORLD, 25.4f);
-
-                    //MatSys::Renderer->SetCurrentLightSourcePosition(LightPos.x / 25.4f, LightPos.y / 25.4f, LightPos.z / 25.4f);
-                    //MatSys::Renderer->SetCurrentLightSourceRadius(LightRadius / 25.4f);
-                    //MatSys::Renderer->SetCurrentEyePosition(EyePos.x / 25.4f, EyePos.y / 25.4f, EyePos.z / 25.4f);
 
                     // TODO: There is no support for LoD-parameters at this time / still to be added!
                     Ent->RenderComponents();    // TODO: Does it differentiate the various render actions??

@@ -24,8 +24,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/MaterialManager.hpp"
 #include "TextParser/TextParser.hpp"
 
-#include <sstream>
-
 
 using namespace cf;
 
@@ -298,18 +296,6 @@ MapFileEntityT::MapFileEntityT(unsigned long Index, TextParserT& TP)
             if (Key=="{" || Key=="}" || Key=="(" || Key==")") throw TextParserT::ParseError();
 
             MFProperties[Key]=Value;
-
-            if (Key=="light_radius")
-            {
-                // Translate light radius to Cafu units.
-                double LightRadius=atof(Value.c_str())*CA3DE_SCALE;
-
-                std::stringstream NewValue;
-
-                NewValue << int(LightRadius);
-
-                MFProperties[Key]=NewValue.str();
-            }
         }
     }
 }
