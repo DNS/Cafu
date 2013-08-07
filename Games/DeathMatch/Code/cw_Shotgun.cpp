@@ -197,7 +197,7 @@ void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, const Play
                         const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Heading], ViewDirY*LookupTables::Angle16ToCos[Heading], ViewDirZ);
 
                         RayResultT RayResult(Player->GetRigidBody());
-                        Player->GameWorld->GetPhysicsWorld().TraceRay(Player->GetOrigin()/1000.0, scale(ViewDir, 9999999.0/1000.0), RayResult);
+                        Player->GameWorld->GetPhysicsWorld().TraceRay(UnitsToPhys(Player->GetOrigin()), scale(ViewDir, 9999999.0/1000.0), RayResult);
 
                         if (RayResult.hasHit() && RayResult.GetHitEntity()!=NULL)
                             static_cast<BaseEntityT*>(RayResult.GetHitEntity())->TakeDamage(Player, 3, ViewDir);
@@ -229,7 +229,7 @@ void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, const Play
                         const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Heading], ViewDirY*LookupTables::Angle16ToCos[Heading], ViewDirZ);
 
                         RayResultT RayResult(Player->GetRigidBody());
-                        Player->GameWorld->GetPhysicsWorld().TraceRay(Player->GetOrigin()/1000.0, scale(ViewDir, 9999999.0/1000.0), RayResult);
+                        Player->GameWorld->GetPhysicsWorld().TraceRay(UnitsToPhys(Player->GetOrigin()), scale(ViewDir, 9999999.0/1000.0), RayResult);
 
                         if (RayResult.hasHit() && RayResult.GetHitEntity()!=NULL)
                             static_cast<BaseEntityT*>(RayResult.GetHitEntity())->TakeDamage(Player, 3, ViewDir);
@@ -292,7 +292,7 @@ static bool ParticleFunction_ShotgunWhiteSmoke(ParticleMST* Particle, float Time
     Particle->Origin[1]+=Particle->Velocity[1]*Time;
     Particle->Origin[2]+=Particle->Velocity[2]*Time;
 
-    Particle->Radius+=Time*1000.0f;
+    Particle->Radius+=Time*40.0f;
     Particle->RenderMat=ResMan.RenderMats[ResMan.PARTICLE_WHITESMOKE_FRAME1+(unsigned long)(Particle->Age*FPS)];
 
     Particle->Age+=Time;
@@ -317,16 +317,16 @@ void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlay
         const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Heading], ViewDirY*LookupTables::Angle16ToCos[Heading], ViewDirZ);
 
         RayResultT RayResult(Player->GetRigidBody());
-        Player->GameWorld->GetPhysicsWorld().TraceRay(Player->GetOrigin()/1000.0, scale(ViewDir, 9999999.0/1000.0), RayResult);
+        Player->GameWorld->GetPhysicsWorld().TraceRay(UnitsToPhys(Player->GetOrigin()), scale(ViewDir, 9999999.0/1000.0), RayResult);
 
         if (!RayResult.hasHit()) break;
 
         // Register a new particle at the 'Hit' point.
         ParticleMST NewParticle;
 
-        NewParticle.Origin[0]=RayResult.m_hitPointWorld.x()*1000.0f;
-        NewParticle.Origin[1]=RayResult.m_hitPointWorld.y()*1000.0f;
-        NewParticle.Origin[2]=RayResult.m_hitPointWorld.z()*1000.0f;
+        NewParticle.Origin[0]=PhysToUnits(RayResult.m_hitPointWorld.x());
+        NewParticle.Origin[1]=PhysToUnits(RayResult.m_hitPointWorld.y());
+        NewParticle.Origin[2]=PhysToUnits(RayResult.m_hitPointWorld.z());
 
         NewParticle.Velocity[0]=0;
         NewParticle.Velocity[1]=0;
@@ -335,7 +335,7 @@ void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlay
         NewParticle.Age=0.0;
         NewParticle.Color[3]=0;
 
-        NewParticle.Radius=300.0;
+        NewParticle.Radius=12.0;
         NewParticle.StretchY=1.0;
         NewParticle.RenderMat=ResMan.RenderMats[ResMan.PARTICLE_GENERIC1];
         NewParticle.MoveFunction=RayResult.GetHitEntity()==NULL ? ParticleFunction_ShotgunHitWall : ParticleFunction_HitEntity;
@@ -350,13 +350,13 @@ void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlay
     // Register a new particle as "muzzle flash".
     ParticleMST NewParticle;
 
-    NewParticle.Origin[0]=float(Player->GetOrigin().x+ViewDir.x*400.0);
-    NewParticle.Origin[1]=float(Player->GetOrigin().y+ViewDir.y*400.0);
-    NewParticle.Origin[2]=float(Player->GetOrigin().z+ViewDir.z*400.0-100.0);
+    NewParticle.Origin[0]=float(Player->GetOrigin().x+ViewDir.x*16.0);
+    NewParticle.Origin[1]=float(Player->GetOrigin().y+ViewDir.y*16.0);
+    NewParticle.Origin[2]=float(Player->GetOrigin().z+ViewDir.z*16.0-4.0);
 
-    NewParticle.Velocity[0]=float(ViewDir.x*1000.0);
-    NewParticle.Velocity[1]=float(ViewDir.y*1000.0);
-    NewParticle.Velocity[2]=float(ViewDir.z*1000.0);
+    NewParticle.Velocity[0]=float(ViewDir.x*40.0);
+    NewParticle.Velocity[1]=float(ViewDir.y*40.0);
+    NewParticle.Velocity[2]=float(ViewDir.z*40.0);
 
     NewParticle.Age=0.0;
     NewParticle.Color[0]=char(LastSeenAmbientColor.x*255.0);
@@ -364,7 +364,7 @@ void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlay
     NewParticle.Color[2]=char(LastSeenAmbientColor.z*255.0);
     NewParticle.Color[3]=100;
 
-    NewParticle.Radius=80.0;
+    NewParticle.Radius=3.2f;
     NewParticle.Rotation=char(rand());
     NewParticle.StretchY=1.0;
     NewParticle.RenderMat=ResMan.RenderMats[ResMan.PARTICLE_WHITESMOKE_FRAME1];
@@ -373,7 +373,7 @@ void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlay
     ParticleEngineMS::RegisterNewParticle(NewParticle);
 
     // Update sound position and velocity.
-    FireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 400.0));
+    FireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 16.0));
     FireSound->SetVelocity(State.Velocity);
 
     // Play the fire sound.
@@ -396,16 +396,16 @@ void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(const EntHumanPl
         const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Heading], ViewDirY*LookupTables::Angle16ToCos[Heading], ViewDirZ);
 
         RayResultT RayResult(Player->GetRigidBody());
-        Player->GameWorld->GetPhysicsWorld().TraceRay(Player->GetOrigin()/1000.0, scale(ViewDir, 9999999.0/1000.0), RayResult);
+        Player->GameWorld->GetPhysicsWorld().TraceRay(UnitsToPhys(Player->GetOrigin()), scale(ViewDir, 9999999.0/1000.0), RayResult);
 
         if (!RayResult.hasHit()) break;
 
         // Register a new particle at the 'Hit' point.
         ParticleMST NewParticle;
 
-        NewParticle.Origin[0]=RayResult.m_hitPointWorld.x()*1000.0f;
-        NewParticle.Origin[1]=RayResult.m_hitPointWorld.y()*1000.0f;
-        NewParticle.Origin[2]=RayResult.m_hitPointWorld.z()*1000.0f;
+        NewParticle.Origin[0]=PhysToUnits(RayResult.m_hitPointWorld.x());
+        NewParticle.Origin[1]=PhysToUnits(RayResult.m_hitPointWorld.y());
+        NewParticle.Origin[2]=PhysToUnits(RayResult.m_hitPointWorld.z());
 
         NewParticle.Velocity[0]=0;
         NewParticle.Velocity[1]=0;
@@ -414,7 +414,7 @@ void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(const EntHumanPl
         NewParticle.Age=0.0;
         NewParticle.Color[3]=0;
 
-        NewParticle.Radius=300.0;
+        NewParticle.Radius=12.0;
         NewParticle.StretchY=1.0;
         NewParticle.RenderMat=ResMan.RenderMats[ResMan.PARTICLE_GENERIC1];
         NewParticle.MoveFunction=RayResult.GetHitEntity()==NULL ? ParticleFunction_ShotgunHitWall : ParticleFunction_HitEntity;
@@ -429,13 +429,13 @@ void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(const EntHumanPl
     // Register a new particle as "muzzle flash".
     ParticleMST NewParticle;
 
-    NewParticle.Origin[0]=float(Player->GetOrigin().x+ViewDir.x*400.0);
-    NewParticle.Origin[1]=float(Player->GetOrigin().y+ViewDir.y*400.0);
-    NewParticle.Origin[2]=float(Player->GetOrigin().z+ViewDir.z*400.0-100.0);
+    NewParticle.Origin[0]=float(Player->GetOrigin().x+ViewDir.x*16.0);
+    NewParticle.Origin[1]=float(Player->GetOrigin().y+ViewDir.y*16.0);
+    NewParticle.Origin[2]=float(Player->GetOrigin().z+ViewDir.z*16.0-4.0);
 
-    NewParticle.Velocity[0]=float(ViewDir.x*1500.0);
-    NewParticle.Velocity[1]=float(ViewDir.y*1500.0);
-    NewParticle.Velocity[2]=float(ViewDir.z*1500.0);
+    NewParticle.Velocity[0]=float(ViewDir.x*60.0);
+    NewParticle.Velocity[1]=float(ViewDir.y*60.0);
+    NewParticle.Velocity[2]=float(ViewDir.z*60.0);
 
     NewParticle.Age=0.0;
     NewParticle.Color[0]=char(LastSeenAmbientColor.x*255.0);
@@ -443,7 +443,7 @@ void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(const EntHumanPl
     NewParticle.Color[2]=char(LastSeenAmbientColor.z*255.0);
     NewParticle.Color[3]=180;
 
-    NewParticle.Radius=200.0;
+    NewParticle.Radius=8.0;
     NewParticle.Rotation=char(rand());
     NewParticle.StretchY=1.0;
     NewParticle.RenderMat=ResMan.RenderMats[ResMan.PARTICLE_WHITESMOKE_FRAME1];
@@ -452,7 +452,7 @@ void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(const EntHumanPl
     ParticleEngineMS::RegisterNewParticle(NewParticle);
 
     // Update sound position and velocity.
-    AltFireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 400.0));
+    AltFireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 16.0));
     AltFireSound->SetVelocity(State.Velocity);
 
     // Play the fire sound.

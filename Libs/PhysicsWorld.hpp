@@ -37,6 +37,16 @@ inline btVector3 conv(const Vector3T<double>& v) { return btVector3(float(v.x), 
 inline Vector3fT conv(const btVector3& v) { return Vector3fT(v.x(), v.y(), v.z()); }
 inline Vector3dT convd(const btVector3& v) { return Vector3dT(v.x(), v.y(), v.z()); }
 
+inline float     UnitsToPhys(float            v) { return v * 0.0254f; }
+inline double    UnitsToPhys(double           v) { return v * 0.0254; }
+inline Vector3fT UnitsToPhys(const Vector3fT& v) { return v * 0.0254f; }
+inline Vector3dT UnitsToPhys(const Vector3dT& v) { return v * 0.0254; }
+
+inline float     PhysToUnits(float            v) { return v / 0.0254f; }
+inline double    PhysToUnits(double           v) { return v / 0.0254; }
+inline Vector3fT PhysToUnits(const Vector3fT& v) { return v / 0.0254f; }
+inline Vector3dT PhysToUnits(const Vector3dT& v) { return v / 0.0254; }
+
 
 /// This class handles the results of tracing a ray through the world.
 /// As such, it is called back for intermediate results and thus can "configure" or "parametrize" the trace,

@@ -59,7 +59,7 @@ EntCorpseT::EntCorpseT(const EntityCreateParamsT& Params)
 
 void EntCorpseT::AdoptState(const EntHumanPlayerT* Player)
 {
-    m_Origin       = Player->GetOrigin()+VectorT(0.0, 0.0, Player->GetDimensions().Min.z+1728.8);
+    m_Origin       = Player->GetOrigin()+VectorT(0.0, 0.0, Player->GetDimensions().Min.z + 68.0);
     m_Dimensions   = BoundingBox3dT(Vector3dT());
     m_Heading      = Player->GetHeading();
     m_Pitch        = 0;

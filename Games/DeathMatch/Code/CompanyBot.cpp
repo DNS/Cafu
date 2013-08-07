@@ -59,8 +59,8 @@ const cf::TypeSys::TypeInfoT EntCompanyBotT::TypeInfo(GetBaseEntTIM(), "EntCompa
 
 EntCompanyBotT::EntCompanyBotT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
-                  BoundingBox3dT(Vector3dT( 300.0,  300.0,   100.0),
-                                 Vector3dT(-300.0, -300.0, -1728.8)),   // 68*25.4 == 1727.2
+                  BoundingBox3dT(Vector3dT( 12.0,  12.0,   4.0),
+                                 Vector3dT(-12.0, -12.0, -68.0)),   // 68*25.4 == 1727.2
                   0),
       State(VectorT(),
             0,
@@ -97,19 +97,19 @@ EntCompanyBotT::EntCompanyBotT(const EntityCreateParamsT& Params)
 
     // Move ClearingBB up to a reasonable height (if possible!), such that the *full* BB (that is, m_Dimensions) is clear of (not stuck in) solid.
     cf::ClipSys::TraceResultT Result(1.0);
-    GameWorld->GetClipWorld().TraceBoundingBox(ClearingBB, m_Origin, VectorT(0.0, 0.0, 3000.0), MaterialT::Clip_Players, &ClipModel, Result);
-    const double AddHeight=3000.0*Result.Fraction;
+    GameWorld->GetClipWorld().TraceBoundingBox(ClearingBB, m_Origin, VectorT(0.0, 0.0, 120.0), MaterialT::Clip_Players, &ClipModel, Result);
+    const double AddHeight=120.0*Result.Fraction;
 
     // Move ClearingBB down as far as possible.
-    GameWorld->GetClipWorld().TraceBoundingBox(ClearingBB, m_Origin+VectorT(0.0, 0.0, AddHeight), VectorT(0.0, 0.0, -999999.0), MaterialT::Clip_Players, &ClipModel, Result);
-    const double SubHeight=999999.0*Result.Fraction;
+    GameWorld->GetClipWorld().TraceBoundingBox(ClearingBB, m_Origin+VectorT(0.0, 0.0, AddHeight), VectorT(0.0, 0.0, -1000.0), MaterialT::Clip_Players, &ClipModel, Result);
+    const double SubHeight=1000.0*Result.Fraction;
 
     // Beachte: Hier für Epsilon 1.0 (statt z.B. 1.23456789) zu wählen hebt u.U. GENAU den (0 0 -1) Test in
     // Physics::CategorizePosition() auf! Nicht schlimm, wenn aber auf Client-Seite übers Netz kleine Rundungsfehler
     // vorhanden sind (es werden floats übertragen, nicht doubles!), kommt CategorizePosition() u.U. auf Client- und
     // Server-Seite zu verschiedenen Ergebnissen! Der Effekt spielt sich zwar in einem Intervall der Größe 1.0 ab,
     // kann mit OpenGL aber zu deutlichem Pixel-Flimmern führen!
-    m_Origin.z=m_Origin.z+AddHeight-SubHeight+(ClearingBB.Min.z-m_Dimensions.Min.z/*1628.8*/)+1.23456789/*Epsilon (sonst Ruckeln am Anfang!)*/;
+    m_Origin.z=m_Origin.z+AddHeight-SubHeight+(ClearingBB.Min.z-m_Dimensions.Min.z/*1628.8*/)+0.123456789/*Epsilon (sonst Ruckeln am Anfang!)*/;
 
     // Old, deprecated code (can get us stuck in non-level ground).
     // const double HeightAboveGround=GameWorld->MapClipLine(m_Origin, VectorT(0.0, 0.0, -1.0), 0.0, 999999.9);
@@ -127,8 +127,8 @@ EntCompanyBotT::EntCompanyBotT(const EntityCreateParamsT& Params)
     }
 
 
-    // The /1000 is because our physics world is in meters.
-    m_CollisionShape=new btBoxShape(conv((m_Dimensions.Max-m_Dimensions.Min)/2.0/1000.0));  // Should use a btCylinderShapeZ instead of btBoxShape?
+    // UnitsToPhys is because our physics world is in meters.
+    m_CollisionShape=new btBoxShape(conv(UnitsToPhys(m_Dimensions.Max-m_Dimensions.Min)/2.0));  // Should use a btCylinderShapeZ instead of btBoxShape?
 
     // Our rigid body is of Bullet type "kinematic". That is, we move it ourselves, not the world dynamics.
     m_RigidBody=new btRigidBody(btRigidBody::btRigidBodyConstructionInfo(0, this /*btMotionState for this body*/, m_CollisionShape, btVector3()));
@@ -230,7 +230,7 @@ void EntCompanyBotT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT&
     // Dead company bots can take no further damage.
     if (State.ModelSequNr>=18 && State.ModelSequNr<=24) return;
 
-    State.Velocity=State.Velocity+scale(VectorT(ImpactDir.x, ImpactDir.y, 0.0), 500.0*Amount);
+    State.Velocity=State.Velocity+scale(VectorT(ImpactDir.x, ImpactDir.y, 0.0), 20.0*Amount);
 
     if (State.Health<=Amount)
     {
@@ -319,11 +319,11 @@ void EntCompanyBotT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 
     // This is really easy thinking
     Dist.z=0;
-    if (dot(Dist, Dist)>10000*10000)
+    if (dot(Dist, Dist)>400.0*400.0)
     {
         VectorT Dir=normalize(Dist, 0.0);
 
-        WishVelocity=scale(Dir, /*WishSpeed*/7000.0);
+        WishVelocity=scale(Dir, /*WishSpeed*/280.0);
         m_Heading=(unsigned short)(acos(Dir.y)/3.1415926*32768.0);
         if (Dir.x<0) m_Heading=/*65536*/-m_Heading;
     }
@@ -333,7 +333,7 @@ void EntCompanyBotT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
     double OldSpeed=length(XYVel);
 
     bool DummyOldWishJump=false;
-    m_Physics.MoveHuman(FrameTime, m_Heading, WishVelocity, VectorT(), false, DummyOldWishJump, 610.0);
+    m_Physics.MoveHuman(FrameTime, m_Heading, WishVelocity, VectorT(), false, DummyOldWishJump, 24.0);
     // m_Origin=m_Origin+scale(WishVelocity, FrameTime); State.Velocity=WishVelocity;
     ClipModel.SetOrigin(m_Origin);
     ClipModel.Register();
@@ -344,8 +344,8 @@ void EntCompanyBotT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 
     AdvanceModelTime(FrameTime, true);
 
-    if (OldSpeed<1000 && NewSpeed>1000) { State.ModelSequNr=3; State.ModelFrameNr=0.0; }
-    if (OldSpeed>1000 && NewSpeed<1000) { State.ModelSequNr=1; State.ModelFrameNr=0.0; }
+    if (OldSpeed<40 && NewSpeed>40) { State.ModelSequNr=3; State.ModelFrameNr=0.0; }
+    if (OldSpeed>40 && NewSpeed<40) { State.ModelSequNr=1; State.ModelFrameNr=0.0; }
 
 
     // For further demonstration, let the CompanyBot have a torch.   OBSOLETE! GetLightSourceInfo() has this stuff now.
@@ -385,12 +385,12 @@ bool EntCompanyBotT::GetLightSourceInfo(unsigned long& DiffuseColor, unsigned lo
     }
 
     const float   Value=LookupTables::Angle16ToCos[(unsigned short)((m_TimeForLightSource-2.0f)/4.0f*65536.0f)];
-    const VectorT RelX =scale(VectorT(LookupTables::Angle16ToCos[m_Heading], LookupTables::Angle16ToSin[m_Heading], 0.0), 80.0*Value);
-    const VectorT RelY =scale(VectorT(LookupTables::Angle16ToSin[m_Heading], LookupTables::Angle16ToCos[m_Heading], 0.0), 500.0);
-    const VectorT RelZ =VectorT(0.0, 0.0, -300.0+0.5*char(DiffuseColor >> 8));
+    const VectorT RelX =scale(VectorT(LookupTables::Angle16ToCos[m_Heading], LookupTables::Angle16ToSin[m_Heading], 0.0), 3.0*Value);
+    const VectorT RelY =scale(VectorT(LookupTables::Angle16ToSin[m_Heading], LookupTables::Angle16ToCos[m_Heading], 0.0), 20.0);
+    const VectorT RelZ =VectorT(0.0, 0.0, -12.0+0.5*char(DiffuseColor >> 8));
 
     Position    =m_Origin+RelX+RelY+RelZ;
-    Radius      =10000.0;
+    Radius      =400.0;
     CastsShadows=true;
 
     return true;
@@ -435,7 +435,7 @@ void EntCompanyBotT::getWorldTransform(btTransform& worldTrans) const
 
     // Return the current transformation of our rigid body to the physics world.
     worldTrans.setIdentity();
-    worldTrans.setOrigin(conv(Origin/1000.0));
+    worldTrans.setOrigin(conv(UnitsToPhys(Origin)));
 }
 
 

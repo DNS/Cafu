@@ -122,9 +122,9 @@ void CarriedWeaponGrenadeT::ServerSide_Think(EntHumanPlayerT* Player, const Play
 
                     // Note: There is a non-trivial relationship between heading, pitch, and the corresponding view vector.
                     // Especially does a heading and pitch of 45° NOT correspond to the view vector (1, 1, 1), and vice versa!
-                    // Think carefully about this before changing the number 1050.0 below (which actually is 2.0*(400.0+120.0) (+10.0 for "safety")).
+                    // Think carefully about this before changing the number 42.0 below (which actually is 2.0*(16.0+4.5) (+1.0 for "safety")).
                     const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Player->GetHeading()], ViewDirY*LookupTables::Angle16ToCos[Player->GetHeading()], ViewDirZ);
-                    const VectorT HandGrenadeOrigin(Player->GetOrigin()+VectorT(0.0, 0.0, 250.0)+scale(ViewDir, 1050.0)+scale(State.Velocity, double(PlayerCommand.FrameTime)));
+                    const VectorT HandGrenadeOrigin(Player->GetOrigin()+VectorT(0.0, 0.0, 10.0)+scale(ViewDir, 42.0)+scale(State.Velocity, double(PlayerCommand.FrameTime)));
                     std::map<std::string, std::string> Props;
 
                     Props["classname"]="monster_handgrenade";
@@ -137,7 +137,7 @@ void CarriedWeaponGrenadeT::ServerSide_Think(EntHumanPlayerT* Player, const Play
 
                         HandGrenade->ParentID=Player->ID;
                         HandGrenade->SetHeading(Player->GetHeading());
-                        HandGrenade->SetVelocity(State.Velocity+scale(ViewDir, 10000.0));
+                        HandGrenade->SetVelocity(State.Velocity+scale(ViewDir, 400.0));
                     }
                 }
             }
@@ -177,7 +177,7 @@ void CarriedWeaponGrenadeT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlay
     const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Player->GetHeading()], ViewDirY*LookupTables::Angle16ToCos[Player->GetHeading()], ViewDirZ);
 
     // Update sound position and velocity.
-    FireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 200.0));
+    FireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 8.0));
     FireSound->SetVelocity(State.Velocity);
 
     // Play the fire sound.

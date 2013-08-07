@@ -179,7 +179,7 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, const Player
                     const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Heading], ViewDirY*LookupTables::Angle16ToCos[Heading], ViewDirZ);
 
                     RayResultT RayResult(Player->GetRigidBody());
-                    Player->GameWorld->GetPhysicsWorld().TraceRay(Player->GetOrigin()/1000.0, scale(ViewDir, 9999999.0/1000.0), RayResult);
+                    Player->GameWorld->GetPhysicsWorld().TraceRay(UnitsToPhys(Player->GetOrigin()), scale(ViewDir, 9999999.0/1000.0), RayResult);
 
                     if (RayResult.hasHit() && RayResult.GetHitEntity()!=NULL)
                         static_cast<BaseEntityT*>(RayResult.GetHitEntity())->TakeDamage(Player, 1, ViewDir);
@@ -206,9 +206,9 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, const Player
 
                     // Note: There is a non-trivial relationship between heading, pitch, and the corresponding view vector.
                     // Especially does a heading and pitch of 45° NOT correspond to the view vector (1, 1, 1), and vice versa!
-                    // Think carefully about this before changing the number 1050.0 below (which actually is 2.0*(400.0+120.0) (+10.0 for "safety")).
+                    // Think carefully about this before changing the number 42.0 below (which actually is 2.0*(16.0+4.5) (+1.0 for "safety")).
                     const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Player->GetHeading()], ViewDirY*LookupTables::Angle16ToCos[Player->GetHeading()], ViewDirZ);
-                    const VectorT ARGrenadeOrigin(Player->GetOrigin()-VectorT(0.0, 0.0, 250.0)+scale(ViewDir, 1050.0)+scale(State.Velocity, double(PlayerCommand.FrameTime)));
+                    const VectorT ARGrenadeOrigin(Player->GetOrigin()-VectorT(0.0, 0.0, 10.0)+scale(ViewDir, 42.0)+scale(State.Velocity, double(PlayerCommand.FrameTime)));
                     std::map<std::string, std::string> Props;
 
                     Props["classname"]="monster_argrenade";
@@ -221,7 +221,7 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, const Player
 
                         ARGrenade->ParentID=Player->ID;
                         ARGrenade->SetHeading(Player->GetHeading());
-                        ARGrenade->SetVelocity(State.Velocity+scale(ViewDir, 20000.0));
+                        ARGrenade->SetVelocity(State.Velocity+scale(ViewDir, 800.0));
                     }
                 }
                 break;
@@ -286,7 +286,7 @@ void CarriedWeapon9mmART::ClientSide_HandleSecondaryFireEvent(const EntHumanPlay
     const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Player->GetHeading()], ViewDirY*LookupTables::Angle16ToCos[Player->GetHeading()], ViewDirZ);
 
     // Update sound position and velocity.
-    AltFireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 400.0));
+    AltFireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 16.0));
     AltFireSound->SetVelocity(State.Velocity);
 
     // Play the fire sound.
@@ -311,16 +311,16 @@ void CarriedWeapon9mmART::ClientSide_HandleStateDrivenEffects(const EntHumanPlay
             const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Heading], ViewDirY*LookupTables::Angle16ToCos[Heading], ViewDirZ);
 
             RayResultT RayResult(Player->GetRigidBody());
-            Player->GameWorld->GetPhysicsWorld().TraceRay(Player->GetOrigin()/1000.0, scale(ViewDir, 9999999.0/1000.0), RayResult);
+            Player->GameWorld->GetPhysicsWorld().TraceRay(UnitsToPhys(Player->GetOrigin()), scale(ViewDir, 9999999.0/1000.0), RayResult);
 
             if (!RayResult.hasHit()) return;
 
             // Register a new particle at the hit point.
             ParticleMST NewParticle;
 
-            NewParticle.Origin[0]=RayResult.m_hitPointWorld.x()*1000.0f;
-            NewParticle.Origin[1]=RayResult.m_hitPointWorld.y()*1000.0f;
-            NewParticle.Origin[2]=RayResult.m_hitPointWorld.z()*1000.0f;
+            NewParticle.Origin[0]=PhysToUnits(RayResult.m_hitPointWorld.x());
+            NewParticle.Origin[1]=PhysToUnits(RayResult.m_hitPointWorld.y());
+            NewParticle.Origin[2]=PhysToUnits(RayResult.m_hitPointWorld.z());
 
             NewParticle.Velocity[0]=0;
             NewParticle.Velocity[1]=0;
@@ -329,7 +329,7 @@ void CarriedWeapon9mmART::ClientSide_HandleStateDrivenEffects(const EntHumanPlay
             NewParticle.Age=0.0;
             NewParticle.Color[3]=0;
 
-            NewParticle.Radius=300.0;
+            NewParticle.Radius=12.0;
             NewParticle.StretchY=1.0;
             NewParticle.RenderMat=ResMan.RenderMats[ResMan.PARTICLE_GENERIC1];
             NewParticle.MoveFunction=RayResult.GetHitEntity()==NULL ? ParticleFunction_HitWall : ParticleFunction_HitEntity;
@@ -337,7 +337,7 @@ void CarriedWeapon9mmART::ClientSide_HandleStateDrivenEffects(const EntHumanPlay
             ParticleEngineMS::RegisterNewParticle(NewParticle);
 
             // Update sound position and velocity.
-            FireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 400.0));
+            FireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 16.0));
             FireSound->SetVelocity(State.Velocity);
 
             // Play the fire sound.

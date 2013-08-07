@@ -72,7 +72,7 @@ EntRigidBodyT::EntRigidBodyT(const EntityCreateParamsT& Params)
       m_CollisionShape(NULL),
       m_RigidBody(NULL),
       m_OrigOffset(m_Dimensions.GetCenter()-m_Origin),
-      m_HalfExtents((m_Dimensions.Max-m_Dimensions.Min)/2.0 - Vector3dT(100.0, 100.0, 100.0)),  // FIXME !!! Where in the world does the extra 100 padding in Params.RootNode come from???
+      m_HalfExtents((m_Dimensions.Max-m_Dimensions.Min)/2.0 - Vector3dT(4.0, 4.0, 4.0)),  // FIXME !!! Where in the world does the extra 4 padding in Params.RootNode come from???
       m_Rotation(0, 0, 0, 1)
 {
     Register(new InterpolatorT<Vector3dT>(m_Origin));
@@ -134,7 +134,7 @@ EntRigidBodyT::EntRigidBodyT(const EntityCreateParamsT& Params)
     //   - No inertia is computed for them (see implementations of btConcaveShape::calculateLocalInertia()).
     //   - For collision detection, only the gimpact algorithm is available, see section "Collision Matrix" in Bullet_User_Manual.pdf.
     // The division by 1000.0 is because our physics world unit is meters.
-    m_CollisionShape=new btBoxShape(conv(m_HalfExtents/1000.0));
+    m_CollisionShape=new btBoxShape(conv(UnitsToPhys(m_HalfExtents)));
 
     btVector3 Inertia;
     m_CollisionShape->calculateLocalInertia(Mass, Inertia);
@@ -202,7 +202,7 @@ void EntRigidBodyT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT& 
     // why we can compute rel_pos correctly as Ob-Oc, instead of having to compute the exact location of the impact!
     const Vector3dT& Ob     =Entity->GetOrigin();   // Assumes that the damage was caused / originated at Entity->GetOrigin(). Should this be a parameter to TakeDamage()?
     const Vector3dT  Oc     =m_Origin;
-    const Vector3fT  rel_pos=(Ob-Oc).AsVectorOfFloat()/1000.0f;
+    const Vector3fT  rel_pos=UnitsToPhys(Ob-Oc).AsVectorOfFloat();
 
     m_RigidBody->applyImpulse(Impulse, btVector3(rel_pos.x, rel_pos.y, rel_pos.z));
     m_RigidBody->activate();
@@ -317,7 +317,7 @@ void EntRigidBodyT::getWorldTransform(btTransform& worldTrans) const
     // Return the initial transformation of our rigid body to the physics world.
     // The division by 1000.0 is because our physics world unit is meters.
     worldTrans.setIdentity();
-    worldTrans.setOrigin(conv(m_Origin/1000.0));
+    worldTrans.setOrigin(conv(UnitsToPhys(m_Origin)));
 }
 
 
@@ -326,7 +326,7 @@ void EntRigidBodyT::setWorldTransform(const btTransform& worldTrans)
     if (!m_RigidBody->isActive()) return;   // See my post at http://www.bulletphysics.com/Bullet/phpBB3/viewtopic.php?t=2256 for details...
 
     // Update the transformation of our graphics object according to the physics world results.
-    m_Origin = convd(worldTrans.getOrigin())*1000.0;
+    m_Origin = PhysToUnits(convd(worldTrans.getOrigin()));
 
     // We're actually only interested in the basis vectors, but quaternions have many advantages for representng
     // spatial rotations (see http://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation for details), and they

@@ -53,8 +53,8 @@ const cf::TypeSys::TypeInfoT EntWeaponT::TypeInfo(GetBaseEntTIM(), "EntWeaponT",
 
 EntWeaponT::EntWeaponT(const EntityCreateParamsT& Params, const std::string& ModelName)
     : BaseEntityT(Params,
-                  BoundingBox3dT(Vector3dT( 200.0,  200.0,  400.0),
-                                 Vector3dT(-200.0, -200.0, -100.0)),
+                  BoundingBox3dT(Vector3dT( 8.0,  8.0, 16.0),
+                                 Vector3dT(-8.0, -8.0, -4.0)),
                   NUM_EVENT_TYPES),
       m_TimeLeftNotActive(0.0f),
       m_WeaponModel(Params.GameWorld->GetModel(ModelName)),
@@ -64,10 +64,10 @@ EntWeaponT::EntWeaponT(const EntityCreateParamsT& Params, const std::string& Mod
     // Drop weapons on ground. It doesn't look good when they hover in the air.
     // TODO: Do this only on the server side, it doesn't make sense for clients (where m_Origin==(0, 0, 0) here).
     RayResultT RayResult(NULL /*No object to ignore*/);
-    GameWorld->GetPhysicsWorld().TraceRay((m_Origin+Vector3dT(0, 0, 200.0))/1000.0, VectorT(0.0, 0.0, -999999.0/1000.0), RayResult);
+    GameWorld->GetPhysicsWorld().TraceRay(UnitsToPhys(m_Origin+Vector3dT(0, 0, 8.0)), VectorT(0.0, 0.0, -999999.0/1000.0), RayResult);
 
     if (RayResult.hasHit())
-        m_Origin=convd(RayResult.m_hitPointWorld)*1000.0;
+        m_Origin = PhysToUnits(convd(RayResult.m_hitPointWorld));
 }
 
 

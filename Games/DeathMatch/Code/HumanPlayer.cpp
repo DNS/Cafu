@@ -99,8 +99,8 @@ const cf::TypeSys::TypeInfoT EntHumanPlayerT::TypeInfo(GetBaseEntTIM(), "EntHuma
 
 EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
-                  BoundingBox3dT(Vector3dT( 400.0,  400.0,   100.0),    // Roughly 32*32*72 inches, eye height at 68 inches.
-                                 Vector3dT(-400.0, -400.0, -1728.8)),   // 68*25.4 == 1727.2
+                  BoundingBox3dT(Vector3dT( 16.0,  16.0,   4.0),    // A total of 32*32*72 inches, eye height at 68 inches.
+                                 Vector3dT(-16.0, -16.0, -68.0)),
                   NUM_EVENT_TYPES),
       State(VectorT(),
             StateOfExistance_FrozenSpectator,
@@ -149,7 +149,7 @@ EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
 
 
     // The /1000 is because our physics world is in meters.
-    m_CollisionShape=new btBoxShape(conv((m_Dimensions.Max-m_Dimensions.Min)/2.0/1000.0));  // Should use a btCylinderShapeZ instead of btBoxShape?
+    m_CollisionShape=new btBoxShape(conv(UnitsToPhys(m_Dimensions.Max-m_Dimensions.Min)/2.0));  // Should use a btCylinderShapeZ instead of btBoxShape?
 
     // Our rigid body is of Bullet type "kinematic". That is, we move it ourselves, not the world dynamics.
     m_RigidBody=new btRigidBody(btRigidBody::btRigidBodyConstructionInfo(0, this /*btMotionState for this body*/, m_CollisionShape, btVector3()));
@@ -246,7 +246,7 @@ void EntHumanPlayerT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT
     // Only human players that are still alive can take damage.
     if (State.StateOfExistance!=StateOfExistance_Alive) return;
 
-    State.Velocity=State.Velocity+scale(VectorT(ImpactDir.x, ImpactDir.y, 0.0), 500.0*Amount);
+    State.Velocity=State.Velocity+scale(VectorT(ImpactDir.x, ImpactDir.y, 0.0), 20.0*Amount);
 
     if (State.Health<=Amount)
     {
@@ -359,7 +359,7 @@ bool EntHumanPlayerT::CheckGUI(IntrusivePtrT<EntStaticDetailModelT> GuiEnt, Vect
     const Vector3fT OurOrigin=m_Origin.AsVectorOfFloat();
     const float     r        =(GuiPlane.Dist-dot(GuiPlane.Normal, OurOrigin))/dot(GuiPlane.Normal, ViewDir);
 
-    if (r<0.0f || r>4000.0f) return false;
+    if (r<0.0f || r>160.0f) return false;
 
     const Vector3fT HitPos=OurOrigin+ViewDir*r;
 
@@ -469,8 +469,8 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
                 VectorT             WishVelocity;
                 bool                WishJump=false;
-                const double        VelX    =6000.0*LookupTables::Angle16ToSin[m_Heading];     // 6000 == Client.MoveSpeed
-                const double        VelY    =6000.0*LookupTables::Angle16ToCos[m_Heading];     // 6000 == Client.MoveSpeed
+                const double        VelX    =240.0*LookupTables::Angle16ToSin[m_Heading];     // 240 == Client.MoveSpeed
+                const double        VelY    =240.0*LookupTables::Angle16ToCos[m_Heading];     // 240 == Client.MoveSpeed
                 const unsigned long Keys    =PlayerCommands[PCNr].Keys;
 
                 if (Keys & PCK_MoveForward ) WishVelocity=             VectorT( VelX,  VelY, 0);
@@ -486,7 +486,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 VectorT       WishVelLadder;
                 const double  ViewLadderZ=-LookupTables::Angle16ToSin[m_Pitch];
                 const double  ViewLadderY= LookupTables::Angle16ToCos[m_Pitch];
-                const VectorT ViewLadder =scale(VectorT(ViewLadderY*LookupTables::Angle16ToSin[m_Heading], ViewLadderY*LookupTables::Angle16ToCos[m_Heading], ViewLadderZ), 3800.0);
+                const VectorT ViewLadder =scale(VectorT(ViewLadderY*LookupTables::Angle16ToSin[m_Heading], ViewLadderY*LookupTables::Angle16ToCos[m_Heading], ViewLadderZ), 150.0);
 
                 // TODO: Also take LATERAL movement into account.
                 // TODO: All this needs a HUGE clean-up! Can probably put a lot of this stuff into Physics::MoveHuman.
@@ -515,7 +515,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     double  OldSpeed   =length(XYVel);
                     bool    OldWishJump=(State.Flags & Flags_OldWishJump) ? true : false;
 
-                    m_Physics.MoveHuman(PlayerCommands[PCNr].FrameTime, m_Heading, WishVelocity, WishVelLadder, WishJump, OldWishJump, 470.0);
+                    m_Physics.MoveHuman(PlayerCommands[PCNr].FrameTime, m_Heading, WishVelocity, WishVelLadder, WishJump, OldWishJump, 18.5);
 
                     ClipModel.SetOrigin(m_Origin);
                     ClipModel.Register();
@@ -528,8 +528,8 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     XYVel.z=0;
                     double NewSpeed=length(XYVel);
 
-                    if (OldSpeed<=1000.0 && NewSpeed>1000.0) State.ModelSequNr=3;
-                    if (OldSpeed>=1000.0 && NewSpeed<1000.0) State.ModelSequNr=1;
+                    if (OldSpeed<=40.0 && NewSpeed>40.0) State.ModelSequNr=3;
+                    if (OldSpeed>=40.0 && NewSpeed<40.0) State.ModelSequNr=1;
                 }
 
                 // GameWorld->ModelAdvanceFrameTime() is called on client side in Draw().
@@ -809,7 +809,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 // Therefore, we decrease the 'm_Origin.z', but "compensate" the 'm_Dimensions', such that the *absolute*
                 // coordinates of our bounding box (obtained by "m_Origin plus m_Dimensions") remain constant.
                 // This way, we can re-derive the proper height in both cases a) and b).
-                const double Collapse=2000.0*PlayerCommands[PCNr].FrameTime;
+                const double Collapse=80.0*PlayerCommands[PCNr].FrameTime;
 
                 if (m_Dimensions.Min.z+Collapse<-100.0)
                 {
@@ -848,7 +848,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
                     State.Velocity.y=m_Heading;
                     State.Velocity.z=m_Bank;
-                    m_Dimensions=BoundingBox3dT(Vector3dT(400.0, 400.0, 100.0), Vector3dT(-400.0, -400.0, -1728.8));
+                    m_Dimensions=BoundingBox3dT(Vector3dT(16.0, 16.0, 4.0), Vector3dT(-16.0, -16.0, -68.0));
                     State.StateOfExistance=StateOfExistance_FrozenSpectator;
                 }
 
@@ -901,20 +901,20 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
                     // Move ClearingBB up to a reasonable height (if possible!), such that the *full* BB (that is, m_Dimensions) is clear of (not stuck in) solid.
                     cf::ClipSys::TraceResultT Result(1.0);
-                    GameWorld->GetClipWorld().TraceBoundingBox(ClearingBB, OurNewOrigin, VectorT(0.0, 0.0, 3000.0), MaterialT::Clip_Players, &ClipModel, Result);
-                    const double AddHeight=3000.0*Result.Fraction;
+                    GameWorld->GetClipWorld().TraceBoundingBox(ClearingBB, OurNewOrigin, VectorT(0.0, 0.0, 120.0), MaterialT::Clip_Players, &ClipModel, Result);
+                    const double AddHeight=120.0*Result.Fraction;
 
                     // Move ClearingBB down as far as possible.
                     Result=cf::ClipSys::TraceResultT(1.0);
-                    GameWorld->GetClipWorld().TraceBoundingBox(ClearingBB, OurNewOrigin+VectorT(0.0, 0.0, AddHeight), VectorT(0.0, 0.0, -999999.0), MaterialT::Clip_Players, &ClipModel, Result);
-                    const double SubHeight=999999.0*Result.Fraction;
+                    GameWorld->GetClipWorld().TraceBoundingBox(ClearingBB, OurNewOrigin+VectorT(0.0, 0.0, AddHeight), VectorT(0.0, 0.0, -1000.0), MaterialT::Clip_Players, &ClipModel, Result);
+                    const double SubHeight=1000.0*Result.Fraction;
 
                     // Beachte: Hier für Epsilon 1.0 (statt z.B. 1.23456789) zu wählen hebt u.U. GENAU den (0 0 -1) Test in
                     // Physics::CategorizePosition() auf! Nicht schlimm, wenn aber auf Client-Seite übers Netz kleine Rundungsfehler
                     // vorhanden sind (es werden floats übertragen, nicht doubles!), kommt CategorizePosition() u.U. auf Client- und
                     // Server-Seite zu verschiedenen Ergebnissen! Der Effekt spielt sich zwar in einem Intervall der Größe 1.0 ab,
                     // kann mit OpenGL aber zu deutlichem Pixel-Flimmern führen!
-                    OurNewOrigin.z=OurNewOrigin.z+AddHeight-SubHeight+(ClearingBB.Min.z-m_Dimensions.Min.z/*1628.8*/)+1.23456789/*Epsilon (sonst Ruckeln am Anfang!)*/;
+                    OurNewOrigin.z=OurNewOrigin.z+AddHeight-SubHeight+(ClearingBB.Min.z-m_Dimensions.Min.z/*1628.8*/)+0.123456789/*Epsilon (sonst Ruckeln am Anfang!)*/;
 
                     // Old, deprecated code (can get us stuck in non-level ground).
                     // const double HeightAboveGround=GameWorld->MapClipLine(OurNewOrigin, VectorT(0, 0, -1.0), 0, 999999.9);
@@ -937,7 +937,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 // Respawn!
                 m_Origin                 =OurNewOrigin;
                 State.Velocity           =VectorT();
-                m_Dimensions             =BoundingBox3dT(Vector3dT(400.0, 400.0, 100.0), Vector3dT(-400.0, -400.0, -1728.8));
+                m_Dimensions             =BoundingBox3dT(Vector3dT(16.0, 16.0, 4.0), Vector3dT(-16.0, -16.0, -68.0));
                 m_Heading                =IPSEntity->GetHeading();
                 m_Pitch                  =0;
                 m_Bank                   =0;
@@ -1004,8 +1004,8 @@ bool EntHumanPlayerT::GetLightSourceInfo(unsigned long& DiffuseColor, unsigned l
 
     const float f=120.0f*LookupTables::Angle16ToSin[(unsigned short)(TimeForLightSource/5.0f*65536.0f)];
 
-    Position    =m_Origin+VectorT(0.0, 0.0, -150.0)+scale(LightDir, 390.0)+VectorT(LookupTables::Angle16ToCos[m_Heading]*f, LookupTables::Angle16ToSin[m_Heading]*f, 0.0);
-    Radius      =20000.0;
+    Position    =m_Origin+VectorT(0.0, 0.0, -6.0)+scale(LightDir, 15.0)+VectorT(LookupTables::Angle16ToCos[m_Heading]*f, LookupTables::Angle16ToSin[m_Heading]*f, 0.0);
+    Radius      =800.0;
     CastsShadows=true;
 
     return true;
@@ -1063,7 +1063,7 @@ void EntHumanPlayerT::Draw(bool FirstPersonView, float LodDist) const
     {
         if (State.StateOfExistance!=StateOfExistance_Alive && State.StateOfExistance!=StateOfExistance_Dead) return;
 
-        const float OffsetZ=(State.StateOfExistance!=StateOfExistance_Dead) ? -32.0f : -32.0f+float(m_Dimensions.Min.z+1728.8)/25.4f;
+        const float OffsetZ=(State.StateOfExistance!=StateOfExistance_Dead) ? -32.0f : -32.0f+float(m_Dimensions.Min.z+68.0);
 
         MatSys::Renderer->GetCurrentLightSourcePosition()[2]-=OffsetZ;
         MatSys::Renderer->GetCurrentEyePosition        ()[2]-=OffsetZ;
@@ -1245,7 +1245,7 @@ void EntHumanPlayerT::getWorldTransform(btTransform& worldTrans) const
 
     // Return the current transformation of our rigid body to the physics world.
     worldTrans.setIdentity();
-    worldTrans.setOrigin(conv(Origin/1000.0));
+    worldTrans.setOrigin(conv(UnitsToPhys(Origin)));
 }
 
 

@@ -138,7 +138,7 @@ EntFuncDoorT::EntFuncDoorT(const EntityCreateParamsT& Params)
 
     // Adjust the size of the InfraredBB. Its cross-section is as large as the BB of the door itself;
     // now extend it on the "front" and "back" of the door by "triggerPadding", the value that determines how far the "IR sensor reaches".
-    const double Padding=fabs(GetProp("triggerPadding", 100.0));
+    const double Padding=fabs(GetProp("triggerPadding", 4.0));
 
     InfraredBB.Min[SmallestSideNr]-=Padding;
     InfraredBB.Max[SmallestSideNr]+=Padding;
@@ -366,21 +366,15 @@ void EntFuncDoorT::Draw(bool FirstPersonView, float LodDist) const
 
     // UNDO things the EngineEntityT::Draw() code did with .mdl models in mind...
  // MatSys::Renderer->...();
-    MatSys::Renderer->Scale(MatSys::RendererI::MODEL_TO_WORLD, 1.0f/25.4f);
     MatSys::Renderer->RotateZ(MatSys::RendererI::MODEL_TO_WORLD, -90.0f);
 
     // UNDO things the EngineEntityT::Draw() code did with .mdl models in mind...
  // EyePos=EyePos-Entity->m_Origin;         // Convert into unrotated model space.
-    EyePos=scale(EyePos, 25.4);
     EyePos=EyePos.GetRotZ(90.0);
 
     // UNDO things the EngineEntityT::Draw() code did with .mdl models in mind...
  // LightPos=LightPos-Entity->m_Origin;         // Convert into unrotated model space.
-    LightPos=scale(LightPos, 25.4);
     LightPos=LightPos.GetRotZ(90.0);
-
-    // UNDO things the EngineEntityT::Draw() code did with .mdl models in mind...
-    LightRadius*=25.4f;
 
     // UNDO things the EngineEntityT::Draw() code did with .mdl models in mind...
     // Set the modified (now in model space) lighting parameters.

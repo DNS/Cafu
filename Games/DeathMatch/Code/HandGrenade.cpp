@@ -53,8 +53,8 @@ const cf::TypeSys::TypeInfoT EntHandGrenadeT::TypeInfo(GetBaseEntTIM(), "EntHand
 
 EntHandGrenadeT::EntHandGrenadeT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
-                  BoundingBox3dT(Vector3dT( 60.0,  60.0, 120.0),
-                                 Vector3dT(-60.0, -60.0,   0.0)),
+                  BoundingBox3dT(Vector3dT( 3.0,  3.0, 6.0),
+                                 Vector3dT(-3.0, -3.0, 0.0)),
                   NUM_EVENT_TYPES),
       m_Velocity(),
       m_LifeTime(0.0f),
@@ -132,8 +132,8 @@ void EntHandGrenadeT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
                 const Vector3dT Impact     =OtherOrigin-m_Origin;
                 const double    Dist       =length(Impact);
 
-                     if (Dist<1000.0) OtherEntity->TakeDamage(this, 100                         , scale(Impact, 1.0/Dist));
-                else if (Dist<5000.0) OtherEntity->TakeDamage(this, 100-char((Dist-1000.0)/40.0), scale(Impact, 1.0/Dist));
+                     if (Dist< 40.0) OtherEntity->TakeDamage(this, 100                      , scale(Impact, 1.0/Dist));
+                else if (Dist<200.0) OtherEntity->TakeDamage(this, 100-char((Dist-40.0)/1.6), scale(Impact, 1.0/Dist));
             }
         }
     }
@@ -174,7 +174,7 @@ namespace
 
         Particle->Velocity[0]*=0.98f;   // TODO: Deceleration should depend on 'Time'...
         Particle->Velocity[1]*=0.98f;
-        Particle->Velocity[2]-=2.0f*9810.0f*Time;     // double gravity...
+        Particle->Velocity[2]-=2.0f*392.4f*Time;     // double gravity...
 
         Particle->Color[0]=char(255.0f*(MaxAge-Particle->Age)/MaxAge);
         Particle->Color[1]=char(255.0f*(MaxAge-Particle->Age)/MaxAge*(MaxAge-Particle->Age)/MaxAge);
@@ -205,7 +205,7 @@ void EntHandGrenadeT::ProcessEvent(unsigned int /*EventType*/, unsigned int /*Nu
     NewParticle.Color[2]=255;
     NewParticle.Color[3]=0;
 
-    NewParticle.Radius=1500.0;
+    NewParticle.Radius=60.0;
     NewParticle.Rotation=char(rand());
     NewParticle.StretchY=1.0;
     NewParticle.RenderMat=ResMan.RenderMats[ResMan.PARTICLE_EXPLOSION2_FRAME1];
@@ -219,9 +219,9 @@ void EntHandGrenadeT::ProcessEvent(unsigned int /*EventType*/, unsigned int /*Nu
         NewParticle.Origin[1]=float(m_Origin.y);
         NewParticle.Origin[2]=float(m_Origin.z);
 
-        NewParticle.Velocity[0]=float(rand()-int(RAND_MAX/2));
-        NewParticle.Velocity[1]=float(rand()-int(RAND_MAX/2));
-        NewParticle.Velocity[2]=float(rand());
+        NewParticle.Velocity[0]=float(rand()-int(RAND_MAX/2)) / 25.0f;
+        NewParticle.Velocity[1]=float(rand()-int(RAND_MAX/2)) / 25.0f;
+        NewParticle.Velocity[2]=float(rand()) / 25.0f;
 
         NewParticle.Age=0.0;
         NewParticle.Color[0]=255;
@@ -229,7 +229,7 @@ void EntHandGrenadeT::ProcessEvent(unsigned int /*EventType*/, unsigned int /*Nu
         NewParticle.Color[2]=0;
         NewParticle.Color[3]=0;
 
-        NewParticle.Radius=300.0;
+        NewParticle.Radius=12.0;
         NewParticle.StretchY=1.0;
         NewParticle.RenderMat=ResMan.RenderMats[ResMan.PARTICLE_GENERIC1];
         NewParticle.MoveFunction=ParticleFunction_HandGrenadeExplosionSmall;
@@ -255,7 +255,7 @@ bool EntHandGrenadeT::GetLightSourceInfo(unsigned long& DiffuseColor, unsigned l
     DiffuseColor =(Blue << 16)+(Green << 8)+Red;
     SpecularColor=DiffuseColor;
     Position     =m_Origin;
-    Radius       =10000.0;
+    Radius       =400.0;
     CastsShadows =true;
 
     return true;

@@ -153,13 +153,12 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
 
     // Set the proper Dimensions bounding box for this model.
     // Note that the bounding box depends on the current model sequence,
-    // and it must be properly scaled and rotated for world space.
+    // and it must be properly rotated for world space.
     VectorT V[8];
     m_Model->GetSharedPose(m_AnimExpr)->GetBB().AsBoxOfDouble().GetCornerVertices(V);
 
     for (unsigned int VertexNr=0; VertexNr<8; VertexNr++)
     {
-        V[VertexNr]=scale(V[VertexNr], 25.4);
         V[VertexNr]=V[VertexNr].GetRotX(    -double(m_Pitch  )/8192.0*45.0);
         V[VertexNr]=V[VertexNr].GetRotY(     double(m_Bank   )/8192.0*45.0);
         V[VertexNr]=V[VertexNr].GetRotZ(90.0-double(m_Heading)/8192.0*45.0);
@@ -352,17 +351,14 @@ bool EntStaticDetailModelT::GetGuiPlane(unsigned int GFNr, Vector3fT& GuiOrigin,
     if (!m_Model->GetSharedPose(m_AnimExpr)->GetGuiPlane(GFNr, GuiOrigin, GuiAxisX, GuiAxisY)) return false;
 
     // Okay, got the plane. Now transform it from model space into world space.
-    GuiOrigin=scale(GuiOrigin, 25.4f);
     GuiOrigin=GuiOrigin.GetRotX(     -float(m_Pitch  )/8192.0f*45.0f);
     GuiOrigin=GuiOrigin.GetRotY(      float(m_Bank   )/8192.0f*45.0f);
     GuiOrigin=GuiOrigin.GetRotZ(90.0f-float(m_Heading)/8192.0f*45.0f);
 
-    GuiAxisX=scale(GuiAxisX, 25.4f);
     GuiAxisX=GuiAxisX.GetRotX(     -float(m_Pitch  )/8192.0f*45.0f);
     GuiAxisX=GuiAxisX.GetRotY(      float(m_Bank   )/8192.0f*45.0f);
     GuiAxisX=GuiAxisX.GetRotZ(90.0f-float(m_Heading)/8192.0f*45.0f);
 
-    GuiAxisY=scale(GuiAxisY, 25.4f);
     GuiAxisY=GuiAxisY.GetRotX(     -float(m_Pitch  )/8192.0f*45.0f);
     GuiAxisY=GuiAxisY.GetRotY(      float(m_Bank   )/8192.0f*45.0f);
     GuiAxisY=GuiAxisY.GetRotZ(90.0f-float(m_Heading)/8192.0f*45.0f);

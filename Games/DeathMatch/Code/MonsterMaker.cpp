@@ -52,8 +52,8 @@ const cf::TypeSys::TypeInfoT EntMonsterMakerT::TypeInfo(GetBaseEntTIM(), "EntMon
 
 EntMonsterMakerT::EntMonsterMakerT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
-                  BoundingBox3dT(Vector3dT( 100.0,  100.0,  100.0),
-                                 Vector3dT(-100.0, -100.0, -100.0)),
+                  BoundingBox3dT(Vector3dT( 4.0,  4.0,  4.0),
+                                 Vector3dT(-4.0, -4.0, -4.0)),
                   0),
       MonsterType(Unknown),
       MaxCreate(0),
@@ -100,9 +100,9 @@ void EntMonsterMakerT::Think(float FrameTime, unsigned long ServerFrameNr)
     switch (MonsterType)
     {
         // Das ist ein häßlicher Hack: Muß hier im voraus die Dimensions-BoundingBox des CompanyBot-Konstruktors kennen!
-        case CompanyBot: OurRelPositionBB=BoundingBox3dT(Vector3dT(300.0, 300.0, 100.0), Vector3dT(-300.0, -300.0, -1728.8)); break;
-        case Butterfly : OurRelPositionBB=BoundingBox3dT(Vector3dT(100.0, 600.0, 100.0), Vector3dT(-100.0,  400.0,  -100.0)); break;
-        case Eagle     : OurRelPositionBB=BoundingBox3dT(Vector3dT(100.0, 100.0, 100.0), Vector3dT(-100.0, -100.0,  -100.0)); break;
+        case CompanyBot: OurRelPositionBB=BoundingBox3dT(Vector3dT(12.0, 12.0, 4.0), Vector3dT(-12.0, -12.0, -68.0)); break;
+        case Butterfly : OurRelPositionBB=BoundingBox3dT(Vector3dT( 4.0, 24.0, 4.0), Vector3dT( -4.0,  16.0,  -4.0)); break;
+        case Eagle     : OurRelPositionBB=BoundingBox3dT(Vector3dT( 4.0,  4.0, 4.0), Vector3dT( -4.0,  -4.0,  -4.0)); break;
         default        : break;
     }
 
@@ -142,7 +142,7 @@ void EntMonsterMakerT::Think(float FrameTime, unsigned long ServerFrameNr)
                 // Do not spawn until player is beyond safety distance (VectorDistance(BaseEntity->GetOrigin(), m_Origin)<5000 ohne Quadratwurzel!)
                 VectorT Dist=BaseEntity->GetOrigin()-m_Origin;
                 Dist.z=0;   // Temporary fix for broken CompanyBot constructor. See there!
-                if (dot(Dist, Dist)<6500.0*6500.0) return;
+                if (dot(Dist, Dist) < 260.0*260.0) return;
 
                 // Gefunden!
                 break;

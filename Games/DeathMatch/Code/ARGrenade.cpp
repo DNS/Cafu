@@ -53,8 +53,8 @@ const cf::TypeSys::TypeInfoT EntARGrenadeT::TypeInfo(GetBaseEntTIM(), "EntARGren
 
 EntARGrenadeT::EntARGrenadeT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
-                  BoundingBox3dT(Vector3dT( 60.0,  60.0, 120.0),
-                                 Vector3dT(-60.0, -60.0,   0.0)),
+                  BoundingBox3dT(Vector3dT( 3.0,  3.0, 6.0),
+                                 Vector3dT(-3.0, -3.0, 0.0)),
                   NUM_EVENT_TYPES),
       m_Velocity(),
       m_LifeTime(0.0f),
@@ -133,8 +133,8 @@ void EntARGrenadeT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 
                 // if (Dist<5000.0) GameWorld->PrintDebug("OurID %2u, our Type %2u, Ent ID %2u, Type %2u, dist %.2f\n", ID, TypeID, OtherEntity->ID, OtherEntity->TypeID, Dist);
 
-                     if (Dist<1000.0) OtherEntity->TakeDamage(this, 100                         , scale(Impact, 1.0/Dist));
-                else if (Dist<5000.0) OtherEntity->TakeDamage(this, 100-char((Dist-1000.0)/40.0), scale(Impact, 1.0/Dist));
+                     if (Dist< 40.0) OtherEntity->TakeDamage(this, 100                      , scale(Impact, 1.0/Dist));
+                else if (Dist<200.0) OtherEntity->TakeDamage(this, 100-char((Dist-40.0)/1.6), scale(Impact, 1.0/Dist));
             }
         }
     }
@@ -171,7 +171,7 @@ namespace
 
         Particle->Velocity[0]-=Particle->Velocity[0]*Time;  // Physically, this line is (mostly) nonsense.
         Particle->Velocity[1]-=Particle->Velocity[1]*Time;  // Physically, this line is (mostly) nonsense.
-        Particle->Velocity[2]-=9810.0f*Time;                // v=a*t
+        Particle->Velocity[2]-=392.4f*Time;                 // v=a*t    9810.0 / 25.0 == 392.4
 
         Particle->Origin[0]+=Particle->Velocity[0]*Time;    // s=v*t
         Particle->Origin[1]+=Particle->Velocity[1]*Time;
@@ -205,7 +205,7 @@ void EntARGrenadeT::ProcessEvent(unsigned int /*EventType*/, unsigned int /*NumE
 
     NewParticle.Origin[0]=float(m_Origin.x);
     NewParticle.Origin[1]=float(m_Origin.y);
-    NewParticle.Origin[2]=float(m_Origin.z+2000.0-500.0);
+    NewParticle.Origin[2]=float(m_Origin.z+80.0-20.0);
 
     NewParticle.Age=0.0;
     NewParticle.Color[0]=255;
@@ -213,7 +213,7 @@ void EntARGrenadeT::ProcessEvent(unsigned int /*EventType*/, unsigned int /*NumE
     NewParticle.Color[2]=255;
     NewParticle.Color[3]=255;
 
-    NewParticle.Radius=1000.0;
+    NewParticle.Radius=40.0;
     NewParticle.StretchY=2.0;
     NewParticle.RenderMat=ResMan.RenderMats[ResMan.PARTICLE_EXPLOSIONVERT_FRAME1];
     NewParticle.MoveFunction=ParticleFunction_ARGrenadeExplosionMain;
@@ -226,9 +226,9 @@ void EntARGrenadeT::ProcessEvent(unsigned int /*EventType*/, unsigned int /*NumE
         NewParticle.Origin[1]=float(m_Origin.y);
         NewParticle.Origin[2]=float(m_Origin.z);
 
-        NewParticle.Velocity[0]=(rand()-int(RAND_MAX/2))/16.0f;
-        NewParticle.Velocity[1]=(rand()-int(RAND_MAX/2))/16.0f;
-        NewParticle.Velocity[2]=rand()/4.0f;
+        NewParticle.Velocity[0]=(rand()-int(RAND_MAX/2))/16.0f / 25.0f;
+        NewParticle.Velocity[1]=(rand()-int(RAND_MAX/2))/16.0f / 25.0f;
+        NewParticle.Velocity[2]=rand()/4.0f / 25.0f;
 
         NewParticle.Age=0.0;
         NewParticle.Color[0]=255;
@@ -236,7 +236,7 @@ void EntARGrenadeT::ProcessEvent(unsigned int /*EventType*/, unsigned int /*NumE
         NewParticle.Color[2]=0;
         NewParticle.Color[3]=0;
 
-        NewParticle.Radius=100.0;
+        NewParticle.Radius=4.0;
         NewParticle.StretchY=1.0;
         NewParticle.RenderMat=ResMan.RenderMats[ResMan.PARTICLE_GENERIC1];
         NewParticle.MoveFunction=ParticleFunction_ARGrenadeExplosionSmall;
@@ -263,7 +263,7 @@ bool EntARGrenadeT::GetLightSourceInfo(unsigned long& DiffuseColor, unsigned lon
     DiffuseColor =(Blue << 16)+(Green << 8)+Red;
     SpecularColor=DiffuseColor;
     Position     =m_Origin;
-    Radius       =10000.0;
+    Radius       =400.0;
     CastsShadows =true;
 
     return true;

@@ -53,8 +53,8 @@ const cf::TypeSys::TypeInfoT EntRocketT::TypeInfo(GetBaseEntTIM(), "EntRocketT",
 
 EntRocketT::EntRocketT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
-                  BoundingBox3dT(Vector3dT( 100.0,  100.0,  100.0),
-                                 Vector3dT(-100.0, -100.0, -100.0)),
+                  BoundingBox3dT(Vector3dT( 4.0,  4.0,  4.0),
+                                 Vector3dT(-4.0, -4.0, -4.0)),
                   NUM_EVENT_TYPES),
       m_Model(Params.GameWorld->GetModel("Games/DeathMatch/Models/Weapons/Grenade/Grenade_w.cmdl")),
       m_FireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/Shotgun_dBarrel"))),
@@ -128,8 +128,8 @@ void EntRocketT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
                 const Vector3dT Impact     =OtherOrigin-m_Origin;
                 const double    Dist       =length(Impact);
 
-                     if (Dist<1000.0) OtherEntity->TakeDamage(this, 100                         , scale(Impact, 1.0/Dist));
-                else if (Dist<5000.0) OtherEntity->TakeDamage(this, 100-char((Dist-1000.0)/40.0), scale(Impact, 1.0/Dist));
+                     if (Dist< 40.0) OtherEntity->TakeDamage(this, 100                      , scale(Impact, 1.0/Dist));
+                else if (Dist<200.0) OtherEntity->TakeDamage(this, 100-char((Dist-40.0)/1.6), scale(Impact, 1.0/Dist));
             }
         }
     }
@@ -216,9 +216,9 @@ void EntRocketT::ProcessEvent(unsigned int /*EventType*/, unsigned int /*NumEven
         NewParticle.Origin[1]=float(m_Origin.y);
         NewParticle.Origin[2]=float(m_Origin.z);
 
-        NewParticle.Velocity[0]=float(rand()-int(RAND_MAX/2));
-        NewParticle.Velocity[1]=float(rand()-int(RAND_MAX/2));
-        NewParticle.Velocity[2]=float(rand()-int(RAND_MAX/2));
+        NewParticle.Velocity[0]=float(rand()-int(RAND_MAX/2)) / 25.0f;
+        NewParticle.Velocity[1]=float(rand()-int(RAND_MAX/2)) / 25.0f;
+        NewParticle.Velocity[2]=float(rand()-int(RAND_MAX/2)) / 25.0f;
 
         NewParticle.Age=0.0;
         NewParticle.Color[0]=255;
@@ -254,10 +254,10 @@ bool EntRocketT::GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& 
     }
 
     Position    =m_Origin;
-    Radius      =25000.0;
+    Radius      =1000.0;
     CastsShadows=true;
 
-    if (m_Velocity.GetLengthSqr()>1.0) Position-=scale(normalize(m_Velocity, 0.0), 400.0);
+    if (m_Velocity.GetLengthSqr()>0.05) Position-=scale(normalize(m_Velocity, 0.0), 16.0);
 
     return true;
 }

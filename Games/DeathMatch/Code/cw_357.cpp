@@ -162,7 +162,7 @@ void CarriedWeapon357T::ServerSide_Think(EntHumanPlayerT* Player, const PlayerCo
                     const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Player->GetHeading()], ViewDirY*LookupTables::Angle16ToCos[Player->GetHeading()], ViewDirZ);
 
                     RayResultT RayResult(Player->GetRigidBody());
-                    Player->GameWorld->GetPhysicsWorld().TraceRay(Player->GetOrigin()/1000.0, scale(ViewDir, 9999999.0/1000.0), RayResult);
+                    Player->GameWorld->GetPhysicsWorld().TraceRay(UnitsToPhys(Player->GetOrigin()), scale(ViewDir, 9999999.0/1000.0), RayResult);
 
                     if (RayResult.hasHit() && RayResult.GetHitEntity()!=NULL)
                         static_cast<BaseEntityT*>(RayResult.GetHitEntity())->TakeDamage(Player, 7, ViewDir);
@@ -232,7 +232,7 @@ void CarriedWeapon357T::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT*
     const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Player->GetHeading()], ViewDirY*LookupTables::Angle16ToCos[Player->GetHeading()], ViewDirZ);
 
     RayResultT RayResult(Player->GetRigidBody());
-    Player->GameWorld->GetPhysicsWorld().TraceRay(Player->GetOrigin()/1000.0, scale(ViewDir, 9999999.0/1000.0), RayResult);
+    Player->GameWorld->GetPhysicsWorld().TraceRay(UnitsToPhys(Player->GetOrigin()), scale(ViewDir, 9999999.0/1000.0), RayResult);
 
     if (!RayResult.hasHit()) return;
 
@@ -240,9 +240,9 @@ void CarriedWeapon357T::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT*
     // Register a new particle at the 'Hit' point.
     ParticleMST NewParticle;
 
-    NewParticle.Origin[0]=RayResult.m_hitPointWorld.x()*1000.0f;
-    NewParticle.Origin[1]=RayResult.m_hitPointWorld.y()*1000.0f;
-    NewParticle.Origin[2]=RayResult.m_hitPointWorld.z()*1000.0f;
+    NewParticle.Origin[0]=PhysToUnits(RayResult.m_hitPointWorld.x());
+    NewParticle.Origin[1]=PhysToUnits(RayResult.m_hitPointWorld.y());
+    NewParticle.Origin[2]=PhysToUnits(RayResult.m_hitPointWorld.z());
 
     NewParticle.Velocity[0]=0;
     NewParticle.Velocity[1]=0;
@@ -251,7 +251,7 @@ void CarriedWeapon357T::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT*
     NewParticle.Age=0.0;
     NewParticle.Color[3]=0;
 
-    NewParticle.Radius=300.0;
+    NewParticle.Radius=12.0;
     NewParticle.StretchY=1.0;
     NewParticle.RenderMat=ResMan.RenderMats[ResMan.PARTICLE_GENERIC1];
     NewParticle.MoveFunction=RayResult.GetHitEntity()==NULL ? ParticleFunction_HitWall : ParticleFunction_HitEntity;
@@ -259,7 +259,7 @@ void CarriedWeapon357T::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT*
     ParticleEngineMS::RegisterNewParticle(NewParticle);
 
     // Update sound position and velocity.
-    FireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 400.0));
+    FireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 16.0));
     FireSound->SetVelocity(State.Velocity);
 
     // Play the fire sound.

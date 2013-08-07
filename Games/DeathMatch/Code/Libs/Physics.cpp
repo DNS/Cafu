@@ -47,7 +47,7 @@ PhysicsHelperT::PosCatT PhysicsHelperT::CategorizePosition() const
 {
     // Bestimme die Brushes in der unmittelbaren Nähe unserer BB, insb. diejenigen unter uns. Bloate gemäß unserer Dimensions-BoundingBox.
     cf::ClipSys::TraceResultT Trace(1.0);
-    m_ClipWorld.TraceBoundingBox(m_Dimensions, m_Origin, VectorT(0.0, 0.0, -1.0), MaterialT::Clip_Players, &m_ClipModel, Trace);
+    m_ClipWorld.TraceBoundingBox(m_Dimensions, m_Origin, VectorT(0.0, 0.0, -0.1), MaterialT::Clip_Players, &m_ClipModel, Trace);
 
     // OLD CODE:
     // return (Trace.Fraction==1.0 || Trace.ImpactNormal.z<0.7) ? InAir : OnSolid;
@@ -62,7 +62,7 @@ PhysicsHelperT::PosCatT PhysicsHelperT::CategorizePosition() const
 
         // Project (0, 0, -1) onto the hit plane.
         // SlideOff is computed by the same expression as in FlyMove(), except that OriginalVelocity is known to be (0, 0, -1).
-        const VectorT SlideOff=VectorT(0.0, 0.0, -1.0)+scale(Trace.ImpactNormal, Trace.ImpactNormal.z);
+        const VectorT SlideOff=VectorT(0.0, 0.0, -0.1)+scale(Trace.ImpactNormal, Trace.ImpactNormal.z);
 
         Trace=cf::ClipSys::TraceResultT(1.0);   // Very important - reset the trace results.
         m_ClipWorld.TraceBoundingBox(m_Dimensions, m_Origin, SlideOff, MaterialT::Clip_Players, &m_ClipModel, Trace);
@@ -79,12 +79,12 @@ void PhysicsHelperT::ApplyFriction(double FrameTime, PosCatT PosCat)
 {
     const double GroundFriction=4.0;
     const double AirFriction   =0.2;
-    const double StopSpeed     =200;
+    const double StopSpeed     =8.0;
     double       CurrentSpeed  =length(m_Velocity);
     double       Drop          =0;
 
     // Kontrolliert zum Stillstand kommen
-    if (CurrentSpeed<20)
+    if (CurrentSpeed < 1.0)
     {
         m_Velocity.x=0;
         m_Velocity.y=0;
@@ -129,7 +129,7 @@ void PhysicsHelperT::ApplyAcceleration(double FrameTime, PosCatT PosCat, const V
     {
         case InAir  : // airborn, so little effect on velocity
                       Acceleration=AirAcceleration;
-                      AddSpeed=WishSpeed>500.0 ? 500.0-CurrentSpeed : WishSpeed-CurrentSpeed;
+                      AddSpeed=WishSpeed>20.0 ? 20.0-CurrentSpeed : WishSpeed-CurrentSpeed;
                       break;
         case OnSolid: Acceleration=GroundAcceleration;
                       AddSpeed=WishSpeed-CurrentSpeed;
@@ -149,7 +149,7 @@ void PhysicsHelperT::ApplyAcceleration(double FrameTime, PosCatT PosCat, const V
 /// Changes the velocity according to gravity.
 void PhysicsHelperT::ApplyGravity(double FrameTime, PosCatT PosCat)
 {
-    if (PosCat==InAir) m_Velocity.z-=9810.0*FrameTime;
+    if (PosCat==InAir) m_Velocity.z -= 386.22 * FrameTime;  // 9.81 m/s^2
 }
 
 
@@ -329,7 +329,7 @@ void PhysicsHelperT::MoveHuman(float FrameTime, unsigned short Heading, const Ve
     cf::ClipSys::ContactsResultT Contacts;
     cf::ClipSys::TraceResultT    LadderResult(1.0);
 
-    m_ClipWorld.GetContacts(m_Dimensions, m_Origin, ViewDir*150.0, MaterialT::Clip_Players, &m_ClipModel, Contacts);
+    m_ClipWorld.GetContacts(m_Dimensions, m_Origin, ViewDir*6.0, MaterialT::Clip_Players, &m_ClipModel, Contacts);
 
     for (unsigned long ContactNr=0; LadderResult.Fraction==1.0 && ContactNr<Contacts.NrOfRepContacts; ContactNr++)
     {
@@ -349,7 +349,7 @@ void PhysicsHelperT::MoveHuman(float FrameTime, unsigned short Heading, const Ve
             {
                 OldWishJump=true;
                 // TODO: Move 'm_Origin' along 'ImpactNormal' until we do not touch this brush any longer.
-                m_Velocity=scale(LadderResult.ImpactNormal, 6200.0);    // 6200 is just a guessed value.
+                m_Velocity=scale(LadderResult.ImpactNormal, 248.0);    // 248 is just a guessed value.
             }
         }
         else
@@ -370,7 +370,7 @@ void PhysicsHelperT::MoveHuman(float FrameTime, unsigned short Heading, const Ve
             // is a sum of the directional velocity and the converted velocity through the face of the ladder.
             m_Velocity=Lateral-scale(cross(LadderResult.ImpactNormal, Perpend), Normal);
 
-            if (PosCat==OnSolid && Normal>0) m_Velocity=m_Velocity+scale(LadderResult.ImpactNormal, 4200.0);
+            if (PosCat==OnSolid && Normal>0) m_Velocity=m_Velocity+scale(LadderResult.ImpactNormal, 168.0);
             OldWishJump=false;
         }
     }
@@ -405,7 +405,7 @@ void PhysicsHelperT::MoveHuman(float FrameTime, unsigned short Heading, const Ve
                 {
                     // Jump
                     PosCat=InAir;
-                    m_Velocity.z+=5624.0;   // v=sqrt(2*a*s), mit s = 44" = 44*0.026m = 1.144m für normalen Jump, und s = 62" = 1.612m für crouch-Jump.
+                    m_Velocity.z += 219.0;  // v=sqrt(2*a*s), mit a = 9.81m/s^2 und mit s = 44" = 44*0.026m = 1.144m für normalen Jump, und s = 62" = 1.612m für crouch-Jump.
                 }
             }
         }

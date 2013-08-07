@@ -55,8 +55,8 @@ const cf::TypeSys::TypeInfoT EntEagleT::TypeInfo(GetBaseEntTIM(), "EntEagleT", "
 
 EntEagleT::EntEagleT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
-                  BoundingBox3dT(Vector3dT( 100.0,  100.0,  100.0),
-                                 Vector3dT(-100.0, -100.0, -100.0)),
+                  BoundingBox3dT(Vector3dT( 4.0,  4.0,  4.0),
+                                 Vector3dT(-4.0, -4.0, -4.0)),
                   0),
       m_Model(Params.GameWorld->GetModel("Games/DeathMatch/Models/LifeForms/Eagle/Eagle.cmdl")),
       FlightState(CruiseFlight),
@@ -83,9 +83,9 @@ EntEagleT::~EntEagleT()
 void EntEagleT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 {
     const float Pi              =3.14159265359f;
-    const float ManeuverDistance=7000.0;            // Wieviel Platz voraus wir gerne für unser Wendemanöver hätten
+    const float ManeuverDistance=280.0;            // Wieviel Platz voraus wir gerne für unser Wendemanöver hätten
 
-    float FlightDistance   =4000.0f*FrameTime;      // Wie weit wir gerne fliegen würden
+    float FlightDistance   =160.0f*FrameTime;      // Wie weit wir gerne fliegen würden
     char  MaxManeuverRepeat=2;
 
     while (MaxManeuverRepeat--)
@@ -99,9 +99,9 @@ void EntEagleT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
                 cf::ClipSys::TraceResultT Result(1.0);
                 const Vector3dT           FlightDir=Vector3dT(LookupTables::Angle16ToSin[m_Heading], LookupTables::Angle16ToCos[m_Heading], 0.0);
 
-                GameWorld->GetClipWorld().TraceRay(m_Origin, FlightDir*999999.9, MaterialT::Clip_Players, NULL, Result);
+                GameWorld->GetClipWorld().TraceRay(m_Origin, FlightDir*1000.0, MaterialT::Clip_Players, NULL, Result);
 
-                const float TerrainDistance=float(999999.9*Result.Fraction);
+                const float TerrainDistance=float(1000.0*Result.Fraction);
 
                 if (TerrainDistance>ManeuverDistance+FlightDistance)
                 {

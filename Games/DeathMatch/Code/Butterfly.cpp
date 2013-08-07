@@ -47,12 +47,12 @@ const cf::TypeSys::TypeInfoT EntButterflyT::TypeInfo(GetBaseEntTIM(), "EntButter
 
 EntButterflyT::EntButterflyT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
-                  BoundingBox3dT(Vector3dT( 100.0,  100.0,  100.0),
-                                 Vector3dT(-100.0, -100.0, -100.0)),
+                  BoundingBox3dT(Vector3dT( 4.0,  4.0,  4.0),
+                                 Vector3dT(-4.0, -4.0, -4.0)),
                   0),
       m_Model(Params.GameWorld->GetModel("Games/DeathMatch/Models/LifeForms/Butterfly/Butterfly.cmdl")),
       m_ArcCenter(Params.Origin),
-      m_ArcRadius(500.0f),
+      m_ArcRadius(20.0f),
       m_ModelSequNr(0),
       m_ArcPos(0),
       m_ModelFrameNr(0.0f)

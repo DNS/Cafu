@@ -49,8 +49,8 @@ const cf::TypeSys::TypeInfoT EntFaceHuggerT::TypeInfo(GetBaseEntTIM(), "EntFaceH
 
 EntFaceHuggerT::EntFaceHuggerT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
-                  BoundingBox3dT(Vector3dT( 100.0,  100.0,  100.0),
-                                 Vector3dT(-100.0, -100.0,    0.0)),
+                  BoundingBox3dT(Vector3dT( 4.0,  4.0, 4.0),
+                                 Vector3dT(-4.0, -4.0, 0.0)),
                   0),
       m_Velocity(),
       m_Physics(m_Origin, m_Velocity, m_Dimensions, ClipModel, GameWorld->GetClipWorld()),
@@ -110,7 +110,7 @@ namespace
             Particle->Color[0]=char(255.0f*(3.0f-Particle->Age));
         }
 
-        Particle->Origin[2]+=1000.0f*Time;
+        Particle->Origin[2]+=40.0f*Time;
         return true;
     }
 }
@@ -140,7 +140,7 @@ void EntFaceHuggerT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
 
         TestParticle.Origin[0]=float(m_Origin.x);
         TestParticle.Origin[1]=float(m_Origin.y);
-        TestParticle.Origin[2]=float(m_Origin.z+200.0);
+        TestParticle.Origin[2]=float(m_Origin.z+8.0);
 
         TestParticle.Velocity[0]=0;
         TestParticle.Velocity[1]=0;
@@ -153,7 +153,7 @@ void EntFaceHuggerT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
         TestParticle.Color[2]=255;
         TestParticle.Color[3]=255;
 
-        TestParticle.Radius      =300.0;
+        TestParticle.Radius      =12.0;
         TestParticle.StretchY    =1.0;
         TestParticle.RenderMat   =ResMan.RenderMats[ResMan.PARTICLE_GENERIC1];
         TestParticle.MoveFunction=TestParticleMoveFunction;
