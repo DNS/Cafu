@@ -100,7 +100,7 @@ void PhysicsWorldT::RemoveRigidBody(btRigidBody* RigidBody)
 
 void PhysicsWorldT::TraceRay(const Vector3dT& Origin, const Vector3dT& Ray, RayResultT& RayResult) const
 {
-    // We intentionally leave it to the user to divide by 1000 here, i.e. convert from mm to m,
+    // We intentionally leave it to the user to convert from world units to meters here,
     // so that the user code is more aware on the details...
     RayResult.m_rayFromWorld=conv(Origin);
     RayResult.m_rayToWorld  =conv(Origin+Ray);
@@ -111,14 +111,16 @@ void PhysicsWorldT::TraceRay(const Vector3dT& Origin, const Vector3dT& Ray, RayR
 
 void PhysicsWorldT::TraceBoundingBox(const BoundingBox3T<double>& BB, const VectorT& Origin, const VectorT& Dir, ShapeResultT& ShapeResult) const
 {
-    btBoxShape Shape(conv((BB.Max-BB.Min)/2.0/1000.0));
+    const double METERS_PER_WORLD_UNIT = 0.0254;
+
+    btBoxShape Shape(conv((BB.Max-BB.Min)/2.0 * METERS_PER_WORLD_UNIT));
 
     // The box shape equally centered around the origin point, whereas BB is possibly "non-uniformely displaced".
     // In order to compensate, compute how far the BB center is away from the origin.
     const Vector3dT Ofs=BB.GetCenter();
 
-    ShapeResult.m_convexFromWorld=conv((Origin+Ofs    )/1000.0);
-    ShapeResult.m_convexToWorld  =conv((Origin+Ofs+Dir)/1000.0);
+    ShapeResult.m_convexFromWorld=conv((Origin+Ofs    ) * METERS_PER_WORLD_UNIT);
+    ShapeResult.m_convexToWorld  =conv((Origin+Ofs+Dir) * METERS_PER_WORLD_UNIT);
 
     btTransform TransFrom; TransFrom.setIdentity(); TransFrom.setOrigin(ShapeResult.m_convexFromWorld);
     btTransform TransTo;   TransTo  .setIdentity(); TransTo  .setOrigin(ShapeResult.m_convexToWorld  );

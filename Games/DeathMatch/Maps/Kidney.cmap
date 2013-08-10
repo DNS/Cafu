@@ -9414,10 +9414,10 @@ Version 13
 
 {
   classname "func_door"
-  triggerPadding "1524"
+  triggerPadding "60"
   moveDir "0 1 0"
   openTime "3"
-  lip "456.4"
+  lip "18"
   moveTime "5"
   name "door1_left"
   team "Double Door 1"
@@ -9470,10 +9470,10 @@ Version 13
 
 {
   classname "func_door"
-  triggerPadding "1524"
+  triggerPadding "60"
   moveDir "0 -1 0"
   openTime "3"
-  lip "456.4"
+  lip "18"
   moveTime "5"
   name "door1_right"
   team "Double Door 1"
@@ -9526,10 +9526,10 @@ Version 13
 
 {
   classname "func_door"
-  triggerPadding "1524"
+  triggerPadding "60"
   moveDir "0 0 1"
   openTime "0.5"
-  lip "250"
+  lip "10"
   moveTime "1"
   team "Doors Team 1"
 
@@ -9563,10 +9563,10 @@ Version 13
 
 {
   classname "func_door"
-  triggerPadding "1524"
+  triggerPadding "60"
   moveDir "0 0 -1"
   openTime "0.5"
-  lip "250"
+  lip "10"
   moveTime "1"
   team "Doors Team 1"
 

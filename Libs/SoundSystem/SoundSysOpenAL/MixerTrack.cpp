@@ -142,17 +142,19 @@ void MixerTrackT::Update()
 
     // Update the OpenAL source attributes.
     // Note that this method MixerTrackT::Update() is always called, independent from the source state (AL_INITIAL, AL_PLAYING, AL_STOPPED, ...).
-    float Pos[3]={ float(m_Sound->Position.x/1000.0f),
-                   float(m_Sound->Position.y/1000.0f),
-                   float(m_Sound->Position.z/1000.0f) };
+    const double METERS_PER_WORLD_UNIT = 0.0254;
 
-    float Vel[3]={ float(m_Sound->Velocity.x/1000.0f),
-                   float(m_Sound->Velocity.y/1000.0f),
-                   float(m_Sound->Velocity.z/1000.0f) };
+    float Pos[3]={ float(m_Sound->Position.x * METERS_PER_WORLD_UNIT),
+                   float(m_Sound->Position.y * METERS_PER_WORLD_UNIT),
+                   float(m_Sound->Position.z * METERS_PER_WORLD_UNIT) };
 
-    float Dir[3]={ float(m_Sound->Direction.x/1000.0f),
-                   float(m_Sound->Direction.y/1000.0f),
-                   float(m_Sound->Direction.z/1000.0f) };
+    float Vel[3]={ float(m_Sound->Velocity.x * METERS_PER_WORLD_UNIT),
+                   float(m_Sound->Velocity.y * METERS_PER_WORLD_UNIT),
+                   float(m_Sound->Velocity.z * METERS_PER_WORLD_UNIT) };
+
+    float Dir[3]={ float(m_Sound->Direction.x * METERS_PER_WORLD_UNIT),
+                   float(m_Sound->Direction.y * METERS_PER_WORLD_UNIT),
+                   float(m_Sound->Direction.z * METERS_PER_WORLD_UNIT) };
 
     // TODO: Only make alSource...() calls if m_Sound indicates that it has changed? (E.g. have it have a "m_HasChanged" flag that is set whenever one of its attributes is set.)
     alSourcei (m_SourceHandle, AL_SOURCE_RELATIVE,    m_Sound->Is3D() ? AL_FALSE : AL_TRUE);

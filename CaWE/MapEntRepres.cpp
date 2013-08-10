@@ -196,8 +196,7 @@ void MapEntRepresT::Render3D(Renderer3DT& Renderer) const
         MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, Ent->GetModelToWorld());
 
         // TODO: There is no support for LoD-parameters at this time, add it!
-        // const float CAFU_ENG_SCALE = 25.4f;
-        // Ent->RenderComponents(CAFU_ENG_SCALE * EntDist);
+        // Ent->RenderComponents(EntDist);
         Ent->RenderComponents();
 
         MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);

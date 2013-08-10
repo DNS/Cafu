@@ -45,6 +45,8 @@ namespace GAME_NAME
 
         private:
 
+        void DoDeserialize(cf::Network::InStreamT& Stream);     // Override the BaseEntityT base class method.
+
      // const cf::SceneGraph::GenericNodeT* RootNode;   ///< The root node of the scene graph of the model (brushwork) of this entity.
         btRigidBody* m_RigidBody;
     };

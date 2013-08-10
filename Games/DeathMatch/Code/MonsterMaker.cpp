@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "EntityCreateParams.hpp"
 #include "HumanPlayer.hpp"
 #include "InfoPlayerStart.hpp"
+#include "Worldspawn.hpp"
 #include "TypeSys.hpp"
 #include "../../GameWorld.hpp"
 
@@ -111,6 +112,7 @@ void EntMonsterMakerT::Think(float FrameTime, unsigned long ServerFrameNr)
         IntrusivePtrT<GameEntityI> BaseEntity=GameWorld->GetGameEntityByID(AllEntityIDs[EntityIDNr]);
         if (BaseEntity==NULL) continue;
 
+        if (BaseEntity->GetType()==&EntWorldspawnT::TypeInfo     ) continue;
         if (BaseEntity->GetType()==&EntMonsterMakerT::TypeInfo   ) continue;
         if (BaseEntity->GetType()==&EntInfoPlayerStartT::TypeInfo) continue;
 

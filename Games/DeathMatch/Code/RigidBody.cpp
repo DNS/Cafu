@@ -71,38 +71,14 @@ EntRigidBodyT::EntRigidBodyT(const EntityCreateParamsT& Params)
       m_RootNode(Params.RootNode),
       m_CollisionShape(NULL),
       m_RigidBody(NULL),
-      m_OrigOffset(m_Dimensions.GetCenter()-m_Origin),
       m_HalfExtents((m_Dimensions.Max-m_Dimensions.Min)/2.0 - Vector3dT(4.0, 4.0, 4.0)),  // FIXME !!! Where in the world does the extra 4 padding in Params.RootNode come from???
       m_Rotation(0, 0, 0, 1)
 {
     Register(new InterpolatorT<Vector3dT>(m_Origin));
-    ClipModel.Register();
 
-    /*
-     * Note that the ClipModel and the m_RootNode are defined in *world space*.
-     * That means that at this point, m_Origin is *not* at the center of the rigid body, but at (0, 0, 0),
-     * and that the m_Dimensions correspond to the bounding-box of the body (e.g. a crate) in world space.
-     *
-     * It helps to think of the m_OrigOffset vector from the origin to the body center as part of the model
-     * that is fixed to the model at its tip:
-     *
-     *                                   +---------+   body
-     *                  m_OrigOffset     |         |
-     *           0-----------------------+--->X    |
-     *                                   |         |
-     *                                   +---------+
-     *
-     * As in the code in this class we want a more natural setup where the origin is at the center of the crate
-     * and its dimensions are relative to it (in "model space"), we make the appropriate adjustments here.
-     * This setup also happens to be used in the Bullet physics library.
-     *
-     * These adjustments must be accounted for / be undone when we deal with the ClipModel or the m_RootNode:
-     * Observe how much the root of the m_OrigOffset vector changes even for tiny rotations around the body center
-     * (the vector tip). The root of the rotated m_OrigOffset vector is the proper origin for the ClipModel and
-     * the m_RootNode. This is also why this origin can *not* be interpolated across frames on the client, whereas
-     * our origin that is adjusted to the center of the body can.
-     */
-    m_Origin = m_Dimensions.GetCenter();
+    ClipModel.SetOrigin(m_Origin);
+ // ClipModel.SetOrientation(...);
+    ClipModel.Register();
 
     // Update the Dimensions box of the entity so that the server code properly determines whether we're in the clients PVS or not.
     // TODO / FIXME: The server computes our world-space bounding-box by offsetting our m_Dimensions by m_Origin.
@@ -186,7 +162,7 @@ void EntRigidBodyT::DoDeserialize(cf::Network::InStreamT& Stream)
         for (unsigned long j=0; j<3; j++)
             Orient[i][j]=Basis[i][j];
 
-    ClipModel.SetOrigin(m_Origin - Orient*m_OrigOffset);
+    ClipModel.SetOrigin(m_Origin);
     ClipModel.SetOrientation(Orient);
     ClipModel.Register();
 }
@@ -263,11 +239,9 @@ void EntRigidBodyT::Draw(bool FirstPersonView, float LodDist) const
         for (int j=0; j<3; j++)
             M2W[i][j]=Basis[i][j];
 
-    const Vector3dT DrawOrig = m_Origin - M2W.Mul0(m_OrigOffset);
-
-    M2W[0][3]=float(DrawOrig.x);
-    M2W[1][3]=float(DrawOrig.y);
-    M2W[2][3]=float(DrawOrig.z);
+    M2W[0][3] = float(m_Origin.x);
+    M2W[1][3] = float(m_Origin.y);
+    M2W[2][3] = float(m_Origin.z);
 
     MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, M2W);
 
@@ -348,7 +322,7 @@ void EntRigidBodyT::setWorldTransform(const btTransform& worldTrans)
         for (unsigned long j=0; j<3; j++)
             Orient[i][j]=worldTrans.getBasis()[i][j];
 
-    ClipModel.SetOrigin(m_Origin - Orient*m_OrigOffset);
+    ClipModel.SetOrigin(m_Origin);
     ClipModel.SetOrientation(Orient);
     ClipModel.Register();
 }

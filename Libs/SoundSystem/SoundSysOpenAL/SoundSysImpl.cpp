@@ -307,12 +307,14 @@ void SoundSysImplT::Update()
 void SoundSysImplT::UpdateListener(const Vector3dT& Position, const Vector3dT& Velocity, const Vector3fT& OrientationForward, const Vector3fT& OrientationUp)
 {
     // Update 3D sound attributes.
-    float PositionTriplet[3]  ={ float(Position.x/1000.0f),
-                                 float(Position.y/1000.0f),
-                                 float(Position.z/1000.0f) };
-    float VelocityTriplet[3]  ={ float(Velocity.x/1000.0f),
-                                 float(Velocity.y/1000.0f),
-                                 float(Velocity.z/1000.0f) };
+    const double METERS_PER_WORLD_UNIT = 0.0254;
+
+    float PositionTriplet[3]  ={ float(Position.x * METERS_PER_WORLD_UNIT),
+                                 float(Position.y * METERS_PER_WORLD_UNIT),
+                                 float(Position.z * METERS_PER_WORLD_UNIT) };
+    float VelocityTriplet[3]  ={ float(Velocity.x * METERS_PER_WORLD_UNIT),
+                                 float(Velocity.y * METERS_PER_WORLD_UNIT),
+                                 float(Velocity.z * METERS_PER_WORLD_UNIT) };
     float OrientationSextet[6]={ OrientationForward.x,
                                  OrientationForward.y,
                                  OrientationForward.z,

@@ -387,7 +387,7 @@ bool EntCompanyBotT::GetLightSourceInfo(unsigned long& DiffuseColor, unsigned lo
     const float   Value=LookupTables::Angle16ToCos[(unsigned short)((m_TimeForLightSource-2.0f)/4.0f*65536.0f)];
     const VectorT RelX =scale(VectorT(LookupTables::Angle16ToCos[m_Heading], LookupTables::Angle16ToSin[m_Heading], 0.0), 3.0*Value);
     const VectorT RelY =scale(VectorT(LookupTables::Angle16ToSin[m_Heading], LookupTables::Angle16ToCos[m_Heading], 0.0), 20.0);
-    const VectorT RelZ =VectorT(0.0, 0.0, -12.0+0.5*char(DiffuseColor >> 8));
+    const VectorT RelZ =VectorT(0.0, 0.0, -12.0 + 0.02*char(DiffuseColor >> 8));
 
     Position    =m_Origin+RelX+RelY+RelZ;
     Radius      =400.0;

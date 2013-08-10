@@ -1,7 +1,7 @@
 // See http://www.cafu.de/wiki/modeleditor:level-of-detail_models for help about dlod models.
 
-TonneTest_LoD1.ase   10000
-TonneTest_LoD2.ase   20000
-TonneTest_LoD3.ase   40000
-TonneTest_LoD4.ase   80000
-TonneTest_LoD5.ase  160000
+TonneTest_LoD1.ase   400
+TonneTest_LoD2.ase   800
+TonneTest_LoD3.ase  1600
+TonneTest_LoD4.ase  3200
+TonneTest_LoD5.ase  6400

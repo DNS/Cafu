@@ -30,7 +30,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Mesh.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "MapBezierPatch.hpp"
-#include "MapFile.hpp"
 #include "MapDocument.hpp"
 #include "ChildFrame.hpp"
 #include "ToolEditSurface.hpp"
@@ -39,6 +38,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ClipSys/CollisionModel_static.hpp"
 #include "ClipSys/TraceResult.hpp"
+#include "MapFile.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "Math3D/BezierPatch.hpp"
 #include "Math3D/Matrix.hpp"
@@ -50,6 +50,17 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 // Turn off warning 4355: "'this' : wird in Initialisierungslisten fuer Basisklasse verwendet".
 #pragma warning(disable:4355)
 #endif
+
+
+// This should match the value in CaBSP's LoadWorld() function.
+// Alternatives include:
+//   - Don't express the error in world units, but as an absolute value,
+//     e.g. `400.0f / ScriptWorld->GetMillimetersPerWorldUnit()`. However, using absolute values is probably not
+//     a good idea, and we don't have the ScriptWorld readily available in the `MapBezierPatchT` ctors anyway.
+//   - See the implementation of BezierPatchT<T>::Subdivide() for an elegant suggestion that would make the error
+//     metric independent of the size of the Bezier patch, and thus independent of any reference to the world,
+//     so that the `MAX_CURVE_ERROR` could actually be removed.
+static const float MAX_CURVE_ERROR = 400.0f / cf::CA3DE_SCALE;
 
 
 /*** Begin of TypeSys related definitions for this class. ***/
@@ -75,7 +86,7 @@ MapBezierPatchT::MapBezierPatchT(EditorMaterialI* Material_, cf::SceneGraph::Lig
       NeedsUpdate(true),
       SurfaceInfo(),
       LMM(LMM_),
-      BPRenderMesh(new cf::SceneGraph::BezierPatchNodeT(LMM, 400.0f/cf::CA3DE_SCALE)),
+      BPRenderMesh(new cf::SceneGraph::BezierPatchNodeT(LMM, MAX_CURVE_ERROR)),
       CollModel(NULL),
       Material(NULL)
 {
@@ -94,7 +105,7 @@ MapBezierPatchT::MapBezierPatchT(const MapBezierPatchT& BP)
       NeedsUpdate(true),
       SurfaceInfo(BP.SurfaceInfo),
       LMM(BP.LMM),
-      BPRenderMesh(new cf::SceneGraph::BezierPatchNodeT(LMM, 400.0f/cf::CA3DE_SCALE)),
+      BPRenderMesh(new cf::SceneGraph::BezierPatchNodeT(LMM, MAX_CURVE_ERROR)),
       CollModel(NULL),
       Material(BP.Material)
 {
@@ -966,15 +977,13 @@ void MapBezierPatchT::Transform(const MatrixT& Matrix)
 // This method is const, so that it can be called from other const methods.
 void MapBezierPatchT::UpdateRenderMesh() const
 {
-    const float MaxCurveError=400.0f/cf::CA3DE_SCALE;
-
     // If either control vertex coordinates or UV coordinates have changed, the mesh needs to be updated.
     if (NeedsUpdate)
     {
         // 1. Create a new render mesh.
         assert(BPRenderMesh!=NULL);
         delete BPRenderMesh;
-        BPRenderMesh=new cf::SceneGraph::BezierPatchNodeT(LMM, cv_Width, cv_Height, cv_Pos, cv_UVs, SubdivsHorz, SubdivsVert, Material->GetMaterial(), MaxCurveError);
+        BPRenderMesh=new cf::SceneGraph::BezierPatchNodeT(LMM, cv_Width, cv_Height, cv_Pos, cv_UVs, SubdivsHorz, SubdivsVert, Material->GetMaterial(), MAX_CURVE_ERROR);
 
 
         // 2. Create a new collision model.
@@ -988,7 +997,7 @@ void MapBezierPatchT::UpdateRenderMesh() const
         }
         else
         {
-            CollisionBP.Subdivide(MaxCurveError, -1.0f);
+            CollisionBP.Subdivide(MAX_CURVE_ERROR, -1.0f);
         }
 
         // Get a collision model from the curve mesh.

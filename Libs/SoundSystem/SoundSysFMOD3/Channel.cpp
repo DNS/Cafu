@@ -53,14 +53,15 @@ void ChannelT::Update()
     if (!Sound->Is3D()) return;
 
     // Note that y and z coordinate are swapped because FMOD uses another coordinate system than Cafu.
+    const double METERS_PER_WORLD_UNIT = 0.0254;
 
-    float Pos[3]={ float(Sound->Position.x/1000.0),
-                   float(Sound->Position.z/1000.0),
-                   float(Sound->Position.y/1000.0) };
+    float Pos[3]={ float(Sound->Position.x * METERS_PER_WORLD_UNIT),
+                   float(Sound->Position.z * METERS_PER_WORLD_UNIT),
+                   float(Sound->Position.y * METERS_PER_WORLD_UNIT) };
 
-    float Vel[3]={ float(Sound->Velocity.x/1000.0),
-                   float(Sound->Velocity.z/1000.0),
-                   float(Sound->Velocity.y/1000.0) };
+    float Vel[3]={ float(Sound->Velocity.x * METERS_PER_WORLD_UNIT),
+                   float(Sound->Velocity.z * METERS_PER_WORLD_UNIT),
+                   float(Sound->Velocity.y * METERS_PER_WORLD_UNIT) };
 
     // Note that direction and sound cones are ignored because they are not supported by FMOD.
 

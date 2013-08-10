@@ -25,8 +25,8 @@ function DoubleSlideDoor1_Trigger:OnTrigger(Activator)
     local right=DoubleSlideDoor1_Right;
 
     -- Open the double door.
-    local x1, y1, z1= left:GetOrigin(); left :Translate(x1, y1+1000, z1, 1.5);
-    local x2, y2, z2=right:GetOrigin(); right:Translate(x2, y2-1000, z2, 1.5);
+    local x1, y1, z1= left:GetOrigin(); left :Translate(x1, y1+40, z1, 1.5);
+    local x2, y2, z2=right:GetOrigin(); right:Translate(x2, y2-40, z2, 1.5);
     -- Console.Print("(" .. x1 .. ", ".. y1 .. ", " .. z1 .. "), (" .. x2 .. ", " .. y2 .. ", " .. z2 .. ")\n");
     wait(1.5);
 

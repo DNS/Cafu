@@ -204,15 +204,17 @@ void SoundSysImplT::Update()
 
 void SoundSysImplT::UpdateListener(const Vector3dT& Position, const Vector3dT& Velocity, const Vector3fT& OrientationForward, const Vector3fT& OrientationUp)
 {
+    const double METERS_PER_WORLD_UNIT = 0.0254;
+
     // Note that y and z coordinate are swapped because FMOD uses another coordinate system than Cafu.
 
     // Update 3D sound attributes.
-    float PositionTriplet[3]={ float(Position.x/1000.0),
-                               float(Position.z/1000.0),
-                               float(Position.y/1000.0) };
-    float VelocityTriplet[3]={ float(Velocity.x/1000.0),
-                               float(Velocity.z/1000.0),
-                               float(Velocity.y/1000.0) };
+    float PositionTriplet[3]={ float(Position.x * METERS_PER_WORLD_UNIT),
+                               float(Position.z * METERS_PER_WORLD_UNIT),
+                               float(Position.y * METERS_PER_WORLD_UNIT) };
+    float VelocityTriplet[3]={ float(Velocity.x * METERS_PER_WORLD_UNIT),
+                               float(Velocity.z * METERS_PER_WORLD_UNIT),
+                               float(Velocity.y * METERS_PER_WORLD_UNIT) };
 
     FSOUND_3D_Listener_SetAttributes(PositionTriplet, VelocityTriplet,
                                      OrientationForward.x, OrientationForward.z, OrientationForward.y,

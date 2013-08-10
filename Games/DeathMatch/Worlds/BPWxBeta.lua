@@ -40,7 +40,7 @@ function teleport(origNr, destNr)
         local ay=py-oy;
         local az=pz-oz;
 
-        if (pz>oz and math.sqrt(ax*ax + ay*ay + az*az) < 2000.0) then
+        if (pz>oz and math.sqrt(ax*ax + ay*ay + az*az) < 80.0) then
             -- VARIANT 1:
             -- When teleporting PlayerEnt to (dx+ax, dy+ay, dz+az), it is safe to teleport
             -- multiple players all at the same time (continuing the loop), as their

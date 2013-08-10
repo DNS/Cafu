@@ -54,9 +54,7 @@ EntFuncLadderT::EntFuncLadderT(const EntityCreateParamsT& Params)
     assert(CollisionModel!=NULL);   // A ladder entity without collision model is useless.
 
     // Registering the clip model with the clip world is very important, so that we cannot run "into" ladder brushes.
-    // !!! Note that ladder brushes are currently always at the origin (0, 0, 0).
-    // !!! That is the only reason why we don't need to call e.g. ClipModel.SetOrigin()
-    // !!! AND don't need to update the origin and re-register in DoDeserialize()!
+    ClipModel.SetOrigin(m_Origin);
     ClipModel.Register();
 
 
@@ -80,45 +78,8 @@ EntFuncLadderT::~EntFuncLadderT()
 }
 
 
-/* void EntFuncLadderT::Draw(float, bool)
-    const ArrayT<BrushT>* Brushes;
-
-    GameWorld->GetMapFileData(MapFileID, &Brushes, NULL, NULL);
-
-    if (Brushes==NULL) return;
-
-    // This code is awfully dumb and slow,
-    // and just exists for the purpose of debugging.
-    for (unsigned long BrushNr=0; BrushNr<Brushes->Size(); BrushNr++)
-    {
-        ArrayT< Polygon3T<double> > Polys;
-
-        for (unsigned long PlaneNr=0; PlaneNr<(*Brushes)[BrushNr].Planes.Size(); PlaneNr++)
-        {
-            Polys.PushBackEmpty();
-            Polys[Polys.Size()-1].Plane=(*Brushes)[BrushNr].Planes[PlaneNr];
-        }
-
-        PolygonComplete(Polys);
-
-        glScalef(1.0/25.4, 1.0/25.4, 1.0/25.4);
-        glRotatef(90, 1.0, 0.0, 0.0);
-        glRotatef(-90.0, 0.0, 1.0, 0.0);
-
-        glColor3f(1.0, 0.0, 0.0);
-        glDisable(GL_TEXTURE_2D);
-
-        for (unsigned long PolyNr=0; PolyNr<Polys.Size(); PolyNr++)
-        {
-            glBegin(GL_LINE_LOOP);
-                for (unsigned long VertexNr=0; VertexNr<Polys[PolyNr].Vertices.Size(); VertexNr++)
-                {
-                    glVertex3f(Polys[PolyNr].Vertices[VertexNr].x, Polys[PolyNr].Vertices[VertexNr].z, -Polys[PolyNr].Vertices[VertexNr].y);
-                    // GameWorld->PrintDebug("%f %f %f", Polys[PolyNr].Vertices[VertexNr].x, Polys[PolyNr].Vertices[VertexNr].y, Polys[PolyNr].Vertices[VertexNr].z);
-                }
-            glEnd();
-        }
-
-        glEnable(GL_TEXTURE_2D);
-    }
-} */
+void EntFuncLadderT::DoDeserialize(cf::Network::InStreamT& Stream)
+{
+    ClipModel.SetOrigin(m_Origin);
+    ClipModel.Register();
+}

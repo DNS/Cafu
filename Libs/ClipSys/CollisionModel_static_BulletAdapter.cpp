@@ -26,6 +26,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace cf::ClipSys;
 
 
+static const double METERS_PER_WORLD_UNIT = 0.0254;
+
+
 CollisionModelStaticT::BulletAdapterT::BulletAdapterT(const CollisionModelStaticT& CollMdl)
     : m_CollMdl(CollMdl),
       m_LocalScale(1, 1, 1)
@@ -64,8 +67,8 @@ void CollisionModelStaticT::BulletAdapterT::calculateLocalInertia(btScalar /*mas
 
 void CollisionModelStaticT::BulletAdapterT::processAllTriangles(btTriangleCallback* callback, const btVector3& aabbMin, const btVector3& aabbMax) const
 {
-    BoundingBox3dT ProcBB(Vector3dT(aabbMin[0], aabbMin[1], aabbMin[2])*1000.0,
-                          Vector3dT(aabbMax[0], aabbMax[1], aabbMax[2])*1000.0);
+    BoundingBox3dT ProcBB(Vector3dT(aabbMin[0], aabbMin[1], aabbMin[2]) / METERS_PER_WORLD_UNIT,
+                          Vector3dT(aabbMax[0], aabbMax[1], aabbMax[2]) / METERS_PER_WORLD_UNIT);
 
     if (ProcBB.Intersects(m_CollMdl.m_BB))
     {
@@ -94,16 +97,16 @@ void CollisionModelStaticT::BulletAdapterT::ProcessTriangles(NodeT* Node, btTria
 
             // if (!ProcBB.Intersects(Poly->GetBB())) continue;
 
-            Triangle[0]=conv(m_CollMdl.m_Vertices[Poly->Vertices[0]]/1000.0);
-            Triangle[1]=conv(m_CollMdl.m_Vertices[Poly->Vertices[1]]/1000.0);
-            Triangle[2]=conv(m_CollMdl.m_Vertices[Poly->Vertices[2]]/1000.0);
+            Triangle[0]=conv(m_CollMdl.m_Vertices[Poly->Vertices[0]] * METERS_PER_WORLD_UNIT);
+            Triangle[1]=conv(m_CollMdl.m_Vertices[Poly->Vertices[1]] * METERS_PER_WORLD_UNIT);
+            Triangle[2]=conv(m_CollMdl.m_Vertices[Poly->Vertices[2]] * METERS_PER_WORLD_UNIT);
 
             callback->processTriangle(Triangle, 0, PolyNr);
 
             if (!Poly->IsTriangle())
             {
                 Triangle[1]=Triangle[2];
-                Triangle[2]=conv(m_CollMdl.m_Vertices[Poly->Vertices[3]]/1000.0);
+                Triangle[2]=conv(m_CollMdl.m_Vertices[Poly->Vertices[3]] * METERS_PER_WORLD_UNIT);
 
                 callback->processTriangle(Triangle, 1, PolyNr);
             }
@@ -127,14 +130,14 @@ void CollisionModelStaticT::BulletAdapterT::ProcessTriangles(NodeT* Node, btTria
 
                 if (Side.NrOfVertices<3) continue;  // This can happen if Side is a precomputed bevel plane.
 
-                Triangle[0]=conv(m_CollMdl.m_Vertices[Side.Vertices[0]]/1000.0);
+                Triangle[0]=conv(m_CollMdl.m_Vertices[Side.Vertices[0]] * METERS_PER_WORLD_UNIT);
              // Triangle[1]=...;
-                Triangle[2]=conv(m_CollMdl.m_Vertices[Side.Vertices[1]]/1000.0);
+                Triangle[2]=conv(m_CollMdl.m_Vertices[Side.Vertices[1]] * METERS_PER_WORLD_UNIT);
 
                 for (unsigned long VertexNr=2; VertexNr<Side.NrOfVertices; VertexNr++)
                 {
                     Triangle[1]=Triangle[2];
-                    Triangle[2]=conv(m_CollMdl.m_Vertices[Side.Vertices[VertexNr]]/1000.0);
+                    Triangle[2]=conv(m_CollMdl.m_Vertices[Side.Vertices[VertexNr]] * METERS_PER_WORLD_UNIT);
 
                     callback->processTriangle(Triangle, 2, SideNr);
                 }
@@ -163,18 +166,18 @@ void CollisionModelStaticT::BulletAdapterT::ProcessTriangles(NodeT* Node, btTria
             for (int y=GridMinY; y<GridMaxY; y++)
             {
              // Triangle[0]=...;
-                Triangle[1]=conv(TerVertices[(GridMinX)+TerGridSize*(y+1)]/1000.0f);
-                Triangle[2]=conv(TerVertices[(GridMinX)+TerGridSize*(y  )]/1000.0f);
+                Triangle[1]=conv(TerVertices[(GridMinX)+TerGridSize*(y+1)] * float(METERS_PER_WORLD_UNIT));
+                Triangle[2]=conv(TerVertices[(GridMinX)+TerGridSize*(y  )] * float(METERS_PER_WORLD_UNIT));
 
                 for (int x=GridMinX; x<GridMaxX; x++)
                 {
                     Triangle[0]=Triangle[2];
-                    Triangle[2]=conv(TerVertices[(x+1)+TerGridSize*(y+1)]/1000.0f);
+                    Triangle[2]=conv(TerVertices[(x+1)+TerGridSize*(y+1)] * float(METERS_PER_WORLD_UNIT));
 
                     callback->processTriangle(Triangle, 3, x+TerGridSize*y);
 
                     Triangle[1]=Triangle[2];
-                    Triangle[2]=conv(TerVertices[(x+1)+TerGridSize*(y  )]/1000.0f);
+                    Triangle[2]=conv(TerVertices[(x+1)+TerGridSize*(y  )] * float(METERS_PER_WORLD_UNIT));
 
                     callback->processTriangle(Triangle, 4, x+TerGridSize*y);
                 }

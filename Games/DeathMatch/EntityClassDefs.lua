@@ -262,7 +262,7 @@ EntityClassDefs["func_door"]=newEntClassDef(Common,
     {
         type       ="float";
         description="How near the player must come for the door to open, that is, how far the implicit door trigger extends from the door.";
-        value      =60*25.4;
+        value      =60;
     };
 
     startOpen=
@@ -312,7 +312,7 @@ EntityClassDefs["func_door"]=newEntClassDef(Common,
     {
         type       ="float";
         description="Offset to usual movement distance. Positive values keep the door from disappearing entirely into the wall, negative values move it into the wall even farther.";
-        value      =8*25.4;
+        value      =8;
     };
 
     toggle=

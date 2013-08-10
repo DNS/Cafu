@@ -192,8 +192,6 @@ void MapModelT::Render3D(Renderer3DT& Renderer) const
 
     if (ModelDist<float(Options.view3d.ModelDistance))
     {
-        const float CAFU_ENG_SCALE=25.4f;
-
         MatSys::Renderer->SetCurrentAmbientLightColor(1.0f, 1.0f, 1.0f);
         MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
 
@@ -203,7 +201,7 @@ void MapModelT::Render3D(Renderer3DT& Renderer) const
         MatSys::Renderer->RotateX  (MatSys::RendererI::MODEL_TO_WORLD, m_Angles[ROLL ]);
         MatSys::Renderer->Scale    (MatSys::RendererI::MODEL_TO_WORLD, m_Scale);
 
-        Pose->Draw(-1 /*default skin*/, CAFU_ENG_SCALE*ModelDist);
+        Pose->Draw(-1 /*default skin*/, ModelDist);
 
         MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
 

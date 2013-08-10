@@ -202,7 +202,7 @@ void EntRocketT::ProcessEvent(unsigned int /*EventType*/, unsigned int /*NumEven
     NewParticle.Color[2]=255;
     NewParticle.Color[3]=255;
 
-    NewParticle.Radius=2000.0;
+    NewParticle.Radius=80.0;
     NewParticle.Rotation=char(rand());
     NewParticle.StretchY=1.0;
     NewParticle.RenderMat=ResMan.RenderMats[ResMan.PARTICLE_EXPLOSION1_FRAME1];
@@ -226,7 +226,7 @@ void EntRocketT::ProcessEvent(unsigned int /*EventType*/, unsigned int /*NumEven
         NewParticle.Color[2]=0;
         NewParticle.Color[3]=0;     // Additive blending is used for this particle.
 
-        NewParticle.Radius=200.0;
+        NewParticle.Radius=8.0;
         NewParticle.StretchY=1.0;
         NewParticle.RenderMat=ResMan.RenderMats[ResMan.PARTICLE_GENERIC1];
         NewParticle.MoveFunction=ParticleFunction_RocketExplosionSmall;

@@ -68,6 +68,7 @@ EntTriggerT::EntTriggerT(const EntityCreateParamsT& Params)
                   0),
       IsActive(true)
 {
+    ClipModel.SetOrigin(m_Origin);
     ClipModel.Register();
 }
 

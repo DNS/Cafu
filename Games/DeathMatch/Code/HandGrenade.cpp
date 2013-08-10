@@ -197,7 +197,7 @@ void EntHandGrenadeT::ProcessEvent(unsigned int /*EventType*/, unsigned int /*Nu
 
     NewParticle.Origin[0]=float(m_Origin.x);
     NewParticle.Origin[1]=float(m_Origin.y);
-    NewParticle.Origin[2]=float(m_Origin.z+200.0);
+    NewParticle.Origin[2]=float(m_Origin.z+8.0);
 
     NewParticle.Age=0.0;
     NewParticle.Color[0]=255;

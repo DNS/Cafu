@@ -31,9 +31,9 @@ function MyFirstLift:OnTrigger()
 
         isMoving=true;
         local x, y, z=self:GetOrigin();
-        self:Translate(x, y, z+2000, 1.5);
+        self:Translate(x, y, z+80, 1.5);
         coroutine.yield(2.5);
-        self:Translate(x, y, z,      1.5);
+        self:Translate(x, y, z,    1.5);
         coroutine.yield(1.5);
         isMoving=false;
     else
@@ -42,8 +42,8 @@ function MyFirstLift:OnTrigger()
         isMoving=true;
         local x, y, z=self:GetOrigin();
 
-        if (isUp) then self:Translate(x, y, z-3000, 1.5);
-                  else self:Translate(x, y, z+3000, 1.5); end
+        if (isUp) then self:Translate(x, y, z-120, 1.5);
+                  else self:Translate(x, y, z+120, 1.5); end
         coroutine.yield(1.5);
 
         isUp=not isUp;

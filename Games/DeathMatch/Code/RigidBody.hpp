@@ -63,7 +63,6 @@ namespace GAME_NAME
         const cf::SceneGraph::GenericNodeT* m_RootNode;         ///< The root node of the scene graph of the model (brushwork) of this entity.
         btCollisionShape*                   m_CollisionShape;   ///< The collision shape for use with the rigid body.
         btRigidBody*                        m_RigidBody;        ///< The rigid body for use in the physics world.
-        const Vector3dT                     m_OrigOffset;       ///< The offset from the entity origin to the physics model origin.
         const Vector3dT                     m_HalfExtents;      ///< Half of the extents (the "radius") of the bounding-box of this model.
         btQuaternion                        m_Rotation;         ///< Complementing the origin, this is the spatial "orientation" of the model (the "better" alternative to heading, pitch and bank).
 
