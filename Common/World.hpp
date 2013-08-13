@@ -79,7 +79,7 @@ class SharedTerrainT
     // Note that these constructors can theoretically throw because the TerrainT constructor can throw.
     // In practice this should never happen though, because otherwise a .cmap or .cw file contained an invalid terrain.
     SharedTerrainT(const BoundingBox3dT& BB_, unsigned long SideLength_, const ArrayT<unsigned short>& HeightData_, MaterialT* Material_);
-    SharedTerrainT(std::istream& InFile);
+    SharedTerrainT(std::istream& InFile, bool ScaleDown254);
 
     void WriteTo(std::ostream& OutFile) const;
 
@@ -97,7 +97,7 @@ class StaticEntityDataT
     public:
 
     StaticEntityDataT();
-    StaticEntityDataT(std::istream& InFile, cf::SceneGraph::aux::PoolT& Pool, ModelManagerT& ModelMan, cf::SceneGraph::LightMapManT& LightMapMan, cf::SceneGraph::SHLMapManT& SHLMapMan, PlantDescrManT& PlantDescrMan);
+    StaticEntityDataT(std::istream& InFile, cf::SceneGraph::aux::PoolT& Pool, ModelManagerT& ModelMan, cf::SceneGraph::LightMapManT& LightMapMan, cf::SceneGraph::SHLMapManT& SHLMapMan, PlantDescrManT& PlantDescrMan, bool ScaleDown254);
 
     ~StaticEntityDataT();
 
@@ -132,13 +132,10 @@ class WorldT
     WorldT();
 
     /// Constructor for creating a world from a .cw file.
-    WorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, ProgressFunctionT ProgressFunction=NULL) /*throw (LoadErrorT)*/;
+    WorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, bool ScaleDown254=false, ProgressFunctionT ProgressFunction=NULL) /*throw (LoadErrorT)*/;
 
     /// Destructor.
     ~WorldT();
-
-    /// Un-does the scaling by 25.4 that was applied when the world was initially loaded from the cmap file.
-    void ScaleDown254();
 
     /// Saves the world to disk.
     void SaveToDisk(const char* FileName) const /*throw (SaveErrorT)*/;
@@ -153,6 +150,9 @@ class WorldT
 
 
     private:
+
+    /// Un-does the scaling by 25.4 that was applied when the world was initially loaded from the cmap file.
+    void ScaleDown254();
 
     WorldT(const WorldT&);              // Use of the Copy    Constructor is not allowed.
     void operator = (const WorldT&);    // Use of the Assignment Operator is not allowed.

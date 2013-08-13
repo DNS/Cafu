@@ -62,7 +62,7 @@ SharedTerrainT::SharedTerrainT(const BoundingBox3dT& BB_, unsigned long SideLeng
 }
 
 
-SharedTerrainT::SharedTerrainT(std::istream& InFile)
+SharedTerrainT::SharedTerrainT(std::istream& InFile, bool ScaleDown254)
 {
     using namespace cf::SceneGraph;
 
@@ -75,6 +75,14 @@ SharedTerrainT::SharedTerrainT(std::istream& InFile)
 
     for (unsigned long i=0; i<HeightData.Size(); i++)
         HeightData[i]=aux::ReadUInt16(InFile);
+
+    if (ScaleDown254)
+    {
+        const double CA3DE_SCALE = 25.4;
+
+        BB.Min /= CA3DE_SCALE;
+        BB.Max /= CA3DE_SCALE;
+    }
 
     Terrain=TerrainT(&HeightData[0], SideLength, BB.AsBoxOfFloat());
 }
@@ -105,7 +113,7 @@ StaticEntityDataT::StaticEntityDataT()
 }
 
 
-StaticEntityDataT::StaticEntityDataT(std::istream& InFile, cf::SceneGraph::aux::PoolT& Pool, ModelManagerT& ModelMan, cf::SceneGraph::LightMapManT& LightMapMan, cf::SceneGraph::SHLMapManT& SHLMapMan, PlantDescrManT& PlantDescrMan)
+StaticEntityDataT::StaticEntityDataT(std::istream& InFile, cf::SceneGraph::aux::PoolT& Pool, ModelManagerT& ModelMan, cf::SceneGraph::LightMapManT& LightMapMan, cf::SceneGraph::SHLMapManT& SHLMapMan, PlantDescrManT& PlantDescrMan, bool ScaleDown254)
     : m_BspTree(NULL),
       m_CollModel(NULL)
 {
@@ -115,7 +123,7 @@ StaticEntityDataT::StaticEntityDataT(std::istream& InFile, cf::SceneGraph::aux::
 
     for (unsigned long TerrainNr = cf::SceneGraph::aux::ReadUInt32(InFile); TerrainNr > 0; TerrainNr--)
     {
-        SharedTerrainT* ShTe = new SharedTerrainT(InFile);
+        SharedTerrainT* ShTe = new SharedTerrainT(InFile, ScaleDown254);
 
         m_Terrains.PushBack(ShTe);
         ShTe_SceneGr.PushBack(&ShTe->Terrain);
@@ -237,7 +245,7 @@ static std::string GetModDir(const char* FileName)
 }
 
 
-WorldT::WorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, ProgressFunctionT ProgressFunction) /*throw (LoadErrorT)*/
+WorldT::WorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, bool ScaleDown254, ProgressFunctionT ProgressFunction) /*throw (LoadErrorT)*/
 {
     // Set the plant descriptions manager mod directory to the one from the world to load.
     PlantDescrMan.SetModDir(GetModDir(FileName));
@@ -315,7 +323,14 @@ WorldT::WorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiRes
 
     for (unsigned int EntNr = 0; EntNr < NumGameEnts; EntNr++)
     {
-        m_StaticEntityData.PushBack(new StaticEntityDataT(InFile, Pool, ModelMan, LightMapMan, SHLMapMan, PlantDescrMan));
+        m_StaticEntityData.PushBack(new StaticEntityDataT(InFile, Pool, ModelMan, LightMapMan, SHLMapMan, PlantDescrMan, ScaleDown254));
+    }
+
+    if (ScaleDown254)
+    {
+        if (ProgressFunction) ProgressFunction(1.0f, "World file loaded");
+
+        this->ScaleDown254();
     }
 
     if (ProgressFunction) ProgressFunction(1.0f, "World file loaded.");
@@ -338,11 +353,12 @@ void WorldT::ScaleDown254()
 
         SED->m_Origin /= CA3DE_SCALE;
 
-        for (unsigned int ShTe = 0; ShTe < SED->m_Terrains.Size(); ShTe++)
-        {
-            SED->m_Terrains[ShTe]->BB.Min /= CA3DE_SCALE;
-            SED->m_Terrains[ShTe]->BB.Max /= CA3DE_SCALE;
-        }
+        // This is already done in SharedTerrainT ctor.
+        // for (unsigned int ShTe = 0; ShTe < SED->m_Terrains.Size(); ShTe++)
+        // {
+        //     SED->m_Terrains[ShTe]->BB.Min /= CA3DE_SCALE;
+        //     SED->m_Terrains[ShTe]->BB.Max /= CA3DE_SCALE;
+        // }
 
         SED->m_BspTree->ScaleDown254();
 
