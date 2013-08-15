@@ -222,7 +222,8 @@ namespace cf
             /// Renders the components of this entity.
             /// Note that this method does *not* recurse into the children, and it does *not* setup any of the
             /// MatSys's model, view or projection matrices: it's up to the caller to do that.
-            void RenderComponents() const;
+            /// @param LodDist   The distance of the viewer entity to this entity.
+            void RenderComponents(float LodDist) const;
 
             /// Keyboard input event handler.
             /// @param KE   Keyboard event.

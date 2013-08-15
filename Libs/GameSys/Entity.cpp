@@ -448,18 +448,18 @@ MatrixT EntityT::GetModelToWorld() const
 }
 
 
-void EntityT::RenderComponents() const
+void EntityT::RenderComponents(float LodDist) const
 {
     if (!m_Basics->IsShown()) return;
 
     // Render the "custom" components in the proper order -- bottom-up.
     for (unsigned long CompNr = m_Components.Size(); CompNr > 0; CompNr--)
-        m_Components[CompNr-1]->Render();
+        m_Components[CompNr-1]->Render(LodDist);
 
     // Render the "fixed" components.
-    // m_Transform->Render();
-    // m_Basics->Render();
-    if (m_App != NULL) m_App->Render();
+    // m_Transform->Render(LodDist);
+    // m_Basics->Render(LodDist);
+    if (m_App != NULL) m_App->Render(LodDist);
 }
 
 

@@ -142,7 +142,8 @@ namespace cf
             virtual BoundingBox3fT GetEditorBB() const { return BoundingBox3fT(); }
 
             /// This method implements the graphical output of this component.
-            virtual void Render() const { }
+            /// @param LodDist   The distance of the viewer entity to this component's entity.
+            virtual void Render(float LodDist) const { }
 
             /// This method is called after all entities and their components have been loaded.
             ///

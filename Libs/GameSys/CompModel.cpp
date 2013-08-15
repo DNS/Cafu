@@ -348,34 +348,53 @@ BoundingBox3fT ComponentModelT::GetEditorBB() const
 }
 
 
-void ComponentModelT::Render() const
+void ComponentModelT::Render(float LodDist) const
 {
     if (!m_Pose) return;
 
     MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
     MatSys::Renderer->Scale(MatSys::RendererI::MODEL_TO_WORLD, m_ModelScale.Get());
 
-    m_Pose->Draw(m_ModelSkinNr.Get(), 0.0f /*LodDist*/);
+    m_Pose->Draw(m_ModelSkinNr.Get(), LodDist);
 
-    const MatrixT ModelToWorld = MatSys::Renderer->GetMatrix(MatSys::RendererI::MODEL_TO_WORLD);
-
-    for (unsigned long GFNr = 0; GFNr < m_Model->GetGuiFixtures().Size(); GFNr++)
+    if (LodDist < 1024.0f && MatSys::Renderer->GetCurrentRenderAction() == MatSys::RendererI::AMBIENT)
     {
-        Vector3fT GuiOrigin;
-        Vector3fT GuiAxisX;
-        Vector3fT GuiAxisY;
+        const MatrixT ModelToWorld = MatSys::Renderer->GetMatrix(MatSys::RendererI::MODEL_TO_WORLD);
 
-        if (m_Pose->GetGuiPlane(GFNr, GuiOrigin, GuiAxisX, GuiAxisY))
+        for (unsigned long GFNr = 0; GFNr < m_Model->GetGuiFixtures().Size(); GFNr++)
         {
-            // It's pretty easy to derive this matrix geometrically, see my TechArchive note from 2006-08-22.
-            const MatrixT M(GuiAxisX.x / 640.0f, GuiAxisY.x / 480.0f, 0.0f, GuiOrigin.x,
-                            GuiAxisX.y / 640.0f, GuiAxisY.y / 480.0f, 0.0f, GuiOrigin.y,
-                            GuiAxisX.z / 640.0f, GuiAxisY.z / 480.0f, 0.0f, GuiOrigin.z,
-                                           0.0f,                0.0f, 0.0f,        1.0f);
+            Vector3fT GuiOrigin;
+            Vector3fT GuiAxisX;
+            Vector3fT GuiAxisY;
 
-            MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, ModelToWorld * M);
+            if (m_Pose->GetGuiPlane(GFNr, GuiOrigin, GuiAxisX, GuiAxisY))
+            {
+#if 1
+                // It's pretty easy to derive this matrix geometrically, see my TechArchive note from 2006-08-22.
+                const MatrixT M(GuiAxisX.x / 640.0f, GuiAxisY.x / 480.0f, 0.0f, GuiOrigin.x,
+                                GuiAxisX.y / 640.0f, GuiAxisY.y / 480.0f, 0.0f, GuiOrigin.y,
+                                GuiAxisX.z / 640.0f, GuiAxisY.z / 480.0f, 0.0f, GuiOrigin.z,
+                                               0.0f,                0.0f, 0.0f,        1.0f);
 
-            // GetGui()->Render(true /*zLayerCoating*/);    // TODO: Why is this so slow???  (Is is drawn anywhere besides AMBIENT contrib?)
+                MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, ModelToWorld * M);
+
+                // WHOAAA! This is SLOW! But why??  FIXME -- needs PerfProf!
+                GetGui()->Render(true /*zLayerCoating*/);
+#else
+                MatSys::Renderer->SetCurrentMaterial(Gui->GetDefaultRM());
+
+                // Just a single triangle that indicates the position and orientation of the GUI plane.
+                static MatSys::MeshT Tri(MatSys::MeshT::Triangles);
+                Tri.Vertices.Overwrite();
+                Tri.Vertices.PushBackEmpty(3);
+
+                Tri.Vertices[0].SetOrigin(GuiOrigin         ); Tri.Vertices[0].SetTextureCoord(0.0f, 0.0f); Tri.Vertices[0].SetColor(1, 1, 1, 1.0f);
+                Tri.Vertices[1].SetOrigin(GuiOrigin+GuiAxisX); Tri.Vertices[1].SetTextureCoord(1.0f, 0.0f); Tri.Vertices[1].SetColor(1, 0, 0, 0.5f);
+                Tri.Vertices[2].SetOrigin(GuiOrigin+GuiAxisY); Tri.Vertices[2].SetTextureCoord(0.0f, 1.0f); Tri.Vertices[2].SetColor(0, 1, 0, 0.5f);
+
+                MatSys::Renderer->RenderMesh(Tri);
+#endif
+            }
         }
     }
 
@@ -405,7 +424,7 @@ std::string ComponentModelT::SetModel(const std::string& FileName, std::string& 
     m_Model = GetEntity()->GetWorld().GetModelMan().GetModel(FileName, &Msg);
 
     // If the model didn't change, there is nothing else to do.
-    if (PrevModel == m_Model) return m_Model->GetFileName();
+    if (PrevModel == m_Model) return FileName;
 
     // The new model may or may not have GUI fixtures, so make sure that the GUI instance is reset.
     delete m_Gui;
@@ -418,7 +437,9 @@ std::string ComponentModelT::SetModel(const std::string& FileName, std::string& 
     m_ModelAnimNr.Set(m_ModelAnimNr.Get());
     m_ModelSkinNr.Set(m_ModelSkinNr.Get());
 
-    return m_Model->GetFileName();
+    // Note that we cannot return m_Model->GetFileName() here, which may be the
+    // filename of the first dlod sub-model, not that of the dlod model itself.
+    return FileName;
 }
 
 

@@ -668,8 +668,7 @@ void CaClientWorldT::DrawEntities(unsigned long OurEntityID, bool SkipOurEntity,
                         }
                     }
 
-                    // TODO: There is no support for LoD-parameters at this time / still to be added!
-                    Ent->RenderComponents();    // TODO: Does it differentiate the various render actions??
+                    Ent->RenderComponents(length(ViewerPos.AsVectorOfFloat() - m_EngineEntities[EntityID]->GetEntity()->GetTransform()->GetOrigin()));
                 }
                 MatSys::Renderer->PopLightingParameters();
                 MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);

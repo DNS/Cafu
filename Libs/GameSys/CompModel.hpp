@@ -57,7 +57,7 @@ namespace cf
             const char* GetName() const { return "Model"; }
             void UpdateDependencies(EntityT* Entity);
             BoundingBox3fT GetEditorBB() const;
-            void Render() const;
+            void Render(float LodDist) const;
             void OnClockTickEvent(float t);
 
 

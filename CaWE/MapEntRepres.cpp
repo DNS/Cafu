@@ -195,9 +195,7 @@ void MapEntRepresT::Render3D(Renderer3DT& Renderer) const
         MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
         MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, Ent->GetModelToWorld());
 
-        // TODO: There is no support for LoD-parameters at this time, add it!
-        // Ent->RenderComponents(EntDist);
-        Ent->RenderComponents();
+        Ent->RenderComponents(EntDist);
 
         MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
 
