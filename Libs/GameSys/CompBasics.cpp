@@ -79,10 +79,18 @@ namespace
 }
 
 
+// The deserialization of network messages on the client can cause a member variable
+// of a component to be `Set()` very frequently, and often to the same value as before.
+//
+// Consequently, setting a variable to the same value must be dealt with as efficiently
+// as possible (for performance), and free of unwanted side effects (for correctness).
 void ComponentBasicsT::EntityNameT::Set(const std::string& v)
 {
     // Make sure that m_CompBasics actually refers to the ComponentBasicsT instance that contains us!
     assert(this == &m_CompBasics.m_Name);
+
+    // No change? Then skip re-establishing that the name is valid.
+    if (Get() == v) return;
 
     const std::string BaseName = cf::String::ToLuaIdentifier(v);
     std::string       NewName  = BaseName;
@@ -125,7 +133,7 @@ void ComponentBasicsT::EntityShowT::Set(const bool& v)
     // Make sure that m_CompBasics actually refers to the ComponentBasicsT instance that contains us!
     assert(this == &m_CompBasics.m_Show);
 
-    if (v == Get()) return;
+    if (Get() == v) return;
 
     TypeSys::VarT<bool>::Set(v);
 

@@ -87,9 +87,19 @@ void ComponentModelT::VarModelNameT::Deserialize(cf::Network::InStreamT& Stream)
 }
 
 
+// The deserialization of network messages on the client can cause a member variable
+// of a component to be `Set()` very frequently, and often to the same value as before.
+//
+// Consequently, setting a variable to the same value must be dealt with as efficiently
+// as possible (for performance), and free of unwanted side effects (for correctness).
 void ComponentModelT::VarModelNameT::Set(const std::string& v)
 {
-    TypeSys::VarT<std::string>::Set(m_Comp.SetModel(v, m_ExtraMsg));
+    // No change? Then there is no need to update the related m_Model resource.
+    if (Get() == v) return;
+
+    TypeSys::VarT<std::string>::Set(v);
+
+    m_Comp.ReInit(&m_ExtraMsg);
 }
 
 
@@ -113,9 +123,59 @@ ComponentModelT::VarModelAnimNrT::VarModelAnimNrT(const VarModelAnimNrT& Var, Co
 }
 
 
+// The deserialization of network messages on the client can cause a member variable
+// of a component to be `Set()` very frequently, and often to the same value as before.
+//
+// Consequently, setting a variable to the same value must be dealt with as efficiently
+// as possible (for performance), and free of unwanted side effects (for correctness).
+void ComponentModelT::VarModelAnimNrT::SetAnimNr(int AnimNr, float BlendTime, bool ForceLoop)
+{
+    // Is the "not-normalized" value unchanged?
+    // Then there is no need to update the related m_Pose resource (the BlendTime and ForceLoop are ignored).
+    // Also, for correctness, we must not cause the m_Pose's anim expression to be reset to frame 0.
+    if (Get() == AnimNr) return;
+
+    // It is possible that this is called (e.g. from a script) for a component that is not yet part of an entity.
+    // In this case, there is no model instance and no way to normalize AnimNr, so we just have to take it as-is.
+    if (!m_Comp.m_Model)
+    {
+        TypeSys::VarT<int>::Set(AnimNr);
+        return;
+    }
+
+    // "Normalize" AnimNr.
+    IntrusivePtrT<AnimExprStandardT> StdAE = m_Comp.m_Model->GetAnimExprPool().GetStandard(AnimNr, 0.0f);
+    StdAE->SetForceLoop(ForceLoop);
+
+    // Is the "normalized" value unchanged?
+    // Then there is no need to update the related m_Pose resource (the BlendTime and ForceLoop are ignored).
+    // Also, for correctness, we must not cause the m_Pose's anim expression to be reset to frame 0.
+    if (Get() == StdAE->GetSequNr()) return;
+
+    // Store the "normalized" value, then update the related m_Pose resource.
+    TypeSys::VarT<int>::Set(StdAE->GetSequNr());
+
+    // If there is for some reason no m_Pose yet, then there is no reason to create one now.
+    // Leave it up to the ComponentModelT user code to create one as required.
+    if (!m_Comp.m_Pose) return;
+
+    // There is a m_Pose, so update it.
+    if (BlendTime > 0.0f)
+    {
+        IntrusivePtrT<AnimExpressionT> BlendFrom = m_Comp.m_Pose->GetAnimExpr();
+
+        m_Comp.m_Pose->SetAnimExpr(m_Comp.m_Model->GetAnimExprPool().GetBlend(BlendFrom, StdAE, BlendTime));
+    }
+    else
+    {
+        m_Comp.m_Pose->SetAnimExpr(StdAE);
+    }
+}
+
+
 void ComponentModelT::VarModelAnimNrT::Set(const int& v)
 {
-    TypeSys::VarT<int>::Set(m_Comp.SetAnimNr(v, 0.0f, true));
+    SetAnimNr(v, 0.0f, true);
 }
 
 
@@ -193,12 +253,21 @@ ComponentModelT::VarGuiNameT::VarGuiNameT(const VarGuiNameT& Var, ComponentModel
 }
 
 
+// The deserialization of network messages on the client can cause a member variable
+// of a component to be `Set()` very frequently, and often to the same value as before.
+//
+// Consequently, setting a variable to the same value must be dealt with as efficiently
+// as possible (for performance), and free of unwanted side effects (for correctness).
 void ComponentModelT::VarGuiNameT::Set(const std::string& v)
 {
+    // No change? Then there is no need to update the related m_Gui resource.
+    if (Get() == v) return;
+
+    // The GUI name has changed.
     TypeSys::VarT<std::string>::Set(v);
 
-    // For now, simply delete the m_Gui instance.
-    // It is lazily updated in ComponentModelT::GetGui() as required.
+    // Simply invalidate the related m_Gui instance and leave it up to the ComponentModelT
+    // user code to re-instantiate it as required.
     delete m_Comp.m_Gui;
     m_Comp.m_Gui = NULL;
 }
@@ -302,60 +371,72 @@ ComponentModelT* ComponentModelT::Clone() const
 }
 
 
-void ComponentModelT::UpdateDependencies(EntityT* Entity)
+void ComponentModelT::ReInit(std::string* ErrorMsg)
 {
-    const bool EntityChanged = Entity != GetEntity();
-
-    ComponentBaseT::UpdateDependencies(Entity);
-
-    // m_Transform = NULL;
-
-    if (EntityChanged)
+    // It is possible that this is called (e.g. from a script) for a component that is not yet part of an entity.
+    if (!GetEntity())
     {
         delete m_Gui;
         m_Gui = NULL;
 
         delete m_Pose;
-        m_Pose  = NULL;
+        m_Pose = NULL;
 
         m_Model = NULL;
+        return;
     }
 
-    if (!GetEntity()) return;
+    const CafuModelT* NewModel = GetEntity()->GetWorld().GetModelMan().GetModel(m_ModelName.Get(), ErrorMsg);
+
+    // If the model didn't change (e.g. because it is the same substitute for the old and the new model),
+    // there is nothing else to do. Note that possibly `m_Model->GetFileName() != v` here, because
+    // `m_Model->GetFileName()` may be the filename of the first dlod sub-model, not that of the dlod model itself.
+    if (NewModel == m_Model) return;
+
+    // The new model may or may not have GUI fixtures, so make sure that the GUI instance is reset.
+    delete m_Gui;
+    m_Gui = NULL;
+
+    // Need a new pose and updated parameters for the new model.
+    delete m_Pose;
+    m_Pose = NULL;
+
+    // Assign the new model instance.
+    m_Model = NewModel;
+
+    // Re-normalize values that need to be re-normalized.
+    const int PrevAnimNr = m_ModelAnimNr.Get();
+    m_ModelAnimNr.Set(-1);
+    m_ModelAnimNr.Set(PrevAnimNr);
+
+    const int PrevSkinNr = m_ModelSkinNr.Get();
+    m_ModelSkinNr.Set(-1);
+    m_ModelSkinNr.Set(PrevSkinNr);
+}
 
 
-    // // It would be possible to break this loop as soon as we have assigned a non-NULL pointer to m_Transform.
-    // // However, this is only because the Transform component is, at this time, the only sibling component that
-    // // we're interested in, whereas the loop below is suitable for resolving additional dependencies, too.
-    // for (unsigned int CompNr = 0; CompNr < GetEntity()->GetComponents().Size(); CompNr++)
-    // {
-    //     IntrusivePtrT<ComponentBaseT> Comp = GetEntity()->GetComponents()[CompNr];
-    //
-    //     if (m_Transform == NULL)
-    //         m_Transform = dynamic_pointer_cast<ComponentTransformT>(Comp);
-    // }
+void ComponentModelT::UpdateDependencies(EntityT* Entity)
+{
+    ComponentBaseT::UpdateDependencies(Entity);
 
-    if (EntityChanged)
-    {
-        m_ModelName.Set(m_ModelName.Get());
-    }
+    ReInit();
 }
 
 
 BoundingBox3fT ComponentModelT::GetEditorBB() const
 {
-    return m_Pose ? m_Pose->GetBB() : BoundingBox3fT();
+    return GetPose() ? GetPose()->GetBB() : BoundingBox3fT();
 }
 
 
 void ComponentModelT::Render(float LodDist) const
 {
-    if (!m_Pose) return;
+    if (!GetPose()) return;
 
     MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
     MatSys::Renderer->Scale(MatSys::RendererI::MODEL_TO_WORLD, m_ModelScale.Get());
 
-    m_Pose->Draw(m_ModelSkinNr.Get(), LodDist);
+    GetPose()->Draw(m_ModelSkinNr.Get(), LodDist);
 
     if (LodDist < 1024.0f && MatSys::Renderer->GetCurrentRenderAction() == MatSys::RendererI::AMBIENT)
     {
@@ -367,7 +448,7 @@ void ComponentModelT::Render(float LodDist) const
             Vector3fT GuiAxisX;
             Vector3fT GuiAxisY;
 
-            if (m_Pose->GetGuiPlane(GFNr, GuiOrigin, GuiAxisX, GuiAxisY))
+            if (GetPose()->GetGuiPlane(GFNr, GuiOrigin, GuiAxisX, GuiAxisY))
             {
 #if 1
                 // It's pretty easy to derive this matrix geometrically, see my TechArchive note from 2006-08-22.
@@ -378,7 +459,6 @@ void ComponentModelT::Render(float LodDist) const
 
                 MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, ModelToWorld * M);
 
-                // WHOAAA! This is SLOW! But why??  FIXME -- needs PerfProf!
                 GetGui()->Render(true /*zLayerCoating*/);
 #else
                 MatSys::Renderer->SetCurrentMaterial(Gui->GetDefaultRM());
@@ -406,144 +486,98 @@ void ComponentModelT::OnClockTickEvent(float t)
 {
     ComponentBaseT::OnClockTickEvent(t);
 
-    if (m_Pose)
-        m_Pose->GetAnimExpr()->AdvanceTime(t);
+    if (GetPose())
+        GetPose()->GetAnimExpr()->AdvanceTime(t);
 
-    if (m_Gui)
-        m_Gui->DistributeClockTickEvents(t);
+    if (GetGui())
+        GetGui()->DistributeClockTickEvents(t);
 }
 
 
-std::string ComponentModelT::SetModel(const std::string& FileName, std::string& Msg)
+AnimPoseT* ComponentModelT::GetPose() const
 {
-    // It is possible that this is called (e.g. from a script) for a component that is not yet part of an entity.
-    if (!GetEntity()) return FileName;
-
-    const CafuModelT* PrevModel = m_Model;
-
-    m_Model = GetEntity()->GetWorld().GetModelMan().GetModel(FileName, &Msg);
-
-    // If the model didn't change, there is nothing else to do.
-    if (PrevModel == m_Model) return FileName;
-
-    // The new model may or may not have GUI fixtures, so make sure that the GUI instance is reset.
-    delete m_Gui;
-    m_Gui = NULL;
-
-    // Need a new pose and updated parameters for the new model.
-    delete m_Pose;
-    m_Pose = NULL;
-
-    m_ModelAnimNr.Set(m_ModelAnimNr.Get());
-    m_ModelSkinNr.Set(m_ModelSkinNr.Get());
-
-    // Note that we cannot return m_Model->GetFileName() here, which may be the
-    // filename of the first dlod sub-model, not that of the dlod model itself.
-    return FileName;
-}
-
-
-int ComponentModelT::SetAnimNr(int AnimNr, float BlendTime, bool ForceLoop)
-{
-    // It is possible that this is called (e.g. from a script) for a component that is not yet part of an entity.
-    if (!m_Model) return AnimNr;
-
-    IntrusivePtrT<AnimExprStandardT> StdAE = m_Model->GetAnimExprPool().GetStandard(AnimNr, 0.0f);
-    StdAE->SetForceLoop(ForceLoop);
-
-    if (!m_Pose)
+    if (m_Model && !m_Pose)
     {
+        IntrusivePtrT<AnimExprStandardT> StdAE = m_Model->GetAnimExprPool().GetStandard(m_ModelAnimNr.Get(), 0.0f);
+        StdAE->SetForceLoop(true);
+
         m_Pose = new AnimPoseT(*m_Model, StdAE);
     }
-    else
-    {
-        if (BlendTime > 0.0f)
-        {
-            IntrusivePtrT<AnimExpressionT> BlendFrom = m_Pose->GetAnimExpr();
 
-            m_Pose->SetAnimExpr(m_Model->GetAnimExprPool().GetBlend(BlendFrom, StdAE, BlendTime));
-        }
-        else
-        {
-            m_Pose->SetAnimExpr(StdAE);
-        }
-    }
-
-    return StdAE->GetSequNr();
+    return m_Pose;
 }
 
 
 cf::GuiSys::GuiImplT* ComponentModelT::GetGui() const
 {
-    // If we have a model with GUI fixtures, return a valid GUI instance in any case.
-    if (m_Model && m_Model->GetGuiFixtures().Size())
-    {
-        if (m_Gui) return m_Gui;
-
-        static const char* FallbackGUI =
-            "Root = gui:new('WindowT', 'Root')\n"
-            "gui:SetRootWindow(Root)\n"
-            "\n"
-            "function Root:OnInit()\n"
-            "    self:GetTransform():set('Pos', 0, 0)\n"
-            "    self:GetTransform():set('Size', 640, 480)\n"
-            "\n"
-            "    local c1 = gui:new('ComponentTextT')\n"
-            "    c1:set('Text', [=====[%s]=====])\n"    // This is indended for use with e.g. wxString::Format().
-            " -- c1:set('Font', 'Fonts/Impact')\n"
-            "    c1:set('Scale', 0.6)\n"
-            "    c1:set('Padding', 0, 0)\n"
-            "    c1:set('Color', 15/255, 49/255, 106/255)\n"
-            " -- c1:set('Alpha', 0.5)\n"
-            "    c1:set('hor. Align', 0)\n"
-            "    c1:set('ver. Align', 0)\n"
-            "\n"
-            "    local c2 = gui:new('ComponentImageT')\n"
-            "    c2:set('Material', '')\n"
-            "    c2:set('Color', 150/255, 170/255, 204/255)\n"
-            "    c2:set('Alpha', 0.8)\n"
-            "\n"
-            "    self:AddComponent(c1, c2)\n"
-            "\n"
-            "    gui:activate      (true)\n"
-            "    gui:setInteractive(true)\n"
-            "    gui:showMouse     (false)\n"
-            "    gui:setFocus      (Root)\n"
-            "end\n";
-
-        try
-        {
-            if (m_GuiName.Get() == "")
-            {
-                m_Gui = new cf::GuiSys::GuiImplT(
-                    GetEntity()->GetWorld().GetGuiResources(),
-                    cf::String::Replace(FallbackGUI, "%s", "This is a\nfull-scale sample GUI.\n\n"
-                        "Set the 'Gui' property\nof the Model component\nto assign the real GUI."),
-                    cf::GuiSys::GuiImplT::InitFlag_InlineCode);
-            }
-            else
-            {
-                m_Gui = new cf::GuiSys::GuiImplT(GetEntity()->GetWorld().GetGuiResources(), m_GuiName.Get());
-
-                // Active status is not really relevant for our Gui that is not managed by the GuiMan,
-                // but still make sure that clock tick events are properly propagated to all windows.
-                m_Gui->Activate();
-                m_Gui->SetMouseCursorSize(40.0f);
-            }
-        }
-        catch (const cf::GuiSys::GuiImplT::InitErrorT& IE)
-        {
-            // This one must not throw again...
-            m_Gui = new cf::GuiSys::GuiImplT(
-                GetEntity()->GetWorld().GetGuiResources(),
-                cf::String::Replace(FallbackGUI, "%s", "Could not load GUI\n" + m_GuiName.Get() + "\n\n" + IE.what()),
-                cf::GuiSys::GuiImplT::InitFlag_InlineCode);
-        }
-    }
-    else
+    if (!m_Model || !m_Model->GetGuiFixtures().Size())
     {
         // Not a model with GUI fixtures.
-        assert(m_Gui == NULL);
+        assert(!m_Gui);
+        return NULL;
+    }
+
+    // If we have a model with GUI fixtures, return a valid GUI instance in any case.
+    if (m_Gui) return m_Gui;
+
+    static const char* FallbackGUI =
+        "Root = gui:new('WindowT', 'Root')\n"
+        "gui:SetRootWindow(Root)\n"
+        "\n"
+        "function Root:OnInit()\n"
+        "    self:GetTransform():set('Pos', 0, 0)\n"
+        "    self:GetTransform():set('Size', 640, 480)\n"
+        "\n"
+        "    local c1 = gui:new('ComponentTextT')\n"
+        "    c1:set('Text', [=====[%s]=====])\n"    // This is indended for use with e.g. wxString::Format().
+        " -- c1:set('Font', 'Fonts/Impact')\n"
+        "    c1:set('Scale', 0.6)\n"
+        "    c1:set('Padding', 0, 0)\n"
+        "    c1:set('Color', 15/255, 49/255, 106/255)\n"
+        " -- c1:set('Alpha', 0.5)\n"
+        "    c1:set('hor. Align', 0)\n"
+        "    c1:set('ver. Align', 0)\n"
+        "\n"
+        "    local c2 = gui:new('ComponentImageT')\n"
+        "    c2:set('Material', '')\n"
+        "    c2:set('Color', 150/255, 170/255, 204/255)\n"
+        "    c2:set('Alpha', 0.8)\n"
+        "\n"
+        "    self:AddComponent(c1, c2)\n"
+        "\n"
+        "    gui:activate      (true)\n"
+        "    gui:setInteractive(true)\n"
+        "    gui:showMouse     (false)\n"
+        "    gui:setFocus      (Root)\n"
+        "end\n";
+
+    try
+    {
+        if (m_GuiName.Get() == "")
+        {
+            m_Gui = new cf::GuiSys::GuiImplT(
+                GetEntity()->GetWorld().GetGuiResources(),
+                cf::String::Replace(FallbackGUI, "%s", "This is a\nfull-scale sample GUI.\n\n"
+                    "Set the 'Gui' property\nof the Model component\nto assign the real GUI."),
+                cf::GuiSys::GuiImplT::InitFlag_InlineCode);
+        }
+        else
+        {
+            m_Gui = new cf::GuiSys::GuiImplT(GetEntity()->GetWorld().GetGuiResources(), m_GuiName.Get());
+
+            // Active status is not really relevant for our Gui that is not managed by the GuiMan,
+            // but still make sure that clock tick events are properly propagated to all windows.
+            m_Gui->Activate();
+            m_Gui->SetMouseCursorSize(40.0f);
+        }
+    }
+    catch (const cf::GuiSys::GuiImplT::InitErrorT& IE)
+    {
+        // This one must not throw again...
+        m_Gui = new cf::GuiSys::GuiImplT(
+            GetEntity()->GetWorld().GetGuiResources(),
+            cf::String::Replace(FallbackGUI, "%s", "Could not load GUI\n" + m_GuiName.Get() + "\n\n" + IE.what()),
+            cf::GuiSys::GuiImplT::InitFlag_InlineCode);
     }
 
     return m_Gui;
@@ -577,7 +611,7 @@ static const cf::TypeSys::MethsDocT META_SetAnim =
     "Optionally, there is a blending from the previous sequence over a given time.\n"
     "Also optionally, the \"force loop\" flag for the new sequence can be set.\n"
     "For example: `SetAnim(8, 3.0, true)`",
-    "number", "(number anim, number blend_time=0.0, boolean force_loop=false)"
+    "", "(number anim, number blend_time=0.0, boolean force_loop=false)"
 };
 
 int ComponentModelT::SetAnim(lua_State* LuaState)
@@ -592,8 +626,8 @@ int ComponentModelT::SetAnim(lua_State* LuaState)
     const float BlendTime = float(luaL_checknumber(LuaState, 3));
     const bool  ForceLoop = lua_isnumber(LuaState, 4) ? (lua_tointeger(LuaState, 4) != 0) : (lua_toboolean(LuaState, 4) != 0);
 
-    lua_pushinteger(LuaState, Comp->SetAnimNr(AnimNr, BlendTime, ForceLoop));
-    return 1;
+    Comp->m_ModelAnimNr.SetAnimNr(AnimNr, BlendTime, ForceLoop);
+    return 0;
 }
 
 

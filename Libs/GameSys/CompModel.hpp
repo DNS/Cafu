@@ -115,6 +115,8 @@ namespace cf
                 VarModelAnimNrT(const char* Name, const int& Value, const char* Flags[], ComponentModelT& Comp);
                 VarModelAnimNrT(const VarModelAnimNrT& Var, ComponentModelT& Comp);
 
+                void SetAnimNr(int AnimNr, float BlendTime, bool ForceLoop);
+
                 // Base class overrides.
                 void Set(const int& v);
                 void GetChoices(ArrayT<std::string>& Strings, ArrayT<int>& Values) const;
@@ -163,10 +165,10 @@ namespace cf
             };
 
 
-            void FillMemberVars();                                                ///< A helper method for the constructors.
-            std::string SetModel(const std::string& FileName, std::string& Msg);  ///< m_ModelName::Set() delegates here.
-            int SetAnimNr(int AnimNr, float BlendTime, bool ForceLoop);           ///< m_ModelAnimNr::Set() and SetAnim(LuaState) delegate here.
-            cf::GuiSys::GuiImplT* GetGui() const;                                 ///< Updates the m_Gui instance, and returns it (can be `NULL`).
+            void FillMemberVars();                          ///< A helper method for the constructors.
+            void ReInit(std::string* ErrorMsg=NULL);        ///< A helper method.
+            AnimPoseT*            GetPose() const;          ///< Updates the m_Pose instance, and returns it (can be `NULL`).
+            cf::GuiSys::GuiImplT* GetGui() const;           ///< Updates the m_Gui instance, and returns it (can be `NULL`).
 
             VarModelNameT                 m_ModelName;      ///< The file name of the model.
             VarModelAnimNrT               m_ModelAnimNr;    ///< The animation sequence number of the model.
@@ -175,7 +177,7 @@ namespace cf
             VarGuiNameT                   m_GuiName;        ///< The file name of the GUI to be used with the models GUI fixtures (if there are any).
 
             const CafuModelT*             m_Model;          ///< The model instance, updated by changes to m_ModelName.
-            AnimPoseT*                    m_Pose;           ///< The pose of the model.
+            mutable AnimPoseT*            m_Pose;           ///< The pose of the model, updated by changes to m_ModelAnimNr.
             mutable cf::GuiSys::GuiImplT* m_Gui;            ///< The GUI instance, updated by changes to m_GuiName.
         };
     }
