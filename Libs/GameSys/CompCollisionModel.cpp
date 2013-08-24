@@ -21,6 +21,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "CompCollisionModel.hpp"
 #include "AllComponents.hpp"
+#include "Entity.hpp"
+#include "World.hpp"
+
+#include "ClipSys/CollisionModelMan.hpp"
 
 extern "C"
 {
@@ -51,7 +55,9 @@ const cf::TypeSys::VarsDocT ComponentCollisionModelT::DocVars[] =
 
 ComponentCollisionModelT::ComponentCollisionModelT()
     : ComponentBaseT(),
-      m_CollMdlName("Name", "", FlagsIsFileName)
+      m_CollMdlName("Name", "", FlagsIsFileName),
+      m_PrevName(""),
+      m_CollisionModel(NULL)
 {
     GetMemberVars().Add(&m_CollMdlName);
 }
@@ -59,15 +65,61 @@ ComponentCollisionModelT::ComponentCollisionModelT()
 
 ComponentCollisionModelT::ComponentCollisionModelT(const ComponentCollisionModelT& Comp)
     : ComponentBaseT(Comp),
-      m_CollMdlName(Comp.m_CollMdlName)
+      m_CollMdlName(Comp.m_CollMdlName),
+      m_PrevName(""),
+      m_CollisionModel(NULL)
 {
     GetMemberVars().Add(&m_CollMdlName);
+}
+
+
+ComponentCollisionModelT::~ComponentCollisionModelT()
+{
+    FreeCollisionModel();
+}
+
+
+const cf::ClipSys::CollisionModelT* ComponentCollisionModelT::GetCollisionModel()
+{
+    if (m_CollMdlName.Get() != m_PrevName)
+    {
+        FreeCollisionModel();
+
+        if (GetEntity() && m_CollMdlName.Get() != "")
+            m_CollisionModel = GetEntity()->GetWorld().GetCollModelMan().GetCM(m_CollMdlName.Get());
+
+        m_PrevName = m_CollMdlName.Get();
+    }
+
+    return m_CollisionModel;
 }
 
 
 ComponentCollisionModelT* ComponentCollisionModelT::Clone() const
 {
     return new ComponentCollisionModelT(*this);
+}
+
+
+void ComponentCollisionModelT::UpdateDependencies(EntityT* Entity)
+{
+    if (GetEntity() != Entity)
+        FreeCollisionModel();
+
+    ComponentBaseT::UpdateDependencies(Entity);
+}
+
+
+void ComponentCollisionModelT::FreeCollisionModel()
+{
+    if (!GetEntity())
+    {
+        assert(m_CollisionModel == NULL);
+        return;
+    }
+
+    GetEntity()->GetWorld().GetCollModelMan().FreeCM(m_CollisionModel);
+    m_CollisionModel = NULL;
 }
 
 

@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <stdexcept>
 
 
+namespace cf { namespace ClipSys { class CollModelManI; } }
 namespace cf { namespace GuiSys { class GuiResourcesT; } }
 class ModelManagerT;
 struct CaKeyboardEventT;
@@ -62,9 +63,10 @@ namespace cf
             /// @param ScriptName   The file name of the script to load.
             /// @param ModelMan     The manager for all models that are used in this world.
             /// @param GuiRes       The provider for resources (fonts and models) for all GUIs in this world.
+            /// @param CollModelMan The manager for all collision models that are used in this world.
             /// @param Flags        A combination of the flags in InitFlagsT.
             /// @throws Throws an InitErrorT object on problems initializing the world.
-            WorldT(const std::string& ScriptName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, int Flags = 0);
+            WorldT(const std::string& ScriptName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, cf::ClipSys::CollModelManI& CollModelMan, int Flags = 0);
 
             /// The destructor.
             ~WorldT();
@@ -95,6 +97,9 @@ namespace cf
             /// All GUIs that are created in this world share their font and model resources via the returned GuiResourcesT instance.
             cf::GuiSys::GuiResourcesT& GetGuiResources() const { return m_GuiResources; }
 
+            /// Returns the manager for all collision models that are used in this world.
+            cf::ClipSys::CollModelManI& GetCollModelMan() const { return m_CollModelMan; }
+
             /// Renders this world.
             /// Note that this method does *not* setup any of the MatSys's model, view or projection matrices:
             /// it's up to the caller to do that.
@@ -123,13 +128,14 @@ namespace cf
             void Init();    ///< Calls the OnInit() script methods of all entities.
 
 
-            const std::string          m_ScriptName;    ///< The name of the script file that this world instance was loaded from.
-            UniScriptStateT            m_ScriptState;   ///< The script state of this world.
-            IntrusivePtrT<EntityT>     m_RootEntity;    ///< The root of the entity hierarchy that forms this world.
-            bool                       m_IsInited;      ///< Has the Init() method already been called?
-            unsigned int               m_NextEntID;     ///< The ID that the next newly created entity should get.
-            ModelManagerT&             m_ModelMan;      ///< The manager for all models that are used in this world.
-            cf::GuiSys::GuiResourcesT& m_GuiResources;  ///< The provider for resources (fonts and models) for all GUIs in this world.
+            const std::string           m_ScriptName;   ///< The name of the script file that this world instance was loaded from.
+            UniScriptStateT             m_ScriptState;  ///< The script state of this world.
+            IntrusivePtrT<EntityT>      m_RootEntity;   ///< The root of the entity hierarchy that forms this world.
+            bool                        m_IsInited;     ///< Has the Init() method already been called?
+            unsigned int                m_NextEntID;    ///< The ID that the next newly created entity should get.
+            ModelManagerT&              m_ModelMan;     ///< The manager for all models that are used in this world.
+            cf::GuiSys::GuiResourcesT&  m_GuiResources; ///< The provider for resources (fonts and models) for all GUIs in this world.
+            cf::ClipSys::CollModelManI& m_CollModelMan; ///< The manager for all collision models that are used in this world.
 
 
             // Methods called from Lua scripts on cf::GameSys::WorldT instances.

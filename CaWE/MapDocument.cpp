@@ -74,6 +74,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Group.hpp"
 #include "Camera.hpp"
 
+#include "ClipSys/CollisionModelMan.hpp"
 #include "GameSys/CompCollisionModel.hpp"
 #include "GameSys/CompModel.hpp"
 #include "GameSys/Entity.hpp"
@@ -207,6 +208,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig)
         "world:SetRootEntity(Map)\n",
         m_GameConfig->GetModelMan(),
         m_GameConfig->GetGuiResources(),
+        *cf::ClipSys::CollModelMan,   // TODO: The CollModelMan should not be a global, but rather be instantiated along with the ModelMan and GuiRes.
         cf::GameSys::WorldT::InitFlag_InlineCode | cf::GameSys::WorldT::InitFlag_InMapEditor);
 
     IntrusivePtrT<cf::GameSys::EntityT> ScriptRootEnt = m_ScriptWorld->GetRootEntity();
@@ -308,6 +310,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
             centFileName.ToStdString(),
             m_GameConfig->GetModelMan(),
             m_GameConfig->GetGuiResources(),
+            *cf::ClipSys::CollModelMan,   // TODO: The CollModelMan should not be a global, but rather be instantiated along with the ModelMan and GuiRes.
             cf::GameSys::WorldT::InitFlag_InMapEditor);
     }
     else
@@ -319,6 +322,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
             "world:SetRootEntity(Map)\n",
             m_GameConfig->GetModelMan(),
             m_GameConfig->GetGuiResources(),
+            *cf::ClipSys::CollModelMan,   // TODO: The CollModelMan should not be a global, but rather be instantiated along with the ModelMan and GuiRes.
             cf::GameSys::WorldT::InitFlag_InlineCode | cf::GameSys::WorldT::InitFlag_InMapEditor);
     }
 

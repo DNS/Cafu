@@ -266,6 +266,7 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
             cf::String::StripExt(LoadName) + ".cent",
             ModelMan,
             GuiRes,
+            *cf::ClipSys::CollModelMan,   // TODO: The CollModelMan should not be a global, but rather be instantiated along with the ModelMan and GuiRes.
             cf::GameSys::WorldT::InitFlag_InMapEditor);
     }
     catch (const cf::GameSys::WorldT::InitErrorT& IE)

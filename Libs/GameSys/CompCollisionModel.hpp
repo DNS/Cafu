@@ -25,6 +25,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CompBase.hpp"
 
 
+namespace cf { namespace ClipSys { class CollisionModelT; } }
+
+
 namespace cf
 {
     namespace GameSys
@@ -41,12 +44,19 @@ namespace cf
             /// @param Comp   The component to create a copy of.
             ComponentCollisionModelT(const ComponentCollisionModelT& Comp);
 
+            /// The destructor.
+            ~ComponentCollisionModelT();
+
             /// Sets the file name of the collision model.
             void SetCollMdlName(const std::string& FileName) { m_CollMdlName.Set(FileName); }
+
+            /// Returns the collision model.
+            const cf::ClipSys::CollisionModelT* GetCollisionModel();
 
             // Base class overrides.
             ComponentCollisionModelT* Clone() const;
             const char* GetName() const { return "CollisionModel"; }
+            void UpdateDependencies(EntityT* Entity);
 
 
             // The TypeSys related declarations for this class.
@@ -68,7 +78,11 @@ namespace cf
 
             private:
 
-            TypeSys::VarT<std::string> m_CollMdlName;   ///< The file name of the collision model.
+            void FreeCollisionModel();
+
+            TypeSys::VarT<std::string>          m_CollMdlName;      ///< The file name of the collision model.
+            std::string                         m_PrevName;         ///< The previous file name, used to detect changes in `m_CollMdlName`.
+            const cf::ClipSys::CollisionModelT* m_CollisionModel;   ///< The collision model of this entity, NULL for none.
         };
     }
 }

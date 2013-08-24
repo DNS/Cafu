@@ -69,6 +69,7 @@ Ca3DEWorldT::Ca3DEWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* G
             ScriptName,
             ModelMan,
             GuiRes,
+            *cf::ClipSys::CollModelMan,   // TODO: The CollModelMan should not be a global, but rather be instantiated along with the ModelMan and GuiRes.
             0 /*cf::GameSys::WorldT::InitFlag_InMapEditor*/);
     }
     catch (const cf::GameSys::WorldT::InitErrorT& IE)

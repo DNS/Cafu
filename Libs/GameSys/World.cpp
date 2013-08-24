@@ -38,14 +38,15 @@ WorldT::InitErrorT::InitErrorT(const std::string& Message)
 }
 
 
-WorldT::WorldT(const std::string& ScriptName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, int Flags)
+WorldT::WorldT(const std::string& ScriptName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, cf::ClipSys::CollModelManI& CollModelMan, int Flags)
     : m_ScriptName((Flags & InitFlag_InlineCode) ? "" : ScriptName),
       m_ScriptState(),
       m_RootEntity(NULL),
       m_IsInited(false),
       m_NextEntID(0),
       m_ModelMan(ModelMan),
-      m_GuiResources(GuiRes)
+      m_GuiResources(GuiRes),
+      m_CollModelMan(CollModelMan)
 {
     lua_State* LuaState = m_ScriptState.GetLuaState();
 
