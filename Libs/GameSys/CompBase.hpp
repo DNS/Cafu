@@ -107,6 +107,7 @@ namespace cf
             /// Writes the current state of this component into the given stream.
             /// This method is called to send the state of the component over the network, to save it to disk,
             /// or to store it in the clipboard.
+            /// The implementation calls DoSerialize() that derived classes can override to add their own data.
             ///
             /// @param Stream
             ///   The stream to write the state data to.
@@ -116,6 +117,8 @@ namespace cf
             /// This method is called after the state of the component has been received over the network,
             /// has been loaded from disk, has been read from the clipboard, or must be "reset" for the purpose
             /// of (re-)prediction.
+            /// The implementation calls DoDeserialize() that derived classes can override to read their own data,
+            /// or to run any post-deserialization code.
             ///
             /// @param Stream
             ///   The stream to read the state data from.
@@ -212,7 +215,24 @@ namespace cf
             };
 
 
-            void operator = (const ComponentBaseT&);    ///< Use of the Assignment Operator is not allowed.
+            /// Use of the Assignment Operator is not allowed (the method is declared, but left undefined).
+            void operator = (const ComponentBaseT&);
+
+            /// Derived classes override this method in order to write additional state data into the given stream.
+            /// The method itself is automatically called from Serialize(), see Serialize() for more details.
+            ///
+            /// (This follows the "Non-Virtual Interface Idiom" as described by Scott Meyers in
+            /// "Effective C++, 3rd Edition", item 35 ("Consider alternatives to virtual functions.").)
+            virtual void DoSerialize(cf::Network::OutStreamT& Stream) const { }
+
+            /// Derived classes override this method in order to read additional state data from the given stream,
+            /// or to run any post-deserialization code.
+            /// The method itself is automatically called from Deserialize(), see Deserialize() for more details.
+            ///
+            /// (This follows the "Non-Virtual Interface Idiom" as described by Scott Meyers in
+            /// "Effective C++, 3rd Edition", item 35 ("Consider alternatives to virtual functions.").)
+            virtual void DoDeserialize(cf::Network::InStreamT& Stream) { }
+
 
             EntityT*                m_Entity;           ///< The parent entity that contains this component, or `NULL` if this component is currently not a part of any entity.
             TypeSys::VarManT        m_MemberVars;       ///< The variable manager that keeps generic references to our member variables.

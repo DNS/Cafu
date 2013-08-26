@@ -87,6 +87,8 @@ void ComponentBaseT::Serialize(cf::Network::OutStreamT& Stream) const
         if (!Vars[VarNr]->HasFlag("DontSerialize"))
             Vars[VarNr]->Serialize(Stream);
     }
+
+    DoSerialize(Stream);
 }
 
 
@@ -103,6 +105,8 @@ void ComponentBaseT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
         if (!Vars[VarNr]->HasFlag("DontSerialize"))
             Vars[VarNr]->Deserialize(Stream);
     }
+
+    DoDeserialize(Stream);
 }
 
 
