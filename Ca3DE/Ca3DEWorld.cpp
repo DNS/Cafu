@@ -51,10 +51,10 @@ static WorldManT WorldMan;
 Ca3DEWorldT::Ca3DEWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* Game, const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction) /*throw (WorldT::LoadErrorT)*/
     : m_Game(Game),
       m_World(WorldMan.LoadWorld(FileName, ModelMan, GuiRes, InitForGraphics, ProgressFunction)),
-      m_ScriptWorld(NULL),
       m_ClipWorld(new cf::ClipSys::ClipWorldT(m_World->m_StaticEntityData[0]->m_CollModel)),
       m_PhysicsWorld(m_World->m_StaticEntityData[0]->m_CollModel),
       m_ScriptState(GameInfo, m_Game),
+      m_ScriptWorld(NULL),
       m_EngineEntities(),
       m_ModelMan(ModelMan),
       m_GuiRes(GuiRes)
@@ -70,6 +70,7 @@ Ca3DEWorldT::Ca3DEWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* G
             ModelMan,
             GuiRes,
             *cf::ClipSys::CollModelMan,   // TODO: The CollModelMan should not be a global, but rather be instantiated along with the ModelMan and GuiRes.
+            m_ClipWorld,
             0 /*cf::GameSys::WorldT::InitFlag_InMapEditor*/);
     }
     catch (const cf::GameSys::WorldT::InitErrorT& IE)
@@ -121,14 +122,14 @@ Ca3DEWorldT::~Ca3DEWorldT()
     // assert(!m_ScriptState.HasEntityInstances());
     // lua_gc(m_ScriptState.GetScriptState().GetLuaState(), LUA_GCCOLLECT, 0);
 
+    delete m_ScriptWorld;
+    m_ScriptWorld = NULL;
+
     // delete m_PhysicsWorld;
     // m_PhysicsWorld = NULL;
 
     delete m_ClipWorld;
     m_ClipWorld = NULL;
-
-    delete m_ScriptWorld;
-    m_ScriptWorld = NULL;
 
     if (m_World)
     {

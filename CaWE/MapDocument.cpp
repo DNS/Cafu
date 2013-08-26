@@ -209,6 +209,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig)
         m_GameConfig->GetModelMan(),
         m_GameConfig->GetGuiResources(),
         *cf::ClipSys::CollModelMan,   // TODO: The CollModelMan should not be a global, but rather be instantiated along with the ModelMan and GuiRes.
+        NULL,   // No clip world for this instance.
         cf::GameSys::WorldT::InitFlag_InlineCode | cf::GameSys::WorldT::InitFlag_InMapEditor);
 
     IntrusivePtrT<cf::GameSys::EntityT> ScriptRootEnt = m_ScriptWorld->GetRootEntity();
@@ -311,6 +312,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
             m_GameConfig->GetModelMan(),
             m_GameConfig->GetGuiResources(),
             *cf::ClipSys::CollModelMan,   // TODO: The CollModelMan should not be a global, but rather be instantiated along with the ModelMan and GuiRes.
+            NULL,   // No clip world for this instance.
             cf::GameSys::WorldT::InitFlag_InMapEditor);
     }
     else
@@ -323,6 +325,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
             m_GameConfig->GetModelMan(),
             m_GameConfig->GetGuiResources(),
             *cf::ClipSys::CollModelMan,   // TODO: The CollModelMan should not be a global, but rather be instantiated along with the ModelMan and GuiRes.
+            NULL,   // No clip world for this instance.
             cf::GameSys::WorldT::InitFlag_InlineCode | cf::GameSys::WorldT::InitFlag_InMapEditor);
     }
 

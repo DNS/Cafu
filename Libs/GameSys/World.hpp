@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <stdexcept>
 
 
+namespace cf { namespace ClipSys { class ClipWorldT; } }
 namespace cf { namespace ClipSys { class CollModelManI; } }
 namespace cf { namespace GuiSys { class GuiResourcesT; } }
 class ModelManagerT;
@@ -64,9 +65,11 @@ namespace cf
             /// @param ModelMan     The manager for all models that are used in this world.
             /// @param GuiRes       The provider for resources (fonts and models) for all GUIs in this world.
             /// @param CollModelMan The manager for all collision models that are used in this world.
+            /// @param ClipWorld    The clip world, where entities can register their collision models and run collision detection queries. Can be `NULL`, e.g. in CaWE or the map compile tools.
             /// @param Flags        A combination of the flags in InitFlagsT.
             /// @throws Throws an InitErrorT object on problems initializing the world.
-            WorldT(const std::string& ScriptName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, cf::ClipSys::CollModelManI& CollModelMan, int Flags = 0);
+            WorldT(const std::string& ScriptName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes,
+                   cf::ClipSys::CollModelManI& CollModelMan, cf::ClipSys::ClipWorldT* ClipWorld, int Flags = 0);
 
             /// The destructor.
             ~WorldT();
@@ -99,6 +102,10 @@ namespace cf
 
             /// Returns the manager for all collision models that are used in this world.
             cf::ClipSys::CollModelManI& GetCollModelMan() const { return m_CollModelMan; }
+
+            /// The clip world, where entities can register their collision models and run collision detection queries.
+            /// Can be `NULL`, e.g. in CaWE or the map compile tools.
+            cf::ClipSys::ClipWorldT* GetClipWorld() const { return m_ClipWorld; }
 
             /// Renders this world.
             /// Note that this method does *not* setup any of the MatSys's model, view or projection matrices:
@@ -136,6 +143,7 @@ namespace cf
             ModelManagerT&              m_ModelMan;     ///< The manager for all models that are used in this world.
             cf::GuiSys::GuiResourcesT&  m_GuiResources; ///< The provider for resources (fonts and models) for all GUIs in this world.
             cf::ClipSys::CollModelManI& m_CollModelMan; ///< The manager for all collision models that are used in this world.
+            cf::ClipSys::ClipWorldT*    m_ClipWorld;    ///< The clip world, where entities can register their collision models and run collision detection queries. Can be `NULL`, e.g. in CaWE or the map compile tools.
 
 
             // Methods called from Lua scripts on cf::GameSys::WorldT instances.
