@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Entity.hpp"
 #include "World.hpp"
 
+#include "ClipSys/ClipModel.hpp"
 #include "ClipSys/CollisionModelMan.hpp"
 
 extern "C"
@@ -57,7 +58,10 @@ ComponentCollisionModelT::ComponentCollisionModelT()
     : ComponentBaseT(),
       m_CollMdlName("Name", "", FlagsIsFileName),
       m_PrevName(""),
-      m_CollisionModel(NULL)
+      m_CollisionModel(NULL),
+      m_ClipModel(NULL),
+      m_ClipPrevOrigin(),
+      m_ClipPrevQuat()
 {
     GetMemberVars().Add(&m_CollMdlName);
 }
@@ -67,7 +71,10 @@ ComponentCollisionModelT::ComponentCollisionModelT(const ComponentCollisionModel
     : ComponentBaseT(Comp),
       m_CollMdlName(Comp.m_CollMdlName),
       m_PrevName(""),
-      m_CollisionModel(NULL)
+      m_CollisionModel(NULL),
+      m_ClipModel(NULL),
+      m_ClipPrevOrigin(),
+      m_ClipPrevQuat()
 {
     GetMemberVars().Add(&m_CollMdlName);
 }
@@ -75,23 +82,7 @@ ComponentCollisionModelT::ComponentCollisionModelT(const ComponentCollisionModel
 
 ComponentCollisionModelT::~ComponentCollisionModelT()
 {
-    FreeCollisionModel();
-}
-
-
-const cf::ClipSys::CollisionModelT* ComponentCollisionModelT::GetCollisionModel()
-{
-    if (m_CollMdlName.Get() != m_PrevName)
-    {
-        FreeCollisionModel();
-
-        if (GetEntity() && m_CollMdlName.Get() != "")
-            m_CollisionModel = GetEntity()->GetWorld().GetCollModelMan().GetCM(m_CollMdlName.Get());
-
-        m_PrevName = m_CollMdlName.Get();
-    }
-
-    return m_CollisionModel;
+    CleanUp();
 }
 
 
@@ -104,22 +95,99 @@ ComponentCollisionModelT* ComponentCollisionModelT::Clone() const
 void ComponentCollisionModelT::UpdateDependencies(EntityT* Entity)
 {
     if (GetEntity() != Entity)
-        FreeCollisionModel();
+        CleanUp();
 
     ComponentBaseT::UpdateDependencies(Entity);
+
+    UpdateClipModel();
 }
 
 
-void ComponentCollisionModelT::FreeCollisionModel()
+void ComponentCollisionModelT::OnClockTickEvent(float t)
+{
+    // TODO:
+    // This should actually be in some PostThink() method, so that we can be sure that
+    // all behaviour and physics scripts (that possibly alter the origin and orientation)
+    // have already been run when we update the clip model.
+    UpdateClipModel();
+}
+
+
+void ComponentCollisionModelT::CleanUp()
 {
     if (!GetEntity())
     {
         assert(m_CollisionModel == NULL);
+        assert(m_ClipModel == NULL);
+        assert(m_PrevName == "");
         return;
     }
 
+    delete m_ClipModel;
+    m_ClipModel = NULL;
+
     GetEntity()->GetWorld().GetCollModelMan().FreeCM(m_CollisionModel);
     m_CollisionModel = NULL;
+
+    // If m_CollMdlName.Get() != "", make sure that another attempt is made
+    // (e.g. when GetEntity() becomes non-NULL in the future) to establish m_CollisionModel again.
+    m_PrevName = "";
+}
+
+
+void ComponentCollisionModelT::UpdateClipModel()
+{
+    if (!GetEntity()) return;
+    if (!GetEntity()->GetWorld().GetClipWorld()) return;
+
+    if (m_CollMdlName.Get() != m_PrevName)
+    {
+        CleanUp();
+
+        // `GetEntity() != NULL` is checked above already.
+        if (/*GetEntity() &&*/ m_CollMdlName.Get() != "")
+            m_CollisionModel = GetEntity()->GetWorld().GetCollModelMan().GetCM(m_CollMdlName.Get());
+
+        m_PrevName = m_CollMdlName.Get();
+    }
+
+    if (!m_CollisionModel) return;
+
+    const bool IsNewClipModel = (m_ClipModel == NULL);
+
+    if (!m_ClipModel)
+    {
+        m_ClipModel = new cf::ClipSys::ClipModelT(*GetEntity()->GetWorld().GetClipWorld());
+
+        m_ClipModel->SetCollisionModel(m_CollisionModel);
+
+        // As user data of the clip model, set to pointer back to us, the owner
+        // of the clip model (the clip model is the member of "this" entity).
+     // TODO: MoveHuman() Physics code assumes (static_cast<>) that this is always an old-style BaseEntityT...!
+     // m_ClipModel->SetUserData(GetEntity());
+    }
+
+    // Has the origin or orientation changed since we last registered clip model? If so, re-register!
+    const Vector3fT              o = GetEntity()->GetTransform()->GetOrigin();
+    const cf::math::QuaternionfT q = GetEntity()->GetTransform()->GetQuat();
+
+    if (IsNewClipModel || o != m_ClipPrevOrigin || q != m_ClipPrevQuat)
+    {
+        m_ClipModel->SetOrigin(o.AsVectorOfDouble());
+        m_ClipModel->SetOrientation(cf::math::Matrix3x3dT(cf::math::QuaterniondT(q.x, q.y, q.z, q.w)));
+        m_ClipModel->Register();
+
+        m_ClipPrevOrigin = o;
+        m_ClipPrevQuat   = q;
+    }
+}
+
+
+void ComponentCollisionModelT::DoDeserialize(cf::Network::InStreamT& Stream)
+{
+    // Deserialization may have updated our origin or orientation,
+    // so we have to update the clip model.
+    UpdateClipModel();
 }
 
 

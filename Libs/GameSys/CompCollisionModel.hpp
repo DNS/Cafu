@@ -23,8 +23,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_GAMESYS_COMPONENT_COLLISION_MODEL_HPP_INCLUDED
 
 #include "CompBase.hpp"
+#include "Math3D/Quaternion.hpp"
 
 
+namespace cf { namespace ClipSys { class ClipModelT; } }
 namespace cf { namespace ClipSys { class CollisionModelT; } }
 
 
@@ -50,13 +52,11 @@ namespace cf
             /// Sets the file name of the collision model.
             void SetCollMdlName(const std::string& FileName) { m_CollMdlName.Set(FileName); }
 
-            /// Returns the collision model.
-            const cf::ClipSys::CollisionModelT* GetCollisionModel();
-
             // Base class overrides.
             ComponentCollisionModelT* Clone() const;
             const char* GetName() const { return "CollisionModel"; }
             void UpdateDependencies(EntityT* Entity);
+            void OnClockTickEvent(float t);
 
 
             // The TypeSys related declarations for this class.
@@ -78,11 +78,17 @@ namespace cf
 
             private:
 
-            void FreeCollisionModel();
+            void CleanUp();
+            void UpdateClipModel();
+            void DoDeserialize(cf::Network::InStreamT& Stream) /*override*/;
 
             TypeSys::VarT<std::string>          m_CollMdlName;      ///< The file name of the collision model.
             std::string                         m_PrevName;         ///< The previous file name, used to detect changes in `m_CollMdlName`.
-            const cf::ClipSys::CollisionModelT* m_CollisionModel;   ///< The collision model of this entity, NULL for none.
+            const cf::ClipSys::CollisionModelT* m_CollisionModel;   ///< The collision model of this component, NULL for none.
+
+            cf::ClipSys::ClipModelT*            m_ClipModel;        ///< The clip model of this component, NULL for none.
+            Vector3fT                           m_ClipPrevOrigin;
+            cf::math::QuaternionfT              m_ClipPrevQuat;
         };
     }
 }
