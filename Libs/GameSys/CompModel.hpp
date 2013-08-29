@@ -52,6 +52,12 @@ namespace cf
             /// The Map Editor uses this method to initialize this component from old or imported key/value property pairs.
             void Set(const std::string& Name, int AnimNr, float Scale, const std::string& GuiName);
 
+            /// Returns the current pose of this model (or `NULL` if there is no pose (yet)).
+            AnimPoseT* GetPose() const;
+
+            /// Returns the GUI instance of this model, if it has one (or `NULL` otherwise).
+            cf::GuiSys::GuiImplT* GetGui() const;
+
             // Base class overrides.
             ComponentModelT* Clone() const;
             const char* GetName() const { return "Model"; }
@@ -167,8 +173,6 @@ namespace cf
 
             void FillMemberVars();                          ///< A helper method for the constructors.
             void ReInit(std::string* ErrorMsg=NULL);        ///< A helper method.
-            AnimPoseT*            GetPose() const;          ///< Updates the m_Pose instance, and returns it (can be `NULL`).
-            cf::GuiSys::GuiImplT* GetGui() const;           ///< Updates the m_Gui instance, and returns it (can be `NULL`).
 
             VarModelNameT                 m_ModelName;      ///< The file name of the model.
             VarModelAnimNrT               m_ModelAnimNr;    ///< The animation sequence number of the model.

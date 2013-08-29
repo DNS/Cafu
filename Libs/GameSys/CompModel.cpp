@@ -365,6 +365,96 @@ void ComponentModelT::Set(const std::string& Name, int AnimNr, float Scale, cons
 }
 
 
+AnimPoseT* ComponentModelT::GetPose() const
+{
+    if (m_Model && !m_Pose)
+    {
+        IntrusivePtrT<AnimExprStandardT> StdAE = m_Model->GetAnimExprPool().GetStandard(m_ModelAnimNr.Get(), 0.0f);
+        StdAE->SetForceLoop(true);
+
+        m_Pose = new AnimPoseT(*m_Model, StdAE);
+    }
+
+    return m_Pose;
+}
+
+
+cf::GuiSys::GuiImplT* ComponentModelT::GetGui() const
+{
+    if (!m_Model || !m_Model->GetGuiFixtures().Size())
+    {
+        // Not a model with GUI fixtures.
+        assert(!m_Gui);
+        return NULL;
+    }
+
+    // If we have a model with GUI fixtures, return a valid GUI instance in any case.
+    if (m_Gui) return m_Gui;
+
+    static const char* FallbackGUI =
+        "Root = gui:new('WindowT', 'Root')\n"
+        "gui:SetRootWindow(Root)\n"
+        "\n"
+        "function Root:OnInit()\n"
+        "    self:GetTransform():set('Pos', 0, 0)\n"
+        "    self:GetTransform():set('Size', 640, 480)\n"
+        "\n"
+        "    local c1 = gui:new('ComponentTextT')\n"
+        "    c1:set('Text', [=====[%s]=====])\n"    // This is indended for use with e.g. wxString::Format().
+        " -- c1:set('Font', 'Fonts/Impact')\n"
+        "    c1:set('Scale', 0.6)\n"
+        "    c1:set('Padding', 0, 0)\n"
+        "    c1:set('Color', 15/255, 49/255, 106/255)\n"
+        " -- c1:set('Alpha', 0.5)\n"
+        "    c1:set('hor. Align', 0)\n"
+        "    c1:set('ver. Align', 0)\n"
+        "\n"
+        "    local c2 = gui:new('ComponentImageT')\n"
+        "    c2:set('Material', '')\n"
+        "    c2:set('Color', 150/255, 170/255, 204/255)\n"
+        "    c2:set('Alpha', 0.8)\n"
+        "\n"
+        "    self:AddComponent(c1, c2)\n"
+        "\n"
+        "    gui:activate      (true)\n"
+        "    gui:setInteractive(true)\n"
+        "    gui:showMouse     (false)\n"
+        "    gui:setFocus      (Root)\n"
+        "end\n";
+
+    try
+    {
+        if (m_GuiName.Get() == "")
+        {
+            m_Gui = new cf::GuiSys::GuiImplT(
+                GetEntity()->GetWorld().GetGuiResources(),
+                cf::String::Replace(FallbackGUI, "%s", "This is a\nfull-scale sample GUI.\n\n"
+                    "Set the 'Gui' property\nof the Model component\nto assign the real GUI."),
+                cf::GuiSys::GuiImplT::InitFlag_InlineCode);
+        }
+        else
+        {
+            m_Gui = new cf::GuiSys::GuiImplT(GetEntity()->GetWorld().GetGuiResources(), m_GuiName.Get());
+
+            // Active status is not really relevant for our Gui that is not managed by the GuiMan,
+            // but still make sure that clock tick events are properly propagated to all windows.
+            m_Gui->Activate();
+            m_Gui->SetMouseCursorSize(40.0f);
+        }
+    }
+    catch (const cf::GuiSys::GuiImplT::InitErrorT& IE)
+    {
+        // This one must not throw again...
+        m_Gui = new cf::GuiSys::GuiImplT(
+            GetEntity()->GetWorld().GetGuiResources(),
+            cf::String::Replace(FallbackGUI, "%s", "Could not load GUI\n" + m_GuiName.Get() + "\n\n" + IE.what()),
+            cf::GuiSys::GuiImplT::InitFlag_InlineCode);
+    }
+
+    return m_Gui;
+}
+
+
 ComponentModelT* ComponentModelT::Clone() const
 {
     return new ComponentModelT(*this);
@@ -491,96 +581,6 @@ void ComponentModelT::OnClockTickEvent(float t)
 
     if (GetGui())
         GetGui()->DistributeClockTickEvents(t);
-}
-
-
-AnimPoseT* ComponentModelT::GetPose() const
-{
-    if (m_Model && !m_Pose)
-    {
-        IntrusivePtrT<AnimExprStandardT> StdAE = m_Model->GetAnimExprPool().GetStandard(m_ModelAnimNr.Get(), 0.0f);
-        StdAE->SetForceLoop(true);
-
-        m_Pose = new AnimPoseT(*m_Model, StdAE);
-    }
-
-    return m_Pose;
-}
-
-
-cf::GuiSys::GuiImplT* ComponentModelT::GetGui() const
-{
-    if (!m_Model || !m_Model->GetGuiFixtures().Size())
-    {
-        // Not a model with GUI fixtures.
-        assert(!m_Gui);
-        return NULL;
-    }
-
-    // If we have a model with GUI fixtures, return a valid GUI instance in any case.
-    if (m_Gui) return m_Gui;
-
-    static const char* FallbackGUI =
-        "Root = gui:new('WindowT', 'Root')\n"
-        "gui:SetRootWindow(Root)\n"
-        "\n"
-        "function Root:OnInit()\n"
-        "    self:GetTransform():set('Pos', 0, 0)\n"
-        "    self:GetTransform():set('Size', 640, 480)\n"
-        "\n"
-        "    local c1 = gui:new('ComponentTextT')\n"
-        "    c1:set('Text', [=====[%s]=====])\n"    // This is indended for use with e.g. wxString::Format().
-        " -- c1:set('Font', 'Fonts/Impact')\n"
-        "    c1:set('Scale', 0.6)\n"
-        "    c1:set('Padding', 0, 0)\n"
-        "    c1:set('Color', 15/255, 49/255, 106/255)\n"
-        " -- c1:set('Alpha', 0.5)\n"
-        "    c1:set('hor. Align', 0)\n"
-        "    c1:set('ver. Align', 0)\n"
-        "\n"
-        "    local c2 = gui:new('ComponentImageT')\n"
-        "    c2:set('Material', '')\n"
-        "    c2:set('Color', 150/255, 170/255, 204/255)\n"
-        "    c2:set('Alpha', 0.8)\n"
-        "\n"
-        "    self:AddComponent(c1, c2)\n"
-        "\n"
-        "    gui:activate      (true)\n"
-        "    gui:setInteractive(true)\n"
-        "    gui:showMouse     (false)\n"
-        "    gui:setFocus      (Root)\n"
-        "end\n";
-
-    try
-    {
-        if (m_GuiName.Get() == "")
-        {
-            m_Gui = new cf::GuiSys::GuiImplT(
-                GetEntity()->GetWorld().GetGuiResources(),
-                cf::String::Replace(FallbackGUI, "%s", "This is a\nfull-scale sample GUI.\n\n"
-                    "Set the 'Gui' property\nof the Model component\nto assign the real GUI."),
-                cf::GuiSys::GuiImplT::InitFlag_InlineCode);
-        }
-        else
-        {
-            m_Gui = new cf::GuiSys::GuiImplT(GetEntity()->GetWorld().GetGuiResources(), m_GuiName.Get());
-
-            // Active status is not really relevant for our Gui that is not managed by the GuiMan,
-            // but still make sure that clock tick events are properly propagated to all windows.
-            m_Gui->Activate();
-            m_Gui->SetMouseCursorSize(40.0f);
-        }
-    }
-    catch (const cf::GuiSys::GuiImplT::InitErrorT& IE)
-    {
-        // This one must not throw again...
-        m_Gui = new cf::GuiSys::GuiImplT(
-            GetEntity()->GetWorld().GetGuiResources(),
-            cf::String::Replace(FallbackGUI, "%s", "Could not load GUI\n" + m_GuiName.Get() + "\n\n" + IE.what()),
-            cf::GuiSys::GuiImplT::InitFlag_InlineCode);
-    }
-
-    return m_Gui;
 }
 
 
