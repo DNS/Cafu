@@ -411,7 +411,7 @@ int BaseEntityT::GetName(lua_State* LuaState)
     cf::ScriptBinderT Binder(LuaState);
     IntrusivePtrT<BaseEntityT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<BaseEntityT> >(1);
 
-    lua_pushstring(LuaState, Ent->GameWorld->GetEntityNameByID(Ent->ID).c_str());
+    lua_pushstring(LuaState, Ent->m_Entity->GetBasics()->GetEntityName().c_str());
     return 1;
 }
 

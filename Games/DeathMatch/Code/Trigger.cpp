@@ -79,7 +79,7 @@ void EntTriggerT::OnTrigger(BaseEntityT* Activator)
 
     IntrusivePtrT<EntTriggerT> This(this);
 
-    GameWorld->GetScriptState().CallMethod(This, "OnTrigger", "G", GameWorld->GetEntityNameByID(Activator->ID).c_str());
+    GameWorld->GetScriptState().CallMethod(This, "OnTrigger", "G", Activator->m_Entity->GetBasics()->GetEntityName().c_str());
 }
 
 
