@@ -315,7 +315,7 @@ unsigned long Ca3DEWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<const Comp
         const unsigned long NewEntityID = m_EngineEntities.Size();
 
         IntrusivePtrT<GameEntityI> NewEntity = m_Game->CreateGameEntity(
-            TI, CompGameEnt->GetStaticEntityData()->m_Properties, CompGameEnt->GetStaticEntityData()->m_BspTree,
+            TI, CompGameEnt->GetEntity(), CompGameEnt->GetStaticEntityData()->m_Properties, CompGameEnt->GetStaticEntityData()->m_BspTree,
             CompGameEnt->GetStaticEntityData()->m_CollModel, NewEntityID, this, Origin);
 
         if (NewEntity.IsNull())

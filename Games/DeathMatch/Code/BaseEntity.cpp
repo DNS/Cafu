@@ -97,6 +97,7 @@ BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT
     : ID(Params.ID),
       Properties(Params.Properties),
       ParentID(0xFFFFFFFF),
+      m_Entity(Params.Entity),
       GameWorld(Params.GameWorld),
       CollisionModel(Params.CollisionModel),
       ClipModel(GameWorld->GetClipWorld()),  // Creates a clip model in the given clip world with a NULL collision model.

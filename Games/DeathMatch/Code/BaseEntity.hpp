@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "../../GameEntity.hpp"
 #include "ClipSys/ClipModel.hpp"
+#include "GameSys/Entity.hpp"
 
 #include <map>
 
@@ -90,6 +91,7 @@ namespace GAME_NAME
         unsigned long       ParentID;       // The 'ID' of the entity that created us.
      // ID[]                ChildrenIDs;    // The entities that we have created (e.g. the rockets that a human player fired).
 
+        IntrusivePtrT<cf::GameSys::EntityT> m_Entity;       ///< The associated entity in the cf::GameSys::WorldT.
         cf::GameSys::GameWorldI*            GameWorld;      ///< Pointer to the game world implementation.
         const cf::ClipSys::CollisionModelT* CollisionModel; ///< The collision model of this entity, NULL for none.
         cf::ClipSys::ClipModelT             ClipModel;      ///< The clip model of this entity. Note that clip models can take NULL collision model pointers, so that the ClipModel instance is always non-NULL and available.

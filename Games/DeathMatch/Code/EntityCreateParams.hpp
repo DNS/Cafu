@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "TypeSys.hpp"
 #include "Math3D/Vector3.hpp"
+#include "GameSys/Entity.hpp"
 #include <map>
 
 
@@ -40,6 +41,7 @@ namespace GAME_NAME
 
         EntityCreateParamsT(
             const unsigned long                       ID_,
+            IntrusivePtrT<cf::GameSys::EntityT>       Entity_,
             const std::map<std::string, std::string>& Properties_,
             const cf::SceneGraph::GenericNodeT*       RootNode_,
             const cf::ClipSys::CollisionModelT*       CollisionModel_,
@@ -48,6 +50,7 @@ namespace GAME_NAME
 
 
         const unsigned long                       ID;
+        IntrusivePtrT<cf::GameSys::EntityT>       Entity;
         const std::map<std::string, std::string>& Properties;
         const cf::SceneGraph::GenericNodeT*       RootNode;
         const cf::ClipSys::CollisionModelT*       CollisionModel;

@@ -33,6 +33,7 @@ class GameEntityI;
 template<class T> class Vector3T;
 class ModelManagerT;
 namespace cf { namespace ClipSys { class CollisionModelT; } }
+namespace cf { namespace GameSys { class EntityT; } }
 namespace cf { namespace GameSys { class GameWorldI; } }
 namespace cf { namespace SceneGraph { class GenericNodeT; } }
 namespace cf { namespace TypeSys { class TypeInfoT; } }
@@ -69,6 +70,7 @@ namespace cf
 
             /// Creates a new entity of the given type.
             /// @param TI             The type of entity to create.
+            /// @param Entity         The associated entity in the cf::GameSys::WorldT.
             /// @param Properties     The properties dictionary in the map file of this entity (empty if the entity is created "dynamically"). Contains especially the "classname" key that was used by the caller to determine TI.
             /// @param RootNode       The root node of the scene graph of this entity as defined in the map file. NULL if the entity is created "dynamically".
             /// @param CollisionModel The collision model of this entity as defined by map primitives. NULL if no collision model was defined by map primitives (the entity may still have a collision model based on the Properties).
@@ -76,7 +78,7 @@ namespace cf
             /// @param GameWorld      Pointer to the game world implementation.
             /// @param Origin         Where the new entity is supposed to be instantiated.
             /// @returns a pointer to the newly created game entity.
-            virtual IntrusivePtrT<GameEntityI> CreateGameEntity(const cf::TypeSys::TypeInfoT* TI, const std::map<std::string, std::string>& Properties,
+            virtual IntrusivePtrT<GameEntityI> CreateGameEntity(const cf::TypeSys::TypeInfoT* TI, IntrusivePtrT<cf::GameSys::EntityT> Entity, const std::map<std::string, std::string>& Properties,
                 const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID,
                 cf::GameSys::GameWorldI* GameWorld, const Vector3T<double>& Origin)=0;
 
