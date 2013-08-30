@@ -28,15 +28,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "btBulletDynamicsCommon.h"
 
 
+namespace cf { namespace GameSys { class ComponentModelT; } }
 namespace cf { namespace GuiSys { class GuiI; } }
 struct luaL_Reg;
 
 
 namespace GAME_NAME
 {
-    class EntStaticDetailModelT;
-
-
     class EntHumanPlayerT : public BaseEntityT, public btMotionState
     {
         public:
@@ -84,7 +82,7 @@ namespace GAME_NAME
         void DoDeserialize(cf::Network::InStreamT& Stream);
 
         /// A helper function for Think().
-        bool CheckGUI(IntrusivePtrT<EntStaticDetailModelT> GuiEnt, Vector3fT& MousePos) const;
+        bool CheckGUI(IntrusivePtrT<cf::GameSys::ComponentModelT> CompModel, Vector3fT& MousePos) const;
 
         // Script methods.
         static int GetHealth(lua_State* LuaState);

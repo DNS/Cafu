@@ -39,8 +39,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClipSys/CollisionModelMan.hpp"
 #include "ClipSys/TraceResult.hpp"
 #include "Fonts/Font.hpp"
+#include "GameSys/CompModel.hpp"
+#include "GuiSys/GuiImpl.hpp"
 #include "GuiSys/GuiMan.hpp"
-#include "GuiSys/Gui.hpp"
+#include "GuiSys/Window.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
@@ -326,10 +328,10 @@ void EntHumanPlayerT::ProcessConfigString(const void* ConfigData, const char* Co
 }
 
 
-bool EntHumanPlayerT::CheckGUI(IntrusivePtrT<EntStaticDetailModelT> GuiEnt, Vector3fT& MousePos) const
+bool EntHumanPlayerT::CheckGUI(IntrusivePtrT<cf::GameSys::ComponentModelT> CompModel, Vector3fT& MousePos) const
 {
     // 1. Has this entitiy an interactive GUI at all?
-    cf::GuiSys::GuiI* Gui=GuiEnt->GetGUI();
+    cf::GuiSys::GuiImplT* Gui = CompModel->GetGui();
 
     if (Gui==NULL) return false;
     if (!Gui->GetIsInteractive()) return false;
@@ -340,7 +342,16 @@ bool EntHumanPlayerT::CheckGUI(IntrusivePtrT<EntStaticDetailModelT> GuiEnt, Vect
     Vector3fT GuiAxisX;
     Vector3fT GuiAxisY;
 
-    if (!GuiEnt->GetGuiPlane(0, GuiOrigin, GuiAxisX, GuiAxisY)) return false;
+    AnimPoseT* Pose = CompModel->GetPose();
+
+    if (!Pose) return false;
+    if (!Pose->GetGuiPlane(0, GuiOrigin, GuiAxisX, GuiAxisY)) return false;
+
+    const MatrixT M2W = CompModel->GetEntity()->GetModelToWorld();
+
+    GuiOrigin = M2W.Mul1(GuiOrigin);
+    GuiAxisX  = M2W.Mul0(GuiAxisX);
+    GuiAxisY  = M2W.Mul0(GuiAxisY);
 
 
     // 3. Are we looking roughly into the screen normal?
@@ -364,12 +375,14 @@ bool EntHumanPlayerT::CheckGUI(IntrusivePtrT<EntStaticDetailModelT> GuiEnt, Vect
     const Vector3fT HitPos=OurOrigin+ViewDir*r;
 
     // Project HitPos into the GUI plane, in order to obtain the 2D coordinate in the GuiSys' virtual pixel space (640x480).
-    const float px=dot(HitPos-GuiOrigin, GuiAxisX)/GuiAxisX.GetLengthSqr();
-    const float py=dot(HitPos-GuiOrigin, GuiAxisY)/GuiAxisY.GetLengthSqr();
+    float px = dot(HitPos - GuiOrigin, GuiAxisX) / GuiAxisX.GetLengthSqr();
+    float py = dot(HitPos - GuiOrigin, GuiAxisY) / GuiAxisY.GetLengthSqr();
 
-    if (px<0.0f || px>1.0f) return false;
-    if (py<0.0f || py>1.0f) return false;
+    if (px < -0.5f || px > 1.5f) return false;
+    if (py < -0.5f || py > 1.5f) return false;
 
+    if (px < 0.0f) px = 0.0f; if (px > 0.99f) px = 0.99f;
+    if (py < 0.0f) py = 0.0f; if (py > 0.98f) py = 0.98f;
 
 
     // TODO: Trace gegen walls!
@@ -668,9 +681,17 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     if (OtherEntity    ==NULL) continue;
                     if (OtherEntity->ID==  ID) continue;    // We don't touch us ourselves.
 
+
                     // Test if maybe we're near a static detail model with an interactive GUI.
-                    if (OtherEntity->GetType()==&EntStaticDetailModelT::TypeInfo)
+                    const ArrayT< IntrusivePtrT<cf::GameSys::ComponentBaseT> >& Components = OtherEntity->m_Entity->GetComponents();
+
+                    // TODO: We iterate over each component of each entity here... can this somehow be reduced?
+                    for (unsigned int CompNr = 0; CompNr < Components.Size(); CompNr++)
                     {
+                        if (Components[CompNr]->GetType() != &cf::GameSys::ComponentModelT::TypeInfo) continue;
+
+                        IntrusivePtrT<cf::GameSys::ComponentModelT> CompModel = static_pointer_cast<cf::GameSys::ComponentModelT>(Components[CompNr]);
+
                         // TODO 1: Also deal with the GUI when this is a REPREDICTION run???
                         //
                         // Answer: Normally not, because what is done during prediction is only for eye candy,
@@ -694,13 +715,12 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                         //
                         // ==> How do we separate the two???
                         //     ...
-                        IntrusivePtrT<EntStaticDetailModelT> GuiEnt=static_pointer_cast<EntStaticDetailModelT>(OtherEntity);
-
                         Vector3fT MousePos;
-                        if (CheckGUI(GuiEnt, MousePos))
+
+                        if (CheckGUI(CompModel, MousePos))
                         {
-                            cf::GuiSys::GuiI* Gui=GuiEnt->GetGUI();
-                            CaMouseEventT     ME;
+                            cf::GuiSys::GuiImplT* Gui = CompModel->GetGui();
+                            CaMouseEventT         ME;
 
                             Gui->SetMousePos(MousePos.x, MousePos.y);
 
@@ -726,12 +746,11 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                             }
                         }
                     }
-                    else
-                    {
-                        // Touched not a GUI, but something else, e.g. a weapon that can be picked up.
-                        // Notify these items only on the server, though, not in prediction.
-                        if (!ThinkingOnServerSide) continue;
-                    }
+
+
+                    // Touching a GUI is processed both on the client and the server.
+                    // Other items, e.g. a weapon that can be picked up are notified only on the server, though, not in prediction.
+                    if (!ThinkingOnServerSide) continue;
 
                     // If the bounding boxes don't overlap, continue with the next entity (we did not touch this one).
                     BoundingBox3T<double> OtherEntityBB=OtherEntity->GetDimensions();
