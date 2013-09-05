@@ -238,10 +238,10 @@ namespace cf
 
         /// Loads the given string as a Lua chunk, then runs it.
         /// (This acts very much like the stand-alone Lua interpreter.)
-        bool DoString(const char* s);
+        bool DoString(const char* s, const char* Signature = "", ...);
 
         /// Loads the given file as a Lua chunk, then runs it.
-        bool DoFile(const char* FileName);
+        bool DoFile(const char* FileName, const char* Signature = "", ...);
 
         /// Calls the global script function with the given name.
         ///
@@ -305,12 +305,6 @@ namespace cf
 
         UniScriptStateT(const UniScriptStateT&);    ///< Use of the Copy Constructor    is not allowed.
         void operator = (const UniScriptStateT&);   ///< Use of the Assignment Operator is not allowed.
-
-        /// Like the public DoString(), but can also pass parameters to the chunk, like Call().
-        bool DoString(const char* s, const char* Signature, ...);
-
-        /// Like the public DoFile(), but can also pass parameters to the chunk, like Call().
-        bool DoFile(const char* FileName, const char* Signature, ...);
 
         /// This method calls a Lua function in the context of the Lua state.
         bool StartNewCoroutine(int NumExtraArgs, const char* Signature, va_list vl, const std::string& DbgName);

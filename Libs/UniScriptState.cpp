@@ -389,16 +389,6 @@ namespace
 }
 
 
-bool UniScriptStateT::DoString(const char* s)
-{
-    // This diversion to DoString() with "..." in the signature is necessary, because with GCC,
-    // va_start cannot be used in functions with fixed arguments. It cannot be omitted
-    // either, because then Visual C++ then complains that vl is used uninitialized.
-    // Note that from a Lua perspective, it is even meaningful to pass parameters to chunks.
-    return DoString(s, "");
-}
-
-
 bool UniScriptStateT::DoString(const char* s, const char* Signature, ...)
 {
     const StackCheckerT StackChecker(m_LuaState);
@@ -420,16 +410,6 @@ bool UniScriptStateT::DoString(const char* s, const char* Signature, ...)
     va_end(vl);
 
     return Result;
-}
-
-
-bool UniScriptStateT::DoFile(const char* FileName)
-{
-    // This diversion to DoFile() with "..." in the signature is necessary, because with GCC,
-    // va_start cannot be used in functions with fixed arguments. It cannot be omitted
-    // either, because then Visual C++ then complains that vl is used uninitialized.
-    // Note that from a Lua perspective, it is even meaningful to pass parameters to chunks.
-    return DoFile(FileName, "");
 }
 
 
