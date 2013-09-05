@@ -598,7 +598,7 @@ static const cf::TypeSys::MethsDocT META_GetParent =
 {
     "GetParent",
     "This method returns the parent of this entity (or `nil` if there is no parent).",
-    "entity", "()"
+    "EntityT", "()"
 };
 
 int EntityT::GetParent(lua_State* LuaState)
