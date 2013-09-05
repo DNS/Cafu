@@ -49,9 +49,6 @@ namespace cf
             /// The destructor.
             ~ComponentModelT();
 
-            /// The Map Editor uses this method to initialize this component from old or imported key/value property pairs.
-            void Set(const std::string& Name, int AnimNr, float Scale, const std::string& GuiName);
-
             /// Returns the current pose of this model (or `NULL` if there is no pose (yet)).
             AnimPoseT* GetPose() const;
 

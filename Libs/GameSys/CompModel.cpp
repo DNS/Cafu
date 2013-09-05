@@ -356,15 +356,6 @@ ComponentModelT::~ComponentModelT()
 }
 
 
-void ComponentModelT::Set(const std::string& Name, int AnimNr, float Scale, const std::string& GuiName)
-{
-    m_ModelName.Set(Name);
-    m_ModelAnimNr.Set(AnimNr);
-    m_ModelScale.Set(Scale);
-    m_GuiName.Set(GuiName);
-}
-
-
 AnimPoseT* ComponentModelT::GetPose() const
 {
     if (m_Model && !m_Pose)

@@ -49,9 +49,6 @@ namespace cf
             /// The destructor.
             ~ComponentCollisionModelT();
 
-            /// Sets the file name of the collision model.
-            void SetCollMdlName(const std::string& FileName) { m_CollMdlName.Set(FileName); }
-
             // Base class overrides.
             ComponentCollisionModelT* Clone() const;
             const char* GetName() const { return "CollisionModel"; }

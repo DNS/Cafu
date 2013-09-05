@@ -50,6 +50,8 @@ namespace cf
             /// Entity names must be valid Lua script identifiers and unique among their siblings, and the method
             /// modifies the given string as necessary. As a result, GetEntityName() can return a string that is
             /// different from the string given to a preceeding call to SetEntityName().
+            /// This is equivalent to calling `SetMember("Name", Name);`, but is provided for the more explicit
+            /// documentation of the side-effects.
             void SetEntityName(const std::string& Name) { m_Name.Set(Name); }
 
             /// Returns `true` if the entity is currently shown. Returns `false` if the entity is currently hidden.
@@ -57,9 +59,6 @@ namespace cf
 
             /// Returns `true` if the entity is declared as static. Returns `false` if (the primitives of) the entity can move.
             bool IsStatic() const { return m_Static.Get(); }
-
-            /// Sets whether the entity is static or movable.
-            void SetStatic(bool Static) { m_Static.Set(Static); }
 
             // Base class overrides.
             ComponentBasicsT* Clone() const;

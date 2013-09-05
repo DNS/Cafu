@@ -611,7 +611,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
                 ClassName == "func_water" ||
                 ClassName == "light")
             {
-                NewEnt->GetBasics()->SetStatic(true);
+                NewEnt->GetBasics()->SetMember("Static", true);
             }
         }
 
@@ -708,11 +708,11 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
                 GuiName = m_GameConfig->ModDir + "/" + GuiName;
             }
 
-            ModelComp->Set(
-                ModelName,
-                wxAtoi(MapEnt->GetAndRemove("sequence", "0")),
-                wxAtof(MapEnt->GetAndRemove("scale", "1.0")),
-                GuiName);
+            ModelComp->SetMember("Name",      ModelName);
+            ModelComp->SetMember("Animation", wxAtoi(MapEnt->GetAndRemove("sequence", "0")));
+         // ModelComp->SetMember("Skin",      ...);
+            ModelComp->SetMember("Scale",     wxAtof(MapEnt->GetAndRemove("scale", "1.0")));
+            ModelComp->SetMember("Gui",       GuiName);
 
             Ent->AddComponent(ModelComp);
         }
@@ -728,7 +728,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
                 CollMdlName = m_GameConfig->ModDir + "/" + CollMdlName;
             }
 
-            CollMdlComp->SetCollMdlName(CollMdlName);
+            CollMdlComp->SetMember("Name", CollMdlName);
 
             Ent->AddComponent(CollMdlComp);
         }

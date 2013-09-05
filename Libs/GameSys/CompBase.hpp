@@ -95,6 +95,19 @@ namespace cf
             /// providing a simple kind of "reflection" or "type introspection" feature.
             TypeSys::VarManT& GetMemberVars() { return m_MemberVars; }
 
+            /// Sets the member variable with the given name to the given value.
+            /// The purpose of this method is to allow C++ code an easier access to the `m_MemberVars`,
+            /// especially when initializing newly created components (e.g. in the Map Editor).
+            /// (Alternatively, most derived classes had to provide some `SetXY()` methods on their own,
+            ///  and thereby clutter their own public interfaces with quasi unimportant methods,
+            ///  or the user code had to deal cumbersomely with the TypeSys::VarManT instance itself.)
+            template<class T> void SetMember(const char* Name, const T& Value)
+            {
+                TypeSys::VarT<T>* v = dynamic_cast<TypeSys::VarT<T>*>(m_MemberVars.Find(Name));
+                assert(v);
+                v->Set(Value);
+            }
+
             /// Calls the given Lua method of this component.
             /// This method is analogous to UniScriptStateT::CallMethod(), see there for details.
             /// @param MethodName   The name of the Lua method to call.
