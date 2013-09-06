@@ -329,6 +329,15 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT<std::string>& Var)
 
         Prop = new GameFileNamePropertyT(Var.GetName(), wxString::Format("%p", &Var), Var.Get(), Wildcard);
     }
+    else if (Var.HasFlag("IsLuaFileName"))
+    {
+        // Note that we also have Lua scripts with extensions other than ".lua",
+        // but for those, the more generic flag "IsScriptFileName" should be used.
+        const wxString Wildcard = "Cafu Script Files (*.lua)|*.lua|"
+                                  "All Files (*.*)|*.*";
+
+        Prop = new GameFileNamePropertyT(Var.GetName(), wxString::Format("%p", &Var), Var.Get(), Wildcard);
+    }
     else
     {
         ArrayT<std::string> Strings;

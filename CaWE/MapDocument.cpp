@@ -77,6 +77,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClipSys/CollisionModelMan.hpp"
 #include "GameSys/CompCollisionModel.hpp"
 #include "GameSys/CompModel.hpp"
+#include "GameSys/CompScript.hpp"
 #include "GameSys/Entity.hpp"
 #include "GameSys/EntityCreateParams.hpp"
 #include "GameSys/World.hpp"
@@ -731,6 +732,22 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             CollMdlComp->SetMember("Name", CollMdlName);
 
             Ent->AddComponent(CollMdlComp);
+        }
+
+        if (MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "monster_butterfly")
+        {
+            IntrusivePtrT<cf::GameSys::ComponentModelT>  ModelComp  = new cf::GameSys::ComponentModelT();
+            IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
+
+            ModelComp->SetMember("Name", std::string("Games/DeathMatch/Models/LifeForms/Butterfly/Butterfly.cmdl"));
+         // ModelComp->SetMember("Animation", );
+         // ModelComp->SetMember("Skin", );
+         // ModelComp->SetMember("Scale", );
+         // ModelComp->SetMember("Gui", );
+            Ent->AddComponent(ModelComp);
+
+            ScriptComp->SetMember("Name", std::string(m_GameConfig->ModDir + "/Scripts/Butterfly.lua"));
+            Ent->AddComponent(ScriptComp);
         }
     }
 }
