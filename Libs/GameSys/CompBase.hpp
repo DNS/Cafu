@@ -205,6 +205,7 @@ namespace cf
             static int Set(lua_State* LuaState);
             static int GetExtraMessage(lua_State* LuaState);
             static int Interpolate(lua_State* LuaState);
+            static int GetEntity(lua_State* LuaState);
             static int toString(lua_State* LuaState);
 
             static const luaL_Reg               MethodsList[];  ///< The list of Lua methods for this class.

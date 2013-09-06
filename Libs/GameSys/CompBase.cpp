@@ -342,6 +342,23 @@ int ComponentBaseT::Interpolate(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_GetEntity =
+{
+    "GetEntity",
+    "Returns the entity that this component is a part of (or `nil` if the component is currently \"stand-alone\", not a part of any entity).",
+    "EntityT", "()"
+};
+
+int ComponentBaseT::GetEntity(lua_State* LuaState)
+{
+    ScriptBinderT                 Binder(LuaState);
+    IntrusivePtrT<ComponentBaseT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(1);
+
+    Binder.Push(IntrusivePtrT<EntityT>(Comp->GetEntity()));
+    return 1;
+}
+
+
 static const cf::TypeSys::MethsDocT META_toString =
 {
     "__toString",
@@ -374,6 +391,7 @@ const luaL_reg ComponentBaseT::MethodsList[] =
     { "set",             ComponentBaseT::Set },
     { "GetExtraMessage", ComponentBaseT::GetExtraMessage },
     { "interpolate",     ComponentBaseT::Interpolate },
+    { "GetEntity",       ComponentBaseT::GetEntity },
     { "__tostring",      ComponentBaseT::toString },
     { NULL, NULL }
 };
