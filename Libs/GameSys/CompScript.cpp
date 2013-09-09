@@ -106,7 +106,7 @@ void ComponentScriptT::OnPostLoad(bool InEditor)
 }
 
 
-void ComponentScriptT::OnClockTickEvent(float t)
+void ComponentScriptT::DoServerFrame(float t)
 {
     CallLuaMethod("Think", "f", t);
 }

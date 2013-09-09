@@ -103,7 +103,7 @@ void ComponentCollisionModelT::UpdateDependencies(EntityT* Entity)
 }
 
 
-void ComponentCollisionModelT::OnClockTickEvent(float t)
+void ComponentCollisionModelT::DoServerFrame(float t)
 {
     // TODO:
     // This should actually be in some PostThink() method, so that we can be sure that

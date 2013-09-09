@@ -153,6 +153,8 @@ void EngineEntityT::Think(float FrameTime, unsigned long ServerFrameNr)
 
     // 3. Jetzt neuen 'Entity->State' ausdenken.
     Entity->Think(FrameTime, ServerFrameNr);
+    m_Entity->OnServerFrame(FrameTime);
+
     EntityStateFrameNr=ServerFrameNr;
 }
 

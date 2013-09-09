@@ -53,7 +53,7 @@ namespace cf
             ComponentCollisionModelT* Clone() const;
             const char* GetName() const { return "CollisionModel"; }
             void UpdateDependencies(EntityT* Entity);
-            void OnClockTickEvent(float t);
+            void DoServerFrame(float t);
 
 
             // The TypeSys related declarations for this class.

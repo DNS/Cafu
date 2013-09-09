@@ -61,7 +61,8 @@ namespace cf
             void UpdateDependencies(EntityT* Entity);
             BoundingBox3fT GetEditorBB() const;
             void Render(float LodDist) const;
-            void OnClockTickEvent(float t);
+            void DoServerFrame(float t);
+            void DoClientFrame(float t);
 
 
             // The TypeSys related declarations for this class.

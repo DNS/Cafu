@@ -116,7 +116,7 @@ void ComponentBaseT::UpdateDependencies(EntityT* Entity)
 }
 
 
-void ComponentBaseT::OnClockTickEvent(float t)
+void ComponentBaseT::OnServerFrame(float t)
 {
     // Run the pending value interpolations.
     for (unsigned int INr = 0; INr < m_PendingInterp.Size(); INr++)
@@ -154,6 +154,15 @@ void ComponentBaseT::OnClockTickEvent(float t)
             I->Var->accept(SetFloat);
         }
     }
+
+    DoServerFrame(t);
+}
+
+
+void ComponentBaseT::OnClientFrame(float t)
+{
+    // TODO: Do we have to run the pending value interpolations here as well?
+    DoClientFrame(t);
 }
 
 

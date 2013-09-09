@@ -697,7 +697,7 @@ void CaClientWorldT::PostDrawEntities(float FrameTime, const ArrayT<unsigned lon
 
                 IntrusivePtrT<cf::GameSys::EntityT> Ent = m_EngineEntities[EntityID]->GetEntity();
 
-                Ent->OnClockTickEvent(FrameTime);
+                Ent->OnClientFrame(FrameTime);
             }
     }
 
@@ -708,6 +708,6 @@ void CaClientWorldT::PostDrawEntities(float FrameTime, const ArrayT<unsigned lon
 
             IntrusivePtrT<cf::GameSys::EntityT> Ent = m_EngineEntities[OurEntityID]->GetEntity();
 
-            Ent->OnClockTickEvent(FrameTime);
+            Ent->OnClientFrame(FrameTime);
         }
 }

@@ -563,10 +563,17 @@ void ComponentModelT::Render(float LodDist) const
 }
 
 
-void ComponentModelT::OnClockTickEvent(float t)
+void ComponentModelT::DoServerFrame(float t)
 {
-    ComponentBaseT::OnClockTickEvent(t);
+    // It is important that we advance the time on the server-side GUI, too, so that it can
+    // for example work off the "pending interpolations" that the GUI scripts can create.
+    if (GetGui())
+        GetGui()->DistributeClockTickEvents(t);
+}
 
+
+void ComponentModelT::DoClientFrame(float t)
+{
     if (GetPose())
         GetPose()->GetAnimExpr()->AdvanceTime(t);
 

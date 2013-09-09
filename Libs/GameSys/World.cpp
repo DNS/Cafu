@@ -257,7 +257,19 @@ bool WorldT::ProcessDeviceEvent(const CaMouseEventT& ME)
 }
 
 
-void WorldT::DistributeClockTickEvents(float t)
+/**
+ * At the time of this writing, this method is only called from the Map Editor's
+ * ViewWindow3DT::OnPaint() method, because in the Cafu Engine, the `Ca3DEWorldT`s
+ * keep explicit lists of entities and call the OnClientFrame() method on them directly
+ * (in CaClientWorldT::PostDrawEntities()).
+ *
+ * As a result, m_ScriptState.RunPendingCoroutines() is currently *not* called for
+ * client worlds in the Cafu Engine!
+ *
+ * Note that on the server side, all this is accounted for by CaServerWorldT::Think()
+ * and EngineEntityT::Think() already.
+ */
+void WorldT::OnClientFrame(float t)
 {
     ArrayT< IntrusivePtrT<EntityT> > AllChildren;
 
@@ -265,10 +277,7 @@ void WorldT::DistributeClockTickEvents(float t)
     m_RootEntity->GetChildren(AllChildren, true);
 
     for (unsigned long ChildNr = 0; ChildNr < AllChildren.Size(); ChildNr++)
-    {
-        AllChildren[ChildNr]->OnClockTickEvent(t);
-        AllChildren[ChildNr]->CallLuaMethod("OnFrame");
-    }
+        AllChildren[ChildNr]->OnClientFrame(t);
 
     // Run the pending coroutines.
     m_ScriptState.RunPendingCoroutines(t);

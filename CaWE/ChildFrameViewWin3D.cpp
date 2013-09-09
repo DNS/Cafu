@@ -454,7 +454,7 @@ void ViewWindow3DT::OnPaint(wxPaintEvent& PE)
     m_TimeOfLastPaint=TimeNow;
 
     if (Options.view3d.AnimateModels)
-        MapDoc.GetScriptWorld().DistributeClockTickEvents(FrameTime);
+        MapDoc.GetScriptWorld().OnClientFrame(FrameTime);
 
 
     /*********************/

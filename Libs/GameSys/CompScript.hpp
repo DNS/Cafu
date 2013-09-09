@@ -49,7 +49,7 @@ namespace cf
             ComponentScriptT* Clone() const;
             const char* GetName() const { return "Script"; }
             void OnPostLoad(bool InEditor);
-            void OnClockTickEvent(float t);
+            void DoServerFrame(float t);
 
 
             // The TypeSys related declarations for this class.

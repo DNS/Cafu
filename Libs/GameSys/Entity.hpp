@@ -235,9 +235,20 @@ namespace cf
             /// @param PosY   Mouse position y.
             virtual bool OnInputEvent(const CaMouseEventT& ME, float PosX, float PosY);
 
-            /// The clock-tick event handler.
-            /// @param t   The time in seconds since the last clock-tick.
-            virtual bool OnClockTickEvent(float t);
+            /// Advances the entity one frame (one "clock-tick") on the server.
+            /// It typically updates all game-relevant state that is sync'ed over the network to all
+            /// connected game clients.
+            /// ComponentBaseT::OnServerFrame() is called by this method for all components of this entity.
+            ///
+            /// @param t   The time in seconds since the last server frame.
+            void OnServerFrame(float t);
+
+            /// Advances the entity one frame (one "clock-tick") on the client.
+            /// It typically updates eye-candy that is *not* sync'ed over the network.
+            /// ComponentBaseT::OnClientFrame() is called by this method for all components of this entity.
+            ///
+            /// @param t   The time in seconds since the last client frame.
+            void OnClientFrame(float t);
 
             /// Calls the Lua method with name `MethodName` of this entity.
             /// This method is analogous to WorldT::CallLuaFunc(), see there for more details.

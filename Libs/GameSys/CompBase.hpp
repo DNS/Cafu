@@ -187,9 +187,25 @@ namespace cf
             /// @returns Whether the component handled ("consumed") the event.
             virtual bool OnInputEvent(const CaMouseEventT& ME, float PosX, float PosY) { return false; }
 
-            /// This method handles clock-tick events.
-            /// @param t   The time in seconds since the last clock-tick.
-            virtual void OnClockTickEvent(float t);
+            /// Advances the component one frame (one "clock-tick") on the server.
+            /// It typically updates all game-relevant state that is sync'ed over the network to all
+            /// connected game clients.
+            ///
+            /// Note that the implementation calls DoServerFrame() that derived classes can override to
+            /// implement their own custom behaviour.
+            ///
+            /// @param t   The time in seconds since the last server frame.
+            void OnServerFrame(float t);
+
+            /// Advances the component one frame (one "clock-tick") on the client.
+            /// It typically updates eye-candy that is *not* sync'ed over the network.
+            /// (State that is sync'ed over the network must be updated in OnServerFrame() instead.)
+            ///
+            /// Note that the implementation calls DoClientFrame() that derived classes can override to
+            /// implement their own custom behaviour.
+            ///
+            /// @param t   The time in seconds since the last client frame.
+            void OnClientFrame(float t);
 
 
             // The TypeSys related declarations for this class.
@@ -246,6 +262,20 @@ namespace cf
             /// (This follows the "Non-Virtual Interface Idiom" as described by Scott Meyers in
             /// "Effective C++, 3rd Edition", item 35 ("Consider alternatives to virtual functions.").)
             virtual void DoDeserialize(cf::Network::InStreamT& Stream) { }
+
+            /// Derived classes override this method in order to implement the real work proposed by OnServerFrame(),
+            /// which explicitly calls this method for this purpose.
+            ///
+            /// (This follows the "Non-Virtual Interface Idiom" as described by Scott Meyers in
+            /// "Effective C++, 3rd Edition", item 35 ("Consider alternatives to virtual functions.").)
+            virtual void DoServerFrame(float t) { }
+
+            /// Derived classes override this method in order to implement the real work proposed by OnClientFrame(),
+            /// which explicitly calls this method for this purpose.
+            ///
+            /// (This follows the "Non-Virtual Interface Idiom" as described by Scott Meyers in
+            /// "Effective C++, 3rd Edition", item 35 ("Consider alternatives to virtual functions.").)
+            virtual void DoClientFrame(float t) { }
 
 
             EntityT*                m_Entity;           ///< The parent entity that contains this component, or `NULL` if this component is currently not a part of any entity.

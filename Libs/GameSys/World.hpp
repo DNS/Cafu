@@ -122,9 +122,20 @@ namespace cf
             /// @returns `true` if the device has been successfully processed, `false` otherwise.
             bool ProcessDeviceEvent(const CaMouseEventT& ME);
 
-            /// Calls the OnClockTickEvent() method of each entity in the world.
-            /// @param t   The time in seconds since the last clock tick.
-            void DistributeClockTickEvents(float t);
+            // /// Advances the world one frame (one "clock-tick") on the server.
+            // /// It typically updates all game-relevant state that is sync'ed over the network to all
+            // /// connected game clients.
+            // /// EntityT::OnServerFrame() is called by this method for each entity in this world.
+            // ///
+            // /// @param t   The time in seconds since the last server frame.
+            // void OnServerFrame(float t);
+
+            /// Advances the entity one frame (one "clock-tick") on the client.
+            /// It typically updates eye-candy that is *not* sync'ed over the network.
+            /// EntityT::OnClientFrame() is called by this method for each entity in this world.
+            ///
+            /// @param t   The time in seconds since the last client frame.
+            void OnClientFrame(float t);
 
 
             private:

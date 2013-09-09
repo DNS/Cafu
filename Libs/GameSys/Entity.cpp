@@ -506,18 +506,29 @@ bool EntityT::OnInputEvent(const CaMouseEventT& ME, float PosX, float PosY)
 }
 
 
-bool EntityT::OnClockTickEvent(float t)
+void EntityT::OnServerFrame(float t)
 {
     // Forward the event to the "fixed" components (or else they cannot interpolate).
-    if (m_App != NULL) m_App->OnClockTickEvent(t);
-    m_Basics->OnClockTickEvent(t);
-    m_Transform->OnClockTickEvent(t);
+    if (m_App != NULL) m_App->OnServerFrame(t);
+    m_Basics->OnServerFrame(t);
+    m_Transform->OnServerFrame(t);
 
     // Forward the event to the "custom" components.
     for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
-        m_Components[CompNr]->OnClockTickEvent(t);
+        m_Components[CompNr]->OnServerFrame(t);
+}
 
-    return true;
+
+void EntityT::OnClientFrame(float t)
+{
+    // Forward the event to the "fixed" components (or else they cannot interpolate).
+    if (m_App != NULL) m_App->OnClientFrame(t);
+    m_Basics->OnClientFrame(t);
+    m_Transform->OnClientFrame(t);
+
+    // Forward the event to the "custom" components.
+    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
+        m_Components[CompNr]->OnClientFrame(t);
 }
 
 
