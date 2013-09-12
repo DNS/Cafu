@@ -20,10 +20,28 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Quaternion.hpp"
+#include "Angles.hpp"
 #include "Matrix3x3.hpp"
 
 
 using namespace cf::math;
+
+
+template<class T> QuaternionT<T>::QuaternionT(const AnglesT<T>& Angles)
+{
+    // See http://www.j3d.org/matrix_faq/matrfaq_latest.html#Q60 for details.
+    const T SinYaw   = sin(T(0.5) * AnglesT<T>::DegToRad(Angles.yaw()));
+    const T CosYaw   = cos(T(0.5) * AnglesT<T>::DegToRad(Angles.yaw()));
+    const T SinPitch = sin(T(0.5) * AnglesT<T>::DegToRad(Angles.pitch()));
+    const T CosPitch = cos(T(0.5) * AnglesT<T>::DegToRad(Angles.pitch()));
+    const T SinRoll  = sin(T(0.5) * AnglesT<T>::DegToRad(Angles.roll()));
+    const T CosRoll  = cos(T(0.5) * AnglesT<T>::DegToRad(Angles.roll()));
+
+    x = SinRoll*CosPitch*CosYaw - CosRoll*SinPitch*SinYaw;
+    y = CosRoll*SinPitch*CosYaw + SinRoll*CosPitch*SinYaw;
+    z = CosRoll*CosPitch*SinYaw - SinRoll*SinPitch*CosYaw;
+    w = CosRoll*CosPitch*CosYaw + SinRoll*SinPitch*SinYaw;
+}
 
 
 template<class T> QuaternionT<T>::QuaternionT(const Matrix3x3T<T>& Mat)

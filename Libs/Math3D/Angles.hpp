@@ -29,15 +29,57 @@ namespace cf
 {
     namespace math
     {
-        /// This class represents a triple of angles that are specified in degrees.
+        template<class T> class Matrix3x3T;
+        template<class T> class QuaternionT;
+
+
+        /*
+         * TODO: AnglesT should no longer derive from Vector3T, but rather have a private Vector3T member.
+         *       Then, AnglesT should only expose a Heading, Pitch and Bank interface, and nothing with
+         *       x, y or z, so that the meaning of things is always clear.
+         */
+
+        /*
+         * TODO: Some tests would be nice, e.g. these two are enough for testing all combinations:
+         *       assert(TestAngles == AnglesT(Matrix3x3T(QuaternionT(TestAngles))))
+         *       assert(TestAngles == AnglesT(QuaternionT(Matrix3x3T(TestAngles))))
+         */
+
+        /// This class represents a triple of angles.
+        /// The class keeps the angles in degrees, not in radians.
         ///
-        /// The angles are usually understood as independent rotations about the x-, y- and z-axis, respectively,
-        /// where in a right-handed coordinate system the x-axis points right, the y-axis points forward, and the z-axis points up.
-        /// Therefore, the x-axis angle is aliased by the name "pitch" (Nicken),
-        ///            the y-axis angle is aliased by the name "roll" (Rollen),
-        ///        and the z-axis angle is aliased by the name "yaw" (Gieren).
-        /// The convention is to obtain the corresponding rotation matrix by first rotating about the z-axis (yaw), then rotating
-        /// the new local (relative) system about the x-axis (pitch), and finally rotating the local system about the y-axis (roll).
+        /// The angles are typically used to describe an orientation. Generally, the orientation is achieved
+        /// by composing three elemental rotations about the principal axes by the given angles.
+        /// For this purpose, all related code in Cafu (e.g. the matrix and quaternion classes) uses the
+        /// following conventions:
+        ///
+        ///   - As everywhere in Cafu, a right-handed coordinate system is used: the x-axis points right,
+        ///     the y-axis points forward, and the z-axis points up.
+        ///
+        ///   - The rotations are done
+        ///       - first about the z-axis (by the "heading" or "yaw" angle),
+        ///       - then about the rotated y-axis (by the "pitch" angle),
+        ///       - then about the rotated x-axis (by the "bank" or "roll" angle).
+        ///     This order is explained in greater detail in the references listed below.
+        ///
+        ///   - Positive angles rotate counter-clockwise (the "right-hand rule").
+        ///
+        ///   - North is along the x-axis, West is along the y-axis.
+        ///     This does *not* follow the compase-rose analogy (that we had normally preferred), where North is
+        ///     along the y-axis, East is along the x-axis, and positive rotation is clockwise, but was accepted
+        ///     for conformance with the broader conventions (e.g. DIN 9300) given in the references below.
+        ///
+        /// References (in German, as the English editions don't have the relevant math):
+        ///
+        ///   - http://de.wikipedia.org/wiki/Eulersche_Winkel
+        ///     Especially section "z, y', x''-Konvention in der Fahrzeugtechnik" has a very well explained
+        ///     derivation of a rotation matrix from Euler angles. Note, however, that the resulting matrix
+        ///     transforms from world-to-model space, whereas we're more interested in the transpose, in order
+        ///     to transform from model-to-world space.
+        ///
+        ///   - http://de.wikipedia.org/wiki/Roll-Nick-Gier-Winkel
+        ///     Section "Z, Y', X'' Konvention" complements the above, where the model-to-world space matrix
+        ///     is readily given, and the math for converting back to Euler angles as well.
         template<class T> class AnglesT : public Vector3T<T>
         {
             public:
@@ -50,6 +92,12 @@ namespace cf
 
             /// A constructor for initializing an Angles instance from a Vector3T.
             AnglesT(const Vector3T<T>& v) : Vector3T<T>(v) { }
+
+            /// Constructs a set of angles that describe the same orientation as the given matrix.
+            AnglesT(const Matrix3x3T<T>& M);
+
+            /// Constructs a set of angles that describe the same orientation as the given quaternion.
+            AnglesT(const QuaternionT<T>& Quat);
 
 
             // The "this->" cannot be omitted here, or else g++ 4.2.3 complains that "'x' was not declared in this scope".
@@ -66,6 +114,11 @@ namespace cf
             static const double PI;                                         ///< This is PI.
             static T RadToDeg(const T Angle) { return Angle*T(180.0/PI); }  ///< Converts the given angle from radians to degrees.
             static T DegToRad(const T Angle) { return Angle*T(PI/180.0); }  ///< Converts the given angle from degrees to radians.
+
+
+            private:
+
+            void Init(const Matrix3x3T<T>& M);
         };
 
 

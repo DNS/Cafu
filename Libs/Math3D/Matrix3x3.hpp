@@ -73,13 +73,12 @@ namespace cf
                 m[2][0]=m20; m[2][1]=m21; m[2][2]=m22;
             }
 
-            /// Constructor for creating a matrix from the given quaternion.
-            Matrix3x3T(const QuaternionT<T>& Quat);
-
-            /// Creates a rotation matrix that corresponds to the three-step rotation described by the Angles.
-            /// Refer to the description of the AnglesT class for more information on how the angles are understood.
-            /// @param Angles Angles to create the matrix from.
+            /// Constructs a rotation matrix from the given angles.
+            /// See the documentation of the AnglesT class for details.
             Matrix3x3T(const AnglesT<T>& Angles);
+
+            /// Constructs a rotation matrix from the given quaternion.
+            Matrix3x3T(const QuaternionT<T>& Quat);
 
             /// @name Named constructors.
             //@{
@@ -193,9 +192,9 @@ namespace cf
             }
 
             /// Computes the inverse of this matrix.
-            /// @param Result Whether the opration was successfull.
-            /// @return If this matrix is invertible, the inverse is returned by this method and *Result, if not at NULL, is set to true.
-            ///         Otherwise, an undefined matrix is returned and *Result, if not at NULL, is set to false.
+            /// @param Result   Whether the operation was successful.
+            /// @return If this matrix is invertible, the inverse is returned by this method, and `*Result`, if not at `NULL`, is set to `true`.
+            ///         Otherwise, an undefined matrix is returned, and `*Result`, if not at `NULL`, is set to `false`.
             Matrix3x3T GetInverse(bool* Result=NULL) const;
 
             /// Returns the transpose of this matrix.
@@ -205,7 +204,6 @@ namespace cf
             /// Converts the rotation that is described by this matrix to an AnglesT<T> instance that describes the same rotation.
             /// @returns An AnglesT<T> instance that describes the same rotation as this matrix.
             AnglesT<T> ToAngles_COMPAT() const;
-         // AnglesT<T> ToAngles() const;    // TODO: Implement the non-compatiblity / "right" / "correct" version...
 
 
 

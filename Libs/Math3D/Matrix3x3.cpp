@@ -31,6 +31,34 @@ using namespace cf::math;
 template<class T> const Matrix3x3T<T> Matrix3x3T<T>::Identity;
 
 
+template<class T> Matrix3x3T<T>::Matrix3x3T(const AnglesT<T>& Angles)
+{
+    const T RadH = AnglesT<T>::DegToRad(Angles.yaw());
+    const T SinH = sin(RadH);
+    const T CosH = cos(RadH);
+
+    const T RadP = AnglesT<T>::DegToRad(Angles.pitch());
+    const T SinP = sin(RadP);
+    const T CosP = cos(RadP);
+
+    const T RadB = AnglesT<T>::DegToRad(Angles.roll());
+    const T SinB = sin(RadB);
+    const T CosB = cos(RadB);
+
+    // Refer to http://de.wikipedia.org/wiki/Rotationsmatrix for the correct start matrices.
+    m[0][0] = CosP*CosH;  m[0][1] = SinB*SinP*CosH - CosB*SinH;  m[0][2] = CosB*SinP*CosH + SinB*SinH;
+    m[1][0] = CosP*SinH;  m[1][1] = SinB*SinP*SinH + CosB*CosH;  m[1][2] = CosB*SinP*SinH - SinB*CosH;
+    m[2][0] = -SinP;      m[2][1] = SinB*CosP;                   m[2][2] = CosB*CosP;
+
+    // This is not a check for accuracy, but for principal correctness of the above computations.
+    assert(this->IsEqual(
+        GetRotateZMatrix(Angles.yaw()) *
+        GetRotateYMatrix(Angles.pitch()) *
+        GetRotateXMatrix(Angles.roll()),
+        0.001f));
+}
+
+
 template<class T> Matrix3x3T<T>::Matrix3x3T(const QuaternionT<T>& Quat)
 {
     // This is the same code as in the related MatrixT constructor.
@@ -42,33 +70,6 @@ template<class T> Matrix3x3T<T>::Matrix3x3T(const QuaternionT<T>& Quat)
     m[0][0] = 1 - 2 * y * y - 2 * z * z;   m[0][1] =     2 * x * y - 2 * w * z;   m[0][2] =     2 * x * z + 2 * w * y;
     m[1][0] =     2 * x * y + 2 * w * z;   m[1][1] = 1 - 2 * x * x - 2 * z * z;   m[1][2] =     2 * y * z - 2 * w * x;
     m[2][0] =     2 * x * z - 2 * w * y;   m[2][1] =     2 * y * z + 2 * w * x;   m[2][2] = 1 - 2 * x * x - 2 * y * y;
-}
-
-
-template<class T> Matrix3x3T<T>::Matrix3x3T(const AnglesT<T>& Angles)
-{
-    // As described in the AnglesT class documentation, the created matrix is equivalent to
-    // GetRotateZMatrix(Angles.yaw()) * GetRotateXMatrix(Angles.pitch()) * GetRotateYMatrix(Angles.roll())
-    const T RadY=AnglesT<T>::DegToRad(Angles.yaw());
-    const T SinY=sin(RadY);
-    const T CosY=cos(RadY);
-
-    const T RadP=AnglesT<T>::DegToRad(Angles.pitch());
-    const T SinP=sin(RadP);
-    const T CosP=cos(RadP);
-
-    const T RadR=AnglesT<T>::DegToRad(Angles.roll());
-    const T SinR=sin(RadR);
-    const T CosR=cos(RadR);
-
-    // Refer to http://de.wikipedia.org/wiki/Rotationsmatrix for the correct start matrices.
-    m[0][0]= CosR*CosY-SinP*SinR*SinY; m[0][1]=-SinY*CosP; m[0][2]=SinR*CosY+CosR*SinP*SinY;
-    m[1][0]= CosR*SinY+SinP*SinR*CosY; m[1][1]= CosP*CosY; m[1][2]=SinR*SinY-CosR*SinP*CosY;
-    m[2][0]=-CosP*SinR;                m[2][1]= SinP;      m[2][2]=CosP*CosR;
-
-    // This is not a check for accuracy, but for principal correctness of the above computations.
-    assert(this->IsEqual(GetRotateZMatrix(Angles.yaw()) * GetRotateXMatrix(Angles.pitch()) * GetRotateYMatrix(Angles.roll()), 0.001f));
- // assert(this->ToAngles().GetNorm360().IsEqual(Angles.GetNorm360(), 0.001f));     // Infinite recursion??
 }
 
 
@@ -161,6 +162,10 @@ template<class T> Matrix3x3T<T> Matrix3x3T<T>::GetFromAngles_COMPAT(const Angles
     // !!!  It uses a different understanding for the axes than what is defined at the AnglesT class
     // !!!  (i.e. y and z swapped, z negated) and should therefore NOT be used in new code,
     // !!!  and eventually be replaced by equivalent code that implements the proper axes orientations!
+    // !!!
+    // !!!  (Funnily enough, it seems to turn out that this is not so old and obsolete as initially thought,
+    // !!!   it's only the order or names of the *angles* that is different from our new, "canonical"
+    // !!!   method, not the order or orientation or something of the actual *transformations*!)
     // !!!
     enum { PITCH=0, YAW, ROLL };
 

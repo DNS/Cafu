@@ -29,6 +29,7 @@ namespace cf
 {
     namespace math
     {
+        template<class T> class AnglesT;
         template<class T> class Matrix3x3T;
 
 
@@ -54,6 +55,10 @@ namespace cf
                   y(T(Values[1])),
                   z(T(Values[2])),
                   w(T(Values[3])) { }
+
+            /// Constructs a quaternion from the given angles.
+            /// See the documentation of the AnglesT class for details.
+            QuaternionT(const AnglesT<T>& Angles);
 
             /// Constructs a quaternion from the given rotation matrix.
             /// If the matrix is not orthonormal, the result is undefined.
