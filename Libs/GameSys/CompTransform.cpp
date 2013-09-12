@@ -22,6 +22,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CompTransform.hpp"
 #include "AllComponents.hpp"
 
+#include "Math3D/Angles.hpp"
+#include "UniScriptState.hpp"
+
 extern "C"
 {
     #include <lua.h>
@@ -70,6 +73,55 @@ ComponentTransformT* ComponentTransformT::Clone() const
 }
 
 
+static const cf::TypeSys::MethsDocT META_GetAngles =
+{
+    "GetAngles",
+    "Returns the orientation of this entity as a tuple of three angles:\n"
+    "  - heading (yaw),\n"
+    "  - pitch,\n"
+    "  - bank (roll).",
+    "tuple", "()"
+};
+
+int ComponentTransformT::GetAngles(lua_State* LuaState)
+{
+    ScriptBinderT                      Binder(LuaState);
+    IntrusivePtrT<ComponentTransformT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentTransformT> >(1);
+    const cf::math::AnglesfT           Angles(Comp->GetQuat());
+
+    lua_pushnumber(LuaState, Angles.yaw());
+    lua_pushnumber(LuaState, Angles.pitch());
+    lua_pushnumber(LuaState, Angles.roll());
+    return 3;
+}
+
+
+static const cf::TypeSys::MethsDocT META_SetAngles =
+{
+    "SetAngles",
+    "Sets the orientation of this entity from a set of three angles:\n"
+    "  - heading (yaw),\n"
+    "  - pitch,\n"
+    "  - bank (roll).",
+    "", "(number heading, number pitch=0.0, number bank=0.0)"
+};
+
+int ComponentTransformT::SetAngles(lua_State* LuaState)
+{
+    cf::math::AnglesfT                 Angles;
+    ScriptBinderT                      Binder(LuaState);
+    IntrusivePtrT<ComponentTransformT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentTransformT> >(1);
+
+    // Note that only the heading is a mandatory parameter. Pitch and bank are optional, they default to 0.
+    Angles.yaw()   = float(luaL_checknumber(LuaState, 2));
+    Angles.pitch() = float(lua_tonumber(LuaState, 3));
+    Angles.roll()  = float(lua_tonumber(LuaState, 4));
+
+    Comp->SetQuat(cf::math::QuaternionfT(Angles));
+    return 0;
+}
+
+
 static const cf::TypeSys::MethsDocT META_toString =
 {
     "__toString",
@@ -98,12 +150,16 @@ void* ComponentTransformT::CreateInstance(const cf::TypeSys::CreateParamsT& Para
 
 const luaL_reg ComponentTransformT::MethodsList[] =
 {
+    { "GetAngles",  ComponentTransformT::GetAngles },
+    { "SetAngles",  ComponentTransformT::SetAngles },
     { "__tostring", ComponentTransformT::toString },
     { NULL, NULL }
 };
 
 const cf::TypeSys::MethsDocT ComponentTransformT::DocMethods[] =
 {
+    META_GetAngles,
+    META_SetAngles,
     META_toString,
     { NULL, NULL, NULL, NULL }
 };

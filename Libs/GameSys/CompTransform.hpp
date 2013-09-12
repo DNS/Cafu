@@ -78,6 +78,8 @@ namespace cf
             protected:
 
             // The Lua API methods of this class.
+            static int GetAngles(lua_State* LuaState);
+            static int SetAngles(lua_State* LuaState);
             static int toString(lua_State* LuaState);
 
             static const luaL_Reg               MethodsList[];  ///< The list of Lua methods for this class.
