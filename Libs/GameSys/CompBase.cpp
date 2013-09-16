@@ -22,7 +22,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CompBase.hpp"
 #include "AllComponents.hpp"
 #include "Entity.hpp"
+#include "Interpolator.hpp"
 #include "World.hpp"
+
+#include "ConsoleCommands/ConVar.hpp"
 #include "UniScriptState.hpp"
 #include "VarVisitorsLua.hpp"
 
@@ -36,6 +39,13 @@ extern "C"
 using namespace cf::GameSys;
 
 
+namespace
+{
+    ConVarT clientApproxNPCs("clientApproxNPCs", true, ConVarT::FLAG_MAIN_EXE,
+        "Toggles whether origins and other values are interpolated over client frames in order to bridge the larger intervals between server frames.");
+}
+
+
 const char* ComponentBaseT::DocClass =
     "This is the base class for the components that a game entity is composed/aggregated of.\n"
     "Components are the basic building blocks of an entity: their composition defines\n"
@@ -44,14 +54,18 @@ const char* ComponentBaseT::DocClass =
 
 ComponentBaseT::ComponentBaseT()
     : m_Entity(NULL),
-      m_MemberVars()
+      m_MemberVars(),
+      m_PendingInterp(),
+      m_ClientApprox()
 {
 }
 
 
 ComponentBaseT::ComponentBaseT(const ComponentBaseT& Comp)
     : m_Entity(NULL),
-      m_MemberVars()
+      m_MemberVars(),
+      m_PendingInterp(),
+      m_ClientApprox()
 {
 }
 
@@ -59,6 +73,21 @@ ComponentBaseT::ComponentBaseT(const ComponentBaseT& Comp)
 ComponentBaseT* ComponentBaseT::Clone() const
 {
     return new ComponentBaseT(*this);
+}
+
+
+ComponentBaseT::~ComponentBaseT()
+{
+    // Note that the m_MemberVars, the m_PendingInterp and the m_ClientApprox all keep references to
+    // VarT<T> instances in the derives classes -- which have already been destructed before we get here.
+    // Even though we're not dereferencing these variables here, but it would be safer if we had some
+    // Cleanup() method that all derived class dtors called.
+
+    for (unsigned int INr = 0; INr < m_PendingInterp.Size(); INr++)
+        delete m_PendingInterp[INr];
+
+    for (unsigned int caNr = 0; caNr < m_ClientApprox.Size(); caNr++)
+        delete m_ClientApprox[caNr];
 }
 
 
@@ -106,6 +135,21 @@ void ComponentBaseT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
             Vars[VarNr]->Deserialize(Stream);
     }
 
+    // Deserialization has brought new reference values for interpolated values.
+    for (unsigned int caNr = 0; caNr < m_ClientApprox.Size(); caNr++)
+    {
+        if (IsIniting || !clientApproxNPCs.GetValueBool())
+        {
+            m_ClientApprox[caNr]->ReInit();
+        }
+        else
+        {
+            m_ClientApprox[caNr]->NotifyOverwriteUpdate();
+        }
+    }
+
+    // Call this after updating the interpolator updates above, so that code
+    // that implements DoDeserialize() deals with the latest values.
     DoDeserialize(Stream);
 }
 
@@ -161,6 +205,12 @@ void ComponentBaseT::OnServerFrame(float t)
 
 void ComponentBaseT::OnClientFrame(float t)
 {
+    // Note that it is up to human player code to setup interpolation for "other"
+    // player entities, and to *not* set it up for the "local" player entity.
+    if (clientApproxNPCs.GetValueBool())
+        for (unsigned int caNr = 0; caNr < m_ClientApprox.Size(); caNr++)
+            m_ClientApprox[caNr]->Interpolate(t);
+
     // TODO: Do we have to run the pending value interpolations here as well?
     DoClientFrame(t);
 }
@@ -368,6 +418,49 @@ int ComponentBaseT::GetEntity(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_InitClientApprox =
+{
+    "InitClientApprox",
+    "Registers the given attribute (a member variable) of this class for interpolation over client frames in order\n"
+    "to bridge the larger intervals between server frames.\n"
+    "This method only works with variables whose related C++ type is `float`, `double`, `Vector2fT` or `Vector3fT`,\n"
+    "and is typically used with ComponentTransform::Origin and ComponentTransform::Orientation. For example:\n"
+    "\\code{.lua}\n"
+    "    Butterfly.Trafo:InitClientApprox(\"Origin\")\n"
+    "    Butterfly.Trafo:InitClientApprox(\"Orientation\")\n"
+    "\\endcode\n",
+    "", "(string VarName)"
+};
+
+int ComponentBaseT::InitClientApprox(lua_State* LuaState)
+{
+    ScriptBinderT                 Binder(LuaState);
+    IntrusivePtrT<ComponentBaseT> Comp    = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(1);
+    const char*                   VarName = luaL_checkstring(LuaState, 2);
+    cf::TypeSys::VarBaseT*        Var     = Comp->m_MemberVars.Find(VarName);
+
+    if (!Var)
+        return luaL_argerror(LuaState, 2, (std::string("unknown variable \"") + VarName + "\"").c_str());
+
+    // Unfortunately, this cannot easily be implemented:
+    // if (Var is already approximated)
+    //     return luaL_argerror(LuaState, 2, (std::string("variable \"") + VarName + "\" is already approximated").c_str());
+
+    // TODO: Only do this if we're in a client world!
+    // No need to do it on the server, in CaWE, or the map compile tools.
+
+    VarVisitorGetApproxT VarVisGetApprox;
+    Var->accept(VarVisGetApprox);
+    ApproxBaseT* Approx = VarVisGetApprox.TransferApprox();
+
+    if (!Approx)
+        return luaL_argerror(LuaState, 2, (std::string("cannot approximate variable \"") + VarName + "\"").c_str());
+
+    Comp->m_ClientApprox.PushBack(Approx);
+    return 0;
+}
+
+
 static const cf::TypeSys::MethsDocT META_toString =
 {
     "__toString",
@@ -396,12 +489,13 @@ void* ComponentBaseT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 
 const luaL_reg ComponentBaseT::MethodsList[] =
 {
-    { "get",             ComponentBaseT::Get },
-    { "set",             ComponentBaseT::Set },
-    { "GetExtraMessage", ComponentBaseT::GetExtraMessage },
-    { "interpolate",     ComponentBaseT::Interpolate },
-    { "GetEntity",       ComponentBaseT::GetEntity },
-    { "__tostring",      ComponentBaseT::toString },
+    { "get",              ComponentBaseT::Get },
+    { "set",              ComponentBaseT::Set },
+    { "GetExtraMessage",  ComponentBaseT::GetExtraMessage },
+    { "interpolate",      ComponentBaseT::Interpolate },
+    { "GetEntity",        ComponentBaseT::GetEntity },
+    { "InitClientApprox", ComponentBaseT::InitClientApprox },
+    { "__tostring",       ComponentBaseT::toString },
     { NULL, NULL }
 };
 
@@ -412,6 +506,7 @@ const cf::TypeSys::MethsDocT ComponentBaseT::DocMethods[] =
     META_GetExtraMessage,
     META_Interpolate,
     META_GetEntity,
+    META_InitClientApprox,
     META_toString,
     { NULL, NULL, NULL, NULL }
 };

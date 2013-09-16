@@ -5,6 +5,8 @@ Butterfly.ArcCenter = { Butterfly.Trafo:get("Origin") }
 Butterfly.ArcRadius = 20.0
 Butterfly.ArcPos    =  0.0
 
+Butterfly.Trafo:InitClientApprox("Origin")    -- Do this in some client-init (e.g. OnClientInit()) only?
+
 
 function Butterfly:Think(FrameTime)
     -- Console.Print("Butterfly-Thinking...\n")

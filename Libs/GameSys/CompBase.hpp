@@ -45,6 +45,7 @@ namespace cf
 {
     namespace GameSys
     {
+        class ApproxBaseT;
         class EntityT;
 
         /// This is the base class for the components that an entity is composed/aggregated of.
@@ -84,7 +85,7 @@ namespace cf
             virtual ComponentBaseT* Clone() const;
 
             /// The virtual destructor.
-            virtual ~ComponentBaseT() { }
+            virtual ~ComponentBaseT();
 
 
             /// Returns the parent entity that contains this component,
@@ -222,6 +223,7 @@ namespace cf
             static int GetExtraMessage(lua_State* LuaState);
             static int Interpolate(lua_State* LuaState);
             static int GetEntity(lua_State* LuaState);
+            static int InitClientApprox(lua_State* LuaState);
             static int toString(lua_State* LuaState);
 
             static const luaL_Reg               MethodsList[];  ///< The list of Lua methods for this class.
@@ -280,7 +282,8 @@ namespace cf
 
             EntityT*                m_Entity;           ///< The parent entity that contains this component, or `NULL` if this component is currently not a part of any entity.
             TypeSys::VarManT        m_MemberVars;       ///< The variable manager that keeps generic references to our member variables.
-            ArrayT<InterpolationT*> m_PendingInterp;    ///< The currently pending interpolations.
+            ArrayT<InterpolationT*> m_PendingInterp;    ///< The currently pending interpolations. These are usually set by scripts, in order to e.g. transfer a lift from A to B.
+            ArrayT<ApproxBaseT*>    m_ClientApprox;     ///< The interpolators that advance values over client frames in order to bridge the larger intervals between server frames.
         };
     }
 }
