@@ -712,7 +712,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             ModelComp->SetMember("Name",      ModelName);
             ModelComp->SetMember("Animation", wxAtoi(MapEnt->GetAndRemove("sequence", "0")));
          // ModelComp->SetMember("Skin",      ...);
-            ModelComp->SetMember("Scale",     wxAtof(MapEnt->GetAndRemove("scale", "1.0")));
+            ModelComp->SetMember("Scale",     float(wxAtof(MapEnt->GetAndRemove("scale", "1.0"))));
             ModelComp->SetMember("Gui",       GuiName);
 
             Ent->AddComponent(ModelComp);

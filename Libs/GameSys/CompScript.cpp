@@ -102,7 +102,7 @@ void ComponentScriptT::OnPostLoad(bool InEditor)
     lua_pushnil(LuaState);
     lua_setglobal(LuaState, INT_GLOBAL);
 
-    // CallLuaMethod("Init");
+    // CallLuaMethod("Init", "b", ClientOrServer);
 }
 
 

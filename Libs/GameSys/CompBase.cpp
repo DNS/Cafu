@@ -411,6 +411,7 @@ const cf::TypeSys::MethsDocT ComponentBaseT::DocMethods[] =
     META_Set,
     META_GetExtraMessage,
     META_Interpolate,
+    META_GetEntity,
     META_toString,
     { NULL, NULL, NULL, NULL }
 };
