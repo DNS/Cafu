@@ -35,6 +35,12 @@ extern "C"
 using namespace cf::GameSys;
 
 
+namespace
+{
+    const char* FlagsIsQuat[] = { "IsQuat", NULL };
+}
+
+
 const char* ComponentTransformT::DocClass =
     "This component adds information about the position and orientation of the entity.";
 
@@ -50,7 +56,7 @@ const cf::TypeSys::VarsDocT ComponentTransformT::DocVars[] =
 ComponentTransformT::ComponentTransformT()
     : ComponentBaseT(),
       m_Origin("Origin", Vector3fT(0.0f, 0.0f, 0.0f)),
-      m_Quat("Orientation", Vector3fT(0.0f, 0.0f, 0.0f))
+      m_Quat("Orientation", Vector3fT(0.0f, 0.0f, 0.0f), FlagsIsQuat)
 {
     GetMemberVars().Add(&m_Origin);
     GetMemberVars().Add(&m_Quat);

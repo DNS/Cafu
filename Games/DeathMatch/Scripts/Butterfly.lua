@@ -5,7 +5,9 @@ Butterfly.ArcCenter = { Butterfly.Trafo:get("Origin") }
 Butterfly.ArcRadius = 20.0
 Butterfly.ArcPos    =  0.0
 
-Butterfly.Trafo:InitClientApprox("Origin")    -- Do this in some client-init (e.g. OnClientInit()) only?
+-- TODO: Call InitClientApprox() in some client-init (e.g. OnClientInit()) only?
+Butterfly.Trafo:InitClientApprox("Origin")
+Butterfly.Trafo:InitClientApprox("Orientation")   -- A bit overkill for tiny butterflies... ;-)
 
 
 function Butterfly:Think(FrameTime)

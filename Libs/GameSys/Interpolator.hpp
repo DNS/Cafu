@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_GAMESYS_INTERPOLATOR_HPP_INCLUDED
 #define CAFU_GAMESYS_INTERPOLATOR_HPP_INCLUDED
 
+#include "Math3D/Quaternion.hpp"
 #include "Variables.hpp"
 
 
@@ -165,6 +166,57 @@ namespace cf
         {
             return length(DeltaY) < 128;
         }
+
+
+        /// This class is like VarInterpolatorT, but for Vector3fT%s that represent quaternions.
+        class VarSlerpT : public ApproxBaseT
+        {
+            public:
+
+            VarSlerpT(cf::TypeSys::VarT<Vector3fT>& v)
+                : m_Value(v),
+                  m_A(cf::math::QuaternionfT::FromXYZ(v.Get())),
+                  m_B(m_A),
+                  m_Total(0.0f),
+                  m_Time(0.0f)
+            {
+                assert(v.HasFlag("IsQuat"));
+            }
+
+            /// Used to re-initialize this interpolator at the current value.
+            void ReInit()
+            {
+                m_A     = cf::math::QuaternionfT::FromXYZ(m_Value.Get());
+                m_B     = m_A;
+                m_Total = 0.0f;
+                m_Time  = 0.0f;
+            }
+
+            /// The user calls this method in order to let the interpolator know that the interpolated value was changed externally.
+            void NotifyOverwriteUpdate()
+            {
+                m_A     = m_Total > 0.001f ? slerp(m_A, m_B, m_Time / m_Total) : m_B;
+                m_B     = cf::math::QuaternionfT::FromXYZ(m_Value.Get());
+                m_Total = m_Time;
+                m_Time  = 0.0f;
+            }
+
+            /// Advances the interpolation over the given time.
+            void Interpolate(float Time)
+            {
+                m_Time += Time;
+                m_Value.Set(m_Total > 0.001f ? slerp(m_A, m_B, m_Time / m_Total).GetXYZ() : m_B.GetXYZ());
+            }
+
+
+            private:
+
+            cf::TypeSys::VarT<Vector3fT>& m_Value;  ///< The value that is interpolated.
+            cf::math::QuaternionfT        m_A;      ///< The start value that we're interpolating from.
+            cf::math::QuaternionfT        m_B;      ///< The target value that we're interpolating to.
+            float                         m_Total;  ///< The total time that the interpolation is expected to take from A to B.
+            float                         m_Time;   ///< The actual time that has passed since we started from A.
+        };
 
 
 #if 0

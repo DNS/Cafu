@@ -70,7 +70,9 @@ void VarVisitorGetApproxT::visit(cf::TypeSys::VarT<Vector2fT>& Var)
 void VarVisitorGetApproxT::visit(cf::TypeSys::VarT<Vector3fT>& Var)
 {
     assert(m_Approx == NULL);
-    m_Approx = new VarInterpolatorT<Vector3fT>(Var);
+
+    if (Var.HasFlag("IsQuat")) m_Approx = new VarSlerpT(Var);
+                          else m_Approx = new VarInterpolatorT<Vector3fT>(Var);
 }
 
 
