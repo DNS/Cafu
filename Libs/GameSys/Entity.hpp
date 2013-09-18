@@ -267,6 +267,7 @@ namespace cf
 
             // Methods called from Lua scripts on cf::GameSys::EntityT instances.
             // They are protected so that derived entity classes can access them when implementing overloads.
+            static int GetID(lua_State* LuaState);
             static int AddChild(lua_State* LuaState);
             static int RemoveChild(lua_State* LuaState);
             static int GetParent(lua_State* LuaState);

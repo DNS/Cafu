@@ -548,6 +548,25 @@ bool EntityT::CallLuaMethod(const char* MethodName, const char* Signature, ...)
 /*** Impementation of Lua binding functions ***/
 /**********************************************/
 
+static const cf::TypeSys::MethsDocT META_GetID =
+{
+    "GetID",
+    "Returns the ID of this entity.\n"
+    "The ID is unique in the world, and is used (in C++ code) to unambiguously identify\n"
+    "the entity in network messages and as entity index number into `.cw` world files.\n"
+    "number", "()"
+};
+
+int EntityT::GetID(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<EntityT> Ent = Binder.GetCheckedObjectParam< IntrusivePtrT<EntityT> >(1);
+
+    lua_pushinteger(LuaState, Ent->GetID());
+    return 1;
+}
+
+
 static const cf::TypeSys::MethsDocT META_AddChild =
 {
     "AddChild",
@@ -821,6 +840,7 @@ void* EntityT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 
 const luaL_reg EntityT::MethodsList[]=
 {
+    { "GetID",           EntityT::GetID },
     { "AddChild",        EntityT::AddChild },
     { "RemoveChild",     EntityT::RemoveChild },
     { "GetParent",       EntityT::GetParent },
@@ -837,6 +857,7 @@ const luaL_reg EntityT::MethodsList[]=
 
 const cf::TypeSys::MethsDocT EntityT::DocMethods[] =
 {
+    META_GetID,
     META_AddChild,
     META_RemoveChild,
     META_GetParent,
