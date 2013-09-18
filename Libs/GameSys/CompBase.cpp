@@ -442,12 +442,12 @@ int ComponentBaseT::InitClientApprox(lua_State* LuaState)
     if (!Var)
         return luaL_argerror(LuaState, 2, (std::string("unknown variable \"") + VarName + "\"").c_str());
 
-    // Unfortunately, this cannot easily be implemented:
-    // if (Var is already approximated)
-    //     return luaL_argerror(LuaState, 2, (std::string("variable \"") + VarName + "\" is already approximated").c_str());
-
     // TODO: Only do this if we're in a client world!
     // No need to do it on the server, in CaWE, or the map compile tools.
+
+    for (unsigned int caNr = 0; caNr < Comp->m_ClientApprox.Size(); caNr++)
+        if (Var == Comp->m_ClientApprox[caNr]->GetVar())
+            return luaL_argerror(LuaState, 2, (std::string("variable \"") + VarName + "\" is already approximated").c_str());
 
     VarVisitorGetApproxT VarVisGetApprox;
     Var->accept(VarVisGetApprox);

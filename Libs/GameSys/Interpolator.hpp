@@ -40,11 +40,12 @@ namespace cf
         {
             public:
 
-            virtual void ReInit()=0;
-            virtual void NotifyOverwriteUpdate()=0;
-            virtual void Interpolate(float Time)=0;
-
             virtual ~ApproxBaseT() { }
+
+            virtual cf::TypeSys::VarBaseT* GetVar() const = 0;
+            virtual void ReInit() = 0;
+            virtual void NotifyOverwriteUpdate() = 0;
+            virtual void Interpolate(float Time) = 0;
         };
 
 
@@ -92,6 +93,11 @@ namespace cf
                   m_Gradient(T()),  // If T is float, this initializes m_Gradient with 0.0f.
                   m_ExtTime(0.0f)
             {
+            }
+
+            cf::TypeSys::VarBaseT* GetVar() const
+            {
+                return &m_Value;
             }
 
             /// Used to re-initialize this interpolator at the current value.
@@ -181,6 +187,11 @@ namespace cf
                   m_Time(0.0f)
             {
                 assert(v.HasFlag("IsQuat"));
+            }
+
+            cf::TypeSys::VarBaseT* GetVar() const
+            {
+                return &m_Value;
             }
 
             /// Used to re-initialize this interpolator at the current value.
