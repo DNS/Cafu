@@ -10,6 +10,15 @@ Butterfly.Trafo:InitClientApprox("Origin")
 Butterfly.Trafo:InitClientApprox("Orientation")   -- A bit overkill for tiny butterflies... ;-)
 
 
+-- If still at default (-1), pick a custom model skin.
+local Model = Butterfly:GetEntity():GetComponent("Model")
+
+if Model:get("Skin") == -1 and Model:GetNumSkins() > 0 then
+    Model:set("Skin",
+        Butterfly:GetEntity():GetID() % Model:GetNumSkins())
+end
+
+
 function Butterfly:Think(FrameTime)
     -- Console.Print("Butterfly-Thinking...\n")
 
