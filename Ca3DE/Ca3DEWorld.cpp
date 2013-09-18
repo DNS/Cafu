@@ -278,10 +278,18 @@ unsigned long Ca3DEWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<const Comp
             throw std::runtime_error("\"classname\" property not found.\n");
 
         const std::string EntClassName = EntClassNamePair->second;
-        const std::string CppClassName = m_ScriptState.GetCppClassNameFromEntityClassName(EntClassName);
+
+        std::string CppClassName = m_ScriptState.GetCppClassNameFromEntityClassName(EntClassName);
 
         if (CppClassName == "")
-            throw std::runtime_error("C++ class name for entity class name \""+EntClassName+"\" not found.\n");
+        {
+            // This can happen for EntClassName's for which we never had an entry in EntityClassDefs.lua,
+            // (e.g. for "ammo_buckshot"), or for EntClassName's for which we have an entry, but CppClass="",
+            // (e.g. for "ammo_9mmclip"). As entity classes are obsolete anyway, the transitional fix is simple:
+            CppClassName = "EntInfoGenericT";
+
+            // throw std::runtime_error("C++ class name for entity class name \""+EntClassName+"\" not found.\n");
+        }
 
 
         // 2. Find the related type info.
@@ -289,15 +297,13 @@ unsigned long Ca3DEWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<const Comp
 
         if (TI==NULL)
         {
-            wxMessageBox("Entity with C++ class name \"" + CppClassName + "\" could not be instantiated.\n\n" +
-                "No type info for entity class \"" + EntClassName + "\" with C++ class name \"" + CppClassName +
-                "\" was found.\n\n" +
-                "If you are developing a new C++ entity class, did you update the AllTypeInfos[] list in file " +
-                "GameImpl.cpp in your game directory?\n\n" +
-                "If in doubt, please post at the Cafu forums for help.",
-                "Create new entity", wxOK | wxICON_EXCLAMATION);
+            // These days, this can happen for entity classes such as "EntButterflyT" that have already been fully
+            // ported to the new component system, and whose old C++ class has already been removed.
+            // Therefore, replace the old C++ class with one that deliberately does nothing:
+            TI = m_Game->GetEntityTIM().FindTypeInfoByName("EntInfoGenericT");
 
-            throw std::runtime_error("No type info found for entity class \""+EntClassName+"\" with C++ class name \""+CppClassName+"\".\n");
+            if (TI==NULL)
+                throw std::runtime_error("No type info found for entity class \""+EntClassName+"\" with C++ class name \""+CppClassName+"\".\n");
         }
 
 
