@@ -36,7 +36,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "EntityCreateParams.hpp"
 
 #include "ARGrenade.hpp"
-#include "Butterfly.hpp"
 #include "CompanyBot.hpp"
 #include "Corpse.hpp"
 #include "Eagle.hpp"
@@ -127,7 +126,6 @@ namespace GAME_NAME
      */
     const cf::TypeSys::TypeInfoT* AllTypeInfos[] = {
         &EntARGrenadeT::TypeInfo,
-        &EntButterflyT::TypeInfo,
         &EntCompanyBotT::TypeInfo,
         &EntCorpseT::TypeInfo,
         &EntEagleT::TypeInfo,
