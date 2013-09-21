@@ -52,7 +52,12 @@ namespace GAME_NAME
 
         private:
 
-        enum FlightStateT { CruiseFlight, ControlledCruise, HalfLoopAndRoll, ClimpBackToCruiseAlt };
+        enum FlightStateT { CruiseFlight, ControlledCruise, HalfLoopAndRoll, ClimbBackToCruiseAlt };
+
+        float fnCruiseFlight(float FlightLeft);
+        float fnControlledCruise(float FlightLeft);
+        float fnHalfLoopAndRoll(float FlightLeft);
+        float fnClimbBackToCruiseAlt(float FlightLeft);
 
         const CafuModelT* m_Model;
         FlightStateT      FlightState;

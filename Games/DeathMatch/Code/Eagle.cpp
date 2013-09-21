@@ -80,118 +80,149 @@ EntEagleT::~EntEagleT()
 }
 
 
+float EntEagleT::fnCruiseFlight(float FlightLeft)
+{
+    // m_Heading+=1820.0*FrameTime;    // Kreise mit ca. 10 Grad pro Sekunde
+
+    cf::ClipSys::TraceResultT Result(1.0);
+    const Vector3dT           FlightDir = Vector3dT(LookupTables::Angle16ToSin[m_Heading], LookupTables::Angle16ToCos[m_Heading], 0.0);
+
+    GameWorld->GetClipWorld().TraceRay(m_Origin, FlightDir * 1000.0, MaterialT::Clip_Players, NULL, Result);
+
+    const float TerrainDistance  = float(1000.0*Result.Fraction);
+    const float ManeuverDistance = 280.0;            // Wieviel Platz voraus wir gerne für unser Wendemanöver hätten
+
+    if (TerrainDistance > ManeuverDistance + FlightLeft)
+    {
+        // Continue cruise flight
+        m_Origin.x += LookupTables::Angle16ToSin[m_Heading] * FlightLeft;
+        m_Origin.y += LookupTables::Angle16ToCos[m_Heading] * FlightLeft;
+
+        return 0.0;
+    }
+
+    // Uh! Terrain ahead! Initiate emergency turn maneuver!
+    // 80% der verbleibenden Strecke für das Gesamtmanöver nutzen, und davon jeweils 1/3 für die einzelnen Figuren.
+    FigureDistance = TerrainDistance * 0.8f / 3.0f;
+    OldOrigin      = m_Origin;
+    LoopCenter     = m_Origin+VectorT(2.0 * FigureDistance * LookupTables::Angle16ToSin[m_Heading],
+                                      2.0 * FigureDistance * LookupTables::Angle16ToCos[m_Heading],
+                                           -FigureDistance);
+
+    // Zustandswechsel nach ControlledCruise vorbereiten
+    FlightState = ControlledCruise;
+    FigureLeft  = 2.0f * FigureDistance;
+
+    return FlightLeft;
+}
+
+
+float EntEagleT::fnControlledCruise(float FlightLeft)
+{
+    if (FlightLeft > FigureLeft)
+    {
+        const float Pi = 3.14159265359f;
+
+        FlightState = HalfLoopAndRoll;
+        FigureLeft = Pi * FigureDistance;
+
+        return FlightLeft - FigureLeft;
+    }
+
+    FigureLeft -= FlightLeft;
+
+    m_Origin.x += LookupTables::Angle16ToSin[m_Heading] * FlightLeft;
+    m_Origin.y += LookupTables::Angle16ToCos[m_Heading] * FlightLeft;
+
+    return 0.0f;
+}
+
+
+float EntEagleT::fnHalfLoopAndRoll(float FlightLeft)
+{
+    const float Pi = 3.14159265359f;
+
+    if (FlightLeft > FigureLeft)
+    {
+        // Zustandswechsel nach ClimbBackToCruiseAlt vorbereiten
+        m_Heading += 32768;
+        m_Pitch    = 0;
+        m_Bank     = 0;
+
+        // Die nächste Figur ist der "Cosinus-Aufschwung" auf die alte Flughöhe.
+        // Auf geradem Wege würde eine Diagonale abgeflogen, deren Länge 2.0*1.414213562373*FigureDistance beträgt.
+        // Der Cosinus-Bogen ist aber offensichtich etwas länger, schätze ihn mit 2.0*1.5*FigureDistance ab.
+        FlightState = ClimbBackToCruiseAlt;
+        FigureLeft = 3.0f * FigureDistance;
+
+        return FlightLeft - FigureLeft;
+    }
+
+    FigureLeft -= FlightLeft;
+
+    const unsigned short DegreesLeft=(unsigned short)(FigureLeft/FigureDistance/Pi*32768.0);
+    const float          HorLoopPos =LookupTables::Angle16ToSin[DegreesLeft]*FigureDistance;    // Nur eine Abkürzung
+
+    m_Origin.x = LoopCenter.x + LookupTables::Angle16ToSin[m_Heading] * HorLoopPos;
+    m_Origin.y = LoopCenter.y + LookupTables::Angle16ToCos[m_Heading] * HorLoopPos;
+    m_Origin.z = LoopCenter.z - LookupTables::Angle16ToCos[DegreesLeft] * FigureDistance;   // VerLoopPos
+    m_Pitch    = 32768 - DegreesLeft;
+    m_Bank     = m_Pitch;
+
+    return 0.0f;
+}
+
+
+float EntEagleT::fnClimbBackToCruiseAlt(float FlightLeft)
+{
+    if (FlightLeft > FigureLeft)
+    {
+        // Zustandswechsel nach CruiseFlight vorbereiten
+        m_Origin  = OldOrigin;
+
+        FlightState = CruiseFlight;
+        FigureLeft = 0.0;   // Not relevant in CruiseFlight.
+
+        return FlightLeft - FigureLeft;
+    }
+
+    FigureLeft -= FlightLeft;
+
+    const float          GroundDistLeft = FigureLeft/1.5f;                                              // Wieviel "über Grund" noch abzufliegen ist
+    const unsigned short DegreesLeft    = (unsigned short)(GroundDistLeft / FigureDistance * 16384.0f); // Wieviel "Degrees" dies entspricht
+
+    m_Origin.x = OldOrigin.x - LookupTables::Angle16ToSin[m_Heading]*GroundDistLeft;    // Beachte: Wir sind jetzt auf Umkehrkurs!
+    m_Origin.y = OldOrigin.y - LookupTables::Angle16ToCos[m_Heading]*GroundDistLeft;
+    m_Origin.z = OldOrigin.z + FigureDistance * (LookupTables::Angle16ToCos[DegreesLeft] - 1.0f);
+
+    return 0.0f;
+}
+
+
 void EntEagleT::Think(float FrameTime, unsigned long /*ServerFrameNr*/)
 {
-    const float Pi              =3.14159265359f;
-    const float ManeuverDistance=280.0;            // Wieviel Platz voraus wir gerne für unser Wendemanöver hätten
+    float FlightLeft = 160.0f * FrameTime;      // Wie weit wir gerne fliegen würden
 
-    float FlightDistance   =160.0f*FrameTime;      // Wie weit wir gerne fliegen würden
-    char  MaxManeuverRepeat=2;
-
-    while (MaxManeuverRepeat--)
+    while (FlightLeft > 0.0f)
     {
         switch (FlightState)
         {
             case CruiseFlight:
-            {
-                // m_Heading+=1820.0*FrameTime;    // Kreise mit ca. 10 Grad pro Sekunde
-
-                cf::ClipSys::TraceResultT Result(1.0);
-                const Vector3dT           FlightDir=Vector3dT(LookupTables::Angle16ToSin[m_Heading], LookupTables::Angle16ToCos[m_Heading], 0.0);
-
-                GameWorld->GetClipWorld().TraceRay(m_Origin, FlightDir*1000.0, MaterialT::Clip_Players, NULL, Result);
-
-                const float TerrainDistance=float(1000.0*Result.Fraction);
-
-                if (TerrainDistance>ManeuverDistance+FlightDistance)
-                {
-                    // Continue cruise flight
-                    m_Origin.x+=LookupTables::Angle16ToSin[m_Heading]*FlightDistance;
-                    m_Origin.y+=LookupTables::Angle16ToCos[m_Heading]*FlightDistance;
-
-                    FigureLeft=1.0;     // Muß einen Wert größer 0 zuweisen, damit die while-Schleife verlassen wird!
-                    break;
-                }
-
-                // Uh! Terrain ahead! Initiate emergency turn maneuver!
-                // 80% der verbleibenden Strecke für das Gesamtmanöver nutzen, und davon jeweils 1/3 für die einzelnen Figuren.
-                // m_Origin  =VectorT(5000.0, 45000.0, -4000.0);    // Activate this for debugging in JrBase1
-                FigureDistance=TerrainDistance*0.8f/3.0f;
-                OldOrigin     =m_Origin;
-                LoopCenter    =m_Origin+VectorT(2.0*FigureDistance*LookupTables::Angle16ToSin[m_Heading],
-                                                    2.0*FigureDistance*LookupTables::Angle16ToCos[m_Heading],
-                                                       -FigureDistance);
-
-                // Zustandswechsel nach ControlledCruise vorbereiten
-                FigureLeft =2.0f*FigureDistance;
-                FlightState=ControlledCruise;
-                // Intentional fall-through!
-            }
+                FlightLeft = fnCruiseFlight(FlightLeft);
+                break;
 
             case ControlledCruise:
-                FigureLeft-=FlightDistance;
-
-                m_Origin.x+=LookupTables::Angle16ToSin[m_Heading]*FlightDistance;
-                m_Origin.y+=LookupTables::Angle16ToCos[m_Heading]*FlightDistance;
-
-                if (FigureLeft>0.0) break;
-
-                // Zustandswechsel nach HalfLoopAndRoll vorbereiten
-                FigureLeft+=FlightDistance+Pi*FigureDistance;
-                FlightState=HalfLoopAndRoll;
-                // Intentional fall-through!
+                FlightLeft = fnControlledCruise(FlightLeft);
+                break;
 
             case HalfLoopAndRoll:
-            {
-                FigureLeft-=FlightDistance;
+                FlightLeft = fnHalfLoopAndRoll(FlightLeft);
+                break;
 
-                const unsigned short DegreesLeft=(unsigned short)(FigureLeft/FigureDistance/Pi*32768.0);
-                const float          HorLoopPos =LookupTables::Angle16ToSin[DegreesLeft]*FigureDistance;    // Nur eine Abkürzung
-
-                m_Origin.x=LoopCenter.x+LookupTables::Angle16ToSin[m_Heading]*HorLoopPos;
-                m_Origin.y=LoopCenter.y+LookupTables::Angle16ToCos[m_Heading]*HorLoopPos;
-                m_Origin.z=LoopCenter.z-                                          LookupTables::Angle16ToCos[DegreesLeft]*FigureDistance;   // VerLoopPos
-                m_Pitch   =32768-DegreesLeft;
-                m_Bank    =m_Pitch;
-
-                if (FigureLeft>0.0) break;
-
-                // Zustandswechsel nach ClimpBackToCruiseAlt vorbereiten
-                m_Heading+=32768;
-                m_Pitch   =0;
-                m_Bank    =0;
-
-                // Die nächste Figur ist der "Cosinus-Aufschwung" auf die alte Flughöhe.
-                // Auf geradem Wege würde eine Diagonale abgeflogen, deren Länge 2.0*1.414213562373*FigureDistance beträgt.
-                // Der Cosinus-Bogen ist aber offensichtich etwas länger, schätze ihn mit 2.0*1.5*FigureDistance ab.
-                FigureLeft+=FlightDistance+3.0f*FigureDistance;
-                FlightState=ClimpBackToCruiseAlt;
-                // Intentional fall-through!
-            }
-
-            case ClimpBackToCruiseAlt:
-            {
-                FigureLeft-=FlightDistance;
-
-                const float          GroundDistLeft=FigureLeft/1.5f;                                            // Wieviel "über Grund" noch abzufliegen ist
-                const unsigned short DegreesLeft   =(unsigned short)(GroundDistLeft/FigureDistance*16384.0f);   // Wieviel "Degrees" dies entspricht
-
-                m_Origin.x=OldOrigin.x-LookupTables::Angle16ToSin[m_Heading]*GroundDistLeft;    // Beachte: Wir sind jetzt auf Umkehrkurs!
-                m_Origin.y=OldOrigin.y-LookupTables::Angle16ToCos[m_Heading]*GroundDistLeft;
-                m_Origin.z=OldOrigin.z+FigureDistance*(LookupTables::Angle16ToCos[DegreesLeft]-1.0f);
-
-                if (FigureLeft>0.0) break;
-
-                // Zustandswechsel nach CruiseFlight vorbereiten
-                m_Origin  = OldOrigin;
-                // m_Heading+= rand() >> 4;
-                FlightDistance=-FigureLeft;
-                FlightState   = CruiseFlight;
-                // Intentional fall-through!
-            }
+            case ClimbBackToCruiseAlt:
+                FlightLeft = fnClimbBackToCruiseAlt(FlightLeft);
+                break;
         }
-
-        if (FigureLeft>0.0) break;
     }
 }
 
