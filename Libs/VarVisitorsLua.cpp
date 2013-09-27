@@ -168,8 +168,16 @@ void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT<Vector2fT>& Var)
 {
     Vector2fT v;
 
-    v.x = float(luaL_checknumber(m_LuaState, -2));
-    v.y = float(luaL_checknumber(m_LuaState, -1));
+    if (lua_istable(m_LuaState, -1))
+    {
+        lua_rawgeti(m_LuaState, -1, 1); v.x = float(lua_tonumber(m_LuaState, -1)); lua_pop(m_LuaState, 1);
+        lua_rawgeti(m_LuaState, -1, 2); v.y = float(lua_tonumber(m_LuaState, -1)); lua_pop(m_LuaState, 1);
+    }
+    else
+    {
+        v.x = float(luaL_checknumber(m_LuaState, -2));
+        v.y = float(luaL_checknumber(m_LuaState, -1));
+    }
 
     Var.Set(v);
 }
@@ -179,9 +187,18 @@ void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT<Vector3fT>& Var)
 {
     Vector3fT v;
 
-    v.x = float(luaL_checknumber(m_LuaState, -3));
-    v.y = float(luaL_checknumber(m_LuaState, -2));
-    v.z = float(luaL_checknumber(m_LuaState, -1));
+    if (lua_istable(m_LuaState, -1))
+    {
+        lua_rawgeti(m_LuaState, -1, 1); v.x = float(lua_tonumber(m_LuaState, -1)); lua_pop(m_LuaState, 1);
+        lua_rawgeti(m_LuaState, -1, 2); v.y = float(lua_tonumber(m_LuaState, -1)); lua_pop(m_LuaState, 1);
+        lua_rawgeti(m_LuaState, -1, 3); v.z = float(lua_tonumber(m_LuaState, -1)); lua_pop(m_LuaState, 1);
+    }
+    else
+    {
+        v.x = float(luaL_checknumber(m_LuaState, -3));
+        v.y = float(luaL_checknumber(m_LuaState, -2));
+        v.z = float(luaL_checknumber(m_LuaState, -1));
+    }
 
     Var.Set(v);
 }
