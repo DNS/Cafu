@@ -161,6 +161,7 @@ namespace cf
             static int SetRootEntity(lua_State* LuaState);  ///< Sets the root entity for this world.
             static int CreateNew(lua_State* LuaState);      ///< Creates and returns a new entity or component.
             static int Init(lua_State* LuaState);           ///< Calls the OnInit() script methods of all entities.
+            static int TraceRay(lua_State* LuaState);       ///< Employs m_ClipWorld->TraceRay() to trace a ray through the (clip) world.
             static int toString(lua_State* LuaState);       ///< Returns a short string description of this world.
 
             /// Adds a new global variable of type (meta-)table with name "cf::GameSys::WorldT" to the given Lua state,

@@ -82,7 +82,7 @@ ComponentTransformT* ComponentTransformT::Clone() const
 static const cf::TypeSys::MethsDocT META_GetAngles =
 {
     "GetAngles",
-    "Returns the orientation of this entity as a tuple of three angles:\n"
+    "Returns the orientation of this entity as a tuple of three angles, measured in degrees:\n"
     "  - heading (yaw),\n"
     "  - pitch,\n"
     "  - bank (roll).",
@@ -105,7 +105,7 @@ int ComponentTransformT::GetAngles(lua_State* LuaState)
 static const cf::TypeSys::MethsDocT META_SetAngles =
 {
     "SetAngles",
-    "Sets the orientation of this entity from a set of three angles:\n"
+    "Sets the orientation of this entity from a set of three angles, measured in degrees:\n"
     "  - heading (yaw),\n"
     "  - pitch,\n"
     "  - bank (roll).",
@@ -125,6 +125,75 @@ int ComponentTransformT::SetAngles(lua_State* LuaState)
 
     Comp->SetQuat(cf::math::QuaternionfT(Angles));
     return 0;
+}
+
+
+static const cf::TypeSys::MethsDocT META_GetAxisX =
+{
+    "GetAxisX",
+    "Returns the x-axis of the local coordinate system of this entity.\n"
+    "The local coordinate system expresses the orientation of the entity.\n"
+    "It is relative to the entity's parent.",
+    "tuple", "()"
+};
+
+int ComponentTransformT::GetAxisX(lua_State* LuaState)
+{
+    ScriptBinderT                      Binder(LuaState);
+    IntrusivePtrT<ComponentTransformT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentTransformT> >(1);
+    const cf::math::QuaternionfT       Quat = Comp->GetQuat();
+
+    // This is the same code as in the related Matrix3x3T(Quat) constructor.
+    lua_pushnumber(LuaState, 1 - 2 * Quat.y * Quat.y - 2 * Quat.z * Quat.z);
+    lua_pushnumber(LuaState,     2 * Quat.x * Quat.y + 2 * Quat.w * Quat.z);
+    lua_pushnumber(LuaState,     2 * Quat.x * Quat.z - 2 * Quat.w * Quat.y);
+    return 3;
+}
+
+
+static const cf::TypeSys::MethsDocT META_GetAxisY =
+{
+    "GetAxisY",
+    "Returns the y-axis of the local coordinate system of this entity.\n"
+    "The local coordinate system expresses the orientation of the entity.\n"
+    "It is relative to the entity's parent.",
+    "tuple", "()"
+};
+
+int ComponentTransformT::GetAxisY(lua_State* LuaState)
+{
+    ScriptBinderT                      Binder(LuaState);
+    IntrusivePtrT<ComponentTransformT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentTransformT> >(1);
+    const cf::math::QuaternionfT       Quat = Comp->GetQuat();
+
+    // This is the same code as in the related Matrix3x3T(Quat) constructor.
+    lua_pushnumber(LuaState,     2 * Quat.x * Quat.y - 2 * Quat.w * Quat.z);
+    lua_pushnumber(LuaState, 1 - 2 * Quat.x * Quat.x - 2 * Quat.z * Quat.z);
+    lua_pushnumber(LuaState,     2 * Quat.y * Quat.z + 2 * Quat.w * Quat.x);
+    return 3;
+}
+
+
+static const cf::TypeSys::MethsDocT META_GetAxisZ =
+{
+    "GetAxisZ",
+    "Returns the z-axis of the local coordinate system of this entity.\n"
+    "The local coordinate system expresses the orientation of the entity.\n"
+    "It is relative to the entity's parent.",
+    "tuple", "()"
+};
+
+int ComponentTransformT::GetAxisZ(lua_State* LuaState)
+{
+    ScriptBinderT                      Binder(LuaState);
+    IntrusivePtrT<ComponentTransformT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentTransformT> >(1);
+    const cf::math::QuaternionfT       Quat = Comp->GetQuat();
+
+    // This is the same code as in the related Matrix3x3T(Quat) constructor.
+    lua_pushnumber(LuaState,     2 * Quat.x * Quat.z + 2 * Quat.w * Quat.y);
+    lua_pushnumber(LuaState,     2 * Quat.y * Quat.z - 2 * Quat.w * Quat.x);
+    lua_pushnumber(LuaState, 1 - 2 * Quat.x * Quat.x - 2 * Quat.y * Quat.y);
+    return 3;
 }
 
 
@@ -158,6 +227,9 @@ const luaL_reg ComponentTransformT::MethodsList[] =
 {
     { "GetAngles",  ComponentTransformT::GetAngles },
     { "SetAngles",  ComponentTransformT::SetAngles },
+    { "GetAxisX",   ComponentTransformT::GetAxisX },
+    { "GetAxisY",   ComponentTransformT::GetAxisY },
+    { "GetAxisZ",   ComponentTransformT::GetAxisZ },
     { "__tostring", ComponentTransformT::toString },
     { NULL, NULL }
 };
@@ -166,6 +238,9 @@ const cf::TypeSys::MethsDocT ComponentTransformT::DocMethods[] =
 {
     META_GetAngles,
     META_SetAngles,
+    META_GetAxisX,
+    META_GetAxisY,
+    META_GetAxisZ,
     META_toString,
     { NULL, NULL, NULL, NULL }
 };

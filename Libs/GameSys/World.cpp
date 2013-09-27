@@ -24,9 +24,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Entity.hpp"
 #include "EntityCreateParams.hpp"
 
+#include "ClipSys/ClipWorld.hpp"
+#include "ClipSys/TraceResult.hpp"
 #include "ConsoleCommands/Console.hpp"
 #include "ConsoleCommands/Console_Lua.hpp"
 #include "ConsoleCommands/ConsoleInterpreter.hpp"
+#include "MaterialSystem/Material.hpp"
 
 
 using namespace cf::GameSys;
@@ -359,6 +362,44 @@ int WorldT::Init(lua_State* LuaState)
 }
 
 
+int WorldT::TraceRay(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    WorldT*       World = CheckParams(LuaState);
+
+    if (!World->m_ClipWorld)
+        luaL_error(LuaState, "There is no clip world in this world.");
+
+    Vector3dT Start;
+    Vector3dT Ray;
+
+    // TODO:
+    //   This code was written when the EntEagleT::Think() code was ported from C++ to Lua,
+    //   and thus supports only the Start and Ray parameters.
+    //   Can we augment it to support more parameters of the C++ TraceRay() in Lua's TraceRay()??
+    lua_rawgeti(LuaState, 2, 1); Start.x = luaL_checknumber(LuaState, -1); lua_pop(LuaState, 1);
+    lua_rawgeti(LuaState, 2, 2); Start.y = luaL_checknumber(LuaState, -1); lua_pop(LuaState, 1);
+    lua_rawgeti(LuaState, 2, 3); Start.z = luaL_checknumber(LuaState, -1); lua_pop(LuaState, 1);
+
+    lua_rawgeti(LuaState, 3, 1); Ray.x = luaL_checknumber(LuaState, -1); lua_pop(LuaState, 1);
+    lua_rawgeti(LuaState, 3, 2); Ray.y = luaL_checknumber(LuaState, -1); lua_pop(LuaState, 1);
+    lua_rawgeti(LuaState, 3, 3); Ray.z = luaL_checknumber(LuaState, -1); lua_pop(LuaState, 1);
+
+    // Delegate the work to the World->m_ClipWorld.
+    cf::ClipSys::TraceResultT Result(1.0);
+
+    World->m_ClipWorld->TraceRay(Start, Ray, MaterialT::Clip_Players, NULL /*Ignore*/, Result);
+
+    // Return the results.
+    lua_newtable(LuaState);
+
+    lua_pushstring(LuaState, "Fraction");   lua_pushnumber (LuaState, Result.Fraction);   lua_rawset(LuaState, -3);
+    lua_pushstring(LuaState, "StartSolid"); lua_pushboolean(LuaState, Result.StartSolid); lua_rawset(LuaState, -3);
+
+    return 1;
+}
+
+
 int WorldT::toString(lua_State* LuaState)
 {
     WorldT* World = CheckParams(LuaState);
@@ -384,6 +425,7 @@ void WorldT::RegisterLua(lua_State* LuaState)
         { "SetRootEntity", SetRootEntity },
         { "new",           CreateNew },
         { "Init",          Init },
+        { "TraceRay",      TraceRay },
         { "__tostring",    toString },
         { NULL, NULL }
     };
