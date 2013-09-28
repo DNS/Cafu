@@ -1,4 +1,4 @@
-local Butterfly = ...
+local Butterfly = ...   -- Retrieve the ComponentScriptT instance that is responsible for this script.
 
 Butterfly.Trafo     = Butterfly:GetEntity():GetTransform()
 Butterfly.ArcCenter = { Butterfly.Trafo:get("Origin") }
@@ -33,17 +33,3 @@ function Butterfly:Think(FrameTime)
 
     self.Trafo:SetAngles(-math.deg(self.ArcPos))
 end
-
-
-Console.Print("####   Hello from Butterfly.lua   ####   :-)\n")
-Console.Print("Butterfly tables:\n")
-
-function printTab(t)
-    for key, value in pairs(t) do
-        Console.Print(tostring(key) .. " := " .. tostring(value) .. "\n")
-    end
-    Console.Print("\n")
-end
-
-printTab(Butterfly)
-printTab(Butterfly.ArcCenter)
