@@ -53,6 +53,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/MaterialManagerImpl.hpp"
 #include "ClipSys/CollisionModelMan_impl.hpp"
+#include "SoundSystem/SoundShaderManagerImpl.hpp"
+#include "SoundSystem/SoundSys.hpp"
 
 #include "BspTreeBuilder/BspTreeBuilder.hpp"
 
@@ -63,20 +65,25 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #endif
 
 
-static cf::ConsoleStdoutT ConsoleStdout(true);      // Enable auto-flushing the stdout stream for CaBSP.
-cf::ConsoleI* Console=&ConsoleStdout;
+static cf::ConsoleStdoutT s_ConsoleStdout(true);      // Enable auto-flushing the stdout stream for CaBSP.
+cf::ConsoleI* Console = &s_ConsoleStdout;
 
-static cf::FileSys::FileManImplT FileManImpl;
-cf::FileSys::FileManI* cf::FileSys::FileMan=&FileManImpl;
+static cf::FileSys::FileManImplT s_FileManImpl;
+cf::FileSys::FileManI* cf::FileSys::FileMan = &s_FileManImpl;
 
-static cf::ClipSys::CollModelManImplT CCM;
-cf::ClipSys::CollModelManI* cf::ClipSys::CollModelMan=&CCM;
+static cf::ClipSys::CollModelManImplT s_CCM;
+cf::ClipSys::CollModelManI* cf::ClipSys::CollModelMan = &s_CCM;
 
-ConsoleInterpreterI* ConsoleInterpreter=NULL;
-MaterialManagerI*    MaterialManager   =NULL;
+ConsoleInterpreterI* ConsoleInterpreter = NULL;
+MaterialManagerI*    MaterialManager    = NULL;
+
+static SoundShaderManagerImplT s_SSM;
+SoundShaderManagerI* SoundShaderManager = &s_SSM;
+
+SoundSysI* SoundSystem = NULL;
 
 
-const time_t ProgramStartTime=time(NULL);
+const time_t ProgramStartTime = time(NULL);
 
 // Returns a string with the elapsed time since program start.
 // The string is in the format "hh:mm:ss".

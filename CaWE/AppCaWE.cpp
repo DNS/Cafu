@@ -57,6 +57,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GuiSys/AllComponents.hpp"
 #include "GuiSys/Window.hpp"
 #include "MaterialSystem/MaterialManagerImpl.hpp"
+#include "SoundSystem/SoundShaderManagerImpl.hpp"
+#include "SoundSystem/SoundSys.hpp"
 #include "TypeSys.hpp"
 
 #include <fstream>
@@ -76,6 +78,11 @@ cf::ClipSys::CollModelManI* cf::ClipSys::CollModelMan=&CCM;
 
 ConsoleInterpreterI* ConsoleInterpreter=NULL;
 MaterialManagerI*    MaterialManager   =NULL;
+
+static SoundShaderManagerImplT s_SSM;
+SoundShaderManagerI* SoundShaderManager = &s_SSM;
+
+SoundSysI* SoundSystem = NULL;
 
 
 OptionsT Options;
