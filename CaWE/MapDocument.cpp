@@ -78,6 +78,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameSys/CompCollisionModel.hpp"
 #include "GameSys/CompModel.hpp"
 #include "GameSys/CompScript.hpp"
+#include "GameSys/CompSound.hpp"
 #include "GameSys/Entity.hpp"
 #include "GameSys/EntityCreateParams.hpp"
 #include "GameSys/World.hpp"
@@ -734,20 +735,47 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             Ent->AddComponent(CollMdlComp);
         }
 
-        if (MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "monster_butterfly")
+        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "monster_butterfly")
         {
             IntrusivePtrT<cf::GameSys::ComponentModelT>  ModelComp  = new cf::GameSys::ComponentModelT();
             IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
 
             ModelComp->SetMember("Name", std::string("Games/DeathMatch/Models/LifeForms/Butterfly/Butterfly.cmdl"));
-         // ModelComp->SetMember("Animation", );
-         // ModelComp->SetMember("Skin", );
-         // ModelComp->SetMember("Scale", );
-         // ModelComp->SetMember("Gui", );
             Ent->AddComponent(ModelComp);
 
             ScriptComp->SetMember("Name", std::string(m_GameConfig->ModDir + "/Scripts/Butterfly.lua"));
             Ent->AddComponent(ScriptComp);
+        }
+
+        if (MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "LifeFormMaker")
+        {
+            const EntPropertyT* Prop = MapEnt->FindProperty("monstertype");
+
+            if (Prop && Prop->Value == "Eagle")
+            {
+                // First convert to a true eagle, then the code below will handle the rest (add components).
+                const EntityClassT* EntityClass = m_GameConfig->FindClass("monster_eagle");
+
+                MapEnt->SetClass(EntityClass ? EntityClass : FindOrCreateUnknownClass("monster_eagle", true));
+            }
+        }
+
+        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "monster_eagle")
+        {
+            IntrusivePtrT<cf::GameSys::ComponentModelT>  ModelComp  = new cf::GameSys::ComponentModelT();
+            IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
+            IntrusivePtrT<cf::GameSys::ComponentSoundT>  SoundComp  = new cf::GameSys::ComponentSoundT();
+
+            ModelComp->SetMember("Name", std::string("Games/DeathMatch/Models/LifeForms/Eagle/Eagle.cmdl"));
+            Ent->AddComponent(ModelComp);
+
+            ScriptComp->SetMember("Name", std::string(m_GameConfig->ModDir + "/Scripts/Eagle.lua"));
+            Ent->AddComponent(ScriptComp);
+
+            SoundComp->SetMember("Name", std::string("Ambient/Jungle"));
+            SoundComp->SetMember("AutoPlay", true);
+            SoundComp->SetMember("Interval", 20.0f);
+            Ent->AddComponent(SoundComp);
         }
     }
 }

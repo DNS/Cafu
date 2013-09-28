@@ -38,7 +38,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ARGrenade.hpp"
 #include "CompanyBot.hpp"
 #include "Corpse.hpp"
-#include "Eagle.hpp"
 #include "FaceHugger.hpp"
 #include "FuncDoor.hpp"
 #include "FuncLadder.hpp"
@@ -128,7 +127,6 @@ namespace GAME_NAME
         &EntARGrenadeT::TypeInfo,
         &EntCompanyBotT::TypeInfo,
         &EntCorpseT::TypeInfo,
-        &EntEagleT::TypeInfo,
         &EntFaceHuggerT::TypeInfo,
         &EntFuncDoorT::TypeInfo,
         &EntFuncLadderT::TypeInfo,

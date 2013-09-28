@@ -31,7 +31,7 @@ namespace GAME_NAME
     {
         private:
 
-        enum MonsterTypeT { Unknown, CompanyBot, Butterfly, Eagle };
+        enum MonsterTypeT { Unknown, CompanyBot, Butterfly };
 
         MonsterTypeT  MonsterType;          // Type of monsters to create
         unsigned long MaxCreate;            // Number of monsters the MonsterMaker can totally create

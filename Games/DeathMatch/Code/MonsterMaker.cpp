@@ -20,7 +20,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "MonsterMaker.hpp"
-#include "Eagle.hpp"
 #include "CompanyBot.hpp"
 #include "EntityCreateParams.hpp"
 #include "HumanPlayer.hpp"
@@ -73,7 +72,6 @@ EntMonsterMakerT::EntMonsterMakerT(const EntityCreateParamsT& Params)
         {
                  if (_stricmp(Value.c_str(), "CompanyBot")==0) MonsterType=CompanyBot;
             else if (_stricmp(Value.c_str(), "Butterfly" )==0) MonsterType=Butterfly;
-            else if (_stricmp(Value.c_str(), "Eagle"     )==0) MonsterType=Eagle;
         }
         else if (Key=="monstercount"      ) MaxCreate=atoi(Value.c_str());
         else if (Key=="delay"             ) Delay    =float(atof(Value.c_str()));
@@ -103,7 +101,6 @@ void EntMonsterMakerT::Think(float FrameTime, unsigned long ServerFrameNr)
         // Das ist ein häßlicher Hack: Muß hier im voraus die Dimensions-BoundingBox des CompanyBot-Konstruktors kennen!
         case CompanyBot: OurRelPositionBB=BoundingBox3dT(Vector3dT(12.0, 12.0, 4.0), Vector3dT(-12.0, -12.0, -68.0)); break;
         case Butterfly : OurRelPositionBB=BoundingBox3dT(Vector3dT( 4.0, 24.0, 4.0), Vector3dT( -4.0,  16.0,  -4.0)); break;
-        case Eagle     : OurRelPositionBB=BoundingBox3dT(Vector3dT( 4.0,  4.0, 4.0), Vector3dT( -4.0,  -4.0,  -4.0)); break;
         default        : break;
     }
 
@@ -166,17 +163,6 @@ void EntMonsterMakerT::Think(float FrameTime, unsigned long ServerFrameNr)
             std::map<std::string, std::string> Props; Props["classname"]="monster_butterfly";
 
             GameWorld->CreateNewEntity(Props, ServerFrameNr, m_Origin);
-            break;
-        }
-
-        case Eagle:
-        {
-            std::map<std::string, std::string> Props; Props["classname"]="monster_eagle";
-
-            unsigned long NewEagleID=GameWorld->CreateNewEntity(Props, ServerFrameNr, m_Origin);
-            IntrusivePtrT<EntEagleT> NewEagle=dynamic_pointer_cast<EntEagleT>(GameWorld->GetGameEntityByID(NewEagleID));
-
-            if (!NewEagle.IsNull()) NewEagle->SetHeading(m_Heading);
             break;
         }
 
