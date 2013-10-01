@@ -838,7 +838,7 @@ void* EntityT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
     return new EntityT(*static_cast<const cf::GameSys::EntityCreateParamsT*>(&Params));
 }
 
-const luaL_reg EntityT::MethodsList[]=
+const luaL_Reg EntityT::MethodsList[]=
 {
     { "GetID",           EntityT::GetID },
     { "AddChild",        EntityT::AddChild },

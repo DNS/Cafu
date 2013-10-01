@@ -193,7 +193,7 @@ void ScriptBinderT::Init(const cf::TypeSys::TypeInfoManT& TIM)
             lua_newtable(m_LuaState);
 
             if (TI->MethodsList != NULL)
-                luaL_register(m_LuaState, NULL, TI->MethodsList);
+                luaL_setfuncs(m_LuaState, TI->MethodsList, 0);
 
             // If TI has a base class, model that relationship for FT, too, by setting the metatable of
             // the base class as the metatable for FT. Note that this works because the for-loop (over TI)
@@ -329,16 +329,18 @@ UniScriptStateT::UniScriptStateT()
       m_CheckCppRefsCount(0)
 {
     // Open (create, init) a new Lua state.
-    m_LuaState=lua_open();
+    m_LuaState = luaL_newstate();
 
     // Open (load, init) the Lua standard libraries.
-    lua_pushcfunction(m_LuaState, luaopen_base);    lua_pushstring(m_LuaState, "");              lua_call(m_LuaState, 1, 0);  // Opens the basic library.
-    lua_pushcfunction(m_LuaState, luaopen_package); lua_pushstring(m_LuaState, LUA_LOADLIBNAME); lua_call(m_LuaState, 1, 0);  // Opens the package library.
-    lua_pushcfunction(m_LuaState, luaopen_table);   lua_pushstring(m_LuaState, LUA_TABLIBNAME);  lua_call(m_LuaState, 1, 0);  // Opens the table library.
-    lua_pushcfunction(m_LuaState, luaopen_io);      lua_pushstring(m_LuaState, LUA_IOLIBNAME);   lua_call(m_LuaState, 1, 0);  // Opens the I/O library.
-    lua_pushcfunction(m_LuaState, luaopen_os);      lua_pushstring(m_LuaState, LUA_OSLIBNAME);   lua_call(m_LuaState, 1, 0);  // Opens the OS library.
-    lua_pushcfunction(m_LuaState, luaopen_string);  lua_pushstring(m_LuaState, LUA_STRLIBNAME);  lua_call(m_LuaState, 1, 0);  // Opens the string lib.
-    lua_pushcfunction(m_LuaState, luaopen_math);    lua_pushstring(m_LuaState, LUA_MATHLIBNAME); lua_call(m_LuaState, 1, 0);  // Opens the math lib.
+    luaL_requiref(m_LuaState, "_G",            luaopen_base,      1); lua_pop(m_LuaState, 1);
+    luaL_requiref(m_LuaState, LUA_LOADLIBNAME, luaopen_package,   1); lua_pop(m_LuaState, 1);
+    luaL_requiref(m_LuaState, LUA_COLIBNAME,   luaopen_coroutine, 1); lua_pop(m_LuaState, 1);
+    luaL_requiref(m_LuaState, LUA_TABLIBNAME,  luaopen_table,     1); lua_pop(m_LuaState, 1);
+    luaL_requiref(m_LuaState, LUA_IOLIBNAME,   luaopen_io,        1); lua_pop(m_LuaState, 1);
+    luaL_requiref(m_LuaState, LUA_OSLIBNAME,   luaopen_os,        1); lua_pop(m_LuaState, 1);
+    luaL_requiref(m_LuaState, LUA_STRLIBNAME,  luaopen_string,    1); lua_pop(m_LuaState, 1);
+    luaL_requiref(m_LuaState, LUA_BITLIBNAME,  luaopen_bit32,     1); lua_pop(m_LuaState, 1);
+    luaL_requiref(m_LuaState, LUA_MATHLIBNAME, luaopen_math,      1); lua_pop(m_LuaState, 1);
 
     // Record a pointer to this UniScriptStateT C++ instance in the Lua state,
     // so that our C++-implemented global methods (like \c thread below) can get back to it.
@@ -506,7 +508,7 @@ void UniScriptStateT::RunPendingCoroutines(float FrameTime)
         lua_sethook(Crt.State, CountHookFunction, LUA_MASKCOUNT, 10000);    // Should have a ConVar for the number of instruction counts!?
 
         // Wait time is over, resume the coroutine.
-        const int Result=lua_resume(Crt.State, Crt.NumParams);
+        const int Result=lua_resume(Crt.State, NULL, Crt.NumParams);
 
         if (Result==LUA_YIELD)
         {
@@ -629,7 +631,7 @@ bool UniScriptStateT::StartNewCoroutine(int NumExtraArgs, const char* Signature,
     lua_sethook(NewThread, CountHookFunction, LUA_MASKCOUNT, 10000);    // Should have a ConVar for the number of instruction counts!?
 
     // Start the new coroutine.
-    const int ThreadResult=lua_resume(NewThread, lua_gettop(NewThread)-1);
+    const int ThreadResult=lua_resume(NewThread, NULL, lua_gettop(NewThread)-1);
 
  /* if (lua_pcall(m_LuaState, 1+ArgCount, ResCount, 0)!=0)
     {

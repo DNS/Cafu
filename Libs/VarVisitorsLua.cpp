@@ -210,7 +210,7 @@ void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var)
 
     if (lua_istable(m_LuaState, -1))
     {
-        const int Num = lua_objlen(m_LuaState, -1);
+        const int Num = lua_rawlen(m_LuaState, -1);
 
         for (int i = 1; i <= Num; i++)
         {

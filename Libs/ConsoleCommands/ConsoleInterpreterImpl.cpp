@@ -58,15 +58,17 @@ ConsoleInterpreterImplT::ConsoleInterpreterImplT()
     : LuaState(NULL)
 {
     // Initialize Lua.
-    LuaState=lua_open();
+    LuaState = luaL_newstate();
 
-    lua_pushcfunction(LuaState, luaopen_base);    lua_pushstring(LuaState, "");              lua_call(LuaState, 1, 0);  // Opens the basic library.
-    lua_pushcfunction(LuaState, luaopen_package); lua_pushstring(LuaState, LUA_LOADLIBNAME); lua_call(LuaState, 1, 0);  // Opens the package library.
-    lua_pushcfunction(LuaState, luaopen_table);   lua_pushstring(LuaState, LUA_TABLIBNAME);  lua_call(LuaState, 1, 0);  // Opens the table library.
-    lua_pushcfunction(LuaState, luaopen_io);      lua_pushstring(LuaState, LUA_IOLIBNAME);   lua_call(LuaState, 1, 0);  // Opens the I/O library.
-    lua_pushcfunction(LuaState, luaopen_os);      lua_pushstring(LuaState, LUA_OSLIBNAME);   lua_call(LuaState, 1, 0);  // Opens the OS library.
-    lua_pushcfunction(LuaState, luaopen_string);  lua_pushstring(LuaState, LUA_STRLIBNAME);  lua_call(LuaState, 1, 0);  // Opens the string lib.
-    lua_pushcfunction(LuaState, luaopen_math);    lua_pushstring(LuaState, LUA_MATHLIBNAME); lua_call(LuaState, 1, 0);  // Opens the math lib.
+    luaL_requiref(LuaState, "_G",            luaopen_base,      1); lua_pop(LuaState, 1);
+    luaL_requiref(LuaState, LUA_LOADLIBNAME, luaopen_package,   1); lua_pop(LuaState, 1);
+    luaL_requiref(LuaState, LUA_COLIBNAME,   luaopen_coroutine, 1); lua_pop(LuaState, 1);
+    luaL_requiref(LuaState, LUA_TABLIBNAME,  luaopen_table,     1); lua_pop(LuaState, 1);
+    luaL_requiref(LuaState, LUA_IOLIBNAME,   luaopen_io,        1); lua_pop(LuaState, 1);
+    luaL_requiref(LuaState, LUA_OSLIBNAME,   luaopen_os,        1); lua_pop(LuaState, 1);
+    luaL_requiref(LuaState, LUA_STRLIBNAME,  luaopen_string,    1); lua_pop(LuaState, 1);
+    luaL_requiref(LuaState, LUA_BITLIBNAME,  luaopen_bit32,     1); lua_pop(LuaState, 1);
+    luaL_requiref(LuaState, LUA_MATHLIBNAME, luaopen_math,      1); lua_pop(LuaState, 1);
 
     // Load the console library. (Adds a global table with name "Console" to the LuaState with the functions of the ConsoleI interface.)
     cf::Console_RegisterLua(LuaState);
@@ -101,7 +103,7 @@ ConsoleInterpreterImplT::ConsoleInterpreterImplT()
     // T will be used as the metatable for the CAFU_TABLE.
     luaL_newmetatable(LuaState, "ConVars_Mediator");
 
-    static const luaL_reg MediatorMethods[]=
+    static const luaL_Reg MediatorMethods[]=
     {
         { "__index",    Lua_get_Callback },
         { "__newindex", Lua_set_Callback },
@@ -110,7 +112,7 @@ ConsoleInterpreterImplT::ConsoleInterpreterImplT()
     };
 
     // Insert the functions listed in MediatorMethods into T (the table on top of the stack).
-    luaL_register(LuaState, NULL, MediatorMethods);
+    luaL_setfuncs(LuaState, MediatorMethods, 0);
 
     // Now set T as the metatable of CAFU_TABLE, "CAFU_TABLE.__metatable=T;".
     // This removes T from the stack, leaving only the CAFU_TABLE.
@@ -229,7 +231,7 @@ void ConsoleInterpreterImplT::Register(ConFuncT* ConFunc)
 
 
     // Register the function with Lua in the CAFU_TABLE.
-    // Using luaL_register() is not possible here, because it uses metamethods.
+    // Using luaL_setfuncs() is not possible here, because it uses metamethods (is this still true with Lua 5.2?).
     lua_pushstring(LuaState, ConFunc->GetName().c_str());
     lua_pushcfunction(LuaState, ConFunc->LuaCFunction);
     lua_rawset(LuaState, -3);

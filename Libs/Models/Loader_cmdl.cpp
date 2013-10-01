@@ -33,18 +33,20 @@ extern "C"
 
 LoaderCafuT::LoaderCafuT(const std::string& FileName, int Flags)
     : ModelLoaderT(FileName, Flags),
-      m_LuaState(lua_open()),
+      m_LuaState(luaL_newstate()),
       m_Version(0)
 {
     if (!m_LuaState) throw LoadErrorT("Couldn't open Lua state.");
 
-    lua_pushcfunction(m_LuaState, luaopen_base);    lua_pushstring(m_LuaState, "");              lua_call(m_LuaState, 1, 0);  // Opens the basic library.
-    lua_pushcfunction(m_LuaState, luaopen_package); lua_pushstring(m_LuaState, LUA_LOADLIBNAME); lua_call(m_LuaState, 1, 0);  // Opens the package library.
-    lua_pushcfunction(m_LuaState, luaopen_table);   lua_pushstring(m_LuaState, LUA_TABLIBNAME);  lua_call(m_LuaState, 1, 0);  // Opens the table library.
-    lua_pushcfunction(m_LuaState, luaopen_io);      lua_pushstring(m_LuaState, LUA_IOLIBNAME);   lua_call(m_LuaState, 1, 0);  // Opens the I/O library.
-    lua_pushcfunction(m_LuaState, luaopen_os);      lua_pushstring(m_LuaState, LUA_OSLIBNAME);   lua_call(m_LuaState, 1, 0);  // Opens the OS library.
-    lua_pushcfunction(m_LuaState, luaopen_string);  lua_pushstring(m_LuaState, LUA_STRLIBNAME);  lua_call(m_LuaState, 1, 0);  // Opens the string lib.
-    lua_pushcfunction(m_LuaState, luaopen_math);    lua_pushstring(m_LuaState, LUA_MATHLIBNAME); lua_call(m_LuaState, 1, 0);  // Opens the math lib.
+    luaL_requiref(m_LuaState, "_G",            luaopen_base,      1); lua_pop(m_LuaState, 1);
+    luaL_requiref(m_LuaState, LUA_LOADLIBNAME, luaopen_package,   1); lua_pop(m_LuaState, 1);
+    luaL_requiref(m_LuaState, LUA_COLIBNAME,   luaopen_coroutine, 1); lua_pop(m_LuaState, 1);
+    luaL_requiref(m_LuaState, LUA_TABLIBNAME,  luaopen_table,     1); lua_pop(m_LuaState, 1);
+    luaL_requiref(m_LuaState, LUA_IOLIBNAME,   luaopen_io,        1); lua_pop(m_LuaState, 1);
+    luaL_requiref(m_LuaState, LUA_OSLIBNAME,   luaopen_os,        1); lua_pop(m_LuaState, 1);
+    luaL_requiref(m_LuaState, LUA_STRLIBNAME,  luaopen_string,    1); lua_pop(m_LuaState, 1);
+    luaL_requiref(m_LuaState, LUA_BITLIBNAME,  luaopen_bit32,     1); lua_pop(m_LuaState, 1);
+    luaL_requiref(m_LuaState, LUA_MATHLIBNAME, luaopen_math,      1); lua_pop(m_LuaState, 1);
 
     // Set  REGISTRY["LoaderCafuT"]=this  so that our custom functions can obtain the pointer to this LoaderCafuT instance.
     lua_pushlightuserdata(m_LuaState, this);
@@ -100,7 +102,7 @@ static Vector3fT ReadVector3f(lua_State* LuaState, int index)
 
 static unsigned long lua_objlen_ul(lua_State* LuaState, int index)
 {
-    const size_t l=lua_objlen(LuaState, index);
+    const size_t l = lua_rawlen(LuaState, index);
 
     return (unsigned long)l;
 }

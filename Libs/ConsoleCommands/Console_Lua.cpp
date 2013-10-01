@@ -181,6 +181,7 @@ void cf::Console_RegisterLua(lua_State* LuaState)
         { NULL, NULL }
     };
 
-    luaL_register(LuaState, "Console", ConsoleFunctions);
-    lua_pop(LuaState, 1);   // Remove the Console table from the stack (it was left there by the luaL_register() function).
+    lua_newtable(LuaState);
+    luaL_setfuncs(LuaState, ConsoleFunctions, 0);
+    lua_setglobal(LuaState, "Console");     // Also pops the table from the stack.
 }

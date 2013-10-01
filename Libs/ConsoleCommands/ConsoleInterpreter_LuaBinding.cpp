@@ -101,6 +101,7 @@ void ConsoleInterpreterI::RegisterLua(lua_State* LuaState)
         { NULL, NULL }
     };
 
-    luaL_register(LuaState, "ci", ciFunctions);
-    lua_pop(LuaState, 1);   // Remove the ci table from the stack (it was left there by the luaL_register() function).
+    lua_newtable(LuaState);
+    luaL_setfuncs(LuaState, ciFunctions, 0);
+    lua_setglobal(LuaState, "ci");  // Also pops the table from the stack.
 }

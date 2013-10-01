@@ -250,7 +250,7 @@ void* ComponentImageT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
     return new ComponentImageT();
 }
 
-const luaL_reg ComponentImageT::MethodsList[] =
+const luaL_Reg ComponentImageT::MethodsList[] =
 {
     { "__tostring", ComponentImageT::toString },
     { NULL, NULL }

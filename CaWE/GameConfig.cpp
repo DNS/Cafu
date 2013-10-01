@@ -60,19 +60,21 @@ GameConfigT::GameConfigT(wxFileConfig& CfgFile, const wxString& Name_, const wxS
 
 
     // Create a new Lua state.
-    lua_State* LuaState=lua_open();
+    lua_State* LuaState = luaL_newstate();
 
     try
     {
         if (LuaState==NULL) throw InitErrorT();
 
-        lua_pushcfunction(LuaState, luaopen_base);    lua_pushstring(LuaState, "");              lua_call(LuaState, 1, 0);  // Opens the basic library.
-        lua_pushcfunction(LuaState, luaopen_package); lua_pushstring(LuaState, LUA_LOADLIBNAME); lua_call(LuaState, 1, 0);  // Opens the package library.
-        lua_pushcfunction(LuaState, luaopen_table);   lua_pushstring(LuaState, LUA_TABLIBNAME);  lua_call(LuaState, 1, 0);  // Opens the table library.
-        lua_pushcfunction(LuaState, luaopen_io);      lua_pushstring(LuaState, LUA_IOLIBNAME);   lua_call(LuaState, 1, 0);  // Opens the I/O library.
-        lua_pushcfunction(LuaState, luaopen_os);      lua_pushstring(LuaState, LUA_OSLIBNAME);   lua_call(LuaState, 1, 0);  // Opens the OS library.
-        lua_pushcfunction(LuaState, luaopen_string);  lua_pushstring(LuaState, LUA_STRLIBNAME);  lua_call(LuaState, 1, 0);  // Opens the string lib.
-        lua_pushcfunction(LuaState, luaopen_math);    lua_pushstring(LuaState, LUA_MATHLIBNAME); lua_call(LuaState, 1, 0);  // Opens the math lib.
+        luaL_requiref(LuaState, "_G",            luaopen_base,      1); lua_pop(LuaState, 1);
+        luaL_requiref(LuaState, LUA_LOADLIBNAME, luaopen_package,   1); lua_pop(LuaState, 1);
+        luaL_requiref(LuaState, LUA_COLIBNAME,   luaopen_coroutine, 1); lua_pop(LuaState, 1);
+        luaL_requiref(LuaState, LUA_TABLIBNAME,  luaopen_table,     1); lua_pop(LuaState, 1);
+        luaL_requiref(LuaState, LUA_IOLIBNAME,   luaopen_io,        1); lua_pop(LuaState, 1);
+        luaL_requiref(LuaState, LUA_OSLIBNAME,   luaopen_os,        1); lua_pop(LuaState, 1);
+        luaL_requiref(LuaState, LUA_STRLIBNAME,  luaopen_string,    1); lua_pop(LuaState, 1);
+        luaL_requiref(LuaState, LUA_BITLIBNAME,  luaopen_bit32,     1); lua_pop(LuaState, 1);
+        luaL_requiref(LuaState, LUA_MATHLIBNAME, luaopen_math,      1); lua_pop(LuaState, 1);
 
 
         // Load and process the Lua script file with the entity class definitions.

@@ -217,7 +217,7 @@ void* ComponentCollisionModelT::CreateInstance(const cf::TypeSys::CreateParamsT&
     return new ComponentCollisionModelT();
 }
 
-const luaL_reg ComponentCollisionModelT::MethodsList[] =
+const luaL_Reg ComponentCollisionModelT::MethodsList[] =
 {
     { "__tostring", ComponentCollisionModelT::toString },
     { NULL, NULL }

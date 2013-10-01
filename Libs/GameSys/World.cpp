@@ -420,7 +420,7 @@ void WorldT::RegisterLua(lua_State* LuaState)
     lua_pushvalue(LuaState, -1);                // Pushes/duplicates the new table T on the stack.
     lua_setfield(LuaState, -2, "__index");      // T.__index = T;
 
-    static const luaL_reg WorldMethods[] =
+    static const luaL_Reg WorldMethods[] =
     {
         { "SetRootEntity", SetRootEntity },
         { "new",           CreateNew },
@@ -431,7 +431,7 @@ void WorldT::RegisterLua(lua_State* LuaState)
     };
 
     // Now insert the functions listed in WorldMethods into T (the table on top of the stack).
-    luaL_register(LuaState, NULL, WorldMethods);
+    luaL_setfuncs(LuaState, WorldMethods, 0);
 
     // Clear the stack.
     lua_settop(LuaState, 0);

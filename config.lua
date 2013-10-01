@@ -44,7 +44,7 @@ function StartLevelIntroMusic()
     local NextTitleNr=0;
 
     -- Read the index number of the next title to play.
-    local File=io.open("Games/DeathMatch/Music/NextTitle.txt", "rt");
+    local File=io.open("Games/DeathMatch/Music/NextTitle.txt", "r");
 
     if (File) then
         NextTitleNr=(File:read("*number") or 0) % #LevelIntroTitles;
@@ -52,7 +52,7 @@ function StartLevelIntroMusic()
     end
 
     -- Update the next index number count.
-    local File=io.open("Games/DeathMatch/Music/NextTitle.txt", "wt");
+    local File=io.open("Games/DeathMatch/Music/NextTitle.txt", "w");
 
     if (File) then
         File:write((NextTitleNr+1) % #LevelIntroTitles);
@@ -75,7 +75,7 @@ function pts2csv(fileName)
     dofile(fileName .. ".pts");
 
     -- Write all points into a new csv file.
-    local csvFile=assert(io.open(fileName .. ".csv", "wt"));
+    local csvFile=assert(io.open(fileName .. ".csv", "w"));
 
     csvFile:write('"time","x","y","z","heading","info"\n');
     for i=1, #Points do

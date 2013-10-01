@@ -223,7 +223,7 @@ void* ComponentTransformT::CreateInstance(const cf::TypeSys::CreateParamsT& Para
     return new ComponentTransformT();
 }
 
-const luaL_reg ComponentTransformT::MethodsList[] =
+const luaL_Reg ComponentTransformT::MethodsList[] =
 {
     { "GetAngles",  ComponentTransformT::GetAngles },
     { "SetAngles",  ComponentTransformT::SetAngles },

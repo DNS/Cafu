@@ -487,7 +487,7 @@ void* ComponentModelT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
     return new ComponentModelT();
 }
 
-const luaL_reg ComponentModelT::MethodsList[] =
+const luaL_Reg ComponentModelT::MethodsList[] =
 {
     { "GetNumAnims", ComponentModelT::GetNumAnims },
     { "SetAnim",     ComponentModelT::SetAnim },

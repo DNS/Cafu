@@ -101,7 +101,7 @@ void* ComponentTransformT::CreateInstance(const cf::TypeSys::CreateParamsT& Para
     return new ComponentTransformT();
 }
 
-const luaL_reg ComponentTransformT::MethodsList[] =
+const luaL_Reg ComponentTransformT::MethodsList[] =
 {
     { "__tostring", ComponentTransformT::toString },
     { NULL, NULL }

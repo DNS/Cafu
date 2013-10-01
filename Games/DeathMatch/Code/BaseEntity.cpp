@@ -452,7 +452,7 @@ void* BaseEntityT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 }
 
 
-static const luaL_reg MethodsList[]=
+static const luaL_Reg MethodsList[]=
 {
     { "GetName",    BaseEntityT::GetName   },
     { "GetOrigin",  BaseEntityT::GetOrigin },

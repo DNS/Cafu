@@ -202,7 +202,7 @@ void* ComponentBasicsT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
     return new ComponentBasicsT();
 }
 
-const luaL_reg ComponentBasicsT::MethodsList[] =
+const luaL_Reg ComponentBasicsT::MethodsList[] =
 {
     { "__tostring", ComponentBasicsT::toString },
     { NULL, NULL }

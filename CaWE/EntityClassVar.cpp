@@ -122,7 +122,7 @@ EntClassVarT::EntClassVarT(lua_State* LuaState)
         }
         else if (Key=="choices")
         {
-            const int NumFlags=lua_objlen(LuaState, -1);
+            const int NumFlags=lua_rawlen(LuaState, -1);
 
             for (int i=1; i<=NumFlags; i++)
             {
@@ -135,7 +135,7 @@ EntClassVarT::EntClassVarT(lua_State* LuaState)
         else if (Key=="flags")
         {
             unsigned long DefaultValue=0;
-            const int     NumFlags    =lua_objlen(LuaState, -1);
+            const int     NumFlags    =lua_rawlen(LuaState, -1);
 
             for (int i=1; i<=NumFlags; i+=2)
             {

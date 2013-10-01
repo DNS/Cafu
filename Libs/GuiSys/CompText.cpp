@@ -394,7 +394,7 @@ void* ComponentTextT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
     return new ComponentTextT();
 }
 
-const luaL_reg ComponentTextT::MethodsList[] =
+const luaL_Reg ComponentTextT::MethodsList[] =
 {
     { "__tostring", ComponentTextT::toString },
     { NULL, NULL }

@@ -42,7 +42,7 @@ void* ComponentSelectionT::CreateInstance(const cf::TypeSys::CreateParamsT& Para
     return new ComponentSelectionT();
 }
 
-const luaL_reg ComponentSelectionT::MethodsList[] =
+const luaL_Reg ComponentSelectionT::MethodsList[] =
 {
     { "__tostring", ComponentSelectionT::toString },
     { NULL, NULL }

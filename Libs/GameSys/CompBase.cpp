@@ -487,7 +487,7 @@ void* ComponentBaseT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
     return new ComponentBaseT();
 }
 
-const luaL_reg ComponentBaseT::MethodsList[] =
+const luaL_Reg ComponentBaseT::MethodsList[] =
 {
     { "get",              ComponentBaseT::Get },
     { "set",              ComponentBaseT::Set },

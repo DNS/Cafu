@@ -192,7 +192,7 @@ void* ComponentSoundT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
     return new ComponentSoundT();
 }
 
-const luaL_reg ComponentSoundT::MethodsList[] =
+const luaL_Reg ComponentSoundT::MethodsList[] =
 {
     { "__tostring", ComponentSoundT::toString },
     { NULL, NULL }

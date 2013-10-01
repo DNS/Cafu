@@ -380,6 +380,20 @@ template<class T> inline bool cf::ScriptBinderT::Push(T Object)
         lua_pushvalue(m_LuaState, USERDATA_INDEX);    // Duplicate the userdata on top of the stack.
         lua_setfield(m_LuaState, TABLE_INDEX, "__userdata_cf");
 
+        // Get the table with name (key) TraitsT<T>::GetTypeInfo(Object).ClassName from the registry,
+        // and check if its __gc metamethod is already set.
+        // Note that starting with Lua 5.2, the __gc field must be set *before* the table is set as metatable (below),
+        // or else the finalizer will not be called even if it is set later (see §2.5.1 in the Lua Reference Manual).
+        luaL_getmetatable(m_LuaState, TraitsT<T>::GetTypeInfo(Object).ClassName);
+        assert(lua_istable(m_LuaState, -1));
+        lua_getfield(m_LuaState, -1, "__gc");
+        if (lua_isnil(m_LuaState, -1))
+        {
+            lua_pushcfunction(m_LuaState, Destruct<T>);
+            lua_setfield(m_LuaState, -3, "__gc");
+        }
+        lua_pop(m_LuaState, 2);
+
         // Get the table with name TraitsT<T>::GetTypeInfo(Object).ClassName from the registry,
         // and set it as metatable of the newly created table.
         // This is the crucial step that establishes the main functionality of our new table.
@@ -395,18 +409,6 @@ template<class T> inline bool cf::ScriptBinderT::Push(T Object)
         luaL_getmetatable(m_LuaState, TraitsT<T>::GetTypeInfo(Object).ClassName);
         assert(lua_istable(m_LuaState, -1));
         lua_setmetatable(m_LuaState, USERDATA_INDEX);
-
-        // Get the table with name (key) TraitsT<T>::GetTypeInfo(Object).ClassName from the registry,
-        // and check if its __gc metamethod is already set.
-        luaL_getmetatable(m_LuaState, TraitsT<T>::GetTypeInfo(Object).ClassName);
-        assert(lua_istable(m_LuaState, -1));
-        lua_getfield(m_LuaState, -1, "__gc");
-        if (lua_isnil(m_LuaState, -1))
-        {
-            lua_pushcfunction(m_LuaState, Destruct<T>);
-            lua_setfield(m_LuaState, -3, "__gc");
-        }
-        lua_pop(m_LuaState, 2);
 
         // Get the table for the root of TraitsT<T>::GetTypeInfo(Object) from the registry,
         // get its __index table, and check if its GetRefCount method is already set.
@@ -499,7 +501,8 @@ template<class T> inline T& cf::ScriptBinderT::GetCheckedObjectParam(int StackIn
         lua_remove(m_LuaState, -2);
     }
 
-    luaL_typerror(m_LuaState, StackIndex, TraitsT<T>::GetTypeInfo().ClassName);
+ // luaL_typerror(m_LuaState, StackIndex, TraitsT<T>::GetTypeInfo().ClassName);
+    luaL_argerror(m_LuaState, StackIndex, lua_pushfstring(m_LuaState, "%s expected, got %s", TraitsT<T>::GetTypeInfo().ClassName, luaL_typename(m_LuaState, StackIndex)));
 
     static T* Invalid = NULL;
     return *Invalid;

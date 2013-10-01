@@ -9,8 +9,11 @@ function clone(node)
     if type(node)~="table" then return node end
 
     -- node is a table, make a deep copy.
-    local b={};
-    table.foreach(node, function(k,v) b[k]=clone(v) end);
+    local b = {}
+
+    for k, v in pairs(node) do
+        b[k] = clone(v)
+    end
 
     return b;
 end

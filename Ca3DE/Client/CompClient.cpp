@@ -39,7 +39,7 @@ void* ComponentClientT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
     return new ComponentClientT();
 }
 
-const luaL_reg ComponentClientT::MethodsList[] =
+const luaL_Reg ComponentClientT::MethodsList[] =
 {
     { "__tostring", ComponentClientT::toString },
     { NULL, NULL }

@@ -138,7 +138,7 @@ void* ComponentScriptT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
     return new ComponentScriptT();
 }
 
-const luaL_reg ComponentScriptT::MethodsList[] =
+const luaL_Reg ComponentScriptT::MethodsList[] =
 {
     { "__tostring", ComponentScriptT::toString },
     { NULL, NULL }

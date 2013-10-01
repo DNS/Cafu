@@ -750,7 +750,7 @@ void* WindowT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
     return new WindowT(*static_cast<const cf::GuiSys::WindowCreateParamsT*>(&Params));
 }
 
-const luaL_reg WindowT::MethodsList[]=
+const luaL_Reg WindowT::MethodsList[]=
 {
     { "AddChild",        WindowT::AddChild },
     { "RemoveChild",     WindowT::RemoveChild },

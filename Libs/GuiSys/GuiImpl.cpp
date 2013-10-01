@@ -535,8 +535,9 @@ void GuiImplT::RegisterScriptLib(const char* LibName, const luaL_Reg Functions[]
 {
     lua_State* LuaState = m_ScriptState.GetLuaState();
 
-    luaL_register(LuaState, LibName, Functions);
-    lua_pop(LuaState, 1);   // Remove the LibName table from the stack (it was left there by the luaL_register() function).
+    lua_newtable(LuaState);
+    luaL_setfuncs(LuaState, Functions, 0);
+    lua_setglobal(LuaState, LibName);   // Also pops the table from the stack.
 }
 
 
@@ -745,7 +746,7 @@ void GuiImplT::RegisterLua(lua_State* LuaState)
     lua_pushvalue(LuaState, -1);                // Pushes/duplicates the new table T on the stack.
     lua_setfield(LuaState, -2, "__index");      // T.__index = T;
 
-    static const luaL_reg GuiMethods[]=
+    static const luaL_Reg GuiMethods[]=
     {
         { "activate",           Activate },
         { "close",              Close },
@@ -764,7 +765,7 @@ void GuiImplT::RegisterLua(lua_State* LuaState)
     };
 
     // Now insert the functions listed in GuiMethods into T (the table on top of the stack).
-    luaL_register(LuaState, NULL, GuiMethods);
+    luaL_setfuncs(LuaState, GuiMethods, 0);
 
     // Clear the stack.
     lua_settop(LuaState, 0);
