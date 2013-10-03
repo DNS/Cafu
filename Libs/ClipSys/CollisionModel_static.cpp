@@ -2052,11 +2052,12 @@ void CollisionModelStaticT::ScaleDown254()
     for (unsigned int i = 0; i < m_Vertices.Size(); i++)
         m_Vertices[i] /= CA3DE_SCALE;
 
-    for (unsigned int i = 0; i < m_Terrains.Size(); i++)
-    {
-        m_Terrains[i].BB.Min /= CA3DE_SCALE;
-        m_Terrains[i].BB.Max /= CA3DE_SCALE;
-    }
+    // This was already done in SharedTerrainT ctor.
+    // for (unsigned int i = 0; i < m_Terrains.Size(); i++)
+    // {
+    //     m_Terrains[i].BB.Min /= CA3DE_SCALE;
+    //     m_Terrains[i].BB.Max /= CA3DE_SCALE;
+    // }
 }
 
 
