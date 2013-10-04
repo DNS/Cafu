@@ -138,7 +138,7 @@ void ComponentBasicsT::EntityShowT::Set(const bool& v)
     TypeSys::VarT<bool>::Set(v);
 
     // Call `OnShow()` only after the new value has been set.
-    m_CompBasics.CallLuaMethod("OnShow");
+    m_CompBasics.CallLuaMethod("OnShow", 0);
 }
 
 

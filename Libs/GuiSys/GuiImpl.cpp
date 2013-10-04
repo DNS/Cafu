@@ -541,9 +541,9 @@ void GuiImplT::RegisterScriptLib(const char* LibName, const luaL_Reg Functions[]
 }
 
 
-/**********************************************/
-/*** Impementation of Lua binding functions ***/
-/**********************************************/
+/***********************************************/
+/*** Implementation of Lua binding functions ***/
+/***********************************************/
 
 static GuiImplT* CheckParams(lua_State* LuaState)
 {

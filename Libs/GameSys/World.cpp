@@ -178,7 +178,7 @@ WorldT::WorldT(const std::string& ScriptName, ModelManagerT& ModelMan, cf::GuiSy
         }
 
         // The OnInit2() methods contain custom, hand-written code by the user (*_main.cgui files).
-        AllEnts[EntNr]->CallLuaMethod("OnInit2");
+        AllEnts[EntNr]->CallLuaMethod("OnInit2", 0);
 
         // Let each component know that the "static" part of initialization is now complete.
         const ArrayT< IntrusivePtrT<ComponentBaseT> >& Components = AllEnts[EntNr]->GetComponents();
@@ -213,7 +213,7 @@ void WorldT::Init()
     for (unsigned long ChildNr = 0; ChildNr < AllChildren.Size(); ChildNr++)
     {
         // The OnInit() methods are automatically written by the Cafu Map Editor (*_init.cgui files).
-        AllChildren[ChildNr]->CallLuaMethod("OnInit");
+        AllChildren[ChildNr]->CallLuaMethod("OnInit", 0);
     }
 
     m_IsInited = true;
@@ -287,9 +287,9 @@ void WorldT::OnClientFrame(float t)
 }
 
 
-/**********************************************/
-/*** Impementation of Lua binding functions ***/
-/**********************************************/
+/***********************************************/
+/*** Implementation of Lua binding functions ***/
+/***********************************************/
 
 static WorldT* CheckParams(lua_State* LuaState)
 {

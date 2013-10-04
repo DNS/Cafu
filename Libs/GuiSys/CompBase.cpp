@@ -67,7 +67,7 @@ bool ComponentBaseT::CallLuaMethod(const char* MethodName, const char* Signature
     va_list vl;
 
     va_start(vl, Signature);
-    const bool Result = m_Window && m_Window->GetGui().GetScriptState().CallMethod(IntrusivePtrT<ComponentBaseT>(this), MethodName, Signature, vl);
+    const bool Result = m_Window && m_Window->GetGui().GetScriptState().CallMethod_Impl(IntrusivePtrT<ComponentBaseT>(this), MethodName, 0, Signature, vl);
     va_end(vl);
 
     return Result;

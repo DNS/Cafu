@@ -251,10 +251,11 @@ namespace cf
             void OnClientFrame(float t);
 
             /// Calls the Lua method with name `MethodName` of this entity.
-            /// This method is analogous to WorldT::CallLuaFunc(), see there for more details.
-            /// @param MethodName   The name of the lua method to call.
-            /// @param Signature    DOCTODO
-            bool CallLuaMethod(const char* MethodName, const char* Signature="", ...);
+            /// This method is analogous to UniScriptStateT::CallMethod(), see there for details.
+            /// @param MethodName     The name of the Lua method to call.
+            /// @param NumExtraArgs   The number of extra arguments that have been pushed on the stack.
+            /// @param Signature      See UniScriptStateT::Call() for details.
+            bool CallLuaMethod(const char* MethodName, int NumExtraArgs, const char* Signature="", ...);
 
 
             // The TypeSys related declarations for this class.

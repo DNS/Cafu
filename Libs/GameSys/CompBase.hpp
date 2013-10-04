@@ -111,9 +111,10 @@ namespace cf
 
             /// Calls the given Lua method of this component.
             /// This method is analogous to UniScriptStateT::CallMethod(), see there for details.
-            /// @param MethodName   The name of the Lua method to call.
-            /// @param Signature    See UniScriptStateT::Call() for details.
-            bool CallLuaMethod(const char* MethodName, const char* Signature="", ...);
+            /// @param MethodName     The name of the Lua method to call.
+            /// @param NumExtraArgs   The number of extra arguments that have been pushed on the stack.
+            /// @param Signature      See UniScriptStateT::Call() for details.
+            bool CallLuaMethod(const char* MethodName, int NumExtraArgs, const char* Signature="", ...);
 
             /// Returns the name of this component.
             virtual const char* GetName() const { return "Base"; }

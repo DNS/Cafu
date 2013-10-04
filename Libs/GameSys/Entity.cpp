@@ -532,21 +532,21 @@ void EntityT::OnClientFrame(float t)
 }
 
 
-bool EntityT::CallLuaMethod(const char* MethodName, const char* Signature, ...)
+bool EntityT::CallLuaMethod(const char* MethodName, int NumExtraArgs, const char* Signature, ...)
 {
     va_list vl;
 
     va_start(vl, Signature);
-    const bool Result=m_World.GetScriptState().CallMethod(IntrusivePtrT<EntityT>(this), MethodName, Signature, vl);
+    const bool Result=m_World.GetScriptState().CallMethod_Impl(IntrusivePtrT<EntityT>(this), MethodName, NumExtraArgs, Signature, vl);
     va_end(vl);
 
     return Result;
 }
 
 
-/**********************************************/
-/*** Impementation of Lua binding functions ***/
-/**********************************************/
+/***********************************************/
+/*** Implementation of Lua binding functions ***/
+/***********************************************/
 
 static const cf::TypeSys::MethsDocT META_GetID =
 {

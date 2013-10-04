@@ -274,8 +274,11 @@ namespace cf
         /// calls the script method   Obj:OnTrigger(value)   where value is a number with value 1.0.
         template<class T> bool CallMethod(T Object, const std::string& MethodName, const char* Signature="", ...);
 
-        /// As CallMethod() above, but the arguments and results are passed via vl rather than "...".
-        template<class T> bool CallMethod(T Object, const std::string& MethodName, const char* Signature, va_list vl);
+        /// Like CallMethod() above, but the arguments and results are passed via vl rather than "...",
+        /// and if any extra arguments have been pushed on the stack, their number must be given.
+        /// Note that the "extra arguments" are a work-around that was not necessary if we could use
+        /// variadic templates for the implementation of CallMethod().
+        template<class T> bool CallMethod_Impl(T Object, const std::string& MethodName, int NumExtraArgs, const char* Signature, va_list vl);
 
         /// Runs the pending coroutines.
         void RunPendingCoroutines(float FrameTime);
@@ -525,16 +528,16 @@ template<class T> inline bool cf::UniScriptStateT::CallMethod(T Object, const st
     va_list vl;
 
     va_start(vl, Signature);
-    const bool Result=CallMethod(Object, MethodName, Signature, vl);
+    const bool Result=CallMethod_Impl(Object, MethodName, 0, Signature, vl);
     va_end(vl);
 
     return Result;
 }
 
 
-template<class T> inline bool cf::UniScriptStateT::CallMethod(T Object, const std::string& MethodName, const char* Signature, va_list vl)
+template<class T> inline bool cf::UniScriptStateT::CallMethod_Impl(T Object, const std::string& MethodName, int NumExtraArgs, const char* Signature, va_list vl)
 {
-    const StackCheckerT StackChecker(m_LuaState);
+    const StackCheckerT StackChecker(m_LuaState, -NumExtraArgs);
     cf::ScriptBinderT   Binder(m_LuaState);
 
     Binder.Push(Object);
@@ -547,16 +550,19 @@ template<class T> inline bool cf::UniScriptStateT::CallMethod(T Object, const st
     {
         // If we get here, this usually means that the value at -1 is just nil, i.e. the
         // function that we would like to call was just not defined in the Lua script.
-        lua_pop(m_LuaState, 2);   // Pop whatever is not a function, and the object table.
+        // Pop whatever is not a function, the object table, and any extra arguments.
+        lua_pop(m_LuaState, 2 + NumExtraArgs);
         return false;
     }
 
-    // Swap the object table and the function, because the object table is not needed any more but as the
-    // first argument to the function (the "self" or "this" value for the object-oriented method call).
-    lua_insert(m_LuaState, -2); // Inserting the function at index -2 shifts the object table to index -1.
+    // Rearrange the stack from "method, Object, extra arguments" to "extra arguments, Object, method",
+    // so that the function call sees the Object as its first argument (the "self" or "this" value for
+    // the object-oriented method call), followed by any extra arguments.
+    lua_insert(m_LuaState, -2 - NumExtraArgs);  // Move the method below the Object and the extra args.
+    lua_insert(m_LuaState, -1 - NumExtraArgs);  // Move the Object below the extra args.
 
     // The stack is now prepared as required by the StartNewCoroutine() method.
-    return StartNewCoroutine(1, Signature, vl, std::string("method ") + MethodName + "()");
+    return StartNewCoroutine(1 + NumExtraArgs, Signature, vl, std::string("method ") + MethodName + "()");
 }
 
 #endif

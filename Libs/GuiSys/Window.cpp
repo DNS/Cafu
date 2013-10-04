@@ -451,16 +451,16 @@ bool WindowT::CallLuaMethod(const char* MethodName, const char* Signature, ...)
     va_list vl;
 
     va_start(vl, Signature);
-    const bool Result=m_Gui.GetScriptState().CallMethod(IntrusivePtrT<WindowT>(this), MethodName, Signature, vl);
+    const bool Result=m_Gui.GetScriptState().CallMethod_Impl(IntrusivePtrT<WindowT>(this), MethodName, 0, Signature, vl);
     va_end(vl);
 
     return Result;
 }
 
 
-/**********************************************/
-/*** Impementation of Lua binding functions ***/
-/**********************************************/
+/***********************************************/
+/*** Implementation of Lua binding functions ***/
+/***********************************************/
 
 static const cf::TypeSys::MethsDocT META_AddChild =
 {

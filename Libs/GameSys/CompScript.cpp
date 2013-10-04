@@ -102,13 +102,13 @@ void ComponentScriptT::OnPostLoad(bool InEditor)
     lua_pushnil(LuaState);
     lua_setglobal(LuaState, INT_GLOBAL);
 
-    // CallLuaMethod("Init", "b", ClientOrServer);
+    // CallLuaMethod("Init", 0, "b", ClientOrServer);
 }
 
 
 void ComponentScriptT::DoServerFrame(float t)
 {
-    CallLuaMethod("Think", "f", t);
+    CallLuaMethod("Think", 0, "f", t);
 }
 
 
