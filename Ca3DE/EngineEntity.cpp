@@ -285,7 +285,7 @@ bool EngineEntityT::ParseServerDeltaUpdateMessage(unsigned long DeltaFrameNr, un
     const cf::Network::StateT NewState = DeltaMessage ? cf::Network::StateT(*DeltaState, *DeltaMessage) : *DeltaState;
 
     m_OldStates[EntityStateFrameNr & (m_OldStates.Size()-1)] = NewState;
-    SetState(NewState);
+    SetState(NewState, DeltaFrameNr == 0);  // Don't process events if we're delta'ing from the baseline (e.g. when re-entering the PVS).
     return true;
 }
 
