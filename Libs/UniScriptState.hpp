@@ -458,7 +458,10 @@ template<class T> inline bool cf::ScriptBinderT::Push(T Object)
 
 template<class T> inline T& cf::ScriptBinderT::GetCheckedObjectParam(int StackIndex)
 {
-    const StackCheckerT StackChecker(m_LuaState);
+    // Don't bother with stack checking, because here it can only work in the case of success.
+    // If there is an error, not only do we not clean up the stack, but the error message itself is
+    // a problem as well: See http://thread.gmane.org/gmane.comp.lang.lua.general/103390 for details.
+    // const StackCheckerT StackChecker(m_LuaState);
 
     StackIndex = abs_index(StackIndex);
 
@@ -469,7 +472,7 @@ template<class T> inline T& cf::ScriptBinderT::GetCheckedObjectParam(int StackIn
     lua_getfield(m_LuaState, StackIndex, "__userdata_cf");
 
 #if 1
-    // This approach takes inheritance properly into account by "manually traversing up the inheriance hierarchy".
+    // This approach takes inheritance properly into account by "manually traversing up the inheritance hierarchy".
     // See the "Game Programming Gems 6" book, page 353 for the inspiration for this code.
 
     // Put the metatable of the desired type on top of the stack.
