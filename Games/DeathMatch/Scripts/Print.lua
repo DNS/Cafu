@@ -9,18 +9,20 @@ local function ti_print(ti, ...)
     for i = 1, n do
         local v = select(i, ...)
 
+        Console.Print(tostring(v))
+
         if type(v) == "table" and #ti < 32 then
-            Console.Print("{\n")
+            Console.Print(" {\n")
             for a, b in pairs(v) do
-                if type(b) ~= "function" and type(b) ~= "userdata" then
-                    Console.Print(ti .. "    ")
-                    ti_print(ti .. "    ", a, ":=", b)
-                end
+                Console.Print(ti .. "    ")
+                ti_print(ti .. "    ", a, ":=", b)
             end
             Console.Print(ti)
             Console.Print("}")
-        else
-            Console.Print(tostring(v))
+        end
+
+        if (type(v) == "table" or type(v) == "userdata") and getmetatable(v) then
+            Console.Print(" (has metatable)")
         end
 
         if i ~= n then Console.Print(" ") end
