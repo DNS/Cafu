@@ -50,13 +50,13 @@ function ConsoleFrame.ConsoleInput:OnKeyPress(Key)
         if (not ci.RunCommand(Command)) then
             -- Running the command failed for some reason.
             -- Now flash the border color for a moment, just for fun.  :-)
-            local r, g, b, a=ConsoleFrame.ConsoleOutput:get("borderColor");
+            local Border  = ConsoleFrame.ConsoleOutput:GetComponent("Border")
+            local r, g, b = Border:get("Color")
 
-            ConsoleFrame.ConsoleOutput:interpolate("borderColor.r", 1, r, 800);
-            ConsoleFrame.ConsoleOutput:interpolate("borderColor.g", 0, g, 800);
-            ConsoleFrame.ConsoleOutput:interpolate("borderColor.b", 0, b, 800);
-            ConsoleFrame.ConsoleOutput:interpolate("borderColor.a", 1, a, 800);
-         -- ConsoleFrame.ConsoleOutput:GetComponent("Image"):interpolate("Alpha",   1, 0, 800)
+            Border:interpolate("Color.r", 1, r, 800)
+            Border:interpolate("Color.g", 0, g, 800)
+            Border:interpolate("Color.b", 0, b, 800)
+         -- ConsoleFrame.ConsoleOutput:GetComponent("Image"):interpolate("Alpha", 1, 0, 800)
         end
 
         -- Add the command to the command history (unless it is empty).
