@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SoundSystem/SoundSys.hpp"
 #include "SoundSystem/Sound.hpp"
 #include "SoundSystem/SoundShaderManager.hpp"
+#include "UniScriptState.hpp"
 
 extern "C"
 {
@@ -108,17 +109,17 @@ ComponentSoundT* ComponentSoundT::Clone() const
 
 void ComponentSoundT::DoClientFrame(float t)
 {
+    SoundI*  S = GetSound();
+    EntityT* E = GetEntity();
+
+    if (S && E)
+    {
+        S->SetPosition(E->GetTransform()->GetOrigin().AsVectorOfDouble());
+     // S->SetVelocity(...);
+    }
+
     if (m_AutoPlay.Get())
     {
-        SoundI*  S = GetSound();
-        EntityT* E = GetEntity();
-
-        if (S && E)
-        {
-            S->SetPosition(E->GetTransform()->GetOrigin().AsVectorOfDouble());
-         // S->SetVelocity(...);
-        }
-
         if (m_PauseLeft <= 0.0f)
         {
             if (S) S->Play();
@@ -166,6 +167,24 @@ SoundI* ComponentSoundT::GetSound()
 }
 
 
+static const cf::TypeSys::MethsDocT META_Play =
+{
+    "Play",
+    "This method plays the sound once.",
+    "", "()"
+};
+
+int ComponentSoundT::Play(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<ComponentSoundT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentSoundT> >(1);
+    SoundI* Sound = Comp->GetSound();
+
+    if (Sound) Sound->Play();
+    return 0;
+}
+
+
 static const cf::TypeSys::MethsDocT META_toString =
 {
     "__toString",
@@ -194,6 +213,7 @@ void* ComponentSoundT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 
 const luaL_Reg ComponentSoundT::MethodsList[] =
 {
+    { "Play",       ComponentSoundT::Play },
     { "__tostring", ComponentSoundT::toString },
     { NULL, NULL }
 };
