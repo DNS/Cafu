@@ -264,7 +264,7 @@ namespace cf
             ///
             /// (This follows the "Non-Virtual Interface Idiom" as described by Scott Meyers in
             /// "Effective C++, 3rd Edition", item 35 ("Consider alternatives to virtual functions.").)
-            virtual void DoDeserialize(cf::Network::InStreamT& Stream) { }
+            virtual void DoDeserialize(cf::Network::InStreamT& Stream, bool IsIniting) { }
 
             /// Derived classes override this method in order to implement the real work proposed by OnServerFrame(),
             /// which explicitly calls this method for this purpose.

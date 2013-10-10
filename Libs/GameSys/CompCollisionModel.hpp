@@ -77,7 +77,7 @@ namespace cf
 
             void CleanUp();
             void UpdateClipModel();
-            void DoDeserialize(cf::Network::InStreamT& Stream) /*override*/;
+            void DoDeserialize(cf::Network::InStreamT& Stream, bool IsIniting) /*override*/;
 
             TypeSys::VarT<std::string>          m_CollMdlName;      ///< The file name of the collision model.
             std::string                         m_PrevName;         ///< The previous file name, used to detect changes in `m_CollMdlName`.

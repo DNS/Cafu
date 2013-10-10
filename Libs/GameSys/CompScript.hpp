@@ -49,7 +49,6 @@ namespace cf
             ComponentScriptT* Clone() const;
             const char* GetName() const { return "Script"; }
             void OnPostLoad(bool InEditor);
-            void DoServerFrame(float t);
 
 
             // The TypeSys related declarations for this class.
@@ -61,6 +60,8 @@ namespace cf
             protected:
 
             // The Lua API methods of this class.
+            static int InitEventTypes(lua_State* LuaState);
+            static int PostEvent(lua_State* LuaState);
             static int toString(lua_State* LuaState);
 
             static const luaL_Reg               MethodsList[];  ///< The list of Lua methods for this class.
@@ -71,7 +72,14 @@ namespace cf
 
             private:
 
+            void DoSerialize(cf::Network::OutStreamT& Stream) const /*override*/;
+            void DoDeserialize(cf::Network::InStreamT& Stream, bool IsIniting) /*override*/;
+            void DoServerFrame(float t) /*override*/;
+
             TypeSys::VarT<std::string> m_FileName;
+
+            ArrayT<unsigned int> m_EventsCount;   ///< A counter for each event type for the number of its occurrences. Serialized (and deserialized) normally along with the entity state.
+            ArrayT<unsigned int> m_EventsRef;     ///< A reference counter for each event type for the number of processed occurrences. Never serialized (or deserialized), never reset, strictly growing.
         };
     }
 }

@@ -183,7 +183,7 @@ void ComponentCollisionModelT::UpdateClipModel()
 }
 
 
-void ComponentCollisionModelT::DoDeserialize(cf::Network::InStreamT& Stream)
+void ComponentCollisionModelT::DoDeserialize(cf::Network::InStreamT& Stream, bool IsIniting)
 {
     // Deserialization may have updated our origin or orientation,
     // so we have to update the clip model.

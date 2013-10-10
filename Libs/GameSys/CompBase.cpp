@@ -150,7 +150,7 @@ void ComponentBaseT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
 
     // Call this after updating the interpolator updates above, so that code
     // that implements DoDeserialize() deals with the latest values.
-    DoDeserialize(Stream);
+    DoDeserialize(Stream, IsIniting);
 }
 
 

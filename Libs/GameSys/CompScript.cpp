@@ -23,6 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "AllComponents.hpp"
 #include "Entity.hpp"
 #include "World.hpp"
+
+#include "Network/State.hpp"
 #include "UniScriptState.hpp"
 
 extern "C"
@@ -54,7 +56,9 @@ namespace
 
 ComponentScriptT::ComponentScriptT()
     : ComponentBaseT(),
-      m_FileName("Name", "", FlagsIsLuaFileName)
+      m_FileName("Name", "", FlagsIsLuaFileName),
+      m_EventsCount(),
+      m_EventsRef()
 {
     GetMemberVars().Add(&m_FileName);
 }
@@ -62,7 +66,9 @@ ComponentScriptT::ComponentScriptT()
 
 ComponentScriptT::ComponentScriptT(const ComponentScriptT& Comp)
     : ComponentBaseT(Comp),
-      m_FileName(Comp.m_FileName)
+      m_FileName(Comp.m_FileName),
+      m_EventsCount(),
+      m_EventsRef()
 {
     GetMemberVars().Add(&m_FileName);
 }
@@ -106,9 +112,101 @@ void ComponentScriptT::OnPostLoad(bool InEditor)
 }
 
 
+void ComponentScriptT::DoSerialize(cf::Network::OutStreamT& Stream) const
+{
+    for (unsigned int i = 0; i < m_EventsCount.Size(); i++)
+        Stream << m_EventsCount[i];
+}
+
+
+void ComponentScriptT::DoDeserialize(cf::Network::InStreamT& Stream, bool IsIniting)
+{
+    // Process events.
+    // Note that events, as implemented here, are fully predictable:
+    // they work well even in the presence of client prediction.
+    for (unsigned int i = 0; i < m_EventsCount.Size(); i++)
+    {
+        Stream >> m_EventsCount[i];
+
+        // Don't process the events if we got here as part of the
+        // construction / first-time initialization of the entity.
+        if (!IsIniting && m_EventsCount[i] > m_EventsRef[i])
+        {
+            const unsigned int EventType = i + 1;   // As per Lua convention.
+
+            CallLuaMethod("ProcessEvent", 0, "ii", EventType, m_EventsCount[i] - m_EventsRef[i]);
+        }
+
+        m_EventsRef[i] = m_EventsCount[i];
+    }
+}
+
+
 void ComponentScriptT::DoServerFrame(float t)
 {
     CallLuaMethod("Think", 0, "f", t);
+}
+
+
+static const cf::TypeSys::MethsDocT META_InitEventTypes =
+{
+    "InitEventTypes",
+    "This functions sets the number of event types that can be used with PostEvent().",
+    "", "(number n)"
+};
+
+int ComponentScriptT::InitEventTypes(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<ComponentScriptT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentScriptT> >(1);
+
+    const unsigned int NUM_EVENT_TYPES = unsigned(luaL_checkint(LuaState, 2));
+
+    if (NUM_EVENT_TYPES < 1 || NUM_EVENT_TYPES > 8)    // If this is ever too less, simply increase it.
+        luaL_argerror(LuaState, 2, "The number of event types must be an integer in the range from 1 to 8.");
+
+    if (Comp->m_EventsCount.Size() > 0)
+        luaL_argerror(LuaState, 2, "The event counters have already been set (SetEventTypes() can only be called once).");
+
+    Comp->m_EventsCount.PushBackEmptyExact(NUM_EVENT_TYPES);
+    Comp->m_EventsRef  .PushBackEmptyExact(NUM_EVENT_TYPES);
+
+    for (unsigned int i = 0; i < NUM_EVENT_TYPES; i++)
+    {
+        Comp->m_EventsCount[i] = 0;
+        Comp->m_EventsRef  [i] = 0;
+    }
+
+    return 0;
+}
+
+
+static const cf::TypeSys::MethsDocT META_PostEvent =
+{
+    "PostEvent",
+    "This function is used for posting an event of the given type.\n"
+    "The event is automatically sent from the entity instance on the server to the entity instances\n"
+    "on the clients, and causes a matching call to the ProcessEvent() callback there.\n"
+    "The meaning of the event type is up to the script code that implements ProcessEvent().\n"
+    "Note that events are fully predictable: they work well even in the presence of client prediction.",
+    "", "(number EventType)"
+};
+
+int ComponentScriptT::PostEvent(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<ComponentScriptT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentScriptT> >(1);
+
+    const unsigned int EventType = unsigned(luaL_checkint(LuaState, 2));
+
+    if (EventType == 0)
+        luaL_argerror(LuaState, 2, "Use event type numbers starting from 1 (not from 0).");
+
+    if (EventType > Comp->m_EventsCount.Size())
+        luaL_argerror(LuaState, 2, "Unknown event type. Did you use InitEventTypes()?");
+
+    Comp->m_EventsCount[EventType - 1]++;
+    return 0;
 }
 
 
@@ -140,12 +238,16 @@ void* ComponentScriptT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 
 const luaL_Reg ComponentScriptT::MethodsList[] =
 {
-    { "__tostring", ComponentScriptT::toString },
+    { "InitEventTypes", ComponentScriptT::InitEventTypes },
+    { "PostEvent",      ComponentScriptT::PostEvent },
+    { "__tostring",     ComponentScriptT::toString },
     { NULL, NULL }
 };
 
 const cf::TypeSys::MethsDocT ComponentScriptT::DocMethods[] =
 {
+    META_InitEventTypes,
+    META_PostEvent,
     META_toString,
     { NULL, NULL, NULL, NULL }
 };
