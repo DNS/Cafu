@@ -172,6 +172,7 @@ namespace cf
             void FillMemberVars();                          ///< A helper method for the constructors.
             void ReInit(std::string* ErrorMsg=NULL);        ///< A helper method.
 
+            TypeSys::VarT<bool>           m_ModelShow;      ///< Whether the model is currently shown.
             VarModelNameT                 m_ModelName;      ///< The file name of the model.
             VarModelAnimNrT               m_ModelAnimNr;    ///< The animation sequence number of the model.
             VarModelSkinNrT               m_ModelSkinNr;    ///< The skin used for rendering the model.

@@ -291,6 +291,7 @@ const char* ComponentModelT::DocClass =
 
 const cf::TypeSys::VarsDocT ComponentModelT::DocVars[] =
 {
+    { "Show",      "Whether the model is currently shown (useful with scripts)." },
     { "Name",      "The file name of the model." },
     { "Animation", "The animation sequence number of the model." },
     { "Skin",      "The skin used for rendering the model." },
@@ -302,6 +303,7 @@ const cf::TypeSys::VarsDocT ComponentModelT::DocVars[] =
 
 ComponentModelT::ComponentModelT()
     : ComponentBaseT(),
+      m_ModelShow("Show", true),
       m_ModelName("Name", "", FlagsIsModelFileName, *this),
       m_ModelAnimNr("Animation", 0, FlagsDontSerialize, *this),  // Already co-serialized along with m_ModelName.
       m_ModelSkinNr("Skin", -1, FlagsDontSerialize, *this),      // -1 is the default skin of the model. Already co-serialized along with m_ModelName.
@@ -320,6 +322,7 @@ ComponentModelT::ComponentModelT()
 
 ComponentModelT::ComponentModelT(const ComponentModelT& Comp)
     : ComponentBaseT(Comp),
+      m_ModelShow(Comp.m_ModelShow),
       m_ModelName(Comp.m_ModelName, *this),
       m_ModelAnimNr(Comp.m_ModelAnimNr, *this),
       m_ModelSkinNr(Comp.m_ModelSkinNr, *this),
@@ -338,6 +341,7 @@ ComponentModelT::ComponentModelT(const ComponentModelT& Comp)
 
 void ComponentModelT::FillMemberVars()
 {
+    GetMemberVars().Add(&m_ModelShow);
     GetMemberVars().Add(&m_ModelName);
     GetMemberVars().Add(&m_ModelAnimNr);
     GetMemberVars().Add(&m_ModelSkinNr);
@@ -512,6 +516,7 @@ BoundingBox3fT ComponentModelT::GetEditorBB() const
 
 void ComponentModelT::Render(float LodDist) const
 {
+    if (!m_ModelShow.Get()) return;
     if (!GetPose()) return;
 
     MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
