@@ -777,6 +777,46 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             SoundComp->SetMember("Interval", 20.0f);
             Ent->AddComponent(SoundComp);
         }
+
+        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName().StartsWith("weapon_"))
+        {
+            // This is a perfect example how Prefabs would be highly useful!!!
+            IntrusivePtrT<cf::GameSys::ComponentModelT>  ModelComp        = new cf::GameSys::ComponentModelT();
+            IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp       = new cf::GameSys::ComponentScriptT();
+            IntrusivePtrT<cf::GameSys::ComponentSoundT>  PickupSoundComp  = new cf::GameSys::ComponentSoundT();
+            IntrusivePtrT<cf::GameSys::ComponentSoundT>  RespawnSoundComp = new cf::GameSys::ComponentSoundT();
+
+            const wxString cn = MapEnt->GetClass()->GetName().substr(7);
+            const char*    mn = "";
+
+                 if (cn == "battlescythe") mn = "Games/DeathMatch/Models/Weapons/BattleScythe/BattleScythe_w.cmdl";
+            else if (cn == "hornetgun"   ) mn = "Games/DeathMatch/Models/Weapons/HornetGun/HornetGun_w.cmdl";
+            else if (cn == "9mmhandgun"  ) mn = "Games/DeathMatch/Models/Weapons/Beretta/Beretta_w.cmdl";
+            else if (cn == "357handgun"  ) mn = "Games/DeathMatch/Models/Weapons/DesertEagle/DesertEagle_w.cmdl";
+            else if (cn == "9mmAR"       ) mn = "Games/DeathMatch/Models/Weapons/9mmAR/9mmAR_w.cmdl";
+            else if (cn == "shotgun"     ) mn = "Games/DeathMatch/Models/Weapons/Shotgun/Shotgun_w.cmdl";
+            else if (cn == "crossbow"    ) mn = "Games/DeathMatch/Models/Weapons/DartGun/DartGun_w.cmdl";
+            else if (cn == "rpg"         ) mn = "Games/DeathMatch/Models/Weapons/Bazooka/Bazooka_w.cmdl";
+            else if (cn == "gauss"       ) mn = "Games/DeathMatch/Models/Weapons/Gauss/Gauss_w.cmdl";
+            else if (cn == "egon"        ) mn = "Games/DeathMatch/Models/Weapons/Egon/Egon_w.cmdl";
+            else if (cn == "handgrenade" ) mn = "Games/DeathMatch/Models/Weapons/Grenade/Grenade_w.cmdl";
+            else if (cn == "tripmine"    ) mn = "Games/DeathMatch/Models/Weapons/Tripmine/Tripmine_w.cmdl";
+            else if (cn == "facehugger"  ) mn = "Games/DeathMatch/Models/Weapons/FaceHugger/FaceHugger_w.cmdl";
+
+            ModelComp->SetMember("Name", std::string(mn));
+            Ent->AddComponent(ModelComp);
+
+            ScriptComp->SetMember("Name", std::string(m_GameConfig->ModDir + "/Scripts/Weapon.lua"));
+            Ent->AddComponent(ScriptComp);
+
+            PickupSoundComp->SetMember("Name", std::string("Item/PickUp"));
+            PickupSoundComp->SetMember("AutoPlay", false);
+            Ent->AddComponent(PickupSoundComp);
+
+            RespawnSoundComp->SetMember("Name", std::string("Item/Respawn"));
+            RespawnSoundComp->SetMember("AutoPlay", false);
+            Ent->AddComponent(RespawnSoundComp);
+        }
     }
 }
 

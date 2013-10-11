@@ -40,6 +40,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClipSys/TraceResult.hpp"
 #include "Fonts/Font.hpp"
 #include "GameSys/CompModel.hpp"
+#include "GameSys/CompScript.hpp"
+#include "GameSys/World.hpp"
 #include "GuiSys/GuiImpl.hpp"
 #include "GuiSys/GuiMan.hpp"
 #include "GuiSys/Window.hpp"
@@ -761,7 +763,40 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     if (!m_Dimensions.Intersects(OtherEntityBB)) continue;
 
                     // The bounding boxes overlap, so notify the 'OtherEntity' that we touched it.
-                    OtherEntity->NotifyTouchedBy(this);
+                    // OtherEntity->NotifyTouchedBy(this);    // No longer use the obsolete EntWeapon*T code!
+
+                    IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = dynamic_pointer_cast<cf::GameSys::ComponentScriptT>(OtherEntity->m_Entity->GetComponent("Script"));
+
+                    if (ScriptComp != NULL)
+                    {
+                        cf::UniScriptStateT& ScriptState = OtherEntity->m_Entity->GetWorld().GetScriptState();
+                        lua_State*           LuaState    = ScriptState.GetLuaState();
+                        cf::ScriptBinderT    Binder(LuaState);
+
+                        Binder.Push(this->m_Entity);
+
+                        // ScriptComp->CallLuaMethod("NotifyTouchedBy", 1);
+
+                        // The string return value is a work-around for the inability of NotifyTouchedBy()'s
+                        // implementation to call into the old entity code here.
+                        std::string WeaponName;
+                        ScriptComp->CallLuaMethod("NotifyTouchedBy", 1, ">S", &WeaponName);
+
+                        // What's about the Glock17 model? It seems we have a model, but not code for it?
+                             if (WeaponName == "BattleScythe") GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_BATTLESCYTHE)->ServerSide_PickedUpByEntity(this);
+                        else if (WeaponName == "HornetGun"   ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_HORNETGUN   )->ServerSide_PickedUpByEntity(this);
+                        else if (WeaponName == "Beretta"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_PISTOL      )->ServerSide_PickedUpByEntity(this);
+                        else if (WeaponName == "DesertEagle" ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_357         )->ServerSide_PickedUpByEntity(this);
+                        else if (WeaponName == "Shotgun"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_SHOTGUN     )->ServerSide_PickedUpByEntity(this);
+                        else if (WeaponName == "9mmAR"       ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_9MMAR       )->ServerSide_PickedUpByEntity(this);
+                        else if (WeaponName == "DartGun"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_CROSSBOW    )->ServerSide_PickedUpByEntity(this);
+                        else if (WeaponName == "Bazooka"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_RPG         )->ServerSide_PickedUpByEntity(this);
+                        else if (WeaponName == "Gauss"       ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_GAUSS       )->ServerSide_PickedUpByEntity(this);
+                        else if (WeaponName == "Egon"        ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_EGON        )->ServerSide_PickedUpByEntity(this);
+                        else if (WeaponName == "Grenade"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_GRENADE     )->ServerSide_PickedUpByEntity(this);
+                        else if (WeaponName == "Tripmine"    ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_TRIPMINE    )->ServerSide_PickedUpByEntity(this);
+                        else if (WeaponName == "FaceHugger"  ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_FACEHUGGER  )->ServerSide_PickedUpByEntity(this);
+                    }
                 }
 
 
