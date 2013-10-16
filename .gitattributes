@@ -1,0 +1,12 @@
+*.h     text
+*.hpp   text
+*.c     text
+*.cpp   text
+
+*.txt   text
+
+*.lua   text
+
+*.py    text
+SConscript  text
+SConstruct  text
