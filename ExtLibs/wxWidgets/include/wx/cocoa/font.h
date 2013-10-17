@@ -4,7 +4,6 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -37,6 +36,20 @@ public:
     /*! @abstract   Default construction of invalid font for 2-step construct then Create process.
      */
     wxFont() { }
+
+    wxFont(const wxFontInfo& info)
+    {
+        Create(info.GetPointSize(),
+               info.GetFamily(),
+               info.GetStyle(),
+               info.GetWeight(),
+               info.IsUnderlined(),
+               info.GetFaceName(),
+               info.GetEncoding());
+
+        if ( info.IsUsingSizeInPixels() )
+            SetPixelSize(info.GetPixelSize());
+    }
 
     /*! @abstract   Platform-independent construction with individual properties
      */

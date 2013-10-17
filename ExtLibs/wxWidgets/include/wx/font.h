@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     20.09.99
-// RCS-ID:      $Id$
 // Copyright:   (c) wxWidgets team
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -112,6 +111,145 @@ enum wxFontFlag
 };
 
 // ----------------------------------------------------------------------------
+// wxFontInfo describes a wxFont
+// ----------------------------------------------------------------------------
+
+class wxFontInfo
+{
+public:
+    // Default ctor uses the default font size appropriate for the current
+    // platform.
+    wxFontInfo()
+        { InitPointSize(-1); }
+
+    // These ctors specify the font size, either in points or in pixels.
+    wxEXPLICIT wxFontInfo(int pointSize)
+        { InitPointSize(pointSize); }
+    wxEXPLICIT wxFontInfo(const wxSize& pixelSize) : m_pixelSize(pixelSize)
+        { Init(); }
+
+    // Setters for the various attributes. All of them return the object itself
+    // so that the calls to them could be chained.
+    wxFontInfo& Family(wxFontFamily family)
+        { m_family = family; return *this; }
+    wxFontInfo& FaceName(const wxString& faceName)
+        { m_faceName = faceName; return *this; }
+
+    wxFontInfo& Bold(bool bold = true)
+        { SetFlag(wxFONTFLAG_BOLD, bold); return *this; }
+    wxFontInfo& Light(bool light = true)
+        { SetFlag(wxFONTFLAG_LIGHT, light); return *this; }
+
+    wxFontInfo& Italic(bool italic = true)
+        { SetFlag(wxFONTFLAG_ITALIC, italic); return *this; }
+    wxFontInfo& Slant(bool slant = true)
+        { SetFlag(wxFONTFLAG_SLANT, slant); return *this; }
+
+    wxFontInfo& AntiAliased(bool antiAliased = true)
+        { SetFlag(wxFONTFLAG_ANTIALIASED, antiAliased); return *this; }
+    wxFontInfo& Underlined(bool underlined = true)
+        { SetFlag(wxFONTFLAG_UNDERLINED, underlined); return *this; }
+    wxFontInfo& Strikethrough(bool strikethrough = true)
+        { SetFlag(wxFONTFLAG_STRIKETHROUGH, strikethrough); return *this; }
+
+    wxFontInfo& Encoding(wxFontEncoding encoding)
+        { m_encoding = encoding; return *this; }
+
+
+    // Set all flags at once.
+    wxFontInfo& AllFlags(int flags)
+        { m_flags = flags; return *this; }
+
+
+    // Accessors are mostly meant to be used by wxFont itself to extract the
+    // various pieces of the font description.
+
+    bool IsUsingSizeInPixels() const { return m_pixelSize != wxDefaultSize; }
+    int GetPointSize() const { return m_pointSize; }
+    wxSize GetPixelSize() const { return m_pixelSize; }
+    wxFontFamily GetFamily() const { return m_family; }
+    const wxString& GetFaceName() const { return m_faceName; }
+
+    wxFontStyle GetStyle() const
+    {
+        return m_flags & wxFONTFLAG_ITALIC
+                        ? wxFONTSTYLE_ITALIC
+                        : m_flags & wxFONTFLAG_SLANT
+                            ? wxFONTSTYLE_SLANT
+                            : wxFONTSTYLE_NORMAL;
+    }
+
+    wxFontWeight GetWeight() const
+    {
+        return m_flags & wxFONTFLAG_LIGHT
+                        ? wxFONTWEIGHT_LIGHT
+                        : m_flags & wxFONTFLAG_BOLD
+                            ? wxFONTWEIGHT_BOLD
+                            : wxFONTWEIGHT_NORMAL;
+    }
+
+    bool IsAntiAliased() const
+    {
+        return (m_flags & wxFONTFLAG_ANTIALIASED) != 0;
+    }
+
+    bool IsUnderlined() const
+    {
+        return (m_flags & wxFONTFLAG_UNDERLINED) != 0;
+    }
+
+    bool IsStrikethrough() const
+    {
+        return (m_flags & wxFONTFLAG_STRIKETHROUGH) != 0;
+    }
+
+    wxFontEncoding GetEncoding() const { return m_encoding; }
+
+
+    // Default copy ctor, assignment operator and dtor are OK.
+
+private:
+    // Common part of all ctor, initializing everything except the size (which
+    // is initialized by the ctors themselves).
+    void Init()
+    {
+        m_family = wxFONTFAMILY_DEFAULT;
+        m_flags = wxFONTFLAG_DEFAULT;
+        m_encoding = wxFONTENCODING_DEFAULT;
+    }
+
+    void InitPointSize(int pointSize)
+    {
+        Init();
+
+        m_pointSize = pointSize;
+        m_pixelSize = wxDefaultSize;
+    }
+
+    // Turn on or off the given bit in m_flags depending on the value of the
+    // boolean argument.
+    void SetFlag(int flag, bool on)
+    {
+        if ( on )
+            m_flags |= flag;
+        else
+            m_flags &= ~flag;
+    }
+
+    // The size information: if m_pixelSize is valid (!= wxDefaultSize), then
+    // it is used. Otherwise m_pointSize is used, taking into account that if
+    // it is == -1, it means that the platform dependent font size should be
+    // used.
+    int m_pointSize;
+    wxSize m_pixelSize;
+
+    wxFontFamily m_family;
+    wxString m_faceName;
+    int m_flags;
+    wxFontEncoding m_encoding;
+};
+
+// ----------------------------------------------------------------------------
 // wxFontBase represents a font object
 // ----------------------------------------------------------------------------
 
@@ -124,6 +262,7 @@ public:
         derived classes should provide the following ctors:
 
     wxFont();
+    wxFont(const wxFontInfo& info);
     wxFont(const wxString& nativeFontInfoString);
     wxFont(const wxNativeFontInfo& info);
     wxFont(int size,
@@ -227,6 +366,7 @@ public:
     virtual wxFontStyle GetStyle() const = 0;
     virtual wxFontWeight GetWeight() const = 0;
     virtual bool GetUnderlined() const = 0;
+    virtual bool GetStrikethrough() const { return false; }
     virtual wxString GetFaceName() const = 0;
     virtual wxFontEncoding GetEncoding() const = 0;
     virtual const wxNativeFontInfo *GetNativeFontInfo() const = 0;
@@ -244,6 +384,7 @@ public:
     virtual void SetWeight( wxFontWeight weight ) = 0;
 
     virtual void SetUnderlined( bool underlined ) = 0;
+    virtual void SetStrikethrough( bool WXUNUSED(strikethrough) ) {}
     virtual void SetEncoding(wxFontEncoding encoding) = 0;
     virtual bool SetFaceName( const wxString& faceName );
     void SetNativeFontInfo(const wxNativeFontInfo& info)
@@ -277,7 +418,7 @@ public:
     static void SetDefaultEncoding(wxFontEncoding encoding);
 
     // this doesn't do anything and is kept for compatibility only
-#ifdef WXWIN_COMPATIBILITY_2_8
+#if WXWIN_COMPATIBILITY_2_8
     wxDEPRECATED_INLINE(void SetNoAntiAliasing(bool no = true), wxUnusedVar(no););
     wxDEPRECATED_INLINE(bool GetNoAntiAliasing() const, return false;)
 #endif // WXWIN_COMPATIBILITY_2_8
@@ -289,6 +430,37 @@ protected:
     // The function called by public GetFamily(): it can return
     // wxFONTFAMILY_UNKNOWN unlike the public method (see comment there).
     virtual wxFontFamily DoGetFamily() const = 0;
+
+
+    // Helper functions to recover wxFONTSTYLE/wxFONTWEIGHT and underlined flag
+    // values from flags containing a combination of wxFONTFLAG_XXX.
+    static wxFontStyle GetStyleFromFlags(int flags)
+    {
+        return flags & wxFONTFLAG_ITALIC
+                        ? wxFONTSTYLE_ITALIC
+                        : flags & wxFONTFLAG_SLANT
+                            ? wxFONTSTYLE_SLANT
+                            : wxFONTSTYLE_NORMAL;
+    }
+
+    static wxFontWeight GetWeightFromFlags(int flags)
+    {
+        return flags & wxFONTFLAG_LIGHT
+                        ? wxFONTWEIGHT_LIGHT
+                        : flags & wxFONTFLAG_BOLD
+                            ? wxFONTWEIGHT_BOLD
+                            : wxFONTWEIGHT_NORMAL;
+    }
+
+    static bool GetUnderlinedFromFlags(int flags)
+    {
+        return (flags & wxFONTFLAG_UNDERLINED) != 0;
+    }
+
+    static bool GetStrikethroughFromFlags(int flags)
+    {
+        return (flags & wxFONTFLAG_STRIKETHROUGH) != 0;
+    }
 
 private:
     // the currently default encoding: by default, it's the default system
@@ -329,6 +501,7 @@ WXDLLIMPEXP_CORE bool wxFromString(const wxString& str, wxFontBase* font);
     wxFont& MakeBold(); \
     wxFont& MakeItalic(); \
     wxFont& MakeUnderlined(); \
+    wxFont& MakeStrikethrough(); \
     wxFont& MakeLarger() { return Scale(1.2f); } \
     wxFont& MakeSmaller() { return Scale(1/1.2f); } \
     wxFont& Scale(float x); \
@@ -336,14 +509,13 @@ WXDLLIMPEXP_CORE bool wxFromString(const wxString& str, wxFontBase* font);
     wxFont Bold() const; \
     wxFont Italic() const; \
     wxFont Underlined() const; \
+    wxFont Strikethrough() const; \
     wxFont Larger() const { return Scaled(1.2f); } \
     wxFont Smaller() const { return Scaled(1/1.2f); } \
     wxFont Scaled(float x) const
 
 // include the real class declaration
-#if defined(__WXPALMOS__)
-    #include "wx/palmos/font.h"
-#elif defined(__WXMSW__)
+#if defined(__WXMSW__)
     #include "wx/msw/font.h"
 #elif defined(__WXMOTIF__)
     #include "wx/motif/font.h"
@@ -353,8 +525,6 @@ WXDLLIMPEXP_CORE bool wxFromString(const wxString& str, wxFontBase* font);
     #include "wx/gtk1/font.h"
 #elif defined(__WXX11__)
     #include "wx/x11/font.h"
-#elif defined(__WXMGL__)
-    #include "wx/mgl/font.h"
 #elif defined(__WXDFB__)
     #include "wx/dfb/font.h"
 #elif defined(__WXMAC__)

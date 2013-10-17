@@ -3,7 +3,6 @@
 // Purpose:     wxFileHistory class
 // Author:      Julian Smart, Vaclav Slavik
 // Created:     2010-05-03
-// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart, Vaclav Slavik
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +22,7 @@
 
 class WXDLLIMPEXP_FWD_CORE wxMenu;
 class WXDLLIMPEXP_FWD_BASE wxConfigBase;
+class WXDLLIMPEXP_FWD_BASE wxFileName;
 
 // ----------------------------------------------------------------------------
 // File history management
@@ -78,6 +78,10 @@ protected:
 private:
     // The ID of the first history menu item (Doesn't have to be wxID_FILE1)
     wxWindowID m_idBase;
+
+    // Normalize a file name to canonical form. We have a special function for
+    // this to ensure the same normalization is used everywhere.
+    static wxString NormalizeFileName(const wxFileName& filename);
 
     wxDECLARE_NO_COPY_CLASS(wxFileHistoryBase);
 };

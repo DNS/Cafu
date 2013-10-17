@@ -3,7 +3,6 @@
 // Purpose:     wxSockAddressImpl
 // Author:      Vadim Zeitlin
 // Created:     2008-12-28
-// RCS-ID:      $Id$
 // Copyright:   (c) 2008 Vadim Zeitlin <vadim@wxwidgets.org>
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -11,7 +10,7 @@
 #ifndef _WX_PRIVATE_SOCKADDR_H_
 #define _WX_PRIVATE_SOCKADDR_H_
 
-#ifdef __WXMSW__
+#ifdef __WINDOWS__
     #include "wx/msw/wrapwin.h"
 
     #if wxUSE_IPV6

@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     09.02.01
-// RCS-ID:      $Id$
 // Copyright:   (c) 1996-2001 Vadim Zeitlin
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -105,7 +104,7 @@ public:
     virtual int GetSelStart() const { return GetMax(); }
     virtual void SetSelection(int WXUNUSED(min), int WXUNUSED(max)) { }
 
-#ifdef WXWIN_COMPATIBILITY_2_8
+#if WXWIN_COMPATIBILITY_2_8
     wxDEPRECATED_INLINE( void SetTickFreq(int freq, int), DoSetTickFreq(freq); )
 #endif
 
@@ -149,8 +148,6 @@ private:
     #include "wx/cocoa/slider.h"
 #elif defined(__WXPM__)
     #include "wx/os2/slider.h"
-#elif defined(__WXPALMOS__)
-    #include "wx/palmos/slider.h"
 #endif
 
 #endif // wxUSE_SLIDER

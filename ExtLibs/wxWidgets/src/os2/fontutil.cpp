@@ -4,7 +4,6 @@
 // Author:      Modified by David Webster for OS/2
 // Modified by:
 // Created:     01.03.00
-// RCS-ID:      $Id$
 // Copyright:   (c) 1999 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -558,17 +557,12 @@ void wxOS2SelectMatchingFontByName(
     nIndex = 0;
     for(i = 0, nIs = 0; i < nNumFonts; i++)
     {
-        int                         nEmHeight = 0;
-        int                         nXHeight = 0;
-
         anDiff[0] = wxGpiStrcmp((wxChar*)pFM[i].szFacename, zFontFaceName);
         anDiff[1] = abs(pFM[i].lEmHeight - nPointSize);
         anDiff[2] = abs(pFM[i].usWeightClass -  usWeightClass);
         anDiff[3] = abs((pFM[i].fsSelection & 0x2f) -  fsSelection);
         if(anDiff[0] == 0)
         {
-            nEmHeight = (int)pFM[i].lEmHeight;
-            nXHeight  =(int)pFM[i].lXHeight;
             if( (nIs & 0x01) == 0)
             {
                 nIs = 1;

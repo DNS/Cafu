@@ -2,7 +2,6 @@
 // Name:        devtips.h
 // Purpose:     Cross-platform development page of the Doxygen manual
 // Author:      wxWidgets team
-// RCS-ID:      $Id$
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
@@ -10,24 +9,10 @@
 
 @page page_multiplatform General Cross-Platform Development Tips
 
+@tableofcontents
+
 This chapter describes some tips related to cross-platform development.
 
-@li @ref page_multiplatform_includefiles
-@li @ref page_multiplatform_libraries
-@li @ref page_multiplatform_configuration
-@li @ref page_multiplatform_makefiles
-@li @ref page_multiplatform_winresources
-@li @ref page_multiplatform_allocatingobjects
-@li @ref page_multiplatform_architecturedependency
-@li @ref page_multiplatform_conditionalcompilation
-@li @ref page_multiplatform_cpp
-@li @ref page_multiplatform_filehandling
-@li @ref page_multiplatform_reducingerr
-@li @ref page_multiplatform_gui
-@li @ref page_multiplatform_debug
-
-
-<hr>
 
 
 @section page_multiplatform_includefiles Include Files

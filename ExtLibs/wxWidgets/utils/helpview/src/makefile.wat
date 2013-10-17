@@ -36,7 +36,11 @@ PORTNAME =
 PORTNAME = base
 !endif
 !ifeq USE_GUI 1
-PORTNAME = msw
+PORTNAME = msw$(TOOLKIT_VERSION)
+!endif
+COMPILER_VERSION =
+!ifeq OFFICIAL_BUILD 1
+COMPILER_VERSION = ERROR-COMPILER-VERSION-MUST-BE-SET-FOR-OFFICIAL-BUILD
 !endif
 WXDEBUGFLAG =
 !ifeq BUILD debug
@@ -66,7 +70,7 @@ EXTRALIBS_FOR_BASE =
 EXTRALIBS_FOR_BASE = 
 !endif
 !ifeq MONOLITHIC 1
-EXTRALIBS_FOR_BASE =  
+EXTRALIBS_FOR_BASE =   
 !endif
 __DEBUGINFO_0 =
 !ifeq BUILD debug
@@ -162,6 +166,12 @@ __WXLIB_MONO_p =
 __WXLIB_MONO_p = &
 	wx$(PORTNAME)$(WXUNIVNAME)$(WX_RELEASE_NODOT)$(WXUNICODEFLAG)$(WXDEBUGFLAG)$(WX_LIB_FLAVOUR).lib
 !endif
+__LIB_SCINTILLA_IF_MONO_p =
+!ifeq MONOLITHIC 1
+!ifeq USE_STC 1
+__LIB_SCINTILLA_IF_MONO_p = wxscintilla$(WXDEBUGFLAG).lib
+!endif
+!endif
 __LIB_TIFF_p =
 !ifeq USE_GUI 1
 __LIB_TIFF_p = wxtiff$(WXDEBUGFLAG).lib
@@ -224,11 +234,12 @@ __DLLFLAG_p = -dWXUSINGDLL
 
 ### Variables: ###
 
-WX_RELEASE_NODOT = 29
+WX_RELEASE_NODOT = 30
 COMPILER_PREFIX = wat
 OBJS = &
-	$(COMPILER_PREFIX)_$(PORTNAME)$(WXUNIVNAME)$(WXUNICODEFLAG)$(WXDEBUGFLAG)$(WXDLLFLAG)$(CFG)
-LIBDIRNAME = .\..\..\..\lib\$(COMPILER_PREFIX)_$(LIBTYPE_SUFFIX)$(CFG)
+	$(COMPILER_PREFIX)$(COMPILER_VERSION)_$(PORTNAME)$(WXUNIVNAME)$(WXUNICODEFLAG)$(WXDEBUGFLAG)$(WXDLLFLAG)$(CFG)
+LIBDIRNAME = &
+	.\..\..\..\lib\$(COMPILER_PREFIX)$(COMPILER_VERSION)_$(LIBTYPE_SUFFIX)$(CFG)
 SETUPHDIR = &
 	$(LIBDIRNAME)\$(PORTNAME)$(WXUNIVNAME)$(WXUNICODEFLAG)$(WXDEBUGFLAG)
 HELPVIEW_CXXFLAGS = $(__DEBUGINFO_0) $(__OPTIMIZEFLAG_2) $(__THREADSFLAG_5) &
@@ -265,7 +276,7 @@ $(OBJS)\helpview.exe :  $(HELPVIEW_OBJECTS) $(OBJS)\helpview_helpview.res
 	@%append $(OBJS)\helpview.lbc option caseexact
 	@%append $(OBJS)\helpview.lbc  $(__DEBUGINFO_1)  libpath $(LIBDIRNAME) system nt_win ref '_WinMain@16' $(____CAIRO_LIBDIR_FILENAMES_p) $(LDFLAGS)
 	@for %i in ($(HELPVIEW_OBJECTS)) do @%append $(OBJS)\helpview.lbc file %i
-	@for %i in ( $(__WXLIB_HTML_p)  $(__WXLIB_CORE_p)  $(__WXLIB_NET_p)  $(__WXLIB_BASE_p)  $(__WXLIB_MONO_p) $(__LIB_TIFF_p) $(__LIB_JPEG_p) $(__LIB_PNG_p)  wxzlib$(WXDEBUGFLAG).lib wxregex$(WXUNICODEFLAG)$(WXDEBUGFLAG).lib wxexpat$(WXDEBUGFLAG).lib $(EXTRALIBS_FOR_BASE)  $(__CAIRO_LIB_p) kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib wininet.lib) do @%append $(OBJS)\helpview.lbc library %i
+	@for %i in ( $(__WXLIB_HTML_p)  $(__WXLIB_CORE_p)  $(__WXLIB_NET_p)  $(__WXLIB_BASE_p)  $(__WXLIB_MONO_p) $(__LIB_SCINTILLA_IF_MONO_p) $(__LIB_TIFF_p) $(__LIB_JPEG_p) $(__LIB_PNG_p)   wxzlib$(WXDEBUGFLAG).lib wxregex$(WXUNICODEFLAG)$(WXDEBUGFLAG).lib wxexpat$(WXDEBUGFLAG).lib $(EXTRALIBS_FOR_BASE)  $(__CAIRO_LIB_p) kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib wininet.lib) do @%append $(OBJS)\helpview.lbc library %i
 	@%append $(OBJS)\helpview.lbc option resource=$(OBJS)\helpview_helpview.res
 	@for %i in () do @%append $(OBJS)\helpview.lbc option stack=%i
 	wlink @$(OBJS)\helpview.lbc

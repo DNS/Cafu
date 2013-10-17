@@ -4,7 +4,6 @@
 // Author:      David Webster
 // Modified by:
 // Created:     10/13/99
-// RCS-ID:      $Id$
 // Copyright:   (c) David Webster
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -214,7 +213,7 @@ void wxCheckListBoxItem::Check( bool bCheck )
     }
 
 
-    wxCommandEvent vEvent( wxEVT_COMMAND_CHECKLISTBOX_TOGGLED,m_pParent->GetId());
+    wxCommandEvent vEvent( wxEVT_CHECKLISTBOX,m_pParent->GetId());
 
     vEvent.SetInt(m_nIndex);
     vEvent.SetEventObject(m_pParent);

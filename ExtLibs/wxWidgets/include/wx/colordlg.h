@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitiln
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id$
 // Copyright:   (c) wxWidgets team
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -24,8 +23,6 @@
     #include "wx/osx/colordlg.h"
 #elif defined(__WXGTK20__) && !defined(__WXUNIVERSAL__)
     #include "wx/gtk/colordlg.h"
-#elif defined(__WXPALMOS__)
-    #include "wx/palmos/colordlg.h"
 #else
     #include "wx/generic/colrdlgg.h"
 

@@ -4,7 +4,6 @@
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     1998-01-01
-// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:       wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -75,7 +74,7 @@ public :
     void GetLayoutInset(int &left , int &top , int &right, int &bottom) const
     {
         left = top = right = bottom = 0;
-        NSControlSize size = size = [(wxNSProgressIndicator*)m_osxView controlSize];
+        NSControlSize size = [(wxNSProgressIndicator*)m_osxView controlSize];
 
         switch( size )
         {

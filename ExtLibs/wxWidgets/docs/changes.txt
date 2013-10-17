@@ -10,6 +10,14 @@ INCOMPATIBLE CHANGES SINCE 2.8.x
         the "Changes Since wxWidgets 2.8" section of the manual,
         please read it if the explanation here is too cryptic.
 
+Table of contents of this section:
+
+ - Unicode-related changes
+ - wxODBC and contrib libraries removal
+ - Changes in behaviour not resulting in compilation errors
+ - Build system changes
+ - Major new features in this release
+
 
 Unicode-related changes
 -----------------------
@@ -79,6 +87,19 @@ The "stc" and "svg" contribs instead have been moved respectively into a new
 Changes in behaviour not resulting in compilation errors, please read this!
 ---------------------------------------------------------------------------
 
+- Don't pass wxString::c_str() to vararg functions any more! Due to Unicode
+  changes, c_str() now returns an object and not a simple char pointer, so
+  using it with vararg functions does not work any more. The preferred
+  solution is to use wx-provided equivalents, e.g. wxPrintf() instead of
+  printf() which has the added benefit that you don't need to call c_str()
+  any more and can pass wxString objects directly. If this is impossible,
+  add explicit casts to "const char*" or "const wchar_t*". See wxString
+  documentation for more details.
+
+  Notice that using wxString::c_str() with vararg functions does result in
+  compilation errors with g++ and most other compilers but not MSVC. Try to
+  build your code with g++ to detect all such problems at compile-time.
+
 - Default location of wxFileConfig files has changed under Windows, you will
   need to update your code if you access these files directly.
 
@@ -133,6 +154,10 @@ Changes in behaviour not resulting in compilation errors, please read this!
   or equivalent function should now be done into wxApp::OnEventLoopEnter().
   See wxApp::OnEventLoopEnter() and wxApp::OnEventLoopExit() docs for more info.
 
+- wxDialogs get wxEVT_SIZE events immediately after creation in wxMSW, as with
+  wxFrames. This means that this event handler may be called earlier than in
+  2.8, check that all the controls are initialized before using them in it.
+
 - wxLoadFileSelector() now allows the user to select existing files only.
 
 - Erase background events are now not generated at all when background style is
@@ -184,9 +209,13 @@ Changes in behaviour not resulting in compilation errors, please read this!
   wxAutomationInstance_SilentIfNone flag to prevent the error message if no
   currently running instances of this object are available.
 
-- Signatures of wxDataViewCustomRenderer::Activate(), LeftClick() and
-  StartDrag() virtual methods changed.  You will need to change them in your
-  derived renderer class too if you override them.
+- Signature of wxDataViewCustomRenderer::StartDrag() virtual method changed.
+  You will need to change it in your derived renderer class too if you override
+  it.
+
+- wxDataViewCustomRenderer::Activate() and LeftClick() were replaced with the
+  new ActivateCell() method. You will need to change it in your derived
+  renderer class accordingly.
 
 - wxThread::Wait() and wxThread::Delete() used to dispatch the events while
   waiting for the thread to exit in wxMSW. They still do it in default build
@@ -199,12 +228,38 @@ Changes in behaviour not resulting in compilation errors, please read this!
   prevent the parent wxTopLevelWindow from interfering with the keyboard
   handling of the window that captured the mouse.
 
+- wxDataViewCtrl::GetSelection() now returns invalid item in all ports (this
+  behaved differently in wxMSW and wxGTK/wxOSX before) if more than one item
+  is selected in a control with wxDV_MULTIPLE style.
+
+- wxEVT_COMMAND_MENU_SELECTED, MENU_OPEN and CLOSE events returned a menu from
+  GetEventObject() in all ports but the frame the menu was attached to in wxMSW.
+  Now all ports return the menu that was opened or closed as the event object.
+
+- wxAny now uses C locale format for the floating point numbers and not the
+  current locale one, i.e. decimal point is always used.
+
 
 Changes in behaviour which may result in compilation errors
 -----------------------------------------------------------
 
 - WXWIN_COMPATIBILITY_2_4 doesn't exist any more, please update your code if
   you still relied on features deprecated since version 2.4
+
+- WXWIN_COMPATIBILITY_2_6 still exists but is 0 by default in this release and
+  will be removed in 3.2. You can set it to 1 and rebuild wxWidgets to access
+  the old and deprecated symbols but please consider updating your code
+  instead. Here are replacements for some of the obsolete symbols:
+   + wxSAVE and wxOPEN -> wxFD_SAVE and wxFD_OPEN
+   + WXK_PRIOR and WXK_NEXT -> WXK_PAGEUP and WXK_PAGEDOWN
+   + wxRESIZE_BOX -> wxMAXIMIZE_BOX
+   + wxTHICK_FRAME -> wxRESIZE_BORDER
+   + wxPROCESS_ENTER and wxPASSWORD -> wxTE_PROCESS_ENTER and wxTE_PASSWORD
+   + EVT_SCROLL_ENDSCROLL -> EVT_SCROLL_CHANGED
+   + NewControlId -> wxWindow::NewControlId()
+   + wxFileHistory::GetNoHistoryFiles() -> wxFileHistory::GetCount()
+   + wxSizerItem::SetOption() -> wxSizerItem::SetProportion()
+   + wxSizer::Remove(wxWindow*) -> wxSizer::Detach()
 
 - wxDC classes hierarchy has changed, if you derived any classes from wxDC you
   need to review them as wxDC doesn't have any virtual methods any longer and
@@ -253,6 +308,12 @@ Changes in behaviour which may result in compilation errors
     convert operator?: operands to the same type and fail with compilation
     error instead. This can be worked around by explicitly casting to const
     wxChar*: wxLogError(_("error: %s"), !err.empty() ? (const wxChar*)err.c_str() : "")
+
+- wxDateTime::ParseXXX() overloads don't return anything when called with
+  wxCStrData argument. If you need to test the parsing success, use a newer
+  overload taking wxString::const_iterator and returning bool or explicitly
+  select a narrow or wide char version to use by casting c_str() to either
+  "char*" or "wchar_t*". Or create a temporary wxString and parse it instead.
 
 - wxCtime() and wxAsctime() return char*; this is incompatible with Unicode
   build in wxWidgets 2.8 that returned wchar_t*.
@@ -333,6 +394,24 @@ Changes in behaviour which may result in compilation errors
 
 - wxST_MARKUP doesn't exist any more, use wxControl::SetLabelMarkup() instead.
 
+- wxComboBox::IsEmpty(), which was previously available in some ports (but not
+  wxMSW), doesn't exist any more, use either IsListEmpty() or IsTextEmpty().
+
+- wxSingleChoiceDialog ctors and Create() now have 2 overloaded versions: one
+  taking void** client data and the deprecated one taking char**. This can
+  result in compilation errors due to an ambiguity between them if you pass
+  NULL as client data. To fix this, cast NULL explicitly to "void**".
+
+- wxChoicebookEvent, wxListbookEvent, wxNotebookEvent, wxToolbookEvent and
+  wxTreebookEvent are now all synonyms for wxBookCtrlEvent. The existing code
+  using the old names continues to work but they can't be forward-declared
+  any more. Use wxBookCtrlEvent in your code if you need to forward-declare
+  it or just include the appropriate header instead of forward declaration.
+
+- wxStandardPaths class can't be created now. This was never the right thing
+  to do, wxStandardPaths::Get() always had to be used to access the global
+  object of the correct type but now doing it results in a compilation error.
+
 
 Deprecated methods and their replacements
 -----------------------------------------
@@ -401,6 +480,50 @@ Deprecated methods and their replacements
 - Second parameter of wxSlider::SetTickFreq(int n, int pos) is deprecated,
   simply remove it from your code and use wxSlider::SetTickFreq(int n) as it
   was never used anyhow.
+- wxSingleChoiceDialog ctor and Create() take "void**" client data pointer
+  instead of "char**". As the client data is typically untyped, you should
+  simply remove the casts to "char**" which you probably have in your code if
+  you use these functions.
+- wxDataViewCtrl::StartEditor(item, n) taking column index is now deprecated,
+  use EditItem(item, GetColumn(n)), which takes the column itself, instead.
+- wxWindow::MakeModal() is deprecated, use wxDialog::ShowModal() instead if
+  possible or wxWindowDisabler otherwise.
+
+
+Changes in behaviour visible to end users
+-----------------------------------------
+
+- In wxMSW wxSpinCtrl used to prevent the user from entering more digits than
+  could fit in its visible area. This was inconsistent with the other ports and
+  now the control scrolls if too much text is added.
+
+
+Build system changes
+--------------------
+
+- Cocoa is now used by default under OS X instead of Carbon. Pass --with-carbon
+  option to configure to use wxCarbon.
+
+- In wxMSW makefile builds, "_x64" is used instead of "_amd64" when compiling
+  for this architecture in the architecture-specific paths and library names.
+  TARGET_CPU can still be specified as "amd64" for compatibility but "x64"
+  should be used now.
+
+- Official wxMSW binaries, i.e. those built with OFFICIAL_BUILD=1, built with
+  MSVC now include the version of the compiler used and the architecture if
+  it's not the default "x86". E.g. a library built with MSVC 10 for amd64 is
+  called "wxbase294ud_vc110_amd64.dll" now.
+
+- MSVC projects don't include neither wxUniversal nor ANSI (non-Unicode)
+  configurations any more. The simplest way to build wxWidgets in these
+  configurations if you need them is to use nmake from the command line with
+  WXUNIV=1 or UNICODE=0 command line parameter respectively.
+
+- The manifest is not included by wx/msw/wx.rc any longer for MSVC compiler.
+  If you're using MSVC 6 or 7 which require it, you must explicitly define
+  wxUSE_RC_MANIFEST=1 and also predefine WX_CPU_X86 in the resource compiler
+  options in your project file.
+
 
 Major new features in this release
 ----------------------------------
@@ -412,9 +535,12 @@ Major new features in this release
 - wxWidgets may now use either wchar_t (UTF-16/32) or UTF-8 internally,
   depending on what is optimal for the target platform.
 
+- New webview library, implementing wxWebView: a wrapper for the native
+  platform web engine with full support for HTML and JavaScript.
+
 - New propgrid library containing wxPropertyGrid and related classes.
 
-- new ribbon library for advanced toolbars.
+- New ribbon library for advanced toolbars.
 
 - Many enhancements to wxDataViewCtrl.
 
@@ -434,7 +560,424 @@ Major new features in this release
   was added.
 
 
-2.9.2:
+3.0-RC1: (released 2013-10-07)
+------------------------------
+
+All:
+
+- Adjust dates invalid due to DST consistently under all platforms in wxDateTime.
+- Allow using custom HTTP methods with wxHTTP (Kolya Kosenko).
+- Add wxFileName::SetPermissions() (Catalin Raceanu).
+- Add specific wxFSW_WARNING_OVERFLOW warning type (Rob Bresalier).
+- Fix build with wxUSE_FFILE==0 (jroemmler).
+- Add wxDEPRECATED_MSG() and use it in a few places.
+- Return the old file descriptor/pointer from wx(F)File::Detach() (troelsk).
+- _() and wxGetTranslation() are now thread-safe.
+
+All (GUI):
+
+- Fix crash in wxHTML on mal-formed <area> elements (LukasK).
+- Set correct cursor when the mouse is over image map links in wxHTML (LukasK).
+- Add wxPropertyGridPageState::GetColumnFullWidth() (Teodor Petrov).
+- wxRTC: extracted XML utilities into a separate class for potential reuse.
+- wxPropertyGrid: improve composite flags handling (Jens Lody).
+- Don't crash laying out wxGridBagSizer with only hidden elements (briceandre).
+- Fix alignment and transparency of bitmaps in wxDataViewCtrl (Eric Jensen).
+- Fix crash when auto-sizing a wxDataViewCtrl column (Spencer T. Parkin).
+- Add wxHtmlTag::GetParamAsString() convenience method.
+- Add wxActivateEvent::GetActivationReason() (Trigve).
+
+wxGTK:
+
+- Fix horizontal mouse wheel scrolling (minoki).
+- Fix wxMenu::GetTitle() before the menu is appended to the bar (David Hart).
+
+wxMSW:
+
+- It is now possible to tab into radio boxes again.
+- Fix launching some types of files under Windows 7 and later (Steven Houchins).
+- Don't use an icon for items inserted without one into wxListCtrl (Chuddah).
+- Handle custom configurations when using MSVC autolinking (tinman).
+
+wxOSX:
+
+- Improve handling of keyboard entry using IME (minoki).
+- Fix capturing non-ASCII output using wxExecute().
+- Fix column sorting UI in wxDataViewCtrl (Myrsloik).
+
+
+2.9.5: (released 2013-07-15)
+----------------------------
+
+INCOMPATIBLE CHANGES SINCE 2.9.4:
+
+- The locale is not set automatically on startup any more, unlike in the
+  previous 2.9 versions (but like in 2.8). Use wxLocale (preferred) or call
+  wxApp::SetCLocale() from your overridden wxApp::Initialize() to restore the
+  old behaviour.
+- wxWebView::New now takes a string identifier for the backend to be used
+  rather than a wxWebViewBackend enum value.
+- wxWebView identifiers of the form WEB_VIEW_* have been renamed to WEBVIEW_*
+  for consistency with the rest of wxWidgets.
+- wxFont(int size, wxFontFamily family, int flags) ctor added in 2.9.4 was
+  removed to avoid ambiguities with the other existing ctors and replaced with
+  the new wxFont(wxFontInfo) ctor.
+
+
+All:
+
+- Provide short synonyms using the same name as event table macros for the
+  event type constants to make using Bind() less verbose. E.g.
+  wxEVT_COMMAND_MENU_SELECTED is now wxEVT_MENU (but the old name remains
+  available for compatibility) (Catalin Raceanu).
+- Fix wxExecute() implementation under Unix (Rob Bresalier).
+- Also fix reading output from children exiting with -1 () (Jonathan Dagresta).
+- Add wxEvtHandler::CallAfter() method for asynchronous method calls.
+- Add support for symlinks to wxFileName (David Hart).
+- Add wxDIR_NO_FOLLOW flag for wxDir traversal (David Hart).
+- Allow testing for symlink/FIFO/socket existence in wxFileName (David Hart).
+- Many important bug fixes in wxFileSystemWatcher (David Hart).
+- Add wxInputStream::ReadAll() and wxOutputStream::WriteAll() (Catalin Raceanu).
+- Fix wxCountingOutputStream::LastWrite() return value (Catalin Raceanu).
+- Add new wxFSW_EVENT_ATTRIB and wxFSW_EVENT_UNMOUNT flags (David Hart).
+- Add separate read/written bytes counters and per-direction NOWAIT and WAITALL
+  flags to wxSocket (Rob Bresalier).
+- Add wxEventLoop::ScheduleExit() (Rob Bresalier).
+- Add wxProcess::SetPriority() (Marian Meravy).
+- Add wxDir::Close() method (Silverstorm82).
+- Fix wxDateTime::GetWeekOfYear() for the last week of year (aimo).
+- Fix compilation of wxHash{Map,Set} with g++ 4.7 (Nathan Ridge).
+- Fix posting large amounts of data in wxHTTP (Platonides).
+- Add wxFile::ReadAll() for consistency with wxFFile.
+- Add wxDateTime::DiffAsDateSpan() and wxDateSpan::GetTotalMonths() (jonasr).
+- Add wxVector::assign() (Jonas Rydberg).
+- Add wx[F]File{Input,Output}Stream::GetFile() (troelsk).
+- Add wxSocketBase::GetSocket() (Laurent Poujoulat).
+- Add IEEE 754 single/double precision support to wxDataStream classes (net147).
+- Add wxVector<>::const_reverse_iterator (troelsk).
+- Fix thread-safety issue in wxSharedPtr<> (plorkyeran).
+- Add wxTimer::StartOnce().
+- Add Nepali translation (Him Prasad Gautam).
+
+All (GUI):
+
+- Add support for wxAuiNotebook to XRC (Steven Lamerton).
+- Add support for wxRibbonBar and related controls to XRC (Armel Asselin).
+- Add wxBITMAP_PNG() macro similar to wxBITMAP() but for PNG files.
+- Add new wxSimplebook class.
+- Implement possibility to hook all modal dialog calls.
+- Support hexadecimal numbers in wxSpinCtrl.
+- Respect window max size in wxBoxSizer (Nathan Ridge).
+- Add support for searching in wxWebView for MSW and GTK (Allonii).
+- Add generic wxFileSystem support to wxWebView with 
+  wxWebViewFSHandler (Nick Matthews).
+- Add possibility to disable context menu in wxWebView.
+- Add ability to register custom wxWebView backends using 
+  wxWebView::RegisterFactory and a wxWebViewFactory derived class.
+- Add possibility to hide and show again wxRibbonBar pages (wxBen).
+- Add wxRibbonBar pages highlighting (wxBen).
+- Add expand/collapse button to wxRibbonBar (rakeshthp).
+- Fix item data access in wxDataViewListCtrl (Kry).
+- Fix problem with floating maximized AUI panes (Laurent Poujoulat).
+- Add owned client data support to wxRibbonButtonBar. Notice that the client
+  data now must be set using the SetItemClient{Data,Object}() methods and not
+  when inserting the button (Laurent Poujoulat).
+- Add wxBitmapButton::NewCloseButton().
+- Add wxTextEntry::SelectNone() (troelsk).
+- Restore the original wxGrid col/row size when unhiding it (Michael Richards).
+- Don't show hidden wxGrid columns/rows when resizing them (Michael Richards).
+- Fix text origin and extent computations in wxSVGFileDC (Neil Chittenden).
+- Show tooltips for the too long items in generic wxTreeCtrl (Steven Houchins).
+- Add wxStyledTextCtrl::AnnotationClearLine() (sentieshar).
+- Add support for background-color style to span element in wxHTML (gevorg).
+- Add limited support for CSS styles for <a> tags too in wxHTML (gevorg).
+- Add "inherit" to <font> XRC tag (Steffen Olszewski, Gero Meßsysteme GmbH).
+- Add support for wxALWAYS_SHOW_SB style to wxScrolled<> (Catalin Raceanu).
+- Add wxTreeCtrl::EnableBellOnNoMatch() (Jonathan Dagresta).
+- Implement incremental search in wxGenericListCtrl (Jonathan Dagresta).
+- Make TAB behaviour in wxGrid more flexible (Fulvio Senore).
+- Add missing styles support to wxWindow XRC hanlder (Steffen Olszewski).
+- Allow specifying all wxFlexGridSizer parameters in XRC (Steffen Olszewski).
+- Close wxLogWindow automatically if it's the last remaining top level window.
+- Implement clipping for wxSVGFileDC (Steve Benbow).
+- Add wxDirCtrl::GetPath() (troelsk).
+- Add wxEVT_DIRCTRL_SELECTIONCHANGED event (troelsk).
+- Add wxEVT_DIRCTRL_FILEACTIVATED event (troelsk).
+- Add wxControl::GetSizeFromTextSize() (Manuel Martin).
+- Optionally allow showing tooltips for disabled ribbon buttons (wxBen).
+- Improve horizontal scrolling in wxRibbonControl (wxBen).
+- Add wxTL_NO_HEADER style to wxTreeListCtrl (robboto).
+- Add possibility to delay showing wxRichToolTip (John Roberts).
+- Add "rect" paramerer to wxRichToolTip::ShowFor() (John Roberts).
+- Add wxListCtrl::EnableAlternateRowColours() (troelsk).
+- Fix wrong tab order in wxAuiNotebook after dragging (Mark Barber).
+- Fix bug in generic wxDataViewCtrl column dragging (jobuz).
+- Add wxMask::GetBitmap() for wxMSW, wxGTK and wxOSX
+- Add wxCheckListBox::GetCheckedItems() (hartwigw).
+- Add wxAUI_TB_PLAIN_BACKGROUND wxAuiToolBar style (Allann Jones).
+- Make wxGenericDataViewCtrl::SetFont() really work (Laurent Poujoulat).
+- Remove wxLogWindow::OnFrameCreate(), it was never called anyhow.
+- Add wxBookCtrlBase::FindPage() (troelsk).
+- Add wxDocument::Activate() (troelsk).
+- Add wxDocManager::FindDocumentByPath() (troelsk).
+- Add wxEVT_GRID_COL_AUTO_SIZE event (Igor Korot).
+- Add chainable wxWizardPageSimple::Chain() overload.
+- Add wxTextEntryDialog::SetMaxLength() (derEine).
+- Fix maximum width support in wxGridCellTextEditor (derEine).
+- Allow associating a validator with wxGridCellTextEditor (derEine).
+- Add more convenient wxFont(wxFontInfo) ctor.
+- Pass menu events to the handler in the associated wxMenuBar.
+- Add wxWindow::BeginRepositioningChildren() and EndRepositioningChildren().
+- Fix wxStyledTextCtrl::SetInsertionPointEnd() (troelsk).
+- Add wxFileDialog::GetCurrentlySelectedFilename() (Carl Godkin).
+- Add wxMouseEvent::GetColumnsPerAction() (toiffel).
+- Add support for horizontal mouse wheel scrolling in wxSTC (toiffel).
+- Improve wrapping of cell contents in wxGrid (nmset).
+- Big speed up in wxImage::Scale(wxIMAGE_QUALITY_HIGH) (Hsilgos).
+
+wxGTK:
+
+- Allow building wxGTK3 with Broadway and Wayland backends (Kolya Kosenko).
+- Further improvements to wxGTK/Win32 port (Kolya Kosenko).
+- Provide native implementation of wxNotificationMessage using libnotify.
+- Generate clipboard events for wxComboBox and not only wxTextCtrl.
+- Improve drag-and-drop of URLs.
+- Make key event handling consistent with wxMSW (John Rails).
+- Fix printing in landscape mode (Marcin Wojdyr).
+- Fix path selection in wx{File,Dir}Dialog with GTK+ > 2.24.10 (obfuscated).
+- Make "More windows..." menu item in MDI "Window" menu actually work.
+
+wxMSW:
+
+- Fix pulsing of bitmaps in focused buttons under Windows 7 (Catalin Raceanu).
+- Fix setting colours for the text part of wxComboBox (Igor Korot).
+- Add support for CURRENCY and SCODE types to OLE Automation helpers (PB).
+- Allow setting LCID used by wxAutomationObject (PB).
+- Better support for SAFEARRAY in OLE Automation code (PB).
+- Fix calling Iconize(false) on hidden top level windows (Christian Walther).
+- Don't send any events from wxSpinCtrl::SetRange() even if the value changed.
+- Display system drag images during drag and drop if available (PeterO).
+- Fix setting initial wxSpinCtrl value outside 0..100 range (joim).
+- Fix changing labels of menu items with bitmaps (Daniel Hyams).
+- Fix appearance of multiline coloured wxCheckBox (Catalin Raceanu).
+- Allow creating wxCursor from ANI files (Catalin Raceanu).
+- Add wxIcon::CreateFromHICON() (troelsk).
+- Improve wxCURSOR_RIGHT_ARROW appearance (DoltAlya).
+- Generate menu highlight events for popup menus in wxDialog (Sam Partington).
+- Return more native shell icons from wxArtProvider (Markus Juergens).
+- Fix filter checks in wxDir::FindFirst/Next() (Catalin Raceanu).
+- Add support for wxICON_AUTH_NEEDED to wxMessageDialog (Chris Spencer).
+- Fix printing too many copies of the document in some cases (John Roberts).
+- Fix DST confusion in wxFileName::{Set,Get}Times().
+
+wxOSX/Cocoa:
+
+- Implement image support in wxNotebook (Malcolm MacLeod).
+- Add support for button mnemonics (joostn).
+- Implemented wxTextCtrl::SetDefaultStyle().
+- Fix insertion and removal of radio items in wxMenu.
+
+
+2.9.4: (released 2012-07-09)
+------
+
+INCOMPATIBLE CHANGES SINCE 2.9.3
+
+- wxDataViewListCtrl doesn't delete its client data any more for compatibility
+  with wxListCtrl, use full wxDataViewCtrl if you don't need compatibility.
+
+All:
+
+- Added wxLogFormatter to allow customizing wxLog output (Sébastien Gallou).
+- Added wxFSInputStream for reading data from wxFileSystem (Armel Asselin).
+- Added "%z" support to wxDateTime::Format() and Parse() (Armel Asselin).
+- Add wxHTTP::SetPostBuffer(wxMemoryBuffer) and SetPostText() (Eran Ifrah).
+- Fix wrong time zone used in wxDateTime::UNow().
+- Fix performance of wxStdInputStream with MSVC8/9 (wsu).
+- Added wxFileName::Exists().
+- Implement wxThread::SetConcurrency() for POSIX systems (Igor Korot).
+- Fix deadlock due to too many events in Unix console apps (Lukasz Michalski).
+- Added wxDir::GetNameWithSep().
+- Allow unloading wxPluginLibrary objects in any order (manyleaves).
+- Fix passing strings with embedded NULs in wxThreadEvents (Steffen Olszewski).
+- Add wxList::AsVector<>() helper (troelsk).
+
+All (GUI):
+
+- Add wxGrid::Render() for printing wxGrid (John Roberts).
+- Added strike-through support to wxFont (Igor Korot).
+- Add support for horizontal mouse wheel events to MSW and GTK (Lauri Nurmi).
+- Fix infinite loop in wxHtmlEasyPrinting when trying to page break images
+  taller than the page height in wxHtmlEasyPrinting (Laurent Poujoulat).
+- Added wxFilePickerCtrl::SetInitialDirectory().
+- Added wxDataViewItemAttr::SetBackgroundColour() and implemented it in generic
+  wxDataViewCtrl (Andrew Xu).
+- Fix item alignment in icon view in the generic wxListCtrl.
+- Support font-family/style, text-decoration in wxHtmlWindow (Blake Oleander).
+- Show ribbon tools help strings in tooltips (John Roberts).
+- Improve row/column selection modes in wxGrid (joostn).
+- Send wxEVT_UPDATE_UI for wxRibbonButtonBar and wxRibbonToolBar (Emilien Kia).
+- Add InsertXXXButton() to wxRibbonButtonBar and wxRibbonToolBar (Emilien Kia).
+- Allow enabling/disabling and toggling tools in wxRibbonToolBar (Emilien Kia).
+- Add wxRibbonBar::DeletePage() and ClearPages() methods (Emilien Kia).
+- Implement support for extension button to wxRibbonPanel (Emilien Kia).
+- Fix multiple item selection in generic wxTreeCtrl (Igor Korot).
+- Implement wxMenuBar::IsEnabledTop() for all major ports (Igor Korot).
+- Implement best size calculation for report mode wxListCtrl.
+- Fix setting of the frame icon when using non-standard icon sizes (vid).
+- Implement wxDV_ROW_LINES in generic wxDataViewCtrl (RedCAT).
+- Added EVT_AUI_PANE_ACTIVATED event (Ronny Krüger).
+- Added support for page tooltips to wxAuiNotebook (Armel Asselin).
+- Added wxSplitterWindow::SetSashInvisible() (Armel Asselin).
+- Enable/disable "Window" menu items in AUI MDI correctly (wsu).
+- Added wxTimePickerCtrl::Get/SetTime().
+- Fix WXK_MENU handling in wxStyledTextCtrl under wxGTK (cantabile).
+- Added wxAcceleratorEntry::ToRawString() (Armel Asselin).
+- Added wxDataViewEvent::SetDragFlags() and GetDropEffect() (Friedrich).
+- Added support for fields and virtual attributes to wxRichTextCtrl.
+- Added custom text and dimension scaling to wxRichTextCtrl.
+- Added pixel font size capability to wxTextAttr and wxRichTextCtrl.
+- Fully implement wxStyledTextCtrl::PositionToXY() (troelsk).
+- Added wxDataViewListCtrl::{Set,Get}ItemData().
+- Added wxDataViewListCtrl::GetItemCount() (Kry).
+- Added support for Korean Johab and Vietnamese encodings (jank9201).
+- Fix off by 1 bug with setting font size in points in wxHTML (gevorg).
+- Fix return value of wxGenericListCtrl::InsertColumn() (Sebastian Walderich).
+- Add wxDocManager::Get{Views,Documents,Templates}Vector() (troelsk).
+
+GTK:
+
+- Added support for GTK+ 3 (John Chain and Paul Cornett)
+- Implement support for wxBG_STYLE_TRANSPARENT (Armel Asselin).
+- Implement stippled/hatched pens/brushes in wxGraphicsContext (Kit Bishop).
+- Fix wxNotebook best size calculation.
+- Implement wxDirDialog::Create() and wxFileDialog::Create() (vinayakgarg).
+- Fix const methods display in assert dialog (vinayakgarg).
+- Implement native tab art for wxAUI (Jens Lody and Teodor Petrov).
+- Fix pasting large amounts of text (Bradley Hawkins).
+- Show gstreamer errors if wxMediaCtrl fails to play file.
+- Fix wxGridCellEnumEditor mouse handling (Fulvio Senore).
+
+MSW:
+
+- Fixed regression with initial focus in the dialogs in 2.9.3.
+- Use new style directory selection dialog under Vista and later (PB).
+- Added support for wxEXEC_MAKE_GROUP_LEADER to wxExecute (tteras).
+- Set wxMenu being closed in wxEVT_MENU_CLOSE events (Marcin Malich).
+- Fix coordinates and Z-position for joystick events (Markus Juergens).
+- Fix size of the font returned by wxTextCtrl::GetStyle() (Igor Korot).
+- Add wxActiveXContainer::QueryClientSiteInterface and implement it in
+  wxWebViewIE to improve the default behaviour (Allonii).
+- Update stretchable spaces in wxToolBar after tool removal (Catalin Raceanu).
+- Implement wxGraphicsContext::SetInterpolationQuality() (Eric Jensen).
+- Fix coordinate handling in wxDC::Blit() when source DC is a DIB.
+- Fix handling of composite windows in wxToolTip (Armel Asselin).
+- Add VT_I8 support to wxAutomationObject (PB).
+- Fix wxListbook size calculations to avoid spurious scrollbars.
+- Fix code compilation with wxUSE_UNICODE_UTF8 (Kolya Kosenko).
+- Fix crash in wxTreeCtrl when calling GetSelection() from selection changed
+  event handler under Vista and later (sbrowne).
+- Fix text extent computation in wxGraphicsContext (juria90).
+
+OSX:
+
+- Provide native implementations of wxDatePickerCtrl and wxTimePickerCtrl.
+- Fix handling of positional parameters in wxPrintf() &c (David Connet).
+- Implement wxStackWalker.
+
+Univ:
+
+- Fix regression with read-only wxComboBox appearance (Jason Erb).
+
+Unix:
+
+- Fix bug with wxDir("/").GetName() returning empty string.
+
+
+
+2.9.3: (released 2011-12-14)
+------
+
+INCOMPATIBLE CHANGES SINCE 2.9.2
+
+- wxPanel::SetBackgroundBitmap() was removed, derive your class from
+  wxCustomBackgroundWindow and use its method with the same name instead.
+
+All:
+
+- Fix parsing of negated long options in wxCmdLineParser (roed_bis).
+- Fix crash in wxArray::insert() overload taking iterator range (wsu).
+- Added wxEventFilter class and wxEvtHandler::{Add,Remove}Filter().
+- Added convenient wxCmdLineParser::AddLong{Option,Switch}() wrappers.
+- Added wxStopWatch::TimeInMicro() and wxGetUTCTimeUSec() and improved
+  wxStopWatch precision.
+- Made wxGetLocalTimeMillis() really return local time, added
+  wxGetUTCTimeMillis() returning what this function used to return.
+- Added wxCriticalSection::TryEnter() (Catalin Raceanu).
+- Add support for OpenBSD to wxDialUpManager (brad0).
+- Added wxEXEC_HIDE_CONSOLE flag.
+
+All (GUI):
+
+- Added wxWebView library (Steven Lamerton & Auria, GSoC 2011 project).
+- Added wxTreeListCtrl class.
+- Added wxTimePickerCtrl class.
+- Added wxRichToolTip class.
+- Added documented, public wxNavigationEnabled<> class.
+- Added wxTextCtrl::PositionToCoords() (Navaneeth).
+- Added support for wxHELP button to wxMessageDialog.
+- Added wxBannerWindow class.
+- Allow setting window shape to arbitrary wxGraphicsPath.
+- Added wxTextEntry::AutoCompleteDirectories().
+- Support float, double and file name values in wxGenericValidator (troelsk).
+- Add support for custom numeric formats to wxGrid (Kinaou Hervé).
+- Fix keyboard navigation in wxGrid with hidden columns (ivan_14_32).
+- Add wxDataViewEvent::IsEditCancelled() (Allonii).
+- Send EVT_DATAVIEW_ITEM_CONTEXT_MENU events even when not clicking on an item.
+- Allow marking wxTreeBook nodes to expand initially in XRC (RedTide).
+- Added customizable wxDocManager::OnMRUFileNotExist() virtual method.
+- Fix stock labels when not using mnemonics for Chinese (cw.ahbong).
+- Added wxComboBox::IsListEmpty() and IsTextEmpty().
+- Added wxDataViewCtrl::GetSelectedItemsCount() and HasSelection().
+- Added wxFLP_SMALL and wxDIRP_SMALL styles.
+- Added support for saving alpha with TIFF images.
+- Added wxPersistentSplitter.
+- Derive wxAuiNotebook from wxBookCtrlBase (Steven Lamerton).
+- Fix tooltips in wxSearchCtrl and other composite controls (Catalin Raceanu).
+- Allow converting to and from wxGraphicsBitmap and wxImage directly.
+- Allow wxGraphicsFont creation without passing by wxFont.
+- Added wxDataViewCustomRenderer::ActivateCell().
+- Add "checked" property for toolbar tool elements in XRC.
+- Allow customization of the locations where persistent settings are stored.
+- Restore support for reusing ids more than 254 times (Armel Asselin).
+- Added wxIMAGE_OPTION_ORIGINAL_{WIDTH,HEIGHT} (Catalin Raceanu).
+- Add wxTopLevelWindow::SetRepresentedFilename() (Andrej Vodopivec).
+
+OSX:
+
+- Implement wxRegion::Equal() (Dr.Acula).
+- Implement wxFileType::GetOpenCommand().
+- wxGetOsVersion() now returns more sensible version numbers, e.g. 10 and 6
+  for OS X 10.6.
+- Added wxApp::MacOpenFiles and deprecated wxApp::MacOpenFile.
+- Implement wxEVT_CHAR_HOOK event generation in wxOSX/Cocoa.
+- Implemented wxComboBox::Popup() and Dismiss() in wxOSX/Cocoa (joostn).
+
+GTK:
+
+- Generate events for two auxiliary mouse buttons in wxGTK (Marcin Wojdyr).
+- Fix conflict between wxDIALOG_NO_PARENT and wxICON_EXCLAMATION (David Hart).
+
+MSW:
+
+- Added wxGCDC(wxEnhMetaFileDC) ctor (Marcin Wojdyr).
+- Added wxTopLevelWindow::MSWGetSystemMenu().
+- Multiline text controls no longer select all content when gaining focus from
+  the keyboard.
+- Implement wxStackWalker for x86-64 (Artur Bać).
+
+
+2.9.2: (released 2011-07-05)
 ------
 
 All:

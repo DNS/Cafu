@@ -1,5 +1,5 @@
-               wxWidgets 2.9.2 Release Notes
-               =============================
+               wxWidgets 3.0-RC1 Release Notes
+               ===============================
 
 Welcome to the latest release of wxWidgets, a free cross-platform C++
 framework for writing advanced GUI applications using native controls.
@@ -16,11 +16,11 @@ thread handling, and so on. You can learn more about wxWidgets at
 
 wxWidgets sources are available for download from
 
-        https://sourceforge.net/projects/wxwindows/files/2.9.2/
+        https://sourceforge.net/projects/wxwindows/files/3.0.0/
 
 or
 
-        ftp://ftp.wxwidgets.org/pub/2.9.2/
+        ftp://ftp.wxwidgets.org/pub/3.0.0/
 
 Please see the "Files" section below for the description of various
 files available at these locations.
@@ -29,14 +29,7 @@ files available at these locations.
 A detailed reference manual including in-depth overviews for various
 topics is supplied in various formats and can be accessed online at
 
-        http://docs.wxwidgets.org/2.9.2/
-
-
-Note about naming: while 2.9.2 is called a "development" release,
-this only means that API is not guaranteed to remain unchanged in the
-subsequent 2.9.x releases (although it is still likely that it will),
-unlike in the stable 2.8.x branch. We believe the current version is
-stable and suitable for use in production environment.
+        http://docs.wxwidgets.org/3.0.0/
 
 
 
@@ -47,18 +40,22 @@ This release contains several years worth of improvements compared
 to 2.8 version. Notably, Unicode support has been completely
 overhauled and made much easier to use. Debugging support, including
 when using a release build of the library, was much improved making
-it less likely that you use the library incorrectly. Many new GUI
-and base classes have been added or improved.
+it less likely that you use the library incorrectly. Dynamic event
+handling was made much more comfortable. Many new GUI and base classes
+have been added or improved and all ports, and especially wxOSX/Cocoa
+and wxGTK3, were enhanced.
+
+Compared to the previous 2.9 development releases the most important
+change is that this release is part of the new 3.0 stable series,
+guarantying backwards API and ABI compatibility with the next 3.0.x
+releases.
 
 Please see the file docs/changes.txt for more details and make sure
 to read the section "Incompatible changes since 2.8" if you upgrade
 from a previous wxWidgets release.
 
 This release introduces many important changes and we are looking
-forward to your feedback about them. In particular please let us
-know about any regressions compared to the previous versions (see
-the section "Bug reporting" below) so that we could fix them before
-3.0 release.
+forward to your feedback about them!
 
 
 Platforms supported
@@ -67,14 +64,15 @@ Platforms supported
 wxWidgets currently supports the following primary platforms:
 
 - Windows 95/98/ME, NT, 2000, XP, Vista, 7
-- Most Unix variants using the GTK+ toolkit (version 2.4 or newer)
-- Mac OS X (10.4 or newer) using either Carbon or Cocoa
+- Most Unix variants using the GTK+ toolkit (version 2.6 or newer)
+- Mac OS X (10.5 or newer) using either Carbon or Cocoa
 
 There is some support for the following platforms:
 
 - Most Unix variants with X11
 - Most Unix variants with Motif/Lesstif
 - Most Unix variants with GTK+ 1.2
+- Most Unix variants with GTK+ 3 (still in development)
 - OS/2
 - Windows CE (Pocket PC)
 
@@ -101,6 +99,11 @@ In addition to the sources, documentation in HTML, CHM and HTB
 for Microsoft Windows. Notice that you will still need to compile
 wxWidgets even when using the installer.
 
+Experimentally, we also supply binaries of wxMSW libraries built
+with several versions of Microsoft Visual C++ compiler for this
+release. They are available in the "binaries" subdirectory, see
+the description of the files in the README file there.
+
 
 Installation
 ------------
@@ -121,6 +124,7 @@ For licensing information, please see the files:
   docs/licendoc.txt
   docs/gpl.txt
   docs/lgpl.txt
+  docs/xserver.txt
 
 Although this may seem complex, it is there to allow authors of
 proprietary/commercial applications to use wxWidgets in addition
@@ -160,7 +164,7 @@ Documentation
 -------------
 
 wxWidgets documentation is available online at
-http://docs.wxwidgets.org/2.9.2/ and can also be downloaded in HTML
+http://docs.wxwidgets.org/3.0.0/ and can also be downloaded in HTML
 format. To generate documentation in other formats (PDF, CHM, ...)
 please use the scripts in docs/doxygen directory.
 
@@ -200,4 +204,4 @@ web site.
 
 Have fun!
 
-The wxWidgets Team, July 2011
+The wxWidgets Team, July 2013

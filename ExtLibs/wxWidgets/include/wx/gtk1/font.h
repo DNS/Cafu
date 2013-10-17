@@ -2,7 +2,6 @@
 // Name:        wx/gtk1/font.h
 // Purpose:
 // Author:      Robert Roebling
-// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -32,7 +31,20 @@ public:
     // ctors and such
     wxFont() { }
 
-    // wxGTK-specific
+    wxFont(const wxFontInfo& info)
+    {
+        Create(info.GetPointSize(),
+               info.GetFamily(),
+               info.GetStyle(),
+               info.GetWeight(),
+               info.IsUnderlined(),
+               info.GetFaceName(),
+               info.GetEncoding());
+
+        if ( info.IsUsingSizeInPixels() )
+            SetPixelSize(info.GetPixelSize());
+    }
+
     wxFont(const wxString& fontname)
     {
         Create(fontname);

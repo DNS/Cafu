@@ -2,7 +2,6 @@
 // Name:        src/gtk/calctrl.cpp
 // Purpose:     implementation of the wxGtkCalendarCtrl
 // Author:      Marcin Wojdyr
-// RCS-ID:      $Id$
 // Copyright:   (c) 2008 Marcin Wojdyr
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -13,15 +12,14 @@
     #pragma hdrstop
 #endif
 
+#if wxUSE_CALENDARCTRL
+
 #ifndef WX_PRECOMP
 #endif //WX_PRECOMP
 
-#if wxUSE_CALENDARCTRL
-
-#include "wx/gtk/private.h"
 #include "wx/calctrl.h"
-#include "wx/gtk/calctrl.h"
 
+#include <gtk/gtk.h>
 
 extern "C" {
 

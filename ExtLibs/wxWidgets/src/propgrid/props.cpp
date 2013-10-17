@@ -4,7 +4,6 @@
 // Author:      Jaakko Salli
 // Modified by:
 // Created:     2005-05-14
-// RCS-ID:      $Id$
 // Copyright:   (c) Jaakko Salli
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -203,7 +202,7 @@ bool wxNumericPropertyValidator::Validate(wxWindow* parent)
         return false;
 
     wxWindow* wnd = GetWindow();
-    if ( !wnd->IsKindOf(CLASSINFO(wxTextCtrl)) )
+    if ( !wxDynamicCast(wnd, wxTextCtrl) )
         return true;
 
     // Do not allow zero-length string
@@ -474,9 +473,9 @@ wxValidator* wxIntProperty::DoGetValidator() const
 #define wxPG_UINT_TEMPLATE_MAX 8
 
 static const wxChar* const gs_uintTemplates32[wxPG_UINT_TEMPLATE_MAX] = {
-    wxT("%x"),wxT("0x%x"),wxT("$%x"),
-    wxT("%X"),wxT("0x%X"),wxT("$%X"),
-    wxT("%u"),wxT("%o")
+    wxT("%lx"),wxT("0x%lx"),wxT("$%lx"),
+    wxT("%lX"),wxT("0x%lX"),wxT("$%lX"),
+    wxT("%lu"),wxT("%lo")
 };
 
 static const char* const gs_uintTemplates64[wxPG_UINT_TEMPLATE_MAX] = {
@@ -1080,7 +1079,7 @@ bool wxEnumProperty::ValidateValue( wxVariant& value, wxPGValidationInfo& WXUNUS
     // unless property has string as preferred value type
     // To reduce code size, use conversion here as well
     if ( value.GetType() == wxPG_VARIANT_TYPE_STRING &&
-         !this->IsKindOf(CLASSINFO(wxEditEnumProperty)) )
+         !wxDynamicCastThis(wxEditEnumProperty) )
         return ValueFromString_( value, value.GetString(), wxPG_PROPERTY_SPECIFIC );
 
     return true;
@@ -1127,7 +1126,7 @@ bool wxEnumProperty::ValueFromString_( wxVariant& value, const wxString& text, i
 
     bool asText = false;
 
-    bool isEdit = this->IsKindOf(CLASSINFO(wxEditEnumProperty));
+    bool isEdit = this->IsKindOf(wxCLASSINFO(wxEditEnumProperty));
 
     // If text not any of the choices, store as text instead
     // (but only if we are wxEditEnumProperty)
@@ -1491,7 +1490,7 @@ wxString wxFlagsProperty::ValueToString( wxVariant& value,
     for ( i = 0; i < GetItemCount(); i++ )
     {
         int doAdd;
-        doAdd = ( flags & choices.GetValue(i) );
+        doAdd = ( (flags & choices.GetValue(i)) == choices.GetValue(i) );
 
         if ( doAdd )
         {
@@ -1579,7 +1578,7 @@ void wxFlagsProperty::RefreshChildren()
         if ( subVal != (m_oldValue & flag) )
             p->ChangeFlag( wxPG_PROP_MODIFIED, true );
 
-        p->SetValue( subVal?true:false );
+        p->SetValue( subVal == flag?true:false );
     }
 
     m_oldValue = flags;
@@ -1683,7 +1682,7 @@ bool wxPGFileDialogAdapter::DoShowDialog( wxPropertyGrid* propGrid, wxPGProperty
     wxString path;
     int indFilter = -1;
 
-    if ( property->IsKindOf(CLASSINFO(wxFileProperty)) )
+    if ( wxDynamicCast(property, wxFileProperty) )
     {
         fileProp = ((wxFileProperty*)property);
         wxFileName filename = fileProp->GetValue().GetString();
@@ -1703,8 +1702,8 @@ bool wxPGFileDialogAdapter::DoShowDialog( wxPropertyGrid* propGrid, wxPGProperty
                       property->GetAttribute(wxS("DialogTitle"), _("Choose a file")),
                       property->GetAttribute(wxS("InitialPath"), path),
                       wxEmptyString,
-                      property->GetAttribute(wxPG_FILE_WILDCARD, _("All files (*.*)|*.*")),
-                      0,
+                      property->GetAttribute(wxPG_FILE_WILDCARD, wxALL_FILES),
+                      property->GetAttributeAsLong(wxPG_FILE_DIALOG_STYLE, 0),
                       wxDefaultPosition );
 
     if ( indFilter >= 0 )
@@ -1732,7 +1731,7 @@ wxFileProperty::wxFileProperty( const wxString& label, const wxString& name,
 {
     m_flags |= wxPG_PROP_SHOW_FULL_FILENAME;
     m_indFilter = -1;
-    SetAttribute( wxPG_FILE_WILDCARD, _("All files (*.*)|*.*") );
+    SetAttribute( wxPG_FILE_WILDCARD, wxALL_FILES);
 
     SetValue(value);
 }
@@ -2209,26 +2208,26 @@ bool wxPGArrayEditorDialog::Create( wxWindow *parent,
 
     but = m_elb->GetNewButton();
     m_elbSubPanel = but->GetParent();
-    but->Connect(but->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
+    but->Connect(but->GetId(), wxEVT_BUTTON,
         wxCommandEventHandler(wxPGArrayEditorDialog::OnAddClick),
         NULL, this);
 
     but = m_elb->GetDelButton();
-    but->Connect(but->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
+    but->Connect(but->GetId(), wxEVT_BUTTON,
         wxCommandEventHandler(wxPGArrayEditorDialog::OnDeleteClick),
         NULL, this);
 
     but = m_elb->GetUpButton();
-    but->Connect(but->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
+    but->Connect(but->GetId(), wxEVT_BUTTON,
         wxCommandEventHandler(wxPGArrayEditorDialog::OnUpClick),
         NULL, this);
 
     but = m_elb->GetDownButton();
-    but->Connect(but->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
+    but->Connect(but->GetId(), wxEVT_BUTTON,
         wxCommandEventHandler(wxPGArrayEditorDialog::OnDownClick),
         NULL, this);
 
-    lc->Connect(lc->GetId(), wxEVT_COMMAND_LIST_END_LABEL_EDIT,
+    lc->Connect(lc->GetId(), wxEVT_LIST_END_LABEL_EDIT,
         wxListEventHandler(wxPGArrayEditorDialog::OnEndLabelEdit),
         NULL, this);
 
@@ -2537,7 +2536,8 @@ wxArrayStringProperty::ArrayStringToString( wxString& dst,
     if ( flags & Escape )
     {
         preas = delimiter;
-        pdr = wxS("\\") + static_cast<wchar_t>(delimiter);
+        pdr = wxS("\\");
+        pdr += delimiter;
     }
 
     if ( itemCount )

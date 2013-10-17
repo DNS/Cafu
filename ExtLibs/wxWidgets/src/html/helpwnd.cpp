@@ -4,7 +4,6 @@
 // Notes:       Based on htmlhelp.cpp, implementing a monolithic
 //              HTML Help controller class,  by Vaclav Slavik
 // Author:      Harm van der Heijden and Vaclav Slavik
-// RCS-ID:      $Id$
 // Copyright:   (c) Harm van der Heijden and Vaclav Slavik
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -59,6 +58,11 @@
 
 // what is considered "small index"?
 #define INDEX_IS_SMALL 1000
+
+// minimum width for content tree and index
+// (we cannot let minimum size be determined from content, else long titles
+//  make the help frame unusable)
+const wxCoord CONTENT_TREE_INDEX_MIN_WIDTH = 150;
 
 /* Motif defines this as a macro */
 #ifdef Below
@@ -115,15 +119,13 @@ public:
         SetStandardFonts();
     }
 
-    void OnLink(wxHtmlLinkEvent& ev)
+    virtual bool LoadPage(const wxString& location)
     {
-        const wxMouseEvent *e = ev.GetLinkInfo().GetEvent();
-        if (e == NULL || e->LeftUp())
-            m_Window->NotifyPageChanged();
+        if ( !wxHtmlWindow::LoadPage(location) )
+            return false;
 
-        // skip the event so that normal processing (i.e. following the link)
-        // is done:
-        ev.Skip();
+        m_Window->NotifyPageChanged();
+        return true;
     }
 
     // Returns full location with anchor (helper)
@@ -145,12 +147,7 @@ private:
     wxHtmlHelpWindow *m_Window;
 
     wxDECLARE_NO_COPY_CLASS(wxHtmlHelpHtmlWindow);
-    DECLARE_EVENT_TABLE()
 };
-
-BEGIN_EVENT_TABLE(wxHtmlHelpHtmlWindow, wxHtmlWindow)
-    EVT_HTML_LINK_CLICKED(wxID_ANY, wxHtmlHelpHtmlWindow::OnLink)
-END_EVENT_TABLE()
 
 
 //---------------------------------------------------------------------------
@@ -357,9 +354,7 @@ bool wxHtmlHelpWindow::Create(wxWindow* parent, wxWindowID id,
     wxSizer *navigSizer = NULL;
 
 #ifdef __WXMSW__
-    wxBorder htmlWindowBorder = GetDefaultBorder();
-    if (htmlWindowBorder == wxBORDER_SUNKEN)
-        htmlWindowBorder = wxBORDER_SIMPLE;
+    wxBorder htmlWindowBorder = wxBORDER_THEME;
 #else
     wxBorder htmlWindowBorder = wxBORDER_SUNKEN;
 #endif
@@ -371,6 +366,7 @@ bool wxHtmlHelpWindow::Create(wxWindow* parent, wxWindowID id,
         long splitterStyle = wxSP_3D;
         // Drawing moving sash can cause problems on wxMac
 #ifdef __WXMAC__
+        splitterStyle = 0; // 3D style looks poor on Mac
         splitterStyle |= wxSP_LIVE_UPDATE;
 #endif
         m_Splitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, splitterStyle);
@@ -417,10 +413,16 @@ bool wxHtmlHelpWindow::Create(wxWindow* parent, wxWindowID id,
 
         if ( helpStyle & wxHF_BOOKMARKS )
         {
+            long comboStyle = wxCB_READONLY;
+#ifndef __WXMAC__
+            // Not supported on OSX/Cocoa presently
+            comboStyle |= wxCB_SORT;
+
+#endif
             m_Bookmarks = new wxComboBox(dummy, wxID_HTML_BOOKMARKSLIST,
                                          wxEmptyString,
                                          wxDefaultPosition, wxDefaultSize,
-                                         0, NULL, wxCB_READONLY | wxCB_SORT);
+                                         0, NULL, comboStyle);
             m_Bookmarks->Append(_("(bookmarks)"));
             for (unsigned i = 0; i < m_BookmarksNames.GetCount(); i++)
                 m_Bookmarks->Append(m_BookmarksNames[i]);
@@ -706,7 +708,6 @@ bool wxHtmlHelpWindow::Display(const wxString& x)
     if (!url.empty())
     {
         m_HtmlWin->LoadPage(url);
-        NotifyPageChanged();
         return true;
     }
 
@@ -719,7 +720,6 @@ bool wxHtmlHelpWindow::Display(const int id)
     if (!url.empty())
     {
         m_HtmlWin->LoadPage(url);
-        NotifyPageChanged();
         return true;
     }
 
@@ -782,7 +782,6 @@ void wxHtmlHelpWindow::DisplayIndexItem(const wxHtmlHelpMergedIndexItem *it)
         if (!it->items[0]->page.empty())
         {
             m_HtmlWin->LoadPage(it->items[0]->GetFullPath());
-            NotifyPageChanged();
         }
     }
     else
@@ -813,11 +812,12 @@ void wxHtmlHelpWindow::DisplayIndexItem(const wxHtmlHelpMergedIndexItem *it)
         wxSingleChoiceDialog dlg(this,
                                  _("Please choose the page to display:"),
                                  _("Help Topics"),
-                                 arr, NULL, wxCHOICEDLG_STYLE & ~wxCENTRE);
+                                 arr,
+                                 (void**)NULL, // No client data
+                                 wxCHOICEDLG_STYLE & ~wxCENTRE);
         if (dlg.ShowModal() == wxID_OK)
         {
             m_HtmlWin->LoadPage(it->items[dlg.GetSelection()]->GetFullPath());
-            NotifyPageChanged();
         }
     }
 }
@@ -926,7 +926,6 @@ bool wxHtmlHelpWindow::KeywordSearch(const wxString& keyword,
                 if (it)
                 {
                     m_HtmlWin->LoadPage(it->GetFullPath());
-                    NotifyPageChanged();
                 }
                 break;
             }
@@ -1026,6 +1025,9 @@ void wxHtmlHelpWindow::CreateContents()
             imaged[it->level] = true;
         }
     }
+
+    m_ContentsBox->SetMinSize(wxSize(CONTENT_TREE_INDEX_MIN_WIDTH,
+                                     m_ContentsBox->GetMinHeight()));
 }
 
 void wxHtmlHelpWindow::CreateIndex()
@@ -1049,6 +1051,9 @@ void wxHtmlHelpWindow::CreateIndex()
     for (size_t i = 0; i < cnt; i++)
         m_IndexList->Append((*m_mergedIndex)[i].name,
                             (char*)(&(*m_mergedIndex)[i]));
+
+    m_IndexList->SetMinSize(wxSize(CONTENT_TREE_INDEX_MIN_WIDTH,
+                                   m_IndexList->GetMinHeight()));
 }
 
 void wxHtmlHelpWindow::CreateSearch()
@@ -1388,12 +1393,10 @@ void wxHtmlHelpWindow::OnToolbar(wxCommandEvent& event)
     {
         case wxID_HTML_BACK :
             m_HtmlWin->HistoryBack();
-            NotifyPageChanged();
             break;
 
         case wxID_HTML_FORWARD :
             m_HtmlWin->HistoryForward();
-            NotifyPageChanged();
             break;
 
         case wxID_HTML_UP :
@@ -1409,7 +1412,6 @@ void wxHtmlHelpWindow::OnToolbar(wxCommandEvent& event)
                     if (!it.page.empty())
                     {
                         m_HtmlWin->LoadPage(it.GetFullPath());
-                        NotifyPageChanged();
                     }
                 }
             }
@@ -1438,10 +1440,7 @@ void wxHtmlHelpWindow::OnToolbar(wxCommandEvent& event)
                     if (ind >= 0)
                     {
                         if (!it->page.empty())
-                        {
                             m_HtmlWin->LoadPage(it->GetFullPath());
-                            NotifyPageChanged();
-                        }
                     }
                 }
             }
@@ -1463,10 +1462,7 @@ void wxHtmlHelpWindow::OnToolbar(wxCommandEvent& event)
                     while (contents[idx].GetFullPath() == page) idx++;
 
                     if (!contents[idx].page.empty())
-                    {
                         m_HtmlWin->LoadPage(contents[idx].GetFullPath());
-                        NotifyPageChanged();
-                    }
                 }
             }
             break;
@@ -1557,7 +1553,7 @@ void wxHtmlHelpWindow::OnToolbar(wxCommandEvent& event)
 #if wxUSE_LIBMSPACK
                     _("Compressed HTML Help file (*.chm)|*.chm|") +
 #endif
-                    _("All files (*.*)|*");
+                    wxALL_FILES;
                 wxString s = wxFileSelector(_("Open HTML document"),
                                             wxEmptyString,
                                             wxEmptyString,
@@ -1731,7 +1727,6 @@ void wxHtmlHelpWindow::OnSearchSel(wxCommandEvent& WXUNUSED(event))
     {
         if (!it->page.empty())
             m_HtmlWin->LoadPage(it->GetFullPath());
-        NotifyPageChanged();
     }
 }
 
@@ -1750,7 +1745,6 @@ void wxHtmlHelpWindow::OnBookmarksSel(wxCommandEvent& WXUNUSED(event))
     if (!str.empty() && str != _("(bookmarks)") && idx != wxNOT_FOUND)
     {
        m_HtmlWin->LoadPage(m_BookmarksPages[(size_t)idx]);
-       NotifyPageChanged();
     }
 }
 

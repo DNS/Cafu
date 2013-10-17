@@ -4,7 +4,6 @@
 // Author:      David Webster
 // Modified by:
 // Created:     09/17/99
-// RCS-ID:      $Id$
 // Copyright:   (c) David Webster
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -304,12 +303,6 @@ void wxSleep(
 void wxFlushEvents()
 {
 //  wxYield();
-}
-
-// Emit a beeeeeep
-void wxBell()
-{
-    DosBeep(1000,1000); // 1kHz during 1 sec.
 }
 
 wxString wxGetOsDescription()
@@ -642,12 +635,3 @@ wxString wxPMErrorToStr(ERRORID vError)
     }
     return sError;
 } // end of wxPMErrorToStr
-
-// replacement for implementation in unix/utilsunx.cpp,
-// to be used by all X11 based ports.
-struct wxEndProcessData;
-
-void wxHandleProcessTermination(wxEndProcessData *WXUNUSED(proc_data))
-{
-    // For now, just do nothing. To be filled in as needed.
-}

@@ -4,7 +4,6 @@
 // Author:      David Webster
 // Modified by:
 // Created:     10/13/99
-// RCS-ID:      $Id$
 // Copyright:   (c) David Webster
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -364,7 +363,7 @@ bool wxChoice::OS2Command(
 
     if (n > -1)
     {
-        wxCommandEvent              vEvent( wxEVT_COMMAND_CHOICE_SELECTED
+        wxCommandEvent              vEvent( wxEVT_CHOICE
                                            ,m_windowId
                                           );
 

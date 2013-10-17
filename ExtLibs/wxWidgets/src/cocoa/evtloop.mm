@@ -2,10 +2,9 @@
 // Name:        src/cocoa/evtloop.mm
 // Purpose:     implements wxEventLoop for Cocoa
 // Author:      David Elliott
-// Modified by:
 // Created:     2003/10/02
-// RCS-ID:      $Id$
 // Copyright:   (c) 2003 David Elliott <dfe@cox.net>
+//              (c) 2013 Rob Bresalier
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -30,13 +29,8 @@
 // wxGUIEventLoop running and exiting
 // ----------------------------------------------------------------------------
 
-int wxGUIEventLoop::Run()
+int wxGUIEventLoop::DoRun()
 {
-    // event loops are not recursive, you need to create another loop!
-    wxCHECK_MSG( !IsRunning(), -1, wxT("can't reenter a message loop") );
-
-    wxEventLoopActivator activate(this);
-
     [[NSApplication sharedApplication] run];
 
     OnExit();
@@ -44,9 +38,9 @@ int wxGUIEventLoop::Run()
     return m_exitcode;
 }
 
-void wxGUIEventLoop::Exit(int rc)
+void wxGUIEventLoop::ScheduleExit(int rc)
 {
-    wxCHECK_RET( IsRunning(), wxT("can't call Exit() if not running") );
+    wxCHECK_RET( IsInsideRun(), wxT("can't call ScheduleExit() if not started") );
 
     m_exitcode = rc;
 

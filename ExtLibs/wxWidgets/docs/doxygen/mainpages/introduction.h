@@ -2,23 +2,15 @@
 // Name:        introduction.h
 // Purpose:     Introduction page of the Doxygen manual
 // Author:      wxWidgets team
-// RCS-ID:      $Id$
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
-
 
 /**
 
 @page page_introduction Introduction
 
-@li @ref page_introduction_whatis
-@li @ref page_introduction_why
-@li @ref page_introduction_requirements
-@li @ref page_introduction_where
-@li @ref page_introduction_acknowledgements
+@tableofcontents
 
-
-<hr>
 
 
 @section page_introduction_whatis What is wxWidgets?
@@ -119,7 +111,7 @@ here are some of the benefits:
 @li Built-in support for many file formats (BMP, PNG, JPEG, GIF, XPM, PNM, PCX).
 
 
-@section page_introduction_requirements wxWidgets requirements
+@section page_introduction_requirements wxWidgets Requirements
 
 To make use of wxWidgets, you currently need one of the following setups.
 
@@ -127,18 +119,18 @@ To make use of wxWidgets, you currently need one of the following setups.
 
 @li A 32-bit or 64-bit PC running MS Windows.
 @li A Windows compiler: MS Visual C++ (embedded Visual C++ for wxWinCE
-    port), Borland C++, Watcom C++, Cygwin, MinGW, Metrowerks CodeWarrior,
-    Digital Mars C++. See @c install.txt for details about compiler
-    version supported.
+    port), Borland C++, Watcom C++, Cygwin, MinGW, Digital Mars C++.
+    See @c install.txt for details about compiler version supported.
 
 (b) Unix:
 
 @li Almost any C++ compiler, including GNU C++ and many Unix vendors
     compilers such as Sun CC, HP-UX aCC or SGI mipsPro.
-@li Almost any Unix workstation, and one of: GTK+ 2.4 or higher (GTK+ 1.2.10
+@li Almost any Unix workstation, and one of: GTK+ 2.6 or higher (GTK+ 1.2.10
     may still be supported but wxGTK1 port is not maintained any longer and lacks
-    many features of wxGTK2), Motif 1.2 or higher or Lesstif. If using the wxX11
-    port, no such widget set is required.
+    many features of wxGTK2; GTK+ 3 is supported but is still experimental),
+    Motif 1.2 or higher or Lesstif. If using the wxX11 port, no such widget set
+    is required.
 
 (c) Mac OS/Mac OS X:
 

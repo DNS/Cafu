@@ -4,7 +4,6 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     29/01/98
-// RCS-ID:      $Id$
 // Copyright:   (c) 1998 Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -15,7 +14,6 @@
 #include "wx/list.h"
 #include "wx/arrstr.h"
 
-#ifndef __WXPALMOS5__
 #ifdef __WXWINCE__
     #include "wx/msw/wince/time.h"
     #include "wx/msw/private.h"
@@ -23,24 +21,10 @@
     #include <time.h>
 #endif
 
-#ifdef __WXWINCE__
-// Nothing
-#elif !defined(__MWERKS__)
+#ifndef __WXWINCE__
     #include <sys/types.h>
     #include <sys/stat.h>
-#else
-    #ifdef __MACH__
-        #include <sys/types.h>
-        #include <utime.h>
-        #include <sys/stat.h>
-        #include <unistd.h>
-    #else
-        #include <stat.h>
-        #include <unistd.h>
-        #include <unix.h>
-    #endif
 #endif
-#endif // !__WXPALMOS5__
 
 #ifdef __OS2__
 // need to check for __OS2__ first since currently both
@@ -60,7 +44,7 @@
 #endif
 
 #if defined(__WINDOWS__) && !defined(__WXMICROWIN__)
-#if !defined( __GNUWIN32__ ) && !defined( __MWERKS__ ) && !defined(__WXWINCE__) && !defined(__CYGWIN__)
+#if !defined( __GNUWIN32__ ) && !defined(__WXWINCE__) && !defined(__CYGWIN__)
     #include <direct.h>
     #include <dos.h>
     #include <io.h>
@@ -85,16 +69,15 @@
     #include <dir.h>
 #endif
 
-#ifndef __WXPALMOS5__
 #ifndef __WXWINCE__
     #include  <fcntl.h>       // O_RDONLY &c
 #endif
-#endif // !__WXPALMOS5__
+
 // ----------------------------------------------------------------------------
 // constants
 // ----------------------------------------------------------------------------
 
-#if defined(__VISUALC__) || defined(__DIGITALMARS__)
+#if defined(__VISUALC__) || defined(__INTELC__) || defined(__DIGITALMARS__)
     typedef int mode_t;
 #endif
 
@@ -109,13 +92,9 @@
     #endif
 #endif
 
-#if (defined(__VISUALC__) && !defined(__WXWINCE__)) || ( defined(__MWERKS__) && defined( __INTEL__) )
+#if (defined(__VISUALC__) && !defined(__WXWINCE__)) || (defined(__WINDOWS__) && defined (__INTELC__))
     typedef _off_t off_t;
 #elif defined(__SYMANTEC__)
-    typedef long off_t;
-#elif defined(__MWERKS__) && !defined(__INTEL__) && !defined(__MACH__)
-    typedef long off_t;
-#elif defined(__WXPALMOS5__)
     typedef long off_t;
 #endif
 
@@ -191,6 +170,7 @@ enum wxPosixPermissions
     #define wxFileOffsetFmtSpec wxT("I64")
     WXDLLIMPEXP_BASE int wxCRT_Open(const wxChar *filename, int oflag, int WXUNUSED(pmode));
     WXDLLIMPEXP_BASE int wxCRT_Access(const wxChar *name, int WXUNUSED(how));
+    WXDLLIMPEXP_BASE int wxCRT_Chmod(const wxChar *name, int WXUNUSED(how));
     WXDLLIMPEXP_BASE int wxClose(int fd);
     WXDLLIMPEXP_BASE int wxFsync(int WXUNUSED(fd));
     WXDLLIMPEXP_BASE int wxRead(int fd, void *buf, unsigned int count);
@@ -205,13 +185,12 @@ enum wxPosixPermissions
     #define   wxCRT_RmDir      _wrmdir
     #define   wxCRT_Stat       _wstat
     #define   wxStructStat struct _stat
-#elif (defined(__WXMSW__) || defined(__OS2__)) && !defined(__WXPALMOS__) && \
+#elif (defined(__WINDOWS__) || defined(__OS2__)) && \
       ( \
-        defined(__VISUALC__) || \
+        (defined(__VISUALC__) || (defined(__WINDOWS__) && defined (__INTELC__))) || \
         defined(__MINGW64__) || \
         (defined(__MINGW32__) && !defined(__WINE__) && \
                                 wxCHECK_W32API_VERSION(0, 5)) || \
-        defined(__MWERKS__) || \
         defined(__DMC__) || \
         defined(__WATCOMC__) || \
         defined(__BORLANDC__) \
@@ -222,10 +201,10 @@ enum wxPosixPermissions
     #undef wxHAS_HUGE_STDIO_FILES
 
     // detect compilers which have support for huge files
-    #if defined(__VISUALC__)
+    #if (defined(__VISUALC__) || (defined(__WINDOWS__) && defined (__INTELC__)))
         #define wxHAS_HUGE_FILES 1
     #elif defined(__MINGW32__) || defined(__MINGW64__)
-        #define wxHAS_HUGE_FILES 1
+        #define wxHAS_HUGE_FILES 1f
     #elif defined(_LARGE_FILES)
         #define wxHAS_HUGE_FILES 1
     #endif
@@ -241,9 +220,8 @@ enum wxPosixPermissions
         #define wxFtell ftello64
     #endif
 
-    // other Windows compilers (DMC, Watcom, Metrowerks and Borland) don't have
-    // huge file support (or at least not all functions needed for it by wx)
-    // currently
+    // other Windows compilers (DMC, Watcom, and Borland) don't have huge file
+    // support (or at least not all functions needed for it by wx) currently
 
     // types
 
@@ -314,20 +292,8 @@ enum wxPosixPermissions
     // complications
     #define   wxClose      wxPOSIX_IDENT(close)
 
-    #if defined(__MWERKS__)
-        #if __MSL__ >= 0x6000
-            #define wxRead(fd, buf, nCount)  _read(fd, (void *)buf, nCount)
-            #define wxWrite(fd, buf, nCount) _write(fd, (void *)buf, nCount)
-        #else
-            #define wxRead(fd, buf, nCount)\
-                  _read(fd, (const char *)buf, nCount)
-            #define wxWrite(fd, buf, nCount)\
-                  _write(fd, (const char *)buf, nCount)
-        #endif
-    #else // __MWERKS__
-        #define wxRead         wxPOSIX_IDENT(read)
-        #define wxWrite        wxPOSIX_IDENT(write)
-    #endif
+    #define wxRead         wxPOSIX_IDENT(read)
+    #define wxWrite        wxPOSIX_IDENT(write)
 
     #ifdef wxHAS_HUGE_FILES
         #ifndef __MINGW64__
@@ -365,10 +331,17 @@ enum wxPosixPermissions
     // first the ANSI versions
     #define   wxCRT_OpenA       wxPOSIX_IDENT(open)
     #define   wxCRT_AccessA     wxPOSIX_IDENT(access)
+    #define   wxCRT_ChmodA      wxPOSIX_IDENT(chmod)
     #define   wxCRT_MkDirA      wxPOSIX_IDENT(mkdir)
     #define   wxCRT_RmDirA      wxPOSIX_IDENT(rmdir)
     #ifdef wxHAS_HUGE_FILES
-        #define   wxCRT_StatA       wxPOSIX_IDENT(stati64)
+        // MinGW-64 provides underscore-less versions of all file functions
+        // except for this one.
+        #ifdef __MINGW64__
+            #define   wxCRT_StatA       _stati64
+        #else
+            #define   wxCRT_StatA       wxPOSIX_IDENT(stati64)
+        #endif
     #else
         // Unfortunately Watcom is not consistent
         #if defined(__OS2__) && defined(__WATCOMC__)
@@ -390,6 +363,7 @@ enum wxPosixPermissions
         #endif
 
         #define   wxCRT_AccessW     _waccess
+        #define   wxCRT_ChmodW      _wchmod
         #define   wxCRT_MkDirW      _wmkdir
         #define   wxCRT_RmDirW      _wrmdir
         #ifdef wxHAS_HUGE_FILES
@@ -408,6 +382,8 @@ enum wxPosixPermissions
                                                int flags, int mode);
             WXDLLIMPEXP_BASE int wxMSLU__waccess(const wxChar *name,
                                                  int mode);
+            WXDLLIMPEXP_BASE int wxMSLU__wchmod(const wxChar *name,
+                                                 int mode);
             WXDLLIMPEXP_BASE int wxMSLU__wmkdir(const wxChar *name);
             WXDLLIMPEXP_BASE int wxMSLU__wrmdir(const wxChar *name);
 
@@ -417,12 +393,14 @@ enum wxPosixPermissions
             #define   wxCRT_Open       wxMSLU__wopen
 
             #define   wxCRT_Access     wxMSLU__waccess
+            #define   wxCRT_Chmod      wxMSLU__wchmod
             #define   wxCRT_MkDir      wxMSLU__wmkdir
             #define   wxCRT_RmDir      wxMSLU__wrmdir
             #define   wxCRT_Stat       wxMSLU__wstat
         #else // !wxUSE_UNICODE_MSLU
             #define wxCRT_Open      wxCRT_OpenW
             #define wxCRT_Access    wxCRT_AccessW
+            #define wxCRT_Chmod     wxCRT_ChmodW
             #define wxCRT_MkDir     wxCRT_MkDirW
             #define wxCRT_RmDir     wxCRT_RmDirW
             #define wxCRT_Stat      wxCRT_StatW
@@ -430,6 +408,7 @@ enum wxPosixPermissions
     #else // !wxUSE_UNICODE
         #define wxCRT_Open      wxCRT_OpenA
         #define wxCRT_Access    wxCRT_AccessA
+        #define wxCRT_Chmod     wxCRT_ChmodA
         #define wxCRT_MkDir     wxCRT_MkDirA
         #define wxCRT_RmDir     wxCRT_RmDirA
         #define wxCRT_Stat      wxCRT_StatA
@@ -468,43 +447,6 @@ enum wxPosixPermissions
     // private defines, undefine so that nobody gets tempted to use
     #undef wxHAS_HUGE_FILES
     #undef wxHAS_HUGE_STDIO_FILES
-#elif defined (__WXPALMOS__)
-    typedef off_t wxFileOffset;
-#ifdef _LARGE_FILES
-    #define wxFileOffsetFmtSpec wxLongLongFmtSpec
-    wxCOMPILE_TIME_ASSERT( sizeof(off_t) == sizeof(wxLongLong_t), BadFileSizeType );
-    // wxFile is present and supports large files
-    #ifdef wxUSE_FILE
-        #define wxHAS_LARGE_FILES
-    #endif
-    // wxFFile is present and supports large files
-    #if SIZEOF_LONG == 8 || defined HAVE_FSEEKO
-        #define wxHAS_LARGE_FFILES
-    #endif
-#else
-    #define wxFileOffsetFmtSpec wxT("")
-#endif
-    #define   wxClose      close
-    #define   wxRead       ::read
-    #define   wxWrite      ::write
-    #define   wxLseek      lseek
-    #define   wxSeek       lseek
-    #define   wxFsync      fsync
-    #define   wxEof        eof
-
-    #define   wxCRT_MkDir      mkdir
-    #define   wxCRT_RmDir      rmdir
-
-    #define   wxTell(fd)   lseek(fd, 0, SEEK_CUR)
-
-    #define   wxStructStat struct stat
-
-    #define   wxCRT_Open       open
-    #define   wxCRT_Stat       svfs_stat
-    #define   wxCRT_Lstat      lstat
-    #define   wxCRT_Access     access
-
-    #define wxHAS_NATIVE_LSTAT
 #else // Unix or Windows using unknown compiler, assume POSIX supported
     typedef off_t wxFileOffset;
     #ifdef HAVE_LARGEFILE_SUPPORT
@@ -534,7 +476,6 @@ enum wxPosixPermissions
     #define   wxSeek       lseek
     #define   wxFsync      fsync
     #define   wxEof        eof
-
     #define   wxCRT_MkDir      mkdir
     #define   wxCRT_RmDir      rmdir
 
@@ -546,6 +487,7 @@ enum wxPosixPermissions
     #define   wxCRT_Stat       stat
     #define   wxCRT_Lstat      lstat
     #define   wxCRT_Access     access
+    #define   wxCRT_Chmod      chmod
 
     #define wxHAS_NATIVE_LSTAT
 #endif // platforms
@@ -567,6 +509,8 @@ enum wxPosixPermissions
 
 inline int wxAccess(const wxString& path, mode_t mode)
     { return wxCRT_Access(path.fn_str(), mode); }
+inline int wxChmod(const wxString& path, mode_t mode)
+    { return wxCRT_Chmod(path.fn_str(), mode); }
 inline int wxOpen(const wxString& path, int flags, mode_t mode)
     { return wxCRT_Open(path.fn_str(), flags, mode); }
 
@@ -762,9 +706,6 @@ WXDLLIMPEXP_BASE bool wxIsExecutable(const wxString &path);
 // platform independent versions
 #if defined(__UNIX__) && !defined(__OS2__)
   // CYGWIN also uses UNIX settings
-  #define wxFILE_SEP_PATH     wxFILE_SEP_PATH_UNIX
-  #define wxPATH_SEP          wxPATH_SEP_UNIX
-#elif defined(__WXPALMOS__)
   #define wxFILE_SEP_PATH     wxFILE_SEP_PATH_UNIX
   #define wxPATH_SEP          wxPATH_SEP_UNIX
 #elif defined(__MAC__)

@@ -4,7 +4,6 @@
 // Author:      Vaclav Slavik
 // Modified by:
 // Created:     18/03/2002
-// RCS-ID:      $Id$
 // Copyright:   (c) Vaclav Slavik
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -407,7 +406,7 @@ bool wxArtProvider::HasNativeProvider()
 
 /* static */ void wxArtProvider::InsertProvider(wxArtProvider *provider)
 {
-    Insert(provider);
+    PushBack(provider);
 }
 
 /* static */ bool wxArtProvider::PopProvider()
@@ -440,13 +439,16 @@ class wxArtProviderModule: public wxModule
 public:
     bool OnInit()
     {
-#if wxUSE_ARTPROVIDER_STD
-        wxArtProvider::InitStdProvider();
-#endif // wxUSE_ARTPROVIDER_STD
+        // The order here is such that the native provider will be used first
+        // and the standard one last as all these default providers add
+        // themselves to the bottom of the stack.
+        wxArtProvider::InitNativeProvider();
 #if wxUSE_ARTPROVIDER_TANGO
         wxArtProvider::InitTangoProvider();
 #endif // wxUSE_ARTPROVIDER_TANGO
-        wxArtProvider::InitNativeProvider();
+#if wxUSE_ARTPROVIDER_STD
+        wxArtProvider::InitStdProvider();
+#endif // wxUSE_ARTPROVIDER_STD
         return true;
     }
     void OnExit()

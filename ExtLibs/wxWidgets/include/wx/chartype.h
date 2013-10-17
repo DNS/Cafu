@@ -4,7 +4,6 @@
  * Author:      Joel Farley, Ove Kåven
  * Modified by: Vadim Zeitlin, Robert Roebling, Ron Lee
  * Created:     1998/06/12
- * RCS-ID:      $Id$
  * Copyright:   (c) 1998-2006 wxWidgets dev team
  * Licence:     wxWindows licence
  */
@@ -48,14 +47,9 @@
 
    Actually MinGW has tchar.h, but it does not include wchar.h
  */
-#if defined(__MWERKS__) || defined(__VISAGECPP__) || defined(__MINGW32__) || defined(__WATCOMC__)
+#if defined(__VISAGECPP__) || defined(__MINGW32__) || defined(__WATCOMC__)
     #ifndef HAVE_WCHAR_H
         #define HAVE_WCHAR_H
-    #endif
-#endif
-#if defined(__MWERKS__) && !defined(__MACH__)
-    #ifndef HAVE_WCSLEN
-        #define HAVE_WCSLEN
     #endif
 #endif
 
@@ -96,7 +90,7 @@
 /* -------------------------------------------------------------------------- */
 
 /* VC++ and BC++ starting with 5.2 have TCHAR support */
-#ifdef __VISUALC__
+#if defined(__VISUALC__) || (defined(__WINDOWS__) && defined(__INTELC__))
     #define wxHAVE_TCHAR_SUPPORT
 #elif defined(__BORLANDC__) && (__BORLANDC__ >= 0x520)
     #define wxHAVE_TCHAR_SUPPORT
@@ -105,8 +99,6 @@
     #define wxHAVE_TCHAR_SUPPORT
 #elif defined(__DMC__)
     #define wxHAVE_TCHAR_SUPPORT
-#elif defined(__WXPALMOS__)
-    #include <stddef.h>
 #elif defined(__MINGW32__) && wxCHECK_W32API_VERSION( 1, 0 )
     #define wxHAVE_TCHAR_SUPPORT
     #include <stddef.h>

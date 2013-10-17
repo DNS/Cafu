@@ -4,7 +4,6 @@
 // Author:      Ryan Norton
 // Modified by:
 // Created:     2004-10-03
-// RCS-ID:      $Id$
 // Copyright:   (c) Ryan Norton
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -28,6 +27,7 @@
 #endif
 
 #include "wx/fontutil.h"
+#include "wx/modalhook.h"
 
 // ============================================================================
 // implementation
@@ -351,6 +351,11 @@ wxFontDialog::wxFontDialog()
 {
 }
 
+wxFontDialog::wxFontDialog(wxWindow *parent)
+{
+    Create(parent);
+}
+
 wxFontDialog::wxFontDialog(wxWindow *parent, const wxFontData&  data)
 {
     Create(parent, data);
@@ -360,10 +365,20 @@ wxFontDialog::~wxFontDialog()
 {
 }
 
+bool wxFontDialog::Create(wxWindow *parent)
+{
+    return Create(parent);
+}
+
 bool wxFontDialog::Create(wxWindow *parent, const wxFontData& data)
 {
     m_fontData = data;
 
+    return Create(parent);
+}
+
+bool wxFontDialog::Create(wxWindow *parent)
+{
     //autorelease pool - req'd for carbon
     NSAutoreleasePool *thePool;
     thePool = [[NSAutoreleasePool alloc] init];
@@ -419,6 +434,8 @@ bool wxFontDialog::Create(wxWindow *parent, const wxFontData& data)
 
 int wxFontDialog::ShowModal()
 {
+    WX_HOOK_MODAL_DIALOG();
+
     //Start the pool.  Required for carbon interaction
     //(For those curious, the only thing that happens
     //if you don't do this is a bunch of error

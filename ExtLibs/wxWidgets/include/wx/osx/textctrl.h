@@ -4,7 +4,6 @@
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     1998-01-01
-// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -74,10 +73,6 @@ public:
     // sets/clears the dirty flag
     virtual void MarkDirty();
     virtual void DiscardEdits();
-
-    // set the max number of characters which may be entered
-    // in a single line text control
-    virtual void SetMaxLength(unsigned long len);
 
     // set the grayed out hint text
     virtual bool SetHint(const wxString& hint);

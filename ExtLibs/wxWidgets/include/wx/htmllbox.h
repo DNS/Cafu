@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     31.05.03
-// RCS-ID:      $Id$
 // Copyright:   (c) 2003 Vadim Zeitlin <vadim@wxwidgets.org>
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -196,8 +195,8 @@ private:
 #define wxHLB_DEFAULT_STYLE     wxBORDER_SUNKEN
 #define wxHLB_MULTIPLE          wxLB_MULTIPLE
 
-class WXDLLIMPEXP_HTML wxSimpleHtmlListBox : public wxHtmlListBox,
-                                             public wxItemContainer
+class WXDLLIMPEXP_HTML wxSimpleHtmlListBox :
+    public wxWindowWithItems<wxHtmlListBox, wxItemContainer>
 {
     DECLARE_ABSTRACT_CLASS(wxSimpleHtmlListBox)
 public:
@@ -253,9 +252,6 @@ public:
         { wxVListBox::SetSelection(n); }
     int GetSelection() const
         { return wxVListBox::GetSelection(); }
-
-    // see ctrlsub.h for more info about this:
-    wxCONTROL_ITEMCONTAINER_CLIENTDATAOBJECT_RECAST
 
 
     // accessing strings

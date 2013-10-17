@@ -4,7 +4,6 @@
 // Author:      David Webster
 // Modified by:
 // Created:     10/09/99
-// RCS-ID:      $Id$
 // Copyright:   (c) David Webster
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -22,7 +21,7 @@ class WXDLLIMPEXP_ADV wxJoystick: public wxObject
    * Public interface
    */
 
-  wxJoystick(int joystick = wxJOYSTICK1) { m_joystick = joystick; };
+  wxJoystick(int joystick = wxJOYSTICK1) { m_joystick = joystick; }
 
   // Attributes
   ////////////////////////////////////////////////////////////////////////////

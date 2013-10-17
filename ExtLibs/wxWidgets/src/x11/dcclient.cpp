@@ -4,7 +4,6 @@
 // Author:      Julian Smart, Robert Roebling
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart, Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -621,7 +620,7 @@ void wxWindowDCImpl::DoDrawPoint( wxCoord x, wxCoord y )
     CalcBoundingBox (x, y);
 }
 
-void wxWindowDCImpl::DoDrawLines( int n, wxPoint points[], wxCoord xoffset, wxCoord yoffset )
+void wxWindowDCImpl::DoDrawLines( int n, const wxPoint points[], wxCoord xoffset, wxCoord yoffset )
 {
     wxCHECK_RET( IsOk(), wxT("invalid window dc") );
 
@@ -641,7 +640,7 @@ void wxWindowDCImpl::DoDrawLines( int n, wxPoint points[], wxCoord xoffset, wxCo
     delete[] xpoints;
 }
 
-void wxWindowDCImpl::DoDrawPolygon( int n, wxPoint points[],
+void wxWindowDCImpl::DoDrawPolygon( int n, const wxPoint points[],
                                 wxCoord xoffset, wxCoord yoffset,
                                 wxPolygonFillMode WXUNUSED(fillStyle) )
 {
@@ -2322,7 +2321,7 @@ void wxWindowDCImpl::ComputeScaleAndOrigin()
 
     wxDCImpl::ComputeScaleAndOrigin();
 
-    /* CMB: if scale has changed call SetPen to recalulate the line width */
+    /* CMB: if scale has changed call SetPen to recalculate the line width */
     if ((m_scaleX != origScaleX || m_scaleY != origScaleY) &&
         (m_pen.IsOk()))
     {

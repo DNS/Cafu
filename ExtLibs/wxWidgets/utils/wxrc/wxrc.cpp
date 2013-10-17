@@ -3,7 +3,6 @@
 // Purpose:     XML resource compiler
 // Author:      Vaclav Slavik, Eduardo Marques <edrdo@netcabo.pt>
 // Created:     2000/03/05
-// RCS-ID:      $Id$
 // Copyright:   (c) 2000 Vaclav Slavik
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -356,7 +355,8 @@ void XmlResApp::CompileRes()
 {
     wxArrayString files = PrepareTempFiles();
 
-    wxRemoveFile(parOutput);
+    if ( wxFileExists(parOutput) )
+        wxRemoveFile(parOutput);
 
     if (!retCode)
     {
@@ -896,7 +896,9 @@ static wxString ConvertText(const wxString& str)
     {
         if (*dt == wxT('_'))
         {
-            if ( *(++dt) == wxT('_') )
+            if ( *(dt+1) == 0 )
+                str2 << wxT('_');
+            else if ( *(++dt) == wxT('_') )
                 str2 << wxT('_');
             else
                 str2 << wxT('&') << *dt;
@@ -950,7 +952,14 @@ XmlResApp::FindStrings(const wxString& filename, wxXmlNode *node)
                 node/*not n!*/->GetName() == wxT("tooltip") ||
                 node/*not n!*/->GetName() == wxT("htmlcode") ||
                 node/*not n!*/->GetName() == wxT("title") ||
-                node/*not n!*/->GetName() == wxT("item")
+                node/*not n!*/->GetName() == wxT("item") ||
+                node/*not n!*/->GetName() == wxT("message") ||
+                node/*not n!*/->GetName() == wxT("note") ||
+                node/*not n!*/->GetName() == wxT("defaultdirectory") ||
+                node/*not n!*/->GetName() == wxT("defaultfilename") ||
+                node/*not n!*/->GetName() == wxT("defaultfolder") ||
+                node/*not n!*/->GetName() == wxT("filter") ||
+                node/*not n!*/->GetName() == wxT("caption")
             ))
             // ...and known to contain translatable string
         {

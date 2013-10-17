@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     10.09.00
-// RCS-ID:      $Id$
 // Copyright:   (c) Vadim Zeitlin
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -168,8 +167,6 @@ private:
     #include "wx/cocoa/radiobox.h"
 #elif defined(__WXPM__)
     #include "wx/os2/radiobox.h"
-#elif defined(__WXPALMOS__)
-    #include "wx/palmos/radiobox.h"
 #endif
 
 #endif // wxUSE_RADIOBOX

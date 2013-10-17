@@ -4,7 +4,6 @@
 // Author:      David Webster
 // Modified by:
 // Created:     10/12/99
-// RCS-ID:      $Id$
 // Copyright:   (c) David Webster
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -73,7 +72,6 @@ END_EVENT_TABLE()
 //
 void wxNotebook::Init()
 {
-    m_imageList  = NULL;
     m_nTabSize   = 0;
 } // end of wxNotebook::Init
 
@@ -209,7 +207,7 @@ int wxNotebook::SetSelection( size_t nPage )
 
     if (nPage != (size_t)m_selection)
     {
-        wxBookCtrlEvent             vEvent( wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGING
+        wxBookCtrlEvent             vEvent( wxEVT_NOTEBOOK_PAGE_CHANGING
                                            ,m_windowId
                                           );
 
@@ -222,7 +220,7 @@ int wxNotebook::SetSelection( size_t nPage )
             //
             // Program allows the page change
             //
-            vEvent.SetEventType(wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGED);
+            vEvent.SetEventType(wxEVT_NOTEBOOK_PAGE_CHANGED);
             HandleWindowEvent(vEvent);
 
             ::WinSendMsg( GetHWND()
@@ -325,7 +323,7 @@ bool wxNotebook::SetPageImage (
 , int                               nImage
 )
 {
-    wxBitmap                        vBitmap = (wxBitmap)m_imageList->GetBitmap(nImage);
+    wxBitmap                        vBitmap = (wxBitmap)GetImageList()->GetBitmap(nImage);
 
     return (bool)::WinSendMsg( GetHWND()
                               ,BKM_SETTABBITMAP

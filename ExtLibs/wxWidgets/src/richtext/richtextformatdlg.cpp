@@ -4,7 +4,6 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     2006-10-01
-// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -80,6 +79,8 @@
 
 bool wxRichTextFormattingDialog::sm_showToolTips = false;
 
+IMPLEMENT_CLASS(wxRichTextDialogPage, wxPanel)
+
 IMPLEMENT_CLASS(wxRichTextFormattingDialog, wxPropertySheetDialog)
 
 BEGIN_EVENT_TABLE(wxRichTextFormattingDialog, wxPropertySheetDialog)
@@ -94,15 +95,14 @@ wxRichTextFormattingDialogFactory* wxRichTextFormattingDialog::ms_FormattingDial
 
 void wxRichTextFormattingDialog::Init()
 {
-    m_imageList = NULL;
     m_styleDefinition = NULL;
     m_styleSheet = NULL;
     m_object = NULL;
+    m_options = 0;
 }
 
 wxRichTextFormattingDialog::~wxRichTextFormattingDialog()
 {
-    delete m_imageList;
     delete m_styleDefinition;
 }
 
@@ -110,6 +110,9 @@ bool wxRichTextFormattingDialog::Create(long flags, wxWindow* parent, const wxSt
         const wxPoint& pos, const wxSize& sz, long style)
 {
     SetExtraStyle(wxDIALOG_EX_CONTEXTHELP|wxWS_EX_VALIDATE_RECURSIVELY);
+#ifdef __WXMAC__
+    SetWindowVariant(wxWINDOW_VARIANT_SMALL);
+#endif
 
     int resizeBorder = wxRESIZE_BORDER;
 
@@ -143,13 +146,11 @@ bool wxRichTextFormattingDialog::ApplyStyle(wxRichTextCtrl* ctrl, const wxRichTe
 }
 
 // Apply attributes to the object being edited, if any
-bool wxRichTextFormattingDialog::ApplyStyle(wxRichTextCtrl* WXUNUSED(ctrl), int flags)
+bool wxRichTextFormattingDialog::ApplyStyle(wxRichTextCtrl* ctrl, int flags)
 {
     if (GetObject())
     {
-        wxRichTextParagraphLayoutBox* parentContainer = GetObject()->GetParentContainer();
-        if (parentContainer)
-            parentContainer->SetStyle(GetObject(), m_attributes, flags);
+        ctrl->SetStyle(GetObject(), m_attributes, flags);
         return true;
     }
     else
@@ -553,7 +554,7 @@ void wxRichTextFontPreviewCtrl::OnPaint(wxPaintEvent& WXUNUSED(event))
 wxRichTextFormattingDialog* wxRichTextFormattingDialog::GetDialog(wxWindow* win)
 {
     wxWindow* p = win->GetParent();
-    while (p && !p->IsKindOf(CLASSINFO(wxRichTextFormattingDialog)))
+    while (p && !wxDynamicCast(p, wxRichTextFormattingDialog))
         p = p->GetParent();
     wxRichTextFormattingDialog* dialog = wxDynamicCast(p, wxRichTextFormattingDialog);
     return dialog;
@@ -597,7 +598,8 @@ void wxRichTextFormattingDialog::SetDimensionValue(wxTextAttrDimension& dim, wxT
 
     if (!dim.IsValid())
     {
-        checkBox->SetValue(false);
+        if (checkBox)
+            checkBox->SetValue(false);
         valueCtrl->SetValue(wxT("0"));
         unitsCtrl->SetSelection(0);
 #if 0
@@ -607,7 +609,8 @@ void wxRichTextFormattingDialog::SetDimensionValue(wxTextAttrDimension& dim, wxT
     }
     else
     {
-        checkBox->SetValue(true);
+        if (checkBox)
+            checkBox->SetValue(true);
         if (dim.GetUnits() == wxTEXT_ATTR_UNITS_TENTHS_MM)
         {
             unitsIdx = 1;
@@ -631,7 +634,7 @@ void wxRichTextFormattingDialog::SetDimensionValue(wxTextAttrDimension& dim, wxT
 
 void wxRichTextFormattingDialog::GetDimensionValue(wxTextAttrDimension& dim, wxTextCtrl* valueCtrl, wxComboBox* unitsCtrl, wxCheckBox* checkBox)
 {
-    if (!checkBox->GetValue())
+    if (checkBox && !checkBox->GetValue())
     {
         dim.Reset();
     }
@@ -709,7 +712,7 @@ void wxRichTextColourSwatchCtrl::OnMouseEvent(wxMouseEvent& event)
     if (event.LeftDown())
     {
         wxWindow* parent = GetParent();
-        while (parent != NULL && !parent->IsKindOf(CLASSINFO(wxDialog)) && !parent->IsKindOf(CLASSINFO(wxFrame)))
+        while (parent != NULL && !wxDynamicCast(parent, wxDialog) && !wxDynamicCast(parent, wxFrame))
             parent = parent->GetParent();
 
         wxColourData data;
@@ -731,7 +734,7 @@ void wxRichTextColourSwatchCtrl::OnMouseEvent(wxMouseEvent& event)
 #endif // wxUSE_COLOURDLG
         Refresh();
 
-        wxCommandEvent event(wxEVT_COMMAND_BUTTON_CLICKED, GetId());
+        wxCommandEvent event(wxEVT_BUTTON, GetId());
         GetEventHandler()->ProcessEvent(event);
     }
 }

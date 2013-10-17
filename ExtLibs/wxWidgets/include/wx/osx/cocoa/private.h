@@ -6,7 +6,6 @@
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     1998-01-01
-// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -39,9 +38,12 @@ OSStatus WXDLLIMPEXP_CORE wxMacDrawCGImage(
                                CGContextRef    inContext,
                                const CGRect *  inBounds,
                                CGImageRef      inImage) ;
-WX_NSImage WXDLLIMPEXP_CORE wxOSXGetNSImageFromCGImage( CGImageRef image );
-CGImageRef WXDLLIMPEXP_CORE wxOSXCreateCGImageFromNSImage( WX_NSImage nsimage );
+WX_NSImage WXDLLIMPEXP_CORE wxOSXGetNSImageFromCGImage( CGImageRef image, double scale = 1.0 );
+CGImageRef WXDLLIMPEXP_CORE wxOSXCreateCGImageFromNSImage( WX_NSImage nsimage, double *scale = NULL );
+CGContextRef WXDLLIMPEXP_CORE wxOSXCreateBitmapContextFromNSImage( WX_NSImage nsimage);
+
 wxBitmap WXDLLIMPEXP_CORE wxOSXCreateSystemBitmap(const wxString& id, const wxString &client, const wxSize& size);
+WXWindow WXDLLIMPEXP_CORE wxOSXGetMainWindow();
 
 class WXDLLIMPEXP_FWD_CORE wxDialog;
 
@@ -88,6 +90,8 @@ public :
     virtual void        SetNeedsDisplay( const wxRect* where = NULL );
     virtual bool        GetNeedsDisplay() const;
 
+    virtual void        SetDrawingEnabled(bool enabled);
+
     virtual bool        CanFocus() const;
     // return true if successful
     virtual bool        SetFocus();
@@ -104,6 +108,8 @@ public :
     void                CaptureMouse();
     void                ReleaseMouse();
 
+    void                SetDropTarget(wxDropTarget* target);
+    
     wxInt32             GetValue() const;
     void                SetValue( wxInt32 v );
     wxBitmap            GetBitmap() const;
@@ -133,11 +139,17 @@ public :
 
     virtual void        SetupKeyEvent(wxKeyEvent &wxevent, NSEvent * nsEvent, NSString* charString = NULL);
     virtual void        SetupMouseEvent(wxMouseEvent &wxevent, NSEvent * nsEvent);
+    void                SetupCoordinates(wxCoord &x, wxCoord &y, NSEvent *nsEvent);
+    virtual bool        SetupCursor(NSEvent* event);
 
 
+#if !wxOSX_USE_NATIVE_FLIPPED
     void                SetFlipped(bool flipped);
     virtual bool        IsFlipped() const { return m_isFlipped; }
+#endif
 
+    virtual double      GetContentScaleFactor() const;
+    
     // cocoa thunk connected calls
 
     virtual unsigned int        draggingEntered(void* sender, WXWidget slf, void* _cmd);
@@ -145,14 +157,17 @@ public :
     virtual unsigned int        draggingUpdated(void* sender, WXWidget slf, void* _cmd);
     virtual bool                performDragOperation(void* sender, WXWidget slf, void* _cmd);
     virtual void                mouseEvent(WX_NSEvent event, WXWidget slf, void* _cmd);
+    virtual void                cursorUpdate(WX_NSEvent event, WXWidget slf, void* _cmd);
     virtual void                keyEvent(WX_NSEvent event, WXWidget slf, void* _cmd);
     virtual void                insertText(NSString* text, WXWidget slf, void* _cmd);
+    virtual void                doCommandBySelector(void* sel, WXWidget slf, void* _cmd);
     virtual bool                performKeyEquivalent(WX_NSEvent event, WXWidget slf, void* _cmd);
     virtual bool                acceptsFirstResponder(WXWidget slf, void* _cmd);
     virtual bool                becomeFirstResponder(WXWidget slf, void* _cmd);
     virtual bool                resignFirstResponder(WXWidget slf, void* _cmd);
-    virtual void                resetCursorRects(WXWidget slf, void* _cmd);
+#if !wxOSX_USE_NATIVE_FLIPPED
     virtual bool                isFlipped(WXWidget slf, void* _cmd);
+#endif
     virtual void                drawRect(void* rect, WXWidget slf, void* _cmd);
 
     virtual void                controlAction(WXWidget slf, void* _cmd, void* sender);
@@ -165,7 +180,9 @@ public :
 protected:
     WXWidget m_osxView;
     NSEvent* m_lastKeyDownEvent;
+#if !wxOSX_USE_NATIVE_FLIPPED
     bool m_isFlipped;
+#endif
     // if it the control has an editor, that editor will already send some
     // events, don't resend them
     bool m_hasEditor;
@@ -239,10 +256,14 @@ public :
     virtual void SetModified(bool modified);
     virtual bool IsModified() const;
 
+    virtual void SetRepresentedFilename(const wxString& filename);
+
     wxNonOwnedWindow*   GetWXPeer() { return m_wxPeer; }
     
     CGWindowLevel   GetWindowLevel() const { return m_macWindowLevel; }
     void            RestoreWindowLevel();
+    
+    static WX_NSResponder GetNextFirstResponder() ;
 protected :
     CGWindowLevel   m_macWindowLevel;
     WXWindow        m_macWindow;
@@ -250,7 +271,30 @@ protected :
     DECLARE_DYNAMIC_CLASS_NO_COPY(wxNonOwnedWindowCocoaImpl)
 };
 
+DECLARE_WXCOCOA_OBJC_CLASS( wxNSButton );
+
+class wxButtonCocoaImpl : public wxWidgetCocoaImpl, public wxButtonImpl
+{
+public:
+    wxButtonCocoaImpl(wxWindowMac *wxpeer, wxNSButton *v);
+    virtual void SetBitmap(const wxBitmap& bitmap);
+#if wxUSE_MARKUP
+    virtual void SetLabelMarkup(const wxString& markup);
+#endif // wxUSE_MARKUP
+    
+    void SetPressedBitmap( const wxBitmap& bitmap );
+    void GetLayoutInset(int &left , int &top , int &right, int &bottom) const;
+    void SetAcceleratorFromLabel(const wxString& label);
+
+    NSButton *GetNSButton() const;
+};
+
 #ifdef __OBJC__
+    typedef void (*wxOSX_TextEventHandlerPtr)(NSView* self, SEL _cmd, NSString *event);
+    typedef void (*wxOSX_EventHandlerPtr)(NSView* self, SEL _cmd, NSEvent *event);
+    typedef BOOL (*wxOSX_PerformKeyEventHandlerPtr)(NSView* self, SEL _cmd, NSEvent *event);
+    typedef BOOL (*wxOSX_FocusHandlerPtr)(NSView* self, SEL _cmd);
+
 
     WXDLLIMPEXP_CORE NSScreen* wxOSXGetMenuScreen();
     WXDLLIMPEXP_CORE NSRect wxToNSRect( NSView* parent, const wxRect& r );
@@ -260,6 +304,8 @@ protected :
 
     NSRect WXDLLIMPEXP_CORE wxOSXGetFrameForControl( wxWindowMac* window , const wxPoint& pos , const wxSize &size ,
         bool adjustForOrigin = true );
+
+    WXDLLIMPEXP_CORE NSView* wxOSXGetViewFromResponder( NSResponder* responder );
 
     // used for many wxControls
 
@@ -308,6 +354,18 @@ protected :
 
     @end
 
+    @interface wxNSComboBox : NSComboBox
+    {
+        wxNSTextFieldEditor* fieldEditor;
+    }
+
+    - (wxNSTextFieldEditor*) fieldEditor;
+    - (void) setFieldEditor:(wxNSTextFieldEditor*) fieldEditor;
+
+    @end
+
+
+
     @interface wxNSMenu : NSMenu
     {
        wxMenuImpl* impl;
@@ -352,7 +410,22 @@ protected :
     - (void)sheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
     @end
 
-    WXEXPORT @interface wxNSAppController : NSObject wxOSX_10_6_AND_LATER(<NSApplicationDelegate>)
+    // This interface must be exported in shared 64 bit multilib build but
+    // using WXEXPORT with Objective C interfaces doesn't work with old (4.0.1)
+    // gcc when using 10.4 SDK. It does work with newer gcc even in 32 bit
+    // builds but seems to be unnecessary there so to avoid the expense of a
+    // configure check verifying if this does work or not with the current
+    // compiler we just only use it for 64 bit builds where this is always
+    // supported.
+    //
+    // NB: Currently this is the only place where we need to export an
+    //     interface but if we need to do it elsewhere we should define a
+    //     WXEXPORT_OBJC macro once and reuse it in all places it's needed
+    //     instead of duplicating this preprocessor check.
+#ifdef __LP64__
+    WXEXPORT
+#endif // 64 bit builds
+    @interface wxNSAppController : NSObject wxOSX_10_6_AND_LATER(<NSApplicationDelegate>)
     {
     }
 
@@ -396,6 +469,8 @@ const short kwxCursorLast = kwxCursorWatch;
 // exposing our fallback cursor map
 
 extern ClassicCursor gMacCursors[];
+
+extern NSLayoutManager* gNSLayoutManager;
 
 #endif
 

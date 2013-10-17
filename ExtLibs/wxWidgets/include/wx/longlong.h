@@ -5,7 +5,6 @@
 // Author:      Jeffrey C. Ollie <jeff@ollie.clive.ia.us>, Vadim Zeitlin
 // Modified by:
 // Created:     10.02.99
-// RCS-ID:      $Id$
 // Copyright:   (c) 1998 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -1067,7 +1066,7 @@ inline wxULongLong operator+(unsigned long l, const wxULongLong& ull) { return u
 inline wxLongLong operator-(unsigned long l, const wxULongLong& ull)
 {
     wxULongLong ret = wxULongLong(l) - ull;
-    return wxLongLong((long)ret.GetHi(),ret.GetLo());
+    return wxLongLong((wxInt32)ret.GetHi(),ret.GetLo());
 }
 
 #if wxUSE_LONGLONG_NATIVE && wxUSE_STREAMS
@@ -1097,15 +1096,15 @@ WXDLLIMPEXP_BASE class wxTextInputStream &operator>>(class wxTextInputStream &st
 namespace std
 {
 
-template<> class numeric_limits<wxLongLong>
-    : public numeric_limits<wxLongLong_t>
-{
-};
-
-template<> class numeric_limits<wxULongLong>
-    : public numeric_limits<wxULongLong_t>
-{
-};
+#ifdef __clang__
+  // libstdc++ (used by Clang) uses struct for numeric_limits; unlike gcc, clang
+  // warns about this
+  template<> struct numeric_limits<wxLongLong>  : public numeric_limits<wxLongLong_t> {};
+  template<> struct numeric_limits<wxULongLong> : public numeric_limits<wxULongLong_t> {};
+#else
+  template<> class numeric_limits<wxLongLong>  : public numeric_limits<wxLongLong_t> {};
+  template<> class numeric_limits<wxULongLong> : public numeric_limits<wxULongLong_t> {};
+#endif
 
 } // namespace std
 

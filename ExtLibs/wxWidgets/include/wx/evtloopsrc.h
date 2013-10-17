@@ -3,13 +3,15 @@
 // Purpose:     declaration of wxEventLoopSource class
 // Author:      Vadim Zeitlin
 // Created:     2009-10-21
-// RCS-ID:      $Id$
 // Copyright:   (c) 2009 Vadim Zeitlin <vadim@wxwidgets.org>
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_EVTLOOPSRC_H_
 #define _WX_EVTLOOPSRC_H_
+
+// Include the header to get wxUSE_EVENTLOOP_SOURCE definition from it.
+#include "wx/evtloop.h"
 
 // ----------------------------------------------------------------------------
 // wxEventLoopSource: a source of events which may be added to wxEventLoop
@@ -49,7 +51,7 @@ enum
     wxEVENT_SOURCE_EXCEPTION = 0x04,
     wxEVENT_SOURCE_ALL = wxEVENT_SOURCE_INPUT |
                          wxEVENT_SOURCE_OUTPUT |
-                         wxEVENT_SOURCE_EXCEPTION,
+                         wxEVENT_SOURCE_EXCEPTION
 };
 
 // wxEventLoopSource itself is an ABC and can't be created directly, currently
@@ -89,9 +91,11 @@ inline wxEventLoopSource::~wxEventLoopSource() { }
 
 #if defined(__WXGTK20__)
     #include "wx/gtk/evtloopsrc.h"
-#elif defined(__WXOSX__)
+#endif
+
+#if defined(__DARWIN__)
     #include "wx/osx/evtloopsrc.h"
-#endif // platform
+#endif
 
 #endif // wxUSE_EVENTLOOP_SOURCE
 

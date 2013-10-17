@@ -5,7 +5,6 @@
 // Modified by:
 // Created:
 // Copyright:   (c) Karsten Ballueder
-// RCS-ID:      $Id$
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
@@ -33,20 +32,7 @@ class WXDLLIMPEXP_FWD_CORE wxImageList;
 class WXDLLIMPEXP_CORE wxTreeCtrlBase : public wxControl
 {
 public:
-    wxTreeCtrlBase()
-    {
-        m_imageListNormal =
-        m_imageListState = NULL;
-        m_ownsImageListNormal =
-        m_ownsImageListState = false;
-
-        // arbitrary default
-        m_spacing = 18;
-
-        // quick DoGetBestSize calculation
-        m_quickBestSize = true;
-    }
-
+    wxTreeCtrlBase();
     virtual ~wxTreeCtrlBase();
 
     // accessors
@@ -302,10 +288,10 @@ public:
         // delete this item and associated data if any
     virtual void Delete(const wxTreeItemId& item) = 0;
         // delete all children (but don't delete the item itself)
-        // NB: this won't send wxEVT_COMMAND_TREE_ITEM_DELETED events
+        // NB: this won't send wxEVT_TREE_ITEM_DELETED events
     virtual void DeleteChildren(const wxTreeItemId& item) = 0;
         // delete all items from the tree
-        // NB: this won't send wxEVT_COMMAND_TREE_ITEM_DELETED events
+        // NB: this won't send wxEVT_TREE_ITEM_DELETED events
     virtual void DeleteAllItems() = 0;
 
         // expand this item
@@ -361,6 +347,10 @@ public:
         // end editing and accept or discard the changes to item label
     virtual void EndEditLabel(const wxTreeItemId& item,
                               bool discardChanges = false) = 0;
+
+        // Enable or disable beep when incremental match doesn't find any item.
+        // Only implemented in the generic version currently.
+    virtual void EnableBellOnNoMatch(bool WXUNUSED(on) = true) { }
 
     // sorting
     // -------
@@ -452,6 +442,13 @@ protected:
     bool        m_quickBestSize;
 
 
+private:
+    // Intercept Escape and Return keys to ensure that our in-place edit
+    // control always gets them before they're used for dialog navigation or
+    // anything else.
+    void OnCharHook(wxKeyEvent& event);
+
+
     wxDECLARE_NO_COPY_CLASS(wxTreeCtrlBase);
 };
 
@@ -460,8 +457,6 @@ protected:
 // ----------------------------------------------------------------------------
 
 #if defined(__WXUNIVERSAL__)
-    #include "wx/generic/treectlg.h"
-#elif defined(__WXPALMOS__)
     #include "wx/generic/treectlg.h"
 #elif defined(__WXMSW__)
     #include "wx/msw/treectrl.h"

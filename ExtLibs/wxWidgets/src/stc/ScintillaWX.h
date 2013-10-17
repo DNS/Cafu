@@ -9,7 +9,6 @@
 // Author:      Robin Dunn
 //
 // Created:     13-Jan-2000
-// RCS-ID:      $Id$
 // Copyright:   (c) 2000 by Total Control Software
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -24,7 +23,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <vector>
+#include <map>
 
+// These are all Scintilla headers
 #include "Platform.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
@@ -33,9 +35,12 @@
 #include "ScintillaWidget.h"
 #ifdef SCI_LEXER
 #include "SciLexer.h"
-#include "PropSet.h"
+#include "PropSetSimple.h"
+#include "ILexer.h"
+#include "LexerModule.h"
+#include "LexAccessor.h"
 #include "Accessor.h"
-#include "KeyWords.h"
+#include "WordList.h"
 #endif
 #include "ContractionState.h"
 #include "SVector.h"
@@ -146,7 +151,9 @@ public:
     void DoLeftButtonUp(Point pt, unsigned int curTime, bool ctrl);
     void DoLeftButtonMove(Point pt);
     void DoMiddleButtonUp(Point pt);
-    void DoMouseWheel(int rotation, int delta, int linesPerAction, int ctrlDown, bool isPageScroll);
+    void DoMouseWheel(wxMouseWheelAxis axis, int rotation, int delta,
+                      int linesPerAction, int columnsPerAction,
+                      bool ctrlDown, bool isPageScroll);
     void DoAddChar(int key);
     int  DoKeyDown(const wxKeyEvent& event, bool* consumed);
     void DoTick() { Tick(); }
@@ -166,6 +173,7 @@ public:
 
     // helpers
     void FullPaint();
+    void FullPaintDC(wxDC* dc);
     bool CanPaste();
     bool GetHideSelection() { return hideSelection; }
     void DoScrollToLine(int line);
@@ -184,7 +192,8 @@ private:
     wxDragResult        dragResult;
 #endif
 
-    int                 wheelRotation;
+    int                 wheelVRotation;
+    int                 wheelHRotation;
 
     // For use in creating a system caret
     bool HasCaretSizeChanged();

@@ -4,7 +4,6 @@
 // Author:      David Webster
 // Modified by:
 // Created:     10/17/99
-// RCS-ID:      $Id$
 // Copyright:   (c) David Webster
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -1044,7 +1043,7 @@ void wxTextCtrl::OnChar(
         case WXK_RETURN:
             if ( !(m_windowStyle & wxTE_MULTILINE) )
             {
-                wxCommandEvent      vEvent(wxEVT_COMMAND_TEXT_ENTER, m_windowId);
+                wxCommandEvent      vEvent(wxEVT_TEXT_ENTER, m_windowId);
 
                 vEvent.SetEventObject(this);
                 if ( HandleWindowEvent(vEvent))
@@ -1105,7 +1104,7 @@ bool wxTextCtrl::OS2Command(
                     break;
                 }
 
-                wxCommandEvent      vEvent( wxEVT_COMMAND_TEXT_UPDATED
+                wxCommandEvent      vEvent( wxEVT_TEXT
                                            ,m_windowId
                                           );
 

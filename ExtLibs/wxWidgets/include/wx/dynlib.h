@@ -4,7 +4,6 @@
 // Author:      Guilhem Lavaux, Vadim Zeitlin, Vaclav Slavik
 // Modified by:
 // Created:     20/07/98
-// RCS-ID:      $Id$
 // Copyright:   (c) 1998 Guilhem Lavaux
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -123,14 +122,14 @@ enum wxPluginCategory
 #define wxDL_INIT_FUNC(pfx, name, dynlib) \
     pfx ## name = (name ## _t)(dynlib).RawGetSymbol(#name)
 
-#ifdef __WXMSW__
+#ifdef __WINDOWS__
 
 // same as wxDL_INIT_FUNC() but appends 'A' or 'W' to the function name, see
 // wxDynamicLibrary::GetSymbolAorW()
 #define wxDL_INIT_FUNC_AW(pfx, name, dynlib) \
     pfx ## name = (name ## _t)(dynlib).GetSymbolAorW(#name)
 
-#endif // __WXMSW__
+#endif // __WINDOWS__
 
 // the following macros can be used to redirect a whole library to a class and
 // check at run-time if the library is present and contains all required
@@ -232,7 +231,7 @@ public:
     static wxDllType         GetProgramHandle();
 
     // return the platform standard DLL extension (with leading dot)
-    static const wxString& GetDllExt() { return ms_dllext; }
+    static wxString GetDllExt(wxDynamicLibraryCategory cat = wxDL_LIBRARY);
 
     wxDynamicLibrary() : m_handle(0) { }
     wxDynamicLibrary(const wxString& libname, int flags = wxDL_DEFAULT)
@@ -304,7 +303,7 @@ public:
 #endif
     }
 
-#ifdef __WXMSW__
+#ifdef __WINDOWS__
     // this function is useful for loading functions from the standard Windows
     // DLLs: such functions have an 'A' (in ANSI build) or 'W' (in Unicode, or
     // wide character build) suffix if they take string parameters
@@ -326,7 +325,7 @@ public:
     {
         return RawGetSymbolAorW(m_handle, name);
     }
-#endif // __WXMSW__
+#endif // __WINDOWS__
 
     // return all modules/shared libraries in the address space of this process
     //
@@ -349,7 +348,7 @@ public:
     static wxString GetPluginsDirectory();
 
 
-#ifdef __WXMSW__
+#ifdef __WINDOWS__
     // return the handle (HMODULE/HINSTANCE) of the DLL with the given name
     // and/or containing the specified address: for XP and later systems only
     // the address is used and the name is ignored but for the previous systems
@@ -359,8 +358,8 @@ public:
     // the returned handle reference count is not incremented so it doesn't
     // need to be freed using FreeLibrary() but it also means that it can
     // become invalid if the DLL is unloaded
-    static WXHMODULE MSWGetModuleHandle(const char *name, void *addr);
-#endif // __WXMSW__
+    static WXHMODULE MSWGetModuleHandle(const wxString& name, void *addr);
+#endif // __WINDOWS__
 
 protected:
     // common part of GetSymbol() and HasSymbol()
@@ -372,9 +371,6 @@ protected:
 #endif // wxHAVE_DYNLIB_ERROR
 
 
-    // platform specific shared lib suffix.
-    static const wxString ms_dllext;
-
     // the handle to DLL or NULL
     wxDllType m_handle;
 
@@ -383,7 +379,7 @@ protected:
     wxDECLARE_NO_COPY_CLASS(wxDynamicLibrary);
 };
 
-#ifdef __WXMSW__
+#ifdef __WINDOWS__
 
 // ----------------------------------------------------------------------------
 // wxLoadedDLL is a MSW-only internal helper class allowing to dynamically bind
@@ -404,7 +400,7 @@ public:
     }
 };
 
-#endif // __WXMSW__
+#endif // __WINDOWS__
 
 // ----------------------------------------------------------------------------
 // Interesting defines

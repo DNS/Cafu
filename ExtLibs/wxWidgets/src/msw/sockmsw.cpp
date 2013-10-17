@@ -6,7 +6,6 @@
 // Copyright:  (C) 1999-1997, Guilhem Lavaux
 //             (C) 1999-2000, Guillermo Rodriguez Garcia
 //             (C) 2008 Vadim Zeitlin
-// RCS_ID:     $Id$
 // Licence:    wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
@@ -59,11 +58,9 @@ WX_DECLARE_HASH_MAP(int,bool,wxIntegerHash,wxIntegerEqual,SocketHash);
 #  pragma warning(default:4115) /* named type definition in parentheses */
 #endif
 
-#define CLASSNAME  TEXT("_wxSocket_Internal_Window_Class")
+#include "wx/msw/private/hiddenwin.h"
 
-/* implemented in utils.cpp */
-extern "C" WXDLLIMPEXP_BASE HWND
-wxCreateHiddenWindow(LPCTSTR *pclassname, LPCTSTR classname, WNDPROC wndproc);
+#define CLASSNAME  TEXT("_wxSocket_Internal_Window_Class")
 
 /* Maximum number of different wxSocket objects at a given time.
  * This value can be modified at will, but it CANNOT be greater
@@ -122,7 +119,7 @@ typedef struct thread_data{
 #ifdef __WXWINCE__
 /* This thread handles socket events on WinCE using WSAEventSelect() as
  * WSAAsyncSelect is not supported. When an event occurs for the socket, it is
- * checked what kind of event happend and the correct message gets posted so
+ * checked what kind of event happened and the correct message gets posted so
  * that the hidden window can handle it as it would in other MSW builds.
 */
 DWORD WINAPI SocketThread(LPVOID data)

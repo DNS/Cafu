@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     2005-01-08 (extracted from crashrpt.cpp)
-// RCS-ID:      $Id$
 // Copyright:   (c) 2003-2005 Vadim Zeitlin <vadim@wxwindows.org>
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -50,7 +49,8 @@ static wxString gs_errMsg;
 // static members
 // ----------------------------------------------------------------------------
 
-#define DEFINE_SYM_FUNCTION(func) wxDbgHelpDLL::func ## _t wxDbgHelpDLL::func = 0
+#define DEFINE_SYM_FUNCTION(func, name) \
+    wxDbgHelpDLL::func ## _t wxDbgHelpDLL::func = 0
 
 wxDO_FOR_ALL_SYM_FUNCS(DEFINE_SYM_FUNCTION);
 
@@ -64,12 +64,12 @@ wxDO_FOR_ALL_SYM_FUNCS(DEFINE_SYM_FUNCTION);
 
 static bool BindDbgHelpFunctions(const wxDynamicLibrary& dllDbgHelp)
 {
-    #define LOAD_SYM_FUNCTION(name)                                           \
-        wxDbgHelpDLL::name = (wxDbgHelpDLL::name ## _t)                       \
-                                dllDbgHelp.GetSymbol(wxT(#name));              \
-        if ( !wxDbgHelpDLL::name )                                            \
+    #define LOAD_SYM_FUNCTION(func, name)                                     \
+        wxDbgHelpDLL::func = (wxDbgHelpDLL::func ## _t)                       \
+            dllDbgHelp.GetSymbol(wxT(#name));                                 \
+        if ( !wxDbgHelpDLL::func )                                            \
         {                                                                     \
-            gs_errMsg += wxT("Function ") wxT(#name) wxT("() not found.\n");     \
+            gs_errMsg += wxT("Function ") wxT(#name) wxT("() not found.\n");  \
             return false;                                                     \
         }
 
@@ -145,7 +145,7 @@ const wxString& wxDbgHelpDLL::GetErrorMessage()
 void wxDbgHelpDLL::LogError(const wxChar *func)
 {
     ::OutputDebugString(wxString::Format(wxT("dbghelp: %s() failed: %s\r\n"),
-                        func, wxSysErrorMsg(::GetLastError())).wx_str());
+                        func, wxSysErrorMsg(::GetLastError())).t_str());
 }
 
 // ----------------------------------------------------------------------------
@@ -281,7 +281,7 @@ wxDbgHelpDLL::DumpBaseType(BasicType bt, DWORD64 length, PVOID pAddress)
         }
         else // opaque 64 bit value
         {
-            s.Printf("%#" wxLongLongFmtSpec "x", *(PDWORD *)pAddress);
+            s.Printf("%#" wxLongLongFmtSpec "x", *(wxLongLong_t *)pAddress);
         }
     }
 

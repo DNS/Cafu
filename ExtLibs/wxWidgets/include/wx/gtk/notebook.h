@@ -3,7 +3,6 @@
 // Purpose:     wxNotebook class
 // Author:      Robert Roebling
 // Modified by:
-// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart and Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -68,13 +67,13 @@ public:
   bool SetPageImage(size_t nPage, int nImage);
 
   // control the appearance of the notebook pages
-    // set the size (the same for all pages)
-  void SetPageSize(const wxSize& size);
     // set the padding between tabs (in pixels)
   void SetPadding(const wxSize& padding);
     // sets the size of the tabs (assumes all tabs are the same size)
   void SetTabSize(const wxSize& sz);
 
+  // geometry
+  virtual wxSize CalcSizeFromPage(const wxSize& sizePage) const;
   virtual int HitTest(const wxPoint& pt, long *flags = NULL) const;
 
   // operations
@@ -89,7 +88,7 @@ public:
                      wxNotebookPage *win,
                      const wxString& strText,
                      bool bSelect = false,
-                     int imageId = -1 );
+                     int imageId = NO_IMAGE );
 
     // handler for tab navigation
     // --------------------------
@@ -106,9 +105,6 @@ public:
     void SetConstraintSizes(bool recurse);
     bool DoPhase(int phase);
 #endif
-
-    // common part of all ctors
-    void Init();
 
     // Called by GTK event handler when the current page is definitely changed.
     void GTKOnPageChanged();
@@ -138,6 +134,7 @@ private:
     // the padding set by SetPadding()
     int m_padding;
 
+    void Init();
     virtual void AddChildGTK(wxWindowGTK* child);
 
     DECLARE_DYNAMIC_CLASS(wxNotebook)

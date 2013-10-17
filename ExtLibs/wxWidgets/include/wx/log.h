@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     29/01/98
-// RCS-ID:      $Id$
 // Copyright:   (c) 1998 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -13,6 +12,7 @@
 #define _WX_LOG_H_
 
 #include "wx/defs.h"
+#include "wx/cpp.h"
 
 // ----------------------------------------------------------------------------
 // types
@@ -29,7 +29,7 @@ typedef unsigned long wxLogLevel;
     #define wxTraceResAlloc 0x0004  // trace GDI resource allocation
     #define wxTraceRefCount 0x0008  // trace various ref counting operations
 
-    #ifdef  __WXMSW__
+    #ifdef  __WINDOWS__
         #define wxTraceOleCalls 0x0100  // OLE interface calls
     #endif
 
@@ -57,11 +57,9 @@ class WXDLLIMPEXP_FWD_BASE wxObject;
 
 #include "wx/arrstr.h"
 
-#ifndef __WXPALMOS5__
 #ifndef __WXWINCE__
     #include <time.h>   // for time_t
 #endif
-#endif // ! __WXPALMOS5__
 
 #include "wx/dynarray.h"
 #include "wx/hashmap.h"
@@ -130,7 +128,7 @@ enum wxLogLevelValues
 #define wxTRACE_ResAlloc wxT("resalloc") // trace GDI resource allocation
 #define wxTRACE_RefCount wxT("refcount") // trace various ref counting operations
 
-#ifdef  __WXMSW__
+#ifdef  __WINDOWS__
     #define wxTRACE_OleCalls wxT("ole")  // OLE interface calls
 #endif
 
@@ -310,6 +308,34 @@ struct wxLogRecord
 };
 
 // ----------------------------------------------------------------------------
+// Derive from this class to customize format of log messages.
+// ----------------------------------------------------------------------------
+
+class WXDLLIMPEXP_BASE wxLogFormatter
+{
+public:
+    // Default constructor.
+    wxLogFormatter() { }
+
+    // Trivial but virtual destructor for the base class.
+    virtual ~wxLogFormatter() { }
+
+
+    // Override this method to implement custom formatting of the given log
+    // record. The default implementation simply prepends a level-dependent
+    // prefix to the message and optionally adds a time stamp.
+    virtual wxString Format(wxLogLevel level,
+                            const wxString& msg,
+                            const wxLogRecordInfo& info) const;
+
+protected:
+    // Override this method to change just the time stamp formatting. It is
+    // called by default Format() implementation.
+    virtual wxString FormatTime(time_t t) const;
+};
+
+
+// ----------------------------------------------------------------------------
 // derive from this class to redirect (or suppress, or ...) log messages
 // normally, only a single instance of this class exists but it's not enforced
 // ----------------------------------------------------------------------------
@@ -318,7 +344,7 @@ class WXDLLIMPEXP_BASE wxLog
 {
 public:
     // ctor
-    wxLog() { }
+    wxLog() : m_formatter(new wxLogFormatter) { }
 
     // make dtor virtual for all derived classes
     virtual ~wxLog();
@@ -455,6 +481,26 @@ public:
     // call AddTraceMask() concurrently
     static const wxArrayString& GetTraceMasks();
 
+    // is this trace mask in the list?
+    static bool IsAllowedTraceMask(const wxString& mask);
+
+
+    // log formatting
+    // -----------------
+
+    // Change wxLogFormatter object used by wxLog to format the log messages.
+    //
+    // wxLog takes ownership of the pointer passed in but the caller is
+    // responsible for deleting the returned pointer.
+    wxLogFormatter* SetFormatter(wxLogFormatter* formatter);
+
+
+    // All the time stamp related functions below only work when the default
+    // wxLogFormatter is being used. Defining a custom formatter overrides them
+    // as it could use its own time stamp format or format messages without
+    // using time stamp at all.
+
+
     // sets the time stamp string format: this is used as strftime() format
     // string for the log targets which add time stamps to the messages; set
     // it to empty string to disable time stamping completely.
@@ -464,9 +510,6 @@ public:
     static void DisableTimestamp() { SetTimestamp(wxEmptyString); }
 
 
-    // is this trace mask in the list?
-    static bool IsAllowedTraceMask(const wxString& mask);
-
     // get the current timestamp format string (maybe empty)
     static const wxString& GetTimestamp() { return ms_timestamp; }
 
@@ -475,9 +518,10 @@ public:
     // helpers: all functions in this section are mostly for internal use only,
     // don't call them from your code even if they are not formally deprecated
 
-    // put the time stamp into the string if ms_timestamp != NULL (don't
-    // change it otherwise)
+    // put the time stamp into the string if ms_timestamp is not empty (don't
+    // change it otherwise); the first overload uses the current time.
     static void TimeStamp(wxString *str);
+    static void TimeStamp(wxString *str, time_t t);
 
     // these methods should only be called from derived classes DoLogRecord(),
     // DoLogTextAtLevel() and DoLogText() implementations respectively and
@@ -619,6 +663,12 @@ private:
     void CallDoLogNow(wxLogLevel level,
                       const wxString& msg,
                       const wxLogRecordInfo& info);
+
+
+    // variables
+    // ----------------
+
+    wxLogFormatter    *m_formatter; // We own this pointer.
 
 
     // static variables
@@ -1280,28 +1330,42 @@ WXDLLIMPEXP_BASE const wxChar* wxSysErrorMsg(unsigned long nErrCode = 0);
 // following arguments are not even evaluated which is good as it avoids
 // unnecessary overhead)
 //
-// Note: the strange if/else construct is needed to make the following code
+// Note: the strange (because executing at most once) for() loop because we
+//       must arrange for wxDO_LOG() to be at the end of the macro and using a
+//       more natural "if (IsLevelEnabled()) wxDO_LOG()" would result in wrong
+//       behaviour for the following code ("else" would bind to the wrong "if"):
 //
 //          if ( cond )
 //              wxLogError("!!!");
 //          else
 //              ...
 //
-//       work as expected, without it the second "else" would match the "if"
-//       inside wxLogError(). Unfortunately code like
+//       See also #11829 for the problems with other simpler approaches,
+//       notably the need for two macros due to buggy __LINE__ in MSVC.
 //
-//          if ( cond )
-//              wxLogError("!!!");
-//
-//       now provokes "suggest explicit braces to avoid ambiguous 'else'"
-//       warnings from g++ 4.3 and later with -Wparentheses on but they can be
-//       easily fixed by adding curly braces around wxLogError() and at least
-//       the code still does do the right thing.
+// Note 2: Unfortunately we can't use the same solution for all compilers
+//         because the loop-based one results in problems with MSVC6 due to its
+//         wrong (pre-C++98) rules for the scope of the variables declared
+//         inside the loop, as this prevents us from using wxLogXXX() in switch
+//         statement clauses ("initialization of loopvar skipped by case"). So
+//         for now, i.e. while we still support VC6, use the previous solution
+//         for it (FIXME-VC6).
+#ifdef __VISUALC6__
 #define wxDO_LOG_IF_ENABLED(level)                                            \
     if ( !wxLog::IsLevelEnabled(wxLOG_##level, wxLOG_COMPONENT) )             \
     {}                                                                        \
     else                                                                      \
         wxDO_LOG(level)
+#else
+#define wxDO_LOG_IF_ENABLED_HELPER(level, loopvar)                            \
+    for ( bool loopvar = false;                                               \
+          !loopvar && wxLog::IsLevelEnabled(wxLOG_##level, wxLOG_COMPONENT);  \
+          loopvar = true )                                                    \
+        wxDO_LOG(level)
+
+#define wxDO_LOG_IF_ENABLED(level)                                            \
+    wxDO_LOG_IF_ENABLED_HELPER(level, wxMAKE_UNIQUE_NAME(wxlogcheck))
+#endif
 
 // wxLogFatalError() is special as it can't be disabled
 #define wxLogFatalError wxDO_LOG(FatalError)
@@ -1387,7 +1451,7 @@ WXDLLIMPEXP_BASE const wxChar* wxSysErrorMsg(unsigned long nErrCode = 0);
         else                                                                  \
             wxMAKE_LOGGER(Status).MaybeStore(wxLOG_KEY_FRAME).Log
 
-    #define wxVLogStatus(format, argptr) \
+    #define wxVLogStatus \
         wxMAKE_LOGGER(Status).MaybeStore(wxLOG_KEY_FRAME).LogV
 #endif // wxUSE_GUI
 

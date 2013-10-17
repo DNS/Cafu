@@ -4,7 +4,6 @@
 // Author:      David Webster
 // Modified by:
 // Created:     10/15/99
-// RCS-ID:      $Id$
 // Copyright:   (c) David Webster
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -85,12 +84,10 @@ bool wxSpinButton::Create(
     if (nY < 0 )
         nY = 0;
 
-    long                            lSstyle = 0L;
-
-    lSstyle = WS_VISIBLE      |
-              WS_TABSTOP      |
-              SPBS_MASTER     | // We use only single field spin buttons
-              SPBS_NUMERICONLY; // We default to numeric data
+    long lSstyle = WS_VISIBLE      |
+                   WS_TABSTOP      |
+                   SPBS_MASTER     | // We use only single field spin buttons
+                   SPBS_NUMERICONLY; // We default to numeric data
 
     if (m_windowStyle & wxCLIP_SIBLINGS )
         lSstyle |= WS_CLIPSIBLINGS;

@@ -3,7 +3,6 @@
 // Purpose:     wxAnyButton
 // Author:      Julian Smart
 // Created:     1998-01-04 (extracted from button.cpp)
-// RCS-ID:      $Id: anybutton.cpp 67384 2011-04-03 20:31:32Z DS $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -150,8 +149,9 @@ public:
     wxODButtonImageData(wxAnyButton *btn, const wxBitmap& bitmap)
     {
         SetBitmap(bitmap, wxAnyButton::State_Normal);
+#if wxUSE_IMAGE
         SetBitmap(bitmap.ConvertToDisabled(), wxAnyButton::State_Disabled);
-
+#endif
         m_dir = wxLEFT;
 
         // we use margins when we have both bitmap and text, but when we have
@@ -216,15 +216,33 @@ public:
     // the image list
     wxXPButtonImageData(wxAnyButton *btn, const wxBitmap& bitmap)
         : m_iml(bitmap.GetWidth(), bitmap.GetHeight(), true /* use mask */,
-                wxAnyButton::State_Max),
+                wxAnyButton::State_Max + 1 /* see "pulse" comment below */),
           m_hwndBtn(GetHwndOf(btn))
     {
         // initialize all bitmaps except for the disabled one to normal state
         for ( int n = 0; n < wxAnyButton::State_Max; n++ )
         {
+#if wxUSE_IMAGE
             m_iml.Add(n == wxAnyButton::State_Disabled ? bitmap.ConvertToDisabled()
                                                     : bitmap);
+#else
+            m_iml.Add(bitmap);
+#endif
         }
+
+        // In addition to the states supported by wxWidgets such as normal,
+        // hot, pressed, disabled and focused, we need to add bitmap for
+        // another state when running under Windows 7 -- the so called "stylus
+        // hot" state corresponding to PBS_STYLUSHOT constant. While it's
+        // documented in MSDN as being only used with tablets, it is a lie as
+        // a focused button actually alternates between the image list elements
+        // with PBS_DEFAULTED and PBS_STYLUSHOT indices and, in particular,
+        // just disappears during half of the time if the latter is not set so
+        // we absolutely must set it.
+        //
+        // This also explains why we need to allocate an extra slot in the
+        // image list ctor above, the slot State_Max is used for this one.
+        m_iml.Add(bitmap);
 
         m_data.himl = GetHimagelistOf(&m_iml);
 
@@ -248,6 +266,11 @@ public:
     virtual void SetBitmap(const wxBitmap& bitmap, wxAnyButton::State which)
     {
         m_iml.Replace(which, bitmap);
+
+        // As we want the focused button to always show its bitmap, we need to
+        // update the "stylus hot" one to match it to avoid any pulsing.
+        if ( which == wxAnyButton::State_Focused )
+            m_iml.Replace(wxAnyButton::State_Max, bitmap);
 
         UpdateImageInfo();
     }
@@ -387,11 +410,21 @@ wxSize wxMSWButton::GetFittingSize(wxWindow *win,
                                    const wxSize& sizeLabel,
                                    int flags)
 {
-    // FIXME: this is pure guesswork, need to retrieve the real button margins
     wxSize sizeBtn = sizeLabel;
 
-    sizeBtn.x += 3*win->GetCharWidth();
-    sizeBtn.y += win->GetCharHeight()/2;
+    // FIXME: The numbers here are pure guesswork, no idea how should the
+    //        button margins be really calculated.
+    if ( flags & Size_ExactFit )
+    {
+        // We still need some margin or the text would be overwritten, just
+        // make it as small as possible.
+        sizeBtn.x += (3*win->GetCharWidth());
+    }
+    else
+    {
+        sizeBtn.x += 3*win->GetCharWidth();
+        sizeBtn.y += win->GetCharHeight()/2;
+    }
 
     // account for the shield UAC icon if we have it
     if ( flags & Size_AuthNeeded )
@@ -414,27 +447,31 @@ wxSize wxMSWButton::IncreaseToStdSizeAndCache(wxControl *btn, const wxSize& size
 {
     wxSize sizeBtn(size);
 
-    // All buttons have at least the standard height and, unless the user
-    // explicitly wants them to be as small as possible and used wxBU_EXACTFIT
-    // style to indicate this, of at least the standard width too.
-    //
-    // Notice that we really want to make all buttons equally high, otherwise
-    // they look ugly and the existing code using wxBU_EXACTFIT only uses it to
-    // control width and not height.
-
     // The 50x14 button size is documented in the "Recommended sizing and
     // spacing" section of MSDN layout article.
     //
     // Note that we intentionally don't use GetDefaultSize() here, because
     // it's inexact -- dialog units depend on this dialog's font.
     const wxSize sizeDef = btn->ConvertDialogToPixels(wxSize(50, 14));
-    if ( !btn->HasFlag(wxBU_EXACTFIT) )
+
+    // All buttons should have at least the standard size, unless the user
+    // explicitly wants them to be as small as possible and used wxBU_EXACTFIT
+    // style to indicate this.
+    const bool incToStdSize = !btn->HasFlag(wxBU_EXACTFIT);
+    if ( incToStdSize )
     {
         if ( sizeBtn.x < sizeDef.x )
             sizeBtn.x = sizeDef.x;
     }
-    if ( sizeBtn.y < sizeDef.y )
-        sizeBtn.y = sizeDef.y;
+
+    // Notice that we really want to make all buttons with text label equally
+    // high, otherwise they look ugly and the existing code using wxBU_EXACTFIT
+    // only uses it to control width and not height.
+    if ( incToStdSize || !btn->GetLabel().empty() )
+    {
+        if ( sizeBtn.y < sizeDef.y )
+            sizeBtn.y = sizeDef.y;
+    }
 
     btn->CacheBestSize(sizeBtn);
 
@@ -555,6 +592,8 @@ wxSize wxAnyButton::DoGetBestSize() const
     if ( ShowsLabel() )
     {
         int flags = 0;
+        if ( HasFlag(wxBU_EXACTFIT) )
+            flags |= wxMSWButton::Size_ExactFit;
         if ( DoGetAuthNeeded() )
             flags |= wxMSWButton::Size_AuthNeeded;
 
@@ -644,7 +683,7 @@ void wxAnyButton::DoSetBitmap(const wxBitmap& bitmap, State which)
     if ( m_imageData &&
           bitmap.GetSize() != m_imageData->GetBitmap(State_Normal).GetSize() )
     {
-        wxASSERT_MSG( which == State_Normal,
+        wxASSERT_MSG( (which == State_Normal) || bitmap.IsNull(),
                       "Must set normal bitmap with the new size first" );
 
 #if wxUSE_UXTHEME
@@ -801,18 +840,18 @@ void DrawButtonText(HDC hdc,
         // first we need to compute its bounding rect
         RECT rc;
         ::CopyRect(&rc, pRect);
-        ::DrawText(hdc, text.wx_str(), text.length(), &rc,
+        ::DrawText(hdc, text.t_str(), text.length(), &rc,
                    DT_CENTER | DT_CALCRECT);
 
         // now center this rect inside the entire button area
         const LONG w = rc.right - rc.left;
         const LONG h = rc.bottom - rc.top;
-        rc.left = (pRect->right - pRect->left)/2 - w/2;
+        rc.left = pRect->left + (pRect->right - pRect->left)/2 - w/2;
         rc.right = rc.left+w;
-        rc.top = (pRect->bottom - pRect->top)/2 - h/2;
+        rc.top = pRect->top + (pRect->bottom - pRect->top)/2 - h/2;
         rc.bottom = rc.top+h;
 
-        ::DrawText(hdc, text.wx_str(), text.length(), &rc, flags);
+        ::DrawText(hdc, text.t_str(), text.length(), &rc, flags);
     }
     else // single line label
     {
@@ -839,7 +878,7 @@ void DrawButtonText(HDC hdc,
 
         // notice that we must have DT_SINGLELINE for vertical alignment flags
         // to work
-        ::DrawText(hdc, text.wx_str(), text.length(), pRect,
+        ::DrawText(hdc, text.t_str(), text.length(), pRect,
                    flags | DT_SINGLELINE );
     }
 }

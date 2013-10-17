@@ -4,7 +4,6 @@
 // Author:      David Webster
 // Modified by:
 // Created:     10/15/99
-// RCS-ID:      $Id$
 // Copyright:   (c) David Webster
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -881,7 +880,6 @@ int wxSlider::GetValue() const
                                                                            )
                                                               );
     double                          dPixelToRange = (double)(nPixelRange - m_nThumbLength)/(double)(m_nRangeMax - m_nRangeMin);
-    int                             nNewPos = 0;
     int                             nPixelPos = SHORT1FROMMR(::WinSendMsg( GetHwnd()
                                                                           ,SLM_QUERYSLIDERINFO
                                                                           ,MPFROM2SHORT( SMA_SLIDERARMPOSITION
@@ -890,7 +888,7 @@ int wxSlider::GetValue() const
                                                                           ,(MPARAM)0
                                                                          )
                                                             );
-    nNewPos = (int)(nPixelPos/dPixelToRange);
+    int nNewPos = (int)(nPixelPos/dPixelToRange);
     if (nNewPos > (m_nRangeMax - m_nRangeMin)/2)
         nNewPos++;
     return nNewPos;
@@ -972,7 +970,7 @@ bool wxSlider::OS2OnScroll( int    WXUNUSED(nOrientation),
     vEvent.SetEventObject(this);
     HandleWindowEvent(vEvent);
 
-    wxCommandEvent vCevent( wxEVT_COMMAND_SLIDER_UPDATED, GetId() );
+    wxCommandEvent vCevent( wxEVT_SLIDER, GetId() );
 
     vCevent.SetInt(nNewPos);
     vCevent.SetEventObject(this);

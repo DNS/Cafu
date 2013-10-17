@@ -2,7 +2,6 @@
 // Name:        wx/gtk/dataview.h
 // Purpose:     wxDataViewCtrl GTK+2 implementation header
 // Author:      Robert Roebling
-// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -44,7 +43,6 @@ public:
 
     virtual void SetSortable( bool sortable );
     virtual void SetSortOrder( bool ascending );
-    virtual void SetAsSortKey(bool sort = true);
 
     virtual void SetResizeable( bool resizable );
     virtual void SetHidden( bool hidden );
@@ -142,7 +140,7 @@ public:
 
     virtual wxDataViewColumn *GetSortingColumn() const;
 
-    virtual wxDataViewItem GetSelection() const;
+    virtual int GetSelectedItemsCount() const;
     virtual int GetSelections( wxDataViewItemArray & sel ) const;
     virtual void SetSelections( const wxDataViewItemArray & sel );
     virtual void Select( const wxDataViewItem & item );
@@ -161,7 +159,7 @@ public:
 
     virtual bool SetRowHeight( int rowHeight );
 
-    virtual void StartEditor( const wxDataViewItem & item, unsigned int column );
+    virtual void EditItem(const wxDataViewItem& item, const wxDataViewColumn *column);
 
     virtual void Expand( const wxDataViewItem & item );
     virtual void Collapse( const wxDataViewItem & item );
@@ -169,6 +167,8 @@ public:
 
     virtual bool EnableDragSource( const wxDataFormat &format );
     virtual bool EnableDropTarget( const wxDataFormat &format );
+
+    virtual wxDataViewColumn *GetCurrentColumn() const;
 
     static wxVisualAttributes
     GetClassDefaultAttributes(wxWindowVariant variant = wxWINDOW_VARIANT_NORMAL);

@@ -4,7 +4,6 @@
 // Author:      Julian Smart
 // Modified by: Vadim Zeitlin to be less MSW-specific on 10.10.98
 // Created:     1997
-// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -84,13 +83,21 @@ class TreeItemUnlocker
 {
 public:
     // unlock a single item
-    TreeItemUnlocker(HTREEITEM item) { ms_unlockedItem = item; }
+    TreeItemUnlocker(HTREEITEM item)
+    {
+        m_oldUnlockedItem = ms_unlockedItem;
+        ms_unlockedItem = item;
+    }
 
     // unlock all items, don't use unless absolutely necessary
-    TreeItemUnlocker() { ms_unlockedItem = (HTREEITEM)-1; }
+    TreeItemUnlocker()
+    {
+        m_oldUnlockedItem = ms_unlockedItem;
+        ms_unlockedItem = (HTREEITEM)-1;
+    }
 
     // lock everything back
-    ~TreeItemUnlocker() { ms_unlockedItem = NULL; }
+    ~TreeItemUnlocker() { ms_unlockedItem = m_oldUnlockedItem; }
 
 
     // check if the item state is currently locked
@@ -99,6 +106,9 @@ public:
 
 private:
     static HTREEITEM ms_unlockedItem;
+    HTREEITEM m_oldUnlockedItem;
+
+    wxDECLARE_NO_COPY_CLASS(TreeItemUnlocker);
 };
 
 HTREEITEM TreeItemUnlocker::ms_unlockedItem = NULL;
@@ -439,14 +449,18 @@ public:
             switch ( which )
             {
                 case wxTreeItemIcon_SelectedExpanded:
-                    image = GetImage(wxTreeItemIcon_Expanded);
+                    // We consider that expanded icon is more important than
+                    // selected so test for it first.
+                    image = m_images[wxTreeItemIcon_Expanded];
+                    if ( image == -1 )
+                        image = m_images[wxTreeItemIcon_Selected];
                     if ( image != -1 )
                         break;
                     //else: fall through
 
                 case wxTreeItemIcon_Selected:
                 case wxTreeItemIcon_Expanded:
-                    image = GetImage(wxTreeItemIcon_Normal);
+                    image = m_images[wxTreeItemIcon_Normal];
                     break;
 
                 case wxTreeItemIcon_Normal:
@@ -651,8 +665,8 @@ static /* const */ wxEventType gs_expandEvents[IDX_WHAT_MAX][IDX_HOW_MAX];
    but logically it's a const table with the following entries:
 =
 {
-    { wxEVT_COMMAND_TREE_ITEM_COLLAPSED, wxEVT_COMMAND_TREE_ITEM_COLLAPSING },
-    { wxEVT_COMMAND_TREE_ITEM_EXPANDED,  wxEVT_COMMAND_TREE_ITEM_EXPANDING  }
+    { wxEVT_TREE_ITEM_COLLAPSED, wxEVT_TREE_ITEM_COLLAPSING },
+    { wxEVT_TREE_ITEM_EXPANDED,  wxEVT_TREE_ITEM_EXPANDING  }
 };
 */
 
@@ -711,10 +725,10 @@ void wxTreeCtrl::Init()
 
     // initialize the global array of events now as it can't be done statically
     // with the wxEVT_XXX values being allocated during run-time only
-    gs_expandEvents[IDX_COLLAPSE][IDX_DONE] = wxEVT_COMMAND_TREE_ITEM_COLLAPSED;
-    gs_expandEvents[IDX_COLLAPSE][IDX_DOING] = wxEVT_COMMAND_TREE_ITEM_COLLAPSING;
-    gs_expandEvents[IDX_EXPAND][IDX_DONE] = wxEVT_COMMAND_TREE_ITEM_EXPANDED;
-    gs_expandEvents[IDX_EXPAND][IDX_DOING] = wxEVT_COMMAND_TREE_ITEM_EXPANDING;
+    gs_expandEvents[IDX_COLLAPSE][IDX_DONE] = wxEVT_TREE_ITEM_COLLAPSED;
+    gs_expandEvents[IDX_COLLAPSE][IDX_DOING] = wxEVT_TREE_ITEM_COLLAPSING;
+    gs_expandEvents[IDX_EXPAND][IDX_DONE] = wxEVT_TREE_ITEM_EXPANDED;
+    gs_expandEvents[IDX_EXPAND][IDX_DOING] = wxEVT_TREE_ITEM_EXPANDING;
 }
 
 bool wxTreeCtrl::Create(wxWindow *parent,
@@ -787,6 +801,8 @@ bool wxTreeCtrl::Create(wxWindow *parent,
 
 wxTreeCtrl::~wxTreeCtrl()
 {
+    m_isBeingDeleted = true;
+
     // delete any attributes
     if ( m_hasAnyAttr )
     {
@@ -953,7 +969,7 @@ void wxTreeCtrl::SetItemText(const wxTreeItemId& item, const wxString& text)
         return;
 
     wxTreeViewItem tvItem(item, TVIF_TEXT);
-    tvItem.pszText = (wxChar *)text.wx_str();  // conversion is ok
+    tvItem.pszText = wxMSW_CONV_LPTSTR(text);
     DoSetItem(&tvItem);
 
     // when setting the text of the item being edited, the text control should
@@ -966,7 +982,7 @@ void wxTreeCtrl::SetItemText(const wxTreeItemId& item, const wxString& text)
     {
         if ( item == m_idEdited )
         {
-            ::SetWindowText(hwndEdit, text.wx_str());
+            ::SetWindowText(hwndEdit, text.t_str());
         }
     }
 }
@@ -1470,7 +1486,7 @@ wxTreeItemId wxTreeCtrl::DoInsertAfter(const wxTreeItemId& parent,
     if ( !text.empty() )
     {
         mask |= TVIF_TEXT;
-        tvIns.item.pszText = (wxChar *)text.wx_str();  // cast is ok
+        tvIns.item.pszText = wxMSW_CONV_LPTSTR(text);
     }
     else
     {
@@ -1625,11 +1641,11 @@ void wxTreeCtrl::Delete(const wxTreeItemId& item)
 
         if ( next.IsOk() )
         {
-            wxTreeEvent changingEvent(wxEVT_COMMAND_TREE_SEL_CHANGING, this, next);
+            wxTreeEvent changingEvent(wxEVT_TREE_SEL_CHANGING, this, next);
 
             if ( IsTreeEventAllowed(changingEvent) )
             {
-                wxTreeEvent changedEvent(wxEVT_COMMAND_TREE_SEL_CHANGED, this, next);
+                wxTreeEvent changedEvent(wxEVT_TREE_SEL_CHANGED, this, next);
                 (void)HandleTreeEvent(changedEvent);
             }
             else
@@ -1722,7 +1738,7 @@ void wxTreeCtrl::DoExpand(const wxTreeItemId& item, int flag)
 
     if ( IsExpanded(item) )
     {
-        wxTreeEvent event(wxEVT_COMMAND_TREE_ITEM_COLLAPSING,
+        wxTreeEvent event(wxEVT_TREE_ITEM_COLLAPSING,
                           this, wxTreeItemId(item));
 
         if ( !IsTreeEventAllowed(event) )
@@ -1734,7 +1750,7 @@ void wxTreeCtrl::DoExpand(const wxTreeItemId& item, int flag)
         if ( IsExpanded(item) )
             return;
 
-        wxTreeEvent event(wxEVT_COMMAND_TREE_ITEM_COLLAPSED, this, item);
+        wxTreeEvent event(wxEVT_TREE_ITEM_COLLAPSED, this, item);
         (void)HandleTreeEvent(event);
     }
     //else: change didn't took place, so do nothing at all
@@ -1775,7 +1791,7 @@ void wxTreeCtrl::Unselect()
 
     if ( HasFlag(wxTR_MULTIPLE) )
     {
-        wxTreeEvent changingEvent(wxEVT_COMMAND_TREE_SEL_CHANGING,
+        wxTreeEvent changingEvent(wxEVT_TREE_SEL_CHANGING,
                                   this, wxTreeItemId());
         changingEvent.m_itemOld = htFocus;
 
@@ -1783,7 +1799,7 @@ void wxTreeCtrl::Unselect()
         {
             ClearFocusedItem();
 
-            wxTreeEvent changedEvent(wxEVT_COMMAND_TREE_SEL_CHANGED,
+            wxTreeEvent changedEvent(wxEVT_TREE_SEL_CHANGED,
                                      this, wxTreeItemId());
             changedEvent.m_itemOld = htFocus;
             (void)HandleTreeEvent(changedEvent);
@@ -1815,14 +1831,14 @@ void wxTreeCtrl::UnselectAll()
         HTREEITEM htFocus = (HTREEITEM)TreeView_GetSelection(GetHwnd());
         if ( !htFocus ) return;
 
-        wxTreeEvent changingEvent(wxEVT_COMMAND_TREE_SEL_CHANGING, this);
+        wxTreeEvent changingEvent(wxEVT_TREE_SEL_CHANGING, this);
         changingEvent.m_itemOld = htFocus;
 
         if ( IsTreeEventAllowed(changingEvent) )
         {
             DoUnselectAll();
 
-            wxTreeEvent changedEvent(wxEVT_COMMAND_TREE_SEL_CHANGED, this);
+            wxTreeEvent changedEvent(wxEVT_TREE_SEL_CHANGED, this);
             changedEvent.m_itemOld = htFocus;
             (void)HandleTreeEvent(changedEvent);
         }
@@ -1853,14 +1869,14 @@ void wxTreeCtrl::SelectChildren(const wxTreeItemId& parent)
 
     HTREEITEM htFocus = (HTREEITEM)TreeView_GetSelection(GetHwnd());
 
-    wxTreeEvent changingEvent(wxEVT_COMMAND_TREE_SEL_CHANGING, this);
+    wxTreeEvent changingEvent(wxEVT_TREE_SEL_CHANGING, this);
     changingEvent.m_itemOld = htFocus;
 
     if ( IsTreeEventAllowed(changingEvent) )
     {
         DoSelectChildren(parent);
 
-        wxTreeEvent changedEvent(wxEVT_COMMAND_TREE_SEL_CHANGED, this);
+        wxTreeEvent changedEvent(wxEVT_TREE_SEL_CHANGED, this);
         changedEvent.m_itemOld = htFocus;
         (void)HandleTreeEvent(changedEvent);
     }
@@ -1885,7 +1901,7 @@ void wxTreeCtrl::SelectItem(const wxTreeItemId& item, bool select)
 
     if ( HasFlag(wxTR_MULTIPLE) )
     {
-        wxTreeEvent changingEvent(wxEVT_COMMAND_TREE_SEL_CHANGING, this, item);
+        wxTreeEvent changingEvent(wxEVT_TREE_SEL_CHANGING, this, item);
 
         if ( IsTreeEventAllowed(changingEvent) )
         {
@@ -1897,7 +1913,7 @@ void wxTreeCtrl::SelectItem(const wxTreeItemId& item, bool select)
                 SetFocusedItem(item);
             }
 
-            wxTreeEvent changedEvent(wxEVT_COMMAND_TREE_SEL_CHANGED,
+            wxTreeEvent changedEvent(wxEVT_TREE_SEL_CHANGED,
                                      this, item);
             (void)HandleTreeEvent(changedEvent);
         }
@@ -1921,7 +1937,7 @@ void wxTreeCtrl::SelectItem(const wxTreeItemId& item, bool select)
         // not so send the events ourselves and ignore those generated by
         // TreeView_SelectItem() if m_changingSelection is set.
         wxTreeEvent
-            changingEvent(wxEVT_COMMAND_TREE_SEL_CHANGING, this, itemNew);
+            changingEvent(wxEVT_TREE_SEL_CHANGING, this, itemNew);
         changingEvent.SetOldItem(itemOld);
 
         if ( IsTreeEventAllowed(changingEvent) )
@@ -1936,7 +1952,7 @@ void wxTreeCtrl::SelectItem(const wxTreeItemId& item, bool select)
             {
                 ::SetFocus(GetHwnd(), HITEM(item));
 
-                wxTreeEvent changedEvent(wxEVT_COMMAND_TREE_SEL_CHANGED,
+                wxTreeEvent changedEvent(wxEVT_TREE_SEL_CHANGED,
                                          this, itemNew);
                 changedEvent.SetOldItem(itemOld);
                 (void)HandleTreeEvent(changedEvent);
@@ -1990,7 +2006,7 @@ void wxTreeCtrl::DeleteTextCtrl()
 wxTextCtrl *wxTreeCtrl::EditLabel(const wxTreeItemId& item,
                                   wxClassInfo *textControlClass)
 {
-    wxASSERT( textControlClass->IsKindOf(CLASSINFO(wxTextCtrl)) );
+    wxASSERT( textControlClass->IsKindOf(wxCLASSINFO(wxTextCtrl)) );
 
     DeleteTextCtrl();
 
@@ -2150,7 +2166,7 @@ void wxTreeCtrl::SortChildren(const wxTreeItemId& item)
     //     may be why as if you don't use the DECLARE_CLASS/IMPLEMENT_CLASS
     //     combo for your derived wxTreeCtrl if will sort without
     //     OnCompareItems
-    if ( GetClassInfo() == CLASSINFO(wxTreeCtrl) )
+    if ( GetClassInfo() == wxCLASSINFO(wxTreeCtrl) )
     {
         TreeView_SortChildren(GetHwnd(), HITEM(item), 0);
     }
@@ -2176,7 +2192,7 @@ bool wxTreeCtrl::MSWShouldPreProcessMessage(WXMSG* msg)
         // conjunction with modifiers
         if ( (msg->wParam == VK_RETURN) && !wxIsAnyModifierDown() )
         {
-            // we need VK_RETURN to generate wxEVT_COMMAND_TREE_ITEM_ACTIVATED
+            // we need VK_RETURN to generate wxEVT_TREE_ITEM_ACTIVATED
             return false;
         }
     }
@@ -2190,7 +2206,7 @@ bool wxTreeCtrl::MSWCommand(WXUINT cmd, WXWORD id_)
 
     if ( cmd == EN_UPDATE )
     {
-        wxCommandEvent event(wxEVT_COMMAND_TEXT_UPDATED, id);
+        wxCommandEvent event(wxEVT_TEXT, id);
         event.SetEventObject( this );
         ProcessCommand(event);
     }
@@ -2234,7 +2250,7 @@ bool wxTreeCtrl::MSWHandleSelectionKey(unsigned vkey)
 
             if ( vkey != VK_RETURN && bCtrl )
             {
-                wxTreeEvent changingEvent(wxEVT_COMMAND_TREE_SEL_CHANGING,
+                wxTreeEvent changingEvent(wxEVT_TREE_SEL_CHANGING,
                                           this, htSel);
                 changingEvent.m_itemOld = htSel;
 
@@ -2242,7 +2258,7 @@ bool wxTreeCtrl::MSWHandleSelectionKey(unsigned vkey)
                 {
                     DoToggleItemSelection(wxTreeItemId(htSel));
 
-                    wxTreeEvent changedEvent(wxEVT_COMMAND_TREE_SEL_CHANGED,
+                    wxTreeEvent changedEvent(wxEVT_TREE_SEL_CHANGED,
                                              this, htSel);
                     changedEvent.m_itemOld = htSel;
                     (void)HandleTreeEvent(changedEvent);
@@ -2255,7 +2271,7 @@ bool wxTreeCtrl::MSWHandleSelectionKey(unsigned vkey)
 
                 if ( count != 1 || HITEM(selections[0]) != htSel )
                 {
-                    wxTreeEvent changingEvent(wxEVT_COMMAND_TREE_SEL_CHANGING,
+                    wxTreeEvent changingEvent(wxEVT_TREE_SEL_CHANGING,
                                               this, htSel);
                     changingEvent.m_itemOld = htSel;
 
@@ -2264,7 +2280,7 @@ bool wxTreeCtrl::MSWHandleSelectionKey(unsigned vkey)
                         DoUnselectAll();
                         DoSelectItem(wxTreeItemId(htSel));
 
-                        wxTreeEvent changedEvent(wxEVT_COMMAND_TREE_SEL_CHANGED,
+                        wxTreeEvent changedEvent(wxEVT_TREE_SEL_CHANGED,
                                                  this, htSel);
                         changedEvent.m_itemOld = htSel;
                         (void)HandleTreeEvent(changedEvent);
@@ -2299,7 +2315,7 @@ bool wxTreeCtrl::MSWHandleSelectionKey(unsigned vkey)
                     break;
                 }
 
-                wxTreeEvent changingEvent(wxEVT_COMMAND_TREE_SEL_CHANGING,
+                wxTreeEvent changingEvent(wxEVT_TREE_SEL_CHANGING,
                                           this, next);
                 changingEvent.m_itemOld = htSel;
 
@@ -2309,7 +2325,7 @@ bool wxTreeCtrl::MSWHandleSelectionKey(unsigned vkey)
                     DoSelectItem(next);
                     SetFocusedItem(next);
 
-                    wxTreeEvent changedEvent(wxEVT_COMMAND_TREE_SEL_CHANGED,
+                    wxTreeEvent changedEvent(wxEVT_TREE_SEL_CHANGED,
                                              this, next);
                     changedEvent.m_itemOld = htSel;
                     (void)HandleTreeEvent(changedEvent);
@@ -2334,7 +2350,7 @@ bool wxTreeCtrl::MSWHandleSelectionKey(unsigned vkey)
                 if ( bShift && SelectRange(GetHwnd(), HITEM(m_htSelStart), HITEM(next),
                      SR_UNSELECT_OTHERS | SR_SIMULATE) )
                 {
-                    wxTreeEvent changingEvent(wxEVT_COMMAND_TREE_SEL_CHANGING, this, next);
+                    wxTreeEvent changingEvent(wxEVT_TREE_SEL_CHANGING, this, next);
                     changingEvent.m_itemOld = htSel;
 
                     if ( IsTreeEventAllowed(changingEvent) )
@@ -2342,7 +2358,7 @@ bool wxTreeCtrl::MSWHandleSelectionKey(unsigned vkey)
                         SelectRange(GetHwnd(), HITEM(m_htSelStart), HITEM(next),
                                     SR_UNSELECT_OTHERS);
 
-                        wxTreeEvent changedEvent(wxEVT_COMMAND_TREE_SEL_CHANGED, this, next);
+                        wxTreeEvent changedEvent(wxEVT_TREE_SEL_CHANGED, this, next);
                         changedEvent.m_itemOld = htSel;
                         (void)HandleTreeEvent(changedEvent);
                     }
@@ -2363,7 +2379,7 @@ bool wxTreeCtrl::MSWHandleSelectionKey(unsigned vkey)
 
                 if ( next.IsOk() && !IsHiddenRoot(next) )
                 {
-                    wxTreeEvent changingEvent(wxEVT_COMMAND_TREE_SEL_CHANGING,
+                    wxTreeEvent changingEvent(wxEVT_TREE_SEL_CHANGING,
                                               this, next);
                     changingEvent.m_itemOld = htSel;
 
@@ -2373,7 +2389,7 @@ bool wxTreeCtrl::MSWHandleSelectionKey(unsigned vkey)
                         DoSelectItem(next);
                         SetFocusedItem(next);
 
-                        wxTreeEvent changedEvent(wxEVT_COMMAND_TREE_SEL_CHANGED,
+                        wxTreeEvent changedEvent(wxEVT_TREE_SEL_CHANGED,
                                                  this, next);
                         changedEvent.m_itemOld = htSel;
                         (void)HandleTreeEvent(changedEvent);
@@ -2399,7 +2415,7 @@ bool wxTreeCtrl::MSWHandleSelectionKey(unsigned vkey)
             {
                 wxTreeItemId next = TreeView_GetChild(GetHwnd(), htSel);
 
-                wxTreeEvent changingEvent(wxEVT_COMMAND_TREE_SEL_CHANGING, this, next);
+                wxTreeEvent changingEvent(wxEVT_TREE_SEL_CHANGING, this, next);
                 changingEvent.m_itemOld = htSel;
 
                 if ( IsTreeEventAllowed(changingEvent) )
@@ -2408,7 +2424,7 @@ bool wxTreeCtrl::MSWHandleSelectionKey(unsigned vkey)
                     DoSelectItem(next);
                     SetFocusedItem(next);
 
-                    wxTreeEvent changedEvent(wxEVT_COMMAND_TREE_SEL_CHANGED, this, next);
+                    wxTreeEvent changedEvent(wxEVT_TREE_SEL_CHANGED, this, next);
                     changedEvent.m_itemOld = htSel;
                     (void)HandleTreeEvent(changedEvent);
                 }
@@ -2456,7 +2472,7 @@ bool wxTreeCtrl::MSWHandleSelectionKey(unsigned vkey)
                                      HITEM(m_htSelStart), HITEM(next),
                                      SR_UNSELECT_OTHERS | SR_SIMULATE) )
                     {
-                        wxTreeEvent changingEvent(wxEVT_COMMAND_TREE_SEL_CHANGING,
+                        wxTreeEvent changingEvent(wxEVT_TREE_SEL_CHANGING,
                                                   this, next);
                         changingEvent.m_itemOld = htSel;
 
@@ -2467,7 +2483,7 @@ bool wxTreeCtrl::MSWHandleSelectionKey(unsigned vkey)
                                         SR_UNSELECT_OTHERS);
                             SetFocusedItem(next);
 
-                            wxTreeEvent changedEvent(wxEVT_COMMAND_TREE_SEL_CHANGED,
+                            wxTreeEvent changedEvent(wxEVT_TREE_SEL_CHANGED,
                                                      this, next);
                             changedEvent.m_itemOld = htSel;
                             (void)HandleTreeEvent(changedEvent);
@@ -2476,7 +2492,7 @@ bool wxTreeCtrl::MSWHandleSelectionKey(unsigned vkey)
                 }
                 else // no Shift
                 {
-                    wxTreeEvent changingEvent(wxEVT_COMMAND_TREE_SEL_CHANGING,
+                    wxTreeEvent changingEvent(wxEVT_TREE_SEL_CHANGING,
                                               this, next);
                     changingEvent.m_itemOld = htSel;
 
@@ -2486,7 +2502,7 @@ bool wxTreeCtrl::MSWHandleSelectionKey(unsigned vkey)
                         DoSelectItem(next);
                         SetFocusedItem(next);
 
-                        wxTreeEvent changedEvent(wxEVT_COMMAND_TREE_SEL_CHANGED,
+                        wxTreeEvent changedEvent(wxEVT_TREE_SEL_CHANGED,
                                                  this, next);
                         changedEvent.m_itemOld = htSel;
                         (void)HandleTreeEvent(changedEvent);
@@ -2578,7 +2594,7 @@ bool wxTreeCtrl::MSWHandleSelectionKey(unsigned vkey)
                     next = nextTemp;
                 }
 
-                wxTreeEvent changingEvent(wxEVT_COMMAND_TREE_SEL_CHANGING,
+                wxTreeEvent changingEvent(wxEVT_TREE_SEL_CHANGING,
                                           this, next);
                 changingEvent.m_itemOld = htSel;
 
@@ -2589,7 +2605,7 @@ bool wxTreeCtrl::MSWHandleSelectionKey(unsigned vkey)
                     DoSelectItem(next);
                     SetFocusedItem(next);
 
-                    wxTreeEvent changedEvent(wxEVT_COMMAND_TREE_SEL_CHANGED,
+                    wxTreeEvent changedEvent(wxEVT_TREE_SEL_CHANGED,
                                              this, next);
                     changedEvent.m_itemOld = htSel;
                     (void)HandleTreeEvent(changedEvent);
@@ -2606,7 +2622,7 @@ bool wxTreeCtrl::MSWHandleSelectionKey(unsigned vkey)
 
 bool wxTreeCtrl::MSWHandleTreeKeyDownEvent(WXWPARAM wParam, WXLPARAM lParam)
 {
-    wxTreeEvent keyEvent(wxEVT_COMMAND_TREE_KEY_DOWN, this);
+    wxTreeEvent keyEvent(wxEVT_TREE_KEY_DOWN, this);
     keyEvent.m_evtKey = CreateKeyEvent(wxEVT_KEY_DOWN, wParam, lParam);
 
     bool processed = HandleTreeEvent(keyEvent);
@@ -2618,7 +2634,7 @@ bool wxTreeCtrl::MSWHandleTreeKeyDownEvent(WXWPARAM wParam, WXLPARAM lParam)
         const HTREEITEM htSel = (HTREEITEM)TreeView_GetSelection(GetHwnd());
         if ( htSel )
         {
-            wxTreeEvent activatedEvent(wxEVT_COMMAND_TREE_ITEM_ACTIVATED,
+            wxTreeEvent activatedEvent(wxEVT_TREE_ITEM_ACTIVATED,
                                        this, htSel);
             (void)HandleTreeEvent(activatedEvent);
         }
@@ -2681,7 +2697,7 @@ wxTreeCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lParam)
         // create the event
         if ( item.IsOk() )
         {
-            wxTreeEvent event(wxEVT_COMMAND_TREE_ITEM_MENU, this, item);
+            wxTreeEvent event(wxEVT_TREE_ITEM_MENU, this, item);
 
             event.m_pointDrag = pt;
 
@@ -2754,7 +2770,7 @@ wxTreeCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lParam)
                         break;
                     }
 
-                    wxTreeEvent changingEvent(wxEVT_COMMAND_TREE_SEL_CHANGING,
+                    wxTreeEvent changingEvent(wxEVT_TREE_SEL_CHANGING,
                                               this, htItem);
                     changingEvent.m_itemOld = htOldItem;
 
@@ -2768,7 +2784,7 @@ wxTreeCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lParam)
                         // reset on any click without Shift
                         m_htSelStart.Unset();
 
-                        wxTreeEvent changedEvent(wxEVT_COMMAND_TREE_SEL_CHANGED,
+                        wxTreeEvent changedEvent(wxEVT_TREE_SEL_CHANGED,
                                                  this, htItem);
                         changedEvent.m_itemOld = htOldItem;
                         (void)HandleTreeEvent(changedEvent);
@@ -2803,7 +2819,7 @@ wxTreeCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lParam)
 
                     if ( willChange )
                     {
-                        wxTreeEvent changingEvent(wxEVT_COMMAND_TREE_SEL_CHANGING,
+                        wxTreeEvent changingEvent(wxEVT_TREE_SEL_CHANGING,
                                                   this, htItem);
                         changingEvent.m_itemOld = htOldItem;
 
@@ -2823,7 +2839,7 @@ wxTreeCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lParam)
 
                             SetFocusedItem(wxTreeItemId(htItem));
 
-                            wxTreeEvent changedEvent(wxEVT_COMMAND_TREE_SEL_CHANGED,
+                            wxTreeEvent changedEvent(wxEVT_TREE_SEL_CHANGED,
                                                      this, htItem);
                             changedEvent.m_itemOld = htOldItem;
                             (void)HandleTreeEvent(changedEvent);
@@ -2854,7 +2870,7 @@ wxTreeCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lParam)
                         // multiple drag and drop to work.
                         if ( !IsItemSelected(GetHwnd(), htItem))
                         {
-                            wxTreeEvent changingEvent(wxEVT_COMMAND_TREE_SEL_CHANGING,
+                            wxTreeEvent changingEvent(wxEVT_TREE_SEL_CHANGING,
                                                       this, htItem);
                             changingEvent.m_itemOld = htOldItem;
 
@@ -2864,7 +2880,7 @@ wxTreeCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lParam)
                                 DoSelectItem(wxTreeItemId(htItem));
                                 SetFocusedItem(wxTreeItemId(htItem));
 
-                                wxTreeEvent changedEvent(wxEVT_COMMAND_TREE_SEL_CHANGED,
+                                wxTreeEvent changedEvent(wxEVT_TREE_SEL_CHANGED,
                                                          this, htItem);
                                 changedEvent.m_itemOld = htOldItem;
                                 (void)HandleTreeEvent(changedEvent);
@@ -2908,10 +2924,7 @@ wxTreeCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lParam)
                 // click if needed
                 if ( processed )
                 {
-                    int htFlags = 0;
-                    wxTreeItemId item = HitTest(wxPoint(x, y), htFlags);
-
-                    if ( htFlags & wxTREE_HITTEST_ONITEMSTATEICON )
+                    if ( tvht.flags & TVHT_ONITEMSTATEICON )
                     {
                         m_triggerStateImageClick = true;
                     }
@@ -2936,7 +2949,7 @@ wxTreeCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lParam)
                 // confusing, so override this default behaviour
                 if ( !IsItemSelected(GetHwnd(), htItem) )
                 {
-                    wxTreeEvent changingEvent(wxEVT_COMMAND_TREE_SEL_CHANGING,
+                    wxTreeEvent changingEvent(wxEVT_TREE_SEL_CHANGING,
                                               this, htItem);
                     changingEvent.m_itemOld = htOldItem;
 
@@ -2946,7 +2959,7 @@ wxTreeCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lParam)
                         DoSelectItem(wxTreeItemId(htItem));
                         SetFocusedItem(wxTreeItemId(htItem));
 
-                        wxTreeEvent changedEvent(wxEVT_COMMAND_TREE_SEL_CHANGED,
+                        wxTreeEvent changedEvent(wxEVT_TREE_SEL_CHANGED,
                                                  this, htItem);
                         changedEvent.m_itemOld = htOldItem;
                         (void)HandleTreeEvent(changedEvent);
@@ -3030,7 +3043,7 @@ wxTreeCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lParam)
                         {
                             m_mouseUpDeselect = false;
 
-                            wxTreeEvent changingEvent(wxEVT_COMMAND_TREE_SEL_CHANGING,
+                            wxTreeEvent changingEvent(wxEVT_TREE_SEL_CHANGING,
                                                       this, htItem);
                             changingEvent.m_itemOld = htOldItem;
 
@@ -3040,7 +3053,7 @@ wxTreeCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lParam)
                                 DoSelectItem(wxTreeItemId(htItem));
                                 SetFocusedItem(wxTreeItemId(htItem));
 
-                                wxTreeEvent changedEvent(wxEVT_COMMAND_TREE_SEL_CHANGED,
+                                wxTreeEvent changedEvent(wxEVT_TREE_SEL_CHANGED,
                                                          this, htItem);
                                 changedEvent.m_itemOld = htOldItem;
                                 (void)HandleTreeEvent(changedEvent);
@@ -3054,7 +3067,7 @@ wxTreeCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lParam)
                     {
                         if ( tvht.flags & TVHT_ONITEMSTATEICON )
                         {
-                            wxTreeEvent event(wxEVT_COMMAND_TREE_STATE_IMAGE_CLICK,
+                            wxTreeEvent event(wxEVT_TREE_STATE_IMAGE_CLICK,
                                               this, htItem);
                             (void)HandleTreeEvent(event);
 
@@ -3079,7 +3092,7 @@ wxTreeCtrl::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lParam)
                     wxDELETE(m_dragImage);
 
                     // generate the drag end event
-                    wxTreeEvent event(wxEVT_COMMAND_TREE_END_DRAG,
+                    wxTreeEvent event(wxEVT_TREE_END_DRAG,
                                       this, htItem);
                     event.m_pointDrag = wxPoint(x, y);
                     (void)HandleTreeEvent(event);
@@ -3239,13 +3252,13 @@ bool wxTreeCtrl::MSWOnNotify(int idCtrl, WXLPARAM lParam, WXLPARAM *result)
     switch ( hdr->code )
     {
         case TVN_BEGINDRAG:
-            eventType = wxEVT_COMMAND_TREE_BEGIN_DRAG;
+            eventType = wxEVT_TREE_BEGIN_DRAG;
             // fall through
 
         case TVN_BEGINRDRAG:
             {
                 if ( eventType == wxEVT_NULL )
-                    eventType = wxEVT_COMMAND_TREE_BEGIN_RDRAG;
+                    eventType = wxEVT_TREE_BEGIN_RDRAG;
                 //else: left drag, already set above
 
                 NM_TREEVIEW *tv = (NM_TREEVIEW *)lParam;
@@ -3262,7 +3275,7 @@ bool wxTreeCtrl::MSWOnNotify(int idCtrl, WXLPARAM lParam, WXLPARAM *result)
 
         case TVN_BEGINLABELEDIT:
             {
-                eventType = wxEVT_COMMAND_TREE_BEGIN_LABEL_EDIT;
+                eventType = wxEVT_TREE_BEGIN_LABEL_EDIT;
                 TV_DISPINFO *info = (TV_DISPINFO *)lParam;
 
                 // although the user event handler may still veto it, it is
@@ -3277,7 +3290,7 @@ bool wxTreeCtrl::MSWOnNotify(int idCtrl, WXLPARAM lParam, WXLPARAM *result)
 
         case TVN_DELETEITEM:
             {
-                eventType = wxEVT_COMMAND_TREE_DELETE_ITEM;
+                eventType = wxEVT_TREE_DELETE_ITEM;
                 NM_TREEVIEW *tv = (NM_TREEVIEW *)lParam;
 
                 event.m_item = tv->itemOld.hItem;
@@ -3296,7 +3309,7 @@ bool wxTreeCtrl::MSWOnNotify(int idCtrl, WXLPARAM lParam, WXLPARAM *result)
 
         case TVN_ENDLABELEDIT:
             {
-                eventType = wxEVT_COMMAND_TREE_END_LABEL_EDIT;
+                eventType = wxEVT_TREE_END_LABEL_EDIT;
                 TV_DISPINFO *info = (TV_DISPINFO *)lParam;
 
                 event.m_item = info->item.hItem;
@@ -3320,7 +3333,7 @@ bool wxTreeCtrl::MSWOnNotify(int idCtrl, WXLPARAM lParam, WXLPARAM *result)
 #ifdef TVN_GETINFOTIP
         case TVN_GETINFOTIP:
             {
-                eventType = wxEVT_COMMAND_TREE_ITEM_GETTOOLTIP;
+                eventType = wxEVT_TREE_ITEM_GETTOOLTIP;
                 NMTVGETINFOTIP *info = (NMTVGETINFOTIP*)lParam;
 
                 // Which item are we trying to get a tooltip for?
@@ -3332,13 +3345,13 @@ bool wxTreeCtrl::MSWOnNotify(int idCtrl, WXLPARAM lParam, WXLPARAM *result)
 #endif // !__WXWINCE__
 
         case TVN_GETDISPINFO:
-            eventType = wxEVT_COMMAND_TREE_GET_INFO;
+            eventType = wxEVT_TREE_GET_INFO;
             // fall through
 
         case TVN_SETDISPINFO:
             {
                 if ( eventType == wxEVT_NULL )
-                    eventType = wxEVT_COMMAND_TREE_SET_INFO;
+                    eventType = wxEVT_TREE_SET_INFO;
                 //else: get, already set above
 
                 TV_DISPINFO *info = (TV_DISPINFO *)lParam;
@@ -3426,7 +3439,7 @@ bool wxTreeCtrl::MSWOnNotify(int idCtrl, WXLPARAM lParam, WXLPARAM *result)
         case TVN_SELCHANGEDW:
             if ( !m_changingSelection )
             {
-                eventType = wxEVT_COMMAND_TREE_SEL_CHANGED;
+                eventType = wxEVT_TREE_SEL_CHANGED;
             }
             // fall through
 
@@ -3435,7 +3448,7 @@ bool wxTreeCtrl::MSWOnNotify(int idCtrl, WXLPARAM lParam, WXLPARAM *result)
             if ( !m_changingSelection )
             {
                 if ( eventType == wxEVT_NULL )
-                    eventType = wxEVT_COMMAND_TREE_SEL_CHANGING;
+                    eventType = wxEVT_TREE_SEL_CHANGING;
                 //else: already set above
 
                 if (hdr->code == TVN_SELCHANGINGW ||
@@ -3464,7 +3477,7 @@ bool wxTreeCtrl::MSWOnNotify(int idCtrl, WXLPARAM lParam, WXLPARAM *result)
             //
             // to avoid such surprises, we force the generation of focus events
             // now, before we generate the selection change ones
-            if ( !m_changingSelection )
+            if ( !m_changingSelection && !m_isBeingDeleted )
                 SetFocus();
             break;
 
@@ -3499,7 +3512,10 @@ bool wxTreeCtrl::MSWOnNotify(int idCtrl, WXLPARAM lParam, WXLPARAM *result)
                             {
                                 wxLoadedDLL dllComCtl32(wxT("comctl32.dll"));
                                 if ( dllComCtl32.IsLoaded() )
+                                {
                                     wxDL_INIT_FUNC(s_pfn, ImageList_Copy, dllComCtl32);
+                                    loaded = true;
+                                }
                             }
 
                             if ( !s_pfnImageList_Copy )
@@ -3631,7 +3647,7 @@ bool wxTreeCtrl::MSWOnNotify(int idCtrl, WXLPARAM lParam, WXLPARAM *result)
                 if ( htFlags & wxTREE_HITTEST_ONITEMSTATEICON )
                 {
                     event.m_item = item;
-                    eventType = wxEVT_COMMAND_TREE_STATE_IMAGE_CLICK;
+                    eventType = wxEVT_TREE_STATE_IMAGE_CLICK;
                 }
 
                 break;
@@ -3641,7 +3657,7 @@ bool wxTreeCtrl::MSWOnNotify(int idCtrl, WXLPARAM lParam, WXLPARAM *result)
         case NM_RCLICK:
             {
                 TV_HITTESTINFO tvhti;
-                ::GetCursorPos(&tvhti.pt);
+                wxGetCursorPosMSW(&tvhti.pt);
                 ::ScreenToClient(GetHwnd(), &tvhti.pt);
                 if ( TreeView_HitTest(GetHwnd(), &tvhti) )
                 {
@@ -3649,8 +3665,8 @@ bool wxTreeCtrl::MSWOnNotify(int idCtrl, WXLPARAM lParam, WXLPARAM *result)
                     {
                         event.m_item = tvhti.hItem;
                         eventType = (int)hdr->code == NM_DBLCLK
-                                    ? wxEVT_COMMAND_TREE_ITEM_ACTIVATED
-                                    : wxEVT_COMMAND_TREE_ITEM_RIGHT_CLICK;
+                                    ? wxEVT_TREE_ITEM_ACTIVATED
+                                    : wxEVT_TREE_ITEM_RIGHT_CLICK;
 
                         event.m_pointDrag.x = tvhti.pt.x;
                         event.m_pointDrag.y = tvhti.pt.y;
@@ -3904,6 +3920,53 @@ void wxTreeCtrl::DoSetItemState(const wxTreeItemId& item, int state)
     tvItem.state = INDEXTOSTATEIMAGEMASK(state + 1);
 
     DoSetItem(&tvItem);
+}
+
+// ----------------------------------------------------------------------------
+// Update locking.
+// ----------------------------------------------------------------------------
+
+// Using WM_SETREDRAW with the native control is a bad idea as it's broken in
+// some Windows versions (see http://support.microsoft.com/kb/130611) and
+// doesn't seem to do anything in other ones (e.g. under Windows 7 the tree
+// control keeps updating its scrollbars while the items are added to it,
+// resulting in horrible flicker when adding even a couple of dozen items).
+// So we resize it to the smallest possible size instead of freezing -- this
+// still flickers, but actually not as badly as it would if we didn't do it.
+
+void wxTreeCtrl::DoFreeze()
+{
+    if ( IsShown() )
+    {
+        RECT rc;
+        ::GetWindowRect(GetHwnd(), &rc);
+        m_thawnSize = wxRectFromRECT(rc).GetSize();
+
+        ::SetWindowPos(GetHwnd(), 0, 0, 0, 1, 1,
+                       SWP_NOMOVE | SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE);
+    }
+}
+
+void wxTreeCtrl::DoThaw()
+{
+    if ( IsShown() )
+    {
+        if ( m_thawnSize != wxDefaultSize )
+        {
+            ::SetWindowPos(GetHwnd(), 0, 0, 0, m_thawnSize.x, m_thawnSize.y,
+                           SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+        }
+    }
+}
+
+// We also need to override DoSetSize() to ensure that m_thawnSize is reset if
+// the window is resized while being frozen -- in this case, we need to avoid
+// resizing it back to its original, pre-freeze, size when it's thawed.
+void wxTreeCtrl::DoSetSize(int x, int y, int width, int height, int sizeFlags)
+{
+    m_thawnSize = wxDefaultSize;
+
+    wxTreeCtrlBase::DoSetSize(x, y, width, height, sizeFlags);
 }
 
 #endif // wxUSE_TREECTRL

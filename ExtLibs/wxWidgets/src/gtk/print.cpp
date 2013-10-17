@@ -3,7 +3,6 @@
 // Author:      Anthony Bretaudeau
 // Purpose:     GTK printing support
 // Created:     2007-08-25
-// RCS-ID:      $Id$
 // Copyright:   (c) 2007 wxWidgets development team
 // Licence:     wxWindows Licence
 /////////////////////////////////////////////////////////////////////////////
@@ -31,9 +30,10 @@
 #endif
 
 #include "wx/fontutil.h"
-#include "wx/gtk/private.h"
 #include "wx/dynlib.h"
 #include "wx/paper.h"
+#include "wx/scopeguard.h"
+#include "wx/modalhook.h"
 
 #include <gtk/gtk.h>
 
@@ -51,10 +51,6 @@
 #include "wx/link.h"
 wxFORCE_LINK_THIS_MODULE(gtk_print)
 
-#if wxUSE_LIBGNOMEPRINT
-#include "wx/gtk/gnome/gprint.h"
-#endif
-
 #include "wx/gtk/private/object.h"
 
 // Useful to convert angles from/to Rad to/from Deg.
@@ -64,8 +60,7 @@ static const double DEG2RAD  = M_PI / 180.0;
 //----------------------------------------------------------------------------
 // wxGtkPrintModule
 // Initialized when starting the app : if it successfully load the gtk-print framework,
-// it uses it. If not, it falls back to gnome print (see /gtk/gnome/gprint.cpp) then
-// to postscript if gnomeprint is not available.
+// it uses it. If not, it falls back to Postscript.
 //----------------------------------------------------------------------------
 
 class wxGtkPrintModule: public wxModule
@@ -73,10 +68,6 @@ class wxGtkPrintModule: public wxModule
 public:
     wxGtkPrintModule()
     {
-#if wxUSE_LIBGNOMEPRINT
-        // This module must be initialized AFTER gnomeprint's one
-        AddDependency(CLASSINFO(wxGnomePrintModule));
-#endif
     }
     bool OnInit();
     void OnExit() {}
@@ -87,8 +78,12 @@ private:
 
 bool wxGtkPrintModule::OnInit()
 {
+#ifndef __WXGTK3__
     if (gtk_check_version(2,10,0) == NULL)
+#endif
+    {
         wxPrintFactory::SetPrintFactory( new wxGtkPrintFactory );
+    }
     return true;
 }
 
@@ -231,13 +226,12 @@ IMPLEMENT_CLASS(wxGtkPrintNativeData, wxPrintNativeDataBase)
 wxGtkPrintNativeData::wxGtkPrintNativeData()
 {
     m_config = gtk_print_settings_new();
-    m_job = gtk_print_operation_new();
+    m_job = NULL;
     m_context = NULL;
 }
 
 wxGtkPrintNativeData::~wxGtkPrintNativeData()
 {
-    g_object_unref(m_job);
     g_object_unref(m_config);
 }
 
@@ -620,7 +614,7 @@ wxGtkPrintDialog::~wxGtkPrintDialog()
 // This is called even if we actually don't want the dialog to appear.
 int wxGtkPrintDialog::ShowModal()
 {
-    GtkPrintOperationResult response;
+    WX_HOOK_MODAL_DIALOG();
 
     // We need to restore the settings given in the constructor.
     wxPrintData data = m_printDialogData.GetPrintData();
@@ -655,10 +649,17 @@ int wxGtkPrintDialog::ShowModal()
 
     // Show the dialog if needed.
     GError* gError = NULL;
-    if (GetShowDialog())
-        response = gtk_print_operation_run (printOp, GTK_PRINT_OPERATION_ACTION_PRINT_DIALOG, GTK_WINDOW(gtk_widget_get_toplevel(m_parent->m_widget) ), &gError);
-    else
-        response = gtk_print_operation_run (printOp, GTK_PRINT_OPERATION_ACTION_PRINT, GTK_WINDOW(gtk_widget_get_toplevel(m_parent->m_widget)), &gError);
+    GtkPrintOperationResult response = gtk_print_operation_run
+                                       (
+                                           printOp,
+                                           GetShowDialog()
+                                            ? GTK_PRINT_OPERATION_ACTION_PRINT_DIALOG
+                                            : GTK_PRINT_OPERATION_ACTION_PRINT,
+                                           m_parent
+                                            ? GTK_WINDOW(gtk_widget_get_toplevel(m_parent->m_widget))
+                                            : NULL,
+                                           &gError
+                                       );
 
     // Does everything went well?
     if (response == GTK_PRINT_OPERATION_RESULT_CANCEL)
@@ -739,6 +740,8 @@ wxGtkPageSetupDialog::~wxGtkPageSetupDialog()
 
 int wxGtkPageSetupDialog::ShowModal()
 {
+    WX_HOOK_MODAL_DIALOG();
+
     // Get the config.
     m_pageDialogData.GetPrintData().ConvertToNative();
     wxGtkPrintNativeData *native = (wxGtkPrintNativeData*) m_pageDialogData.GetPrintData().GetNativeData();
@@ -771,7 +774,9 @@ int wxGtkPageSetupDialog::ShowModal()
         title = _("Page Setup");
     GtkWidget *
         dlg = gtk_page_setup_unix_dialog_new(title.utf8_str(),
-                                             GTK_WINDOW(m_parent->m_widget));
+                                             m_parent
+                                                ? GTK_WINDOW(m_parent->m_widget)
+                                                : NULL);
 
     gtk_page_setup_unix_dialog_set_print_settings(
         GTK_PAGE_SETUP_UNIX_DIALOG(dlg), nativeData);
@@ -894,7 +899,10 @@ bool wxGtkPrinter::Print(wxWindow *parent, wxPrintout *printout, bool prompt )
     wxPrintData printdata = GetPrintDialogData().GetPrintData();
     wxGtkPrintNativeData *native = (wxGtkPrintNativeData*) printdata.GetNativeData();
 
-    GtkPrintOperation * const printOp = native->GetPrintJob();
+    wxGtkObject<GtkPrintOperation> printOp(gtk_print_operation_new());
+    native->SetPrintJob(printOp);
+    wxON_BLOCK_EXIT_OBJ1(*native, wxGtkPrintNativeData::SetPrintJob,
+                         static_cast<GtkPrintOperation*>(NULL));
 
     wxPrinterToGtkData dataToSend;
     dataToSend.printer = this;
@@ -1166,8 +1174,6 @@ wxGtkPrinterDCImpl::wxGtkPrinterDCImpl(wxPrinterDC *owner, const wxPrintData& da
 #if wxCAIRO_SCALE
     m_PS2DEV = 1.0;
     m_DEV2PS = 1.0;
-
-    cairo_scale( m_cairo, 72.0 / (double)m_resolution, 72.0 / (double)m_resolution );
 #else
     m_PS2DEV = (double)m_resolution / 72.0;
     m_DEV2PS = 72.0 / (double)m_resolution;
@@ -1179,15 +1185,6 @@ wxGtkPrinterDCImpl::wxGtkPrinterDCImpl(wxPrinterDC *owner, const wxPrintData& da
 
     m_signX = 1;  // default x-axis left to right.
     m_signY = 1;  // default y-axis bottom up -> top down.
-
-    // By default the origin of the Cairo context is in the upper left
-    // corner of the printable area. We need to translate it so that it
-    // is in the upper left corner of the paper (without margins)
-    GtkPageSetup *setup = gtk_print_context_get_page_setup( m_gpc );
-    gdouble ml, mt;
-    ml = gtk_page_setup_get_left_margin (setup, GTK_UNIT_POINTS);
-    mt = gtk_page_setup_get_top_margin (setup, GTK_UNIT_POINTS);
-    cairo_translate(m_cairo, -ml, -mt);
 }
 
 wxGtkPrinterDCImpl::~wxGtkPrinterDCImpl()
@@ -1203,7 +1200,12 @@ bool wxGtkPrinterDCImpl::IsOk() const
 
 void* wxGtkPrinterDCImpl::GetCairoContext() const
 {
-    return (void*) cairo_reference( m_cairo );
+    return m_cairo;
+}
+
+void* wxGtkPrinterDCImpl::GetHandle() const
+{
+    return GetCairoContext();
 }
 
 bool wxGtkPrinterDCImpl::DoFloodFill(wxCoord WXUNUSED(x1),
@@ -1445,7 +1447,7 @@ void wxGtkPrinterDCImpl::DoDrawPoint(wxCoord x, wxCoord y)
     CalcBoundingBox( x, y );
 }
 
-void wxGtkPrinterDCImpl::DoDrawLines(int n, wxPoint points[], wxCoord xoffset, wxCoord yoffset)
+void wxGtkPrinterDCImpl::DoDrawLines(int n, const wxPoint points[], wxCoord xoffset, wxCoord yoffset)
 {
     if ( m_pen.IsTransparent() )
         return;
@@ -1467,7 +1469,7 @@ void wxGtkPrinterDCImpl::DoDrawLines(int n, wxPoint points[], wxCoord xoffset, w
     cairo_stroke ( m_cairo);
 }
 
-void wxGtkPrinterDCImpl::DoDrawPolygon(int n, wxPoint points[],
+void wxGtkPrinterDCImpl::DoDrawPolygon(int n, const wxPoint points[],
                                        wxCoord xoffset, wxCoord yoffset,
                                        wxPolygonFillMode fillStyle)
 {
@@ -1486,9 +1488,9 @@ void wxGtkPrinterDCImpl::DoDrawPolygon(int n, wxPoint points[],
     int i;
     for (i = 1; i < n; i++)
     {
-        int x = points[i].x + xoffset;
-        int y = points[i].y + yoffset;
-        cairo_line_to( m_cairo, XLOG2DEV(x), YLOG2DEV(y) );
+        int xx = points[i].x + xoffset;
+        int yy = points[i].y + yoffset;
+        cairo_line_to( m_cairo, XLOG2DEV(xx), YLOG2DEV(yy) );
     }
     cairo_close_path(m_cairo);
 
@@ -1503,7 +1505,7 @@ void wxGtkPrinterDCImpl::DoDrawPolygon(int n, wxPoint points[],
     cairo_restore(m_cairo);
 }
 
-void wxGtkPrinterDCImpl::DoDrawPolyPolygon(int n, int count[], wxPoint points[],
+void wxGtkPrinterDCImpl::DoDrawPolyPolygon(int n, const int count[], const wxPoint points[],
                                            wxCoord xoffset, wxCoord yoffset,
                                            wxPolygonFillMode fillStyle)
 {
@@ -1699,9 +1701,11 @@ void wxGtkPrinterDCImpl::DoDrawBitmap( const wxBitmap& bitmap, wxCoord x, wxCoor
     y = wxCoord(YLOG2DEV(y));
     int bw = bitmap.GetWidth();
     int bh = bitmap.GetHeight();
+#ifndef __WXGTK3__
     wxBitmap bmpSource = bitmap;  // we need a non-const instance.
     if (!useMask && !bitmap.HasPixbuf() && bitmap.GetMask())
         bmpSource.SetMask(NULL);
+#endif
 
     cairo_save(m_cairo);
 
@@ -1713,12 +1717,16 @@ void wxGtkPrinterDCImpl::DoDrawBitmap( const wxBitmap& bitmap, wxCoord x, wxCoor
     wxDouble scaleY = (wxDouble) YLOG2DEVREL(bh) / (wxDouble) bh;
     cairo_scale(m_cairo, scaleX, scaleY);
 
+#ifdef __WXGTK3__
+    bitmap.Draw(m_cairo, 0, 0, useMask, &m_textForegroundColour, &m_textBackgroundColour);
+#else
     gdk_cairo_set_source_pixbuf(m_cairo, bmpSource.GetPixbuf(), 0, 0);
     cairo_pattern_set_filter(cairo_get_source(m_cairo), CAIRO_FILTER_NEAREST);
     // Use the original size here since the context is scaled already.
     cairo_rectangle(m_cairo, 0, 0, bw, bh);
     // Fill the rectangle using the pattern.
     cairo_fill(m_cairo);
+#endif
 
     CalcBoundingBox(0,0);
     CalcBoundingBox(bw,bh);
@@ -1738,24 +1746,11 @@ void wxGtkPrinterDCImpl::DoDrawRotatedText(const wxString& text, wxCoord x, wxCo
 
     angle = -angle;
 
-    bool underlined = m_font.IsOk() && m_font.GetUnderlined();
-
     const wxScopedCharBuffer data = text.utf8_str();
 
-    size_t datalen = strlen(data);
-    pango_layout_set_text( m_layout, data, datalen);
+    pango_layout_set_text(m_layout, data, data.length());
 
-    if (underlined)
-    {
-        PangoAttrList *attrs = pango_attr_list_new();
-        PangoAttribute *a = pango_attr_underline_new(PANGO_UNDERLINE_SINGLE);
-        a->start_index = 0;
-        a->end_index = datalen;
-        pango_attr_list_insert(attrs, a);
-        pango_layout_set_attributes(m_layout, attrs);
-        pango_attr_list_unref(attrs);
-    }
-
+    const bool setAttrs = m_font.GTKSetPangoAttrs(m_layout);
     if (m_textForegroundColour.IsOk())
     {
         unsigned char red = m_textForegroundColour.Red();
@@ -1816,7 +1811,7 @@ void wxGtkPrinterDCImpl::DoDrawRotatedText(const wxString& text, wxCoord x, wxCo
 
     cairo_restore( m_cairo );
 
-    if (underlined)
+    if (setAttrs)
     {
         // Undo underline attributes setting
         pango_layout_set_attributes(m_layout, NULL);
@@ -2072,6 +2067,8 @@ void wxGtkPrinterDCImpl::DoSetClippingRegion(wxCoord x, wxCoord y, wxCoord width
 {
     cairo_rectangle ( m_cairo, XLOG2DEV(x), YLOG2DEV(y), XLOG2DEVREL(width), YLOG2DEVREL(height));
     cairo_clip(m_cairo);
+
+    wxDCImpl::DoSetClippingRegion(x, y, width, height);
 }
 
 void wxGtkPrinterDCImpl::DestroyClippingRegion()
@@ -2091,7 +2088,24 @@ void wxGtkPrinterDCImpl::EndDoc()
 
 void wxGtkPrinterDCImpl::StartPage()
 {
-    return;
+    // Notice that we may change the Cairo transformation matrix only here and
+    // not before (e.g. in wxGtkPrinterDCImpl ctor as we used to do) in order
+    // to not affect _gtk_print_context_rotate_according_to_orientation() which
+    // is used in GTK+ itself and wouldn't work correctly if we applied these
+    // transformations before it is called.
+
+    // By default the origin of the Cairo context is in the upper left
+    // corner of the printable area. We need to translate it so that it
+    // is in the upper left corner of the paper (without margins)
+    GtkPageSetup *setup = gtk_print_context_get_page_setup( m_gpc );
+    gdouble ml, mt;
+    ml = gtk_page_setup_get_left_margin (setup, GTK_UNIT_POINTS);
+    mt = gtk_page_setup_get_top_margin (setup, GTK_UNIT_POINTS);
+    cairo_translate(m_cairo, -ml, -mt);
+
+#if wxCAIRO_SCALE
+    cairo_scale( m_cairo, 72.0 / (double)m_resolution, 72.0 / (double)m_resolution );
+#endif
 }
 
 void wxGtkPrinterDCImpl::EndPage()
@@ -2149,8 +2163,8 @@ void wxGtkPrinterDCImpl::DoGetTextExtent(const wxString& string, wxCoord *width,
     {
         // scale the font and apply it
         PangoFontDescription *desc = theFont->GetNativeFontInfo()->description;
-        float size = pango_font_description_get_size(desc);
-        size = size * GetFontPointSizeAdjustment(72.0);
+        oldSize = pango_font_description_get_size(desc);
+        const float size = oldSize * GetFontPointSizeAdjustment(72.0);
         pango_font_description_set_size(desc, (gint)size);
 
         pango_layout_set_font_description(m_layout, desc);

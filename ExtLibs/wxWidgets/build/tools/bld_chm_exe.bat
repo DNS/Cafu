@@ -1,5 +1,5 @@
 rem Uncomment the next line to set the version; used also in wxWidgets.iss
-SET WXW_VER=2.9.2-rc1
+SET WXW_VER=3.0.0
 if (%WXW_VER%)==() SET WXW_VER=SVN
 
 echo docs building for %WXW_VER%
@@ -17,7 +17,7 @@ set INNO=c:\wx\inno\wxWidgets
 
 rem svn already in my path...
 set PATH=%PATH%;c:\wx\Gnu\bin;c:\progra~1\htmlhe~1;C:\PROGRA~1\INNOSE~1;c:\wx\doxygen\bin
-
+set PATH=%PATH%;C:\wx\Graphviz\bin
 echo %PATH% >>  c:\temp.log
 
 
@@ -59,21 +59,22 @@ call regen chm
 
 
 cd %WXWIN%\docs\doxygen\out
-zip wxWidgets-%WXW_VER%-chm.zip wx.chm
-copy wxWidgets-%WXW_VER%-chm.zip %DAILY%
+zip wxWidgets-%WXW_VER%-docs-chm.zip wx.chm
+copy wxWidgets-%WXW_VER%-docs-chm.zip %DAILY%
 cd html
 del *.dot
 del *.md5
 zip -r wx.htb *.*
-copy wx.htb %DAILY%\wxWidgets-%WXW_VER%-html.zip
-zip wxWidgets-%WXW_VER%-htb.zip wx.htb
-copy wxWidgets-%WXW_VER%-htb.zip %DAILY%
+copy wx.htb %DAILY%\wxWidgets-%WXW_VER%-docs-html.zip
+zip wxWidgets-%WXW_VER%-docs-htb.zip wx.htb
+copy wxWidgets-%WXW_VER%-docs-htb.zip %DAILY%
 
 
 mkdir %INNO%\docs\htmlhelp
 copy %WXWIN%\docs\doxygen\out\wx.chm %INNO%\docs\htmlhelp\wx.chm
 cd %WXWIN%\build\tools
 iscc wxwidgets.iss >> c:\temp.log
+copy %INNO%\..\wxMSW-%WXW_VER%-Setup.exe c:\daily
 
 echo docs built for %WXW_VER%
 echo docs built for %WXW_VER% >> c:\temp.log

@@ -4,7 +4,6 @@
 // Author:      David Webster
 // Modified by:
 // Created:     10/13/99
-// RCS-ID:      $Id$
 // Copyright:   (c) David Webster
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -44,7 +43,7 @@ extern void  wxAssociateWinWithHandle( HWND         hWnd
 bool wxCheckBox::OS2Command( WXUINT WXUNUSED(uParam),
                              WXWORD WXUNUSED(wId) )
 {
-    wxCommandEvent rEvent( wxEVT_COMMAND_CHECKBOX_CLICKED, m_windowId );
+    wxCommandEvent rEvent( wxEVT_CHECKBOX, m_windowId );
     rEvent.SetInt(GetValue());
     rEvent.SetEventObject(this);
     ProcessCommand(rEvent);

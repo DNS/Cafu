@@ -4,7 +4,6 @@
 // Author:      David Webster
 // Modified by:
 // Created:     10/13/99
-// RCS-ID:      $Id$
 // Copyright:   (c) David Webster
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -95,6 +94,10 @@ class WXDLLIMPEXP_CORE wxComboBox : public wxChoice,
                 ,const wxValidator&   rValidator = wxDefaultValidator
                 ,const wxString&      rsName = wxComboBoxNameStr
                );
+
+    // See wxComboBoxBase discussion of IsEmpty().
+    bool IsListEmpty() const { return wxItemContainer::IsEmpty(); }
+    bool IsTextEmpty() const { return wxTextEntry::IsEmpty(); }
 
     // resolve ambiguities among virtual functions inherited from both base
     // classes

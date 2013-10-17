@@ -35,6 +35,9 @@ CPP = $(CC) -p
 #   1 - DLL
 SHARED = 0
 
+# GTK+ toolkit version [,2]
+TOOLKIT_VERSION = 
+
 # Build wxUniversal instead of native port? [0,1]
 #   1 - Universal
 WXUNIV = 0
@@ -68,6 +71,9 @@ USE_GUI = 1
 
 # Build wxHTML library (USE_GUI must be 1)? [0,1]
 USE_HTML = 1
+
+# Build wxWebView library (USE_GUI must be 1)? [0,1]
+USE_WEBVIEW = 1
 
 # Build multimedia library (USE_GUI must be 1)? [0,1]
 USE_MEDIA = 1

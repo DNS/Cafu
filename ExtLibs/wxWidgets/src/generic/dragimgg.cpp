@@ -4,7 +4,6 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     29/2/2000
-// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -247,7 +246,7 @@ bool wxGenericDragImage::BeginDrag(const wxPoint& hotspot,
         m_boundingRect = * rect;
 
     m_isDirty = false;
-    m_isDirty = false;
+    m_isShown = false;
 
     if (m_cursor.IsOk())
     {
@@ -324,7 +323,7 @@ bool wxGenericDragImage::BeginDrag(const wxPoint& hotspot, wxWindow* window, wxW
 
     wxSize sz = fullScreenRect->GetSize();
 
-    if (fullScreenRect->GetParent() && !fullScreenRect->IsKindOf(CLASSINFO(wxFrame)))
+    if (fullScreenRect->GetParent() && !wxDynamicCast(fullScreenRect, wxFrame))
         fullScreenRect->GetParent()->ClientToScreen(& x, & y);
 
     rect.x = x; rect.y = y;

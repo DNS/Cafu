@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     05.11.99
-// RCS-ID:      $Id$
 // Copyright:   (c) wxWidgets team
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -71,6 +70,11 @@ class WXDLLIMPEXP_CORE wxNativeFontInfo
 public:
 #if wxUSE_PANGO
     PangoFontDescription *description;
+
+    // Pango font description doesn't have these attributes, so we store them
+    // separately and handle them ourselves in {To,From}String() methods.
+    bool m_underlined;
+    bool m_strikethrough;
 #elif defined(_WX_X_FONTLIKE)
     // the members can't be accessed directly as we only parse the
     // xFontName on demand
@@ -172,6 +176,7 @@ public:
     wxFontStyle   m_style;
     wxFontWeight  m_weight;
     bool          m_underlined;
+    bool          m_strikethrough;
     wxString      m_faceName;
     wxFontEncoding m_encoding;
 public :
@@ -187,6 +192,7 @@ public :
     wxFontStyle   style;
     wxFontWeight  weight;
     bool          underlined;
+    bool          strikethrough;
     wxString      faceName;
     wxFontEncoding encoding;
 #endif // platforms
@@ -224,6 +230,7 @@ public:
         SetStyle((wxFontStyle)font.GetStyle());
         SetWeight((wxFontWeight)font.GetWeight());
         SetUnderlined(font.GetUnderlined());
+        SetStrikethrough(font.GetStrikethrough());
 #if defined(__WXMSW__)
         if ( font.IsUsingSizeInPixels() )
             SetPixelSize(font.GetPixelSize());
@@ -252,6 +259,7 @@ public:
     wxFontStyle GetStyle() const;
     wxFontWeight GetWeight() const;
     bool GetUnderlined() const;
+    bool GetStrikethrough() const;
     wxString GetFaceName() const;
     wxFontFamily GetFamily() const;
     wxFontEncoding GetEncoding() const;
@@ -261,6 +269,7 @@ public:
     void SetStyle(wxFontStyle style);
     void SetWeight(wxFontWeight weight);
     void SetUnderlined(bool underlined);
+    void SetStrikethrough(bool strikethrough);
     bool SetFaceName(const wxString& facename);
     void SetFamily(wxFontFamily family);
     void SetEncoding(wxFontEncoding encoding);

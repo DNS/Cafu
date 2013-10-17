@@ -3,7 +3,6 @@
 // Purpose:
 // Author:      Robert Roebling
 // Created:     01/02/97
-// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -56,6 +55,7 @@ public:
         Init();
         Create(parent, id, value, pos, size, choices, style, validator, name);
     }
+    ~wxComboBox();
 
     bool Create(wxWindow *parent, wxWindowID id,
                 const wxString& value = wxEmptyString,
@@ -88,6 +88,9 @@ public:
     {
         return wxItemContainer::GetStringSelection();
     }
+
+    virtual void SetString(unsigned int n, const wxString& string);
+
     virtual void Popup();
     virtual void Dismiss();
 
@@ -97,7 +100,9 @@ public:
         wxItemContainer::Clear();
     }
 
-    bool IsEmpty() const { return wxItemContainer::IsEmpty(); }
+    // See wxComboBoxBase discussion of IsEmpty().
+    bool IsListEmpty() const { return wxItemContainer::IsEmpty(); }
+    bool IsTextEmpty() const { return wxTextEntry::IsEmpty(); }
 
     void OnChar( wxKeyEvent &event );
 
@@ -138,6 +143,8 @@ protected:
     // Override in derived classes to create combo box widgets with
     // custom list stores.
     virtual void GTKCreateComboBoxWidget();
+
+    virtual wxSize DoGetSizeFromTextSize(int xlen, int ylen = -1) const;
 
     virtual GtkEntry *GetEntry() const
         { return m_entry; }

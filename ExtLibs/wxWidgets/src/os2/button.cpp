@@ -4,7 +4,6 @@
 // Author:      David Webster
 // Modified by:
 // Created:     10/13/99
-// RCS-ID:      $Id$
 // Copyright:   (c) David Webster
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -221,7 +220,7 @@ void wxButton::Command (
 
 bool wxButton::SendClickEvent()
 {
-    wxCommandEvent                  vEvent( wxEVT_COMMAND_BUTTON_CLICKED
+    wxCommandEvent                  vEvent( wxEVT_BUTTON
                                            ,GetId()
                                           );
 

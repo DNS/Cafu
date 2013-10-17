@@ -4,7 +4,6 @@
 // Author:      Jaakko Salli
 // Modified by:
 // Created:     2005-01-14
-// RCS-ID:      $Id$
 // Copyright:   (c) Jaakko Salli
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -573,6 +572,11 @@ public:
         If true, takes labels on all pages into account.
     */
     void SetSplitterLeft( bool subProps = false, bool allPages = true );
+
+    /** Moves splitter as left as possible on an individual page, while still allowing all
+        labels to be shown in full.
+    */
+    void SetPageSplitterLeft(int page, bool subProps = false);
 
     /**
         Sets splitter position on individual page.

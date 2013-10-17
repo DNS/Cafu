@@ -4,7 +4,6 @@
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     2009-09-01
-// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -101,7 +100,7 @@ wxSound::wxSound(const wxString& sFileName, bool isResource)
     Create(sFileName, isResource);
 }
 
-wxSound::wxSound(int size, const wxByte* data)
+wxSound::wxSound(size_t size, const void* data)
 {
     Init();
     Create( size, data );

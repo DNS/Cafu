@@ -6,7 +6,6 @@
 // and William Gallafent.
 // Modified by:
 // Created:     08.02.01
-// RCS-ID:      $Id$
 // Copyright:   (c) 2000 Johnny C. Norris II
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -43,7 +42,7 @@
 // ----------------------------------------------------------------------------
 
 IMPLEMENT_DYNAMIC_CLASS(wxToggleButton, wxControl)
-wxDEFINE_EVENT( wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEvent );
+wxDEFINE_EVENT( wxEVT_TOGGLEBUTTON, wxCommandEvent );
 
 #define BUTTON_HEIGHT_FROM_CHAR_HEIGHT(cy) (11*EDIT_HEIGHT_FROM_CHAR_HEIGHT(cy)/10)
 
@@ -57,7 +56,7 @@ wxDEFINE_EVENT( wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, wxCommandEvent );
 
 bool wxToggleButton::OS2Command(WXUINT WXUNUSED(param), WXWORD WXUNUSED(id))
 {
-   wxCommandEvent event(wxEVT_COMMAND_TOGGLEBUTTON_CLICKED, m_windowId);
+   wxCommandEvent event(wxEVT_TOGGLEBUTTON, m_windowId);
    event.SetInt(GetValue());
    event.SetEventObject(this);
    ProcessCommand(event);

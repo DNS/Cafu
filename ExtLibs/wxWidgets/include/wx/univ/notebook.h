@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     01.02.01
-// RCS-ID:      $Id$
 // Copyright:   (c) 2001 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -86,7 +85,7 @@ public:
                             wxNotebookPage *pPage,
                             const wxString& strText,
                             bool bSelect = false,
-                            int imageId = -1);
+                            int imageId = NO_IMAGE);
 
     // style tests
     // -----------
@@ -130,7 +129,6 @@ protected:
     void DoDrawTab(wxDC& dc, const wxRect& rect, size_t n);
 
     // resizing
-    virtual wxSize DoGetBestClientSize() const;
     virtual void DoMoveWindow(int x, int y, int width, int height);
     virtual void DoSetSize(int x, int y,
                            int width, int height,
@@ -188,7 +186,7 @@ protected:
 
     // return true if the tab has an associated image
     bool HasImage(int page) const
-        { return m_imageList && m_images[page] != -1; }
+        { return HasImageList() && m_images[page] != -1; }
 
     // get the part of the notebook reserved for the pages (slightly larger
     // than GetPageRect() as we draw a border and leave marginin between)

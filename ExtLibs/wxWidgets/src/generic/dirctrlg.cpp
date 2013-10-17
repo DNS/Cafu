@@ -4,7 +4,6 @@
 // Author:      Harm van der Heijden, Robert Roebling, Julian Smart
 // Modified by:
 // Created:     12/12/98
-// RCS-ID:      $Id$
 // Copyright:   (c) Harm van der Heijden, Robert Roebling and Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -55,7 +54,7 @@
     #include  "wx/osx/private.h"  // includes mac headers
 #endif
 
-#ifdef __WXMSW__
+#ifdef __WINDOWS__
 #include <windows.h>
 #include "wx/msw/winundef.h"
 #include "wx/volume.h"
@@ -71,7 +70,7 @@
     #include <ctype.h>
 #endif
 
-#endif
+#endif // __WINDOWS__
 
 #if defined(__OS2__) || defined(__DOS__)
     #ifdef __OS2__
@@ -101,6 +100,13 @@ extern WXDLLEXPORT_DATA(const char) wxFileSelectorDefaultWildcardStr[];
 #endif
 
 bool wxIsDriveAvailable(const wxString& dirName);
+
+// ----------------------------------------------------------------------------
+// events
+// ----------------------------------------------------------------------------
+
+wxDEFINE_EVENT( wxEVT_DIRCTRL_SELECTIONCHANGED, wxTreeEvent );
+wxDEFINE_EVENT( wxEVT_DIRCTRL_FILEACTIVATED, wxTreeEvent );
 
 // ----------------------------------------------------------------------------
 // wxGetAvailableDrives, for WINDOWS, DOS, OS2, MAC, UNIX (returns "/")
@@ -250,7 +256,7 @@ size_t wxGetAvailableDrives(wxArrayString &paths, wxArrayString &names, wxArrayI
         }
     }
 
-#elif defined(__UNIX__) || defined(__WXPALMOS__)
+#elif defined(__UNIX__)
     paths.Add(wxT("/"));
     names.Add(wxT("/"));
     icon_ids.Add(wxFileIconsTable::computer);
@@ -270,7 +276,7 @@ size_t wxGetAvailableDrives(wxArrayString &paths, wxArrayString &names, wxArrayI
 
 bool wxIsDriveAvailable(const wxString& dirName)
 {
-    // FIXME_MGL - this method leads to hang up under Watcom for some reason
+    // FIXME: this method leads to hang up under Watcom for some reason
 #ifdef __WATCOMC__
     wxUnusedVar(dirName);
 #else
@@ -310,7 +316,7 @@ int setdrive(int WXUNUSED_IN_WINCE(drive))
 #else
     newdrive[2] = wxT('\0');
 #endif
-#if defined(__WXMSW__)
+#if defined(__WINDOWS__)
     if (::SetCurrentDirectory(newdrive))
 #else
     // VA doesn't know what LPSTR is and has its own set
@@ -441,6 +447,8 @@ BEGIN_EVENT_TABLE(wxGenericDirCtrl, wxControl)
   EVT_TREE_ITEM_COLLAPSED     (wxID_TREECTRL, wxGenericDirCtrl::OnCollapseItem)
   EVT_TREE_BEGIN_LABEL_EDIT   (wxID_TREECTRL, wxGenericDirCtrl::OnBeginEditItem)
   EVT_TREE_END_LABEL_EDIT     (wxID_TREECTRL, wxGenericDirCtrl::OnEndEditItem)
+  EVT_TREE_SEL_CHANGED        (wxID_TREECTRL, wxGenericDirCtrl::OnTreeSelChange)
+  EVT_TREE_ITEM_ACTIVATED     (wxID_TREECTRL, wxGenericDirCtrl::OnItemActivated)
   EVT_SIZE                    (wxGenericDirCtrl::OnSize)
 END_EVENT_TABLE()
 
@@ -511,7 +519,7 @@ bool wxGenericDirCtrl::Create(wxWindow *parent,
     m_treeCtrl = CreateTreeCtrl(this, wxID_TREECTRL,
                                 wxPoint(0,0), GetClientSize(), treeStyle);
 
-    if (!filter.empty())
+    if (!filter.empty() && (style & wxDIRCTRL_SHOW_FILTERS))
         m_filterListCtrl = new wxDirFilterListCtrl(this, wxID_FILTERLISTCTRL);
 
     m_defaultPath = dir;
@@ -666,7 +674,7 @@ void wxGenericDirCtrl::OnEndEditItem(wxTreeEvent &event)
     }
 
     wxTreeItemId treeid = event.GetItem();
-    wxDirItemData *data = (wxDirItemData*)m_treeCtrl->GetItemData( treeid );
+    wxDirItemData *data = GetItemData( treeid );
     wxASSERT( data );
 
     wxString new_name( wxPathOnly( data->m_path ) );
@@ -694,6 +702,46 @@ void wxGenericDirCtrl::OnEndEditItem(wxTreeEvent &event)
     }
 }
 
+void wxGenericDirCtrl::OnTreeSelChange(wxTreeEvent &event)
+{
+    wxTreeEvent changedEvent(wxEVT_DIRCTRL_SELECTIONCHANGED, GetId());
+
+    changedEvent.SetEventObject(this);
+    changedEvent.SetItem(event.GetItem());
+    changedEvent.SetClientObject(m_treeCtrl->GetItemData(event.GetItem()));
+
+    if (GetEventHandler()->SafelyProcessEvent(changedEvent) && !changedEvent.IsAllowed())
+        event.Veto();
+    else
+        event.Skip();
+}
+
+void wxGenericDirCtrl::OnItemActivated(wxTreeEvent &event)
+{
+    wxTreeItemId treeid = event.GetItem();
+    const wxDirItemData *data = GetItemData(treeid);
+
+    if (data->m_isDir)
+    {
+        // is dir
+        event.Skip();
+    }
+    else
+    {
+        // is file
+        wxTreeEvent changedEvent(wxEVT_DIRCTRL_FILEACTIVATED, GetId());
+
+        changedEvent.SetEventObject(this);
+        changedEvent.SetItem(treeid);
+        changedEvent.SetClientObject(m_treeCtrl->GetItemData(treeid));
+
+        if (GetEventHandler()->SafelyProcessEvent(changedEvent) && !changedEvent.IsAllowed())
+            event.Veto();
+        else
+            event.Skip();
+    }
+}
+
 void wxGenericDirCtrl::OnExpandItem(wxTreeEvent &event)
 {
     wxTreeItemId parentId = event.GetItem();
@@ -716,7 +764,7 @@ void wxGenericDirCtrl::CollapseDir(wxTreeItemId parentId)
 {
     wxTreeItemId child;
 
-    wxDirItemData *data = (wxDirItemData *) m_treeCtrl->GetItemData(parentId);
+    wxDirItemData *data = GetItemData(parentId);
     if (!data->m_isExpanded)
         return;
 
@@ -731,7 +779,7 @@ void wxGenericDirCtrl::CollapseDir(wxTreeItemId parentId)
 
 void wxGenericDirCtrl::PopulateNode(wxTreeItemId parentId)
 {
-    wxDirItemData *data = (wxDirItemData *) m_treeCtrl->GetItemData(parentId);
+    wxDirItemData *data = GetItemData(parentId);
 
     if (data->m_isExpanded)
         return;
@@ -752,7 +800,7 @@ void wxGenericDirCtrl::PopulateNode(wxTreeItemId parentId)
 
 #if (defined(__WINDOWS__) && !defined(__WXWINCE__)) || defined(__DOS__) || defined(__OS2__)
     // Check if this is a root directory and if so,
-    // whether the drive is avaiable.
+    // whether the drive is available.
     if (!wxIsDriveAvailable(dirName))
     {
         data->m_isExpanded = false;
@@ -922,7 +970,7 @@ wxTreeItemId wxGenericDirCtrl::FindChild(wxTreeItemId parentId, const wxString& 
     wxTreeItemId childId = m_treeCtrl->GetFirstChild(parentId, cookie);
     while (childId.IsOk())
     {
-        wxDirItemData* data = (wxDirItemData*) m_treeCtrl->GetItemData(childId);
+        wxDirItemData* data = GetItemData(childId);
 
         if (data && !data->m_path.empty())
         {
@@ -973,7 +1021,7 @@ bool wxGenericDirCtrl::ExpandPath(const wxString& path)
     if (!lastId.IsOk())
         return false;
 
-    wxDirItemData *data = (wxDirItemData *) m_treeCtrl->GetItemData(lastId);
+    wxDirItemData *data = GetItemData(lastId);
     if (data->m_isDir)
     {
         m_treeCtrl->Expand(lastId);
@@ -986,7 +1034,7 @@ bool wxGenericDirCtrl::ExpandPath(const wxString& path)
         bool selectedChild = false;
         while (childId.IsOk())
         {
-            data = (wxDirItemData*) m_treeCtrl->GetItemData(childId);
+            data = GetItemData(childId);
 
             if (data && data->m_path != wxEmptyString && !data->m_isDir)
             {
@@ -1038,6 +1086,18 @@ bool wxGenericDirCtrl::CollapsePath(const wxString& path)
     return true;
 }
 
+wxDirItemData* wxGenericDirCtrl::GetItemData(wxTreeItemId itemId)
+{
+    return static_cast<wxDirItemData*>(m_treeCtrl->GetItemData(itemId));
+}
+
+wxString wxGenericDirCtrl::GetPath(wxTreeItemId itemId) const
+{
+    const wxDirItemData*
+        data = static_cast<wxDirItemData*>(m_treeCtrl->GetItemData(itemId));
+
+    return data->m_path;
+}
 
 wxString wxGenericDirCtrl::GetPath() const
 {
@@ -1050,8 +1110,7 @@ wxString wxGenericDirCtrl::GetPath() const
         {
             // return first string only
             wxTreeItemId treeid = items[0];
-            wxDirItemData* data = (wxDirItemData*) m_treeCtrl->GetItemData(treeid);
-            return data->m_path;
+            return GetPath(treeid);
         }
 
         return wxEmptyString;
@@ -1060,8 +1119,7 @@ wxString wxGenericDirCtrl::GetPath() const
     wxTreeItemId treeid = m_treeCtrl->GetSelection();
     if (treeid)
     {
-        wxDirItemData* data = (wxDirItemData*) m_treeCtrl->GetItemData(treeid);
-        return data->m_path;
+        return GetPath(treeid);
     }
     else
         return wxEmptyString;
@@ -1076,8 +1134,7 @@ void wxGenericDirCtrl::GetPaths(wxArrayString& paths) const
     for ( unsigned n = 0; n < items.size(); n++ )
     {
         wxTreeItemId treeid = items[n];
-        wxDirItemData* data = (wxDirItemData*) m_treeCtrl->GetItemData(treeid);
-        paths.Add(data->m_path);
+        paths.push_back(GetPath(treeid));
     }
 }
 
@@ -1170,7 +1227,7 @@ void wxGenericDirCtrl::FindChildFiles(wxTreeItemId treeid, int dirFlags, wxArray
 
     wxString dirName(data->m_path);
 
-#if defined(__WXMSW__) || defined(__OS2__)
+#if defined(__WINDOWS__) || defined(__OS2__)
     if (dirName.Last() == ':')
         dirName += wxString(wxFILE_SEP_PATH);
 #endif
@@ -1217,7 +1274,7 @@ void wxGenericDirCtrl::SetFilter(const wxString& filter)
 {
     m_filter = filter;
 
-    if (!filter.empty() && !m_filterListCtrl)
+    if (!filter.empty() && !m_filterListCtrl && HasFlag(wxDIRCTRL_SHOW_FILTERS))
         m_filterListCtrl = new wxDirFilterListCtrl(this, wxID_FILTERLISTCTRL);
     else if (filter.empty() && m_filterListCtrl)
     {
@@ -1572,7 +1629,7 @@ wxImageList *wxFileIconsTable::GetSmallImageList()
     return m_smallImageList;
 }
 
-#if wxUSE_MIMETYPE && wxUSE_IMAGE && (!defined(__WXMSW__) || wxUSE_WXDIB)
+#if wxUSE_MIMETYPE && wxUSE_IMAGE && (!defined(__WINDOWS__) || wxUSE_WXDIB)
 // VS: we don't need this function w/o wxMimeTypesManager because we'll only have
 //     one icon and we won't resize it
 
@@ -1732,7 +1789,7 @@ int wxFileIconsTable::GetIconID(const wxString& extension, const wxString& mime)
     {
         m_smallImageList->Add(bmp);
     }
-#if wxUSE_IMAGE && (!defined(__WXMSW__) || wxUSE_WXDIB)
+#if wxUSE_IMAGE && (!defined(__WINDOWS__) || wxUSE_WXDIB)
     else
     {
         wxImage img = bmp.ConvertToImage();

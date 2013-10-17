@@ -4,7 +4,6 @@
 // Author:      Stefan Csomor
 // Modified by: Kevin Ollivier
 // Created:     1998-01-01
-// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -79,6 +78,8 @@ public:
 
     virtual void SetSelection(long from, long to);
     virtual void SetEditable(bool editable);
+
+    virtual bool SendMaxLenEvent();
 
     // Implementation
     // --------------
