@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     05.01.00
-// RCS-ID:      $Id$
 // Copyright:   (c) 2000 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -106,8 +105,7 @@ struct wxCmdLineOption
         type = typ;
         flags = fl;
 
-        m_hasVal = false;
-        m_isNegated = false;
+        Reset();
     }
 
     // can't use union easily here, so just store all possible data fields, we
@@ -142,11 +140,18 @@ struct wxCmdLineOption
         { Check(wxCMD_LINE_VAL_DATE); m_dateVal = val; m_hasVal = true; }
 #endif // wxUSE_DATETIME
 
-    void SetHasValue(bool hasValue = true) { m_hasVal = hasValue; }
+    void SetHasValue() { m_hasVal = true; }
     bool HasValue() const { return m_hasVal; }
 
     void SetNegated() { m_isNegated = true; }
     bool IsNegated() const { return m_isNegated; }
+
+    // Reset to the initial state, called before parsing another command line.
+    void Reset()
+    {
+        m_hasVal =
+        m_isNegated = false;
+    }
 
 public:
     wxCmdLineEntryType kind;
@@ -637,8 +642,7 @@ void wxCmdLineParser::Reset()
 {
     for ( size_t i = 0; i < m_data->m_options.GetCount(); i++ )
     {
-        wxCmdLineOption& opt = m_data->m_options[i];
-        opt.SetHasValue(false);
+        m_data->m_options[i].Reset();
     }
 }
 
@@ -677,7 +681,15 @@ int wxCmdLineParser::Parse(bool showUsage)
 
             continue;
         }
-
+#ifdef __WXOSX__
+        if ( arg == wxT("-ApplePersistenceIgnoreState") )
+        {
+            maybeOption = false;
+            
+            continue;
+        }
+#endif
+        
         // empty argument or just '-' is not an option but a parameter
         if ( maybeOption && arg.length() > 1 &&
                 // FIXME-UTF8: use wc_str() after removing ANSI build
@@ -702,11 +714,45 @@ int wxCmdLineParser::Parse(bool showUsage)
 
                 if (longOptionsEnabled)
                 {
+                    wxString errorOpt;
+
                     optInd = m_data->FindOptionByLongName(name);
                     if ( optInd == wxNOT_FOUND )
                     {
-                        errorMsg << wxString::Format(_("Unknown long option '%s'"), name.c_str())
-                                 << wxT('\n');
+                        // Check if this could be a negatable long option.
+                        if ( name.Last() == '-' )
+                        {
+                            name.RemoveLast();
+
+                            optInd = m_data->FindOptionByLongName(name);
+                            if ( optInd != wxNOT_FOUND )
+                            {
+                                if ( !(m_data->m_options[optInd].flags &
+                                        wxCMD_LINE_SWITCH_NEGATABLE) )
+                                {
+                                    errorOpt.Printf
+                                             (
+                                              _("Option '%s' can't be negated"),
+                                              name
+                                             );
+                                    optInd = wxNOT_FOUND;
+                                }
+                            }
+                        }
+
+                        if ( optInd == wxNOT_FOUND )
+                        {
+                            if ( errorOpt.empty() )
+                            {
+                                errorOpt.Printf
+                                         (
+                                          _("Unknown long option '%s'"),
+                                          name
+                                         );
+                            }
+
+                            errorMsg << errorOpt << wxT('\n');
+                        }
                     }
                 }
                 else
@@ -930,8 +976,8 @@ int wxCmdLineParser::Parse(bool showUsage)
                         case wxCMD_LINE_VAL_DATE:
                             {
                                 wxDateTime dt;
-                                wxString::const_iterator end;
-                                if ( !dt.ParseDate(value, &end) || end != value.end() )
+                                wxString::const_iterator endDate;
+                                if ( !dt.ParseDate(value, &endDate) || endDate != value.end() )
                                 {
                                     errorMsg << wxString::Format(_("Option '%s': '%s' cannot be converted to a date."),
                                                                  name.c_str(), value.c_str())
@@ -1338,6 +1384,23 @@ static wxString GetLongOptionName(wxString::const_iterator p,
    Windows conventions for the command line handling, not Unix ones. For
    instance, backslash is not special except when it precedes double quote when
    it does quote it.
+
+   TODO: Rewrite this to follow the even more complicated rule used by Windows
+         CommandLineToArgv():
+
+    * A string of backslashes not followed by a quotation mark has no special
+      meaning.
+    * An even number of backslashes followed by a quotation mark is treated as
+      pairs of protected backslashes, followed by a word terminator.
+    * An odd number of backslashes followed by a quotation mark is treated as
+      pairs of protected backslashes, followed by a protected quotation mark.
+
+    See http://blogs.msdn.com/b/oldnewthing/archive/2010/09/17/10063629.aspx
+
+    It could also be useful to provide a converse function which is also
+    non-trivial, see
+
+    http://blogs.msdn.com/b/twistylittlepassagesallalike/archive/2011/04/23/everyone-quotes-arguments-the-wrong-way.aspx
  */
 
 /* static */

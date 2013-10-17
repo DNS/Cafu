@@ -2,7 +2,6 @@
 // Name:        copyright.h
 // Purpose:     Copyright and license page of the Doxygen manual
 // Author:      wxWidgets team
-// RCS-ID:      $Id$
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
@@ -10,7 +9,7 @@
 
 @page page_copyright Copyrights and Licenses
 
-Copyright (c) 1992-2008 Julian Smart, Robert Roebling, Vadim Zeitlin and other
+Copyright (c) 1992-2012 Julian Smart, Robert Roebling, Vadim Zeitlin and other
 members of the wxWidgets team
 
 Portions (c) 1996 Artificial Intelligence Applications Institute
@@ -22,6 +21,7 @@ recognition of the new name by OSI.
 
 @li @subpage page_copyright_wxlicense
 @li @subpage page_copyright_gnulicense
+@li @subpage page_copyright_xserver
 
 
 @page page_copyright_wxlicense wxWindows Library Licence
@@ -33,5 +33,8 @@ recognition of the new name by OSI.
 
 @verbinclude "lgpl.txt"
 
-*/
+@page page_copyright_xserver The Open Group and DEC License
+ 
+@verbinclude "xserver.txt"
 
+*/

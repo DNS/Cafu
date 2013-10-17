@@ -4,7 +4,6 @@
 // Author:      Jaakko Salli
 // Modified by:
 // Created:     2008-08-23
-// RCS-ID:      $Id$
 // Copyright:   (c) Jaakko Salli
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -48,7 +47,7 @@
 
 #if wxPG_COMPATIBILITY_1_4
 
-// Used to establish backwards compatiblity
+// Used to establish backwards compatibility
 const char* g_invalidStringContent = "@__TOTALLY_INVALID_STRING__@";
 
 #endif
@@ -500,7 +499,7 @@ void wxPGProperty::InitAfterAdded( wxPropertyGridPageState* pageState,
     // (so propgrid can be NULL, too).
 
     wxPGProperty* parent = m_parent;
-    bool parentIsRoot = parent->IsKindOf(CLASSINFO(wxPGRootProperty));
+    bool parentIsRoot = parent->IsKindOf(wxCLASSINFO(wxPGRootProperty));
 
     //
     // Convert invalid cells to default ones in this grid
@@ -1035,7 +1034,7 @@ bool wxPGProperty::IntToValue( wxVariant& variant, int number, int WXUNUSED(argF
 }
 
 // Convert semicolon delimited tokens into child values.
-bool wxPGProperty::StringToValue( wxVariant& variant, const wxString& text, int argFlags ) const
+bool wxPGProperty::StringToValue( wxVariant& v, const wxString& text, int argFlags ) const
 {
     if ( !GetChildCount() )
         return false;
@@ -1240,7 +1239,7 @@ bool wxPGProperty::StringToValue( wxVariant& variant, const wxString& text, int 
     }
 
     if ( changed )
-        variant = list;
+        v = list;
 
     return changed;
 }
@@ -2021,11 +2020,11 @@ const wxPGEditor* wxPGProperty::GetEditorClass() const
     if ( GetDisplayedCommonValueCount() )
     {
         // TextCtrlAndButton -> ComboBoxAndButton
-        if ( editor->IsKindOf(CLASSINFO(wxPGTextCtrlAndButtonEditor)) )
+        if ( wxDynamicCast(editor, wxPGTextCtrlAndButtonEditor) )
             editor = wxPGEditor_ChoiceAndButton;
 
         // TextCtrl -> ComboBox
-        else if ( editor->IsKindOf(CLASSINFO(wxPGTextCtrlEditor)) )
+        else if ( wxDynamicCast(editor, wxPGTextCtrlEditor) )
             editor = wxPGEditor_ComboBox;
     }
 
@@ -2199,7 +2198,7 @@ int wxPGProperty::GetY2( int lh ) const
     for ( parent = GetParent(); parent != NULL; parent = child->GetParent() )
     {
         if ( !parent->IsExpanded() )
-            return -1;
+            return parent->GetY2(lh);
         y += parent->GetChildrenHeight(lh, child->GetIndexInParent());
         y += lh;
         child = parent;

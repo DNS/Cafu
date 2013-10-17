@@ -4,7 +4,6 @@
 // Author:      David Webster
 // Modified by:
 // Created:     10/12/99
-// RCS-ID:      $Id$
 // Copyright:   (c) David Webster
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -719,7 +718,7 @@ bool wxRadioBox::OS2Command( WXUINT uCmd,
 void wxRadioBox::SendNotificationEvent()
 {
     wxCommandEvent vEvent(
-                       wxEVT_COMMAND_RADIOBOX_SELECTED,
+                       wxEVT_RADIOBOX,
                        m_windowId
                    );
 

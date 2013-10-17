@@ -4,7 +4,6 @@
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     1998-01-01
-// RCS-ID:      $Id$
 // Copyright:   (c) 1998 Stefan Csomor
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -114,7 +113,11 @@ void wxStatusBarMac::DoUpdateStatusText(int number)
     rect.height = h ;
 
     Refresh( true, &rect );
+    // we should have to force the update here
+    // TODO Remove if no regressions occur
+#if 0
     Update();
+#endif
 }
 
 void wxStatusBarMac::OnPaint(wxPaintEvent& WXUNUSED(event))

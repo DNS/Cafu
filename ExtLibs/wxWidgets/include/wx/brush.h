@@ -4,7 +4,6 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:
-// RCS-ID:      $Id$
 // Copyright:   Julian Smart
 // Licence:     wxWindows Licence
 /////////////////////////////////////////////////////////////////////////////
@@ -27,14 +26,14 @@ enum wxBrushStyle
     wxBRUSHSTYLE_STIPPLE_MASK_OPAQUE = wxSTIPPLE_MASK_OPAQUE,
     wxBRUSHSTYLE_STIPPLE_MASK = wxSTIPPLE_MASK,
     wxBRUSHSTYLE_STIPPLE = wxSTIPPLE,
-    wxBRUSHSTYLE_BDIAGONAL_HATCH = wxBDIAGONAL_HATCH,
-    wxBRUSHSTYLE_CROSSDIAG_HATCH = wxCROSSDIAG_HATCH,
-    wxBRUSHSTYLE_FDIAGONAL_HATCH = wxFDIAGONAL_HATCH,
-    wxBRUSHSTYLE_CROSS_HATCH = wxCROSS_HATCH,
-    wxBRUSHSTYLE_HORIZONTAL_HATCH = wxHORIZONTAL_HATCH,
-    wxBRUSHSTYLE_VERTICAL_HATCH = wxVERTICAL_HATCH,
-    wxBRUSHSTYLE_FIRST_HATCH = wxFIRST_HATCH,
-    wxBRUSHSTYLE_LAST_HATCH = wxLAST_HATCH
+    wxBRUSHSTYLE_BDIAGONAL_HATCH = wxHATCHSTYLE_BDIAGONAL,
+    wxBRUSHSTYLE_CROSSDIAG_HATCH = wxHATCHSTYLE_CROSSDIAG,
+    wxBRUSHSTYLE_FDIAGONAL_HATCH = wxHATCHSTYLE_FDIAGONAL,
+    wxBRUSHSTYLE_CROSS_HATCH = wxHATCHSTYLE_CROSS,
+    wxBRUSHSTYLE_HORIZONTAL_HATCH = wxHATCHSTYLE_HORIZONTAL,
+    wxBRUSHSTYLE_VERTICAL_HATCH = wxHATCHSTYLE_VERTICAL,
+    wxBRUSHSTYLE_FIRST_HATCH = wxHATCHSTYLE_FIRST,
+    wxBRUSHSTYLE_LAST_HATCH = wxHATCHSTYLE_LAST
 };
 
 
@@ -70,9 +69,7 @@ public:
     }
 };
 
-#if defined(__WXPALMOS__)
-    #include "wx/palmos/brush.h"
-#elif defined(__WXMSW__)
+#if defined(__WXMSW__)
     #include "wx/msw/brush.h"
 #elif defined(__WXMOTIF__) || defined(__WXX11__)
     #include "wx/x11/brush.h"
@@ -80,8 +77,6 @@ public:
     #include "wx/gtk/brush.h"
 #elif defined(__WXGTK__)
     #include "wx/gtk1/brush.h"
-#elif defined(__WXMGL__)
-    #include "wx/mgl/brush.h"
 #elif defined(__WXDFB__)
     #include "wx/dfb/brush.h"
 #elif defined(__WXMAC__)

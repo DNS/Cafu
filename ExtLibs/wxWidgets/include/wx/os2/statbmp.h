@@ -4,7 +4,6 @@
 // Author:      David Webster
 // Modified by:
 // Created:     11/27/99
-// RCS-ID:      $Id$
 // Copyright:   (c) David Webster
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -43,7 +42,7 @@ class WXDLLIMPEXP_CORE wxStaticBitmap : public wxStaticBitmapBase
     inline virtual ~wxStaticBitmap() { Free(); }
 
     virtual void SetIcon(const wxIcon& rIcon) { SetImage(rIcon); }
-    virtual void SetBitmap(const wxBitmap& rBitmap) { SetImage(rBitmap); };
+    virtual void SetBitmap(const wxBitmap& rBitmap) { SetImage(rBitmap); }
 
     // assert failure is provoked by an attempt to get an icon from bitmap or
     // vice versa

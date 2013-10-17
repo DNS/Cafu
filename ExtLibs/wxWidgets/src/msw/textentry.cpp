@@ -3,7 +3,6 @@
 // Purpose:     wxTextEntry implementation for wxMSW
 // Author:      Vadim Zeitlin
 // Created:     2007-09-26
-// RCS-ID:      $Id$
 // Copyright:   (c) 2007 Vadim Zeitlin <vadim@wxwindows.org>
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,8 +32,6 @@
 #include "wx/textentry.h"
 #include "wx/textcompleter.h"
 #include "wx/dynlib.h"
-
-#include <initguid.h>
 
 #include "wx/msw/private.h"
 
@@ -74,6 +71,15 @@
 #ifndef SHACF_FILESYS_ONLY
     #define SHACF_FILESYS_ONLY 0x00000010
 #endif
+
+#ifndef SHACF_FILESYS_DIRS
+    #define SHACF_FILESYS_DIRS 0x00000020
+#endif
+
+// This must be the last header included to only affect the DEFINE_GUID()
+// occurrences below but not any GUIDs declared in the standard files included
+// above.
+#include <initguid.h>
 
 namespace
 {
@@ -488,7 +494,7 @@ public:
                 // wxEVT_CHAR handler (as we must also let the other handlers
                 // defined at wx level run first).
                 //
-                // Notice that we can't use wxEVT_COMMAND_TEXT_UPDATED here
+                // Notice that we can't use wxEVT_TEXT here
                 // neither as, due to our use of ACO_AUTOAPPEND, we get
                 // EN_CHANGE notifications from the control every time
                 // IAutoComplete auto-appends something to it.
@@ -621,7 +627,7 @@ wxTextEntry::~wxTextEntry()
 
 void wxTextEntry::WriteText(const wxString& text)
 {
-    ::SendMessage(GetEditHwnd(), EM_REPLACESEL, 0, (LPARAM)text.wx_str());
+    ::SendMessage(GetEditHwnd(), EM_REPLACESEL, 0, wxMSW_CONV_LPARAM(text));
 }
 
 wxString wxTextEntry::DoGetValue() const
@@ -740,7 +746,9 @@ void wxTextEntry::GetSelection(long *from, long *to) const
 
 #ifdef HAS_AUTOCOMPLETE
 
-bool wxTextEntry::DoAutoCompleteFileNames()
+#if wxUSE_DYNLIB_CLASS
+
+bool wxTextEntry::DoAutoCompleteFileNames(int flags)
 {
     typedef HRESULT (WINAPI *SHAutoComplete_t)(HWND, DWORD);
     static SHAutoComplete_t s_pfnSHAutoComplete = (SHAutoComplete_t)-1;
@@ -760,7 +768,18 @@ bool wxTextEntry::DoAutoCompleteFileNames()
     if ( !s_pfnSHAutoComplete )
         return false;
 
-    HRESULT hr = (*s_pfnSHAutoComplete)(GetEditHwnd(), SHACF_FILESYS_ONLY);
+    DWORD dwFlags = 0;
+    if ( flags & wxFILE )
+        dwFlags |= SHACF_FILESYS_ONLY;
+    else if ( flags & wxDIR )
+        dwFlags |= SHACF_FILESYS_DIRS;
+    else
+    {
+        wxFAIL_MSG(wxS("No flags for file name auto completion?"));
+        return false;
+    }
+
+    HRESULT hr = (*s_pfnSHAutoComplete)(GetEditHwnd(), dwFlags);
     if ( FAILED(hr) )
     {
         wxLogApiError(wxT("SHAutoComplete()"), hr);
@@ -775,6 +794,8 @@ bool wxTextEntry::DoAutoCompleteFileNames()
 
     return true;
 }
+
+#endif // wxUSE_DYNLIB_CLASS
 
 wxTextAutoCompleteData *wxTextEntry::GetOrCreateCompleter()
 {
@@ -833,9 +854,9 @@ bool wxTextEntry::DoAutoCompleteCustom(wxTextCompleter *completer)
 
 // We still need to define stubs as we declared these overrides in the header.
 
-bool wxTextEntry::DoAutoCompleteFileNames()
+bool wxTextEntry::DoAutoCompleteFileNames(int flags)
 {
-    return wxTextEntryBase::DoAutoCompleteFileNames();
+    return wxTextEntryBase::DoAutoCompleteFileNames(flags);
 }
 
 bool wxTextEntry::DoAutoCompleteStrings(const wxArrayString& choices)
@@ -937,9 +958,12 @@ bool wxTextEntry::DoSetMargins(const wxPoint& margins)
 
     if ( margins.x != -1 )
     {
-        // left margin
+        // Set both horizontal margins to the given value, we don't distinguish
+        // between left and right margin at wx API level and it seems to be
+        // better to change both of them than only left one.
         ::SendMessage(GetEditHwnd(), EM_SETMARGINS,
-                      EC_LEFTMARGIN, MAKELONG(margins.x, 0));
+                      EC_LEFTMARGIN | EC_RIGHTMARGIN,
+                      MAKELONG(margins.x, margins.x));
     }
 
     if ( margins.y != -1 )

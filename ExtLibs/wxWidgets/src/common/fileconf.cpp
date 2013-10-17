@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     07.04.98 (adapted from appconf.cpp)
-// RCS-ID:      $Id$
 // Copyright:   (c) 1997 Karsten Ballueder  &  Vadim Zeitlin
 //                       Ballueder@usa.net     <zeitlin@dptmaths.ens-cachan.fr>
 // Licence:     wxWindows licence
@@ -46,7 +45,7 @@
 
 #include  "wx/stdpaths.h"
 
-#if defined(__WXMSW__)
+#if defined(__WINDOWS__)
     #include "wx/msw/private.h"
 #endif  //windows.h
 #if defined(__WXPM__)
@@ -1818,6 +1817,11 @@ bool wxFileConfigGroup::DeleteEntry(const wxString& name)
       // pNewLast can be NULL here -- it's ok and can happen if we have no
       // entries left
       m_pLastEntry = pNewLast;
+
+      // For the root group only, we could be removing the first group line
+      // here, so update m_pLine to avoid keeping a dangling pointer.
+      if ( pLine == m_pLine )
+          SetLine(NULL);
     }
 
     m_pConfig->LineListRemove(pLine);
@@ -2111,7 +2115,7 @@ static wxString FilterOutEntryName(const wxString& str)
 #if !wxUSE_UNICODE
             ((unsigned char)c < 127) &&
 #endif // ANSI
-         !wxIsalnum(c) && !wxStrchr(wxT("@_/-!.*%"), c) )
+         !wxIsalnum(c) && !wxStrchr(wxT("@_/-!.*%()"), c) )
     {
       strResult += wxT('\\');
     }

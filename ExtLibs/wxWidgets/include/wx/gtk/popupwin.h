@@ -3,7 +3,6 @@
 // Purpose:
 // Author:      Robert Roebling
 // Created:
-// Id:          $Id$
 // Copyright:   (c) 2001 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -41,9 +40,6 @@ protected:
                            int sizeFlags = wxSIZE_AUTO);
 
     virtual void DoMoveWindow(int x, int y, int width, int height);
-
-private:
-    virtual void AddChildGTK(wxWindowGTK* child);
 
 #ifdef __WXUNIVERSAL__
     DECLARE_EVENT_TABLE()

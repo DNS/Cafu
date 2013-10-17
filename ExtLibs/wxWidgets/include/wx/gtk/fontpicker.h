@@ -5,7 +5,6 @@
 // Modified by:
 // Created:     14/4/2006
 // Copyright:   (c) Francesco Montorsi
-// RCS-ID:      $Id$
 // Licence:     wxWindows Licence
 /////////////////////////////////////////////////////////////////////////////
 
@@ -52,7 +51,7 @@ protected:
 
 public:     // used by the GTK callback only
 
-    void SetNativeFontInfo(const gchar *gtkdescription)
+    void SetNativeFontInfo(const char *gtkdescription)
         { m_selectedFont.SetNativeFontInfo(wxString::FromAscii(gtkdescription)); }
 
 private:

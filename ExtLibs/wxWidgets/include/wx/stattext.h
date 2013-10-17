@@ -5,7 +5,6 @@
 // Modified by:
 // Created:
 // Copyright:   (c) Julian Smart
-// RCS-ID:      $Id$
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
@@ -102,8 +101,6 @@ private:
     #include "wx/cocoa/stattext.h"
 #elif defined(__WXPM__)
     #include "wx/os2/stattext.h"
-#elif defined(__WXPALMOS__)
-    #include "wx/palmos/stattext.h"
 #endif
 
 #endif // !wxNO_PORT_STATTEXT_INCLUDE

@@ -4,7 +4,6 @@
 // Author:      David Webster
 // Modified by:
 // Created:     10/14/99
-// RCS-ID:      $Id$
 // Copyright:   (c) David Webster
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -343,7 +342,7 @@ wxPMDCImpl::wxPMDCImpl( wxDC *owner, WXHDC hDC ) :
     m_hDC          = hDC;
 } // end of wxPMDCImpl::wxPMDCImpl
 
-wxPMDCImpl::~wxPMDCImpl(void)
+wxPMDCImpl::~wxPMDCImpl()
 {
     if ( m_hDC != 0 )
     {
@@ -459,7 +458,7 @@ void wxPMDCImpl::DoSetDeviceClippingRegion(
     DO_SET_CLIPPING_BOX()
 } // end of wxPMDCImpl::DoSetDeviceClippingRegion
 
-void wxPMDCImpl::DestroyClippingRegion(void)
+void wxPMDCImpl::DestroyClippingRegion()
 {
     if (m_clipping && m_hPS)
     {
@@ -836,7 +835,7 @@ void wxPMDCImpl::DoDrawPoint(
 } // end of wxPMDCImpl::DoDrawPoint
 
 void wxPMDCImpl::DoDrawPolygon( int n,
-                          wxPoint vPoints[],
+                          const wxPoint vPoints[],
                           wxCoord vXoffset,
                           wxCoord vYoffset,
                           wxPolygonFillMode nFillStyle )
@@ -903,14 +902,14 @@ void wxPMDCImpl::DoDrawPolygon( int n,
 
 void wxPMDCImpl::DoDrawLines(
   int                               n
-, wxPoint                           vPoints[]
+, const wxPoint                           vPoints[]
 , wxCoord                           vXoffset
 , wxCoord                           vYoffset
 )
 {
     POINTL                          vPoint;
 
-    if (vXoffset != 0L || vXoffset != 0L)
+    if (vXoffset != 0L || vYoffset != 0L)
     {
         int                             i;
 

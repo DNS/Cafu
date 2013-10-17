@@ -4,7 +4,6 @@
 // Author:      Original from Wolfram Gloger/Guilhem Lavaux/David Webster
 // Modified by: Stefan Neis
 // Created:     04/22/98
-// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Neis (2003)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -354,7 +353,7 @@ public:
     {
         m_hThread = 0;
         m_eState = STATE_NEW;
-        m_nPriority = WXTHREAD_DEFAULT_PRIORITY;
+        m_nPriority = wxPRIORITY_DEFAULT;
     }
 
     ~wxThreadInternal()
@@ -419,7 +418,7 @@ void wxThreadInternal::OS2ThreadStart( void * pParam )
         unsigned long ulHab;
         if (traits)
             traits->InitializeGui(ulHab);
-        dwRet = (DWORD)pThread->Entry();
+        dwRet = (DWORD)pThread->CallEntry();
         if (traits)
             traits->TerminateGui(ulHab);
 
@@ -497,7 +496,7 @@ bool wxThreadInternal::Create( wxThread* pThread,
         return false;
     }
     m_hThread = tid;
-    if (m_nPriority != WXTHREAD_DEFAULT_PRIORITY)
+    if (m_nPriority != wxPRIORITY_DEFAULT)
     {
         SetPriority(m_nPriority);
     }
@@ -625,6 +624,14 @@ wxThreadError wxThread::Create(
 wxThreadError wxThread::Run()
 {
     wxCriticalSectionLocker         lock((wxCriticalSection &)m_critsect);
+
+    // Create the thread if it wasn't created yet with an explicit
+    // Create() call:
+    if ( !m_internal->GetHandle() )
+    {
+        if ( !m_internal->Create(this, 0) )
+            return wxTHREAD_NO_RESOURCE;
+    }
 
     if ( m_internal->GetState() != STATE_NEW )
     {

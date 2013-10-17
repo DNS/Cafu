@@ -4,7 +4,6 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -198,6 +197,8 @@ protected:
 
     virtual void DoSetValue(const wxString &value, int flags = 0);
 
+    virtual wxPoint DoPositionToCoords(long pos) const;
+
     // return true if this control has a user-set limit on amount of text (i.e.
     // the limit is due to a previous call to SetMaxLength() and not built in)
     bool HasSpaceLimit(unsigned int *len) const;
@@ -234,6 +235,7 @@ protected:
     bool SendUpdateEvent();
 
     virtual wxSize DoGetBestSize() const;
+    virtual wxSize DoGetSizeFromTextSize(int xlen, int ylen = -1) const;
 
 #if wxUSE_RICHEDIT
     // Apply the character-related parts of wxTextAttr to the given selection

@@ -2,7 +2,6 @@
 // Name:        wx/gtk/menu.h
 // Purpose:
 // Author:      Robert Roebling
-// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling, Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -21,6 +20,7 @@ public:
     wxMenuBar();
     wxMenuBar(long style);
     wxMenuBar(size_t n, wxMenu *menus[], const wxString titles[], long style = 0);
+    ~wxMenuBar();
 
     // implement base class (pure) virtuals
     virtual bool Append( wxMenu *menu, const wxString &title );
@@ -33,27 +33,27 @@ public:
     virtual wxMenuItem* FindItem( int id, wxMenu **menu = NULL ) const;
 
     virtual void EnableTop( size_t pos, bool flag );
+    virtual bool IsEnabledTop(size_t pos) const;
     virtual void SetMenuLabel( size_t pos, const wxString& label );
     virtual wxString GetMenuLabel( size_t pos ) const;
 
     void SetLayoutDirection(wxLayoutDirection dir);
     wxLayoutDirection GetLayoutDirection() const;
 
+    virtual void Attach(wxFrame *frame);
+    virtual void Detach();
+
+private:
+    // common part of Append and Insert
+    void GtkAppend(wxMenu* menu, const wxString& title, int pos = -1);
+
+    void Init(size_t n, wxMenu *menus[], const wxString titles[], long style);
+
     // wxMenuBar is not a top level window but it still doesn't need a parent
     // window
     virtual bool GTKNeedsParent() const { return false; }
 
-    virtual void Attach(wxFrame *frame);
-    virtual void Detach();
-
-    // implementation only from now on
-    GtkWidget       *m_menubar; // Public for hildon support
-
-private:
-    // common part of Append and Insert
-    bool GtkAppend(wxMenu *menu, const wxString& title, int pos=-1);
-
-    void Init(size_t n, wxMenu *menus[], const wxString titles[], long style);
+    GtkWidget* m_menubar;
 
     DECLARE_DYNAMIC_CLASS(wxMenuBar)
 };
@@ -81,7 +81,8 @@ public:
     // Returns the title, with mnemonics translated to wx format
     wxString GetTitle() const;
 
-    // TODO: virtual void SetTitle(const wxString& title);
+    // Sets the title, with mnemonics translated to gtk format
+    virtual void SetTitle(const wxString& title);
 
     // implementation GTK only
     GtkWidget       *m_menu;  // GtkMenu
@@ -99,7 +100,7 @@ private:
     void Init();
 
     // common part of Append (if pos == -1)  and Insert
-    bool GtkAppend(wxMenuItem *item, int pos=-1);
+    void GtkAppend(wxMenuItem* item, int pos = -1);
 
 
     DECLARE_DYNAMIC_CLASS(wxMenu)

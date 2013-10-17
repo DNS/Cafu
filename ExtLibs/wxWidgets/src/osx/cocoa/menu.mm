@@ -4,7 +4,6 @@
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     1998-01-01
-// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -18,15 +17,15 @@
 
 #include "wx/wxprec.h"
 
-#include "wx/menu.h"
-
 #ifndef WX_PRECOMP
-    #include "wx/log.h"
-    #include "wx/app.h"
-    #include "wx/utils.h"
-    #include "wx/frame.h"
-    #include "wx/menuitem.h"
+#include "wx/log.h"
+#include "wx/app.h"
+#include "wx/utils.h"
+#include "wx/frame.h"
+#include "wx/menuitem.h"
 #endif
+
+#include "wx/menu.h"
 
 #include "wx/osx/private.h"
 
@@ -55,11 +54,19 @@
 
 @end
 
+// this is more compatible, as it is also called for command-key shortcuts
+// and under 10.4, we are not getting a 'close' event however...
+#define wxOSX_USE_NEEDSUPDATE_HOOK 1
+
 @interface wxNSMenuController : NSObject wxOSX_10_6_AND_LATER(<NSMenuDelegate>)
 {
 }
 
+#if wxOSX_USE_NEEDSUPDATE_HOOK
+- (void)menuNeedsUpdate:(NSMenu*)smenu;
+#else
 - (void)menuWillOpen:(NSMenu *)menu;
+#endif
 - (void)menuDidClose:(NSMenu *)menu;
 - (void)menu:(NSMenu *)menu willHighlightItem:(NSMenuItem *)item;
 
@@ -73,6 +80,19 @@
     return self;
 }
 
+#if wxOSX_USE_NEEDSUPDATE_HOOK
+- (void)menuNeedsUpdate:(NSMenu*)smenu
+{
+    wxNSMenu* menu = (wxNSMenu*) smenu;
+    wxMenuImpl* menuimpl = [menu implementation];
+    if ( menuimpl )
+    {
+        wxMenu* wxpeer = (wxMenu*) menuimpl->GetWXPeer();
+        if ( wxpeer )
+            wxpeer->HandleMenuOpened();
+    }
+}
+#else
 - (void)menuWillOpen:(NSMenu *)smenu
 {
     wxNSMenu* menu = (wxNSMenu*) smenu;
@@ -84,6 +104,7 @@
             wxpeer->HandleMenuOpened();
     }
 }
+#endif
 
 - (void)menuDidClose:(NSMenu *)smenu
 {
@@ -144,7 +165,7 @@ public :
     virtual void InsertOrAppend(wxMenuItem *pItem, size_t pos)
     {
         NSMenuItem* nsmenuitem = (NSMenuItem*) pItem->GetPeer()->GetHMenuItem();
-        // make sure a call of SetSubMenu is also reflected (occuring after Create)
+        // make sure a call of SetSubMenu is also reflected (occurring after Create)
         // update the native menu item accordingly
         
         if ( pItem->IsSubMenu() )

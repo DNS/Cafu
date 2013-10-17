@@ -4,7 +4,6 @@
 // Author:      David Webster
 // Modified by:
 // Created:     10/12/99
-// RCS-ID:      $Id$
 // Copyright:   (c) David Webster
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -2544,7 +2543,7 @@ MRESULT wxWindowOS2::OS2WindowProc( WXUINT uMsg,
                             (pPage->ulPageIdNew > 0L && pPage->ulPageIdCur > 0L))
                         {
                             wxWindowOS2*        pWin = wxFindWinFromHandle(pPage->hwndBook);
-                            wxBookCtrlEvent     vEvent( wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGED
+                            wxBookCtrlEvent     vEvent( wxEVT_NOTEBOOK_PAGE_CHANGED
                                                        ,(int)SHORT1FROMMP(wParam)
                                                        ,(int)pPage->ulPageIdNew
                                                        ,(int)pPage->ulPageIdCur

@@ -3,7 +3,6 @@
 // Purpose:     functions to manipulate atomically integers and pointers
 // Author:      Armel Asselin
 // Created:     12/13/2006
-// RCS-ID:      $Id$
 // Copyright:   (c) Armel Asselin
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -43,7 +42,7 @@ inline wxUint32 wxAtomicDec (wxUint32 &value)
 }
 
 
-#elif defined(__WXMSW__)
+#elif defined(__WINDOWS__)
 
 // include standard Windows headers
 #include "wx/msw/wrapwin.h"

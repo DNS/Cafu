@@ -4,7 +4,6 @@
 // Author:      David Webster
 // Modified by:
 // Created:     10/06/99
-// RCS-ID:      $Id$
 // Copyright:   (c) David Webster
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -61,7 +60,7 @@ public:
     void SetValue(int nPos);
 
     inline virtual bool AcceptsFocus(void) const { return FALSE; }
-    inline virtual void Command(wxCommandEvent& WXUNUSED(rEvent)) {};
+    inline virtual void Command(wxCommandEvent& WXUNUSED(rEvent)) {}
 
 protected:
     int                             m_nRangeMax;

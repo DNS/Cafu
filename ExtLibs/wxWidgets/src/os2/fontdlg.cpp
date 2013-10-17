@@ -5,7 +5,6 @@
 // Author:      David Webster
 // Modified by:
 // Created:     10/06/99
-// RCS-ID:      $Id$
 // Copyright:   (c) David Webster
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +22,7 @@
 #endif
 
 #include "wx/fontutil.h"
+#include "wx/modalhook.h"
 
 #define INCL_PM
 #include <os2.h>
@@ -36,6 +36,8 @@ IMPLEMENT_DYNAMIC_CLASS(wxFontDialog, wxDialog)
 
 int wxFontDialog::ShowModal()
 {
+    WX_HOOK_MODAL_DIALOG();
+
     FONTDLG      vFontDlg;
     char         zCurrentFont[FACESIZE];
     HWND         hWndFontDlg;

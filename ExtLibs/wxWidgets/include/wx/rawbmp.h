@@ -4,7 +4,6 @@
 // Author:      Eric Kidd, Vadim Zeitlin
 // Modified by:
 // Created:     10.03.03
-// RCS-ID:      $Id$
 // Copyright:   (c) 2002 Vadim Zeitlin <vadim@wxwidgets.org>
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -170,6 +169,11 @@ typedef wxPixelFormat<unsigned char, 24, 0, 1, 2> wxImagePixelFormat;
     #define wxPIXEL_FORMAT_ALPHA 3
 #elif defined(__WXGTK__)
     // Under GTK+ 2.X we use GdkPixbuf, which is standard RGB or RGBA
+    typedef wxPixelFormat<unsigned char, 24, 0, 1, 2> wxNativePixelFormat;
+
+    #define wxPIXEL_FORMAT_ALPHA 3
+#elif defined(__WXPM__)
+    // Under PM, we can use standard RGB or RGBA
     typedef wxPixelFormat<unsigned char, 24, 0, 1, 2> wxNativePixelFormat;
 
     #define wxPIXEL_FORMAT_ALPHA 3

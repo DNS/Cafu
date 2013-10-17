@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin, Ryan Norton
 // Modified by:
 // Created:     29/01/98
-// RCS-ID:      $Id$
 // Copyright:   (c) 1998 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
 //              (c) 2004 Ryan Norton <wxprojects@comcast.net>
 // Licence:     wxWindows licence
@@ -41,9 +40,9 @@
 #include "wx/vector.h"
 #include "wx/xlocale.h"
 
-#ifdef __WXMSW__
+#ifdef __WINDOWS__
     #include "wx/msw/wrapwin.h"
-#endif // __WXMSW__
+#endif // __WINDOWS__
 
 #if wxUSE_STD_IOSTREAM
     #include <sstream>
@@ -1169,12 +1168,6 @@ int wxString::CmpNoCase(const wxString& s) const
 
 #if wxUSE_UNICODE
 
-#ifdef __MWERKS__
-#ifndef __SCHAR_MAX__
-#define __SCHAR_MAX__ 127
-#endif
-#endif
-
 wxString wxString::FromAscii(const char *ascii, size_t len)
 {
     if (!ascii || len == 0)
@@ -1442,7 +1435,7 @@ size_t wxString::Replace(const wxString& strOld,
     }
     else if ( !bReplaceAll)
     {
-        size_t pos = m_impl.find(strOld, 0);
+        size_t pos = m_impl.find(strOld.m_impl, 0);
         if ( pos != npos )
         {
             m_impl.replace(pos, strOld.m_impl.length(), strNew.m_impl);

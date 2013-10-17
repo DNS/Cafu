@@ -4,7 +4,6 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     04/01/98
-// RCS-ID:      $Id$
 // Copyright:   (c) 1998-2002 wxWidgets dev team
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -48,9 +47,7 @@
 
 #if !defined(__GNUWIN32__) && !defined(__WXMICROWIN__) && !defined(__WXWINCE__)
     #include <direct.h>
-#ifndef __MWERKS__
     #include <dos.h>
-#endif
 #endif
 
 #if defined(__GNUWIN32__)
@@ -82,9 +79,16 @@
     #include "wx/dde.h"         // for WX_DDE hack in wxExecute
 #endif // wxUSE_IPC
 
-// implemented in utils.cpp
-extern "C" WXDLLIMPEXP_BASE HWND
-wxCreateHiddenWindow(LPCTSTR *pclassname, LPCTSTR classname, WNDPROC wndproc);
+#include "wx/msw/private/hiddenwin.h"
+
+// FIXME-VC6: These are not defined in VC6 SDK headers.
+#ifndef BELOW_NORMAL_PRIORITY_CLASS
+    #define BELOW_NORMAL_PRIORITY_CLASS 0x4000
+#endif
+
+#ifndef ABOVE_NORMAL_PRIORITY_CLASS
+    #define ABOVE_NORMAL_PRIORITY_CLASS 0x8000
+#endif
 
 // ----------------------------------------------------------------------------
 // constants
@@ -196,50 +200,8 @@ IMPLEMENT_DYNAMIC_CLASS(wxExecuteModule, wxModule)
 
 #if wxUSE_STREAMS && !defined(__WXWINCE__)
 
-// ----------------------------------------------------------------------------
-// wxPipeStreams
-// ----------------------------------------------------------------------------
-
-class wxPipeInputStream: public wxInputStream
-{
-public:
-    wxPipeInputStream(HANDLE hInput);
-    virtual ~wxPipeInputStream();
-
-    // returns true if the pipe is still opened
-    bool IsOpened() const { return m_hInput != INVALID_HANDLE_VALUE; }
-
-    // returns true if there is any data to be read from the pipe
-    virtual bool CanRead() const;
-
-protected:
-    size_t OnSysRead(void *buffer, size_t len);
-
-protected:
-    HANDLE m_hInput;
-
-    wxDECLARE_NO_COPY_CLASS(wxPipeInputStream);
-};
-
-class wxPipeOutputStream: public wxOutputStream
-{
-public:
-    wxPipeOutputStream(HANDLE hOutput);
-    virtual ~wxPipeOutputStream() { Close(); }
-    bool Close();
-
-protected:
-    size_t OnSysWrite(const void *buffer, size_t len);
-
-protected:
-    HANDLE m_hOutput;
-
-    wxDECLARE_NO_COPY_CLASS(wxPipeOutputStream);
-};
-
-// define this to let wxexec.cpp know that we know what we're doing
-#define _WX_USED_BY_WXEXECUTE_
-#include "../common/execcmn.cpp"
+#include "wx/private/pipestream.h"
+#include "wx/private/streamtempinput.h"
 
 // ----------------------------------------------------------------------------
 // wxPipe represents a Win32 anonymous pipe
@@ -757,15 +719,6 @@ long wxExecute(const wxString& cmd, int flags, wxProcess *handler,
         si.hStdOutput = pipeOut[wxPipe::Write];
         si.hStdError = pipeErr[wxPipe::Write];
 
-        // when the std IO is redirected, we don't show the (console) process
-        // window by default, but this can be overridden by the caller by
-        // specifying wxEXEC_NOHIDE flag
-        if ( !(flags & wxEXEC_NOHIDE) )
-        {
-            si.dwFlags |= STARTF_USESHOWWINDOW;
-            si.wShowWindow = SW_HIDE;
-        }
-
         // we must duplicate the handle to the write side of stdin pipe to make
         // it non inheritable: indeed, we must close the writing end of pipeIn
         // before launching the child process as otherwise this handle will be
@@ -790,10 +743,25 @@ long wxExecute(const wxString& cmd, int flags, wxProcess *handler,
     }
 #endif // wxUSE_STREAMS
 
+    // The default logic for showing the console is to show it only if the IO
+    // is not redirected however wxEXEC_{SHOW,HIDE}_CONSOLE flags can be
+    // explicitly specified to change it.
+    if ( (flags & wxEXEC_HIDE_CONSOLE) ||
+            (redirect && !(flags & wxEXEC_SHOW_CONSOLE)) )
+    {
+        si.dwFlags |= STARTF_USESHOWWINDOW;
+        si.wShowWindow = SW_HIDE;
+    }
+
+
     PROCESS_INFORMATION pi;
     DWORD dwFlags = CREATE_SUSPENDED;
 
 #ifndef __WXWINCE__
+    if ( (flags & wxEXEC_MAKE_GROUP_LEADER) &&
+            (wxGetOsVersion() == wxOS_WINDOWS_NT) )
+        dwFlags |= CREATE_NEW_PROCESS_GROUP;
+
     dwFlags |= CREATE_DEFAULT_ERROR_MODE ;
 #else
     // we are assuming commands without spaces for now
@@ -850,19 +818,39 @@ long wxExecute(const wxString& cmd, int flags, wxProcess *handler,
         }
     }
 
+    // Translate wxWidgets priority to Windows conventions.
+    if ( handler )
+    {
+        unsigned prio = handler->GetPriority();
+        if ( prio <= 20 )
+            dwFlags |= IDLE_PRIORITY_CLASS;
+        else if ( prio <= 40 )
+            dwFlags |= BELOW_NORMAL_PRIORITY_CLASS;
+        else if ( prio <= 60 )
+            dwFlags |= NORMAL_PRIORITY_CLASS;
+        else if ( prio <= 80 )
+            dwFlags |= ABOVE_NORMAL_PRIORITY_CLASS;
+        else if ( prio <= 99 )
+            dwFlags |= HIGH_PRIORITY_CLASS;
+        else if ( prio <= 100 )
+            dwFlags |= REALTIME_PRIORITY_CLASS;
+        else
+        {
+            wxFAIL_MSG(wxT("invalid value of thread priority parameter"));
+            dwFlags |= NORMAL_PRIORITY_CLASS;
+        }
+    }
+
     bool ok = ::CreateProcess
                 (
                     // WinCE requires appname to be non null
                     // Win32 allows for null
 #ifdef __WXWINCE__
-                 (wxChar *)
-                 moduleName.wx_str(),// application name
-                 (wxChar *)
-                 arguments.wx_str(), // arguments
+                 moduleName.t_str(), // application name
+                 wxMSW_CONV_LPTSTR(arguments), // arguments
 #else
                  NULL,               // application name (use only cmd line)
-                 (wxChar *)
-                 command.wx_str(),   // full command line
+                 wxMSW_CONV_LPTSTR(command), // full command line
 #endif
                  NULL,               // security attributes: defaults for both
                  NULL,               //   the process and its main thread
@@ -870,7 +858,7 @@ long wxExecute(const wxString& cmd, int flags, wxProcess *handler,
                  dwFlags,            // process creation flags
                  envBuffer.data(),   // environment (may be NULL which is fine)
                  useCwd              // initial working directory
-                    ? const_cast<wxChar *>(env->cwd.wx_str())
+                    ? wxMSW_CONV_LPTSTR(env->cwd)
                     : NULL,          //     (or use the same)
                  &si,                // startup info (unused here)
                  &pi                 // process info
@@ -997,7 +985,7 @@ long wxExecute(const wxString& cmd, int flags, wxProcess *handler,
     // just launched process
     if ( !ddeServer.empty() )
     {
-        bool ok;
+        bool ddeOK;
 
         // give the process the time to init itself
         //
@@ -1016,15 +1004,15 @@ long wxExecute(const wxString& cmd, int flags, wxProcess *handler,
             case WAIT_TIMEOUT:
                 wxLogDebug(wxT("Timeout too small in WaitForInputIdle"));
 
-                ok = false;
+                ddeOK = false;
                 break;
 
             case 0:
                 // ok, process ready to accept DDE requests
-                ok = wxExecuteDDE(ddeServer, ddeTopic, ddeCommand);
+                ddeOK = wxExecuteDDE(ddeServer, ddeTopic, ddeCommand);
         }
 
-        if ( !ok )
+        if ( !ddeOK )
         {
             wxLogDebug(wxT("Failed to send DDE request to the process \"%s\"."),
                        cmd.c_str());

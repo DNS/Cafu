@@ -2,7 +2,6 @@
 // Name:        wx/gtk/font.h
 // Purpose:
 // Author:      Robert Roebling
-// Id:          $Id$
 // Copyright:   (c) 1998 Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -19,7 +18,8 @@ class WXDLLIMPEXP_CORE wxFont : public wxFontBase
 public:
     wxFont() { }
 
-    // wxGTK-specific
+    wxFont(const wxFontInfo& info);
+
     wxFont(const wxString& nativeFontInfoString)
     {
         Create(nativeFontInfoString);
@@ -82,6 +82,7 @@ public:
     virtual wxFontWeight GetWeight() const;
     virtual wxString GetFaceName() const;
     virtual bool GetUnderlined() const;
+    virtual bool GetStrikethrough() const;
     virtual wxFontEncoding GetEncoding() const;
     virtual const wxNativeFontInfo *GetNativeFontInfo() const;
     virtual bool IsFixedWidth() const;
@@ -92,9 +93,17 @@ public:
     virtual void SetWeight(wxFontWeight weight);
     virtual bool SetFaceName( const wxString& faceName );
     virtual void SetUnderlined( bool underlined );
+    virtual void SetStrikethrough(bool strikethrough);
     virtual void SetEncoding(wxFontEncoding encoding);
 
     wxDECLARE_COMMON_FONT_METHODS();
+
+    // Set Pango attributes in the specified layout. Currently only
+    // underlined and strike-through attributes are handled by this function.
+    //
+    // If neither of them is specified, returns false, otherwise sets up the
+    // attributes and returns true.
+    bool GTKSetPangoAttrs(PangoLayout* layout) const;
 
     // implementation from now on
     void Unshare();
@@ -104,15 +113,14 @@ public:
 protected:
     virtual void DoSetNativeFontInfo( const wxNativeFontInfo& info );
 
-    // common part of all ctors
-    void Init();
-
     virtual wxGDIRefData* CreateGDIRefData() const;
     virtual wxGDIRefData* CloneGDIRefData(const wxGDIRefData* data) const;
 
     virtual wxFontFamily DoGetFamily() const;
 
 private:
+    void Init();
+
     DECLARE_DYNAMIC_CLASS(wxFont)
 };
 

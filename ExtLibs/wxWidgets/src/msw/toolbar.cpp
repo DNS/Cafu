@@ -4,7 +4,6 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     04/01/98
-// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -127,6 +126,7 @@ IMPLEMENT_DYNAMIC_CLASS(wxToolBar, wxControl)
 BEGIN_EVENT_TABLE(wxToolBar, wxToolBarBase)
     EVT_MOUSE_EVENTS(wxToolBar::OnMouseEvent)
     EVT_SYS_COLOUR_CHANGED(wxToolBar::OnSysColourChanged)
+    EVT_ERASE_BACKGROUND(wxToolBar::OnEraseBackground)
 END_EVENT_TABLE()
 
 // ----------------------------------------------------------------------------
@@ -340,7 +340,10 @@ bool wxToolBar::Create(wxWindow *parent,
     // in WM_ERASEBKGND too (by default this won't be done but if the toolbar
     // has a non default background colour, then it would be used in both
     // places resulting in flicker)
-    SetBackgroundStyle(wxBG_STYLE_PAINT);
+    if (wxApp::GetComCtl32Version() >= 600)
+    {
+        SetBackgroundStyle(wxBG_STYLE_PAINT);
+    }
 
     return true;
 }
@@ -568,13 +571,17 @@ bool wxToolBar::DoDeleteTool(size_t pos, wxToolBarToolBase *tool)
     // get the size of the button we're going to delete
     const RECT r = wxGetTBItemRect(GetHwnd(), pos);
 
-    int width = r.right - r.left;
+    int delta = IsVertical() ? r.bottom - r.top : r.right - r.left;
 
     if ( tool->IsControl() )
     {
         nButtonsToDelete = ((wxToolBarTool *)tool)->GetSeparatorsCount();
-        width *= nButtonsToDelete;
+
+        if ( !IsVertical() )
+            delta *= nButtonsToDelete;
     }
+
+    m_totalFixedSize -= delta;
 
     // do delete all buttons
     m_nButtons -= nButtonsToDelete;
@@ -588,14 +595,45 @@ bool wxToolBar::DoDeleteTool(size_t pos, wxToolBarToolBase *tool)
         }
     }
 
-    // and finally reposition all the controls after this button (the toolbar
-    // takes care of all normal items)
-    for ( /* node -> first after deleted */ ; node; node = node->GetNext() )
+    // and finally rearrange the tools
+
+    // search for any stretch spacers before the removed tool
+    bool hasPrecedingStrechables = false;
+    for ( wxToolBarToolsList::compatibility_iterator nodeStch = m_tools.GetFirst();
+                                 nodeStch != node; nodeStch = nodeStch->GetNext() )
     {
-        wxToolBarTool *tool2 = (wxToolBarTool*)node->GetData();
-        if ( tool2->IsControl() )
+        if ( ((wxToolBarTool*)nodeStch->GetData())->IsStretchable() )
         {
-            tool2->MoveBy(-width);
+            hasPrecedingStrechables = true;
+            break;
+        }
+    }
+
+    if ( hasPrecedingStrechables )
+    {
+        // if the removed tool is preceded by stretch spacers
+        // just redistribute the space
+        UpdateStretchableSpacersSize();
+    }
+    else
+    {
+        // reposition all the controls after this button but before any
+        // stretch spacer (the toolbar takes care of all normal items)
+        for ( /* node -> first after deleted */ ; node; node = node->GetNext() )
+        {
+            wxToolBarTool *tool2 = (wxToolBarTool*)node->GetData();
+
+            if ( tool2->IsControl() )
+            {
+                tool2->MoveBy(-delta);
+            }
+
+            // if a stretch spacer is found just redistribute the available space
+            else if ( tool2->IsStretchable() )
+            {
+                UpdateStretchableSpacersSize();
+                break;
+            }
         }
     }
 
@@ -946,7 +984,7 @@ bool wxToolBar::Realize()
                 {
                     const wxString& label = tool->GetLabel();
                     if ( !label.empty() )
-                        button.iString = (INT_PTR)label.wx_str();
+                        button.iString = (INT_PTR) wxMSW_CONV_LPCTSTR(label);
                 }
 
                 button.idCommand = tool->GetId();
@@ -1013,6 +1051,14 @@ bool wxToolBar::Realize()
                         button.fsStyle = TBSTYLE_BUTTON;
                         break;
                 }
+
+                // Instead of using fixed widths for all buttons, size them
+                // automatically according to the size of their bitmap and text
+                // label, if present. This particularly matters for toolbars
+                // with the wxTB_HORZ_LAYOUT style: they look hideously ugly
+                // without autosizing when the labels have even slightly
+                // different lengths.
+                button.fsStyle |= TBSTYLE_AUTOSIZE;
 
                 bitmapId++;
                 break;
@@ -1344,7 +1390,7 @@ bool wxToolBar::MSWOnNotify(int WXUNUSED(idCtrl),
     {
         LPNMTOOLBAR tbhdr = (LPNMTOOLBAR)lParam;
 
-        wxCommandEvent evt(wxEVT_COMMAND_TOOL_DROPDOWN_CLICKED, tbhdr->iItem);
+        wxCommandEvent evt(wxEVT_TOOL_DROPDOWN, tbhdr->iItem);
         if ( HandleWindowEvent(evt) )
         {
             // Event got handled, don't display default popup menu
@@ -1644,6 +1690,15 @@ void wxToolBar::OnMouseEvent(wxMouseEvent& event)
     }
 }
 
+// This handler is needed to fix problems with painting the background of
+// toolbar icons with comctl32.dll < 6.0.
+void wxToolBar::OnEraseBackground(wxEraseEvent& event)
+{
+#ifdef wxHAS_MSW_BACKGROUND_ERASE_HOOK
+    MSWDoEraseBackground(event.GetDC()->GetHDC());
+#endif // wxHAS_MSW_BACKGROUND_ERASE_HOOK
+}
+
 bool wxToolBar::HandleSize(WXWPARAM WXUNUSED(wParam), WXLPARAM lParam)
 {
     // wait until we have some tools
@@ -1893,6 +1948,10 @@ WXLRESULT wxToolBar::MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lParam
                 return 0;
             break;
 #endif // wxHAS_MSW_BACKGROUND_ERASE_HOOK
+
+        case WM_PRINTCLIENT:
+            wxFillRect(GetHwnd(), (HDC)wParam, MSWGetToolbarBgBrush());
+            return 1;
     }
 
     return wxControl::MSWWindowProc(nMsg, wParam, lParam);

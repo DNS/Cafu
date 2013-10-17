@@ -4,7 +4,6 @@
 // Author:      Ove Kaaven, Robert Roebling, Vadim Zeitlin
 // Modified by:
 // Created:     29/01/98
-// RCS-ID:      $Id$
 // Copyright:   (c) 1998 Ove Kaaven, Robert Roebling
 //              (c) 1998-2006 Vadim Zeitlin
 // Licence:     wxWindows licence
@@ -25,9 +24,7 @@
 #  undef __BSEXCPT__
 #endif
 
-#ifndef __WXPALMOS5__
 #include <stdlib.h>
-#endif // ! __WXPALMOS5__
 
 class WXDLLIMPEXP_FWD_BASE wxString;
 

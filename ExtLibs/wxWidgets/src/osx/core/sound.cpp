@@ -4,7 +4,6 @@
 // Author:      Stefan Csomor
 // Modified by: Stefan Csomor
 // Created:     2009-01-01
-// RCS-ID:      $Id$
 // Copyright:   (c) Stefan Csomor
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -129,7 +128,7 @@ bool wxOSXAudioToolboxSoundData::Play(unsigned flags)
     return true;
 }
 
-bool wxSound::Create(int WXUNUSED(size), const wxByte* WXUNUSED(data))
+bool wxSound::Create(size_t WXUNUSED(size), const void* WXUNUSED(data))
 {
     wxFAIL_MSG( "not implemented" );
 

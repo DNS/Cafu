@@ -3,7 +3,6 @@
 // Purpose:     macros for implementing type-safe vararg passing of strings
 // Author:      Vaclav Slavik
 // Created:     2007-02-19
-// RCS-ID:      $Id$
 // Copyright:   (c) 2007 REA Elektronik GmbH
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -161,6 +160,19 @@ public:
         {
             if ( CopyFmtChar(*format++) == wxT('%') )
             {
+#if wxUSE_PRINTF_POS_PARAMS
+                if ( *format >= '0' && *format <= '9' )
+                {
+                    SkipDigits(&format);
+                    if ( *format == '$' )
+                    {
+                        // It was a positional argument specification.
+                        CopyFmtChar(*format++);
+                    }
+                    //else: it was a width specification, nothing else to do.
+                }
+#endif // wxUSE_PRINTF_POS_PARAMS
+
                 // skip any flags
                 while ( IsFlagChar(*format) )
                     CopyFmtChar(*format++);
@@ -422,6 +434,8 @@ class wxPrintfFormatConverterWchar : public wxFormatConverterBase<wchar_t>
 };
 #endif // !wxUSE_UTF8_LOCALE_ONLY
 
+#endif // __WINDOWS__/!__WINDOWS__
+
 #if wxUSE_UNICODE_UTF8
 class wxPrintfFormatConverterUtf8 : public wxFormatConverterBase<char>
 {
@@ -444,8 +458,6 @@ class wxPrintfFormatConverterUtf8 : public wxFormatConverterBase<char>
     }
 };
 #endif // wxUSE_UNICODE_UTF8
-
-#endif // __WINDOWS__/!__WINDOWS__
 
 #if !wxUSE_UNICODE // FIXME-UTF8: remove
 class wxPrintfFormatConverterANSI : public wxFormatConverterBase<char>

@@ -4,7 +4,6 @@
 // Author:      David Webster
 // Modified by:
 // Created:     10/27/99
-// RCS-ID:      $Id$
 // Copyright:   (c) David Webster
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -1071,9 +1070,8 @@ MRESULT EXPENTRY wxFrameMainWndProc( HWND   hWnd,
 {
     MRESULT  rc = (MRESULT)0;
     bool     bProcessed = false;
-    wxFrame* pWnd  = NULL;
 
-    pWnd = (wxFrame*) wxFindWinFromHandle((WXHWND) hWnd);
+    wxFrame* pWnd  = (wxFrame*) wxFindWinFromHandle((WXHWND) hWnd);
     switch (ulMsg)
     {
         case WM_QUERYFRAMECTLCOUNT:

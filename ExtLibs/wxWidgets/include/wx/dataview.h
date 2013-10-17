@@ -4,7 +4,6 @@
 // Author:      Robert Roebling
 // Modified by: Bo Yang
 // Created:     08.01.06
-// RCS-ID:      $Id$
 // Copyright:   (c) Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -19,11 +18,14 @@
 #include "wx/textctrl.h"
 #include "wx/headercol.h"
 #include "wx/variant.h"
+#include "wx/dnd.h"             // For wxDragResult declaration only.
 #include "wx/dynarray.h"
 #include "wx/icon.h"
+#include "wx/itemid.h"
 #include "wx/weakref.h"
 #include "wx/vector.h"
 #include "wx/dataobj.h"
+#include "wx/withimages.h"
 
 class WXDLLIMPEXP_FWD_CORE wxImageList;
 
@@ -44,7 +46,6 @@ class WXDLLIMPEXP_FWD_CORE wxImageList;
 // wxDataViewCtrl globals
 // ----------------------------------------------------------------------------
 
-class WXDLLIMPEXP_FWD_ADV wxDataViewItem;
 class WXDLLIMPEXP_FWD_ADV wxDataViewModel;
 class WXDLLIMPEXP_FWD_ADV wxDataViewCtrl;
 class WXDLLIMPEXP_FWD_ADV wxDataViewColumn;
@@ -78,32 +79,13 @@ extern WXDLLIMPEXP_DATA_ADV(const char) wxDataViewCtrlNameStr[];
 // wxDataViewItem
 // ---------------------------------------------------------
 
-class WXDLLIMPEXP_ADV wxDataViewItem
+// Make it a class and not a typedef to allow forward declaring it.
+class wxDataViewItem : public wxItemId<void*>
 {
 public:
-    wxDataViewItem( void* id = NULL )
-        { m_id = id; }
-    wxDataViewItem( const wxDataViewItem &item )
-        { m_id = item.m_id; }
-    bool IsOk() const                  { return m_id != NULL; }
-    void* GetID() const                { return m_id; }
-    operator const void* () const      { return m_id; }
-
-private:
-    void* m_id;
+    wxDataViewItem() : wxItemId<void*>() { }
+    wxEXPLICIT wxDataViewItem(void* pItem) : wxItemId<void*>(pItem) { }
 };
-
-inline
-bool operator==(const wxDataViewItem& left, const wxDataViewItem& right)
-{
-    return left.GetID() == right.GetID();
-}
-
-inline
-bool operator!=(const wxDataViewItem& left, const wxDataViewItem& right)
-{
-    return !(left == right);
-}
 
 WX_DEFINE_ARRAY(wxDataViewItem, wxDataViewItemArray);
 
@@ -161,6 +143,7 @@ public:
     void SetColour(const wxColour& colour) { m_colour = colour; }
     void SetBold( bool set ) { m_bold = set; }
     void SetItalic( bool set ) { m_italic = set; }
+    void SetBackgroundColour(const wxColour& colour)  { m_bgColour = colour; }
 
     // accessors
     bool HasColour() const { return m_colour.IsOk(); }
@@ -170,7 +153,10 @@ public:
     bool GetBold() const { return m_bold; }
     bool GetItalic() const { return m_italic; }
 
-    bool IsDefault() const { return !(HasColour() || HasFont()); }
+    bool HasBackgroundColour() const { return m_bgColour.IsOk(); }
+    const wxColour& GetBackgroundColour() const { return m_bgColour; }
+
+    bool IsDefault() const { return !(HasColour() || HasFont() || HasBackgroundColour()); }
 
     // Return the font based on the given one with this attribute applied to it.
     wxFont GetEffectiveFont(const wxFont& font) const;
@@ -179,6 +165,7 @@ private:
     wxColour m_colour;
     bool     m_bold;
     bool     m_italic;
+    wxColour m_bgColour;
 };
 
 
@@ -241,7 +228,7 @@ public:
         return true;
     }
 
-    // define hierachy
+    // define hierarchy
     virtual wxDataViewItem GetParent( const wxDataViewItem &item ) const = 0;
     virtual bool IsContainer( const wxDataViewItem &item ) const = 0;
     // Is the container just a header or an item with all columns
@@ -389,12 +376,6 @@ public:
     virtual unsigned GetRow( const wxDataViewItem &item ) const;
     wxDataViewItem GetItem( unsigned int row ) const;
 
-    // compare based on index
-
-    virtual int Compare( const wxDataViewItem &item1, const wxDataViewItem &item2,
-                         unsigned int column, bool ascending ) const;
-    virtual bool HasDefaultCompare() const;
-
     // implement base methods
     virtual unsigned int GetChildren( const wxDataViewItem &item, wxDataViewItemArray &children ) const;
 
@@ -450,7 +431,6 @@ public:
 
 private:
     unsigned int m_size;
-    bool m_ordered;
 };
 #endif
 
@@ -681,7 +661,18 @@ public:
     wxDataViewItem GetCurrentItem() const;
     void SetCurrentItem(const wxDataViewItem& item);
 
-    virtual wxDataViewItem GetSelection() const = 0;
+    // Currently focused column of the current item or NULL if no column has focus
+    virtual wxDataViewColumn *GetCurrentColumn() const = 0;
+
+    // Selection: both GetSelection() and GetSelections() can be used for the
+    // controls both with and without wxDV_MULTIPLE style. For single selection
+    // controls GetSelections() is not very useful however. And for multi
+    // selection controls GetSelection() returns an invalid item if more than
+    // one item is selected. Use GetSelectedItemsCount() or HasSelection() to
+    // check if any items are selected at all.
+    virtual int GetSelectedItemsCount() const = 0;
+    bool HasSelection() const { return GetSelectedItemsCount() != 0; }
+    wxDataViewItem GetSelection() const;
     virtual int GetSelections( wxDataViewItemArray & sel ) const = 0;
     virtual void SetSelections( const wxDataViewItemArray & sel ) = 0;
     virtual void Select( const wxDataViewItem & item ) = 0;
@@ -703,9 +694,10 @@ public:
 
     virtual bool SetRowHeight( int WXUNUSED(rowHeight) ) { return false; }
 
-    virtual void StartEditor( const wxDataViewItem & WXUNUSED(item),
-                              unsigned int WXUNUSED(column) )
-        { }
+    virtual void EditItem(const wxDataViewItem& item, const wxDataViewColumn *column) = 0;
+
+    // Use EditItem() instead
+    wxDEPRECATED( void StartEditor(const wxDataViewItem& item, unsigned int column) );
 
 #if wxUSE_DRAG_AND_DROP
     virtual bool EnableDragSource(const wxDataFormat& WXUNUSED(format))
@@ -763,11 +755,14 @@ public:
         m_column(NULL),
         m_pos(-1,-1),
         m_cacheFrom(0),
-        m_cacheTo(0)
+        m_cacheTo(0),
+        m_editCancelled(false)
 #if wxUSE_DRAG_AND_DROP
         , m_dataObject(NULL),
         m_dataBuffer(NULL),
-        m_dataSize(0)
+        m_dataSize(0),
+        m_dragFlags(0),
+        m_dropEffect(wxDragNone)
 #endif
         { }
 
@@ -780,12 +775,15 @@ public:
         m_column(event.m_column),
         m_pos(event.m_pos),
         m_cacheFrom(event.m_cacheFrom),
-        m_cacheTo(event.m_cacheTo)
+        m_cacheTo(event.m_cacheTo),
+        m_editCancelled(event.m_editCancelled)
 #if wxUSE_DRAG_AND_DROP
         , m_dataObject(event.m_dataObject),
         m_dataFormat(event.m_dataFormat),
         m_dataBuffer(event.m_dataBuffer),
-        m_dataSize(event.m_dataSize)
+        m_dataSize(event.m_dataSize),
+        m_dragFlags(event.m_dragFlags),
+        m_dropEffect(event.m_dropEffect)
 #endif
         { }
 
@@ -801,6 +799,10 @@ public:
     const wxVariant &GetValue() const { return m_value; }
     void SetValue( const wxVariant &value ) { m_value = value; }
 
+    // for wxEVT_DATAVIEW_ITEM_EDITING_DONE only
+    bool IsEditCancelled() const { return m_editCancelled; }
+    void SetEditCanceled(bool editCancelled) { m_editCancelled = editCancelled; }
+
     // for wxEVT_DATAVIEW_COLUMN_HEADER_CLICKED only
     void SetDataViewColumn( wxDataViewColumn *col ) { m_column = col; }
     wxDataViewColumn *GetDataViewColumn() const { return m_column; }
@@ -809,7 +811,7 @@ public:
     wxPoint GetPosition() const { return m_pos; }
     void SetPosition( int x, int y ) { m_pos.x = x; m_pos.y = y; }
 
-    // For wxEVT_COMMAND_DATAVIEW_CACHE_HINT
+    // For wxEVT_DATAVIEW_CACHE_HINT
     int GetCacheFrom() const { return m_cacheFrom; }
     int GetCacheTo() const { return m_cacheTo; }
     void SetCache(int from, int to) { m_cacheFrom = from; m_cacheTo = to; }
@@ -827,6 +829,10 @@ public:
     size_t GetDataSize() const { return m_dataSize; }
     void SetDataBuffer( void* buf ) { m_dataBuffer = buf;}
     void *GetDataBuffer() const { return m_dataBuffer; }
+    void SetDragFlags( int flags ) { m_dragFlags = flags; }
+    int GetDragFlags() const { return m_dragFlags; }
+    void SetDropEffect( wxDragResult effect ) { m_dropEffect = effect; }
+    wxDragResult GetDropEffect() const { return m_dropEffect; }
 #endif // wxUSE_DRAG_AND_DROP
 
     virtual wxEvent *Clone() const { return new wxDataViewEvent(*this); }
@@ -840,6 +846,7 @@ protected:
     wxPoint             m_pos;
     int                 m_cacheFrom;
     int                 m_cacheTo;
+    bool                m_editCancelled;
 
 #if wxUSE_DRAG_AND_DROP
     wxDataObject       *m_dataObject;
@@ -847,36 +854,39 @@ protected:
     wxDataFormat        m_dataFormat;
     void*               m_dataBuffer;
     size_t              m_dataSize;
+
+    int                 m_dragFlags;
+    wxDragResult        m_dropEffect;
 #endif // wxUSE_DRAG_AND_DROP
 
 private:
     DECLARE_DYNAMIC_CLASS_NO_ASSIGN(wxDataViewEvent)
 };
 
-wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_COMMAND_DATAVIEW_SELECTION_CHANGED, wxDataViewEvent );
+wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_DATAVIEW_SELECTION_CHANGED, wxDataViewEvent );
 
-wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_COMMAND_DATAVIEW_ITEM_ACTIVATED, wxDataViewEvent );
-wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_COMMAND_DATAVIEW_ITEM_COLLAPSED, wxDataViewEvent );
-wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_COMMAND_DATAVIEW_ITEM_EXPANDED, wxDataViewEvent );
-wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_COMMAND_DATAVIEW_ITEM_COLLAPSING, wxDataViewEvent );
-wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_COMMAND_DATAVIEW_ITEM_EXPANDING, wxDataViewEvent );
-wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_COMMAND_DATAVIEW_ITEM_START_EDITING, wxDataViewEvent );
-wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_COMMAND_DATAVIEW_ITEM_EDITING_STARTED, wxDataViewEvent );
-wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_COMMAND_DATAVIEW_ITEM_EDITING_DONE, wxDataViewEvent );
-wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_COMMAND_DATAVIEW_ITEM_VALUE_CHANGED, wxDataViewEvent );
+wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_DATAVIEW_ITEM_ACTIVATED, wxDataViewEvent );
+wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_DATAVIEW_ITEM_COLLAPSED, wxDataViewEvent );
+wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_DATAVIEW_ITEM_EXPANDED, wxDataViewEvent );
+wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_DATAVIEW_ITEM_COLLAPSING, wxDataViewEvent );
+wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_DATAVIEW_ITEM_EXPANDING, wxDataViewEvent );
+wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_DATAVIEW_ITEM_START_EDITING, wxDataViewEvent );
+wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_DATAVIEW_ITEM_EDITING_STARTED, wxDataViewEvent );
+wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_DATAVIEW_ITEM_EDITING_DONE, wxDataViewEvent );
+wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_DATAVIEW_ITEM_VALUE_CHANGED, wxDataViewEvent );
 
-wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_COMMAND_DATAVIEW_ITEM_CONTEXT_MENU, wxDataViewEvent );
+wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_DATAVIEW_ITEM_CONTEXT_MENU, wxDataViewEvent );
 
-wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_COMMAND_DATAVIEW_COLUMN_HEADER_CLICK, wxDataViewEvent );
-wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_COMMAND_DATAVIEW_COLUMN_HEADER_RIGHT_CLICK, wxDataViewEvent );
-wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_COMMAND_DATAVIEW_COLUMN_SORTED, wxDataViewEvent );
-wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_COMMAND_DATAVIEW_COLUMN_REORDERED, wxDataViewEvent );
+wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_DATAVIEW_COLUMN_HEADER_CLICK, wxDataViewEvent );
+wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_DATAVIEW_COLUMN_HEADER_RIGHT_CLICK, wxDataViewEvent );
+wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_DATAVIEW_COLUMN_SORTED, wxDataViewEvent );
+wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_DATAVIEW_COLUMN_REORDERED, wxDataViewEvent );
 
-wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_COMMAND_DATAVIEW_CACHE_HINT, wxDataViewEvent );
+wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_DATAVIEW_CACHE_HINT, wxDataViewEvent );
 
-wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_COMMAND_DATAVIEW_ITEM_BEGIN_DRAG, wxDataViewEvent );
-wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_COMMAND_DATAVIEW_ITEM_DROP_POSSIBLE, wxDataViewEvent );
-wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_COMMAND_DATAVIEW_ITEM_DROP, wxDataViewEvent );
+wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_DATAVIEW_ITEM_BEGIN_DRAG, wxDataViewEvent );
+wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_DATAVIEW_ITEM_DROP_POSSIBLE, wxDataViewEvent );
+wxDECLARE_EXPORTED_EVENT( WXDLLIMPEXP_ADV, wxEVT_DATAVIEW_ITEM_DROP, wxDataViewEvent );
 
 typedef void (wxEvtHandler::*wxDataViewEventFunction)(wxDataViewEvent&);
 
@@ -884,7 +894,7 @@ typedef void (wxEvtHandler::*wxDataViewEventFunction)(wxDataViewEvent&);
     wxEVENT_HANDLER_CAST(wxDataViewEventFunction, func)
 
 #define wx__DECLARE_DATAVIEWEVT(evt, id, fn) \
-    wx__DECLARE_EVT1(wxEVT_COMMAND_DATAVIEW_ ## evt, id, wxDataViewEventHandler(fn))
+    wx__DECLARE_EVT1(wxEVT_DATAVIEW_ ## evt, id, wxDataViewEventHandler(fn))
 
 #define EVT_DATAVIEW_SELECTION_CHANGED(id, fn) wx__DECLARE_DATAVIEWEVT(SELECTION_CHANGED, id, fn)
 
@@ -901,7 +911,7 @@ typedef void (wxEvtHandler::*wxDataViewEventFunction)(wxDataViewEvent&);
 #define EVT_DATAVIEW_ITEM_CONTEXT_MENU(id, fn) wx__DECLARE_DATAVIEWEVT(ITEM_CONTEXT_MENU, id, fn)
 
 #define EVT_DATAVIEW_COLUMN_HEADER_CLICK(id, fn) wx__DECLARE_DATAVIEWEVT(COLUMN_HEADER_CLICK, id, fn)
-#define EVT_DATAVIEW_COLUMN_HEADER_RIGHT_CLICKED(id, fn) wx__DECLARE_DATAVIEWEVT(COLUMN_HEADER_RIGHT_CLICK, id, fn)
+#define EVT_DATAVIEW_COLUMN_HEADER_RIGHT_CLICK(id, fn) wx__DECLARE_DATAVIEWEVT(COLUMN_HEADER_RIGHT_CLICK, id, fn)
 #define EVT_DATAVIEW_COLUMN_SORTED(id, fn) wx__DECLARE_DATAVIEWEVT(COLUMN_SORTED, id, fn)
 #define EVT_DATAVIEW_COLUMN_REORDERED(id, fn) wx__DECLARE_DATAVIEWEVT(COLUMN_REORDERED, id, fn)
 #define EVT_DATAVIEW_CACHE_HINT(id, fn) wx__DECLARE_DATAVIEWEVT(CACHE_HINT, id, fn)
@@ -909,6 +919,9 @@ typedef void (wxEvtHandler::*wxDataViewEventFunction)(wxDataViewEvent&);
 #define EVT_DATAVIEW_ITEM_BEGIN_DRAG(id, fn) wx__DECLARE_DATAVIEWEVT(ITEM_BEGIN_DRAG, id, fn)
 #define EVT_DATAVIEW_ITEM_DROP_POSSIBLE(id, fn) wx__DECLARE_DATAVIEWEVT(ITEM_DROP_POSSIBLE, id, fn)
 #define EVT_DATAVIEW_ITEM_DROP(id, fn) wx__DECLARE_DATAVIEWEVT(ITEM_DROP, id, fn)
+
+// Old and not documented synonym, don't use.
+#define EVT_DATAVIEW_COLUMN_HEADER_RIGHT_CLICKED(id, fn) EVT_DATAVIEW_COLUMN_HEADER_RIGHT_CLICK(id, fn)
 
 #ifdef wxHAS_GENERIC_DATAVIEWCTRL
     #include "wx/generic/dataview.h"
@@ -927,24 +940,20 @@ typedef void (wxEvtHandler::*wxDataViewEventFunction)(wxDataViewEvent&);
 class WXDLLIMPEXP_ADV wxDataViewListStoreLine
 {
 public:
-    wxDataViewListStoreLine( wxClientData *data = NULL )
+    wxDataViewListStoreLine( wxUIntPtr data = 0 )
     {
         m_data = data;
     }
-    virtual ~wxDataViewListStoreLine()
-    {
-        delete m_data;
-    }
 
-    void SetData( wxClientData *data )
-        { if (m_data) delete m_data; m_data = data; }
-    wxClientData *GetData() const
+    void SetData( wxUIntPtr data )
+        { m_data = data; }
+    wxUIntPtr GetData() const
         { return m_data; }
 
     wxVector<wxVariant>  m_values;
 
 private:
-    wxClientData    *m_data;
+    wxUIntPtr m_data;
 };
 
 
@@ -958,11 +967,16 @@ public:
     void InsertColumn( unsigned int pos, const wxString &varianttype );
     void AppendColumn( const wxString &varianttype );
 
-    void AppendItem( const wxVector<wxVariant> &values, wxClientData *data = NULL );
-    void PrependItem( const wxVector<wxVariant> &values, wxClientData *data = NULL );
-    void InsertItem(  unsigned int row, const wxVector<wxVariant> &values, wxClientData *data = NULL );
+    void AppendItem( const wxVector<wxVariant> &values, wxUIntPtr data = 0 );
+    void PrependItem( const wxVector<wxVariant> &values, wxUIntPtr data = 0 );
+    void InsertItem(  unsigned int row, const wxVector<wxVariant> &values, wxUIntPtr data = 0 );
     void DeleteItem( unsigned int pos );
     void DeleteAllItems();
+
+    unsigned int GetItemCount() const;
+
+    void SetItemData( const wxDataViewItem& item, wxUIntPtr data );
+    wxUIntPtr GetItemData( const wxDataViewItem& item ) const;
 
     // override base virtuals
 
@@ -1040,11 +1054,11 @@ public:
           wxDataViewCellMode mode = wxDATAVIEW_CELL_INERT,
           int width = -1, wxAlignment align = wxALIGN_LEFT, int flags = wxDATAVIEW_COL_RESIZABLE );
 
-    void AppendItem( const wxVector<wxVariant> &values, wxClientData *data = NULL )
+    void AppendItem( const wxVector<wxVariant> &values, wxUIntPtr data = 0 )
         { GetStore()->AppendItem( values, data ); }
-    void PrependItem( const wxVector<wxVariant> &values, wxClientData *data = NULL )
+    void PrependItem( const wxVector<wxVariant> &values, wxUIntPtr data = 0 )
         { GetStore()->PrependItem( values, data ); }
-    void InsertItem(  unsigned int row, const wxVector<wxVariant> &values, wxClientData *data = NULL )
+    void InsertItem(  unsigned int row, const wxVector<wxVariant> &values, wxUIntPtr data = 0 )
         { GetStore()->InsertItem( row, values, data ); }
     void DeleteItem( unsigned row )
         { GetStore()->DeleteItem( row ); }
@@ -1068,6 +1082,14 @@ public:
           GetStore()->RowValueChanged( row, col); }
     bool GetToggleValue( unsigned int row, unsigned int col ) const
         { wxVariant value; GetStore()->GetValueByRow( value, row, col ); return value.GetBool(); }
+
+    void SetItemData( const wxDataViewItem& item, wxUIntPtr data )
+        { GetStore()->SetItemData( item, data ); }
+    wxUIntPtr GetItemData( const wxDataViewItem& item ) const
+        { return GetStore()->GetItemData( item ); }
+
+    int GetItemCount() const
+        { return GetStore()->GetItemCount(); }
 
     void OnSize( wxSizeEvent &event );
 
@@ -1208,7 +1230,7 @@ public:
     virtual bool HasDefaultCompare() const
         { return true; }
     virtual unsigned int GetColumnCount() const
-        { return 1; };
+        { return 1; }
     virtual wxString GetColumnType( unsigned int WXUNUSED(col) ) const
         { return wxT("wxDataViewIconText"); }
 
@@ -1222,10 +1244,11 @@ public:
 
 //-----------------------------------------------------------------------------
 
-class WXDLLIMPEXP_ADV wxDataViewTreeCtrl: public wxDataViewCtrl
+class WXDLLIMPEXP_ADV wxDataViewTreeCtrl: public wxDataViewCtrl,
+                                          public wxWithImages
 {
 public:
-    wxDataViewTreeCtrl() { Init(); }
+    wxDataViewTreeCtrl() { }
     wxDataViewTreeCtrl(wxWindow *parent,
                        wxWindowID id,
                        const wxPoint& pos = wxDefaultPosition,
@@ -1233,12 +1256,8 @@ public:
                        long style = wxDV_NO_HEADER | wxDV_ROW_LINES,
                        const wxValidator& validator = wxDefaultValidator)
     {
-        Init();
-
         Create(parent, id, pos, size, style, validator);
     }
-
-    virtual ~wxDataViewTreeCtrl();
 
     bool Create(wxWindow *parent,
                 wxWindowID id,
@@ -1255,24 +1274,21 @@ public:
     bool IsContainer( const wxDataViewItem& item ) const
         { return GetStore()->IsContainer(item); }
 
-    void SetImageList( wxImageList *imagelist );
-    wxImageList* GetImageList() { return m_imageList; }
-
     wxDataViewItem AppendItem( const wxDataViewItem& parent,
-        const wxString &text, int icon = -1, wxClientData *data = NULL );
+        const wxString &text, int icon = NO_IMAGE, wxClientData *data = NULL );
     wxDataViewItem PrependItem( const wxDataViewItem& parent,
-        const wxString &text, int icon = -1, wxClientData *data = NULL );
+        const wxString &text, int icon = NO_IMAGE, wxClientData *data = NULL );
     wxDataViewItem InsertItem( const wxDataViewItem& parent, const wxDataViewItem& previous,
-        const wxString &text, int icon = -1, wxClientData *data = NULL );
+        const wxString &text, int icon = NO_IMAGE, wxClientData *data = NULL );
 
     wxDataViewItem PrependContainer( const wxDataViewItem& parent,
-        const wxString &text, int icon = -1, int expanded = -1,
+        const wxString &text, int icon = NO_IMAGE, int expanded = NO_IMAGE,
         wxClientData *data = NULL );
     wxDataViewItem AppendContainer( const wxDataViewItem& parent,
-        const wxString &text, int icon = -1, int expanded = -1,
+        const wxString &text, int icon = NO_IMAGE, int expanded = NO_IMAGE,
         wxClientData *data = NULL );
     wxDataViewItem InsertContainer( const wxDataViewItem& parent, const wxDataViewItem& previous,
-        const wxString &text, int icon = -1, int expanded = -1,
+        const wxString &text, int icon = NO_IMAGE, int expanded = NO_IMAGE,
         wxClientData *data = NULL );
 
     wxDataViewItem GetNthChild( const wxDataViewItem& parent, unsigned int pos ) const
@@ -1303,17 +1319,30 @@ public:
     void OnSize( wxSizeEvent &event );
 
 private:
-    void Init()
-    {
-        m_imageList = NULL;
-    }
-
-    wxImageList *m_imageList;
-
-private:
     DECLARE_EVENT_TABLE()
     DECLARE_DYNAMIC_CLASS_NO_ASSIGN(wxDataViewTreeCtrl)
 };
+
+// old wxEVT_COMMAND_* constants
+#define wxEVT_COMMAND_DATAVIEW_SELECTION_CHANGED           wxEVT_DATAVIEW_SELECTION_CHANGED
+#define wxEVT_COMMAND_DATAVIEW_ITEM_ACTIVATED              wxEVT_DATAVIEW_ITEM_ACTIVATED
+#define wxEVT_COMMAND_DATAVIEW_ITEM_COLLAPSED              wxEVT_DATAVIEW_ITEM_COLLAPSED
+#define wxEVT_COMMAND_DATAVIEW_ITEM_EXPANDED               wxEVT_DATAVIEW_ITEM_EXPANDED
+#define wxEVT_COMMAND_DATAVIEW_ITEM_COLLAPSING             wxEVT_DATAVIEW_ITEM_COLLAPSING
+#define wxEVT_COMMAND_DATAVIEW_ITEM_EXPANDING              wxEVT_DATAVIEW_ITEM_EXPANDING
+#define wxEVT_COMMAND_DATAVIEW_ITEM_START_EDITING          wxEVT_DATAVIEW_ITEM_START_EDITING
+#define wxEVT_COMMAND_DATAVIEW_ITEM_EDITING_STARTED        wxEVT_DATAVIEW_ITEM_EDITING_STARTED
+#define wxEVT_COMMAND_DATAVIEW_ITEM_EDITING_DONE           wxEVT_DATAVIEW_ITEM_EDITING_DONE
+#define wxEVT_COMMAND_DATAVIEW_ITEM_VALUE_CHANGED          wxEVT_DATAVIEW_ITEM_VALUE_CHANGED
+#define wxEVT_COMMAND_DATAVIEW_ITEM_CONTEXT_MENU           wxEVT_DATAVIEW_ITEM_CONTEXT_MENU
+#define wxEVT_COMMAND_DATAVIEW_COLUMN_HEADER_CLICK         wxEVT_DATAVIEW_COLUMN_HEADER_CLICK
+#define wxEVT_COMMAND_DATAVIEW_COLUMN_HEADER_RIGHT_CLICK   wxEVT_DATAVIEW_COLUMN_HEADER_RIGHT_CLICK
+#define wxEVT_COMMAND_DATAVIEW_COLUMN_SORTED               wxEVT_DATAVIEW_COLUMN_SORTED
+#define wxEVT_COMMAND_DATAVIEW_COLUMN_REORDERED            wxEVT_DATAVIEW_COLUMN_REORDERED
+#define wxEVT_COMMAND_DATAVIEW_CACHE_HINT                  wxEVT_DATAVIEW_CACHE_HINT
+#define wxEVT_COMMAND_DATAVIEW_ITEM_BEGIN_DRAG             wxEVT_DATAVIEW_ITEM_BEGIN_DRAG
+#define wxEVT_COMMAND_DATAVIEW_ITEM_DROP_POSSIBLE          wxEVT_DATAVIEW_ITEM_DROP_POSSIBLE
+#define wxEVT_COMMAND_DATAVIEW_ITEM_DROP                   wxEVT_DATAVIEW_ITEM_DROP
 
 #endif // wxUSE_DATAVIEWCTRL
 

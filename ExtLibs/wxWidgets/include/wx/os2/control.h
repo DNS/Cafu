@@ -4,7 +4,6 @@
 // Author:      David Webster
 // Modified by:
 // Created:     09/17/99
-// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -63,8 +62,8 @@ public:
     //
     // For ownerdraw items
     //
-    virtual bool OS2OnDraw(WXDRAWITEMSTRUCT* WXUNUSED(pItem)) { return false; };
-    virtual long OS2OnMeasure(WXMEASUREITEMSTRUCT* WXUNUSED(pItem)) { return 0L; };
+    virtual bool OS2OnDraw(WXDRAWITEMSTRUCT* WXUNUSED(pItem)) { return false; }
+    virtual long OS2OnMeasure(WXMEASUREITEMSTRUCT* WXUNUSED(pItem)) { return 0L; }
 
     wxArrayLong&     GetSubcontrols() { return m_aSubControls; }
     void             OnEraseBackground(wxEraseEvent& rEvent);

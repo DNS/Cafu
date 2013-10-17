@@ -2,7 +2,6 @@
 // Name:        cat_classes.h
 // Purpose:     Classes-by-category page of the Doxygen manual
 // Author:      wxWidgets team
-// RCS-ID:      $Id: cat_classes.h 52468 2008-03-13 16:30:38Z FM $
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
@@ -10,59 +9,11 @@
 
 @page page_class_cat Summarized Class List by Category
 
+@tableofcontents
+
 This page contains a summarized listing of classes, please see the
 @ref group_class page for a full listing.
 
-@beginInvisibleTable
-<tr><td>
-@li @ref page_class_cat_basicwnd
-@li @ref page_class_cat_winlayout
-@li @ref page_class_cat_managedwnd
-@li @ref page_class_cat_menus
-@li @ref page_class_cat_ctrl
-@li @ref page_class_cat_validator
-@li @ref page_class_cat_pickers
-@li @ref page_class_cat_aui
-@li @ref page_class_cat_cmndlg
-@li @ref page_class_cat_html
-@li @ref page_class_cat_miscwnd
-</td><td>
-@li @ref page_class_cat_dc
-@li @ref page_class_cat_gdi
-@li @ref page_class_cat_gc
-@li @ref page_class_cat_image
-@li @ref page_class_cat_events
-@li @ref page_class_cat_appmanagement
-@li @ref page_class_cat_printing
-@li @ref page_class_cat_dvf
-@li @ref page_class_cat_dnd
-@li @ref page_class_cat_vfs
-@li @ref page_class_cat_threading
-</td><td>
-@li @ref page_class_cat_rtti
-@li @ref page_class_cat_debugging
-@li @ref page_class_cat_logging
-@li @ref page_class_cat_data
-@li @ref page_class_cat_conv
-@li @ref page_class_cat_containers
-@li @ref page_class_cat_smartpointers
-@li @ref page_class_cat_file
-@li @ref page_class_cat_streams
-@li @ref page_class_cat_xml
-@li @ref page_class_cat_xrc
-</td><td>
-@li @ref page_class_cat_net
-@li @ref page_class_cat_archive
-@li @ref page_class_cat_ipc
-@li @ref page_class_cat_help
-@li @ref page_class_cat_media
-@li @ref page_class_cat_gl
-@li @ref page_class_cat_misc
-</td></tr>
-@endTable
-
-
-<hr>
 
 
 @section page_class_cat_basicwnd Basic Windows
@@ -191,6 +142,7 @@ Controls that are not static can have wxValidator associated with them.
 @li wxTextCtrl: Single or multiline text editing control
 @li wxToggleButton: A button which stays pressed when clicked by user.
 @li wxTreeCtrl: Tree (hierarchy) control
+@li wxTreeListCtrl: Multi-column tree control with simple interface
 @li wxStaticBitmap: A control to display a bitmap
 @li wxStyledTextCtrl: A wxWidgets implementation of the Scintilla source code
     editing component for plain text editing.
@@ -242,6 +194,7 @@ The following are a variety of classes that are derived from wxWindow.
     variable sizes.
 @li wxGrid: A grid (table) window
 @li wxInfoBar: An information bar usually shown on top of the main window.
+@li wxRichToolTip: A customizable tooltip.
 @li wxSplitterWindow: Window which can be split vertically or horizontally
 @li wxStatusBar: Implements the status bar on a frame
 @li wxToolBar: Toolbar class
@@ -252,9 +205,11 @@ The following are a variety of classes that are derived from wxWindow.
 @li wxSashWindow: Window with four optional sashes that can be dragged
 @li wxSashLayoutWindow: Window that can be involved in an IDE-like layout
     arrangement
+@li wxSimplebook: Another book control but one allowing only the program, not
+    the user, to change its current page.
 @li wxWizardPage: A base class for the page in wizard dialog.
 @li wxWizardPageSimple: A page in wizard dialog.
-
+@li wxCustomBackgroundWindow: A window allowing to set a custom bitmap.
 
 
 @section page_class_cat_aui Window Docking (wxAUI)

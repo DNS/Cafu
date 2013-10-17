@@ -4,7 +4,6 @@
 // Author:      Julian Smart (extracted from docview.h by VZ)
 // Modified by:
 // Created:     05.11.00
-// RCS-ID:      $Id$
 // Copyright:   (c) wxWidgets team
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -328,4 +327,28 @@ void wxCommandProcessor::ClearCommands()
     m_lastSavedCommand = wxList::compatibility_iterator();
 }
 
+bool wxCommandProcessor::IsDirty() const
+{
+    if ( m_commands.empty() )
+    {
+        // If we have never been modified, we can't be dirty.
+        return false;
+    }
+
+    if ( !m_lastSavedCommand )
+    {
+        // If we have been modified but have never been saved, we're dirty.
+        return true;
+    }
+
+    if ( !m_currentCommand )
+    {
+        // This only happens if all commands were undone after saving the
+        // document: we're dirty then.
+        return true;
+    }
+
+    // Finally if both iterators are valid, we may just compare them.
+    return m_currentCommand != m_lastSavedCommand;
+}
 

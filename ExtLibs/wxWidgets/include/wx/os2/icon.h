@@ -4,7 +4,6 @@
 // Author:      David Webster
 // Modified by:
 // Created:     10/09/99
-// RCS-ID:      $Id$
 // Copyright:   (c) David Webster
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -25,7 +24,7 @@
 class WXDLLIMPEXP_CORE wxIconRefData: public wxIconRefDataBase
 {
 public:
-    wxIconRefData() { };
+    wxIconRefData() { }
     virtual ~wxIconRefData() { Free(); }
 
     virtual void Free();
@@ -70,7 +69,7 @@ public:
 
     inline void SetHICON(WXHICON hIcon) { SetHandle((WXHANDLE)hIcon); }
     inline WXHICON GetHICON() const { return (WXHICON)GetHandle(); }
-    inline bool    IsXpm(void) const { return m_bIsXpm; };
+    inline bool    IsXpm(void) const { return m_bIsXpm; }
     inline const wxBitmap& GetXpmSrc(void) const { return m_vXpmSrc; }
 
     void CopyFromBitmap(const wxBitmap& rBmp);

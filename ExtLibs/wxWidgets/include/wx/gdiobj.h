@@ -5,7 +5,6 @@
 // Modified by:
 // Created:
 // Copyright:   (c) Julian Smart
-// RCS-ID:      $Id$
 // Licence:     wxWindows Licence
 /////////////////////////////////////////////////////////////////////////////
 
@@ -57,7 +56,7 @@ public:
     // because it's still widely used)
     bool Ok() const { return IsOk(); }
 
-#if defined(__WXMSW__) || defined(__WXPM__) || defined(__WXPALMOS__)
+#if defined(__WXMSW__) || defined(__WXPM__)
     // Creates the resource
     virtual bool RealizeResource() { return false; }
 

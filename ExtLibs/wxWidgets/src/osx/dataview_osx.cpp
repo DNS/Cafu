@@ -2,7 +2,6 @@
 // Name:        src/osx/dataview_osx.cpp
 // Purpose:     wxDataViewCtrl native mac implementation
 // Author:
-// Id:          $Id$
 // Copyright:   (c) 2009
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -19,6 +18,9 @@
     #include "wx/settings.h"
     #include "wx/dcclient.h"
     #include "wx/icon.h"
+#endif
+#if wxOSX_USE_CARBON
+#include "wx/osx/carbon/dataview.h"
 #endif
 
 #include "wx/osx/core/dataview.h"
@@ -124,7 +126,7 @@ bool wxOSXDataViewModelNotifier::ItemChanged(wxDataViewItem const& item)
   if (m_DataViewCtrlPtr->GetDataViewPeer()->Update(GetOwner()->GetParent(item),item))
   {
    // sent the equivalent wxWidget event:
-    wxDataViewEvent dataViewEvent(wxEVT_COMMAND_DATAVIEW_ITEM_VALUE_CHANGED,m_DataViewCtrlPtr->GetId());
+    wxDataViewEvent dataViewEvent(wxEVT_DATAVIEW_ITEM_VALUE_CHANGED,m_DataViewCtrlPtr->GetId());
 
     dataViewEvent.SetEventObject(m_DataViewCtrlPtr);
     dataViewEvent.SetItem(item);
@@ -144,7 +146,7 @@ bool wxOSXDataViewModelNotifier::ItemsChanged(wxDataViewItemArray const& items)
 {
   size_t const noOfItems = items.GetCount();
 
-  wxDataViewEvent dataViewEvent(wxEVT_COMMAND_DATAVIEW_ITEM_VALUE_CHANGED,m_DataViewCtrlPtr->GetId());
+  wxDataViewEvent dataViewEvent(wxEVT_DATAVIEW_ITEM_VALUE_CHANGED,m_DataViewCtrlPtr->GetId());
 
 
   dataViewEvent.SetEventObject(m_DataViewCtrlPtr);
@@ -210,7 +212,7 @@ bool wxOSXDataViewModelNotifier::ValueChanged(wxDataViewItem const& item, unsign
   wxCHECK_MSG(GetOwner() != NULL,false,"Owner not initialized.");
   if (m_DataViewCtrlPtr->GetDataViewPeer()->Update(GetOwner()->GetParent(item),item))
   {
-    wxDataViewEvent dataViewEvent(wxEVT_COMMAND_DATAVIEW_ITEM_VALUE_CHANGED,m_DataViewCtrlPtr->GetId());
+    wxDataViewEvent dataViewEvent(wxEVT_DATAVIEW_ITEM_VALUE_CHANGED,m_DataViewCtrlPtr->GetId());
 
     dataViewEvent.SetEventObject(m_DataViewCtrlPtr);
     dataViewEvent.SetColumn(col);
@@ -345,6 +347,11 @@ void wxDataViewCustomRenderer::SetDC(wxDC* newDCPtr)
 wxDataViewCtrl::~wxDataViewCtrl()
 {
   ClearColumns();
+
+  // Ensure that the already destructed controls is not notified about changes
+  // in the model any more.
+  if (m_ModelNotifier != NULL)
+    m_ModelNotifier->GetOwner()->RemoveNotifier(m_ModelNotifier);
 }
 
 void wxDataViewCtrl::Init()
@@ -352,6 +359,7 @@ void wxDataViewCtrl::Init()
   m_CustomRendererPtr = NULL;
   m_Deleting          = false;
   m_cgContext         = NULL;
+  m_ModelNotifier     = NULL;
 }
 
 bool wxDataViewCtrl::Create(wxWindow *parent,
@@ -378,10 +386,19 @@ bool wxDataViewCtrl::AssociateModel(wxDataViewModel* model)
 
 
   wxCHECK_MSG(dataViewWidgetPtr != NULL,false,"Pointer to native control must not be NULL.");
+
+  // We could have been associated with another model previously, break the
+  // association in this case.
+  if ( m_ModelNotifier )
+      m_ModelNotifier->GetOwner()->RemoveNotifier(m_ModelNotifier);
+
   if (wxDataViewCtrlBase::AssociateModel(model) && dataViewWidgetPtr->AssociateModel(model))
   {
     if (model != NULL)
-      model->AddNotifier(new wxOSXDataViewModelNotifier(this));
+    {
+      m_ModelNotifier = new wxOSXDataViewModelNotifier(this);
+      model->AddNotifier(m_ModelNotifier);
+    }
     return true;
   }
   else
@@ -527,6 +544,11 @@ void wxDataViewCtrl::DoSetCurrentItem(const wxDataViewItem& item)
     GetDataViewPeer()->SetCurrentItem(item);
 }
 
+wxDataViewColumn *wxDataViewCtrl::GetCurrentColumn() const
+{
+    return GetDataViewPeer()->GetCurrentColumn();
+}
+
 wxRect wxDataViewCtrl::GetItemRect(wxDataViewItem const& item, wxDataViewColumn const* columnPtr) const
 {
   if (item.IsOk() && (columnPtr != NULL))
@@ -535,15 +557,9 @@ wxRect wxDataViewCtrl::GetItemRect(wxDataViewItem const& item, wxDataViewColumn 
     return wxRect();
 }
 
-wxDataViewItem wxDataViewCtrl::GetSelection() const
+int wxDataViewCtrl::GetSelectedItemsCount() const
 {
-  wxDataViewItemArray itemIDs;
-
-
-  if (GetDataViewPeer()->GetSelections(itemIDs) > 0)
-    return itemIDs[0];
-  else
-    return wxDataViewItem();
+  return GetDataViewPeer()->GetSelectedItemsCount();
 }
 
 int wxDataViewCtrl::GetSelections(wxDataViewItemArray& sel) const
@@ -633,9 +649,9 @@ void wxDataViewCtrl::AddChildren(wxDataViewItem const& parentItem)
   (void) GetModel()->ItemsAdded(parentItem,items);
 }
 
-void wxDataViewCtrl::StartEditor( const wxDataViewItem & item, unsigned int column )
+void wxDataViewCtrl::EditItem(const wxDataViewItem& item, const wxDataViewColumn *column)
 {
-    GetDataViewPeer()->StartEditor(item, column);
+    GetDataViewPeer()->StartEditor(item, GetColumnPosition(column));
 }
 
 void wxDataViewCtrl::FinishCustomItemEditing()
@@ -712,12 +728,11 @@ void wxDataViewCtrl::OnMouse(wxMouseEvent& event)
 {
     event.Skip();
 
+#if wxOSX_USE_CARBON
     if (GetModel() == NULL)
         return;
 
-#if 0
-    // Doesn't compile anymore
-    wxMacDataViewDataBrowserListViewControlPointer MacDataViewListCtrlPtr(dynamic_cast<wxMacDataViewDataBrowserListViewControlPointer>(m_peer));
+    wxMacDataViewDataBrowserListViewControlPointer MacDataViewListCtrlPtr(dynamic_cast<wxMacDataViewDataBrowserListViewControlPointer>(GetPeer()));
 
     int NoOfChildren;
     wxDataViewItemArray items;
@@ -742,7 +757,7 @@ void wxDataViewCtrl::OnMouse(wxMouseEvent& event)
 
            Rect itemrect;
            ::GetDataBrowserItemPartBounds( MacDataViewListCtrlPtr->GetControlRef(),
-              reinterpret_cast<DataBrowserItemID>(firstChild.GetID()), column->GetPropertyID(),
+              reinterpret_cast<DataBrowserItemID>(firstChild.GetID()), column->GetNativeData()->GetPropertyID(),
               kDataBrowserPropertyEnclosingPart, &itemrect );
 
            if (abs( event.GetX() - itemrect.right) < 3)
@@ -756,7 +771,6 @@ void wxDataViewCtrl::OnMouse(wxMouseEvent& event)
        }
 
     }
-
     SetCursor( *wxSTANDARD_CURSOR );
 #endif
 }

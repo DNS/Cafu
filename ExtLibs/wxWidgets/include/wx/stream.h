@@ -4,7 +4,6 @@
 // Author:      Guilhem Lavaux, Guillermo Rodriguez Garcia, Vadim Zeitlin
 // Modified by:
 // Created:     11/07/98
-// RCS-ID:      $Id$
 // Copyright:   (c) Guilhem Lavaux
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -64,7 +63,7 @@ public:
     bool operator!() const { return !IsOk(); }
 
     // reset the stream state
-    void Reset() { m_lasterror = wxSTREAM_NO_ERROR; }
+    void Reset(wxStreamError error = wxSTREAM_NO_ERROR) { m_lasterror = error; }
 
     // this doesn't make sense for all streams, always test its return value
     virtual size_t GetSize() const;
@@ -127,6 +126,11 @@ public:
     // LastRead() value will be less than size but greater than 0. If it is 0,
     // it means that EOF has been reached.
     virtual wxInputStream& Read(void *buffer, size_t size);
+
+    // Read exactly the given number of bytes, unlike Read(), which may read
+    // less than the requested amount of data without returning an error, this
+    // method either reads all the data or returns false.
+    bool ReadAll(void *buffer, size_t size);
 
     // copy the entire contents of this stream into streamOut, stopping only
     // when EOF is reached or an error occurs
@@ -233,6 +237,12 @@ public:
 
     void PutC(char c);
     virtual wxOutputStream& Write(const void *buffer, size_t size);
+
+    // This is ReadAll() equivalent for Write(): it either writes exactly the
+    // given number of bytes or returns false, unlike Write() which can write
+    // less data than requested but still return without error.
+    bool WriteAll(const void *buffer, size_t size);
+
     wxOutputStream& Write(wxInputStream& stream_in);
 
     virtual wxFileOffset SeekO(wxFileOffset pos, wxSeekMode mode = wxFromStart);
@@ -270,16 +280,17 @@ class WXDLLIMPEXP_BASE wxCountingOutputStream : public wxOutputStream
 public:
     wxCountingOutputStream();
 
-    wxFileOffset GetLength() const;
+    virtual wxFileOffset GetLength() const;
     bool Ok() const { return IsOk(); }
-    bool IsOk() const { return true; }
+    virtual bool IsOk() const { return true; }
 
 protected:
     virtual size_t OnSysWrite(const void *buffer, size_t size);
     virtual wxFileOffset OnSysSeek(wxFileOffset pos, wxSeekMode mode);
     virtual wxFileOffset OnSysTell() const;
 
-    size_t m_currentPos;
+    size_t m_currentPos,
+           m_lastPos;
 
     DECLARE_DYNAMIC_CLASS(wxCountingOutputStream)
     wxDECLARE_NO_COPY_CLASS(wxCountingOutputStream);
@@ -639,6 +650,54 @@ protected:
     inline wxStreamBuffer *wxBufferedInputStream::InputStreamBuffer() const { return m_i_streambuf; }
     inline wxStreamBuffer *wxBufferedOutputStream::OutputStreamBuffer() const { return m_o_streambuf; }
 #endif // WXWIN_COMPATIBILITY_2_6
+
+// ---------------------------------------------------------------------------
+// wxWrapperInputStream: forwards all IO to another stream.
+// ---------------------------------------------------------------------------
+
+class WXDLLIMPEXP_BASE wxWrapperInputStream : public wxFilterInputStream
+{
+public:
+    // Constructor fully initializing the stream. The overload taking pointer
+    // takes ownership of the parent stream, the one taking reference does not.
+    //
+    // Notice that this class also has a default ctor but it's protected as the
+    // derived class is supposed to take care of calling InitParentStream() if
+    // it's used.
+    wxWrapperInputStream(wxInputStream& stream);
+    wxWrapperInputStream(wxInputStream* stream);
+
+    // Override the base class methods to forward to the wrapped stream.
+    virtual wxFileOffset GetLength() const;
+    virtual bool IsSeekable() const;
+
+protected:
+    virtual size_t OnSysRead(void *buffer, size_t size);
+    virtual wxFileOffset OnSysSeek(wxFileOffset pos, wxSeekMode mode);
+    virtual wxFileOffset OnSysTell() const;
+
+    // Ensure that our own last error is the same as that of the real stream.
+    //
+    // This method is const because the error must be updated even from const
+    // methods (in other words, it really should have been mutable in the first
+    // place).
+    void SynchronizeLastError() const
+    {
+        const_cast<wxWrapperInputStream*>(this)->
+            Reset(m_parent_i_stream->GetLastError());
+    }
+
+    // Default constructor, use InitParentStream() later.
+    wxWrapperInputStream();
+
+    // Set up the wrapped stream for an object initialized using the default
+    // constructor. The ownership logic is the same as above.
+    void InitParentStream(wxInputStream& stream);
+    void InitParentStream(wxInputStream* stream);
+
+    wxDECLARE_NO_COPY_CLASS(wxWrapperInputStream);
+};
+
 
 #endif // wxUSE_STREAMS
 

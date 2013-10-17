@@ -5,7 +5,6 @@
 // Author:      David Webster (adapted from msw version by Vadim Zeitlin)
 // Modified by:
 // Created:     20.11.99
-// RCS-ID:      $Id$
 // Copyright:   (c) 1999 David Webster
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -54,7 +53,7 @@ public:
         { m_nWidth = nW; m_nHeight = nH; }
 
     // free the ressources we allocated
-    virtual void Free() { };
+    virtual void Free() { }
 
     // for compatibility, the member fields are public
 

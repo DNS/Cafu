@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     19.06.2003
-// RCS-ID:      $Id$
 // Copyright:   (c) 2003 Vadim Zeitlin <vadim@wxwidgets.org>
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -76,12 +75,6 @@ public:
     // wxStandardPaths object is normally the same for wxBase and wxGUI
     // except in the case of wxMac and wxCocoa
     virtual wxStandardPaths& GetStandardPaths();
-
-#if wxUSE_INTL
-    // called during wxApp initialization to set the locale to correspond to
-    // the user default (i.e. system locale under Windows, LC_ALL under Unix)
-    virtual void SetLocale();
-#endif // wxUSE_INTL
 
 
     // functions abstracting differences between GUI and console modes
@@ -177,9 +170,7 @@ private:
 // NB:  test for __UNIX__ before __WXMAC__ as under Darwin we want to use the
 //      Unix code (and otherwise __UNIX__ wouldn't be defined)
 // ABX: check __WIN32__ instead of __WXMSW__ for the same MSWBase in any Win32 port
-#if defined(__WXPALMOS__)
-    #include "wx/palmos/apptbase.h"
-#elif defined(__WIN32__)
+#if defined(__WIN32__)
     #include "wx/msw/apptbase.h"
 #elif defined(__UNIX__) && !defined(__EMX__)
     #include "wx/unix/apptbase.h"
@@ -274,9 +265,7 @@ public:
 // ----------------------------------------------------------------------------
 
 // ABX: check __WIN32__ instead of __WXMSW__ for the same MSWBase in any Win32 port
-#if defined(__WXPALMOS__)
-    #include "wx/palmos/apptrait.h"
-#elif defined(__WIN32__)
+#if defined(__WIN32__)
     #include "wx/msw/apptrait.h"
 #elif defined(__OS2__)
     #include "wx/os2/apptrait.h"

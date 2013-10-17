@@ -5,7 +5,6 @@
 // Author:      Joel Farley, Ove Kaaven
 // Modified by: Vadim Zeitlin, Robert Roebling, Ron Lee, Vaclav Slavik
 // Created:     1998/06/12
-// RCS-ID:      $Id$
 // Copyright:   (c) 1998-2006 wxWidgets dev team
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -18,7 +17,7 @@
 
 #ifndef __WX_SETUP_H__
 // For non-configure builds assume vsscanf is available, if not Visual C or DMC
-#if !defined (__VISUALC__) && !defined (__DMC__)
+#if !defined (__VISUALC__) && !(defined(__WINDOWS__) && defined(__INTELC__)) && !defined (__DMC__)
     #define HAVE_VSSCANF 1
 #endif
 #endif

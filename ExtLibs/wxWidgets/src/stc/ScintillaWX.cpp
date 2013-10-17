@@ -9,7 +9,6 @@
 // Author:      Robin Dunn
 //
 // Created:     13-Jan-2000
-// RCS-ID:      $Id$
 // Copyright:   (c) 2000 by Total Control Software
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -132,7 +131,7 @@ public:
     void OnPaint(wxPaintEvent& WXUNUSED(evt))
     {
         wxAutoBufferedPaintDC dc(this);
-        Surface* surfaceWindow = Surface::Allocate();
+        Surface* surfaceWindow = Surface::Allocate(0);
         surfaceWindow->Init(&dc, m_ct->wDraw.GetID());
         m_ct->PaintCT(surfaceWindow);
         surfaceWindow->Release();
@@ -244,7 +243,8 @@ ScintillaWX::ScintillaWX(wxStyledTextCtrl* win) {
     focusEvent = false;
     wMain = win;
     stc   = win;
-    wheelRotation = 0;
+    wheelVRotation = 0;
+    wheelHRotation = 0;
     Initialise();
 #ifdef __WXMSW__
     sysCaretBitmap = 0;
@@ -364,7 +364,6 @@ bool ScintillaWX::HaveMouseCapture() {
 void ScintillaWX::ScrollText(int linesToMove) {
     int dy = vs.lineHeight * (linesToMove);
     stc->ScrollWindow(0, dy);
-    stc->Update();
 }
 
 void ScintillaWX::SetVerticalScrollPos() {
@@ -672,6 +671,8 @@ sptr_t ScintillaWX::DefWndProc(unsigned int /*iMessage*/, uptr_t /*wParam*/, spt
 
 sptr_t ScintillaWX::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
       switch (iMessage) {
+#if 0  // TODO: check this
+          
       case SCI_CALLTIPSHOW: {
           // NOTE: This is copied here from scintilla/src/ScintillaBase.cxx
           // because of the little tweak that needs done below for wxGTK.
@@ -712,6 +713,7 @@ sptr_t ScintillaWX::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam)
           ct.wCallTip.Show();
           break;
       }
+#endif
 
 #ifdef SCI_LEXER
       case SCI_LOADLEXERLIBRARY:
@@ -733,23 +735,53 @@ sptr_t ScintillaWX::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam)
 void ScintillaWX::DoPaint(wxDC* dc, wxRect rect) {
 
     paintState = painting;
-    Surface* surfaceWindow = Surface::Allocate();
-    surfaceWindow->Init(dc, wMain.GetID());
-    rcPaint = PRectangleFromwxRect(rect);
-    PRectangle rcClient = GetClientRectangle();
-    paintingAllText = rcPaint.Contains(rcClient);
+    AutoSurface surfaceWindow(dc, this);
+    if (surfaceWindow) {
+        rcPaint = PRectangleFromwxRect(rect);
+        PRectangle rcClient = GetClientRectangle();
+        paintingAllText = rcPaint.Contains(rcClient);
 
-    ClipChildren(*dc, rcPaint);
-    Paint(surfaceWindow, rcPaint);
+        ClipChildren(*dc, rcPaint);
+        Paint(surfaceWindow, rcPaint);
+        surfaceWindow->Release();
+    }
 
-    delete surfaceWindow;
     if (paintState == paintAbandoned) {
         // Painting area was insufficient to cover new styling or brace
-        // highlight positions
-        FullPaint();
+        // highlight positions.  So trigger a new paint event that will
+        // repaint the whole window.
+        stc->Refresh(false);
+        
+#if defined(__WXOSX__)
+        // On Mac we also need to finish the current paint to make sure that
+        // everything is on the screen that needs to be there between now and
+        // when the next paint event arrives.
+        FullPaintDC(dc);
+#endif
     }
     paintState = notPainting;
 }
+
+
+// Force the whole window to be repainted
+void ScintillaWX::FullPaint() {
+    stc->Refresh(false);
+    stc->Update();
+}
+
+
+void ScintillaWX::FullPaintDC(wxDC* dc) {
+    paintState = painting;
+    rcPaint = GetClientRectangle();
+    paintingAllText = true;
+    AutoSurface surfaceWindow(dc, this);
+    if (surfaceWindow) {
+        Paint(surfaceWindow, rcPaint);
+        surfaceWindow->Release();
+    }
+    paintState = notPainting;
+}
+
 
 
 void ScintillaWX::DoHScroll(int type, int pos) {
@@ -798,14 +830,29 @@ void ScintillaWX::DoVScroll(int type, int pos) {
     ScrollTo(topLineNew);
 }
 
-void ScintillaWX::DoMouseWheel(int rotation, int delta,
-                               int linesPerAction, int ctrlDown,
-                               bool isPageScroll ) {
+void ScintillaWX::DoMouseWheel(wxMouseWheelAxis axis, int rotation, int delta,
+                               int linesPerAction, int columnsPerAction,
+                               bool ctrlDown, bool isPageScroll) {
     int topLineNew = topLine;
     int lines;
+    int xPos = xOffset;
+    int pixels;
 
-    if (ctrlDown) {  // Zoom the fonts if Ctrl key down
-        if (rotation < 0) {
+    if (axis == wxMOUSE_WHEEL_HORIZONTAL) {
+        wheelHRotation += rotation * (columnsPerAction * vs.spaceWidth);
+        pixels = wheelHRotation / delta;
+        wheelHRotation -= pixels * delta;
+        if (pixels != 0) {
+            xPos += pixels;
+            PRectangle rcText = GetTextRectangle();
+            if (xPos > scrollWidth - rcText.Width()) {
+                xPos = scrollWidth - rcText.Width();
+            }
+            HorizontalScrollTo(xPos);
+        }
+    }
+    else if (ctrlDown) {  // Zoom the fonts if Ctrl key down
+        if (rotation > 0) {
             KeyCommand(SCI_ZOOMIN);
         }
         else {
@@ -815,9 +862,9 @@ void ScintillaWX::DoMouseWheel(int rotation, int delta,
     else { // otherwise just scroll the window
         if ( !delta )
             delta = 120;
-        wheelRotation += rotation;
-        lines = wheelRotation / delta;
-        wheelRotation -= lines * delta;
+        wheelVRotation += rotation;
+        lines = wheelVRotation / delta;
+        wheelVRotation -= lines * delta;
         if (lines != 0) {
             if (isPageScroll)
                 lines = lines * LinesOnScreen();  // lines is either +1 or -1
@@ -919,6 +966,14 @@ void ScintillaWX::DoAddChar(int key) {
 int  ScintillaWX::DoKeyDown(const wxKeyEvent& evt, bool* consumed)
 {
     int key = evt.GetKeyCode();
+    if (key == WXK_NONE) {
+        // This is a Unicode character not representable in Latin-1 or some key
+        // without key code at all (e.g. dead key or VK_PROCESSKEY under MSW).
+        if ( consumed )
+            *consumed = false;
+        return 0;
+    }
+
     bool shift = evt.ShiftDown(),
          ctrl  = evt.ControlDown(),
          alt   = evt.AltDown();
@@ -961,7 +1016,7 @@ int  ScintillaWX::DoKeyDown(const wxKeyEvent& evt, bool* consumed)
     case WXK_CONTROL:           key = 0; break;
     case WXK_ALT:               key = 0; break;
     case WXK_SHIFT:             key = 0; break;
-    case WXK_MENU:              key = 0; break;
+    case WXK_MENU:              key = SCK_MENU; break;
     }
 
 #ifdef __WXMAC__
@@ -1071,15 +1126,6 @@ void ScintillaWX::DoDragLeave() {
 }
 #endif // wxUSE_DRAG_AND_DROP
 //----------------------------------------------------------------------
-
-// Force the whole window to be repainted
-void ScintillaWX::FullPaint() {
-#ifndef __WXMAC__
-    stc->Refresh(false);
-#endif
-    stc->Update();
-}
-
 
 void ScintillaWX::DoScrollToLine(int line) {
     ScrollTo(line);

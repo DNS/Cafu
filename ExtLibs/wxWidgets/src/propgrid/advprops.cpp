@@ -4,7 +4,6 @@
 // Author:      Jaakko Salli
 // Modified by:
 // Created:     2004-09-25
-// RCS-ID:      $Id$
 // Copyright:   (c) Jaakko Salli
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -457,7 +456,7 @@ wxPGWindowList wxPGDatePickerCtrlEditor::CreateControls( wxPropertyGrid* propgri
                                                          const wxPoint& pos,
                                                          const wxSize& sz ) const
 {
-    wxCHECK_MSG( property->IsKindOf(CLASSINFO(wxDateProperty)),
+    wxCHECK_MSG( wxDynamicCast(property, wxDateProperty),
                  NULL,
                  wxT("DatePickerCtrl editor can only be used with wxDateProperty or derivative.") );
 
@@ -498,7 +497,7 @@ void wxPGDatePickerCtrlEditor::UpdateControl( wxPGProperty* property,
                                               wxWindow* wnd ) const
 {
     wxDatePickerCtrl* ctrl = (wxDatePickerCtrl*) wnd;
-    wxASSERT( ctrl && ctrl->IsKindOf(CLASSINFO(wxDatePickerCtrl)) );
+    wxASSERT( wxDynamicCast(ctrl, wxDatePickerCtrl) );
 
     wxDateTime dateValue(wxInvalidDateTime);
     wxVariant v(property->GetValue());
@@ -523,7 +522,7 @@ bool wxPGDatePickerCtrlEditor::OnEvent( wxPropertyGrid* WXUNUSED(propgrid),
 bool wxPGDatePickerCtrlEditor::GetValueFromControl( wxVariant& variant, wxPGProperty* WXUNUSED(property), wxWindow* wnd ) const
 {
     wxDatePickerCtrl* ctrl = (wxDatePickerCtrl*) wnd;
-    wxASSERT( ctrl && ctrl->IsKindOf(CLASSINFO(wxDatePickerCtrl)) );
+    wxASSERT( wxDynamicCast(ctrl, wxDatePickerCtrl) );
 
     variant = ctrl->GetValue();
 
@@ -534,7 +533,7 @@ void wxPGDatePickerCtrlEditor::SetValueToUnspecified( wxPGProperty* property,
                                                       wxWindow* wnd ) const
 {
     wxDatePickerCtrl* ctrl = (wxDatePickerCtrl*) wnd;
-    wxASSERT( ctrl && ctrl->IsKindOf(CLASSINFO(wxDatePickerCtrl)) );
+    wxASSERT( wxDynamicCast(ctrl, wxDatePickerCtrl) );
 
     wxDateProperty* prop = wxDynamicCast(property, wxDateProperty);
 
@@ -1287,7 +1286,7 @@ bool wxSystemColourProperty::OnEvent( wxPropertyGrid* propgrid,
         // switched to one that has wxButton as well.
         askColour = true;
     }
-    else if ( event.GetEventType() == wxEVT_COMMAND_COMBOBOX_SELECTED )
+    else if ( event.GetEventType() == wxEVT_COMBOBOX )
     {
         // Must override index detection since at this point GetIndex()
         // will return old value.
@@ -1320,7 +1319,7 @@ public:
                          const wxPropertyGrid* propertyGrid, wxPGProperty* property,
                          int WXUNUSED(column), int item, int WXUNUSED(flags) ) const
     {
-        wxASSERT( property->IsKindOf(CLASSINFO(wxSystemColourProperty)) );
+        wxASSERT( wxDynamicCast(property, wxSystemColourProperty) );
         wxSystemColourProperty* prop = wxStaticCast(property, wxSystemColourProperty);
 
         dc.SetPen(*wxBLACK_PEN);
@@ -1437,7 +1436,7 @@ bool wxSystemColourProperty::StringToValue( wxVariant& value, const wxString& te
     {
         if ( !(argFlags & wxPG_EDITABLE_VALUE ))
         {
-            // This really should not occurr...
+            // This really should not occur...
             // wxASSERT(false);
             ResetNextIndex();
             return false;
@@ -1828,6 +1827,8 @@ wxImageFileProperty::wxImageFileProperty( const wxString& label, const wxString&
 
     m_pImage = NULL;
     m_pBitmap = NULL;
+
+    LoadImageFromFile();
 }
 
 wxImageFileProperty::~wxImageFileProperty()
@@ -1846,6 +1847,11 @@ void wxImageFileProperty::OnSetValue()
     wxDELETE(m_pImage);
     wxDELETE(m_pBitmap);
 
+    LoadImageFromFile();
+}
+
+void wxImageFileProperty::LoadImageFromFile()
+{
     wxFileName filename = GetFileName();
 
     // Create the image thumbnail
@@ -2204,7 +2210,7 @@ wxString wxDateProperty::ValueToString( wxVariant& value,
 
 wxString wxDateProperty::DetermineDefaultDateFormat( bool showCentury )
 {
-    // This code is basicly copied from datectlg.cpp's SetFormat
+    // This code is basically copied from datectlg.cpp's SetFormat
     //
     wxString format;
 

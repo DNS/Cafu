@@ -4,7 +4,6 @@
 // Author:      Robert Roebling and Robin Dunn
 // Modified by: Ron Lee, Vadim Zeitlin (wxSizerFlags)
 // Created:
-// RCS-ID:      $Id$
 // Copyright:   (c) Robin Dunn, Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -125,6 +124,10 @@ public:
 
     wxSizerFlags& Border(int direction, int borderInPixels)
     {
+        wxCHECK_MSG( !(direction & ~wxALL), *this,
+                     wxS("direction must be a combination of wxDirection ")
+                     wxS("enum values.") );
+
         m_flags &= ~wxALL;
         m_flags |= direction;
 
@@ -251,10 +254,10 @@ class WXDLLIMPEXP_CORE wxSizerItem : public wxObject
 public:
     // window
     wxSizerItem( wxWindow *window,
-                 int proportion,
-                 int flag,
-                 int border,
-                 wxObject* userData );
+                 int proportion=0,
+                 int flag=0,
+                 int border=0,
+                 wxObject* userData=NULL );
 
     // window with flags
     wxSizerItem(wxWindow *window, const wxSizerFlags& flags)
@@ -266,10 +269,10 @@ public:
 
     // subsizer
     wxSizerItem( wxSizer *sizer,
-                 int proportion,
-                 int flag,
-                 int border,
-                 wxObject* userData );
+                 int proportion=0,
+                 int flag=0,
+                 int border=0,
+                 wxObject* userData=NULL );
 
     // sizer with flags
     wxSizerItem(wxSizer *sizer, const wxSizerFlags& flags)
@@ -282,10 +285,10 @@ public:
     // spacer
     wxSizerItem( int width,
                  int height,
-                 int proportion,
-                 int flag,
-                 int border,
-                 wxObject* userData);
+                 int proportion=0,
+                 int flag=0,
+                 int border=0,
+                 wxObject* userData=NULL);
 
     // spacer with flags
     wxSizerItem(int width, int height, const wxSizerFlags& flags)
@@ -310,6 +313,10 @@ public:
     wxSize GetMinSize() const
         { return m_minSize; }
     wxSize GetMinSizeWithBorder() const;
+
+    wxSize GetMaxSize() const
+        { return IsWindow() ? m_window->GetMaxSize() : wxDefaultSize; }
+    wxSize GetMaxSizeWithBorder() const;
 
     void SetMinSize(const wxSize& size)
     {
@@ -435,6 +442,10 @@ protected:
     void DoSetWindow(wxWindow *window);
     void DoSetSizer(wxSizer *sizer);
     void DoSetSpacer(const wxSize& size);
+
+    // Add the border specified for this item to the given size
+    // if it's != wxDefaultSize, just return wxDefaultSize otherwise.
+    wxSize AddBorderToSize(const wxSize& size) const;
 
     // discriminated union: depending on m_kind one of the fields is valid
     enum
@@ -601,7 +612,7 @@ public:
     virtual void DeleteWindows();
 
     // Inform sizer about the first direction that has been decided (by parent item)
-    // Returns true if it made use of the informtion (and recalculated min size)
+    // Returns true if it made use of the information (and recalculated min size)
     virtual bool InformFirstDirection( int WXUNUSED(direction), int WXUNUSED(size), int WXUNUSED(availableOtherDir) )
         { return false; }
 
@@ -703,6 +714,10 @@ public:
 
     void Show(bool show) { ShowItems(show); }
 
+    // This is the ShowItems() counterpart and returns true if any of the sizer
+    // items are shown.
+    virtual bool AreAnyItemsShown() const;
+
 protected:
     wxSize              m_size;
     wxSize              m_minSize;
@@ -798,7 +813,7 @@ protected:
             "Can't calculate number of cols if number of rows is not specified"
         );
 
-        return (m_children.GetCount() + m_rows - 1) / m_rows;
+        return int(m_children.GetCount() + m_rows - 1) / m_rows;
     }
 
     int CalcRows() const
@@ -809,7 +824,7 @@ protected:
             "Can't calculate number of cols if number of rows is not specified"
         );
 
-        return (m_children.GetCount() + m_cols - 1) / m_cols;
+        return int(m_children.GetCount() + m_cols - 1) / m_cols;
     }
 
 private:
@@ -1021,6 +1036,7 @@ public:
 
     // override to hide/show the static box as well
     virtual void ShowItems (bool show);
+    virtual bool AreAnyItemsShown() const;
 
     virtual bool Detach( wxWindow *window );
     virtual bool Detach( wxSizer *sizer ) { return wxBoxSizer::Detach(sizer); }

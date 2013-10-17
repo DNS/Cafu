@@ -3,7 +3,6 @@
 // Purpose:     wrapper header for CppUnit headers
 // Author:      Vadim Zeitlin
 // Created:     15.02.04
-// RCS-ID:      $Id$
 // Copyright:   (c) 2004 Vadim Zeitlin
 // Licence:     wxWindows Licence
 /////////////////////////////////////////////////////////////////////////////
@@ -199,6 +198,10 @@ WX_CPPUNIT_ALLOW_EQUALS_TO_INT(long)
 WX_CPPUNIT_ALLOW_EQUALS_TO_INT(short)
 WX_CPPUNIT_ALLOW_EQUALS_TO_INT(unsigned)
 WX_CPPUNIT_ALLOW_EQUALS_TO_INT(unsigned long)
+
+#if defined( __VMS ) && defined( __ia64 )
+WX_CPPUNIT_ALLOW_EQUALS_TO_INT(std::basic_streambuf<char>::pos_type);
+#endif
 
 #ifdef wxHAS_LONG_LONG_T_DIFFERENT_FROM_LONG
 WX_CPPUNIT_ALLOW_EQUALS_TO_INT(wxLongLong_t)

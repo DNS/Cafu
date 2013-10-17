@@ -4,7 +4,6 @@
 // Author:      Guilhem Lavaux
 // Created:     26/04/97
 // Modified by: Vadim Zeitlin to use wxSockAddressImpl on 2008-12-28
-// RCS-ID:      $Id$
 // Copyright:   (c) 1997, 1998 Guilhem Lavaux
 //              (c) 2008 Vadim Zeitlin
 // Licence:     wxWindows licence
@@ -37,9 +36,7 @@
     #include <stdlib.h>
     #include <ctype.h>
 
-    #if !defined(__MWERKS__)
-        #include <memory.h>
-    #endif
+    #include <memory.h>
 #endif // !WX_PRECOMP
 
 #include "wx/socket.h"
@@ -49,7 +46,7 @@
 
 #include <errno.h>
 
-#if defined(__UNIX__) && !defined(__CYGWIN__)
+#if defined(__UNIX__) && !defined(__WXMSW__)
     #include <netdb.h>
     #include <arpa/inet.h>
 #endif // __UNIX__
@@ -79,7 +76,7 @@ IMPLEMENT_DYNAMIC_CLASS(wxUNIXaddress, wxSockAddress)
 // TODO: use POSIX getaddrinfo() (also available in Winsock 2) for simplicity
 //       and to use the same code for IPv4 and IPv6 support
 
-#ifdef __WXMSW__
+#ifdef __WINDOWS__
     #define HAVE_INET_ADDR
 
     #ifndef HAVE_GETHOSTBYNAME
@@ -94,22 +91,23 @@ IMPLEMENT_DYNAMIC_CLASS(wxUNIXaddress, wxSockAddress)
     #define wxHAS_MT_SAFE_GETBY_FUNCS
 
     #if wxUSE_IPV6
-        // this header does dynamic dispatching of getaddrinfo/freeaddrinfo()
-        // by implementing them in its own code if the system versions are not
-        // available (as is the case for anything < XP)
-        //
-        // NB: if this is not available for the other compilers (so far tested
-        //      with MSVC only) we should just use wxDynamicLibrary "manually"
         #ifdef __VISUALC__
-            // disable a warning occurring in Microsoft own version of this file
+            // this header does dynamic dispatching of getaddrinfo/freeaddrinfo()
+            // by implementing them in its own code if the system versions are
+            // not available (as is the case for anything < XP)
+            #pragma warning(push)
             #pragma warning(disable:4706)
-        #endif
-        #include <wspiapi.h>
-        #ifdef __VISUALC__
-            #pragma warning(default:4706)
+            #include <wspiapi.h>
+            #pragma warning(pop)
+        #else
+            // TODO: Use wxDynamicLibrary to bind to these functions
+            //       dynamically on older Windows systems, currently a program
+            //       built with wxUSE_IPV6==1 won't even start there, even if
+            //       it doesn't actually use the socket stuff.
+            #include <ws2tcpip.h>
         #endif
     #endif
-#endif // __WXMSW__
+#endif // __WINDOWS__
 
 // we assume that we have gethostbyaddr_r() if and only if we have
 // gethostbyname_r() and that it uses the similar conventions to it (see
@@ -144,7 +142,7 @@ IMPLEMENT_DYNAMIC_CLASS(wxUNIXaddress, wxSockAddress)
 #ifdef HAVE_FUNC_GETSERVBYNAME_R_4
     struct wxGetservBuf : servent_data
     {
-        wxGethostBuf()
+        wxGetservBuf()
         {
             memset(this, 0, sizeof(servent_data));
         }
@@ -273,8 +271,9 @@ hostent *wxGethostbyname_r(const char *hostname,
 #elif defined(HAVE_FUNC_GETHOSTBYNAME_R_5)
     he = gethostbyname_r(hostname, h, buffer, size, err);
 #elif defined(HAVE_FUNC_GETHOSTBYNAME_R_3)
-    he = gethostbyname_r(hostname, h,  &buffer);
-    *err = h_errno;
+    wxUnusedVar(var);
+    *err = gethostbyname_r(hostname, h,  &buffer);
+    he = h;
 #elif defined(HAVE_GETHOSTBYNAME)
     wxLOCK_GETBY_MUTEX(name);
 
@@ -304,8 +303,9 @@ hostent *wxGethostbyaddr_r(const char *addr_buf,
 #elif defined(HAVE_FUNC_GETHOSTBYADDR_R_5)
     he = gethostbyaddr_r(addr_buf, buf_size, proto, h, buffer, size, err);
 #elif defined(HAVE_FUNC_GETHOSTBYADDR_R_3)
-    he = gethostbyaddr_r(addr_buf, buf_size, proto, h, buffer);
-    *err = h_errno;
+    wxUnusedVar(size);
+    *err = gethostbyaddr_r(addr_buf, buf_size, proto, h, &buffer);
+    he = h;
 #elif defined(HAVE_GETHOSTBYADDR)
     wxLOCK_GETBY_MUTEX(addr);
 
@@ -397,6 +397,7 @@ servent *wxGetservbyname_r(const char *port,
 #elif defined(HAVE_FUNC_GETSERVBYNAME_R_5)
     se = getservbyname_r(port, protocol, serv, buffer, size);
 #elif defined(HAVE_FUNC_GETSERVBYNAME_R_4)
+    wxUnusedVar(size);
     if ( getservbyname_r(port, protocol, serv, &buffer) != 0 )
         return NULL;
 #elif defined(HAVE_GETSERVBYNAME)

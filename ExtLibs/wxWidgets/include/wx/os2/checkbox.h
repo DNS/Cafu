@@ -4,7 +4,6 @@
 // Author:      David Webster
 // Modified by:
 // Created:     10/13/99
-// RCS-ID:      $Id$
 // Copyright:   (c) David Webster
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -110,7 +109,7 @@ class WXDLLIMPEXP_CORE wxBitmapCheckBox: public wxCheckBox
 private:
 
     virtual void SetLabel(const wxString& rsString)
-    { wxCheckBox::SetLabel(rsString); };
+    { wxCheckBox::SetLabel(rsString); }
     DECLARE_DYNAMIC_CLASS(wxBitmapCheckBox)
 };
 #endif

@@ -4,7 +4,6 @@
 // Author:      David Webster
 // Modified by:
 // Created:     01/21/03
-// RCS-ID:      $Id$
 // Copyright:   (c) David Webster
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -2445,7 +2444,7 @@ bool wxListCtrl::OS2Command ( WXUINT uCmd, WXWORD wId )
 {
     if (uCmd == CN_ENDEDIT)
     {
-        wxCommandEvent vEvent( wxEVT_COMMAND_TEXT_UPDATED, wId );
+        wxCommandEvent vEvent( wxEVT_TEXT, wId );
 
         vEvent.SetEventObject( this );
         ProcessCommand(vEvent);
@@ -2588,19 +2587,6 @@ int wxListCtrl::OnGetItemColumnImage (
     return -1;
 } // end of wxListCtrl::OnGetItemColumnImage
 
-wxListItemAttr* wxListCtrl::OnGetItemAttr (
-  long                              WXUNUSED_UNLESS_DEBUG(lItem)
-) const
-{
-    wxASSERT_MSG( lItem >= 0 && lItem < GetItemCount(),
-                  wxT("invalid item index in OnGetItemAttr()") );
-
-    //
-    // No attributes by default
-    //
-    return NULL;
-} // end of wxListCtrl::OnGetItemAttr
-
 void wxListCtrl::SetItemCount (
   long                              lCount
 )
@@ -2687,7 +2673,7 @@ MRESULT wxListCtrl::OS2WindowProc( WXUINT uMsg,
                     {
                         PMYRECORD       pRecord = (PMYRECORD)pDragInit->pRecord;
 
-                        vEventType = wxEVT_COMMAND_LIST_BEGIN_RDRAG;
+                        vEventType = wxEVT_LIST_BEGIN_RDRAG;
                         vEvent.m_itemIndex   = pRecord->m_ulItemId;
                         vEvent.m_pointDrag.x = pDragInit->x;
                         vEvent.m_pointDrag.y = pDragInit->y;
@@ -2698,7 +2684,7 @@ MRESULT wxListCtrl::OS2WindowProc( WXUINT uMsg,
                     pEditData = (PCNREDITDATA)lParam;
                     if (pEditData)
                     {
-                        vEventType = wxEVT_COMMAND_LIST_BEGIN_LABEL_EDIT;
+                        vEventType = wxEVT_LIST_BEGIN_LABEL_EDIT;
                         ConvertFromOS2ListItem( GetHWND()
                                                ,(wxListItem &)vEvent.GetItem()
                                                ,(PMYRECORD)pEditData->pRecord
@@ -2711,7 +2697,7 @@ MRESULT wxListCtrl::OS2WindowProc( WXUINT uMsg,
                     pEditData = (PCNREDITDATA)lParam;
                     if (pEditData)
                     {
-                        vEventType = wxEVT_COMMAND_LIST_END_LABEL_EDIT;
+                        vEventType = wxEVT_LIST_END_LABEL_EDIT;
                         ConvertFromOS2ListItem( GetHWND()
                                                ,(wxListItem &)vEvent.GetItem()
                                                ,(PMYRECORD)pEditData->pRecord
@@ -2729,7 +2715,7 @@ MRESULT wxListCtrl::OS2WindowProc( WXUINT uMsg,
                         wxListItem*     pItem = (wxListItem*)&vEvent.GetItem();
                         PMYRECORD       pMyRecord = (PMYRECORD)pNotifyEnter->pRecord;
 
-                        vEventType             = wxEVT_COMMAND_LIST_ITEM_ACTIVATED;
+                        vEventType             = wxEVT_LIST_ITEM_ACTIVATED;
                         vEvent.m_itemIndex = pMyRecord->m_ulItemId;
                         pItem->SetText(GetItemText(pMyRecord->m_ulItemId));
                         pItem->SetData(GetItemData(pMyRecord->m_ulItemId));

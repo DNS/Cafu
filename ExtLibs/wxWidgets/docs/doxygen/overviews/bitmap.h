@@ -2,7 +2,6 @@
 // Name:        bitmap.h
 // Purpose:     topic overview
 // Author:      wxWidgets team
-// RCS-ID:      $Id$
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
@@ -10,11 +9,7 @@
 
 @page overview_bitmap Bitmaps and Icons
 
-Classes:
-@li wxBitmap
-@li wxBitmapHandler
-@li wxIcon
-@li wxCursor
+@tableofcontents
 
 The wxBitmap class encapsulates the concept of a platform-dependent bitmap,
 either monochrome or colour. Platform-specific methods for creating a wxBitmap
@@ -70,7 +65,7 @@ wxBitmap bmp(wxBITMAP(bmpname));
 
 // which is roughly equivalent to the following
 #if defined(__WXMSW__) || defined(__WXPM__)
-    wxBitmap bmp("bmpname", wxBITMAP_TYPE_RESOURCE);
+    wxBitmap bmp("bmpname", wxBITMAP_TYPE_BMP_RESOURCE);
 #else // Unix
     wxBitmap bmp(bmpname_xpm, wxBITMAP_TYPE_XPM);
 #endif
@@ -78,14 +73,20 @@ wxBitmap bmp(wxBITMAP(bmpname));
 
 You should always use wxICON() and wxBITMAP() macros because they work for any
 platform (unlike the code above which doesn't deal with wxMac, wxX11, ...) and
-are shorter and more clear than versions with many @ifdef_ blocks. Even better,
-use the same XPMs on all platforms.
+are shorter and more clear than versions with many @ifdef_ blocks.
+Alternatively, you could use the same XPMs on all platforms and avoid dealing
+with Windows resource files.
 
-@li @ref overview_bitmap_supportedformats
-@li @ref overview_bitmap_handlers
+If you'd like to embed bitmaps with alpha transparency in your program, neither
+XPM nor BMP formats are appropriate as they don't have support for alpha and
+another format, typically PNG, should be used. wxWidgets provides a similar
+helper for PNG bitmaps called wxBITMAP_PNG() that can be used to either load
+PNG files embedded in resources (meaning either Windows resource section of the
+executable file or OS X "Resource" subdirectory of the application bundle) or
+arrays containing PNG data included into the program code itself.
 
+@see @ref group_class_gdi
 
-<hr>
 
 
 @section overview_bitmap_supportedformats Supported Bitmap File Formats

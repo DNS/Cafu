@@ -4,7 +4,6 @@
 // Author:      David Webster
 // Modified by:
 // Created:     10/13/99
-// RCS-ID:      $Id$
 // Copyright:   (c) David Webster
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -49,7 +48,7 @@ public:
 
     bool operator != (const wxColour& rColour) const { return !(*this == rColour); }
 
-    WXCOLORREF GetPixel(void) const { return m_vPixel; };
+    WXCOLORREF GetPixel(void) const { return m_vPixel; }
 
 
 private:

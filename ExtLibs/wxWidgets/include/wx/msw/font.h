@@ -4,7 +4,6 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -23,6 +22,8 @@ class WXDLLIMPEXP_CORE wxFont : public wxFontBase
 public:
     // ctors and such
     wxFont() { }
+
+    wxFont(const wxFontInfo& info);
 
 #if FUTURE_WXWIN_COMPATIBILITY_3_0
     wxFont(int size,
@@ -117,6 +118,7 @@ public:
     virtual wxFontStyle GetStyle() const;
     virtual wxFontWeight GetWeight() const;
     virtual bool GetUnderlined() const;
+    virtual bool GetStrikethrough() const;
     virtual wxString GetFaceName() const;
     virtual wxFontEncoding GetEncoding() const;
     virtual const wxNativeFontInfo *GetNativeFontInfo() const;
@@ -128,6 +130,7 @@ public:
     virtual void SetWeight(wxFontWeight weight);
     virtual bool SetFaceName(const wxString& faceName);
     virtual void SetUnderlined(bool underlined);
+    virtual void SetStrikethrough(bool strikethrough);
     virtual void SetEncoding(wxFontEncoding encoding);
 
     wxDECLARE_COMMON_FONT_METHODS();

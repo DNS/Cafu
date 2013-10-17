@@ -4,7 +4,6 @@
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     27/07/03
-// RCS-ID:      $Id$
 // Copyright:   (c) 2003 Stefan Csomor
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -289,8 +288,8 @@ void wxObjectWriter::WriteOneProperty( const wxObject *obj, const wxClassInfo* c
                         }
                         else
                         {
-                            wxLogError( _T("Streaming delegates for not already ")
-                                        _T("streamed objects not yet supported") );
+                            wxLogError( wxT("Streaming delegates for not already ")
+                                        wxT("streamed objects not yet supported") );
                         }
                     }
                 }
@@ -478,7 +477,7 @@ struct wxObjectRuntimeReaderCallback::wxObjectRuntimeReaderCallbackInternal
             return NULL;
         if ( m_objects.find(objectID) == m_objects.end() )
         {
-            wxLogError( _("Passing an unkown object to GetObject") );
+            wxLogError( _("Passing an unknown object to GetObject") );
             return NULL;
         }
 

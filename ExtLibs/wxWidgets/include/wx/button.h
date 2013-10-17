@@ -4,7 +4,6 @@
 // Author:      Vadim Zetlin
 // Modified by:
 // Created:     15.08.00
-// RCS-ID:      $Id$
 // Copyright:   (c) Vadim Zetlin
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -63,8 +62,6 @@ protected:
     #include "wx/cocoa/button.h"
 #elif defined(__WXPM__)
     #include "wx/os2/button.h"
-#elif defined(__WXPALMOS__)
-    #include "wx/palmos/button.h"
 #endif
 
 #endif // wxUSE_BUTTON

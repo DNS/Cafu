@@ -4,7 +4,6 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -36,6 +35,20 @@ class WXDLLIMPEXP_CORE wxFont : public wxFontBase
 public:
     // ctors and such
     wxFont() { }
+
+    wxFont(const wxFontInfo& info)
+    {
+        Create(info.GetPointSize(),
+               info.GetFamily(),
+               info.GetStyle(),
+               info.GetWeight(),
+               info.IsUnderlined(),
+               info.GetFaceName(),
+               info.GetEncoding());
+
+        if ( info.IsUsingSizeInPixels() )
+            SetPixelSize(info.GetPixelSize());
+    }
 
     wxFont( wxOSXSystemFont systemFont );
 
@@ -107,6 +120,8 @@ public:
     virtual wxString GetFaceName() const;
     virtual wxFontEncoding GetEncoding() const;
     virtual const wxNativeFontInfo *GetNativeFontInfo() const;
+
+    virtual bool IsFixedWidth() const;
 
     virtual void SetPointSize(int pointSize);
     virtual void SetFamily(wxFontFamily family);

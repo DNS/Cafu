@@ -4,7 +4,6 @@
 // Author:      Jaakko Salli
 // Modified by:
 // Created:     Apr-30-2006
-// RCS-ID:      $Id$
 // Copyright:   (c) Jaakko Salli
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -233,15 +232,15 @@ private:
 // the wxComboCtrl.
 // ----------------------------------------------------------------------------
 
-class WXDLLIMPEXP_ADV wxOwnerDrawnComboBox : public wxComboCtrl,
-                                             public wxItemContainer
+class WXDLLIMPEXP_ADV wxOwnerDrawnComboBox :
+    public wxWindowWithItems<wxComboCtrl, wxItemContainer>
 {
     //friend class wxComboPopupWindow;
     friend class wxVListBoxComboPopup;
 public:
 
     // ctors and such
-    wxOwnerDrawnComboBox() : wxComboCtrl() { Init(); }
+    wxOwnerDrawnComboBox() { Init(); }
 
     wxOwnerDrawnComboBox(wxWindow *parent,
                          wxWindowID id,
@@ -253,7 +252,6 @@ public:
                          long style = 0,
                          const wxValidator& validator = wxDefaultValidator,
                          const wxString& name = wxComboBoxNameStr)
-        : wxComboCtrl()
     {
         Init();
 
@@ -339,8 +337,6 @@ public:
 
     virtual bool IsSorted() const { return HasFlag(wxCB_SORT); }
 
-    wxCONTROL_ITEMCONTAINER_CLIENTDATAOBJECT_RECAST
-
 protected:
     virtual void DoClear();
     virtual void DoDeleteOneItem(unsigned int n);
@@ -357,6 +353,10 @@ protected:
 
     // Callback for item width, or -1 for default/undetermined
     virtual wxCoord OnMeasureItemWidth( size_t item ) const;
+
+    // override base implementation so we can return the size for the
+    // largest item
+    virtual wxSize DoGetBestSize() const;
 
     // Callback for background drawing. Flags are same as with
     // OnDrawItem.

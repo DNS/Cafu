@@ -4,7 +4,6 @@
 // Author:      David Webster
 // Modified by:
 // Created:     10/06/99
-// RCS-ID:      $Id$
 // Copyright:   (c) David Webster
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +25,20 @@ class WXDLLIMPEXP_CORE wxFont : public wxFontBase
 public:
     // ctors and such
     wxFont() { }
+
+    wxFont(const wxFontInfo& info)
+    {
+        Create(info.GetPointSize(),
+               info.GetFamily(),
+               info.GetStyle(),
+               info.GetWeight(),
+               info.IsUnderlined(),
+               info.GetFaceName(),
+               info.GetEncoding());
+
+        if ( info.IsUsingSizeInPixels() )
+            SetPixelSize(info.GetPixelSize());
+    }
 
 #if FUTURE_WXWIN_COMPATIBILITY_3_0
     wxFont(int size,

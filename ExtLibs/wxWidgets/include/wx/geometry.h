@@ -4,7 +4,6 @@
 // Author:      Stefan Csomor
 // Modified by:
 // Created:     08/05/99
-// RCS-ID:      $Id$
 // Copyright:   (c) 1999 Stefan Csomor
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -88,11 +87,8 @@ inline wxPoint2DInt operator+(const wxPoint2DInt& pt1 , const wxPoint2DInt& pt2)
 inline wxPoint2DInt operator-(const wxPoint2DInt& pt1 , const wxPoint2DInt& pt2);
 inline wxPoint2DInt operator*(const wxPoint2DInt& pt1 , const wxPoint2DInt& pt2);
 inline wxPoint2DInt operator*(wxInt32 n , const wxPoint2DInt& pt);
-inline wxPoint2DInt operator*(wxInt32 n , const wxPoint2DInt& pt);
-inline wxPoint2DInt operator*(const wxPoint2DInt& pt , wxInt32 n);
 inline wxPoint2DInt operator*(const wxPoint2DInt& pt , wxInt32 n);
 inline wxPoint2DInt operator/(const wxPoint2DInt& pt1 , const wxPoint2DInt& pt2);
-inline wxPoint2DInt operator/(const wxPoint2DInt& pt , wxInt32 n);
 inline wxPoint2DInt operator/(const wxPoint2DInt& pt , wxInt32 n);
 
 inline wxPoint2DInt::wxPoint2DInt()
@@ -529,9 +525,9 @@ public:
 */
         // single attribute accessors
 
-    inline wxPoint2DDouble GetPosition()
+    wxPoint2DDouble GetPosition() const
         { return wxPoint2DDouble(m_x, m_y); }
-    inline wxSize GetSize()
+    wxSize GetSize() const
         { return wxSize((int) m_width, (int) m_height); }
 
     // for the edge and corner accessors there are two setters counterparts, the Set.. functions keep the other corners at their
@@ -658,8 +654,8 @@ public:
 
         // single attribute accessors
 
-      inline wxPoint2DInt GetPosition() { return wxPoint2DInt(m_x, m_y); }
-       inline wxSize GetSize() { return wxSize(m_width, m_height); }
+       wxPoint2DInt GetPosition() const { return wxPoint2DInt(m_x, m_y); }
+       wxSize GetSize() const { return wxSize(m_width, m_height); }
 
         // for the edge and corner accessors there are two setters counterparts, the Set.. functions keep the other corners at their
         // position whenever sensible, the Move.. functions keep the size of the rect and move the other corners appropriately
@@ -781,7 +777,7 @@ inline bool wxRect2DInt::operator != (const wxRect2DInt& rect) const
     return !(*this == rect);
 }
 
-class wxTransform2D
+class WXDLLIMPEXP_CORE wxTransform2D
 {
 public :
     virtual ~wxTransform2D() { }
@@ -795,24 +791,6 @@ public :
     virtual wxPoint2DInt    InverseTransform( const wxPoint2DInt &pt ) const ;
     virtual wxRect2DInt        InverseTransform( const wxRect2DInt &r ) const ;
 };
-
-inline void    wxTransform2D::Transform( wxRect2DInt* r ) const
-    { wxPoint2DInt a = r->GetLeftTop() , b = r->GetRightBottom(); Transform( &a ); Transform( &b ); *r = wxRect2DInt( a , b ); }
-
-inline wxPoint2DInt    wxTransform2D::Transform( const wxPoint2DInt &pt ) const
-    { wxPoint2DInt res = pt; Transform( &res ); return res; }
-
-inline wxRect2DInt     wxTransform2D::Transform( const wxRect2DInt &r ) const
-    { wxRect2DInt res = r; Transform( &res ); return res; }
-
-inline void    wxTransform2D::InverseTransform( wxRect2DInt* r ) const
-    { wxPoint2DInt a = r->GetLeftTop() , b = r->GetRightBottom(); InverseTransform( &a ); InverseTransform( &b ); *r = wxRect2DInt( a , b ); }
-
-inline wxPoint2DInt    wxTransform2D::InverseTransform( const wxPoint2DInt &pt ) const
-    { wxPoint2DInt res = pt; InverseTransform( &res ); return res; }
-
-inline wxRect2DInt     wxTransform2D::InverseTransform( const wxRect2DInt &r ) const
-    { wxRect2DInt res = r; InverseTransform( &res ); return res; }
 
 
 #endif // wxUSE_GEOMETRY

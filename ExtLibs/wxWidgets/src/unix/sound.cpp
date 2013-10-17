@@ -4,7 +4,6 @@
 // Author:      Marcel Rasche, Vaclav Slavik
 // Modified by:
 // Created:     25/10/98
-// RCS-ID:      $Id$
 // Copyright:   (c) Julian Smart, Open Source Applications Foundation
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -435,7 +434,7 @@ wxSound::wxSound(const wxString& sFileName, bool isResource) : m_data(NULL)
     Create(sFileName, isResource);
 }
 
-wxSound::wxSound(int size, const wxByte* data) : m_data(NULL)
+wxSound::wxSound(size_t size, const void* data) : m_data(NULL)
 {
     Create(size, data);
 }
@@ -483,7 +482,7 @@ bool wxSound::Create(const wxString& fileName,
     return true;
 }
 
-bool wxSound::Create(int size, const wxByte* data)
+bool wxSound::Create(size_t size, const void* data)
 {
     wxASSERT( data != NULL );
 
@@ -623,7 +622,7 @@ typedef struct
 #define WAVE_INDEX       8
 #define FMT_INDEX       12
 
-bool wxSound::LoadWAV(const wxUint8 *data, size_t length, bool copyData)
+bool wxSound::LoadWAV(const void* data_, size_t length, bool copyData)
 {
     // the simplest wave file header consists of 44 bytes:
     //
@@ -647,6 +646,8 @@ bool wxSound::LoadWAV(const wxUint8 *data, size_t length, bool copyData)
     // so check that we have at least as much
     if ( length < 44 )
         return false;
+
+    const wxUint8* data = static_cast<const wxUint8*>(data_);
 
     WAVEFORMAT waveformat;
     memcpy(&waveformat, &data[FMT_INDEX + 4], sizeof(WAVEFORMAT));

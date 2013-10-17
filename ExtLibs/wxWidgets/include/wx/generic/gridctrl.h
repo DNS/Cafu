@@ -4,7 +4,6 @@
 // Author:      Paul Gammans, Roger Gammans
 // Modified by:
 // Created:     11/04/2001
-// RCS-ID:      $Id$
 // Copyright:   (c) The Computer Surgery (paul@compsurg.co.uk)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -81,13 +80,17 @@ protected:
 class WXDLLIMPEXP_ADV wxGridCellFloatRenderer : public wxGridCellStringRenderer
 {
 public:
-    wxGridCellFloatRenderer(int width = -1, int precision = -1);
+    wxGridCellFloatRenderer(int width = -1,
+                            int precision = -1,
+                            int format = wxGRID_FLOAT_FORMAT_DEFAULT);
 
     // get/change formatting parameters
     int GetWidth() const { return m_width; }
     void SetWidth(int width) { m_width = width; m_format.clear(); }
     int GetPrecision() const { return m_precision; }
     void SetPrecision(int precision) { m_precision = precision; m_format.clear(); }
+    int GetFormat() const { return m_style; }
+    void SetFormat(int format) { m_style = format; m_format.clear(); }
 
     // draw the string right aligned with given width/precision
     virtual void Draw(wxGrid& grid,
@@ -102,7 +105,8 @@ public:
                                wxDC& dc,
                                int row, int col);
 
-    // parameters string format is "width[,precision]"
+    // parameters string format is "width[,precision[,format]]"
+    // with format being one of f|e|g|E|F|G
     virtual void SetParameters(const wxString& params);
 
     virtual wxGridCellRenderer *Clone() const;
@@ -115,6 +119,7 @@ private:
     int m_width,
         m_precision;
 
+    int m_style;
     wxString m_format;
 };
 
@@ -242,6 +247,28 @@ private:
                                 const wxGridCellAttr& attr,
                                 const wxRect& rect,
                                 int row, int col);
+
+    // Helper methods of GetTextLines()
+
+    // Break a single logical line of text into several physical lines, all of
+    // which are added to the lines array. The lines are broken at maxWidth and
+    // the dc is used for measuring text extent only.
+    void BreakLine(wxDC& dc,
+                   const wxString& logicalLine,
+                   wxCoord maxWidth,
+                   wxArrayString& lines);
+
+    // Break a word, which is supposed to be wider than maxWidth, into several
+    // lines, which are added to lines array and the last, incomplete, of which
+    // is returned in line output parameter.
+    //
+    // Returns the width of the last line.
+    wxCoord BreakWord(wxDC& dc,
+                      const wxString& word,
+                      wxCoord maxWidth,
+                      wxArrayString& lines,
+                      wxString& line);
+
 
 };
 

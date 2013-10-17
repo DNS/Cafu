@@ -4,7 +4,6 @@
 // Notes:       Based on htmlhelp.cpp, implementing a monolithic
 //              HTML Help controller class,  by Vaclav Slavik
 // Author:      Harm van der Heijden and Vaclav Slavik
-// RCS-ID:      $Id$
 // Copyright:   (c) Harm van der Heijden and Vaclav Slavik
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +45,8 @@ class WXDLLIMPEXP_HTML wxHtmlHelpController : public wxHelpControllerBase // wxE
 
 public:
     wxHtmlHelpController(int style = wxHF_DEFAULT_STYLE, wxWindow* parentWindow = NULL);
+    wxHtmlHelpController(wxWindow* parentWindow, int style = wxHF_DEFAULT_STYLE);
+    
     virtual ~wxHtmlHelpController();
 
     void SetShouldPreventAppExit(bool enable);
@@ -89,7 +90,7 @@ public:
     virtual bool DisplayBlock(long blockNo) { return DisplaySection(blockNo); }
     virtual bool DisplayTextPopup(const wxString& text, const wxPoint& pos);
 
-    virtual void SetFrameParameters(const wxString& title,
+    virtual void SetFrameParameters(const wxString& titleFormat,
                                const wxSize& size,
                                const wxPoint& pos = wxDefaultPosition,
                                bool newFrameEachTime = false);
@@ -115,6 +116,8 @@ public:
     wxWindow* FindTopLevelWindow();
 
 protected:
+    void Init(int style);
+    
     virtual wxWindow* CreateHelpWindow();
     virtual wxHtmlHelpFrame* CreateHelpFrame(wxHtmlHelpData *data);
     virtual wxHtmlHelpDialog* CreateHelpDialog(wxHtmlHelpData *data);

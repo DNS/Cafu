@@ -4,7 +4,6 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     04/01/98
-// RCS-ID:      $Id$
 // Copyright:   (c) Microsoft, Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -21,7 +20,7 @@ public:
         m_sName = "PNG bitmap file";
         m_sExtension = "bmp";
         m_lType = wxBITMAP_TYPE_PNG;
-    };
+    }
 
     virtual bool LoadFile( wxBitmap*       pBitmap
                           ,const wxString& rName

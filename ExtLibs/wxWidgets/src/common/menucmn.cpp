@@ -4,7 +4,6 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     26.10.99
-// RCS-ID:      $Id$
 // Copyright:   (c) wxWidgets team
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -69,7 +68,7 @@ template<> void wxCollectionToVariantArray( wxMenuItemList const &theList,
 #endif
 
 wxBEGIN_PROPERTIES_TABLE(wxMenu)
-wxEVENT_PROPERTY( Select, wxEVT_COMMAND_MENU_SELECTED, wxCommandEvent)
+wxEVENT_PROPERTY( Select, wxEVT_MENU, wxCommandEvent)
 
 wxPROPERTY( Title, wxString, SetTitle, GetTitle, wxString(), \
            0 /*flags*/, wxT("Helpstring"), wxT("group") )
@@ -597,17 +596,10 @@ wxMenuItem* wxMenuBase::FindItemByPosition(size_t position) const
 // window will be used.
 void wxMenuBase::UpdateUI(wxEvtHandler* source)
 {
-    if (GetInvokingWindow())
-    {
-        // Don't update menus if the parent
-        // frame is about to get deleted
-        wxWindow *tlw = wxGetTopLevelParent( GetInvokingWindow() );
-        if (tlw && wxPendingDelete.Member(tlw))
-            return;
-    }
+    wxWindow * const win = GetWindow();
 
-    if ( !source && GetInvokingWindow() )
-        source = GetInvokingWindow()->GetEventHandler();
+    if ( !source && win )
+        source = win->GetEventHandler();
     if ( !source )
         source = GetEventHandler();
     if ( !source )
@@ -621,7 +613,7 @@ void wxMenuBase::UpdateUI(wxEvtHandler* source)
         {
             wxWindowID itemid = item->GetId();
             wxUpdateUIEvent event(itemid);
-            event.SetEventObject( source );
+            event.SetEventObject( this );
 
             if ( source->ProcessEvent(event) )
             {
@@ -646,26 +638,39 @@ void wxMenuBase::UpdateUI(wxEvtHandler* source)
 
 bool wxMenuBase::SendEvent(int itemid, int checked)
 {
-    wxCommandEvent event(wxEVT_COMMAND_MENU_SELECTED, itemid);
+    wxCommandEvent event(wxEVT_MENU, itemid);
     event.SetEventObject(this);
     event.SetInt(checked);
 
-    bool processed = false;
+    wxWindow* const win = GetWindow();
+    wxMenuBar* const mb = GetMenuBar();
 
     // Try the menu's event handler first
     wxEvtHandler *handler = GetEventHandler();
     if ( handler )
-        processed = handler->SafelyProcessEvent(event);
-
-    // Try the window the menu was popped up from or its menu bar belongs to
-    if ( !processed )
     {
-        wxWindow * const win = GetWindow();
-        if ( win )
-            processed = win->HandleWindowEvent(event);
+        // Indicate to the event processing code that we're going to pass this
+        // event to another handler if it's not processed here to prevent it
+        // from passing the event to wxTheApp: this will be done below if we do
+        // have the associated window.
+        if ( win || mb )
+            event.SetWillBeProcessedAgain();
+
+        if ( handler->SafelyProcessEvent(event) )
+            return true;
     }
 
-    return processed;
+    // If this menu is part of the menu bar, process the event there: this will
+    // also propagate it upwards to the window containing the menu bar.
+    if ( mb )
+        return mb->HandleWindowEvent(event);
+
+    // Try the window the menu was popped up from.
+    if ( win )
+        return win->HandleWindowEvent(event);
+
+    // Not processed.
+    return false;
 }
 
 // ----------------------------------------------------------------------------
@@ -919,6 +924,7 @@ void wxMenuBarBase::Attach(wxFrame *frame)
 {
     wxASSERT_MSG( !IsAttached(), wxT("menubar already attached!") );
 
+    SetParent(frame);
     m_menuBarFrame = frame;
 }
 
@@ -927,6 +933,7 @@ void wxMenuBarBase::Detach()
     wxASSERT_MSG( IsAttached(), wxT("detaching unattached menubar") );
 
     m_menuBarFrame = NULL;
+    SetParent(NULL);
 }
 
 // ----------------------------------------------------------------------------
@@ -1045,18 +1052,13 @@ wxString wxMenuBarBase::GetHelpString(int itemid) const
 
 void wxMenuBarBase::UpdateMenus()
 {
-    wxEvtHandler* source;
     wxMenu* menu;
     int nCount = GetMenuCount();
     for (int n = 0; n < nCount; n++)
     {
         menu = GetMenu( n );
         if (menu != NULL)
-        {
-            source = menu->GetEventHandler();
-            if (source != NULL)
-                menu->UpdateUI( source );
-        }
+            menu->UpdateUI( NULL );
     }
 }
 

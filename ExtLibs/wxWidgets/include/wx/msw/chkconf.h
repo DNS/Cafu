@@ -4,7 +4,6 @@
  * Author:      Julian Smart
  * Modified by:
  * Created:     01/02/97
- * RCS-ID:      $Id$
  * Copyright:   (c) Julian Smart
  * Licence:     wxWindows licence
  */
@@ -155,12 +154,6 @@
 #    define wxUSE_STACKWALKER 0
 #endif /* compiler doesn't support SEH */
 
-/* wxUSE_DEBUG_NEW_ALWAYS doesn't work with CodeWarrior */
-#if defined(__MWERKS__)
-#    undef wxUSE_DEBUG_NEW_ALWAYS
-#    define wxUSE_DEBUG_NEW_ALWAYS      0
-#endif
-
 #if defined(__GNUWIN32__)
     /* These don't work as expected for mingw32 and cygwin32 */
 #   undef  wxUSE_MEMORY_TRACING
@@ -224,11 +217,6 @@
  */
 #ifdef __WIN64__
 #   if wxUSE_STACKWALKER
-        /* this is not currently supported under Win64, volunteers needed to
-           make it work */
-#       undef wxUSE_STACKWALKER
-#       define wxUSE_STACKWALKER 0
-
 #       undef wxUSE_CRASHREPORT
 #       define wxUSE_CRASHREPORT 0
 #   endif
@@ -408,6 +396,14 @@
 #           define wxUSE_MEDIACTRL 0
 #       endif
 #   endif
+#    if wxUSE_WEB
+#       ifdef wxABORT_ON_CONFIG_ERROR
+#           error "wxWebView requires wxActiveXContainer under MSW"
+#       else
+#           undef wxUSE_WEB
+#           define wxUSE_WEB 0
+#       endif
+#   endif
 #endif /* !wxUSE_ACTIVEX */
 
 #if !wxUSE_THREADS
@@ -420,6 +416,18 @@
 #       endif
 #   endif
 #endif /* !wxUSE_THREADS */
+
+
+#if !wxUSE_OLE_AUTOMATION
+#    if wxUSE_WEB
+#       ifdef wxABORT_ON_CONFIG_ERROR
+#           error "wxWebView requires wxUSE_OLE_AUTOMATION under MSW"
+#       else
+#           undef wxUSE_WEB
+#           define wxUSE_WEB 0
+#       endif
+#   endif
+#endif /* !wxUSE_OLE_AUTOMATION */
 
 #if defined(__WXUNIVERSAL__) && wxUSE_POSTSCRIPT_ARCHITECTURE_IN_MSW && !wxUSE_POSTSCRIPT
 #   undef wxUSE_POSTSCRIPT

@@ -4,7 +4,6 @@
 // Author:
 // Modified by:
 // Created:     2009-01-31
-// RCS-ID:      $Id: dataview.mm$
 // Copyright:
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -156,10 +155,45 @@ inline wxDataViewItem wxDataViewItemFromMaybeNilItem(id item)
 {
 }
 
+    // Get the identifier we use for the specified column. This should be used
+    // for finding columns from identifier only, to initialize the identifier
+    // of a new column use initWithColumnPointer below instead.
+    +(NSString*) identifierForColumnPointer:(const wxDataViewColumn*)column;
+
+    // Initialize the column with the given pointer to the associated
+    // wxDataViewColumn. This pointer can later be retrieved using
+    // getColumnPointer.
+    -(id) initWithColumnPointer:(const wxDataViewColumn*)column;
+
+    // Retrieve the associated column.
+    -(wxDataViewColumn*) getColumnPointer;
+
     -(id) dataCellForRow:(NSInteger)row;
 @end
 
 @implementation wxDVCNSTableColumn
+
++(NSString*) identifierForColumnPointer:(const wxDataViewColumn*)column
+{
+    // Starting from OS X 10.7 the column identifier must be an NSString and
+    // not just some arbitrary object, so we serialize the pointer into the
+    // string. Notice the use of NSInteger which is big enough to store a
+    // pointer in both 32 and 64 bit builds.
+    return [NSString stringWithFormat:@"%lu", reinterpret_cast<NSUInteger>(column)];
+}
+
+-(id) initWithColumnPointer:(const wxDataViewColumn*)column
+{
+    [self initWithIdentifier: [wxDVCNSTableColumn identifierForColumnPointer:column]];
+    return self;
+}
+
+-(wxDataViewColumn*) getColumnPointer
+{
+    // The case to NSString is needed for OS X < 10.7.
+    return reinterpret_cast<wxDataViewColumn*>(
+            [static_cast<NSString*>([self identifier]) integerValue]);
+}
 
 -(id) dataCellForRow:(NSInteger)row
 {
@@ -168,13 +202,7 @@ inline wxDataViewItem wxDataViewItemFromMaybeNilItem(id item)
     // or progress cells in the columns using the corresponding types even for
     // the container rows which is wrong
 
-    // half of the problem is just finding the objects we need from the column
-    // pointer which is itself stashed inside wxPointerObject which we use as
-    // our identifier
-    const wxDataViewColumn * const
-        dvCol = static_cast<wxDataViewColumn *>(
-                    [(wxPointerObject *)[self identifier] pointer]
-                );
+    const wxDataViewColumn * const dvCol = [self getColumnPointer];
 
     const wxDataViewCtrl * const dvc = dvCol->GetOwner();
     const wxCocoaDataViewControl * const
@@ -316,10 +344,7 @@ NSTableColumn* CreateNativeColumn(const wxDataViewColumn *column)
     wxCHECK_MSG( renderer, NULL, "column should have a renderer" );
 
     wxDVCNSTableColumn * const nativeColumn(
-        [[wxDVCNSTableColumn alloc] initWithIdentifier:
-            [[[wxPointerObject alloc] initWithPointer:
-                const_cast<wxDataViewColumn*>(column)]
-             autorelease]]
+        [[wxDVCNSTableColumn alloc] initWithColumnPointer: column]
     );
 
     // setting the size related parameters:
@@ -516,7 +541,7 @@ outlineView:(NSOutlineView*)outlineView
     wxCHECK_MSG( dvc->GetModel(), false,
                     "Pointer to model not set correctly." );
 
-    wxDataViewEvent event(wxEVT_COMMAND_DATAVIEW_ITEM_DROP, dvc->GetId());
+    wxDataViewEvent event(wxEVT_DATAVIEW_ITEM_DROP, dvc->GetId());
     event.SetEventObject(dvc);
     event.SetItem(wxDataViewItemFromItem(item));
     event.SetModel(dvc->GetModel());
@@ -664,7 +689,8 @@ outlineView:(NSOutlineView*)outlineView
 
     wxCHECK_MSG( model, nil, "Valid model in data source does not exist." );
 
-    wxDataViewColumn* col(static_cast<wxDataViewColumn*>([[tableColumn identifier] pointer]));
+    wxDataViewColumn* const
+        col([static_cast<wxDVCNSTableColumn*>(tableColumn) getColumnPointer]);
     const unsigned colIdx = col->GetModelColumn();
 
     wxDataViewItem dataViewItem(wxDataViewItemFromItem(item));
@@ -687,7 +713,8 @@ outlineView:(NSOutlineView*)outlineView
 {
     wxUnusedVar(outlineView);
 
-    wxDataViewColumn* col(static_cast<wxDataViewColumn*>([[tableColumn identifier] pointer]));
+    wxDataViewColumn* const
+        col([static_cast<wxDVCNSTableColumn*>(tableColumn) getColumnPointer]);
 
     col->GetRenderer()->
         OSXOnCellChanged(object, wxDataViewItemFromItem(item), col->GetModelColumn());
@@ -725,7 +752,7 @@ outlineView:(NSOutlineView*)outlineView
 
     // send first the event to wxWidgets that the sorting has changed so that
     // the program can do special actions before the sorting actually starts:
-    wxDataViewEvent event(wxEVT_COMMAND_DATAVIEW_COLUMN_SORTED,dvc->GetId()); // variable defintion
+    wxDataViewEvent event(wxEVT_DATAVIEW_COLUMN_SORTED,dvc->GetId()); // variable definition
 
     event.SetEventObject(dvc);
     if (noOfDescriptors > 0)
@@ -764,7 +791,7 @@ outlineView:(NSOutlineView*)outlineView
     wxCHECK_MSG(dvc->GetModel(), false, "Pointer to model not set correctly.");
 
     wxDataViewEvent
-        event(wxEVT_COMMAND_DATAVIEW_ITEM_DROP_POSSIBLE,dvc->GetId());
+        event(wxEVT_DATAVIEW_ITEM_DROP_POSSIBLE,dvc->GetId());
 
     event.SetEventObject(dvc);
     event.SetItem(wxDataViewItemFromItem(item));
@@ -869,7 +896,7 @@ outlineView:(NSOutlineView*)outlineView
         // send a begin drag event for all selected items and proceed with
         // dragging unless the event is vetoed:
         wxDataViewEvent
-            event(wxEVT_COMMAND_DATAVIEW_ITEM_BEGIN_DRAG,dvc->GetId());
+            event(wxEVT_DATAVIEW_ITEM_BEGIN_DRAG,dvc->GetId());
 
         event.SetEventObject(dvc);
         event.SetModel(dvc->GetModel());
@@ -898,7 +925,8 @@ outlineView:(NSOutlineView*)outlineView
                     size_t const dataSize       = event.GetDataObject()->GetDataSize(idDataFormat);
                     size_t const dataBufferSize = sizeof(wxDataFormatId)+dataSize;
                     // variable definitions (used in all case statements):
-                    wxMemoryBuffer dataBuffer(dataBufferSize);
+                    // give additional headroom for trailing NULL
+                    wxMemoryBuffer dataBuffer(dataBufferSize+4);
 
                     dataBuffer.AppendData(&idDataFormat,sizeof(wxDataFormatId));
                     switch (idDataFormat)
@@ -930,13 +958,13 @@ outlineView:(NSOutlineView*)outlineView
                             break;
                         default:
                             wxFAIL_MSG("Data object has invalid or unsupported data format");
-                            [dataArray release];
                             return NO;
                     }
                 }
                 delete[] dataFormats;
                 delete itemObject;
                 if (dataStringAvailable)
+                {
                     if (itemStringAvailable)
                     {
                         if (itemCounter > 0)
@@ -945,10 +973,10 @@ outlineView:(NSOutlineView*)outlineView
                     }
                     else
                         dataStringAvailable = false;
+                }
             }
             else
             {
-                [dataArray release];
                 delete itemObject;
                 return NO; // dragging was vetoed or no data available
             }
@@ -1138,6 +1166,23 @@ outlineView:(NSOutlineView*)outlineView
 // ============================================================================
 
 @implementation wxCustomCell
+
+#if 0 // starting implementation for custom cell clicks
+
+- (id)init
+{
+    self = [super init];
+    [self setAction:@selector(clickedAction)];
+    [self setTarget:self];
+    return self;
+}
+
+- (void) clickedAction: (id) sender
+{
+    wxUnusedVar(sender);
+}
+
+#endif
 
 -(NSSize) cellSize
 {
@@ -1580,7 +1625,7 @@ outlineView:(NSOutlineView*)outlineView
     // sent whether the cell is editable or not
     wxDataViewCtrl* const dvc = implementation->GetDataViewCtrl();
 
-    wxDataViewEvent event(wxEVT_COMMAND_DATAVIEW_ITEM_ACTIVATED,dvc->GetId());
+    wxDataViewEvent event(wxEVT_DATAVIEW_ITEM_ACTIVATED,dvc->GetId());
 
 
     event.SetEventObject(dvc);
@@ -1601,7 +1646,7 @@ outlineView:(NSOutlineView*)outlineView
     // menu should be shown or not
     wxDataViewCtrl* const dvc = implementation->GetDataViewCtrl();
 
-    wxDataViewEvent event(wxEVT_COMMAND_DATAVIEW_ITEM_CONTEXT_MENU,dvc->GetId());
+    wxDataViewEvent event(wxEVT_DATAVIEW_ITEM_CONTEXT_MENU,dvc->GetId());
 
     wxDataViewItemArray selectedItems;
 
@@ -1622,14 +1667,15 @@ outlineView:(NSOutlineView*)outlineView
 //
 // delegate methods
 //
--(void) outlineView:(NSOutlineView*)outlineView mouseDownInHeaderOfTableColumn:(NSTableColumn*)tableColumn
+-(void) outlineView:(NSOutlineView*)outlineView didClickTableColumn:(NSTableColumn*)tableColumn
 {
-    wxDataViewColumn* const col(static_cast<wxDataViewColumn*>([[tableColumn identifier] pointer]));
+    wxDataViewColumn* const
+        col([static_cast<wxDVCNSTableColumn*>(tableColumn) getColumnPointer]);
 
     wxDataViewCtrl* const dvc = implementation->GetDataViewCtrl();
 
     wxDataViewEvent
-        event(wxEVT_COMMAND_DATAVIEW_COLUMN_HEADER_CLICK,dvc->GetId());
+        event(wxEVT_DATAVIEW_COLUMN_HEADER_CLICK,dvc->GetId());
 
 
     // first, send an event that the user clicked into a column's header:
@@ -1656,7 +1702,7 @@ outlineView:(NSOutlineView*)outlineView
         NSArray*          sortDescriptors;
         NSSortDescriptor* sortDescriptor;
 
-        sortDescriptor = [[NSSortDescriptor alloc] initWithKey:[NSString stringWithFormat:@"%d",[outlineView columnWithIdentifier:[tableColumn identifier]]]
+        sortDescriptor = [[NSSortDescriptor alloc] initWithKey:[NSString stringWithFormat:@"%ld",(long)[outlineView columnWithIdentifier:[tableColumn identifier]]]
             ascending:YES];
         sortDescriptors = [NSArray arrayWithObject:sortDescriptor];
         [tableColumn setSortDescriptorPrototype:sortDescriptor];
@@ -1671,7 +1717,7 @@ outlineView:(NSOutlineView*)outlineView
 
     wxDataViewCtrl* const dvc = implementation->GetDataViewCtrl();
 
-    wxDataViewEvent event(wxEVT_COMMAND_DATAVIEW_ITEM_COLLAPSING,dvc->GetId());
+    wxDataViewEvent event(wxEVT_DATAVIEW_ITEM_COLLAPSING,dvc->GetId());
 
 
     event.SetEventObject(dvc);
@@ -1689,7 +1735,7 @@ outlineView:(NSOutlineView*)outlineView
 
     wxDataViewCtrl* const dvc = implementation->GetDataViewCtrl();
 
-    wxDataViewEvent event(wxEVT_COMMAND_DATAVIEW_ITEM_EXPANDING,dvc->GetId());
+    wxDataViewEvent event(wxEVT_DATAVIEW_ITEM_EXPANDING,dvc->GetId());
 
 
     event.SetEventObject(dvc);
@@ -1719,11 +1765,8 @@ outlineView:(NSOutlineView*)outlineView
     wxDataViewCtrl * const dvc = implementation->GetDataViewCtrl();
     wxDataViewModel * const model = dvc->GetModel();
 
-    wxDataViewColumn * const
-        dvCol(static_cast<wxDataViewColumn*>(
-                    [[tableColumn identifier] pointer]
-                    )
-             );
+    wxDataViewColumn* const
+        dvCol([static_cast<wxDVCNSTableColumn*>(tableColumn) getColumnPointer]);
     const unsigned colIdx = dvCol->GetModelColumn();
 
     wxDataViewItem dvItem(wxDataViewItemFromItem(item));
@@ -1760,11 +1803,14 @@ outlineView:(NSOutlineView*)outlineView
 {
     int const newColumnPosition = [[[notification userInfo] objectForKey:@"NSNewColumn"] intValue];
 
-    wxDataViewColumn* const col(static_cast<wxDataViewColumn*>([[[[self tableColumns] objectAtIndex:newColumnPosition] identifier] pointer]));
+    NSTableColumn*
+        tableColumn = [[self tableColumns] objectAtIndex:newColumnPosition];
+    wxDataViewColumn* const
+        col([static_cast<wxDVCNSTableColumn*>(tableColumn) getColumnPointer]);
 
     wxDataViewCtrl* const dvc = implementation->GetDataViewCtrl();
 
-    wxDataViewEvent event(wxEVT_COMMAND_DATAVIEW_COLUMN_REORDERED,dvc->GetId());
+    wxDataViewEvent event(wxEVT_DATAVIEW_COLUMN_REORDERED,dvc->GetId());
 
 
     event.SetEventObject(dvc);
@@ -1777,7 +1823,7 @@ outlineView:(NSOutlineView*)outlineView
 {
     wxDataViewCtrl* const dvc = implementation->GetDataViewCtrl();
 
-    wxDataViewEvent event(wxEVT_COMMAND_DATAVIEW_ITEM_COLLAPSED,dvc->GetId());
+    wxDataViewEvent event(wxEVT_DATAVIEW_ITEM_COLLAPSED,dvc->GetId());
 
 
     event.SetEventObject(dvc);
@@ -1790,7 +1836,7 @@ outlineView:(NSOutlineView*)outlineView
 {
     wxDataViewCtrl* const dvc = implementation->GetDataViewCtrl();
 
-    wxDataViewEvent event(wxEVT_COMMAND_DATAVIEW_ITEM_EXPANDED,dvc->GetId());
+    wxDataViewEvent event(wxEVT_DATAVIEW_ITEM_EXPANDED,dvc->GetId());
 
 
     event.SetEventObject(dvc);
@@ -1805,7 +1851,7 @@ outlineView:(NSOutlineView*)outlineView
 
     wxDataViewCtrl* const dvc = implementation->GetDataViewCtrl();
 
-    wxDataViewEvent event(wxEVT_COMMAND_DATAVIEW_SELECTION_CHANGED,dvc->GetId());
+    wxDataViewEvent event(wxEVT_DATAVIEW_SELECTION_CHANGED,dvc->GetId());
 
     event.SetEventObject(dvc);
     event.SetModel(dvc->GetModel());
@@ -1827,9 +1873,10 @@ outlineView:(NSOutlineView*)outlineView
     currentlyEditedColumn = [self editedColumn];
     currentlyEditedRow = [self editedRow];
 
-    wxDataViewColumn* const col =
-        static_cast<wxDataViewColumn*>(
-                [[[[self tableColumns] objectAtIndex:currentlyEditedColumn] identifier] pointer]);
+    NSTableColumn*
+        tableColumn = [[self tableColumns] objectAtIndex:currentlyEditedColumn];
+    wxDataViewColumn* const
+        col([static_cast<wxDVCNSTableColumn*>(tableColumn) getColumnPointer]);
 
     wxDataViewCtrl* const dvc = implementation->GetDataViewCtrl();
 
@@ -1839,7 +1886,7 @@ outlineView:(NSOutlineView*)outlineView
 
     // now, send the event:
     wxDataViewEvent
-        event(wxEVT_COMMAND_DATAVIEW_ITEM_EDITING_STARTED,dvc->GetId());
+        event(wxEVT_DATAVIEW_ITEM_EDITING_STARTED,dvc->GetId());
 
     event.SetEventObject(dvc);
     event.SetItem(
@@ -1859,21 +1906,22 @@ outlineView:(NSOutlineView*)outlineView
     // even if no event indicating a start of an editing session has been sent
     // (see Documentation for NSControl controlTextDidEndEditing:); this is
     // not expected by a user of the wxWidgets library and therefore an
-    // wxEVT_COMMAND_DATAVIEW_ITEM_EDITING_DONE event is only sent if a
-    // corresponding wxEVT_COMMAND_DATAVIEW_ITEM_EDITING_STARTED has been sent
-    // before; to check if a wxEVT_COMMAND_DATAVIEW_ITEM_EDITING_STARTED has
+    // wxEVT_DATAVIEW_ITEM_EDITING_DONE event is only sent if a
+    // corresponding wxEVT_DATAVIEW_ITEM_EDITING_STARTED has been sent
+    // before; to check if a wxEVT_DATAVIEW_ITEM_EDITING_STARTED has
     // been sent the last edited column/row are valid:
     if ( currentlyEditedColumn != -1 && currentlyEditedRow != -1 )
     {
-        wxDataViewColumn* const col =
-            static_cast<wxDataViewColumn*>(
-                    [[[[self tableColumns] objectAtIndex:currentlyEditedColumn] identifier] pointer]);
+        NSTableColumn*
+            tableColumn = [[self tableColumns] objectAtIndex:currentlyEditedColumn];
+        wxDataViewColumn* const
+            col([static_cast<wxDVCNSTableColumn*>(tableColumn) getColumnPointer]);
 
         wxDataViewCtrl* const dvc = implementation->GetDataViewCtrl();
 
         // send event to wxWidgets:
         wxDataViewEvent
-            event(wxEVT_COMMAND_DATAVIEW_ITEM_EDITING_DONE,dvc->GetId());
+            event(wxEVT_DATAVIEW_ITEM_EDITING_DONE,dvc->GetId());
 
         event.SetEventObject(dvc);
         event.SetItem(
@@ -1917,6 +1965,9 @@ wxCocoaDataViewControl::wxCocoaDataViewControl(wxWindow* peer,
     [scrollview setAutohidesScrollers:YES];
     [scrollview setDocumentView:m_OutlineView];
 
+    // we cannot call InstallHandler(m_OutlineView) here, because we are handling
+    // our action:s ourselves, only associate the view with this impl
+    Associate(m_OutlineView,this);
     // initialize the native control itself too
     InitOutlineView(style);
 }
@@ -1969,7 +2020,7 @@ bool wxCocoaDataViewControl::DeleteColumn(wxDataViewColumn* columnPtr)
         [m_OutlineView setOutlineTableColumn:nil]; // due to a bug this does not work
     [m_OutlineView removeTableColumn:columnPtr->GetNativeData()->GetNativeColumnPtr()]; // due to a confirmed bug #6555162 the deletion does not work for
     // outline table columns (... and there is no workaround)
-    return (([m_OutlineView columnWithIdentifier:[[[wxPointerObject alloc] initWithPointer:columnPtr] autorelease]]) == -1);
+    return (([m_OutlineView columnWithIdentifier:[wxDVCNSTableColumn identifierForColumnPointer:columnPtr]]) == -1);
 }
 
 void wxCocoaDataViewControl::DoSetExpanderColumn(const wxDataViewColumn *columnPtr)
@@ -1979,12 +2030,13 @@ void wxCocoaDataViewControl::DoSetExpanderColumn(const wxDataViewColumn *columnP
 
 wxDataViewColumn* wxCocoaDataViewControl::GetColumn(unsigned int pos) const
 {
-    return static_cast<wxDataViewColumn*>([[[[m_OutlineView tableColumns] objectAtIndex:pos] identifier] pointer]);
+    NSTableColumn* tableColumn = [[m_OutlineView tableColumns] objectAtIndex:pos];
+    return [static_cast<wxDVCNSTableColumn*>(tableColumn) getColumnPointer];
 }
 
 int wxCocoaDataViewControl::GetColumnPosition(const wxDataViewColumn *columnPtr) const
 {
-    return [m_OutlineView columnWithIdentifier:[[[wxPointerObject alloc] initWithPointer:const_cast<wxDataViewColumn*>(columnPtr)] autorelease]];
+    return [m_OutlineView columnWithIdentifier:[wxDVCNSTableColumn identifierForColumnPointer:columnPtr]];
 }
 
 bool wxCocoaDataViewControl::InsertColumn(unsigned int pos, wxDataViewColumn* columnPtr)
@@ -2184,9 +2236,9 @@ bool wxCocoaDataViewControl::IsExpanded(const wxDataViewItem& item) const
 bool wxCocoaDataViewControl::Reload()
 {
     [m_DataSource clearBuffers];
+    [m_OutlineView reloadData];
     [m_OutlineView scrollColumnToVisible:0];
     [m_OutlineView scrollRowToVisible:0];
-    [m_OutlineView reloadData];
     return true;
 }
 
@@ -2255,6 +2307,14 @@ wxDataViewItem wxCocoaDataViewControl::GetCurrentItem() const
     return wxDataViewItem([[m_OutlineView itemAtRow:[m_OutlineView selectedRow]] pointer]);
 }
 
+wxDataViewColumn *wxCocoaDataViewControl::GetCurrentColumn() const
+{
+    int col = [m_OutlineView selectedColumn];
+    if ( col == -1 )
+        return NULL;
+    return GetColumn(col);
+}
+
 void wxCocoaDataViewControl::SetCurrentItem(const wxDataViewItem& item)
 {
     // We can't have unselected current item in a NSTableView, as the
@@ -2263,6 +2323,11 @@ void wxCocoaDataViewControl::SetCurrentItem(const wxDataViewItem& item)
     // if the current item is deselected. So we have no choice but to select
     // the item in the same time as making it current.
     Select(item);
+}
+
+int wxCocoaDataViewControl::GetSelectedItemsCount() const
+{
+    return [m_OutlineView numberOfSelectedRows];
 }
 
 int wxCocoaDataViewControl::GetSelections(wxDataViewItemArray& sel) const
@@ -2323,7 +2388,7 @@ wxDataViewColumn* wxCocoaDataViewControl::GetSortingColumn() const
 
     for (UInt32 i=0; i<noOfColumns; ++i)
         if ([[columns objectAtIndex:i] sortDescriptorPrototype] != nil)
-            return static_cast<wxDataViewColumn*>([[[columns objectAtIndex:i] identifier] pointer]);
+            return GetColumn(i);
     return NULL;
 }
 
@@ -2358,7 +2423,7 @@ void wxCocoaDataViewControl::HitTest(const wxPoint& point, wxDataViewItem& item,
     indexRow    = [m_OutlineView rowAtPoint:   nativePoint];
     if ((indexColumn >= 0) && (indexRow >= 0))
     {
-        columnPtr = static_cast<wxDataViewColumn*>([[[[m_OutlineView tableColumns] objectAtIndex:indexColumn] identifier] pointer]);
+        columnPtr = GetColumn(indexColumn);
         item      = wxDataViewItem([[m_OutlineView itemAtRow:indexRow] pointer]);
     }
     else
@@ -2575,12 +2640,11 @@ wxDataViewRenderer::OSXOnCellChanged(NSObject *object,
                                      const wxDataViewItem& item,
                                      unsigned col)
 {
-    // TODO: we probably should get rid of this code entirely and make this
-    //       function pure virtual, but currently we still have some native
-    //       renderers (wxDataViewChoiceRenderer) which don't override it and
-    //       there is also wxDataViewCustomRenderer for which it's not obvious
-    //       how it should be implemented so keep this "auto-deduction" of
-    //       variant type from NSObject for now
+    // TODO: This code should really be removed and this function be made pure
+    //       virtual. We just need to decide what to do with custom renderers
+    //       (i.e. wxDataViewCustomRenderer), currently OS X "in place" editing
+    //       which doesn't really create an editor control is not compatible
+    //       with the in place editing under other platforms.
 
     wxVariant value;
     if ( [object isKindOfClass:[NSString class]] )
@@ -2653,7 +2717,7 @@ void wxDataViewRenderer::OSXApplyAttr(const wxDataViewItemAttr& attr)
             }
 
             const wxColour& c = attr.GetColour();
-            colText = [NSColor colorWithDeviceRed:c.Red() / 255.
+            colText = [NSColor colorWithCalibratedRed:c.Red() / 255.
                 green:c.Green() / 255.
                 blue:c.Blue() / 255.
                 alpha:c.Alpha() / 255.];
@@ -2811,6 +2875,17 @@ wxDataViewChoiceRenderer::wxDataViewChoiceRenderer(const wxArrayString& choices,
     [cell release];
 }
 
+void
+wxDataViewChoiceRenderer::OSXOnCellChanged(NSObject *value,
+                                           const wxDataViewItem& item,
+                                           unsigned col)
+{
+    // At least under OS X 10.7 we get the index of the item selected and not
+    // its string.
+    wxDataViewModel *model = GetOwner()->GetOwner()->GetModel();
+    model->ChangeValue(GetChoice(ObjectToLong(value)), item, col);
+}
+
 bool wxDataViewChoiceRenderer::MacRender()
 {
     if (GetValue().GetType() == GetVariantType())
@@ -2950,6 +3025,8 @@ bool wxDataViewIconTextRenderer::MacRender()
         iconText << GetValue();
         if (iconText.GetIcon().IsOk())
             [cell setImage:[[wxBitmap(iconText.GetIcon()).GetNSImage() retain] autorelease]];
+        else
+            [cell setImage:nil];
         [cell setStringValue:[[wxCFStringRef(iconText.GetText()).AsNSString() retain] autorelease]];
         return true;
     }
@@ -3236,12 +3313,6 @@ void wxDataViewColumn::SetWidth(int width)
             [m_NativeDataPtr->GetNativeColumnPtr() setWidth:width];
             break;
     }
-}
-
-void wxDataViewColumn::SetAsSortKey(bool WXUNUSED(sort))
-{
-    // see wxGTK native wxDataViewColumn implementation
-    wxFAIL_MSG("not implemented");
 }
 
 void wxDataViewColumn::SetNativeData(wxDataViewColumnNativeData* newNativeDataPtr)

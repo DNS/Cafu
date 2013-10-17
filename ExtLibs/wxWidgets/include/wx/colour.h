@@ -4,7 +4,6 @@
 // Author:      Julian Smart
 // Modified by: Francesco Montorsi
 // Created:
-// RCS-ID:      $Id$
 // Copyright:   Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -167,6 +166,7 @@ public:
     static void          ChangeLightness(unsigned char* r, unsigned char* g, unsigned char* b, int ialpha);
 
     wxColour ChangeLightness(int ialpha) const;
+    wxColour& MakeDisabled(unsigned char brightness = 255);
 
     // old, deprecated
     // ---------------
@@ -213,9 +213,7 @@ WXDLLIMPEXP_CORE bool wxFromString(const wxString& str, wxColourBase* col);
 
 
 
-#if defined(__WXPALMOS__)
-    #include "wx/generic/colour.h"
-#elif defined(__WXMSW__)
+#if defined(__WXMSW__)
     #include "wx/msw/colour.h"
 #elif defined(__WXMOTIF__)
     #include "wx/motif/colour.h"
@@ -223,8 +221,6 @@ WXDLLIMPEXP_CORE bool wxFromString(const wxString& str, wxColourBase* col);
     #include "wx/gtk/colour.h"
 #elif defined(__WXGTK__)
     #include "wx/gtk1/colour.h"
-#elif defined(__WXMGL__)
-    #include "wx/generic/colour.h"
 #elif defined(__WXDFB__)
     #include "wx/generic/colour.h"
 #elif defined(__WXX11__)

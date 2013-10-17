@@ -5,7 +5,6 @@
 // Modified by:
 // Created:
 // Copyright:   (c) wxWidgets Team
-// RCS-ID:      $Id$
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
@@ -16,7 +15,7 @@
 
 #if wxUSE_JOYSTICK
 
-#if defined(__WXMSW__)
+#if defined(__WINDOWS__)
 #include "wx/msw/joystick.h"
 #elif defined(__WXMOTIF__)
 #include "wx/unix/joystick.h"
