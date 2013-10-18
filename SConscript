@@ -74,12 +74,15 @@ if sys.platform=="win32":
 
     wxEnv.Append(LIBPATH=[wxPath+LibPath])
 
+    # Note that at this time, we link *two* copies of libpng to the programs: That of wxWidgets, and our own.
+    # See http://thread.gmane.org/gmane.comp.lib.wxwidgets.general/80245 for some details.
+    # A similar consideration applies to libjpeg, and possibly to zlib in the future...
     if buildMode=="dbg":
         wxEnv.Append(CPPPATH=[wxPath+LibPath+"/mswud"])
-        wxEnv.Append(LIBS=Split("wxbase29ud wxbase29ud_net wxjpegd wxmsw29ud_adv wxmsw29ud_core wxmsw29ud_gl wxmsw29ud_aui wxmsw29ud_propgrid wxregexud"))
+        wxEnv.Append(LIBS=Split("wxbase30ud wxbase30ud_net wxjpegd wxpngd wxmsw30ud_adv wxmsw30ud_core wxmsw30ud_gl wxmsw30ud_aui wxmsw30ud_propgrid wxregexud"))
     else:
         wxEnv.Append(CPPPATH=[wxPath+LibPath+"/mswu"])
-        wxEnv.Append(LIBS=Split("wxbase29u wxbase29u_net wxjpeg wxmsw29u_adv wxmsw29u_core wxmsw29u_gl wxmsw29u_aui wxmsw29u_propgrid wxregexu"))
+        wxEnv.Append(LIBS=Split("wxbase30u wxbase30u_net wxjpeg wxpng wxmsw30u_adv wxmsw30u_core wxmsw30u_gl wxmsw30u_aui wxmsw30u_propgrid wxregexu"))
 
     wxEnv.Append(CPPPATH=[wxPath+'/include'])   # This must be appended *after* the LibPath-specific paths.
     wxEnv.Append(LIBS=Split("advapi32 comctl32 comdlg32 gdi32 ole32 oleaut32 opengl32 rpcrt4 shell32 user32 winspool wsock32"))
@@ -118,18 +121,18 @@ elif sys.platform=="linux2":
     envCafu.Append(LIBS=Split("GL rt pthread"))
 
 def genInitGameInfos():
-	s = "/* This is an auto-generated file -- don't edit! */\n\n"
-	s += '#include "../Ca3DE/AppCafu.hpp"\n\n'
-	for GameLib in CompilerSetup.GameLibs:
-		s += '#define GAME_NAME {0}\n'.format(GameLib)
-		s += '#include "../Games/{0}/Code/GameInfo.hpp"\n'.format(GameLib)
-		s += '#undef GAME_NAME\n\n'
-	s += 'void AppCafuT::InitGameInfos()\n'
-	s += '{\n'
-	for GameLib in CompilerSetup.GameLibs:
-		s += '    m_AllGameInfos.PushBack(new {0}::GameInfoT());\n'.format(GameLib)
-	s += '}\n'
-	return s
+    s = "/* This is an auto-generated file -- don't edit! */\n\n"
+    s += '#include "../Ca3DE/AppCafu.hpp"\n\n'
+    for GameLib in CompilerSetup.GameLibs:
+        s += '#define GAME_NAME {0}\n'.format(GameLib)
+        s += '#include "../Games/{0}/Code/GameInfo.hpp"\n'.format(GameLib)
+        s += '#undef GAME_NAME\n\n'
+    s += 'void AppCafuT::InitGameInfos()\n'
+    s += '{\n'
+    for GameLib in CompilerSetup.GameLibs:
+        s += '    m_AllGameInfos.PushBack(new {0}::GameInfoT());\n'.format(GameLib)
+    s += '}\n'
+    return s
 
 appCafu = envCafu.Program('Ca3DE/Cafu',
     Glob("Ca3DE/*.cpp") +
