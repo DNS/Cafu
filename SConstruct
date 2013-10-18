@@ -173,6 +173,40 @@ if sys.platform=="win32":
         envProfile.Append(CCFLAGS=Split("/MD /O2 /Ob2 /Z7"));
         envProfile.Append(LINKFLAGS=["/fixed:no", "/debug"]);
 
+    elif envCommon["MSVC_VERSION"] in ["11.0", "11.0Exp"]:
+        ##############################
+        ### Win32, Visual C++ 2012 ###
+        ##############################
+
+        compiler="vc11"
+
+        # Reference of commonly used compiler switches:
+        # Identical to the compiler switches for Visual C++ 2005, see there for more details.
+
+        # Begin with an environment with settings that are common for debug, release and profile builds.
+        envCommon.Append(CCFLAGS = Split("/GR /EHsc"))   # CCFLAGS is also taken as the default value for CXXFLAGS.
+        envCommon.Append(CPPDEFINES = ["_CRT_SECURE_NO_DEPRECATE", "_CRT_NONSTDC_NO_DEPRECATE"])
+        envCommon.Append(LINKFLAGS = Split("/incremental:no"))
+
+        # Explicitly instruct SCons to detect and use the Microsoft Platform SDK, as it is not among the default tools.
+        # See thread "Scons 2010/01/17 doesn't look for MS SDK?" at <http://scons.tigris.org/ds/viewMessage.do?dsForumId=1272&dsMessageId=2455554>
+        # for further information.
+        envCommon.Tool('mssdk')
+
+        # Environment for debug builds:
+        envDebug=envCommon.Clone();
+        envDebug.Append(CCFLAGS=Split("/MDd /Od /Z7 /RTC1"));
+        envDebug.Append(LINKFLAGS=["/debug"]);
+
+        # Environment for release builds:
+        envRelease=envCommon.Clone();
+        envRelease.Append(CCFLAGS=Split("/MD /O2 /Ob2"));
+
+        # Environment for profile builds:
+        envProfile=envCommon.Clone();
+        envProfile.Append(CCFLAGS=Split("/MD /O2 /Ob2 /Z7"));
+        envProfile.Append(LINKFLAGS=["/fixed:no", "/debug"]);
+
     else:
         ###############################
         ### Win32, unknown compiler ###
@@ -375,20 +409,15 @@ for GameLib in CompilerSetup.GameLibs:
     envRelease_Cafu.Append(LIBPATH=["#/Games/" + GameLib + "/Code/" + my_build_dir_rel]);
     envProfile_Cafu.Append(LIBPATH=["#/Games/" + GameLib + "/Code/" + my_build_dir_prf]);
 
-if compiler=="vc8":
+if compiler in ["vc8", "vc9", "vc10"]:
     envDebug_Cafu  .Append(CCFLAGS=Split("/J /W3 /WX"));
     envRelease_Cafu.Append(CCFLAGS=Split("/J /W3 /WX"));
     envProfile_Cafu.Append(CCFLAGS=Split("/J /W3 /WX"));
 
-elif compiler=="vc9":
-    envDebug_Cafu  .Append(CCFLAGS=Split("/J /W3 /WX"));
-    envRelease_Cafu.Append(CCFLAGS=Split("/J /W3 /WX"));
-    envProfile_Cafu.Append(CCFLAGS=Split("/J /W3 /WX"));
-
-elif compiler=="vc10":
-    envDebug_Cafu  .Append(CCFLAGS=Split("/J /W3 /WX"));
-    envRelease_Cafu.Append(CCFLAGS=Split("/J /W3 /WX"));
-    envProfile_Cafu.Append(CCFLAGS=Split("/J /W3 /WX"));
+elif compiler == "vc11":
+    envDebug_Cafu  .Append(CCFLAGS=Split("/J /W3 /WX"))     # /analyze
+    envRelease_Cafu.Append(CCFLAGS=Split("/J /W3 /WX"))
+    envProfile_Cafu.Append(CCFLAGS=Split("/J /W3 /WX"))
 
 elif compiler=="g++":
     envDebug_Cafu  .Append(CCFLAGS=Split("-funsigned-char -Wall -Werror -Wno-char-subscripts"));
@@ -399,6 +428,9 @@ elif compiler=="g++":
 ###########################
 ### Build all Cafu code ###
 ###########################
+
+if not os.path.exists(Dir("#/ExtLibs/fbx/lib").abspath):
+    print("Note: The FBX SDK is not present.\n")
 
 if os.path.exists("Libs/SConscript"):
     # Build everything in the Libs/ directory.
