@@ -24,7 +24,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Material.hpp"
 #include "String.hpp"
 
-#define FBXSDK_NEW_API
 #include "fbxsdk.h"
 
 #if defined(_WIN32) && _MSC_VER<1600
@@ -143,7 +142,7 @@ LoaderFbxT::FbxSceneT::FbxSceneT(const LoaderFbxT& MainClass, UserCallbacksI& Us
     // Initialize the importer by providing a filename.
     if (!m_Importer->Initialize(FileName.c_str(), -1, m_SdkManager->GetIOSettings()))
     {
-        std::string ErrorMsg=m_Importer->GetLastErrorString();
+        std::string ErrorMsg=m_Importer->GetStatus().GetErrorString();
 
         CleanUp();
         throw LoadErrorT(ErrorMsg);
@@ -151,7 +150,7 @@ LoaderFbxT::FbxSceneT::FbxSceneT(const LoaderFbxT& MainClass, UserCallbacksI& Us
 
     bool Result=m_Importer->Import(m_Scene);
 
-    if (!Result && m_Importer->GetLastErrorID()==FbxIOBase::ePasswordError)
+    if (!Result && m_Importer->GetStatus().GetCode() == FbxStatus::ePasswordError)
     {
         const FbxString Password=UserCallbacks.GetPasswordFromUser("Please enter the password to open file\n" + FileName).c_str();
 
@@ -163,7 +162,7 @@ LoaderFbxT::FbxSceneT::FbxSceneT(const LoaderFbxT& MainClass, UserCallbacksI& Us
 
     if (!Result)
     {
-        std::string ErrorMsg=m_Importer->GetLastErrorString();
+        std::string ErrorMsg=m_Importer->GetStatus().GetErrorString();
 
         CleanUp();
         throw LoadErrorT(ErrorMsg);
@@ -300,7 +299,7 @@ void LoaderFbxT::FbxSceneT::ConvertNurbsAndPatches(FbxNode* Node)
             FbxGeometryConverter Converter(m_SdkManager);
 
             Log << "Node \"" << Node->GetName() << "\" is a " << (NodeAttribute->GetAttributeType()==FbxNodeAttribute::eNurbs ? "Nurbs" : "Patch") << ", triangulating...\n";
-            Converter.TriangulateInPlace(Node);
+            Converter.Triangulate(NodeAttribute, true /*in place?*/);
         }
     }
 
