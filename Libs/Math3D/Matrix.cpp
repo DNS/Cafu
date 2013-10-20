@@ -442,8 +442,8 @@ MatrixT MatrixT::GetInverse(bool* Result) const
             float* pScaleRow = mat[rowMap[i]];
 
             // Multiply this row by -(iRow*the element).
-            const float mul=-pScaleRow[iRow];
-            for (int j=0; j<8; j++) pScaleRow[j]+=pRow[j]*mul;
+            const float mul_=-pScaleRow[iRow];
+            for (int j=0; j<8; j++) pScaleRow[j]+=pRow[j]*mul_;
             pScaleRow[iRow]=0.0f;   // Preserve accuracy...
         }
     }

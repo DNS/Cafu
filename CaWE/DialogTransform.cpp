@@ -20,9 +20,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "DialogTransform.hpp"
+#include "Templates/Array.hpp"
 
 #include "wx/spinctrl.h"
 #include "wx/valgen.h"
+#include "wx/wx.h"
 #include "wxExt/valTextNumber.hpp"
 
 

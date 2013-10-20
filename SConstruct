@@ -415,7 +415,7 @@ if compiler in ["vc8", "vc9", "vc10"]:
     envProfile_Cafu.Append(CCFLAGS=Split("/J /W3 /WX"));
 
 elif compiler == "vc11":
-    envDebug_Cafu  .Append(CCFLAGS=Split("/J /W3 /WX"))     # /analyze
+    envDebug_Cafu  .Append(CCFLAGS=Split("/J /W3 /WX"))     # /analyze /analyze:stacksize 80000
     envRelease_Cafu.Append(CCFLAGS=Split("/J /W3 /WX"))
     envProfile_Cafu.Append(CCFLAGS=Split("/J /W3 /WX"))
 

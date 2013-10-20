@@ -177,8 +177,8 @@ void TerrainNodeT::DrawAmbientContrib(const Vector3dT& ViewerPos) const
     {
         // m can be used to easily minify / shrink the view frustum.
         // The values should be between 0 and 8: 0 is the default (no minification), 8 is the reasonable maximum.
-        const char  m=0;
-        const float d=(i<4 && m>0) ? 1.0f-0.75f*m/8.0f : 1.0f;
+        const char  m = 0;
+        const float d = (i < 4) ? 1.0f - 0.75f*m/8.0f : 1.0f;
         float       plane[4];
 
         for (unsigned long j=0; j<4; j++)

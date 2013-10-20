@@ -300,7 +300,7 @@ void EntityT::DeleteComponent(unsigned long CompNr)
     m_Components.RemoveAtAndKeepOrder(CompNr);
 
     // Have the remaining components re-resolve their dependencies among themselves.
-    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
+    for (CompNr = 0; CompNr < m_Components.Size(); CompNr++)
         m_Components[CompNr]->UpdateDependencies(this);
 }
 

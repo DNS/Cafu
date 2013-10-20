@@ -62,13 +62,13 @@ GLuint UploadProgram(GLenum ProgramTarget, const char* ProgramCode)
 
     if (ErrorID!=GL_NO_ERROR || ErrorPos!=-1 || ErrorStringLen>0)
     {
-        Console->Print(cf::va("%s\n\nProblem detected:\nglGetError() == %i,\nerror position: %i,\nerror string: %s\n", ProgramCode, ErrorID, ErrorPos, ErrorString));
+        Console->Print(cf::va("%s\n\nProblem detected:\nglGetError() == %u,\nerror position: %i,\nerror string: %s\n", ProgramCode, ErrorID, ErrorPos, ErrorString));
 
         FILE* ErrorFile=fopen("ProgError.txt", "a");
 
         if (ErrorFile)
         {
-            fprintf(ErrorFile, "%s\n\nProblem detected:\nglGetError() == %i,\nerror position: %i,\nerror string: %s\n", ProgramCode, ErrorID, ErrorPos, ErrorString);
+            fprintf(ErrorFile, "%s\n\nProblem detected:\nglGetError() == %u,\nerror position: %i,\nerror string: %s\n", ProgramCode, ErrorID, ErrorPos, ErrorString);
             fclose(ErrorFile);
         }
     }

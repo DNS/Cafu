@@ -25,6 +25,25 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <stdlib.h>
 #include <cassert>
 
+// Turn off bogus warnings that occur with VC11's static code analysis.
+// (Should move this to a better place though, e.g. some `compat.h` file...)
+#if defined(_WIN32) && defined(_MSC_VER)
+    // warning C6011: dereferencing NULL pointer <name>
+    #pragma warning(disable:6011)
+
+    // warning C6385: invalid data: accessing <buffer name>, the readable size is <size1> bytes, but <size2> bytes may be read: Lines: x, y
+    #pragma warning(disable:6385)
+
+    // warning C6386: buffer overrun: accessing <buffer name>, the writable size is <size1> bytes, but <size2> bytes may be written: Lines: x, y
+    #pragma warning(disable:6386)
+
+    // warning C28159: Consider using another function instead.
+    #pragma warning(disable:28159)
+
+    // warning C28251: Inconsistent annotation for function: this instance has an error.
+    #pragma warning(disable:28251)
+#endif
+
 
 // These classes are intentionally not defined in ArrayT<T>,
 // because we don't need them parametrised by T.

@@ -455,21 +455,21 @@ void AppCafuT::OnInitCmdLine(wxCmdLineParser& Parser)
 
 bool AppCafuT::OnCmdLineParsed(wxCmdLineParser& Parser)
 {
-    long int i=0;
+    long int n=0;
     wxString s="";
 
     m_GameInfo = m_AllGameInfos[0];
 
     if (Parser.Found("con",           &s)) ConsoleInterpreter->RunCommand(s.ToStdString());
     if (Parser.Found("svWorld",       &s)) Options_ServerWorldName=s.ToStdString();
-    if (Parser.Found("svPort",        &i)) Options_ServerPortNr=int(i);
+    if (Parser.Found("svPort",        &n)) Options_ServerPortNr=int(n);
     if (Parser.Found("noFS")             ) Options_ClientFullScreen=false;
-    if (Parser.Found("clPort",        &i)) Options_ClientPortNr=int(i);
+    if (Parser.Found("clPort",        &n)) Options_ClientPortNr=int(n);
     if (Parser.Found("clRemoteName",  &s)) Options_ClientRemoteName=s.ToStdString();
-    if (Parser.Found("clRemotePort",  &i)) Options_ClientRemotePortNr=int(i);
-    if (Parser.Found("clTexDetail",   &i)) Options_ClientTextureDetail=int(i % 3);
-    if (Parser.Found("clWinSizeX",    &i)) Options_ClientWindowSizeX=int(i);
-    if (Parser.Found("clWinSizeY",    &i)) Options_ClientWindowSizeY=int(i);
+    if (Parser.Found("clRemotePort",  &n)) Options_ClientRemotePortNr=int(n);
+    if (Parser.Found("clTexDetail",   &n)) Options_ClientTextureDetail=int(n % 3);
+    if (Parser.Found("clWinSizeX",    &n)) Options_ClientWindowSizeX=int(n);
+    if (Parser.Found("clWinSizeY",    &n)) Options_ClientWindowSizeY=int(n);
     if (Parser.Found("clRenderer",    &s)) Options_ClientDesiredRenderer=s.ToStdString();
     if (Parser.Found("clSoundSystem", &s)) Options_ClientDesiredSoundSystem=s.ToStdString();
     if (Parser.Found("clPlayerName",  &s)) Options_PlayerName=s.ToStdString();

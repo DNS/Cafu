@@ -616,7 +616,7 @@ EntHumanPlayerT::EntHumanPlayerT(char TypeID, unsigned long ID, unsigned long Ma
         if (BaseEntity->GetType()==&EntInfo2DMoveDirT  ::TypeInfo) { AllInfo2DMoveDirEntities.PushBack(static_pointer_cast<EntInfo2DMoveDirT>(BaseEntity)); continue; }
 
         Console->DevWarning("Should never get here (ctor HP)!");
-        printf("%s (%u): WARNING: Should never get here!\n", __FILE__, __LINE__);
+        printf("%s (%i): WARNING: Should never get here!\n", __FILE__, __LINE__);
     }
 
     const double NodeSpacing=length(Origin_IPS-Origin_INS);

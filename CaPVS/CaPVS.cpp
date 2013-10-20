@@ -505,9 +505,11 @@ bool DetermineVisibility(unsigned long CurrentSL, const Polygon3T<double>& Enter
         if (NextSL<AncestorSLs[0]/*MasterSL*/ && !IsVisible(NextSL, TargetSL)) continue;
 
         // Abkürzung: Gleiche Ebene? Dann weiter mit dem nächsten Portal!
-        Polygon3T<double>::SideT Side=NextPortal.WhatSide(EnteringPortal.Plane, MapT::RoundEpsilon);
+        {
+            Polygon3T<double>::SideT Side=NextPortal.WhatSide(EnteringPortal.Plane, MapT::RoundEpsilon);
 
-        if (Side==Polygon3T<double>::InIdentical || Side==Polygon3T<double>::InMirrored) continue;
+            if (Side==Polygon3T<double>::InIdentical || Side==Polygon3T<double>::InMirrored) continue;
+        }
 
         // Clippe 'NextPortal' gegen das Frustum "MasterPortal --> EnteringPortal".
         for (FrustumNr=0; FrustumNr<Frustum.Size(); FrustumNr++)

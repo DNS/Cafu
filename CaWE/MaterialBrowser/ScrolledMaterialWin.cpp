@@ -33,6 +33,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "wx/tokenzr.h"
 
+// Turn off bogus warnings that occur with VC11's static code analysis.
+// (Should move this to a better place though, e.g. some `compat.h` file...)
+#if defined(_WIN32) && defined(_MSC_VER)
+    // warning C28182: Dereferencing NULL pointer.
+    #pragma warning(disable:28182)
+#endif
+
 
 using namespace MaterialBrowser;
 
@@ -264,10 +271,10 @@ void ScrolledMaterialWindowT::ExportDiffuseMaps(const wxString& DestinationDir) 
                     }
                     else Count--;
 
-                    BitmapT* Bitmap=Child->GetBitmap();
+                    BitmapT* ChildBitmap=Child->GetBitmap();
 
-                    Bitmap->SaveToDisk((DestinationDir+"/"+MatName+Suffix+".png").c_str());
-                    delete Bitmap;
+                    ChildBitmap->SaveToDisk((DestinationDir+"/"+MatName+Suffix+".png").c_str());
+                    delete ChildBitmap;
                 }
 
                 if (Count!=0) wxMessageBox("Count!=0 for "+MatName, "Warning!");

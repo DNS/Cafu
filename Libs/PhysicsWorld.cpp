@@ -29,6 +29,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 // #include <iostream>     // For std::cout debug output
 
+// Turn off bogus warnings that occur with VC11's static code analysis.
+// (Should move this to a better place though, e.g. some `compat.h` file...)
+#if defined(_WIN32) && defined(_MSC_VER)
+    // warning C28182: Dereferencing NULL pointer.
+    #pragma warning(disable:28182)
+#endif
+
 
 using namespace cf;
 

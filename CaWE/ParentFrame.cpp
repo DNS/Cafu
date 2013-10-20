@@ -445,6 +445,13 @@ namespace
                 //   - wxBusyCursor: http://trac.wxwidgets.org/ticket/13390
                 //   - wxBusyInfo:   http://trac.wxwidgets.org/ticket/13262
             #elif defined(__WXMSW__)
+                // Turn off bogus warnings that occur with VC11's static code analysis.
+                // (Should move this to a better place though, e.g. some `compat.h` file...)
+                #if defined(_WIN32) && defined(_MSC_VER)
+                    // warning C6239: (<non-zero constant> && <expression>) always evaluates to the result of <expression>.
+                    #pragma warning(disable:6239)
+                #endif
+
                 /// Under wxMSW, the wxProgressDialog sometimes hangs when a 32-bit program is run under WOW64,
                 /// see http://trac.cafu.de/ticket/47 for details.
                 if (sizeof(void*)==4 && wxIsPlatform64Bit())

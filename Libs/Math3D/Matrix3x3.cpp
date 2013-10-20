@@ -399,8 +399,8 @@ template<class T> Matrix3x3T<T> Matrix3x3T<T>::GetInverse(bool* Result) const
             T* pScaleRow = mat[rowMap[i]];
 
             // Multiply this row by -(iRow*the element).
-            const T mul=-pScaleRow[iRow];
-            for (int j=0; j<6; j++) pScaleRow[j]+=pRow[j]*mul;
+            const T mul_=-pScaleRow[iRow];
+            for (int j=0; j<6; j++) pScaleRow[j]+=pRow[j]*mul_;
             pScaleRow[iRow]=0.0;   // Preserve accuracy...
         }
     }

@@ -1051,21 +1051,24 @@ char* BitmapT::GetPalettedImage() const
             int  bestbiasd  =bestd;
             int  bestpos    =-1;
             int  bestbiaspos=bestpos;
-            int* p          =bias;
-            int* f          =freq;
 
-            for (int netnum=0; netnum<netsize; netnum++)
             {
-                int* n       =network[netnum];
-                int  dist    =abs(n[0]-b) + abs(n[1]-g) + abs(n[2]-r);
-                int  biasdist=dist-((*p) >> (intbiasshift-netbiasshift));
-                int  betafreq=*f >> betashift;
+                int* p          =bias;
+                int* f          =freq;
 
-                if (    dist<bestd    ) { bestd    =dist;     bestpos    =netnum; }
-                if (biasdist<bestbiasd) { bestbiasd=biasdist; bestbiaspos=netnum; }
+                for (int netnum=0; netnum<netsize; netnum++)
+                {
+                    int* n       =network[netnum];
+                    int  dist    =abs(n[0]-b) + abs(n[1]-g) + abs(n[2]-r);
+                    int  biasdist=dist-((*p) >> (intbiasshift-netbiasshift));
+                    int  betafreq=*f >> betashift;
 
-                *f++ -= betafreq;
-                *p++ += (betafreq<<gammashift);
+                    if (    dist<bestd    ) { bestd    =dist;     bestpos    =netnum; }
+                    if (biasdist<bestbiasd) { bestbiasd=biasdist; bestbiaspos=netnum; }
+
+                    *f++ -= betafreq;
+                    *p++ += (betafreq<<gammashift);
+                }
             }
 
             freq[bestpos]+=beta;

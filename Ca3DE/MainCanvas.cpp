@@ -603,15 +603,15 @@ void MainCanvasT::OnMouseMove(wxMouseEvent& ME)
         // This works, but doesn't forward the mouse event to the windows.
         // Gui->SetMousePos(NewMousePosX, NewMousePosY);
 
-        CaMouseEventT ME;
+        CaMouseEventT GuiME;
 
-        ME.Type  =CaMouseEventT::CM_MOVE_X;
-        ME.Amount=NewMousePosX-OldMousePosX;
-        if (ME.Amount!=0) Gui->ProcessDeviceEvent(ME);
+        GuiME.Type  =CaMouseEventT::CM_MOVE_X;
+        GuiME.Amount=NewMousePosX-OldMousePosX;
+        if (GuiME.Amount!=0) Gui->ProcessDeviceEvent(GuiME);
 
-        ME.Type  =CaMouseEventT::CM_MOVE_Y;
-        ME.Amount=NewMousePosY-OldMousePosY;
-        if (ME.Amount!=0) Gui->ProcessDeviceEvent(ME);
+        GuiME.Type  =CaMouseEventT::CM_MOVE_Y;
+        GuiME.Amount=NewMousePosY-OldMousePosY;
+        if (GuiME.Amount!=0) Gui->ProcessDeviceEvent(GuiME);
 
         m_LastMousePos=IN_OTHER_2D_GUI;
     }

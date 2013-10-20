@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_DIALOG_PASTE_SPECIAL_HPP_INCLUDED
 
 #include "Math3D/BoundingBox.hpp"
+#include "wx/wx.h"
 
 
 class wxSpinCtrl;

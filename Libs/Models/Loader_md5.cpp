@@ -77,13 +77,13 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
         // and at http://wiki.doom3reference.com/wiki/Models_(folder).
         while (!TP.IsAtEOF())
         {
-            const std::string Token=TP.GetNextToken();
+            const std::string Tok=TP.GetNextToken();
 
-                 if (Token=="MD5Version" ) { if (TP.GetNextToken()!="10") throw LoadErrorT("MD5Version is not 10."); }
-            else if (Token=="commandline") TP.GetNextToken();       // Ignore the command line.
-            else if (Token=="numJoints"  ) TP.GetNextToken();       // Ignore the given number of joints - we just load as many as we find.
-            else if (Token=="numMeshes"  ) TP.GetNextToken();       // Ignore the given number of meshes - we just load as many as we find.
-            else if (Token=="joints")
+                 if (Tok=="MD5Version" ) { if (TP.GetNextToken()!="10") throw LoadErrorT("MD5Version is not 10."); }
+            else if (Tok=="commandline") TP.GetNextToken();       // Ignore the command line.
+            else if (Tok=="numJoints"  ) TP.GetNextToken();       // Ignore the given number of joints - we just load as many as we find.
+            else if (Tok=="numMeshes"  ) TP.GetNextToken();       // Ignore the given number of meshes - we just load as many as we find.
+            else if (Tok=="joints")
             {
                 TP.AssertAndSkipToken("{");
                 ArrayT<MatrixT> ParentGlobalInverse;
@@ -130,7 +130,7 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                     Joints.PushBack(Joint);
                 }
             }
-            else if (Token=="mesh")
+            else if (Tok=="mesh")
             {
                 Meshes.PushBackEmpty();
                 CafuModelT::MeshT& Mesh=Meshes[Meshes.Size()-1];
@@ -209,7 +209,7 @@ void LoaderMd5T::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::Mes
                 // Unknown token!
                 // If the next token is a block start, skip the block.
                 // Otherwise it was something else that we just throw away.
-                printf("Unknown token \"%s\", skipping...\n", Token.c_str());
+                printf("Unknown token \"%s\", skipping...\n", Tok.c_str());
                 if (TP.GetNextToken()=="{") TP.SkipBlock("{", "}", true);
             }
         }

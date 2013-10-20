@@ -19,11 +19,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "wx/wx.h"
+#include "DialogPasteSpecial.hpp"
+
 #include "wx/spinctrl.h"
 #include "wx/valgen.h"
 #include "wx/confbase.h"
-#include "DialogPasteSpecial.hpp"
 
 
 // TODO: Add a RESET button that resets all the spin controls!

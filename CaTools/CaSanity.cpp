@@ -457,7 +457,7 @@ void PrintMapInfo()
     printf("LightMapMan.Bitmaps      : %12lu  (at %ux%u, PatchSize %.2f)\n", World->LightMapMan.Bitmaps.Size(), cf::SceneGraph::LightMapManT::SIZE_S, cf::SceneGraph::LightMapManT::SIZE_T, g_BspTree->GetLightMapPatchSize());
     printf("LightMaps total size     : %12lu\n", World->LightMapMan.Bitmaps.Size()*(cf::SceneGraph::LightMapManT::SIZE_S*cf::SceneGraph::LightMapManT::SIZE_T*3+4));
     printf("\n");
-    printf("SHL Bands                : %12u  (%u^2 == %u coefficients)\n", cf::SceneGraph::SHLMapManT::NrOfBands, cf::SceneGraph::SHLMapManT::NrOfBands, cf::SceneGraph::SHLMapManT::NrOfBands*cf::SceneGraph::SHLMapManT::NrOfBands);
+    printf("SHL Bands                : %12u  (%u^2 == %i coefficients)\n", cf::SceneGraph::SHLMapManT::NrOfBands, cf::SceneGraph::SHLMapManT::NrOfBands, cf::SceneGraph::SHLMapManT::NrOfBands*cf::SceneGraph::SHLMapManT::NrOfBands);
     printf("SHL Representatives      : %12u  %s\n", cf::SceneGraph::SHLMapManT::NrOfRepres, cf::SceneGraph::SHLMapManT::NrOfRepres>0 ? "" : "(NO compression)");
     printf("SHL patch size           : %12.1f\n", g_BspTree->GetSHLMapPatchSize());
     printf("SHLMaps                  : %12lu  (at %lux%lu)\n", World->SHLMapMan.SHLMaps.Size(), cf::SceneGraph::SHLMapManT::SIZE_S, cf::SceneGraph::SHLMapManT::SIZE_T);
@@ -567,7 +567,7 @@ void Test10SmallestPortals()
         if (CurrentLNr==g_BspTree->Leaves.Size()) { printf("WARNING: NOT SO MANY PORTALS!?!\n"); break; }
 
         VectorT V=g_BspTree->Leaves[CurrentLNr].Portals[CurrentPNr].Vertices[0];
-        printf("%2u, L#%5lu, P#%3lu, Vertex0 (%9.2f %9.2f %9.2f), Area: %10.2f\n", Nr+1, CurrentLNr, CurrentPNr, V.x, V.y, V.z, CurrentArea);
+        printf("%2i, L#%5lu, P#%3lu, Vertex0 (%9.2f %9.2f %9.2f), Area: %10.2f\n", Nr+1, CurrentLNr, CurrentPNr, V.x, V.y, V.z, CurrentArea);
 
         LastWinnerArea=CurrentArea;
     }
@@ -682,12 +682,12 @@ int main(int ArgC, char* ArgV[])
 
         printf("\n\n--- Now, several sanity checks will be performed on this map.  ---\n");
         printf("--- Press any key after each test to begin with the next test. ---\n\n");
-        _getch();
+        (void)_getch();
 
-        printf("\n1. Validity of face and portal polygons:\n");  TestValidityOfFacesAndPortals(); printf("Done. Press any key for the next test.\n\n"); _getch();
-        printf("\n2. PVS integrity:\n");                         TestPVSIntegrity();              printf("Done. Press any key for the next test.\n\n"); _getch();
-        printf("\n3. The 10 portals with the smallest area:\n"); Test10SmallestPortals();         printf("Done. Press any key for the next test.\n\n"); _getch();
-     // printf("\n4. LightMap Patch ratios:\n");                 LightMapPatchRatios();           printf("Done. Press any key for the next test.\n\n"); _getch();
+        printf("\n1. Validity of face and portal polygons:\n");  TestValidityOfFacesAndPortals(); printf("Done. Press any key for the next test.\n\n"); (void)_getch();
+        printf("\n2. PVS integrity:\n");                         TestPVSIntegrity();              printf("Done. Press any key for the next test.\n\n"); (void)_getch();
+        printf("\n3. The 10 portals with the smallest area:\n"); Test10SmallestPortals();         printf("Done. Press any key for the next test.\n\n"); (void)_getch();
+     // printf("\n4. LightMap Patch ratios:\n");                 LightMapPatchRatios();           printf("Done. Press any key for the next test.\n\n"); (void)_getch();
 
         // TO DO: Hier mal MapT::FillTJunctions aufrufen,
         //        und prüfen, daß keine Vertices in einer Face doppelt vorkommen (sollte generell ein Prüfpunkt sein!)
@@ -702,7 +702,7 @@ int main(int ArgC, char* ArgV[])
         World = NULL;
         g_BspTree = NULL;
         printf("--- All tests are completed! Press any key to leave. ---\n");
-        _getch();
+        (void)_getch();
     }
     catch (const WorldT::LoadErrorT& E)
     {

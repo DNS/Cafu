@@ -1024,7 +1024,7 @@ void ViewWindow2DT::OnKeyChar(wxKeyEvent& KE)
         case '9':
         case '0':
         {
-            SetZoom(0.03125*(1 << (KE.GetKeyCode()=='0' ? 9 : KE.GetKeyCode()-'1')));
+            SetZoom(0.03125f * (1 << (KE.GetKeyCode()=='0' ? 9 : KE.GetKeyCode()-'1')));
             break;
         }
 

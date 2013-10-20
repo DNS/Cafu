@@ -360,9 +360,9 @@ void AnimPoseT::UpdateTangentSpaceGlobal(unsigned long MeshNr) const
         const float w0=(c0>=1.0f) ? 0.0f : ( (c0<=-1.0f) ? Pi : acos(c0) );
         const float w1=(c1>=1.0f) ? 0.0f : ( (c1<=-1.0f) ? Pi : acos(c1) );
 
-        const float TriWeight[3]={ w0, w1, Pi-TriWeight[0]-TriWeight[1] };
+        const float TriWeight[3] = { w0, w1, Pi - w0 - w1 };
 #else
-        const float TriWeight[3]={ 1.0f, 1.0f, 1.0f };
+        const float TriWeight[3] = { 1.0f, 1.0f, 1.0f };
 #endif
 
         for (int i=0; i<3; i++)

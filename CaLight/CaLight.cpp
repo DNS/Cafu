@@ -862,13 +862,10 @@ void PostProcessBorders(const CaLightWorldT& CaLightWorld)
                 ArrayT<VectorT> Patch1_OverlapEnergyFromDirs;
 
                 // Rekonstruiere das Polygon zu Patch1
-                double s_=s1;
-                double t_=t1;
-
-                Patch1Poly.Vertices[0]=Face1_UV_Origin+scale(Face1_U, Face1_SmallestU+(s_-1.0)*PATCH_SIZE)+scale(Face1_V, Face1_SmallestV+(t_-1.0)*PATCH_SIZE);
-                Patch1Poly.Vertices[1]=Face1_UV_Origin+scale(Face1_U, Face1_SmallestU+ s_     *PATCH_SIZE)+scale(Face1_V, Face1_SmallestV+(t_-1.0)*PATCH_SIZE);
-                Patch1Poly.Vertices[2]=Face1_UV_Origin+scale(Face1_U, Face1_SmallestU+ s_     *PATCH_SIZE)+scale(Face1_V, Face1_SmallestV+ t_     *PATCH_SIZE);
-                Patch1Poly.Vertices[3]=Face1_UV_Origin+scale(Face1_U, Face1_SmallestU+(s_-1.0)*PATCH_SIZE)+scale(Face1_V, Face1_SmallestV+ t_     *PATCH_SIZE);
+                Patch1Poly.Vertices[0]=Face1_UV_Origin+scale(Face1_U, Face1_SmallestU+(s1-1.0)*PATCH_SIZE)+scale(Face1_V, Face1_SmallestV+(t1-1.0)*PATCH_SIZE);
+                Patch1Poly.Vertices[1]=Face1_UV_Origin+scale(Face1_U, Face1_SmallestU+ s1     *PATCH_SIZE)+scale(Face1_V, Face1_SmallestV+(t1-1.0)*PATCH_SIZE);
+                Patch1Poly.Vertices[2]=Face1_UV_Origin+scale(Face1_U, Face1_SmallestU+ s1     *PATCH_SIZE)+scale(Face1_V, Face1_SmallestV+ t1     *PATCH_SIZE);
+                Patch1Poly.Vertices[3]=Face1_UV_Origin+scale(Face1_U, Face1_SmallestU+(s1-1.0)*PATCH_SIZE)+scale(Face1_V, Face1_SmallestV+ t1     *PATCH_SIZE);
 
                 // WICHTIG: Falls Patch1 *vollständig in* seiner Face liegt, haben wir für dessen TotalEnergy einen
                 // einwandfreien Berechnungswert, und wir wollen daran nicht rumfummeln!
@@ -956,13 +953,10 @@ void PostProcessBorders(const CaLightWorldT& CaLightWorld)
                             if (!Patch2.InsideFace) continue;
 
                             // Rekonstruiere das Polygon zu Patch2
-                            double s_=s2;
-                            double t_=t2;
-
-                            Patch2Poly.Vertices[0]=Face2_UV_Origin+scale(Face2_U, Face2_SmallestU+(s_-1.0)*PATCH_SIZE)+scale(Face2_V, Face2_SmallestV+(t_-1.0)*PATCH_SIZE);
-                            Patch2Poly.Vertices[1]=Face2_UV_Origin+scale(Face2_U, Face2_SmallestU+ s_     *PATCH_SIZE)+scale(Face2_V, Face2_SmallestV+(t_-1.0)*PATCH_SIZE);
-                            Patch2Poly.Vertices[2]=Face2_UV_Origin+scale(Face2_U, Face2_SmallestU+ s_     *PATCH_SIZE)+scale(Face2_V, Face2_SmallestV+ t_     *PATCH_SIZE);
-                            Patch2Poly.Vertices[3]=Face2_UV_Origin+scale(Face2_U, Face2_SmallestU+(s_-1.0)*PATCH_SIZE)+scale(Face2_V, Face2_SmallestV+ t_     *PATCH_SIZE);
+                            Patch2Poly.Vertices[0]=Face2_UV_Origin+scale(Face2_U, Face2_SmallestU+(s2-1.0)*PATCH_SIZE)+scale(Face2_V, Face2_SmallestV+(t2-1.0)*PATCH_SIZE);
+                            Patch2Poly.Vertices[1]=Face2_UV_Origin+scale(Face2_U, Face2_SmallestU+ s2     *PATCH_SIZE)+scale(Face2_V, Face2_SmallestV+(t2-1.0)*PATCH_SIZE);
+                            Patch2Poly.Vertices[2]=Face2_UV_Origin+scale(Face2_U, Face2_SmallestU+ s2     *PATCH_SIZE)+scale(Face2_V, Face2_SmallestV+ t2     *PATCH_SIZE);
+                            Patch2Poly.Vertices[3]=Face2_UV_Origin+scale(Face2_U, Face2_SmallestU+(s2-1.0)*PATCH_SIZE)+scale(Face2_V, Face2_SmallestV+ t2     *PATCH_SIZE);
 
                             // Überlappen sich PatchPoly1 und PatchPoly2?
                             if (!Patch1Poly.Overlaps(Patch2Poly, false, MapT::RoundEpsilon)) continue;
@@ -1164,7 +1158,7 @@ unsigned long BounceLighting(const CaLightWorldT& CaLightWorld, const char BLOCK
             printf("Press 'y' to confirm exit and save current result,\n");
             printf("or any other key to divide StopUE by 10 and continue lighting!\n");
 
-            char Key=_getch(); if (Key==0) _getch();
+            char Key=_getch(); if (Key==0) (void)_getch();
 
             unsigned long TotalSec=(unsigned long)difftime(time(NULL), StartTime);
             unsigned long Sec     =TotalSec % 60;
@@ -1183,7 +1177,7 @@ unsigned long BounceLighting(const CaLightWorldT& CaLightWorld, const char BLOCK
         // TODO: Ein (sinnvolles!) 'kbhit()' Äquivalent für Linux muß erst noch gefunden werden...
         if (_kbhit())
         {
-            char Key=_getch(); if (Key==0) _getch();
+            char Key=_getch(); if (Key==0) (void)_getch();
 
             if (Key==' ')
             {
@@ -1192,7 +1186,7 @@ unsigned long BounceLighting(const CaLightWorldT& CaLightWorld, const char BLOCK
                 printf("Enter 'S' to save the intermediate result, then continue,\n");
                 printf("or press any other key to continue lighting!\n");
 
-                Key=_getch(); if (Key==0) _getch();
+                Key=_getch(); if (Key==0) (void)_getch();
 
                 if (Key=='Y') break;
                 if (Key=='S')

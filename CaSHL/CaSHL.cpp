@@ -604,7 +604,7 @@ unsigned long BounceLighting(const CaSHLWorldT& CaSHLWorld, const char BLOCK_SIZ
             printf("Press 'y' to confirm exit and save current result,\n");
             printf("or any other key to divide StopUT by 10 and continue lighting!\n");
 
-            char Key=_getch(); if (Key==0) _getch();
+            char Key=_getch(); if (Key==0) (void)_getch();
 
             unsigned long TotalSec=(unsigned long)difftime(time(NULL), StartTime);
             unsigned long Sec     =TotalSec % 60;
@@ -623,14 +623,14 @@ unsigned long BounceLighting(const CaSHLWorldT& CaSHLWorld, const char BLOCK_SIZ
         // TODO: Ein (sinnvolles!) 'kbhit()' Äquivalent für Linux muß erst noch gefunden werden...
         if (_kbhit())
         {
-            char Key=_getch(); if (Key==0) _getch();
+            char Key=_getch(); if (Key==0) (void)_getch();
 
             if (Key==' ')
             {
                 printf("\nINTERRUPTED BY USER! Press 'y' to confirm exit and save current result,\n");
                 printf("or any other key to continue lighting!\n");
 
-                Key=_getch(); if (Key==0) _getch();
+                Key=_getch(); if (Key==0) (void)_getch();
                 if (Key=='y') break;
             }
         }

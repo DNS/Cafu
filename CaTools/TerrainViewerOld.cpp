@@ -686,8 +686,8 @@ int main(int ArgC, char* ArgV[])
             {
                 // m can be used to easily minify / shrink the view frustum.
                 // The values should be between 0 and 8: 0 is the default (no minification), 8 is the reasonable maximum.
-                const char    m=0;
-                const double  d=(i<4 && m>0) ? 1.0-0.75*m/8.0 : 1.0;
+                const char    m = 0;
+                const double  d = (i < 4) ? 1.0 - 0.75*m/8.0 : 1.0;
                 double        plane[4];
 
                 for (unsigned long j=0; j<4; j++)
@@ -715,19 +715,19 @@ int main(int ArgC, char* ArgV[])
 
                 // Compare the old and new vector strips!
                 {
-                    ArrayT<VectorT>& VectorStrip=mesh_morph(TerrainOld, VDI, VDI.cull ? SPHERE_MASK_UNDECIDED : SPHERE_MASK_VISIBLE);
+                    ArrayT<VectorT>& VectorStrip_=mesh_morph(TerrainOld, VDI, VDI.cull ? SPHERE_MASK_UNDECIDED : SPHERE_MASK_VISIBLE);
 
-                    if (VectorStrip.Size()!=VectorStripNew.Size())
+                    if (VectorStrip_.Size()!=VectorStripNew.Size())
                     {
-                        printf("Compare of vstrips sizes failed!  %lu %lu\n", VectorStrip.Size(), VectorStripNew.Size());
+                        printf("Compare of vstrips sizes failed!  %lu %lu\n", VectorStrip_.Size(), VectorStripNew.Size());
                     }
                     else
                     {
-                        for (unsigned long v=0; v<VectorStrip.Size(); v++)
+                        for (unsigned long v=0; v<VectorStrip_.Size(); v++)
                         {
-                            if (VectorStrip[v].x!=VectorStripNew[v].x) { printf("Compare of vstrips 1 failed! %lu %f %f\n", v, VectorStrip[v].x, VectorStripNew[v].x); }
-                            if (VectorStrip[v].y!=VectorStripNew[v].y) { printf("Compare of vstrips 2 failed! %lu %f %f\n", v, VectorStrip[v].y, VectorStripNew[v].y); }
-                            if (fabs(VectorStrip[v].z-VectorStripNew[v].z)>0.001) { printf("Compare of vstrips 3 failed!  diff==%.10f\n", VectorStrip[v].z-VectorStripNew[v].z); }
+                            if (VectorStrip_[v].x!=VectorStripNew[v].x) { printf("Compare of vstrips 1 failed! %lu %f %f\n", v, VectorStrip_[v].x, VectorStripNew[v].x); }
+                            if (VectorStrip_[v].y!=VectorStripNew[v].y) { printf("Compare of vstrips 2 failed! %lu %f %f\n", v, VectorStrip_[v].y, VectorStripNew[v].y); }
+                            if (fabs(VectorStrip_[v].z-VectorStripNew[v].z)>0.001) { printf("Compare of vstrips 3 failed!  diff==%.10f\n", VectorStrip_[v].z-VectorStripNew[v].z); }
                         }
                     }
                 }

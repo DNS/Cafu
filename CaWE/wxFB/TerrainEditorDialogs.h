@@ -29,6 +29,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_TERRAIN_EDITOR_DIALOGS_HPP_INCLUDED
 #define CAFU_TERRAIN_EDITOR_DIALOGS_HPP_INCLUDED
 
+// Turn off bogus warnings that occur with VC11's static code analysis.
+// (Should move this to a better place though, e.g. some `compat.h` file...)
+#if defined(_WIN32) && defined(_MSC_VER)
+    // warning C6011: dereferencing NULL pointer <name>
+    #pragma warning(disable:6011)
+#endif
+
 #include <wx/string.h>
 #include <wx/bitmap.h>
 #include <wx/image.h>

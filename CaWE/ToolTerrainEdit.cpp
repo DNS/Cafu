@@ -1716,21 +1716,23 @@ void ToolTerrainEditorT::CommitChanges()
 #endif
 
         // Set begin of first segment to the first road reference point.
-        wxPoint SegBegin=Begin;
-
-        // Loop over all segments, to get the length of the segment strip (needed to interpolate the height difference of the road).
-        for (unsigned long i=Interval; i<m_EditRoadParts.Size(); i+=Interval)
         {
-            wxPoint SegEnd(m_EditRoadParts[i].x+Radius, m_EditRoadParts[i].y+Radius);
+            wxPoint SegBegin=Begin;
 
-            const wxPoint DirVec(SegEnd.x-SegBegin.x, SegEnd.y-SegBegin.y);
+            // Loop over all segments, to get the length of the segment strip (needed to interpolate the height difference of the road).
+            for (unsigned long i=Interval; i<m_EditRoadParts.Size(); i+=Interval)
+            {
+                wxPoint SegEnd(m_EditRoadParts[i].x+Radius, m_EditRoadParts[i].y+Radius);
 
-            float SegLength=sqrt(float(DirVec.x*DirVec.x+DirVec.y*DirVec.y));
+                const wxPoint DirVec(SegEnd.x-SegBegin.x, SegEnd.y-SegBegin.y);
 
-            //if (SegLength<SegMinDist) continue;
+                float SegLength=sqrt(float(DirVec.x*DirVec.x+DirVec.y*DirVec.y));
 
-            TotalLength+=SegLength;
-            SegBegin=SegEnd;        // Next segment begins at the end of this segment.
+                //if (SegLength<SegMinDist) continue;
+
+                TotalLength+=SegLength;
+                SegBegin=SegEnd;        // Next segment begins at the end of this segment.
+            }
         }
 
         // Caluclate height value diff per length.

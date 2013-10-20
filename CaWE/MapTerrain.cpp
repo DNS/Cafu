@@ -171,19 +171,21 @@ void MapTerrainT::Render3D(Renderer3DT& Renderer) const
 
 
     // Setup texturing for the terrain, using automatic texture coordinates generation.
-    const BoundingBox3fT& BB=m_TerrainBounds;
+    {
+        const BoundingBox3fT& BB=m_TerrainBounds;
 
-    const float CoordPlane1[4]={ 1.0f/(BB.Max.x-BB.Min.x),  0.0f, 0.0f, -BB.Min.x/(BB.Max.x-BB.Min.x) };
-    const float CoordPlane2[4]={ 0.0f, -1.0f/(BB.Max.y-BB.Min.y), 0.0f,  BB.Max.y/(BB.Max.y-BB.Min.y) };   // Texture y-axis points top-down!
+        const float CoordPlane1[4]={ 1.0f/(BB.Max.x-BB.Min.x),  0.0f, 0.0f, -BB.Min.x/(BB.Max.x-BB.Min.x) };
+        const float CoordPlane2[4]={ 0.0f, -1.0f/(BB.Max.y-BB.Min.y), 0.0f,  BB.Max.y/(BB.Max.y-BB.Min.y) };   // Texture y-axis points top-down!
 
-    MatSys::Renderer->SetGenPurposeRenderingParam( 4, CoordPlane1[0]);
-    MatSys::Renderer->SetGenPurposeRenderingParam( 5, CoordPlane1[1]);
-    MatSys::Renderer->SetGenPurposeRenderingParam( 6, CoordPlane1[2]);
-    MatSys::Renderer->SetGenPurposeRenderingParam( 7, CoordPlane1[3]);
-    MatSys::Renderer->SetGenPurposeRenderingParam( 8, CoordPlane2[0]);
-    MatSys::Renderer->SetGenPurposeRenderingParam( 9, CoordPlane2[1]);
-    MatSys::Renderer->SetGenPurposeRenderingParam(10, CoordPlane2[2]);
-    MatSys::Renderer->SetGenPurposeRenderingParam(11, CoordPlane2[3]);
+        MatSys::Renderer->SetGenPurposeRenderingParam( 4, CoordPlane1[0]);
+        MatSys::Renderer->SetGenPurposeRenderingParam( 5, CoordPlane1[1]);
+        MatSys::Renderer->SetGenPurposeRenderingParam( 6, CoordPlane1[2]);
+        MatSys::Renderer->SetGenPurposeRenderingParam( 7, CoordPlane1[3]);
+        MatSys::Renderer->SetGenPurposeRenderingParam( 8, CoordPlane2[0]);
+        MatSys::Renderer->SetGenPurposeRenderingParam( 9, CoordPlane2[1]);
+        MatSys::Renderer->SetGenPurposeRenderingParam(10, CoordPlane2[2]);
+        MatSys::Renderer->SetGenPurposeRenderingParam(11, CoordPlane2[3]);
+    }
 
 
     // Finally, draw the terrain.
@@ -342,6 +344,7 @@ void MapTerrainT::LoadHeightData(const wxString& FileName)
         // Read header.
         char Header[20];
         fread(Header, sizeof(char), 16, FilePtr);
+        Header[16] = 0;
         if (strncmp(Header, "TERRAGENTERRAIN ", 16)!=0) { fclose(FilePtr); throw BitmapT::LoadErrorT(); }   // Header=="TERRAGENTERRAIN "
 
         // Reset the return values.
@@ -356,6 +359,7 @@ void MapTerrainT::LoadHeightData(const wxString& FileName)
         {
             char ChunkMarker[10];
             fread(ChunkMarker, sizeof(char), 4, FilePtr);
+            ChunkMarker[4] = 0;
 
             if (feof(FilePtr)) break;
             if (strncmp(ChunkMarker, "EOF ", 4)==0) break;

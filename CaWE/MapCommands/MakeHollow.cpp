@@ -95,8 +95,8 @@ CommandMakeHollowT::CommandMakeHollowT(MapDocumentT& MapDoc, const float WallWid
         else
         {
             // No subtraction, delete anything in Result.
-            for (unsigned long BrushNr=0; BrushNr<Result.Size(); BrushNr++)
-                delete Result[BrushNr];
+            for (unsigned long ResNr=0; ResNr<Result.Size(); ResNr++)
+                delete Result[ResNr];
         }
     }
 

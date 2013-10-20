@@ -22,11 +22,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_DIALOG_OPTIONS_HPP_INCLUDED
 #define CAFU_DIALOG_OPTIONS_HPP_INCLUDED
 
-#include "wx/spinctrl.h"
 #include "wx/wx.h"
 
 
 class GameConfigT;
+class wxSpinDoubleEvent;
 
 
 class OptionsDialogT : public wxDialog

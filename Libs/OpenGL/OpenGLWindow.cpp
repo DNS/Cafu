@@ -470,11 +470,11 @@ const char* SingleOpenGLWindowImplT::Open(const std::string& Title_, unsigned in
 
     if (hResult!=DI_OK)
     {
-        static char ErrorMsg[80];
+        static char ErrorMsg_[80];
 
         Close();
-        sprintf(ErrorMsg, "Unable to initialize DirectInput!\nhResult=%u", hResult);
-        return ErrorMsg;
+        sprintf(ErrorMsg_, "Unable to initialize DirectInput!\nhResult=%li", hResult);
+        return ErrorMsg_;
     }
 #else
     PostQuitMsgFlag=false;

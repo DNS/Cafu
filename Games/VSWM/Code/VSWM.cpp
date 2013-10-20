@@ -145,7 +145,7 @@ BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT
         strncpy(s, It->second.c_str(), 1023);
         s[1023]=0;
 
-        /* const char* s1=*/ strtok(s, " ");
+        const char* s1=strtok(s, " ");
         const char* s2=strtok(NULL, " "); if (s2) m_Heading=(unsigned short)(atof(s2)*8192.0/45.0);
     }
 }

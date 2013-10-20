@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_DIALOG_TERRAIN_GENERATION_HPP_INCLUDED
 #define CAFU_DIALOG_TERRAIN_GENERATION_HPP_INCLUDED
 
+#include "Templates/Array.hpp"
 #include "wxFB/TerrainEditorDialogs.h"
 
 

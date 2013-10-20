@@ -634,9 +634,9 @@ void CafuModelT::InitMeshes()
 
 
                     // Fix all the triangles that refer to OldVertexNr.
-                    for (unsigned long TriangleNr=0; TriangleNr<Mesh.Triangles.Size(); TriangleNr++)
+                    for (unsigned long FixTriNr=0; FixTriNr<Mesh.Triangles.Size(); FixTriNr++)
                     {
-                        MeshT::TriangleT& FixTri=Mesh.Triangles[TriangleNr];
+                        MeshT::TriangleT& FixTri=Mesh.Triangles[FixTriNr];
 
                         for (unsigned int VNr=0; VNr<3; VNr++)
                             if (FixTri.VertexIdx[VNr]==OldVertexNr)

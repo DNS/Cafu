@@ -207,6 +207,7 @@ static void LoadHeightmap(const char* FileName, unsigned long& SizeX, unsigned l
         // Read header.
         char Header[20];
         fread(Header, sizeof(char), 16, FilePtr);
+        Header[16] = 0;
         if (strncmp(Header, "TERRAGENTERRAIN ", 16)!=0) { fclose(FilePtr); throw BitmapT::LoadErrorT(); }   // Header=="TERRAGENTERRAIN "
 
         // Reset the return values.
@@ -221,6 +222,7 @@ static void LoadHeightmap(const char* FileName, unsigned long& SizeX, unsigned l
         {
             char ChunkMarker[10];
             fread(ChunkMarker, sizeof(char), 4, FilePtr);
+            ChunkMarker[4] = 0;
 
             if (feof(FilePtr)) break;
             if (strncmp(ChunkMarker, "EOF ", 4)==0) break;

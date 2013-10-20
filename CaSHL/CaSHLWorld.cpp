@@ -192,12 +192,10 @@ void CaSHLWorldT::PatchesToSHLMaps(const ArrayT< ArrayT<PatchT> >& Patches)
             // Finally re-determine each representative to become the average of its cluster contents.
             for (unsigned long RepNr=0; RepNr<Representatives.Size(); RepNr++)
             {
-                unsigned long CoeffNr;
-
                 if (RepClusters[RepNr].Size()==0) continue;
 
                 // Clear the representative vector.
-                for (CoeffNr=0; CoeffNr<Representatives[RepNr].Size(); CoeffNr++)
+                for (unsigned long CoeffNr=0; CoeffNr<Representatives[RepNr].Size(); CoeffNr++)
                     Representatives[RepNr][CoeffNr]=0.0;
 
                 // Sum up the vectors in the cluster.
@@ -206,7 +204,7 @@ void CaSHLWorldT::PatchesToSHLMaps(const ArrayT< ArrayT<PatchT> >& Patches)
                         Representatives[RepNr][CoeffNr]+=(*(RepClusters[RepNr][ClusterVecNr]))[CoeffNr];
 
                 // Compute the average.
-                for (CoeffNr=0; CoeffNr<Representatives[RepNr].Size(); CoeffNr++)
+                for (unsigned long CoeffNr=0; CoeffNr<Representatives[RepNr].Size(); CoeffNr++)
                     Representatives[RepNr][CoeffNr]/=double(RepClusters[RepNr].Size());
             }
         }

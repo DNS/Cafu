@@ -23,7 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_DIALOG_TRANSFORM_HPP_INCLUDED
 
 #include "Math3D/Vector3.hpp"
-#include "wx/wx.h"
+#include "wx/dialog.h"
 
 
 class TransformDialogT : public wxDialog

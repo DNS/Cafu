@@ -23,7 +23,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_DIALOG_TERRAIN_EDIT_HPP_INCLUDED
 
 #include "wxFB/TerrainEditorDialogs.h"
-
 #include "Math3D/BoundingBox.hpp"
 
 
