@@ -53,7 +53,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "PointLightSource.hpp"
 #include "RigidBody.hpp"
 #include "Rocket.hpp"
-#include "Speaker.hpp"
 #include "StaticDetailModel.hpp"
 #include "Trigger.hpp"
 #include "Weapon.hpp"
@@ -142,7 +141,6 @@ namespace GAME_NAME
         &EntPointLightSourceT::TypeInfo,
         &EntRigidBodyT::TypeInfo,
         &EntRocketT::TypeInfo,
-        &EntSpeakerT::TypeInfo,
         &EntStaticDetailModelT::TypeInfo,
         &EntTriggerT::TypeInfo,
         &EntWeaponT::TypeInfo,

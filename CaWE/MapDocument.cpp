@@ -778,6 +778,16 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             Ent->AddComponent(SoundComp);
         }
 
+        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "speaker")
+        {
+            IntrusivePtrT<cf::GameSys::ComponentSoundT> SoundComp = new cf::GameSys::ComponentSoundT();
+
+            SoundComp->SetMember("Name", MapEnt->GetAndRemove("soundshader"));
+            SoundComp->SetMember("AutoPlay", wxAtoi(MapEnt->GetAndRemove("autoplay")) != 0);
+            SoundComp->SetMember("Interval", float(wxAtof(MapEnt->GetAndRemove("interval", "3.0"))));
+            Ent->AddComponent(SoundComp);
+        }
+
         if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName().StartsWith("weapon_"))
         {
             // This is a perfect example how Prefabs would be highly useful!!!
