@@ -831,6 +831,17 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                         // directly, but rather leave that to   TriggerEntity->OnTrigger(this);   so that the C++
                         // code has a chance to override.
                         TriggerEntity->OnTrigger(this);
+
+
+                        IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = dynamic_pointer_cast<cf::GameSys::ComponentScriptT>(TriggerEntity->m_Entity->GetComponent("Script"));
+                        if (ScriptComp == NULL) continue;
+
+                        cf::UniScriptStateT& ScriptState = TriggerEntity->m_Entity->GetWorld().GetScriptState();
+                        lua_State*           LuaState    = ScriptState.GetLuaState();
+                        cf::ScriptBinderT    Binder(LuaState);
+
+                        Binder.Push(this->m_Entity);
+                        ScriptComp->CallLuaMethod("OnTrigger", 1);
                     }
                 }
 
