@@ -78,6 +78,7 @@ function Map.static_detail_model:OnInit()
     self:GetTransform():set("Orientation", 0, 0, 0.104528494)
 
     local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
     c1:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_2.cmdl")
     c1:set("Animation", -1)
     c1:set("Skin", -1)
@@ -102,6 +103,7 @@ function Map.LiftWeldTank:OnInit()
     self:GetTransform():set("Origin", -120, -30.9472237, 8)
 
     local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
     c1:set("Name", "Games/DeathMatch/Models/Static/WeldTank_blue.mdl")
     c1:set("Animation", 0)
     c1:set("Skin", -1)
@@ -120,15 +122,46 @@ end
 
 function Map.TestTrigger:OnInit()
     self:GetTransform():set("Origin", 40, -260, 60)
+
+    local c1 = world:new("ComponentScriptT")
+    c1:set("Name", "")
+    c1:set("ScriptCode", [[
+local Trigger = ...
+
+function Trigger:OnTrigger(Other)
+    -- Add your code here.
+end
+]])
+
+    self:AddComponent(c1)
 end
 
 function Map.SoundTrigger:OnInit()
     self:GetTransform():set("Origin", -128, -400, 64)
+
+    local c1 = world:new("ComponentScriptT")
+    c1:set("Name", "")
+    c1:set("ScriptCode", [[
+local Trigger = ...
+
+function Trigger:OnTrigger(Other)
+    -- Add your code here.
+end
+]])
+
+    self:AddComponent(c1)
 end
 
 function Map.TestSpeaker:OnInit()
     self:GetTransform():set("Origin", 48, -416, 72)
     self:GetTransform():set("Orientation", -0, -0, -1)
+
+    local c1 = world:new("ComponentSoundT")
+    c1:set("Name", "Ambient/Jungle")
+    c1:set("AutoPlay", true)
+    c1:set("Interval", 2.0999999)
+
+    self:AddComponent(c1)
 end
 
 function Map.PointLightSource_001:OnInit()

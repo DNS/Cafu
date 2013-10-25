@@ -5,8 +5,8 @@ Version 14
 
 {
   classname "worldspawn"
-  shlmap_patchsize "200.0"
   lightmap_patchsize "200.0"
+  shlmap_patchsize "200.0"
   fog_color "0 0 0"
   wind_velocity "0.0"
   wind_velocity_var "0.0"
@@ -293,13 +293,10 @@ PatchDef
 
 {
   classname "speaker"
-  soundshader "Ambient/Jungle"
-  interval "2.1"
   innerCone "45"
   innerVolume "1"
   outerCone "90"
   outerVolume "0.2"
-  autoplay "1"
 }
 
 {
