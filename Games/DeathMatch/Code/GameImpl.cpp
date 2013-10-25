@@ -54,7 +54,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "RigidBody.hpp"
 #include "Rocket.hpp"
 #include "StaticDetailModel.hpp"
-#include "Trigger.hpp"
 #include "Weapon.hpp"
 #include "Weapon357.hpp"
 #include "Weapon9mmAR.hpp"
@@ -142,7 +141,6 @@ namespace GAME_NAME
         &EntRigidBodyT::TypeInfo,
         &EntRocketT::TypeInfo,
         &EntStaticDetailModelT::TypeInfo,
-        &EntTriggerT::TypeInfo,
         &EntWeaponT::TypeInfo,
         &EntWeapon357T::TypeInfo,
         &EntWeapon9mmART::TypeInfo,

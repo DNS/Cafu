@@ -801,6 +801,15 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
 
                 // See if we walked into the trigger volume of any entity.
+                //
+                // For the user (mapper), it looks as if trigger entities call script methods whenever something walks into their (trigger) brushes,
+                // but in truth, the roles are reversed, and it is the player movement code that checks if it walked itself into a trigger volume,
+                // and then initiates the script function call. Trigger entities are therefore really quite passive, but thinking of them the other
+                // way round (triggers are actively checking their volumes and activate the calls) is probably more suggestive to the users (mappers).
+                //
+                // Note that the mapper is free to put trigger brushes into *any* entity -- the functionality is only dependent on the presence
+                // of a trigger volume in the clip world (contributed directly via brushwork in the map, or via a ComponentCollisionModelT with
+                // appropriate materials), and an associated ComponentScriptT to implement the OnTrigger() callback.
                 if (ThinkingOnServerSide)
                 {
                     ArrayT<cf::ClipSys::ClipModelT*> ClipModels;
@@ -830,7 +839,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                         // Don't call   ScriptState->CallEntityMethod(TriggerEntity, "OnTrigger", "E", this);
                         // directly, but rather leave that to   TriggerEntity->OnTrigger(this);   so that the C++
                         // code has a chance to override.
-                        TriggerEntity->OnTrigger(this);
+                        TriggerEntity->OnTrigger(this);     // Still needed for FuncDoor entities...
 
 
                         IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = dynamic_pointer_cast<cf::GameSys::ComponentScriptT>(TriggerEntity->m_Entity->GetComponent("Script"));

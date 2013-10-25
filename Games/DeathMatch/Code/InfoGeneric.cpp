@@ -47,4 +47,8 @@ EntInfoGenericT::EntInfoGenericT(const EntityCreateParamsT& Params)
                                  Vector3dT(-4.0, -4.0, -4.0)),
                   0)
 {
+    // Whatever clip model the entity may have brought (in the cmap file), register it with the clip world
+    // (needed so that e.g. trigger brushes will work).
+    ClipModel.SetOrigin(m_Origin);
+    ClipModel.Register();
 }

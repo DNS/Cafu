@@ -788,6 +788,14 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             Ent->AddComponent(SoundComp);
         }
 
+        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "Trigger")
+        {
+            IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
+
+            ScriptComp->SetMember("ScriptCode", std::string("local Trigger = ...\n\nfunction Trigger:OnTrigger(Other)\n    -- Add your code here.\nend\n"));
+            Ent->AddComponent(ScriptComp);
+        }
+
         if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName().StartsWith("weapon_"))
         {
             // This is a perfect example how Prefabs would be highly useful!!!
