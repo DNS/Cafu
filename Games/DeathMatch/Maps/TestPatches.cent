@@ -129,7 +129,15 @@ function Map.TestTrigger:OnInit()
 local Trigger = ...
 
 function Trigger:OnTrigger(Other)
-    -- Add your code here.
+    -- Don't re-enter this code while we're still busy.
+    if self.IsBusy then return end
+    self.IsBusy = true
+
+    Console.Print("Hello from Map.TestTrigger's OnTrigger()! This is only run every 3 seconds.\n")
+
+    -- Wait 3 secs, then become available again for the next trigger action.
+    coroutine.yield(3)
+    self.IsBusy = false
 end
 ]])
 
@@ -145,7 +153,17 @@ function Map.SoundTrigger:OnInit()
 local Trigger = ...
 
 function Trigger:OnTrigger(Other)
-    -- Add your code here.
+    -- Don't re-enter this code while we're still busy.
+    if self.IsBusy then return end
+    self.IsBusy = true
+
+    local Sound = Map.TestSpeaker:GetComponent("Sound")
+    Sound:Play()
+    Console.Print("Hello from Map.SoundTrigger's OnTrigger()!\n")
+
+    -- Wait 2.1 secs, then become available again for the next trigger action.
+    coroutine.yield(2.1)
+    self.IsBusy = false
 end
 ]])
 
@@ -158,7 +176,7 @@ function Map.TestSpeaker:OnInit()
 
     local c1 = world:new("ComponentSoundT")
     c1:set("Name", "Ambient/Jungle")
-    c1:set("AutoPlay", true)
+    c1:set("AutoPlay", false)
     c1:set("Interval", 2.0999999)
 
     self:AddComponent(c1)
