@@ -38,12 +38,21 @@ using namespace cf::GameSys;
 
 
 const char* ComponentScriptT::DocClass =
-    "This component adds a Lua script to its entity, implementing the entity's behaviour.";
+    "This component runs custom Lua script code, implementing the behaviour of the entity in the game world.\n"
+    "The script code can be loaded from a separate file, or it can be entered and kept directly in the component.\n"
+    "\n"
+    "Keeping the script code in a separate file is useful when it is re-used with several entity instances\n"
+    "or in several maps.\n"
+    "Keeping the script code directly in the component is useful for short scripts that are unique to a single\n"
+    "map and entity instance.\n"
+    "Note that both options can also be combined: The script code from a file is loaded first, and immediate\n"
+    "code can be used to augment it (for example to \"configure\" it).\n";
 
 
 const cf::TypeSys::VarsDocT ComponentScriptT::DocVars[] =
 {
-    { "Name", "The file name of the script." },
+    { "Name",       "The file to load the Lua script code from." },
+    { "ScriptCode", "Immediate Lua script code to use with this entity." },
     { NULL, NULL }
 };
 
@@ -51,26 +60,31 @@ const cf::TypeSys::VarsDocT ComponentScriptT::DocVars[] =
 namespace
 {
     const char* FlagsIsLuaFileName[] = { "IsLuaFileName", NULL };
+    const char* FlagsIsLongString[]  = { "IsLongString", NULL };
 }
 
 
 ComponentScriptT::ComponentScriptT()
     : ComponentBaseT(),
       m_FileName("Name", "", FlagsIsLuaFileName),
+      m_ScriptCode("ScriptCode", "", FlagsIsLongString),
       m_EventsCount(),
       m_EventsRef()
 {
     GetMemberVars().Add(&m_FileName);
+    GetMemberVars().Add(&m_ScriptCode);
 }
 
 
 ComponentScriptT::ComponentScriptT(const ComponentScriptT& Comp)
     : ComponentBaseT(Comp),
       m_FileName(Comp.m_FileName),
+      m_ScriptCode(Comp.m_ScriptCode),
       m_EventsCount(),
       m_EventsRef()
 {
     GetMemberVars().Add(&m_FileName);
+    GetMemberVars().Add(&m_ScriptCode);
 }
 
 
@@ -103,7 +117,11 @@ void ComponentScriptT::OnPostLoad(bool InEditor)
     Binder.Push(IntrusivePtrT<ComponentScriptT>(this));
     lua_setglobal(LuaState, INT_GLOBAL);
 
-    ScriptState.DoFile(m_FileName.Get().c_str(), "G", INT_GLOBAL);
+    if (m_FileName.Get() != "")
+        ScriptState.DoFile(m_FileName.Get().c_str(), "G", INT_GLOBAL);
+
+    if (m_ScriptCode.Get() != "")
+        ScriptState.DoString(m_ScriptCode.Get().c_str(), "G", INT_GLOBAL);
 
     lua_pushnil(LuaState);
     lua_setglobal(LuaState, INT_GLOBAL);

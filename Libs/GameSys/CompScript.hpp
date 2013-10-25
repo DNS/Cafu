@@ -30,9 +30,15 @@ namespace cf
 {
     namespace GameSys
     {
-        /// This component loads a Lua script from a separate file and adds it to the script instance of the entity.
-        /// The main purpose of such scripts is to allow entities to "think", that is, to define the "behaviour" of
-        /// an entity.
+        /// This component runs custom Lua script code, implementing the behaviour of the entity in the game world.
+        /// The script code can be loaded from a separate file, or it can be entered and kept directly in the component.
+        ///
+        /// Keeping the script code in a separate file is useful when it is re-used with several entity instances
+        /// or in several maps.
+        /// Keeping the script code directly in the component is useful for short scripts that are unique to a single
+        /// map and entity instance.
+        /// Note that both options can also be combined: The script code from a file is loaded first, and immediate
+        /// code can be used to augment it (for example to "configure" it).
         class ComponentScriptT : public ComponentBaseT
         {
             public:
@@ -77,6 +83,7 @@ namespace cf
             void DoServerFrame(float t) /*override*/;
 
             TypeSys::VarT<std::string> m_FileName;
+            TypeSys::VarT<std::string> m_ScriptCode;
 
             ArrayT<unsigned int> m_EventsCount;   ///< A counter for each event type for the number of its occurrences. Serialized (and deserialized) normally along with the entity state.
             ArrayT<unsigned int> m_EventsRef;     ///< A reference counter for each event type for the number of processed occurrences. Never serialized (or deserialized), never reset, strictly growing.
