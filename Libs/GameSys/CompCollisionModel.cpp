@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ClipSys/ClipModel.hpp"
 #include "ClipSys/CollisionModelMan.hpp"
+#include "MaterialSystem/MaterialManager.hpp"
 
 extern "C"
 {
@@ -191,6 +192,40 @@ void ComponentCollisionModelT::DoDeserialize(cf::Network::InStreamT& Stream, boo
 }
 
 
+static const cf::TypeSys::MethsDocT META_SetBoundingBox =
+{
+    "SetBoundingBox",
+    "Sets the given bounding-box as the collision model.\n"
+    "Instead of loading a collision model from a file, a script can call this method\n"
+    "to set a bounding-box with the given dimensions as the collision model.",
+    "", "(number min_x, number min_y, number min_z, number max_x, number max_y, number max_z)"
+};
+
+int ComponentCollisionModelT::SetBoundingBox(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<ComponentCollisionModelT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentCollisionModelT> >(1);
+
+    if (!Comp->GetEntity())
+        luaL_error(LuaState, "The component must be added to an entity before this function can be called.");
+
+    const BoundingBox3dT BB(
+        Vector3dT(luaL_checknumber(LuaState, 2), luaL_checknumber(LuaState, 3), luaL_checknumber(LuaState, 4)),
+        Vector3dT(luaL_checknumber(LuaState, 5), luaL_checknumber(LuaState, 6), luaL_checknumber(LuaState, 7)));
+
+    MaterialT* Mat = MaterialManager->GetMaterial(luaL_checkstring(LuaState, 8));
+
+    Comp->CleanUp();
+    Comp->m_CollisionModel = Comp->GetEntity()->GetWorld().GetCollModelMan().GetCM(BB, Mat);
+
+    Comp->m_CollMdlName.Set("bounding-box");
+    Comp->m_PrevName = Comp->m_CollMdlName.Get();
+
+    Comp->UpdateClipModel();
+    return 0;
+}
+
+
 static const cf::TypeSys::MethsDocT META_toString =
 {
     "__toString",
@@ -219,6 +254,7 @@ void* ComponentCollisionModelT::CreateInstance(const cf::TypeSys::CreateParamsT&
 
 const luaL_Reg ComponentCollisionModelT::MethodsList[] =
 {
+    { "SetBoundingBox", ComponentCollisionModelT::SetBoundingBox },
     { "__tostring", ComponentCollisionModelT::toString },
     { NULL, NULL }
 };
