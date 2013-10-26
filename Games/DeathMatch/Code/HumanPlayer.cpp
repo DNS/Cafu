@@ -39,6 +39,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClipSys/CollisionModelMan.hpp"
 #include "ClipSys/TraceResult.hpp"
 #include "Fonts/Font.hpp"
+#include "GameSys/CompCollisionModel.hpp"
 #include "GameSys/CompModel.hpp"
 #include "GameSys/CompScript.hpp"
 #include "GameSys/World.hpp"
@@ -750,53 +751,14 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     }
 
 
+#if 0
                     // Touching a GUI is processed both on the client and the server.
                     // Other items, e.g. a weapon that can be picked up are notified only on the server, though, not in prediction.
                     if (!ThinkingOnServerSide) continue;
 
-                    // If the bounding boxes don't overlap, continue with the next entity (we did not touch this one).
-                    BoundingBox3T<double> OtherEntityBB=OtherEntity->GetDimensions();
-
-                    OtherEntityBB.Min=OtherEntityBB.Min+OtherEntity->GetOrigin()-m_Origin;
-                    OtherEntityBB.Max=OtherEntityBB.Max+OtherEntity->GetOrigin()-m_Origin;
-
-                    if (!m_Dimensions.Intersects(OtherEntityBB)) continue;
-
-                    // The bounding boxes overlap, so notify the 'OtherEntity' that we touched it.
-                    // OtherEntity->NotifyTouchedBy(this);    // No longer use the obsolete EntWeapon*T code!
-
-                    IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = dynamic_pointer_cast<cf::GameSys::ComponentScriptT>(OtherEntity->m_Entity->GetComponent("Script"));
-
-                    if (ScriptComp != NULL)
-                    {
-                        cf::UniScriptStateT& ScriptState = OtherEntity->m_Entity->GetWorld().GetScriptState();
-                        lua_State*           LuaState    = ScriptState.GetLuaState();
-                        cf::ScriptBinderT    Binder(LuaState);
-
-                        Binder.Push(this->m_Entity);
-
-                        // ScriptComp->CallLuaMethod("NotifyTouchedBy", 1);
-
-                        // The string return value is a work-around for the inability of NotifyTouchedBy()'s
-                        // implementation to call into the old entity code here.
-                        std::string WeaponName;
-                        ScriptComp->CallLuaMethod("NotifyTouchedBy", 1, ">S", &WeaponName);
-
-                        // What's about the Glock17 model? It seems we have a model, but not code for it?
-                             if (WeaponName == "BattleScythe") GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_BATTLESCYTHE)->ServerSide_PickedUpByEntity(this);
-                        else if (WeaponName == "HornetGun"   ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_HORNETGUN   )->ServerSide_PickedUpByEntity(this);
-                        else if (WeaponName == "Beretta"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_PISTOL      )->ServerSide_PickedUpByEntity(this);
-                        else if (WeaponName == "DesertEagle" ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_357         )->ServerSide_PickedUpByEntity(this);
-                        else if (WeaponName == "Shotgun"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_SHOTGUN     )->ServerSide_PickedUpByEntity(this);
-                        else if (WeaponName == "9mmAR"       ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_9MMAR       )->ServerSide_PickedUpByEntity(this);
-                        else if (WeaponName == "DartGun"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_CROSSBOW    )->ServerSide_PickedUpByEntity(this);
-                        else if (WeaponName == "Bazooka"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_RPG         )->ServerSide_PickedUpByEntity(this);
-                        else if (WeaponName == "Gauss"       ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_GAUSS       )->ServerSide_PickedUpByEntity(this);
-                        else if (WeaponName == "Egon"        ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_EGON        )->ServerSide_PickedUpByEntity(this);
-                        else if (WeaponName == "Grenade"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_GRENADE     )->ServerSide_PickedUpByEntity(this);
-                        else if (WeaponName == "Tripmine"    ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_TRIPMINE    )->ServerSide_PickedUpByEntity(this);
-                        else if (WeaponName == "FaceHugger"  ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_FACEHUGGER  )->ServerSide_PickedUpByEntity(this);
-                    }
+                    // ...
+                    // This is no longer relevant, as picking up weapons and items it now handled generically via trigger volumes below!
+#endif
                 }
 
 
@@ -827,7 +789,6 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                         if ((Contents & MaterialT::Clip_Trigger)==0) continue;
 
                         BaseEntityT* TriggerEntity=static_cast<BaseEntityT*>(ClipModels[ClipModelNr]->GetUserData());
-                        if (TriggerEntity==NULL) continue;
 
                         // TODO: if (another clip model already triggered TriggerEntity) continue;
                         //       *or* pass ClipModels[ClipModelNr] as another parameter to TriggerEntity->OnTrigger().
@@ -839,18 +800,62 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                         // Don't call   ScriptState->CallEntityMethod(TriggerEntity, "OnTrigger", "E", this);
                         // directly, but rather leave that to   TriggerEntity->OnTrigger(this);   so that the C++
                         // code has a chance to override.
-                        TriggerEntity->OnTrigger(this);     // Still needed for FuncDoor entities...
+                        if (TriggerEntity)
+                        {
+                            // Still needed for FuncDoor entities...
+                            TriggerEntity->OnTrigger(this);
+
+                            // Still needed for ClipModels in old-style entities, especially those with brushwork from map files...
+                            IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = dynamic_pointer_cast<cf::GameSys::ComponentScriptT>(TriggerEntity->m_Entity->GetComponent("Script"));
+                            if (ScriptComp == NULL) continue;
+
+                            cf::UniScriptStateT& ScriptState = TriggerEntity->m_Entity->GetWorld().GetScriptState();
+                            lua_State*           LuaState    = ScriptState.GetLuaState();
+                            cf::ScriptBinderT    Binder(LuaState);
+
+                            Binder.Push(this->m_Entity);
+                            ScriptComp->CallLuaMethod("OnTrigger", 1);
+                        }
 
 
-                        IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = dynamic_pointer_cast<cf::GameSys::ComponentScriptT>(TriggerEntity->m_Entity->GetComponent("Script"));
+                        cf::GameSys::ComponentCollisionModelT* CollMdl = ClipModels[ClipModelNr]->GetOwner();
+                        if (CollMdl == NULL) continue;
+
+                        cf::GameSys::EntityT* Ent = CollMdl->GetEntity();
+                        if (Ent == NULL) continue;
+
+                        IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = dynamic_pointer_cast<cf::GameSys::ComponentScriptT>(Ent->GetComponent("Script"));
                         if (ScriptComp == NULL) continue;
 
-                        cf::UniScriptStateT& ScriptState = TriggerEntity->m_Entity->GetWorld().GetScriptState();
+                        cf::UniScriptStateT& ScriptState = Ent->GetWorld().GetScriptState();
                         lua_State*           LuaState    = ScriptState.GetLuaState();
                         cf::ScriptBinderT    Binder(LuaState);
 
                         Binder.Push(this->m_Entity);
+
+#if 0
                         ScriptComp->CallLuaMethod("OnTrigger", 1);
+#else
+                        // The string return value is a work-around for the inability of NotifyTouchedBy()'s
+                        // implementation to call into the old entity code here.
+                        std::string WeaponName;
+                        ScriptComp->CallLuaMethod("OnTrigger", 1, ">S", &WeaponName);
+
+                        // What's about the Glock17 model? It seems we have a model, but no code for it?
+                             if (WeaponName == "BattleScythe") GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_BATTLESCYTHE)->ServerSide_PickedUpByEntity(this);
+                        else if (WeaponName == "HornetGun"   ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_HORNETGUN   )->ServerSide_PickedUpByEntity(this);
+                        else if (WeaponName == "Beretta"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_PISTOL      )->ServerSide_PickedUpByEntity(this);
+                        else if (WeaponName == "DesertEagle" ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_357         )->ServerSide_PickedUpByEntity(this);
+                        else if (WeaponName == "Shotgun"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_SHOTGUN     )->ServerSide_PickedUpByEntity(this);
+                        else if (WeaponName == "9mmAR"       ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_9MMAR       )->ServerSide_PickedUpByEntity(this);
+                        else if (WeaponName == "DartGun"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_CROSSBOW    )->ServerSide_PickedUpByEntity(this);
+                        else if (WeaponName == "Bazooka"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_RPG         )->ServerSide_PickedUpByEntity(this);
+                        else if (WeaponName == "Gauss"       ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_GAUSS       )->ServerSide_PickedUpByEntity(this);
+                        else if (WeaponName == "Egon"        ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_EGON        )->ServerSide_PickedUpByEntity(this);
+                        else if (WeaponName == "Grenade"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_GRENADE     )->ServerSide_PickedUpByEntity(this);
+                        else if (WeaponName == "Tripmine"    ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_TRIPMINE    )->ServerSide_PickedUpByEntity(this);
+                        else if (WeaponName == "FaceHugger"  ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_FACEHUGGER  )->ServerSide_PickedUpByEntity(this);
+#endif
                     }
                 }
 

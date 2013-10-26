@@ -7,6 +7,15 @@ Weapon.TimeLeftNotActive    = 0.0
 
 Weapon:InitEventTypes(2)
 
+-- Add a trigger volume to our weapon, or else the OnTrigger() callback below will never be called.
+-- Alternatively, it would also be possible to add trigger brushes to the entity in the Map Editor;
+-- in fact, the purpose of adding the needed trigger volume here is to free both the mapper and the
+-- weapon prefab from explicitly having themselves to concern with it.
+local Trigger = world:new("ComponentCollisionModelT")
+Weapon:GetEntity():AddComponent(Trigger)
+-- Trigger:SetBoundingBox(Weapon.Model:GetBoundingBox(), "Textures/meta/trigger")  -- A possible future improvement.
+Trigger:SetBoundingBox(-16, -16, 0, 16, 16, 70, "Textures/meta/trigger")
+
 
 -- Returns whether the weapon is currently active (visible and can be picked up).
 function Weapon:IsActive()
@@ -31,7 +40,7 @@ function Weapon:Think(FrameTime)
 end
 
 
-function Weapon:NotifyTouchedBy(Ent)
+function Weapon:OnTrigger(Ent)
     -- print("This weapon (", self, ") is touched by", Ent)
     -- print("Weapon entity:", self:GetEntity())
 
