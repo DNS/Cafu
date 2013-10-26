@@ -161,11 +161,7 @@ void ComponentCollisionModelT::UpdateClipModel()
         m_ClipModel = new cf::ClipSys::ClipModelT(*GetEntity()->GetWorld().GetClipWorld());
 
         m_ClipModel->SetCollisionModel(m_CollisionModel);
-
-        // As user data of the clip model, set to pointer back to us, the owner
-        // of the clip model (the clip model is the member of "this" entity).
-     // TODO: MoveHuman() Physics code assumes (static_cast<>) that this is always an old-style BaseEntityT...!
-     // m_ClipModel->SetUserData(GetEntity());
+        m_ClipModel->SetOwner(this);
     }
 
     // Has the origin or orientation changed since we last registered clip model? If so, re-register!
@@ -255,7 +251,7 @@ void* ComponentCollisionModelT::CreateInstance(const cf::TypeSys::CreateParamsT&
 const luaL_Reg ComponentCollisionModelT::MethodsList[] =
 {
     { "SetBoundingBox", ComponentCollisionModelT::SetBoundingBox },
-    { "__tostring", ComponentCollisionModelT::toString },
+    { "__tostring",     ComponentCollisionModelT::toString },
     { NULL, NULL }
 };
 

@@ -47,6 +47,7 @@ ClipModelT::ClipModelT(const ClipWorldT& ClipWorld_, const CollisionModelT* Coll
       Origin(),
       Orientation(),
       UserData(NULL),
+      m_Owner(NULL),
       ListOfSectors(NULL),
       IsEnabled(true),
       AlreadyChecked(false)
