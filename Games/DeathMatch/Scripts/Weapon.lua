@@ -16,6 +16,16 @@ Weapon:GetEntity():AddComponent(Trigger)
 -- Trigger:SetBoundingBox(Weapon.Model:GetBoundingBox(), "Textures/meta/trigger")  -- A possible future improvement.
 Trigger:SetBoundingBox(-16, -16, 0, 16, 16, 70, "Textures/meta/trigger")
 
+-- Drop weapons to the ground. It doesn't look good when they hover in the air.
+do
+    local Origin = { Weapon:GetEntity():GetTransform():get("Origin") }
+    local Result = world:TraceRay(Origin, { 0, 0, -1000.0 })
+
+    Origin[3] = Origin[3] - 1000.0 * Result.Fraction
+
+    Weapon:GetEntity():GetTransform():set("Origin", Origin)
+end
+
 
 -- Returns whether the weapon is currently active (visible and can be picked up).
 function Weapon:IsActive()
