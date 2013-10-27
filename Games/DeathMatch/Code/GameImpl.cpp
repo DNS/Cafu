@@ -54,20 +54,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "RigidBody.hpp"
 #include "Rocket.hpp"
 #include "StaticDetailModel.hpp"
-#include "Weapon.hpp"
-#include "Weapon357.hpp"
-#include "Weapon9mmAR.hpp"
-#include "WeaponBattleScythe.hpp"
-#include "WeaponCrossbow.hpp"
-#include "WeaponEgon.hpp"
-#include "WeaponFaceHugger.hpp"
-#include "WeaponGauss.hpp"
-#include "WeaponGrenade.hpp"
-#include "WeaponHornetGun.hpp"
-#include "WeaponPistol.hpp"
-#include "WeaponRPG.hpp"
-#include "WeaponShotgun.hpp"
-#include "WeaponTripmine.hpp"
 #include "Worldspawn.hpp"
 
 #include "TypeSys.hpp"
@@ -141,20 +127,6 @@ namespace GAME_NAME
         &EntRigidBodyT::TypeInfo,
         &EntRocketT::TypeInfo,
         &EntStaticDetailModelT::TypeInfo,
-        &EntWeaponT::TypeInfo,
-        &EntWeapon357T::TypeInfo,
-        &EntWeapon9mmART::TypeInfo,
-        &EntWeaponBattleScytheT::TypeInfo,
-        &EntWeaponCrossbowT::TypeInfo,
-        &EntWeaponEgonT::TypeInfo,
-        &EntWeaponFaceHuggerT::TypeInfo,
-        &EntWeaponGaussT::TypeInfo,
-        &EntWeaponGrenadeT::TypeInfo,
-        &EntWeaponHornetGunT::TypeInfo,
-        &EntWeaponPistolT::TypeInfo,
-        &EntWeaponRPGT::TypeInfo,
-        &EntWeaponShotgunT::TypeInfo,
-        &EntWeaponTripmineT::TypeInfo,
         &EntWorldspawnT::TypeInfo,
     };
 }
