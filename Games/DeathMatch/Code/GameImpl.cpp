@@ -45,9 +45,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "HumanPlayer.hpp"
 #include "InfoGeneric.hpp"
 #include "InfoPlayerStart.hpp"
-#include "Item.hpp"
-#include "ItemAmmo357.hpp"
-#include "ItemAmmoArrow.hpp"
 #include "MonsterMaker.hpp"
 #include "Mover.hpp"
 #include "PointLightSource.hpp"
@@ -118,9 +115,6 @@ namespace GAME_NAME
         &EntHumanPlayerT::TypeInfo,
         &EntInfoGenericT::TypeInfo,
         &EntInfoPlayerStartT::TypeInfo,
-        &EntItemT::TypeInfo,
-        &EntItemAmmo357T::TypeInfo,
-        &EntItemAmmoArrowT::TypeInfo,
         &EntMonsterMakerT::TypeInfo,
         &EntFuncMoverT::TypeInfo,
         &EntPointLightSourceT::TypeInfo,

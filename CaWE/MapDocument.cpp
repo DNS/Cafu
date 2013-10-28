@@ -796,6 +796,51 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             Ent->AddComponent(ScriptComp);
         }
 
+        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && (MapEnt->GetClass()->GetName().StartsWith("ammo_") || MapEnt->GetClass()->GetName().StartsWith("item_")))
+        {
+            // This is a perfect example how Prefabs would be highly useful!!!
+            IntrusivePtrT<cf::GameSys::ComponentModelT>  ModelComp        = new cf::GameSys::ComponentModelT();
+            IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp       = new cf::GameSys::ComponentScriptT();
+            IntrusivePtrT<cf::GameSys::ComponentSoundT>  PickupSoundComp  = new cf::GameSys::ComponentSoundT();
+            IntrusivePtrT<cf::GameSys::ComponentSoundT>  RespawnSoundComp = new cf::GameSys::ComponentSoundT();
+
+            const wxString cn = MapEnt->GetClass()->GetName();
+            const char*    mn = "";
+
+                 if (cn == "ammo_9mmclip"        ) mn ="Games/DeathMatch/Models/Items/?.cmdl";
+            else if (cn == "ammo_9mmAR"          ) mn ="Games/DeathMatch/Models/Items/?.cmdl";
+            else if (cn == "ammo_9mmbox"         ) mn ="Games/DeathMatch/Models/Items/?.cmdl";
+            else if (cn == "ammo_ARgrenades"     ) mn ="Games/DeathMatch/Models/Items/?.cmdl";
+            else if (cn == "ammo_357"            ) mn ="Games/DeathMatch/Models/Items/Ammo_DesertEagle/Ammo_DesertEagle.cmdl";
+            else if (cn == "ammo_shotgun_shells" ) mn ="Games/DeathMatch/Models/Items/?.cmdl";
+            else if (cn == "ammo_rpg_rocket"     ) mn ="Games/DeathMatch/Models/Items/?.cmdl";
+            else if (cn == "ammo_gausscells"     ) mn ="Games/DeathMatch/Models/Items/Ammo_Gauss/Ammo_Gauss.cmdl";
+            else if (cn == "ammo_crossbow_arrows") mn ="Games/DeathMatch/Models/Items/Ammo_DartGun/Ammo_DartGun.cmdl";
+
+            else if (cn == "item_airtank"        ) mn ="Games/DeathMatch/Models/Items/?.cmdl";
+            else if (cn == "item_longjump"       ) mn ="Games/DeathMatch/Models/Items/?.cmdl";
+            else if (cn == "item_security"       ) mn ="Games/DeathMatch/Models/Items/?.cmdl";
+            else if (cn == "item_healthkit_small") mn ="Games/DeathMatch/Models/Items/?.cmdl";
+            else if (cn == "item_healthkit_big"  ) mn ="Games/DeathMatch/Models/Items/?.cmdl";
+            else if (cn == "item_armor_green"    ) mn ="Games/DeathMatch/Models/Items/?.cmdl";
+            else if (cn == "item_armor_yellow"   ) mn ="Games/DeathMatch/Models/Items/?.cmdl";
+            else if (cn == "item_armor_red"      ) mn ="Games/DeathMatch/Models/Items/?.cmdl";
+
+            ModelComp->SetMember("Name", std::string(mn));
+            Ent->AddComponent(ModelComp);
+
+            ScriptComp->SetMember("Name", std::string(m_GameConfig->ModDir + "/Scripts/Item.lua"));
+            Ent->AddComponent(ScriptComp);
+
+            PickupSoundComp->SetMember("Name", std::string("Item/PickUp"));
+            PickupSoundComp->SetMember("AutoPlay", false);
+            Ent->AddComponent(PickupSoundComp);
+
+            RespawnSoundComp->SetMember("Name", std::string("Item/Respawn"));
+            RespawnSoundComp->SetMember("AutoPlay", false);
+            Ent->AddComponent(RespawnSoundComp);
+        }
+
         if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName().StartsWith("weapon_"))
         {
             // This is a perfect example how Prefabs would be highly useful!!!

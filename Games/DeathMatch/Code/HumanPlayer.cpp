@@ -64,6 +64,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define _stricmp strcasecmp
 #endif
 
+#undef min    // See http://stackoverflow.com/questions/5004858/stdmin-gives-error
+#undef max
+
 using namespace GAME_NAME;
 
 
@@ -841,7 +844,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 #if 0
                         ScriptComp->CallLuaMethod("OnTrigger", 1);
 #else
-                        // The string return value is a work-around for the inability of NotifyTouchedBy()'s
+                        // The string return value is a work-around for the inability of OnTrigger()'s
                         // implementation to call into the old entity code here.
                         std::string WeaponName;
                         ScriptComp->CallLuaMethod("OnTrigger", 1, ">S", &WeaponName);
@@ -860,6 +863,10 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                         else if (WeaponName == "Grenade"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_GRENADE     )->ServerSide_PickedUpByEntity(this);
                         else if (WeaponName == "Tripmine"    ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_TRIPMINE    )->ServerSide_PickedUpByEntity(this);
                         else if (WeaponName == "FaceHugger"  ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_FACEHUGGER  )->ServerSide_PickedUpByEntity(this);
+
+                        else if (WeaponName == "Ammo_DartGun"    ) State.HaveAmmo[AMMO_SLOT_ARROWS] = std::min(State.HaveAmmo[AMMO_SLOT_ARROWS] +  5,  30);
+                        else if (WeaponName == "Ammo_DesertEagle") State.HaveAmmo[AMMO_SLOT_357   ] = std::min(State.HaveAmmo[AMMO_SLOT_357   ] +  6,  36);
+                        else if (WeaponName == "Ammo_Gauss"      ) State.HaveAmmo[AMMO_SLOT_CELLS ] = std::min(State.HaveAmmo[AMMO_SLOT_CELLS ] + 40, 200);
 #endif
                     }
                 }

@@ -84,9 +84,10 @@ function Weapon:OnTrigger(Ent)
     ]]--
     local s = self.Model:get("Name")
     s = string.gsub(s, ".*/", "")
-    s = string.gsub(s, "[_.].*", "")
+    s = string.gsub(s, "_w%.cmdl$", "")
+    s = string.gsub(s, "%.cmdl$", "")
 
-    print("Picked up weapon:", s)
+    print("Picked up item:", s)
     return s
 end
 
