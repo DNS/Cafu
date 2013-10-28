@@ -783,10 +783,15 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     GameWorld->GetClipWorld().GetClipModelsFromBB(ClipModels, MaterialT::Clip_Trigger, AbsBB);
                     // printf("%lu clip models in AbsBB.\n", ClipModels.Size());
 
+                    const double    Radius     = (m_Dimensions.Max.x - m_Dimensions.Min.x) / 2.0;
+                    const double    HalfHeight = (m_Dimensions.Max.z - m_Dimensions.Min.z) / 2.0;
+                    const Vector3dT Test1      = AbsBB.GetCenter() + Vector3dT(0, 0, HalfHeight - Radius);
+                    const Vector3dT Test2      = AbsBB.GetCenter() - Vector3dT(0, 0, HalfHeight - Radius);
+
                     for (unsigned long ClipModelNr=0; ClipModelNr<ClipModels.Size(); ClipModelNr++)
                     {
-                        const unsigned long Contents=ClipModels[ClipModelNr]->GetContents(m_Origin, 0, MaterialT::Clip_Trigger);
-                        if ((Contents & MaterialT::Clip_Trigger)==0) continue;
+                        if (ClipModels[ClipModelNr]->GetContents(Test1, Radius, MaterialT::Clip_Trigger) == 0 &&
+                            ClipModels[ClipModelNr]->GetContents(Test2, Radius, MaterialT::Clip_Trigger) == 0) continue;
 
                         BaseEntityT* TriggerEntity=static_cast<BaseEntityT*>(ClipModels[ClipModelNr]->GetUserData());
 
