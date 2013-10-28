@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ClipSys/ClipModel.hpp"
 #include "ClipSys/CollisionModelMan.hpp"
+#include "ClipSys/CollisionModel_static.hpp"    // Only needed for ScaleDown254()
 #include "MaterialSystem/MaterialManager.hpp"
 
 extern "C"
@@ -205,14 +206,23 @@ int ComponentCollisionModelT::SetBoundingBox(lua_State* LuaState)
     if (!Comp->GetEntity())
         luaL_error(LuaState, "The component must be added to an entity before this function can be called.");
 
+    // Have to take the detour by 25.4, because the CollisionModelStaticT ctor uses epsilon values
+    // (MapT::RoundEpsilon and MapT::MinVertexDist) that are still coined to the millimeters worlds...
+    const double CA3DE_SCALE = 25.4;
+
     const BoundingBox3dT BB(
-        Vector3dT(luaL_checknumber(LuaState, 2), luaL_checknumber(LuaState, 3), luaL_checknumber(LuaState, 4)),
-        Vector3dT(luaL_checknumber(LuaState, 5), luaL_checknumber(LuaState, 6), luaL_checknumber(LuaState, 7)));
+        Vector3dT(luaL_checknumber(LuaState, 2), luaL_checknumber(LuaState, 3), luaL_checknumber(LuaState, 4)) * CA3DE_SCALE,
+        Vector3dT(luaL_checknumber(LuaState, 5), luaL_checknumber(LuaState, 6), luaL_checknumber(LuaState, 7)) * CA3DE_SCALE);
 
     MaterialT* Mat = MaterialManager->GetMaterial(luaL_checkstring(LuaState, 8));
 
     Comp->CleanUp();
     Comp->m_CollisionModel = Comp->GetEntity()->GetWorld().GetCollModelMan().GetCM(BB, Mat);
+
+    // These lines can be removed, as soon as the 25.4 scaling above is removed. See the related commit of 2013-10-28 for details.
+    cf::ClipSys::CollisionModelStaticT* CMS = dynamic_cast<cf::ClipSys::CollisionModelStaticT*>(const_cast<cf::ClipSys::CollisionModelT*>(Comp->m_CollisionModel));
+    assert(CMS);
+    CMS->ScaleDown254();
 
     Comp->m_CollMdlName.Set("bounding-box");
     Comp->m_PrevName = Comp->m_CollMdlName.Get();
