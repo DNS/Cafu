@@ -46,15 +46,6 @@ namespace cf { namespace GameSys    { class WorldT; } }
 namespace cf { namespace GuiSys     { class GuiResourcesT; } }
 
 
-struct PointLightT
-{
-    VectorT Origin;
-    VectorT Dir;        ///< Direction of the cone.
-    float   Angle;      ///< Cone opening angle, in radians.
-    VectorT Intensity;  ///< Intensity in [W/sr].
-};
-
-
 struct MapT
 {
     // TODO: Move into FaceNodeT!
@@ -142,7 +133,6 @@ class WorldT
 
 
     ArrayT<InfoPlayerStartT>     InfoPlayerStarts;
-    ArrayT<PointLightT>          PointLights;
     ArrayT<StaticEntityDataT*>   m_StaticEntityData;
     cf::SceneGraph::LightMapManT LightMapMan;
     cf::SceneGraph::SHLMapManT   SHLMapMan;

@@ -249,9 +249,7 @@ void ComputeBrushFaces(const MapFileBrushT& MFBrush, WorldT& World, cf::SceneGra
 }
 
 
-// Ließt ein MapFile, das die der Version entsprechenden "MapFile Specifications" erfüllen muß, in die World ein.
-// Dabei werden folgende Komponenten der World modifiziert (ausgefüllt, u.U. nur teilweise):
-// Map.Faces, Map.TexInfos, Map.PointLights, InfoPlayerStarts und GameEntities.
+// Liest ein MapFile, das die der Version entsprechenden "MapFile Specifications" erfüllen muß, in die World ein.
 void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, WorldT& World, ArrayT<VectorT>& DrawWorldOutsidePointSamples)
 {
     World.PlantDescrMan.SetModDir(GameDirectory);
@@ -377,28 +375,6 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
                 if (SHLMapPatchSize > 2000.0) { SHLMapPatchSize = 2000.0; Console->Print("NOTE: SHLMap PatchSize clamped to 2000.\n"); }
             }
         }
-        else if (ClassNamePair->second == "PointLight")
-        {
-            const double Pi = 3.14159265358979323846;
-
-            PointLightT PL;
-            std::map<std::string, std::string>::const_iterator It;
-
-            PL.Origin = AllScriptEnts[EntNr]->GetTransform()->GetOrigin().AsVectorOfDouble() * CA3DE_SCALE;
-            PL.Dir    = VectorT(0.0, 1.0, 0.0);
-            PL.Angle  = float(Pi);
-
-            It=E.MFProperties.find("angles"       ); if (It!=E.MFProperties.end()) PL.Dir        =Vector3dT(0, 0, -1);   // Sigh... yet another hack! :-/   // GetVectorFromTripleToken(It->second);
-            It=E.MFProperties.find("opening_angle"); if (It!=E.MFProperties.end()) PL.Angle      =float(atof(It->second.c_str())/180.0*Pi);
-            It=E.MFProperties.find("intensity_r"  ); if (It!=E.MFProperties.end()) PL.Intensity.x=atof(It->second.c_str());
-            It=E.MFProperties.find("intensity_g"  ); if (It!=E.MFProperties.end()) PL.Intensity.y=atof(It->second.c_str());
-            It=E.MFProperties.find("intensity_b"  ); if (It!=E.MFProperties.end()) PL.Intensity.z=atof(It->second.c_str());
-
-            if (PL.Angle<0.0) PL.Angle=0.0;
-            if (PL.Angle> Pi) PL.Angle=float(Pi);
-
-            World.PointLights.PushBack(PL);
-        }
         else if (ClassNamePair->second == "info_player_start")
         {
             InfoPlayerStartT IPS;
@@ -523,7 +499,6 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
     Console->Print("All game entities done, processing the worldspawn entity now.\n");
 
     Console->Print(cf::va("Face Children    : %10lu    Draw World Outer Point Samples: %5lu\n", World.m_StaticEntityData[0]->m_BspTree->FaceChildren.Size(), DrawWorldOutsidePointSamples.Size()));
-    Console->Print(cf::va("PointLights      : %10lu\n", World.PointLights.Size()));
     Console->Print(cf::va("InfoPlayerStarts : %10lu\n", World.InfoPlayerStarts.Size()));
     Console->Print(cf::va("Other Children   : %10lu\n", World.m_StaticEntityData[0]->m_BspTree->OtherChildren.Size()));
     Console->Print(cf::va("Entities         : %10lu\n", AllScriptEnts.Size()));

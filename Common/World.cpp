@@ -295,27 +295,6 @@ WorldT::WorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiRes
         InfoPlayerStarts.PushBack(IPS);
     }
 
-    // Read Map PointLights
-    PointLights.Clear();
-    if (ProgressFunction) ProgressFunction(float(InFile.tellg())/float(InFileSize), "Reading PointLights.");
-    for (unsigned long Size=cf::SceneGraph::aux::ReadUInt32(InFile); Size>0; Size--)
-    {
-        PointLightT PL;
-
-        InFile.read((char*)&PL.Origin.x   , sizeof(PL.Origin.x   ));
-        InFile.read((char*)&PL.Origin.y   , sizeof(PL.Origin.y   ));
-        InFile.read((char*)&PL.Origin.z   , sizeof(PL.Origin.z   ));
-        InFile.read((char*)&PL.Dir.x      , sizeof(PL.Dir.x      ));
-        InFile.read((char*)&PL.Dir.y      , sizeof(PL.Dir.y      ));
-        InFile.read((char*)&PL.Dir.z      , sizeof(PL.Dir.z      ));
-        InFile.read((char*)&PL.Angle      , sizeof(PL.Angle      ));
-        InFile.read((char*)&PL.Intensity.x, sizeof(PL.Intensity.x));
-        InFile.read((char*)&PL.Intensity.y, sizeof(PL.Intensity.y));
-        InFile.read((char*)&PL.Intensity.z, sizeof(PL.Intensity.z));
-
-        PointLights.PushBack(PL);
-    }
-
     // 5. Read GameEntities
     if (ProgressFunction) ProgressFunction(float(InFile.tellg())/float(InFileSize), "Reading Game Entities.");
 
@@ -343,9 +322,6 @@ void WorldT::ScaleDown254()
 
     for (unsigned int IPSNr = 0; IPSNr < InfoPlayerStarts.Size(); IPSNr++)
         InfoPlayerStarts[IPSNr].Origin /= CA3DE_SCALE;
-
-    for (unsigned int PLNr = 0; PLNr < PointLights.Size(); PLNr++)
-        PointLights[PLNr].Origin /= CA3DE_SCALE;
 
     for (unsigned int EntNr = 0; EntNr < m_StaticEntityData.Size(); EntNr++)
     {
@@ -400,24 +376,6 @@ void WorldT::SaveToDisk(const char* FileName) const /*throw (SaveErrorT)*/
         OutFile.write((char*)&IPS.Heading , sizeof(IPS.Heading ));
         OutFile.write((char*)&IPS.Pitch   , sizeof(IPS.Pitch   ));
         OutFile.write((char*)&IPS.Bank    , sizeof(IPS.Bank    ));
-    }
-
-    // Write Map PointLights
-    cf::SceneGraph::aux::Write(OutFile, cf::SceneGraph::aux::cnc_ui32(PointLights.Size()));
-    for (unsigned long PLNr=0; PLNr<PointLights.Size(); PLNr++)
-    {
-        const PointLightT& PL=PointLights[PLNr];
-
-        OutFile.write((char*)&PL.Origin.x   , sizeof(PL.Origin.x   ));
-        OutFile.write((char*)&PL.Origin.y   , sizeof(PL.Origin.y   ));
-        OutFile.write((char*)&PL.Origin.z   , sizeof(PL.Origin.z   ));
-        OutFile.write((char*)&PL.Dir.x      , sizeof(PL.Dir.x      ));
-        OutFile.write((char*)&PL.Dir.y      , sizeof(PL.Dir.y      ));
-        OutFile.write((char*)&PL.Dir.z      , sizeof(PL.Dir.z      ));
-        OutFile.write((char*)&PL.Angle      , sizeof(PL.Angle      ));
-        OutFile.write((char*)&PL.Intensity.x, sizeof(PL.Intensity.x));
-        OutFile.write((char*)&PL.Intensity.y, sizeof(PL.Intensity.y));
-        OutFile.write((char*)&PL.Intensity.z, sizeof(PL.Intensity.z));
     }
 
     // 5. Write GameEntities

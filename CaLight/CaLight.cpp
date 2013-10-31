@@ -57,12 +57,17 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <cassert>
 
 #include "Templates/Array.hpp"
+#include "Math3D/Matrix3x3.hpp"
 #include "Math3D/Plane3.hpp"
 #include "Bitmap/Bitmap.hpp"
 #include "ConsoleCommands/Console.hpp"
 #include "ConsoleCommands/ConsoleInterpreter.hpp"
 #include "ConsoleCommands/ConsoleStdout.hpp"
 #include "FileSys/FileManImpl.hpp"
+#include "GameSys/AllComponents.hpp"
+#include "GameSys/CompLightRadiosity.hpp"
+#include "GameSys/Entity.hpp"
+#include "GameSys/World.hpp"
 #include "GuiSys/GuiResources.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
@@ -71,7 +76,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SceneGraph/Node.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
 #include "SceneGraph/FaceNode.hpp"
+#include "SoundSystem/SoundShaderManagerImpl.hpp"
+#include "SoundSystem/SoundSys.hpp"
 #include "ClipSys/CollisionModelMan_impl.hpp"
+#include "String.hpp"
 
 #include "CaLightWorld.hpp"
 
@@ -93,6 +101,11 @@ cf::ClipSys::CollModelManI* cf::ClipSys::CollModelMan=&CCM;
 
 ConsoleInterpreterI* ConsoleInterpreter=NULL;
 MaterialManagerI*    MaterialManager   =NULL;
+
+static SoundShaderManagerImplT s_SSM;
+SoundShaderManagerI* SoundShaderManager = &s_SSM;
+
+SoundSysI* SoundSystem = NULL;
 
 
 const time_t ProgramStartTime=time(NULL);
@@ -462,7 +475,7 @@ inline static double ComputePatchWeight(unsigned long i, unsigned long Width, do
 }
 
 
-void DirectLighting(const CaLightWorldT& CaLightWorld, const char BLOCK_SIZE)
+void DirectLighting(const CaLightWorldT& CaLightWorld, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& AllEnts, const char BLOCK_SIZE)
 {
     const cf::SceneGraph::BspTreeNodeT& Map=CaLightWorld.GetBspTree();
 
@@ -536,18 +549,29 @@ void DirectLighting(const CaLightWorldT& CaLightWorld, const char BLOCK_SIZE)
     ArrayT<bool> PatchMeshIsInPVS;
     PatchMeshIsInPVS.PushBackEmpty(PatchMeshes.Size());
 
+    unsigned int RL_Count = 0;
+
     // Let point light sources radiate their energy into the environment.
     // Subtlety: In comparison with the sunlight calculations, point light sources cast 'harder' shadows
     // because we only consider one sample point for each patch (its Coord), instead of five as for the sunlight ray tests.
-    for (unsigned long PLNr=0; PLNr<CaLightWorld.GetPointLights().Size(); PLNr++)
+    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
     {
-        const PointLightT&  PL        =CaLightWorld.GetPointLights()[PLNr];
-        const double        cosPLAngle=cos(PL.Angle);
-        const unsigned long PL_LeafNr =Map.WhatLeaf(PL.Origin);
+        IntrusivePtrT<cf::GameSys::ComponentRadiosityLightT> RL = dynamic_pointer_cast<cf::GameSys::ComponentRadiosityLightT>(AllEnts[EntNr]->GetComponent("RadiosityLight"));
+        if (RL == NULL) continue;
 
-        if (PL.Intensity.x==0.0 && PL.Intensity.y==0.0 && PL.Intensity.z==0.0) continue;
+        RL_Count++;
 
-        printf("%5.1f%%\r", (double)PLNr/CaLightWorld.GetPointLights().Size()*100.0);
+        // "RL" is short for "Radiosity Light", "PL" is short for "Point Light".
+        const double        CA3DE_SCALE  = 25.4;
+        const Vector3dT     PL_Origin    = AllEnts[EntNr]->GetTransform()->GetOrigin().AsVectorOfDouble() * CA3DE_SCALE;
+        const Vector3dT     PL_Dir       = (cf::math::Matrix3x3fT(AllEnts[EntNr]->GetTransform()->GetQuat()) * Vector3fT(1, 0, 0)).AsVectorOfDouble();
+        const Vector3dT     PL_Intensity = RL->GetColor().AsVectorOfDouble() * RL->GetIntensity();
+        const double        cosPLAngle   = cos(RL->GetConeAngle() / 2.0f);
+        const unsigned long PL_LeafNr    = Map.WhatLeaf(PL_Origin);
+
+        if (PL_Intensity.x == 0.0 && PL_Intensity.y == 0.0 && PL_Intensity.z == 0.0) continue;
+
+        printf("%5.1f%%\r", double(EntNr) / AllEnts.Size() * 100.0);
         fflush(stdout);
 
         for (unsigned long PatchMeshNr=0; PatchMeshNr<PatchMeshIsInPVS.Size(); PatchMeshNr++)
@@ -587,7 +611,7 @@ void DirectLighting(const CaLightWorldT& CaLightWorld, const char BLOCK_SIZE)
             // It would be interesting to know how fast dynamic_cast really is.
             // May it be faster to disable this "abbreviation" code after all??
             const cf::SceneGraph::FaceNodeT* FaceNode=dynamic_cast<const cf::SceneGraph::FaceNodeT*>(PM.Node);
-            if (FaceNode!=NULL && FaceNode->Polygon.Plane.GetDistance(PL.Origin)<0.1) continue;
+            if (FaceNode!=NULL && FaceNode->Polygon.Plane.GetDistance(PL_Origin)<0.1) continue;
 #endif
 
             for (unsigned long t=0; t<PM.Height; t++)
@@ -596,7 +620,7 @@ void DirectLighting(const CaLightWorldT& CaLightWorld, const char BLOCK_SIZE)
                     cf::PatchT& Patch=PM.Patches[t*PM.Width+s];
                     if (!Patch.InsideFace) continue;
 
-                    const VectorT  LightRay      =Patch.Coord-PL.Origin;    // Patch.Coord already includes a small safety distance to its plane.
+                    const VectorT  LightRay      =Patch.Coord-PL_Origin;    // Patch.Coord already includes a small safety distance to its plane.
                     const double   LightRayLength=length(LightRay);
                     const VectorT  LightRayDir   =scale(LightRay, 1.0/LightRayLength);
                     const double   LightRayDot   =dot(LightRayDir, Patch.Normal);   // The cosine of the angle between the two vectors.
@@ -605,16 +629,16 @@ void DirectLighting(const CaLightWorldT& CaLightWorld, const char BLOCK_SIZE)
                     if (LightRayDot>0.0) continue;
 
                     // Test if this ray is inside the defined cone.
-                    if (dot(LightRayDir, PL.Dir)<cosPLAngle) continue;
+                    if (dot(LightRayDir, PL_Dir) < cosPLAngle) continue;
 
-                    if (CaLightWorld.TraceRay(PL.Origin, LightRay)<1.0) continue;
+                    if (CaLightWorld.TraceRay(PL_Origin, LightRay)<1.0) continue;
 
                     if (LightRayLength >= Map.GetLightMapPatchSize())
                     {
-                        // Let I be an abbreviation for PL.Intensity, which is specified in [W/sr]. Then, any sphere centered at PL.Origin with radius
+                        // Let I be an abbreviation for PL_Intensity, which is specified in [W/sr]. Then, any sphere centered at PL_Origin with radius
                         // r receives a total power of 4*pi*I [W] on its surface, which is equal to 4*pi*(r^2) [unit of r^2]. It follows immediately
                         // that if we choose r=1m, I/(r^2) yields the 'irradiance' in [W/m^2] for the surface of the sphere with radius r=1m.
-                        // Note that 'irradiance' is a little misleading here, because we only deal with rays of light that meet at PL.Origin.
+                        // Note that 'irradiance' is a little misleading here, because we only deal with rays of light that meet at PL_Origin.
                         // The sphere is not considered and can not be treated as an area light source!
                         // Now choose r=LightRayLength. Because r is now specified in millimeters, the base unit of Cafu, we need to express it in
                         // meters first in order to obtain [W/m^2] (and not [W/mm^2]).
@@ -627,9 +651,9 @@ void DirectLighting(const CaLightWorldT& CaLightWorld, const char BLOCK_SIZE)
                         // we consider the center of the patch and hope that by doing so, +/- errors cancel each other out.
                         // Finally, we need to take the orientation of the patch into account by multiplying with the cosine of the relative angle:
                         // -I*(1000/LightRayLength)^2*dot(VectorUnit(LightRay), F.Plane.Normal)
-                        // This assumes that LightRay is not the null vector, that PL.Origin is on front of F.Plane and that F.Normal is a unit vector!
+                        // This assumes that LightRay is not the null vector, that PL_Origin is on front of F.Plane and that F.Normal is a unit vector!
                         const double  c          =1000.0/LightRayLength;
-                        const VectorT DeltaEnergy=scale(PL.Intensity, -REFLECTIVITY*c*c*LightRayDot);
+                        const VectorT DeltaEnergy=scale(PL_Intensity, -REFLECTIVITY*c*c*LightRayDot);
 
                         Patch.UnradiatedEnergy+=DeltaEnergy;
                         Patch.TotalEnergy     +=DeltaEnergy;
@@ -642,7 +666,7 @@ void DirectLighting(const CaLightWorldT& CaLightWorld, const char BLOCK_SIZE)
                         // Daher erzwingen wir hier einfach eine LightRayLength von Map.GetLightMapPatchSize() und vernachlässigen
                         // die Orientierung des Patches.
                         const double  c          =1000.0/Map.GetLightMapPatchSize();
-                        const VectorT DeltaEnergy=scale(PL.Intensity, REFLECTIVITY*c*c);
+                        const VectorT DeltaEnergy=scale(PL_Intensity, REFLECTIVITY*c*c);
 
                         Patch.UnradiatedEnergy+=DeltaEnergy;
                         Patch.TotalEnergy     +=DeltaEnergy;
@@ -651,7 +675,7 @@ void DirectLighting(const CaLightWorldT& CaLightWorld, const char BLOCK_SIZE)
                 }
         }
     }
-    printf("2. # point light sources: %6lu\n", CaLightWorld.GetPointLights().Size());
+    printf("2. # point light sources: %6lu\n", RL_Count);
 }
 
 
@@ -1315,8 +1339,8 @@ static void WriteLogFileEntry(const char* WorldPathName, double StopUE, char Blo
 
 int main(int ArgC, const char* ArgV[])
 {
-    // cf::GameSys::GetComponentTIM().Init();      // The one-time init of the GameSys components type info manager.
-    // cf::GameSys::GetGameSysEntityTIM().Init();  // The one-time init of the GameSys entity type info manager.
+    cf::GameSys::GetComponentTIM().Init();      // The one-time init of the GameSys components type info manager.
+    cf::GameSys::GetGameSysEntityTIM().Init();  // The one-time init of the GameSys entity type info manager.
 
     struct CaLightOptionsT
     {
@@ -1425,6 +1449,18 @@ int main(int ArgC, const char* ArgV[])
         cf::GuiSys::GuiResourcesT GuiRes(ModelMan);
         CaLightWorldT             CaLightWorld(ArgV[1], ModelMan, GuiRes);
 
+        std::string ScriptName = cf::String::StripExt(ArgV[1]) + ".cent";
+        ScriptName = cf::String::Replace(ScriptName, "/Worlds/", "/Maps/");
+        ScriptName = cf::String::Replace(ScriptName, "\\Worlds\\", "\\Maps\\");
+
+        cf::GameSys::WorldT ScriptWorld(
+            ScriptName,
+            ModelMan,
+            GuiRes,
+            *cf::ClipSys::CollModelMan,   // TODO: The CollModelMan should not be a global, but rather be instantiated along with the ModelMan and GuiRes.
+            NULL,   // No clip world for this instance.
+            cf::GameSys::WorldT::InitFlag_InMapEditor);
+
         unsigned long IterationCount=0;
 
         if (!CaLightOptions.EntitiesOnly)
@@ -1448,7 +1484,10 @@ int main(int ArgC, const char* ArgV[])
             InitializePatchMeshesPVSMatrix(CaLightWorld);   // Init1.cpp
 
             // Perform lighting
-            DirectLighting(CaLightWorld, BlockSize4DirectLighting);
+            ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
+            ScriptWorld.GetRootEntity()->GetAll(AllEnts);
+
+            DirectLighting(CaLightWorld, AllEnts, BlockSize4DirectLighting);
             IterationCount=BounceLighting(CaLightWorld, CaLightOptions.BlockSize, CaLightOptions.StopUE, CaLightOptions.AskForMore, ArgV[1]);
 
             printf("Info: %lu calls to RadiateEnergy() caused %lu potential divergency events.\n", Count_AllCalls, Count_DivgWarnCalls);
@@ -1489,6 +1528,10 @@ int main(int ArgC, const char* ArgV[])
     {
         printf("\nType \"CaLight\" (without any parameters) for help.\n");
         Error(E.Msg);
+    }
+    catch (const cf::GameSys::WorldT::InitErrorT& IE)
+    {
+        Error(IE.what());
     }
 
     return 0;

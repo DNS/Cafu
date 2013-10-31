@@ -19,41 +19,36 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef CAFU_GAMESYS_COMPONENT_SCRIPT_HPP_INCLUDED
-#define CAFU_GAMESYS_COMPONENT_SCRIPT_HPP_INCLUDED
+#ifndef CAFU_GAMESYS_COMPONENT_RADIOSITY_LIGHT_HPP_INCLUDED
+#define CAFU_GAMESYS_COMPONENT_RADIOSITY_LIGHT_HPP_INCLUDED
 
-#include "CompBase.hpp"
+#include "CompLight.hpp"
 
 
 namespace cf
 {
     namespace GameSys
     {
-        /// This component runs custom Lua script code, implementing the behaviour of the entity in the game world.
-        /// The script code can be loaded from a separate file, or it can be entered and kept directly in the component.
-        ///
-        /// Keeping the script code in a separate file is useful when it is re-used with several entity instances
-        /// or in several maps.
-        /// Keeping the script code directly in the component is useful for short scripts that are unique to a single
-        /// map and entity instance.
-        /// Note that both options can also be combined: The script code from a file is loaded first, and immediate
-        /// code can be used to augment it (for example to "configure" it).
-        class ComponentScriptT : public ComponentBaseT
+        /// This component adds a radiosity point light source to its entity.
+        class ComponentRadiosityLightT : public ComponentLightT
         {
             public:
 
             /// The constructor.
-            ComponentScriptT();
+            ComponentRadiosityLightT();
 
             /// The copy constructor.
             /// @param Comp   The component to create a copy of.
-            ComponentScriptT(const ComponentScriptT& Comp);
+            ComponentRadiosityLightT(const ComponentRadiosityLightT& Comp);
+
+            Vector3fT GetColor() const { return m_Color.Get(); }
+            float GetIntensity() const { return m_Intensity.Get(); }
+            float GetConeAngle() const { return m_ConeAngle.Get(); }
 
 
             // Base class overrides.
-            ComponentScriptT* Clone() const;
-            const char* GetName() const { return "Script"; }
-            void OnPostLoad(bool InEditor);
+            ComponentRadiosityLightT* Clone() const;
+            const char* GetName() const { return "RadiosityLight"; }
 
 
             // The TypeSys related declarations for this class.
@@ -65,8 +60,6 @@ namespace cf
             protected:
 
             // The Lua API methods of this class.
-            static int InitEventTypes(lua_State* LuaState);
-            static int PostEvent(lua_State* LuaState);
             static int toString(lua_State* LuaState);
 
             static const luaL_Reg               MethodsList[];  ///< The list of Lua methods for this class.
@@ -77,15 +70,9 @@ namespace cf
 
             private:
 
-            void DoSerialize(cf::Network::OutStreamT& Stream) const /*override*/;
-            void DoDeserialize(cf::Network::InStreamT& Stream, bool IsIniting) /*override*/;
-            void DoServerFrame(float t) /*override*/;
-
-            TypeSys::VarT<std::string> m_FileName;
-            TypeSys::VarT<std::string> m_ScriptCode;
-
-            ArrayT<unsigned int> m_EventsCount;   ///< A counter for each event type for the number of its occurrences. Serialized (and deserialized) normally along with the entity state.
-            ArrayT<unsigned int> m_EventsRef;     ///< A reference counter for each event type for the number of processed occurrences. Never serialized (or deserialized), never reset, strictly growing.
+            TypeSys::VarT<Vector3fT> m_Color;
+            TypeSys::VarT<float>     m_Intensity;
+            TypeSys::VarT<float>     m_ConeAngle;
         };
     }
 }

@@ -36,7 +36,6 @@ class CaLightWorldT
     CaLightWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes);
 
     const cf::SceneGraph::BspTreeNodeT& GetBspTree() const { return *m_BspTree; }
-    const ArrayT<PointLightT>&          GetPointLights() const { return m_World.PointLights; }
 
     double TraceRay(const Vector3dT& Start, const Vector3dT& Ray) const;
 

@@ -76,6 +76,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ClipSys/CollisionModelMan.hpp"
 #include "GameSys/CompCollisionModel.hpp"
+#include "GameSys/CompLightRadiosity.hpp"
 #include "GameSys/CompModel.hpp"
 #include "GameSys/CompScript.hpp"
 #include "GameSys/CompSound.hpp"
@@ -776,6 +777,25 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             SoundComp->SetMember("AutoPlay", true);
             SoundComp->SetMember("Interval", 20.0f);
             Ent->AddComponent(SoundComp);
+        }
+
+        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "PointLight")
+        {
+            IntrusivePtrT<cf::GameSys::ComponentRadiosityLightT> RadiosityLight = new cf::GameSys::ComponentRadiosityLightT();
+
+            const Vector3fT I(float(wxAtof(MapEnt->GetAndRemove("intensity_r"))),
+                              float(wxAtof(MapEnt->GetAndRemove("intensity_g"))),
+                              float(wxAtof(MapEnt->GetAndRemove("intensity_b"))));
+
+            RadiosityLight->SetMember("Color",     I / std::max(0.001f, length(I)));
+            RadiosityLight->SetMember("Intensity", length(I));
+            RadiosityLight->SetMember("ConeAngle", float(wxAtof(MapEnt->GetAndRemove("opening_angle", "180.0")) * 2.0f));
+            Ent->AddComponent(RadiosityLight);
+
+            // Some hack in CaBSP's LoadWorld.cpp file used to force direction (0, 0, -1), downwards, for the radiosity light.
+            // With the new ComponentRadiosityLightT's, CaLight assumes that the main light direction is along the x-axis.
+            // Thus, for backwards-compatibility, force an orientation here whose x-axis points downwards.
+            Ent->GetTransform()->SetQuat(cf::math::QuaternionfT(cf::math::Matrix3x3fT::GetRotateYMatrix(90.0f)));
         }
 
         if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "speaker")
