@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CompBasics.hpp"
 #include "CompCollisionModel.hpp"
 #include "CompLight.hpp"
+#include "CompLightPoint.hpp"
 #include "CompLightRadiosity.hpp"
 #include "CompModel.hpp"
 #include "CompScript.hpp"
@@ -99,6 +100,7 @@ namespace cf
             &ComponentCollisionModelT::TypeInfo,
             &ComponentLightT::TypeInfo,
             &ComponentModelT::TypeInfo,
+            &ComponentPointLightT::TypeInfo,
             &ComponentRadiosityLightT::TypeInfo,
             &ComponentScriptT::TypeInfo,
             &ComponentSoundT::TypeInfo,

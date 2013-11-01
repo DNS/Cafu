@@ -97,6 +97,14 @@ end
 
 function Map.MyLight:OnInit()
     self:GetTransform():set("Origin", -160, 40, 145.805313)
+
+    local c1 = world:new("ComponentPointLightT")
+    c1:set("On", true)
+    c1:set("Color", 0, 0.501960814, 1)
+    c1:set("Radius", 125)
+    c1:set("ShadowType", 1)
+
+    self:AddComponent(c1)
 end
 
 function Map.LiftWeldTank:OnInit()
@@ -118,6 +126,14 @@ end
 
 function Map.LiftLight:OnInit()
     self:GetTransform():set("Origin", -120, -16, 17)
+
+    local c1 = world:new("ComponentPointLightT")
+    c1:set("On", true)
+    c1:set("Color", 1, 0.501960814, 0.250980407)
+    c1:set("Radius", 30)
+    c1:set("ShadowType", 1)
+
+    self:AddComponent(c1)
 end
 
 function Map.TestTrigger:OnInit()
@@ -184,4 +200,12 @@ end
 
 function Map.PointLightSource_001:OnInit()
     self:GetTransform():set("Origin", -24, 88, 80)
+
+    local c1 = world:new("ComponentPointLightT")
+    c1:set("On", true)
+    c1:set("Color", 1, 0.501960814, 0.250980407)
+    c1:set("Radius", 120)
+    c1:set("ShadowType", 1)
+
+    self:AddComponent(c1)
 end

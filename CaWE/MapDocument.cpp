@@ -76,6 +76,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ClipSys/CollisionModelMan.hpp"
 #include "GameSys/CompCollisionModel.hpp"
+#include "GameSys/CompLightPoint.hpp"
 #include "GameSys/CompLightRadiosity.hpp"
 #include "GameSys/CompModel.hpp"
 #include "GameSys/CompScript.hpp"
@@ -796,6 +797,24 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             // With the new ComponentRadiosityLightT's, CaLight assumes that the main light direction is along the x-axis.
             // Thus, for backwards-compatibility, force an orientation here whose x-axis points downwards.
             Ent->GetTransform()->SetQuat(cf::math::QuaternionfT(cf::math::Matrix3x3fT::GetRotateYMatrix(90.0f)));
+        }
+
+        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "PointLightSource")
+        {
+            IntrusivePtrT<cf::GameSys::ComponentPointLightT> PointLight = new cf::GameSys::ComponentPointLightT();
+
+            const EntPropertyT* ColProp = MapEnt->FindProperty("light_color_diff");
+            if (ColProp)
+            {
+                PointLight->SetMember("Color", ColProp->GetVector3f() / 255.0f);
+                MapEnt->RemoveProperty("light_color_diff");
+                MapEnt->RemoveProperty("light_color_spec");
+            }
+
+            PointLight->SetMember("On", true);
+            PointLight->SetMember("Radius", float(wxAtof(MapEnt->GetAndRemove("light_radius"))));
+            PointLight->SetMember("ShadowType", wxAtoi(MapEnt->GetAndRemove("light_casts_shadows")));
+            Ent->AddComponent(PointLight);
         }
 
         if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "speaker")

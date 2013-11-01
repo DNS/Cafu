@@ -47,7 +47,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "InfoPlayerStart.hpp"
 #include "MonsterMaker.hpp"
 #include "Mover.hpp"
-#include "PointLightSource.hpp"
 #include "RigidBody.hpp"
 #include "Rocket.hpp"
 #include "StaticDetailModel.hpp"
@@ -117,7 +116,6 @@ namespace GAME_NAME
         &EntInfoPlayerStartT::TypeInfo,
         &EntMonsterMakerT::TypeInfo,
         &EntFuncMoverT::TypeInfo,
-        &EntPointLightSourceT::TypeInfo,
         &EntRigidBodyT::TypeInfo,
         &EntRocketT::TypeInfo,
         &EntStaticDetailModelT::TypeInfo,

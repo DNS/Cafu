@@ -242,10 +242,6 @@ PatchDef
 
 {
   classname "PointLightSource"
-  light_radius "125"
-  light_color_diff "0 128 255"
-  light_color_spec "0 128 255"
-  light_casts_shadows "1"
 }
 
 {
@@ -256,10 +252,6 @@ PatchDef
 
 {
   classname "PointLightSource"
-  light_radius "30"
-  light_color_diff "255 128 64"
-  light_color_spec "255 128 64"
-  light_casts_shadows "1"
 }
 
 {
@@ -301,8 +293,4 @@ PatchDef
 
 {
   classname "PointLightSource"
-  light_radius "120"
-  light_color_diff "255 128 64"
-  light_color_spec "255 128 64"
-  light_casts_shadows "1"
 }

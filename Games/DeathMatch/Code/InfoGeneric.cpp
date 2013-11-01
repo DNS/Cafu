@@ -21,6 +21,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "InfoGeneric.hpp"
 #include "EntityCreateParams.hpp"
+
+#include "GameSys/CompLightPoint.hpp"
 #include "TypeSys.hpp"
 
 using namespace GAME_NAME;
@@ -51,4 +53,22 @@ EntInfoGenericT::EntInfoGenericT(const EntityCreateParamsT& Params)
     // (needed so that e.g. trigger brushes will work).
     ClipModel.SetOrigin(m_Origin);
     ClipModel.Register();
+}
+
+
+bool EntInfoGenericT::GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const
+{
+    IntrusivePtrT<cf::GameSys::ComponentPointLightT> L = dynamic_pointer_cast<cf::GameSys::ComponentPointLightT>(m_Entity->GetComponent("PointLight"));
+    if (L == NULL) return false;
+    if (!L->IsOn()) return false;
+
+    const Vector3fT Col = L->GetColor() * 255.0f;
+
+    DiffuseColor  = (unsigned long)(Col.x) + ((unsigned long)(Col.y) << 8) + ((unsigned long)(Col.z) << 16);
+    SpecularColor = DiffuseColor;
+    Position      = m_Entity->GetTransform()->GetOrigin().AsVectorOfDouble();
+    Radius        = L->GetRadius();
+    CastsShadows  = L->CastsShadows();
+
+    return true;
 }
