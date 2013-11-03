@@ -207,6 +207,8 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig)
       m_GridSpacing(Options.Grid.InitialSpacing),
       m_ShowGrid(true)
 {
+    cf::GameSys::WorldT::InitScriptState(m_ScriptState);
+
     m_ScriptWorld = new cf::GameSys::WorldT(
         m_ScriptState,
         "Map = world:new('EntityT', 'Map')\n"
@@ -306,6 +308,8 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         throw cf::GameSys::WorldT::InitErrorT("The file could not be parsed.");
     }
 
+
+    cf::GameSys::WorldT::InitScriptState(m_ScriptState);
 
     if (cmapFileVersion >= 14)
     {

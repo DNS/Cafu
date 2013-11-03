@@ -59,6 +59,9 @@ namespace cf
                 InitFlag_InMapEditor = 2    ///< Whether the world is instantiated in the Map Editor. If set, only the static data will be loaded, initial behaviour is *not* run.
             };
 
+            /// Initializes the given script state for use with WorldT instances.
+            static void InitScriptState(UniScriptStateT& ScriptState);
+
 
             /// Constructor for creating an entity hierarchy (== "a world") from the given script file.
             /// @param ScriptState  The caller will use this world with this script state (binds the world to it).

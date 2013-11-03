@@ -60,6 +60,8 @@ Ca3DEWorldT::Ca3DEWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* G
       m_ModelMan(ModelMan),
       m_GuiRes(GuiRes)
 {
+    cf::GameSys::WorldT::InitScriptState(m_ScriptState_NEW);
+
     try
     {
         std::string ScriptName = cf::String::StripExt(FileName) + ".cent";

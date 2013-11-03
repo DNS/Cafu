@@ -41,19 +41,9 @@ WorldT::InitErrorT::InitErrorT(const std::string& Message)
 }
 
 
-WorldT::WorldT(cf::UniScriptStateT& ScriptState, const std::string& ScriptName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes,
-               cf::ClipSys::CollModelManI& CollModelMan, cf::ClipSys::ClipWorldT* ClipWorld, int Flags)
-    : m_ScriptName((Flags & InitFlag_InlineCode) ? "" : ScriptName),
-      m_ScriptState(ScriptState),
-      m_RootEntity(NULL),
-      m_IsInited(false),
-      m_NextEntID(0),
-      m_ModelMan(ModelMan),
-      m_GuiResources(GuiRes),
-      m_CollModelMan(CollModelMan),
-      m_ClipWorld(ClipWorld)
+/*static*/ void WorldT::InitScriptState(cf::UniScriptStateT& ScriptState)
 {
-    lua_State* LuaState = m_ScriptState.GetLuaState();
+    lua_State* LuaState = ScriptState.GetLuaState();
 
     // Load the console library. (Adds a global table with name "Console" to the LuaState with the functions of the ConsoleI interface.)
     cf::Console_RegisterLua(LuaState);
@@ -71,7 +61,22 @@ WorldT::WorldT(cf::UniScriptStateT& ScriptState, const std::string& ScriptName, 
 
     Binder.Init(GetGameSysEntityTIM());
     Binder.Init(GetComponentTIM());
+}
 
+
+WorldT::WorldT(cf::UniScriptStateT& ScriptState, const std::string& ScriptName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes,
+               cf::ClipSys::CollModelManI& CollModelMan, cf::ClipSys::ClipWorldT* ClipWorld, int Flags)
+    : m_ScriptName((Flags & InitFlag_InlineCode) ? "" : ScriptName),
+      m_ScriptState(ScriptState),
+      m_RootEntity(NULL),
+      m_IsInited(false),
+      m_NextEntID(0),
+      m_ModelMan(ModelMan),
+      m_GuiResources(GuiRes),
+      m_CollModelMan(CollModelMan),
+      m_ClipWorld(ClipWorld)
+{
+    lua_State* LuaState = m_ScriptState.GetLuaState();
 
     // Add a global variable with name "world" to the Lua state. "world" is a table that scripts can use to call methods of this class.
     {

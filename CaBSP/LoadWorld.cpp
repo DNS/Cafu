@@ -259,6 +259,8 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
     cf::UniScriptStateT  ScriptState;
     cf::GameSys::WorldT* ScriptWorld = NULL;
 
+    cf::GameSys::WorldT::InitScriptState(ScriptState);
+
     try
     {
         ScriptWorld = new cf::GameSys::WorldT(
