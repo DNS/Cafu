@@ -1453,7 +1453,9 @@ int main(int ArgC, const char* ArgV[])
         ScriptName = cf::String::Replace(ScriptName, "/Worlds/", "/Maps/");
         ScriptName = cf::String::Replace(ScriptName, "\\Worlds\\", "\\Maps\\");
 
+        cf::UniScriptStateT ScriptState;
         cf::GameSys::WorldT ScriptWorld(
+            ScriptState,
             ScriptName,
             ModelMan,
             GuiRes,

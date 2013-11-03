@@ -256,11 +256,13 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
 
     Console->Print(cf::va("\n*** Load World %s ***\n", LoadName));
 
+    cf::UniScriptStateT  ScriptState;
     cf::GameSys::WorldT* ScriptWorld = NULL;
 
     try
     {
         ScriptWorld = new cf::GameSys::WorldT(
+            ScriptState,
             cf::String::StripExt(LoadName) + ".cent",
             ModelMan,
             GuiRes,

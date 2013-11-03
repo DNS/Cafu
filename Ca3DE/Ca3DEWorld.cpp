@@ -54,6 +54,7 @@ Ca3DEWorldT::Ca3DEWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* G
       m_ClipWorld(new cf::ClipSys::ClipWorldT(m_World->m_StaticEntityData[0]->m_CollModel)),
       m_PhysicsWorld(m_World->m_StaticEntityData[0]->m_CollModel),
       m_ScriptState(GameInfo, m_Game),
+      m_ScriptState_NEW(),
       m_ScriptWorld(NULL),
       m_EngineEntities(),
       m_ModelMan(ModelMan),
@@ -66,6 +67,7 @@ Ca3DEWorldT::Ca3DEWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* G
         ScriptName = cf::String::Replace(ScriptName, "\\Worlds\\", "\\Maps\\");
 
         m_ScriptWorld = new cf::GameSys::WorldT(
+            m_ScriptState_NEW,
             ScriptName,
             ModelMan,
             GuiRes,

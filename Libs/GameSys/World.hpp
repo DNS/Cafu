@@ -61,6 +61,7 @@ namespace cf
 
 
             /// Constructor for creating an entity hierarchy (== "a world") from the given script file.
+            /// @param ScriptState  The caller will use this world with this script state (binds the world to it).
             /// @param ScriptName   The file name of the script to load.
             /// @param ModelMan     The manager for all models that are used in this world.
             /// @param GuiRes       The provider for resources (fonts and models) for all GUIs in this world.
@@ -68,7 +69,7 @@ namespace cf
             /// @param ClipWorld    The clip world, where entities can register their collision models and run collision detection queries. Can be `NULL`, e.g. in CaWE or the map compile tools.
             /// @param Flags        A combination of the flags in InitFlagsT.
             /// @throws Throws an InitErrorT object on problems initializing the world.
-            WorldT(const std::string& ScriptName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes,
+            WorldT(UniScriptStateT& ScriptState, const std::string& ScriptName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes,
                    cf::ClipSys::CollModelManI& CollModelMan, cf::ClipSys::ClipWorldT* ClipWorld, int Flags = 0);
 
             /// The destructor.
@@ -147,7 +148,7 @@ namespace cf
 
 
             const std::string           m_ScriptName;   ///< The name of the script file that this world instance was loaded from.
-            UniScriptStateT             m_ScriptState;  ///< The script state of this world.
+            UniScriptStateT&            m_ScriptState;  ///< The script state that this world is bound to.
             IntrusivePtrT<EntityT>      m_RootEntity;   ///< The root of the entity hierarchy that forms this world.
             bool                        m_IsInited;     ///< Has the Init() method already been called?
             unsigned int                m_NextEntID;    ///< The ID that the next newly created entity should get.

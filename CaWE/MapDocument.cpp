@@ -193,6 +193,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig)
       m_ChildFrame(NULL),
       m_FileName("New Map"),
       m_DocAdapter(*this),
+      m_ScriptState(),
       m_ScriptWorld(NULL),
       m_BspTree(NULL),
       m_GameConfig(GameConfig),
@@ -207,6 +208,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig)
       m_ShowGrid(true)
 {
     m_ScriptWorld = new cf::GameSys::WorldT(
+        m_ScriptState,
         "Map = world:new('EntityT', 'Map')\n"
         "Map:GetBasics():set('Static', true)\n"
         "world:SetRootEntity(Map)\n",
@@ -239,6 +241,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
       m_ChildFrame(NULL),
       m_FileName(FileName),
       m_DocAdapter(*this),
+      m_ScriptState(),
       m_ScriptWorld(NULL),
       m_BspTree(NULL),
       m_GameConfig(GameConfig),
@@ -312,6 +315,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
             centFileName += ".cent";
 
         m_ScriptWorld = new cf::GameSys::WorldT(
+            m_ScriptState,
             centFileName.ToStdString(),
             m_GameConfig->GetModelMan(),
             m_GameConfig->GetGuiResources(),
@@ -323,6 +327,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     {
         // Before `.cmap` file format version 14, related `.cent` files did not exist.
         m_ScriptWorld = new cf::GameSys::WorldT(
+            m_ScriptState,
             "Map = world:new('EntityT', 'Map')\n"
             "Map:GetBasics():set('Static', true)\n"
             "world:SetRootEntity(Map)\n",

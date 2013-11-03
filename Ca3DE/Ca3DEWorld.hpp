@@ -78,6 +78,7 @@ class Ca3DEWorldT : public cf::GameSys::GameWorldI
     cf::ClipSys::ClipWorldT*   m_ClipWorld;
     PhysicsWorldT              m_PhysicsWorld;
     ScriptStateT               m_ScriptState;
+    cf::UniScriptStateT        m_ScriptState_NEW;
     cf::GameSys::WorldT*       m_ScriptWorld;   ///< The "script world" contains the entity hierarchy and their components.
     ArrayT<EngineEntityT*>     m_EngineEntities;
     ModelManagerT&             m_ModelMan;

@@ -41,10 +41,10 @@ WorldT::InitErrorT::InitErrorT(const std::string& Message)
 }
 
 
-WorldT::WorldT(const std::string& ScriptName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes,
+WorldT::WorldT(cf::UniScriptStateT& ScriptState, const std::string& ScriptName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes,
                cf::ClipSys::CollModelManI& CollModelMan, cf::ClipSys::ClipWorldT* ClipWorld, int Flags)
     : m_ScriptName((Flags & InitFlag_InlineCode) ? "" : ScriptName),
-      m_ScriptState(),
+      m_ScriptState(ScriptState),
       m_RootEntity(NULL),
       m_IsInited(false),
       m_NextEntID(0),
