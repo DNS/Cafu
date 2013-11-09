@@ -54,13 +54,13 @@ Ca3DEWorldT::Ca3DEWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* G
       m_ClipWorld(new cf::ClipSys::ClipWorldT(m_World->m_StaticEntityData[0]->m_CollModel)),
       m_PhysicsWorld(m_World->m_StaticEntityData[0]->m_CollModel),
       m_ScriptState(GameInfo, m_Game),
-      m_ScriptState_NEW(),
+      m_ScriptState_NEW(new cf::UniScriptStateT),   // Need a pointer because the dtor order is important.
       m_ScriptWorld(NULL),
       m_EngineEntities(),
       m_ModelMan(ModelMan),
       m_GuiRes(GuiRes)
 {
-    cf::GameSys::WorldT::InitScriptState(m_ScriptState_NEW);
+    cf::GameSys::WorldT::InitScriptState(*m_ScriptState_NEW);
 
     try
     {
@@ -69,12 +69,15 @@ Ca3DEWorldT::Ca3DEWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* G
         ScriptName = cf::String::Replace(ScriptName, "\\Worlds\\", "\\Maps\\");
 
         m_ScriptWorld = new cf::GameSys::WorldT(
-            m_ScriptState_NEW,
-            ScriptName,
+            *m_ScriptState_NEW,
             ModelMan,
             GuiRes,
             *cf::ClipSys::CollModelMan,   // TODO: The CollModelMan should not be a global, but rather be instantiated along with the ModelMan and GuiRes.
-            m_ClipWorld,
+            m_ClipWorld);
+
+        cf::GameSys::WorldT::LoadScript(
+            m_ScriptWorld,
+            ScriptName,
             0 /*cf::GameSys::WorldT::InitFlag_InMapEditor*/);
     }
     catch (const cf::GameSys::WorldT::InitErrorT& IE)
@@ -121,13 +124,13 @@ Ca3DEWorldT::~Ca3DEWorldT()
 
     m_EngineEntities.Clear();
 
-    // All entities should have been deleted by now, and their dtors should have removed their Lua associated instances.
-    // m_ScriptState.PrintGlobalVars();
-    // assert(!m_ScriptState.HasEntityInstances());
-    // lua_gc(m_ScriptState.GetScriptState().GetLuaState(), LUA_GCCOLLECT, 0);
-
-    delete m_ScriptWorld;
     m_ScriptWorld = NULL;
+
+    // The script state may still hold entities that have collision model components that have registered
+    // collision models with the clip world. Thus, make sure to delete the script state before the clip world,
+    // so that the clip world is left clean.
+    delete m_ScriptState_NEW;
+    m_ScriptState_NEW = NULL;
 
     // delete m_PhysicsWorld;
     // m_PhysicsWorld = NULL;

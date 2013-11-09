@@ -179,28 +179,28 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     ArrayT<CommandT*> CreatePasteCommands(const Vector3fT& DeltaTranslation=Vector3fT(), const cf::math::AnglesfT& DeltaRotation=cf::math::AnglesfT(),
         unsigned int NrOfCopies=1, bool PasteGrouped=false, bool CenterAtOriginals=false);
 
-    ChildFrameT*                 m_ChildFrame;          ///< The child frame within which this document lives.
-    wxString                     m_FileName;            ///< This documents file name.
-    MapDocAdapterT               m_DocAdapter;          ///< Kept here because it sometimes needs the same lifetime as the MapDocumentT itself, e.g. when referenced by a "material" property of the Entity Inspector, or by commands in the command history.
-    cf::UniScriptStateT          m_ScriptState;         ///< The script state that the script world (`m_ScriptWorld`) lives in.
-    cf::GameSys::WorldT*         m_ScriptWorld;         ///< The "script world" contains the entity hierarchy and their components.
-    OrthoBspTreeT*               m_BspTree;             ///< The BSP tree that spatially organizes the map elements in the m_MapWorld.
-    GameConfigT*                 m_GameConfig;          ///< The game configuration that is used with this map.
-    ArrayT<const EntityClassT*>  m_UnknownEntClasses;   ///< The entity classes that are used by entities loaded into this map but who are unknown/undefined in this game config. This list complements GameConfigT::m_EntityClasses.
-    cf::SceneGraph::LightMapManT m_LightMapMan;         ///< The light map manager that is used with this map.
-    PlantDescrManT               m_PlantDescrMan;       ///< The plant description manager that is used with this map.
+    ChildFrameT*                       m_ChildFrame;          ///< The child frame within which this document lives.
+    wxString                           m_FileName;            ///< This documents file name.
+    MapDocAdapterT                     m_DocAdapter;          ///< Kept here because it sometimes needs the same lifetime as the MapDocumentT itself, e.g. when referenced by a "material" property of the Entity Inspector, or by commands in the command history.
+    cf::UniScriptStateT                m_ScriptState;         ///< The script state that the script world (`m_ScriptWorld`) lives in.
+    IntrusivePtrT<cf::GameSys::WorldT> m_ScriptWorld;         ///< The "script world" contains the entity hierarchy and their components.
+    OrthoBspTreeT*                     m_BspTree;             ///< The BSP tree that spatially organizes the map elements in the m_MapWorld.
+    GameConfigT*                       m_GameConfig;          ///< The game configuration that is used with this map.
+    ArrayT<const EntityClassT*>        m_UnknownEntClasses;   ///< The entity classes that are used by entities loaded into this map but who are unknown/undefined in this game config. This list complements GameConfigT::m_EntityClasses.
+    cf::SceneGraph::LightMapManT       m_LightMapMan;         ///< The light map manager that is used with this map.
+    PlantDescrManT                     m_PlantDescrMan;       ///< The plant description manager that is used with this map.
 
-    CommandHistoryT              m_History;             ///< The command history.
+    CommandHistoryT                    m_History;             ///< The command history.
 
-    ArrayT<MapElementT*>         m_Selection;           ///< The currently selected map elements.
-    mutable BoundingBox3fT       m_SelectionBB;         ///< The bounding-box of the current selection, or if there is no selection, the bounding-box of the previous selection.
-    ArrayT<GroupT*>              m_Groups;              ///< The list of groups in this document.
-    ArrayT<PtsPointT>            m_PointFilePoints;     ///< The points of the currently loaded point file.
-    ArrayT<wxColour>             m_PointFileColors;     ///< The colors for items (columns) of a point in the pointfile. A color can be invalid if the associated column should not be visualized at all.
+    ArrayT<MapElementT*>               m_Selection;           ///< The currently selected map elements.
+    mutable BoundingBox3fT             m_SelectionBB;         ///< The bounding-box of the current selection, or if there is no selection, the bounding-box of the previous selection.
+    ArrayT<GroupT*>                    m_Groups;              ///< The list of groups in this document.
+    ArrayT<PtsPointT>                  m_PointFilePoints;     ///< The points of the currently loaded point file.
+    ArrayT<wxColour>                   m_PointFileColors;     ///< The colors for items (columns) of a point in the pointfile. A color can be invalid if the associated column should not be visualized at all.
 
-    bool                         m_SnapToGrid;          ///< Snap things to grid.      Kept here because the other two are kept here as well. ;-)
-    int                          m_GridSpacing;         ///< The spacing of the grid.  Could also be kept in the related ChildFrameT, but as the observers depent on it, its properly stored here in the MapDocumentT.
-    bool                         m_ShowGrid;            ///< Show or hide the 2D grid. Could also be kept in the related ChildFrameT, but as the observers depent on it, its properly stored here in the MapDocumentT.
+    bool                               m_SnapToGrid;          ///< Snap things to grid.      Kept here because the other two are kept here as well. ;-)
+    int                                m_GridSpacing;         ///< The spacing of the grid.  Could also be kept in the related ChildFrameT, but as the observers depent on it, its properly stored here in the MapDocumentT.
+    bool                               m_ShowGrid;            ///< Show or hide the 2D grid. Could also be kept in the related ChildFrameT, but as the observers depent on it, its properly stored here in the MapDocumentT.
 
 
     /*************************************************************/

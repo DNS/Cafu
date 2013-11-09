@@ -73,16 +73,16 @@ class Ca3DEWorldT : public cf::GameSys::GameWorldI
     unsigned long CreateNewEntityFromBasicInfo(IntrusivePtrT<const CompGameEntityT> CompGameEnt,
         unsigned long CreationFrameNr, const Vector3dT& Origin, const char* PlayerName = NULL, const char* ModelName = NULL);
 
-    cf::GameSys::GameI*        m_Game;
-    const WorldT*              m_World;
-    cf::ClipSys::ClipWorldT*   m_ClipWorld;
-    PhysicsWorldT              m_PhysicsWorld;
-    ScriptStateT               m_ScriptState;
-    cf::UniScriptStateT        m_ScriptState_NEW;
-    cf::GameSys::WorldT*       m_ScriptWorld;   ///< The "script world" contains the entity hierarchy and their components.
-    ArrayT<EngineEntityT*>     m_EngineEntities;
-    ModelManagerT&             m_ModelMan;
-    cf::GuiSys::GuiResourcesT& m_GuiRes;
+    cf::GameSys::GameI*                m_Game;
+    const WorldT*                      m_World;
+    cf::ClipSys::ClipWorldT*           m_ClipWorld;
+    PhysicsWorldT                      m_PhysicsWorld;
+    ScriptStateT                       m_ScriptState;
+    cf::UniScriptStateT*               m_ScriptState_NEW;
+    IntrusivePtrT<cf::GameSys::WorldT> m_ScriptWorld;   ///< The "script world" contains the entity hierarchy and their components.
+    ArrayT<EngineEntityT*>             m_EngineEntities;
+    ModelManagerT&                     m_ModelMan;
+    cf::GuiSys::GuiResourcesT&         m_GuiRes;
 
 
     private:

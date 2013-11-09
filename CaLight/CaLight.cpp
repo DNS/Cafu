@@ -1341,6 +1341,7 @@ int main(int ArgC, const char* ArgV[])
 {
     cf::GameSys::GetComponentTIM().Init();      // The one-time init of the GameSys components type info manager.
     cf::GameSys::GetGameSysEntityTIM().Init();  // The one-time init of the GameSys entity type info manager.
+    cf::GameSys::GetWorldTIM().Init();          // The one-time init of the GameSys world type info manager.
 
     struct CaLightOptionsT
     {
@@ -1453,16 +1454,21 @@ int main(int ArgC, const char* ArgV[])
         ScriptName = cf::String::Replace(ScriptName, "/Worlds/", "/Maps/");
         ScriptName = cf::String::Replace(ScriptName, "\\Worlds\\", "\\Maps\\");
 
-        cf::UniScriptStateT ScriptState;
+        cf::UniScriptStateT                ScriptState;
+        IntrusivePtrT<cf::GameSys::WorldT> ScriptWorld;
+
         cf::GameSys::WorldT::InitScriptState(ScriptState);
 
-        cf::GameSys::WorldT ScriptWorld(
+        ScriptWorld = new cf::GameSys::WorldT(
             ScriptState,
-            ScriptName,
             ModelMan,
             GuiRes,
             *cf::ClipSys::CollModelMan,   // TODO: The CollModelMan should not be a global, but rather be instantiated along with the ModelMan and GuiRes.
-            NULL,   // No clip world for this instance.
+            NULL);      // No clip world for this instance.
+
+        cf::GameSys::WorldT::LoadScript(
+            ScriptWorld,
+            ScriptName,
             cf::GameSys::WorldT::InitFlag_InMapEditor);
 
         unsigned long IterationCount=0;
@@ -1489,7 +1495,7 @@ int main(int ArgC, const char* ArgV[])
 
             // Perform lighting
             ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
-            ScriptWorld.GetRootEntity()->GetAll(AllEnts);
+            ScriptWorld->GetRootEntity()->GetAll(AllEnts);
 
             DirectLighting(CaLightWorld, AllEnts, BlockSize4DirectLighting);
             IterationCount=BounceLighting(CaLightWorld, CaLightOptions.BlockSize, CaLightOptions.StopUE, CaLightOptions.AskForMore, ArgV[1]);

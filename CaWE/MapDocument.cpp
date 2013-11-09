@@ -211,13 +211,16 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig)
 
     m_ScriptWorld = new cf::GameSys::WorldT(
         m_ScriptState,
-        "Map = world:new('EntityT', 'Map')\n"
-        "Map:GetBasics():set('Static', true)\n"
-        "world:SetRootEntity(Map)\n",
         m_GameConfig->GetModelMan(),
         m_GameConfig->GetGuiResources(),
         *cf::ClipSys::CollModelMan,   // TODO: The CollModelMan should not be a global, but rather be instantiated along with the ModelMan and GuiRes.
-        NULL,   // No clip world for this instance.
+        NULL);      // No clip world for this instance.
+
+    cf::GameSys::WorldT::LoadScript(
+        m_ScriptWorld,
+        "Map = world:new('EntityT', 'Map')\n"
+        "Map:GetBasics():set('Static', true)\n"
+        "world:SetRootEntity(Map)\n",
         cf::GameSys::WorldT::InitFlag_InlineCode | cf::GameSys::WorldT::InitFlag_InMapEditor);
 
     IntrusivePtrT<cf::GameSys::EntityT> ScriptRootEnt = m_ScriptWorld->GetRootEntity();
@@ -263,9 +266,6 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
 
     if (TP.IsAtEOF())
     {
-        delete m_ScriptWorld;
-        m_ScriptWorld = NULL;
-
         throw cf::GameSys::WorldT::InitErrorT("The file could not be opened.");
     }
 
@@ -302,8 +302,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
             "and/or post at the Cafu support forums.", TP.GetReadPosByte(), TP.GetReadPosPercent()*100.0),
             wxString("Could not load ")+FileName, wxOK | wxICON_EXCLAMATION);
 
-        delete m_ScriptWorld;   //XXX TODO: Call Cleanup() method instead (same code as dtor).
-        m_ScriptWorld = NULL;
+        //XXX TODO: Call Cleanup() method here (same code as dtor).
 
         throw cf::GameSys::WorldT::InitErrorT("The file could not be parsed.");
     }
@@ -320,11 +319,14 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
 
         m_ScriptWorld = new cf::GameSys::WorldT(
             m_ScriptState,
-            centFileName.ToStdString(),
             m_GameConfig->GetModelMan(),
             m_GameConfig->GetGuiResources(),
             *cf::ClipSys::CollModelMan,   // TODO: The CollModelMan should not be a global, but rather be instantiated along with the ModelMan and GuiRes.
-            NULL,   // No clip world for this instance.
+            NULL);      // No clip world for this instance.
+
+        cf::GameSys::WorldT::LoadScript(
+            m_ScriptWorld,
+            centFileName.ToStdString(),
             cf::GameSys::WorldT::InitFlag_InMapEditor);
     }
     else
@@ -332,13 +334,16 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         // Before `.cmap` file format version 14, related `.cent` files did not exist.
         m_ScriptWorld = new cf::GameSys::WorldT(
             m_ScriptState,
-            "Map = world:new('EntityT', 'Map')\n"
-            "Map:GetBasics():set('Static', true)\n"
-            "world:SetRootEntity(Map)\n",
             m_GameConfig->GetModelMan(),
             m_GameConfig->GetGuiResources(),
             *cf::ClipSys::CollModelMan,   // TODO: The CollModelMan should not be a global, but rather be instantiated along with the ModelMan and GuiRes.
-            NULL,   // No clip world for this instance.
+            NULL);      // No clip world for this instance.
+
+        cf::GameSys::WorldT::LoadScript(
+            m_ScriptWorld,
+            "Map = world:new('EntityT', 'Map')\n"
+            "Map:GetBasics():set('Static', true)\n"
+            "world:SetRootEntity(Map)\n",
             cf::GameSys::WorldT::InitFlag_InlineCode | cf::GameSys::WorldT::InitFlag_InMapEditor);
     }
 
@@ -945,7 +950,6 @@ MapDocumentT::~MapDocumentT()
 
     m_Selection.Clear();
 
-    delete m_ScriptWorld;
     m_ScriptWorld = NULL;
 }
 

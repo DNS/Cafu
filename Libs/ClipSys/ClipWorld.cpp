@@ -47,7 +47,13 @@ ClipWorldT::~ClipWorldT()
 #ifdef DEBUG
     // Make sure that all sectors are empty (that is, all clip models have been destructed already).
     for (unsigned long SectorNr=0; SectorNr<SectorSubdivs*SectorSubdivs; SectorNr++)
-        assert(Sectors[SectorNr].ListOfModels==NULL);
+    {
+        // Don't inline this into the assert() statement. If the assertion triggers,
+        // it is convenient to have CS readily available in the debugger.
+        const ClipSectorT& CS = Sectors[SectorNr];
+
+        assert(CS.ListOfModels==NULL);
+    }
 #endif
 
     delete[] Sectors;

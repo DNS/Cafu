@@ -35,6 +35,22 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace cf::GameSys;
 
 
+// Note that we cannot simply replace this method with a global TypeInfoManT instance,
+// because it is called during global static initialization time. The TIM instance being
+// embedded in the function guarantees that it is properly initialized before first use.
+cf::TypeSys::TypeInfoManT& cf::GameSys::GetWorldTIM()
+{
+    static cf::TypeSys::TypeInfoManT TIM;
+
+    return TIM;
+}
+
+
+const char* WorldT::DocClass =
+    "This class holds the hierarchy of game entities that populate a game world.\n"
+    "The root of the hierarchy is the map entity, all other entities are direct or indirect children of it.";
+
+
 WorldT::InitErrorT::InitErrorT(const std::string& Message)
     : std::runtime_error(Message)
 {
@@ -51,75 +67,26 @@ WorldT::InitErrorT::InitErrorT(const std::string& Message)
     // Load the "ci" (console interpreter) library. (Adds a global table with name "ci" to the LuaState with (some of) the functions of the ConsoleInterpreterI interface.)
     ConsoleInterpreterI::RegisterLua(LuaState);
 
-    // Adds a global (meta-)table with methods for cf::GameSys::WorldTs to the LuaState, to be used as metatable for userdata of type cf::GameSys::WorldT.
-    WorldT::RegisterLua(LuaState);
-
     // For each class that the TypeInfoManTs know about, add a (meta-)table to the registry of the LuaState.
     // The (meta-)table holds the Lua methods that the respective class implements in C++,
     // and is to be used as metatable for instances of this class.
     ScriptBinderT Binder(LuaState);
 
+    Binder.Init(GetWorldTIM());
     Binder.Init(GetGameSysEntityTIM());
     Binder.Init(GetComponentTIM());
 }
 
 
-WorldT::WorldT(cf::UniScriptStateT& ScriptState, const std::string& ScriptName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes,
-               cf::ClipSys::CollModelManI& CollModelMan, cf::ClipSys::ClipWorldT* ClipWorld, int Flags)
-    : m_ScriptName((Flags & InitFlag_InlineCode) ? "" : ScriptName),
-      m_ScriptState(ScriptState),
-      m_RootEntity(NULL),
-      m_IsInited(false),
-      m_NextEntID(0),
-      m_ModelMan(ModelMan),
-      m_GuiResources(GuiRes),
-      m_CollModelMan(CollModelMan),
-      m_ClipWorld(ClipWorld)
+/*static*/ void WorldT::LoadScript(IntrusivePtrT<WorldT> World, const std::string& ScriptName, int Flags)
 {
-    lua_State* LuaState = m_ScriptState.GetLuaState();
+    const std::string PrintScriptName((Flags & InitFlag_InlineCode) ? "<inline code>" : ScriptName);
+    lua_State*        LuaState = World->GetScriptState().GetLuaState();
+    ScriptBinderT     Binder(LuaState);
 
-    // Add a global variable with name "world" to the Lua state. "world" is a table that scripts can use to call methods of this class.
-    {
-        assert(lua_gettop(LuaState) == 0);
-
-        // Stack indices of the table and userdata that we create.
-        const int USERDATA_INDEX = 2;
-        const int TABLE_INDEX    = 1;
-
-        // Create a new table T, which is pushed on the stack and thus at stack index TABLE_INDEX.
-        lua_newtable(LuaState);
-
-        // Create a new user datum UD, which is pushed on the stack and thus at stack index USERDATA_INDEX.
-        WorldT** UserData = (WorldT**)lua_newuserdata(LuaState, sizeof(WorldT*));
-
-        // Initialize the memory allocated by the lua_newuserdata() function.
-        *UserData = this;
-
-        // T["__userdata_cf"] = UD
-        lua_pushvalue(LuaState, USERDATA_INDEX);    // Duplicate the userdata on top of the stack (as the argument for lua_setfield()).
-        lua_setfield(LuaState, TABLE_INDEX, "__userdata_cf");
-
-        // Get the table with name (key) "cf::GameSys::WorldT" from the registry,
-        // and set it as metatable of the newly created table.
-        luaL_getmetatable(LuaState, "cf::GameSys::WorldT");
-        lua_setmetatable(LuaState, TABLE_INDEX);
-
-        // Get the table with name (key) "cf::GameSys::WorldT" from the registry,
-        // and set it as metatable of the newly created user data (for user data type safety, see PiL2, chapter 28.2).
-        luaL_getmetatable(LuaState, "cf::GameSys::WorldT");
-        lua_setmetatable(LuaState, USERDATA_INDEX);
-
-        // Remove UD from the stack, so that only the new table T is left on top of the stack.
-        // Then add it as a global variable whose name is "world".
-        // As lua_setglobal() pops the table from the stack, the stack is left empty.
-        lua_pop(LuaState, 1);
-        lua_setglobal(LuaState, "world");
-        // Could instead do   lua_setfield(LuaState, LUA_REGISTRYINDEX, "world");   as well,
-        // so that script methods like "new()" and "thread()" could also be called without the "world:" prefix.
-    }
-
-    // Make sure that everyone dealt properly with the Lua stack so far.
-    assert(lua_gettop(LuaState) == 0);
+    // Add a global variable with name "world" to the Lua state.
+    Binder.Push(World);
+    lua_setglobal(LuaState, "world");
 
 
     // Load the user script!
@@ -128,7 +95,7 @@ WorldT::WorldT(cf::UniScriptStateT& ScriptState, const std::string& ScriptName, 
 
     if (LoadResult != 0 || lua_pcall(LuaState, 0, 0, 0) != 0)
     {
-        const std::string Msg = "Could not load \"" + m_ScriptName + "\":\n" + lua_tostring(LuaState, -1);
+        const std::string Msg = "Could not load \"" + PrintScriptName + "\":\n" + lua_tostring(LuaState, -1);
 
         Console->Warning(Msg + "\n");
 
@@ -136,9 +103,9 @@ WorldT::WorldT(cf::UniScriptStateT& ScriptState, const std::string& ScriptName, 
         throw InitErrorT(Msg);
     }
 
-    if (m_RootEntity == NULL)
+    if (World->GetRootEntity() == NULL)
     {
-        const std::string Msg = "No root entity set in world \"" + m_ScriptName + "\".";
+        const std::string Msg = "No root entity set in world \"" + PrintScriptName + "\".";
 
         Console->Warning(Msg + "\n");
 
@@ -152,9 +119,9 @@ WorldT::WorldT(cf::UniScriptStateT& ScriptState, const std::string& ScriptName, 
 
     // Finally call the Lua OnInit() and OnInit2() methods of each entity.
     ArrayT< IntrusivePtrT<EntityT> > AllEnts;
-    m_RootEntity->GetAll(AllEnts);
+    World->GetRootEntity()->GetAll(AllEnts);
 
-    Init();     // The script has the option to call this itself (via world:Init()) at an earlier time.
+    World->Init();  // The script has the option to call this itself (via world:Init()) at an earlier time.
 
     for (unsigned long EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
     {
@@ -166,7 +133,7 @@ WorldT::WorldT(cf::UniScriptStateT& ScriptState, const std::string& ScriptName, 
         // the static entity data with a statement like `cw_World.m_StaticEntityData[EntityID]`
         // (if `EntityID < World.m_StaticEntityData.Size()`).
         // As by convention we "align" entities from `.cent` files to their counterparts in `.cw` files by traversing
-        // them in depth-firsth order, the co-use of entity IDs implies that the IDs must match the entity's ordinal
+        // them in depth-first order, the co-use of entity IDs implies that the IDs must match the entity's ordinal
         // number in a depth first traversal. Make sure here that this condition is actually met.
         // Note that the main motivation here is catching program bugs, like an assert() statement that is also checked
         // in release builds. Although not impossible, it's very unlikely that a user action will ever trigger this.
@@ -174,7 +141,7 @@ WorldT::WorldT(cf::UniScriptStateT& ScriptState, const std::string& ScriptName, 
         {
             const std::string Msg = "ID of entity \"" + AllEnts[EntNr]->GetBasics()->GetEntityName() +
                 cf::va("\" is %u, expected %lu.\n", AllEnts[EntNr]->GetID(), EntNr) +
-                "(Are the entities in \"" + m_ScriptName + "\" created in depth-first order?)";
+                "(Are the entities in \"" + PrintScriptName + "\" created in depth-first order?)";
 
             Console->Warning(Msg + "\n");
 
@@ -198,11 +165,17 @@ WorldT::WorldT(cf::UniScriptStateT& ScriptState, const std::string& ScriptName, 
 }
 
 
-WorldT::~WorldT()
+WorldT::WorldT(cf::UniScriptStateT& ScriptState, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes,
+               cf::ClipSys::CollModelManI& CollModelMan, cf::ClipSys::ClipWorldT* ClipWorld)
+    : m_ScriptState(ScriptState),
+      m_RootEntity(NULL),
+      m_IsInited(false),
+      m_NextEntID(0),
+      m_ModelMan(ModelMan),
+      m_GuiResources(GuiRes),
+      m_CollModelMan(CollModelMan),
+      m_ClipWorld(ClipWorld)
 {
-    // Manually "destruct" these references before the Lua state (m_ScriptState).
-    // (This is redundant: the normal member destruction sequence achieves the same.)
-    m_RootEntity = NULL;
 }
 
 
@@ -296,36 +269,36 @@ void WorldT::OnClientFrame(float t)
 /*** Implementation of Lua binding functions ***/
 /***********************************************/
 
-static WorldT* CheckParams(lua_State* LuaState)
+static const cf::TypeSys::MethsDocT META_SetRootEntity =
 {
-    luaL_argcheck(LuaState, lua_istable(LuaState, 1), 1, "Expected a table that represents a game world.");
-    lua_getfield(LuaState, 1, "__userdata_cf");
-
-    WorldT** UserData = (WorldT**)luaL_checkudata(LuaState, -1, "cf::GameSys::WorldT"); if (!UserData) luaL_error(LuaState, "NULL userdata in world table.");
-    WorldT*  World    = (*UserData);
-
-    // Pop the userdata from the stack again. Not necessary though as it doesn't hurt there.
-    // lua_pop(LuaState, 1);
-    return World;
-}
-
+    "SetRootEntity",
+    "Sets the root entity for this world.",
+    "", "(EntityT ent)"
+};
 
 int WorldT::SetRootEntity(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    WorldT*       World = CheckParams(LuaState);
+    IntrusivePtrT<WorldT> World = Binder.GetCheckedObjectParam< IntrusivePtrT<WorldT> >(1);
 
     World->m_RootEntity = Binder.GetCheckedObjectParam< IntrusivePtrT<EntityT> >(2);
     return 0;
 }
 
 
+static const cf::TypeSys::MethsDocT META_CreateNew =
+{
+    "CreateNew",
+    "Creates and returns a new entity or component.",
+    "object", "(string ClassName)"
+};
+
 int WorldT::CreateNew(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    WorldT*       World    = CheckParams(LuaState);
-    const char*   TypeName = luaL_checkstring(LuaState, 2);
-    const char*   ObjName  = lua_tostring(LuaState, 3);    // Passing an object name is optional.
+    IntrusivePtrT<WorldT> World    = Binder.GetCheckedObjectParam< IntrusivePtrT<WorldT> >(1);
+    const char*           TypeName = luaL_checkstring(LuaState, 2);
+    const char*           ObjName  = lua_tostring(LuaState, 3);    // Passing an object name is optional.
 
     const cf::TypeSys::TypeInfoT* TI = GetGameSysEntityTIM().FindTypeInfoByName(TypeName);
 
@@ -357,20 +330,34 @@ int WorldT::CreateNew(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_Init =
+{
+    "Init",
+    "Calls the OnInit() script methods of all entities.",
+    "", "()"
+};
+
 int WorldT::Init(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    WorldT*       World = CheckParams(LuaState);
+    IntrusivePtrT<WorldT> World = Binder.GetCheckedObjectParam< IntrusivePtrT<WorldT> >(1);
 
     World->Init();
     return 0;
 }
 
 
+static const cf::TypeSys::MethsDocT META_TraceRay =
+{
+    "TraceRay",
+    "Employs m_ClipWorld->TraceRay() to trace a ray through the (clip) world.",
+    "table", "(table Start, table Ray)"
+};
+
 int WorldT::TraceRay(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    WorldT*       World = CheckParams(LuaState);
+    IntrusivePtrT<WorldT> World = Binder.GetCheckedObjectParam< IntrusivePtrT<WorldT> >(1);
 
     if (!World->m_ClipWorld)
         luaL_error(LuaState, "There is no clip world in this world.");
@@ -405,39 +392,53 @@ int WorldT::TraceRay(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_toString =
+{
+    "__toString",
+    "Returns a short string description of this world.",
+    "string", "()"
+};
+
 int WorldT::toString(lua_State* LuaState)
 {
-    WorldT* World = CheckParams(LuaState);
-
-    lua_pushfstring(LuaState, "A world loaded from script \"%s\".", World->m_ScriptName.c_str());
+    lua_pushfstring(LuaState, "A world. It holds the hierarchy of game entities.");
     return 1;
 }
 
 
-void WorldT::RegisterLua(lua_State* LuaState)
+/***********************************/
+/*** TypeSys-related definitions ***/
+/***********************************/
+
+void* WorldT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 {
-    // Create a new table T and add it into the registry table with "cf::GameSys::WorldT" as the key and T as the value.
-    // This also leaves T on top of the stack. See PiL2 chapter 28.2 for more details.
-    luaL_newmetatable(LuaState, "cf::GameSys::WorldT");
+    // At this time, WorldT instances cannot be created "anonymously" via the TypeSys' CreateInstance() method,
+    // as it would require us to derive from cf::TypeSys::CreateParamsT and deal with that.
+    // That's not a problem though, because there is no class hierarchy deriving from WorldT, so any code that
+    // instantiates WorldTs can do so by using the normal constructor -- no "virtual constructor" is needed.
 
-    // See PiL2 chapter 28.3 for a great explanation on what is going on here.
-    // Essentially, we set T.__index = T (the luaL_newmetatable() function left T on the top of the stack).
-    lua_pushvalue(LuaState, -1);                // Pushes/duplicates the new table T on the stack.
-    lua_setfield(LuaState, -2, "__index");      // T.__index = T;
-
-    static const luaL_Reg WorldMethods[] =
-    {
-        { "SetRootEntity", SetRootEntity },
-        { "new",           CreateNew },
-        { "Init",          Init },
-        { "TraceRay",      TraceRay },
-        { "__tostring",    toString },
-        { NULL, NULL }
-    };
-
-    // Now insert the functions listed in WorldMethods into T (the table on top of the stack).
-    luaL_setfuncs(LuaState, WorldMethods, 0);
-
-    // Clear the stack.
-    lua_settop(LuaState, 0);
+    // return new WorldT(*static_cast<const cf::GameSys::WorldCreateParamsT*>(&Params));
+    return NULL;
 }
+
+const luaL_Reg WorldT::MethodsList[] =
+{
+    { "SetRootEntity", WorldT::SetRootEntity },
+    { "new",           WorldT::CreateNew },
+    { "Init",          WorldT::Init },
+    { "TraceRay",      WorldT::TraceRay },
+    { "__tostring",    WorldT::toString },
+    { NULL, NULL }
+};
+
+const cf::TypeSys::MethsDocT WorldT::DocMethods[] =
+{
+    META_SetRootEntity,
+    META_CreateNew,
+    META_Init,
+    META_TraceRay,
+    META_toString,
+    { NULL, NULL, NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT WorldT::TypeInfo(GetWorldTIM(), "WorldT", NULL /*No base class.*/, CreateInstance, MethodsList, DocClass, DocMethods);

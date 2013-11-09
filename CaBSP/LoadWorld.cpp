@@ -256,8 +256,8 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
 
     Console->Print(cf::va("\n*** Load World %s ***\n", LoadName));
 
-    cf::UniScriptStateT  ScriptState;
-    cf::GameSys::WorldT* ScriptWorld = NULL;
+    cf::UniScriptStateT                ScriptState;
+    IntrusivePtrT<cf::GameSys::WorldT> ScriptWorld;
 
     cf::GameSys::WorldT::InitScriptState(ScriptState);
 
@@ -265,11 +265,14 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
     {
         ScriptWorld = new cf::GameSys::WorldT(
             ScriptState,
-            cf::String::StripExt(LoadName) + ".cent",
             ModelMan,
             GuiRes,
             *cf::ClipSys::CollModelMan,   // TODO: The CollModelMan should not be a global, but rather be instantiated along with the ModelMan and GuiRes.
-            NULL,   // No clip world for this instance.
+            NULL);      // No clip world for this instance.
+
+        cf::GameSys::WorldT::LoadScript(
+            ScriptWorld,
+            cf::String::StripExt(LoadName) + ".cent",
             cf::GameSys::WorldT::InitFlag_InMapEditor);
     }
     catch (const cf::GameSys::WorldT::InitErrorT& IE)
@@ -506,6 +509,4 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
     Console->Print(cf::va("InfoPlayerStarts : %10lu\n", World.InfoPlayerStarts.Size()));
     Console->Print(cf::va("Other Children   : %10lu\n", World.m_StaticEntityData[0]->m_BspTree->OtherChildren.Size()));
     Console->Print(cf::va("Entities         : %10lu\n", AllScriptEnts.Size()));
-
-    delete ScriptWorld;
 }

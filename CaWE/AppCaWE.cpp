@@ -54,6 +54,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "FileSys/FileManImpl.hpp"
 #include "GameSys/AllComponents.hpp"
 #include "GameSys/Entity.hpp"
+#include "GameSys/World.hpp"
 #include "GuiSys/AllComponents.hpp"
 #include "GuiSys/Window.hpp"
 #include "MaterialSystem/MaterialManagerImpl.hpp"
@@ -116,6 +117,7 @@ bool AppCaWE::OnInit()
 {
     cf::GameSys::GetComponentTIM().Init();      // The one-time init of the GameSys components type info manager.
     cf::GameSys::GetGameSysEntityTIM().Init();  // The one-time init of the GameSys entity type info manager.
+    cf::GameSys::GetWorldTIM().Init();          // The one-time init of the GameSys world type info manager.
 
     cf::GuiSys::GetComponentTIM().Init();       // The one-time init of the GuiSys components type info manager.
     cf::GuiSys::GetWindowTIM().Init();          // The one-time init of the GuiSys window type info manager.

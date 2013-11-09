@@ -593,6 +593,7 @@ int main(int ArgC, char* ArgV[])
 {
     // cf::GameSys::GetComponentTIM().Init();      // The one-time init of the GameSys components type info manager.
     // cf::GameSys::GetGameSysEntityTIM().Init();  // The one-time init of the GameSys entity type info manager.
+    // cf::GameSys::GetWorldTIM().Init();          // The one-time init of the GameSys world type info manager.
 
     if (ArgC>1 && std::string(ArgV[1])=="-p")
     {

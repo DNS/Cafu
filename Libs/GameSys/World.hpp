@@ -39,6 +39,10 @@ namespace cf
 {
     namespace GameSys
     {
+        /// The TypeInfoTs of all WorldT-derived classes must register with this TypeInfoManT instance.
+        cf::TypeSys::TypeInfoManT& GetWorldTIM();
+
+
         class EntityT;
 
 
@@ -46,13 +50,13 @@ namespace cf
         /// The root of the hierarchy is the map entity, all other entities are direct or indirect children of it.
         /// The world also holds shared resources that all entities commonly use, such as the script state and the
         /// model manager.
-        class WorldT
+        class WorldT : public RefCountedT
         {
             public:
 
             class InitErrorT;
 
-            /// Flags for initializing a world, used in the WorldT constructor.
+            /// Flags for initializing a world from a map script.
             enum InitFlagsT
             {
                 InitFlag_InlineCode  = 1,   ///< Normally, the `ScriptName` parameter to the WorldT ctor is a filename. If this is set, it is treated as inline script code.
@@ -62,24 +66,22 @@ namespace cf
             /// Initializes the given script state for use with WorldT instances.
             static void InitScriptState(UniScriptStateT& ScriptState);
 
+            /// Assigns the given world to the global "world" and loads the given script in order to initialize it.
+            /// @param World        The world to init.
+            /// @param ScriptName   The file name of the script to load.
+            /// @param Flags        A combination of the flags in InitFlagsT.
+            /// @throws Throws an InitErrorT object on problems initializing the world.
+            static void LoadScript(IntrusivePtrT<WorldT> World, const std::string& ScriptName, int Flags = 0);
+
 
             /// Constructor for creating an entity hierarchy (== "a world") from the given script file.
             /// @param ScriptState  The caller will use this world with this script state (binds the world to it).
-            /// @param ScriptName   The file name of the script to load.
             /// @param ModelMan     The manager for all models that are used in this world.
             /// @param GuiRes       The provider for resources (fonts and models) for all GUIs in this world.
             /// @param CollModelMan The manager for all collision models that are used in this world.
             /// @param ClipWorld    The clip world, where entities can register their collision models and run collision detection queries. Can be `NULL`, e.g. in CaWE or the map compile tools.
-            /// @param Flags        A combination of the flags in InitFlagsT.
-            /// @throws Throws an InitErrorT object on problems initializing the world.
-            WorldT(UniScriptStateT& ScriptState, const std::string& ScriptName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes,
-                   cf::ClipSys::CollModelManI& CollModelMan, cf::ClipSys::ClipWorldT* ClipWorld, int Flags = 0);
-
-            /// The destructor.
-            ~WorldT();
-
-            /// Returns the name of the script file of this world.
-            const std::string& GetScriptName() const { return m_ScriptName; }
+            WorldT(UniScriptStateT& ScriptState, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes,
+                   cf::ClipSys::CollModelManI& CollModelMan, cf::ClipSys::ClipWorldT* ClipWorld);
 
             /// Returns the script state of this world.
             UniScriptStateT& GetScriptState() { return m_ScriptState; }
@@ -142,6 +144,12 @@ namespace cf
             void OnClientFrame(float t);
 
 
+            // The TypeSys related declarations for this class.
+            virtual const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
+            static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
+            static const cf::TypeSys::TypeInfoT TypeInfo;
+
+
             private:
 
             WorldT(const WorldT&);              ///< Use of the Copy Constructor    is not allowed.
@@ -150,7 +158,6 @@ namespace cf
             void Init();    ///< Calls the OnInit() script methods of all entities.
 
 
-            const std::string           m_ScriptName;   ///< The name of the script file that this world instance was loaded from.
             UniScriptStateT&            m_ScriptState;  ///< The script state that this world is bound to.
             IntrusivePtrT<EntityT>      m_RootEntity;   ///< The root of the entity hierarchy that forms this world.
             bool                        m_IsInited;     ///< Has the Init() method already been called?
@@ -168,13 +175,9 @@ namespace cf
             static int TraceRay(lua_State* LuaState);       ///< Employs m_ClipWorld->TraceRay() to trace a ray through the (clip) world.
             static int toString(lua_State* LuaState);       ///< Returns a short string description of this world.
 
-            /// Adds a new global variable of type (meta-)table with name "cf::GameSys::WorldT" to the given Lua state,
-            /// containing functions (or rather "methods") that can be called on userdata objects of type cf::GameSys::WorldT.
-            /// This is very analogous to how normal C-code modules are registered with Lua, except for
-            /// the fact that this table is intended to be set as metatable for userdata objects of type cf::GameSys::WorldT.
-            /// For more details, see the implementation of this function and the PiL2 book, chapter 28.1 to 28.3.
-            /// @param LuaState   The Lua state to register the metatable in.
-            static void RegisterLua(lua_State* LuaState);
+            static const luaL_Reg               MethodsList[];  ///< List of methods registered with Lua.
+            static const char*                  DocClass;
+            static const cf::TypeSys::MethsDocT DocMethods[];
         };
     }
 }
