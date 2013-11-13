@@ -54,9 +54,10 @@ GuiImplT::InitErrorT::InitErrorT(const std::string& Message)
 }
 
 
-GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, int Flags)
+GuiImplT::GuiImplT(cf::UniScriptStateT& ScriptState, GuiResourcesT& GuiRes, const std::string& GuiScriptName, int Flags)
     : ScriptName((Flags & InitFlag_InlineCode) ? "" : GuiScriptName),
-      m_ScriptState(),
+      m_ScriptState(&ScriptState),
+      m_IsOwnScriptSt(false),
       ScriptInitResult(""),
       m_MaterialMan(),
       m_GuiDefaultRM(NULL),
@@ -74,6 +75,38 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, int 
       MousePosY(VIRTUAL_SCREEN_SIZE_Y/2.0f),   // 240.0f
       m_MouseCursorSize(20.0f),
       MouseIsShown(true)
+{
+    CtorInit(GuiScriptName, Flags);
+}
+
+
+GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, int Flags)
+    : ScriptName((Flags & InitFlag_InlineCode) ? "" : GuiScriptName),
+      m_ScriptState(new UniScriptStateT()),
+      m_IsOwnScriptSt(true),
+      ScriptInitResult(""),
+      m_MaterialMan(),
+      m_GuiDefaultRM(NULL),
+      m_GuiPointerRM(NULL),
+      m_GuiFinishZRM(NULL),
+      m_GuiResources(GuiRes),
+      RootWindow(NULL),
+      FocusWindow(NULL),
+      MouseOverWindow(NULL),
+      m_IsInited(false),
+      IsActive(true),
+      IsInteractive(true),
+      IsFullCover(false),
+      MousePosX(VIRTUAL_SCREEN_SIZE_X/2.0f),   // 320.0f
+      MousePosY(VIRTUAL_SCREEN_SIZE_Y/2.0f),   // 240.0f
+      m_MouseCursorSize(20.0f),
+      MouseIsShown(true)
+{
+    CtorInit(GuiScriptName, Flags);
+}
+
+
+void GuiImplT::CtorInit(const std::string& GuiScriptName, int Flags)
 {
     if ((Flags & InitFlag_InlineCode) == 0)
     {
@@ -134,7 +167,7 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, int 
     m_GuiFinishZRM=MatSys::Renderer->RegisterMaterial(m_MaterialMan.GetMaterial("Gui/FinishZ"));
 
 
-    lua_State* LuaState = m_ScriptState.GetLuaState();
+    lua_State* LuaState = m_ScriptState->GetLuaState();
 
     // Load the console library. (Adds a global table with name "Console" to the LuaState with the functions of the ConsoleI interface.)
     cf::Console_RegisterLua(LuaState);
@@ -269,6 +302,12 @@ GuiImplT::~GuiImplT()
     MatSys::Renderer->FreeMaterial(m_GuiDefaultRM);
     MatSys::Renderer->FreeMaterial(m_GuiPointerRM);
     MatSys::Renderer->FreeMaterial(m_GuiFinishZRM);
+
+    if (m_IsOwnScriptSt)
+    {
+        delete m_ScriptState;
+        m_ScriptState = NULL;
+    }
 }
 
 
@@ -527,13 +566,13 @@ void GuiImplT::DistributeClockTickEvents(float t)
     }
 
     // Run the pending coroutines always, even if this GUI is currently not active.
-    m_ScriptState.RunPendingCoroutines(t);
+    m_ScriptState->RunPendingCoroutines(t);
 }
 
 
 void GuiImplT::RegisterScriptLib(const char* LibName, const luaL_Reg Functions[])
 {
-    lua_State* LuaState = m_ScriptState.GetLuaState();
+    lua_State* LuaState = m_ScriptState->GetLuaState();
 
     lua_newtable(LuaState);
     luaL_setfuncs(LuaState, Functions, 0);

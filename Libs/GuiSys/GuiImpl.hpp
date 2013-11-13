@@ -55,6 +55,18 @@ namespace cf
 
 
             /// Constructor for creating a window hierarchy (=="a GUI") from the GUI script file GuiScriptName.
+            /// @param ScriptState     The caller will use this GUI with this script state (binds the GUI to it).
+            /// @param GuiRes          The provider for resources (fonts and models) that are used in this GUI.
+            /// @param GuiScriptName   The file name of the GUI script to load or inline script code (if InitFlag_InlineCode is set).
+            /// @param Flags           A combination of the flags in InitFlagsT.
+            /// @throws Throws an InitErrorT object on problems initializing the GUI.
+            GuiImplT(UniScriptStateT& ScriptState, GuiResourcesT& GuiRes, const std::string& GuiScriptName, int Flags = 0);
+
+            /// Constructor for creating a window hierarchy (=="a GUI") from the GUI script file GuiScriptName.
+            ///
+            /// This constructor is *DEPRECATED*. It only exists so that code that uses it can be updated to
+            /// the new constructor at a convenient time. It should not be used in any new code.
+            ///
             /// @param GuiRes          The provider for resources (fonts and models) that are used in this GUI.
             /// @param GuiScriptName   The file name of the GUI script to load or inline script code (if InitFlag_InlineCode is set).
             /// @param Flags           A combination of the flags in InitFlagsT.
@@ -84,7 +96,7 @@ namespace cf
 
             // Implement all the (pure) virtual methods of the GuiI interface.
             const std::string& GetScriptName() const;
-            UniScriptStateT& GetScriptState() { return m_ScriptState; }
+            UniScriptStateT& GetScriptState() { return *m_ScriptState; }
             IntrusivePtrT<WindowT> GetRootWindow() const { return RootWindow; }
             IntrusivePtrT<WindowT> GetFocusWindow() const { return FocusWindow; }
             void  Activate(bool doActivate=true);
@@ -119,11 +131,13 @@ namespace cf
             GuiImplT(const GuiImplT&);          ///< Use of the Copy Constructor    is not allowed.
             void operator = (const GuiImplT&);  ///< Use of the Assignment Operator is not allowed.
 
+            void CtorInit(const std::string& GuiScriptName, int Flags);   ///< A helper for the ctors.
             void Init();    ///< Calls the OnInit() script methods of all windows.
 
 
             std::string              ScriptName;        ///< The name of the *.cgui file that contains this GUI's script.
-            UniScriptStateT          m_ScriptState;     ///< The script state of this GUI.
+            UniScriptStateT*         m_ScriptState;     ///< The script state of this GUI.
+            const bool               m_IsOwnScriptSt;   ///< Are we the owner of the m_ScriptState instance?
             std::string              ScriptInitResult;  ///< The result of loading and running the script. "" if there have been no errors, the error message otherwise.
             MaterialManagerImplT     m_MaterialMan;     ///< The material manager for the materials that are used in this GUI.
             MatSys::RenderMaterialT* m_GuiDefaultRM;    ///< Used for the window borders and the backgrounds if no other material is specified.

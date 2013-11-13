@@ -79,6 +79,7 @@ namespace GuiEditor
         GuiDocumentT(const GuiDocumentT&);          ///< Use of the Copy    Constructor is not allowed.
         void operator = (const GuiDocumentT&);      ///< Use of the Assignment Operator is not allowed.
 
+        cf::UniScriptStateT                          m_ScriptState;     ///< The script state that the m_Gui is bound to and lives in.
         cf::GuiSys::GuiImplT*                        m_Gui;
         ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > m_Selection;
         GuiPropertiesT                               m_GuiProperties;

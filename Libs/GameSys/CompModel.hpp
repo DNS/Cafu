@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CompBase.hpp"
 
 
+namespace cf { class UniScriptStateT; }
 namespace cf { namespace GuiSys { class GuiImplT; } }
 class AnimPoseT;
 class CafuModelT;
@@ -181,6 +182,7 @@ namespace cf
 
             const CafuModelT*             m_Model;          ///< The model instance, updated by changes to m_ModelName.
             mutable AnimPoseT*            m_Pose;           ///< The pose of the model, updated by changes to m_ModelAnimNr.
+            mutable cf::UniScriptStateT*  m_ScriptState;    ///< The script state that the m_Gui is bound to and lives in.
             mutable cf::GuiSys::GuiImplT* m_Gui;            ///< The GUI instance, updated by changes to m_GuiName.
         };
     }

@@ -36,6 +36,7 @@ class CameraT;
 class GameConfigT;
 class EditorMaterialI;
 class MapBrushT;
+namespace cf { class UniScriptStateT; }
 namespace cf { namespace GuiSys { class GuiImplT; } }
 
 
@@ -140,6 +141,7 @@ namespace ModelEditor
         AnimStateT               m_AnimState;       ///< The current state of the model animation.
         BoundingBox3fT           m_SequenceBB;      ///< The bounding-box encompassing all frames of the currently selected animation sequence(s).
         ArrayT<SubmodelT*>       m_Submodels;       ///< The submodels that are shown with the main model.
+        cf::UniScriptStateT*     m_ScriptState;     ///< The script state that the m_Gui is bound to and lives in.
         cf::GuiSys::GuiImplT*    m_Gui;             ///< The GUI that is rendered where the model has GUI fixtures.
         MapBrushT*               m_Ground;          ///< The ground brush.
         ArrayT<CameraT*>         m_Cameras;         ///< The cameras in the scene (used by the 3D views for rendering), there is always at least one.

@@ -776,7 +776,8 @@ void GuiEditor::ChildFrameT::OnToolbar(wxCommandEvent& CE)
 
             try
             {
-                cf::GuiSys::GuiImplT* Gui=new cf::GuiSys::GuiImplT(m_GameConfig->GetGuiResources(), std::string(MainScriptFileName));
+                cf::UniScriptStateT*  ScriptState = new cf::UniScriptStateT();
+                cf::GuiSys::GuiImplT* Gui = new cf::GuiSys::GuiImplT(*ScriptState, m_GameConfig->GetGuiResources(), std::string(MainScriptFileName));
 
                 if (Gui->GetScriptInitResult()!="")
                 {
@@ -790,7 +791,7 @@ void GuiEditor::ChildFrameT::OnToolbar(wxCommandEvent& CE)
                 // Make sure that the Gui is active for the live preview, so that clock tick events are properly propagated to all windows.
                 Gui->Activate();
 
-                LivePreviewT* Preview=new LivePreviewT(this, Gui, MainScriptFileName);
+                LivePreviewT* Preview = new LivePreviewT(this, ScriptState, Gui, MainScriptFileName);
                 Preview->Show();
             }
             catch (const cf::GuiSys::GuiImplT::InitErrorT& /*InitError*/)

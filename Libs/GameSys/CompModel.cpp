@@ -270,6 +270,9 @@ void ComponentModelT::VarGuiNameT::Set(const std::string& v)
     // user code to re-instantiate it as required.
     delete m_Comp.m_Gui;
     m_Comp.m_Gui = NULL;
+
+    delete m_Comp.m_ScriptState;
+    m_Comp.m_ScriptState = NULL;
 }
 
 
@@ -311,6 +314,7 @@ ComponentModelT::ComponentModelT()
       m_GuiName("Gui", "", FlagsIsGuiFileName, *this),
       m_Model(NULL),
       m_Pose(NULL),
+      m_ScriptState(NULL),
       m_Gui(NULL)
 {
     // There is no need to init the NULL members here:
@@ -330,6 +334,7 @@ ComponentModelT::ComponentModelT(const ComponentModelT& Comp)
       m_GuiName(Comp.m_GuiName, *this),
       m_Model(NULL),
       m_Pose(NULL),
+      m_ScriptState(NULL),
       m_Gui(NULL)
 {
     // There is no need to init the NULL members here:
@@ -355,6 +360,9 @@ ComponentModelT::~ComponentModelT()
     delete m_Gui;
     m_Gui = NULL;
 
+    delete m_ScriptState;
+    m_ScriptState = NULL;
+
     delete m_Pose;
     m_Pose = NULL;
 }
@@ -379,6 +387,7 @@ cf::GuiSys::GuiImplT* ComponentModelT::GetGui() const
     if (!m_Model || !m_Model->GetGuiFixtures().Size())
     {
         // Not a model with GUI fixtures.
+        assert(!m_ScriptState);
         assert(!m_Gui);
         return NULL;
     }
@@ -417,11 +426,15 @@ cf::GuiSys::GuiImplT* ComponentModelT::GetGui() const
         "    gui:setFocus      (Root)\n"
         "end\n";
 
+    assert(!m_ScriptState);
+    m_ScriptState = new cf::UniScriptStateT();
+
     try
     {
         if (m_GuiName.Get() == "")
         {
             m_Gui = new cf::GuiSys::GuiImplT(
+                *m_ScriptState,
                 GetEntity()->GetWorld().GetGuiResources(),
                 cf::String::Replace(FallbackGUI, "%s", "This is a\nfull-scale sample GUI.\n\n"
                     "Set the 'Gui' property\nof the Model component\nto assign the real GUI."),
@@ -429,7 +442,7 @@ cf::GuiSys::GuiImplT* ComponentModelT::GetGui() const
         }
         else
         {
-            m_Gui = new cf::GuiSys::GuiImplT(GetEntity()->GetWorld().GetGuiResources(), m_GuiName.Get());
+            m_Gui = new cf::GuiSys::GuiImplT(*m_ScriptState, GetEntity()->GetWorld().GetGuiResources(), m_GuiName.Get());
 
             // Active status is not really relevant for our Gui that is not managed by the GuiMan,
             // but still make sure that clock tick events are properly propagated to all windows.
@@ -441,6 +454,7 @@ cf::GuiSys::GuiImplT* ComponentModelT::GetGui() const
     {
         // This one must not throw again...
         m_Gui = new cf::GuiSys::GuiImplT(
+            *m_ScriptState,
             GetEntity()->GetWorld().GetGuiResources(),
             cf::String::Replace(FallbackGUI, "%s", "Could not load GUI\n" + m_GuiName.Get() + "\n\n" + IE.what()),
             cf::GuiSys::GuiImplT::InitFlag_InlineCode);
@@ -464,6 +478,9 @@ void ComponentModelT::ReInit(std::string* ErrorMsg)
         delete m_Gui;
         m_Gui = NULL;
 
+        delete m_ScriptState;
+        m_ScriptState = NULL;
+
         delete m_Pose;
         m_Pose = NULL;
 
@@ -481,6 +498,9 @@ void ComponentModelT::ReInit(std::string* ErrorMsg)
     // The new model may or may not have GUI fixtures, so make sure that the GUI instance is reset.
     delete m_Gui;
     m_Gui = NULL;
+
+    delete m_ScriptState;
+    m_ScriptState = NULL;
 
     // Need a new pose and updated parameters for the new model.
     delete m_Pose;

@@ -424,8 +424,9 @@ BEGIN_EVENT_TABLE(LivePreviewT, wxDialog)
 END_EVENT_TABLE()
 
 
-LivePreviewT::LivePreviewT(wxWindow* Parent, cf::GuiSys::GuiImplT* Gui, const wxString& ScriptFileName)
+LivePreviewT::LivePreviewT(wxWindow* Parent, cf::UniScriptStateT* ScriptState, cf::GuiSys::GuiImplT* Gui, const wxString& ScriptFileName)
     : wxDialog(Parent, wxID_ANY, "GUI Live Preview: "+ScriptFileName),
+      m_ScriptState(ScriptState),
       m_Gui(Gui),
       m_Canvas(NULL)
 {
@@ -449,6 +450,10 @@ LivePreviewT::LivePreviewT(wxWindow* Parent, cf::GuiSys::GuiImplT* Gui, const wx
 LivePreviewT::~LivePreviewT()
 {
     delete m_Gui;
+    m_Gui = NULL;
+
+    delete m_ScriptState;
+    m_ScriptState = NULL;
 }
 
 

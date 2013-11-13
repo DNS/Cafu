@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/wx.h"
 
 
+namespace cf { class UniScriptStateT; }
 namespace cf { namespace GuiSys { class GuiImplT; } }
 
 
@@ -37,7 +38,7 @@ namespace GuiEditor
     {
         public:
 
-        LivePreviewT(wxWindow* Parent, cf::GuiSys::GuiImplT* Gui, const wxString& ScriptFileName);
+        LivePreviewT(wxWindow* Parent, cf::UniScriptStateT* ScriptState, cf::GuiSys::GuiImplT* Gui, const wxString& ScriptFileName);
         ~LivePreviewT();
 
         cf::GuiSys::GuiImplT* GetGui() { return m_Gui; }
@@ -45,6 +46,7 @@ namespace GuiEditor
 
         private:
 
+        cf::UniScriptStateT*  m_ScriptState;
         cf::GuiSys::GuiImplT* m_Gui;
         PreviewCanvasT*       m_Canvas;
 
