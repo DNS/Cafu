@@ -776,7 +776,9 @@ void GuiEditor::ChildFrameT::OnToolbar(wxCommandEvent& CE)
 
             try
             {
-                cf::UniScriptStateT*  ScriptState = new cf::UniScriptStateT();
+                cf::UniScriptStateT* ScriptState = new cf::UniScriptStateT();
+                cf::GuiSys::GuiImplT::InitScriptState(*ScriptState);
+
                 cf::GuiSys::GuiImplT* Gui = new cf::GuiSys::GuiImplT(*ScriptState, m_GameConfig->GetGuiResources(), std::string(MainScriptFileName));
 
                 if (Gui->GetScriptInitResult()!="")

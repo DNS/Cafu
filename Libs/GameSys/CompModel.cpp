@@ -429,6 +429,8 @@ cf::GuiSys::GuiImplT* ComponentModelT::GetGui() const
     assert(!m_ScriptState);
     m_ScriptState = new cf::UniScriptStateT();
 
+    cf::GuiSys::GuiImplT::InitScriptState(*m_ScriptState);
+
     try
     {
         if (m_GuiName.Get() == "")

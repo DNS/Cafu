@@ -54,6 +54,29 @@ GuiImplT::InitErrorT::InitErrorT(const std::string& Message)
 }
 
 
+/*static*/ void GuiImplT::InitScriptState(cf::UniScriptStateT& ScriptState)
+{
+    lua_State* LuaState = ScriptState.GetLuaState();
+
+    // Load the console library. (Adds a global table with name "Console" to the LuaState with the functions of the ConsoleI interface.)
+    cf::Console_RegisterLua(LuaState);
+
+    // Load the "ci" (console interpreter) library. (Adds a global table with name "ci" to the LuaState with (some of) the functions of the ConsoleInterpreterI interface.)
+    ConsoleInterpreterI::RegisterLua(LuaState);
+
+    // Adds a global (meta-)table with methods for cf::GuiSys::GuiTs to the LuaState, to be used as metatable for userdata of type cf::GuiSys::GuiT.
+    GuiImplT::RegisterLua(LuaState);
+
+    // For each class that the TypeInfoManTs know about, add a (meta-)table to the registry of the LuaState.
+    // The (meta-)table holds the Lua methods that the respective class implements in C++,
+    // and is to be used as metatable for instances of this class.
+    ScriptBinderT Binder(LuaState);
+
+    Binder.Init(GetWindowTIM());
+    Binder.Init(GetComponentTIM());
+}
+
+
 GuiImplT::GuiImplT(cf::UniScriptStateT& ScriptState, GuiResourcesT& GuiRes, const std::string& GuiScriptName, int Flags)
     : ScriptName((Flags & InitFlag_InlineCode) ? "" : GuiScriptName),
       m_ScriptState(&ScriptState),
@@ -102,6 +125,7 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, int 
       m_MouseCursorSize(20.0f),
       MouseIsShown(true)
 {
+    InitScriptState(*m_ScriptState);
     CtorInit(GuiScriptName, Flags);
 }
 
@@ -168,24 +192,6 @@ void GuiImplT::CtorInit(const std::string& GuiScriptName, int Flags)
 
 
     lua_State* LuaState = m_ScriptState->GetLuaState();
-
-    // Load the console library. (Adds a global table with name "Console" to the LuaState with the functions of the ConsoleI interface.)
-    cf::Console_RegisterLua(LuaState);
-
-    // Load the "ci" (console interpreter) library. (Adds a global table with name "ci" to the LuaState with (some of) the functions of the ConsoleInterpreterI interface.)
-    ConsoleInterpreterI::RegisterLua(LuaState);
-
-    // Adds a global (meta-)table with methods for cf::GuiSys::GuiTs to the LuaState, to be used as metatable for userdata of type cf::GuiSys::GuiT.
-    GuiImplT::RegisterLua(LuaState);
-
-    // For each class that the TypeInfoManTs know about, add a (meta-)table to the registry of the LuaState.
-    // The (meta-)table holds the Lua methods that the respective class implements in C++,
-    // and is to be used as metatable for instances of this class.
-    ScriptBinderT Binder(LuaState);
-
-    Binder.Init(GetWindowTIM());
-    Binder.Init(GetComponentTIM());
-
 
     // Add a global variable with name "gui" to the Lua state. "gui" is a table that scripts can use to call GUI methods.
     {

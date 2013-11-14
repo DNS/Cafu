@@ -53,6 +53,9 @@ namespace cf
                 InitFlag_InGuiEditor = 2    ///< Whether the GUI is instantiated in the GUI Editor. If set, only the static data will be loaded, initial behaviour is *not* run.
             };
 
+            /// Initializes the given script state for use with GuiImplT instances.
+            static void InitScriptState(UniScriptStateT& ScriptState);
+
 
             /// Constructor for creating a window hierarchy (=="a GUI") from the GUI script file GuiScriptName.
             /// @param ScriptState     The caller will use this GUI with this script state (binds the GUI to it).
