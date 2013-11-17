@@ -44,7 +44,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameSys/CompScript.hpp"
 #include "GameSys/World.hpp"
 #include "GuiSys/GuiImpl.hpp"
-#include "GuiSys/GuiMan.hpp"
+#include "GuiSys/GuiManImpl.hpp"
 #include "GuiSys/Window.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "MaterialSystem/Material.hpp"

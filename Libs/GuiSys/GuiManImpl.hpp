@@ -19,22 +19,27 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef CAFU_GUISYS_GUIMAN_IMPL_HPP_INCLUDED
-#define CAFU_GUISYS_GUIMAN_IMPL_HPP_INCLUDED
+#ifndef CAFU_GUISYS_GUIMAN_HPP_INCLUDED
+#define CAFU_GUISYS_GUIMAN_HPP_INCLUDED
 
-#include "GuiMan.hpp"
 #include "Templates/Array.hpp"
+#include <string>
+
+
+struct CaKeyboardEventT;
+struct CaMouseEventT;
 
 
 namespace cf
 {
     namespace GuiSys
     {
+        class GuiI;
         class GuiResourcesT;
 
 
-        /// This class implements the GuiManI interface.
-        class GuiManImplT : public GuiManI
+        /// This class implements a GUI manager.
+        class GuiManImplT
         {
             public:
 
@@ -45,18 +50,50 @@ namespace cf
             /// The destructor.
             ~GuiManImplT();
 
-
-            // Implement all the (pure) virtual methods of the GuiManI interface.
+            /// Creates a GUI from the script with name GuiScriptName and registers it with the GUI manager.
             GuiI* Register(const std::string& GuiScriptName);
+
+            /// Registers a programmatically instantiated GUI with the GUI manager.
             GuiI* Register(GuiI* NewGui);
+
+            /// Removes the Gui from the GUI manager and deletes the pointer.
             void Free(GuiI* Gui);
+
+            /// Searches the GUI manager for a GUI whose script name is GuiScriptName.
+            /// If the GUI was found, the pointer to the GuiI instance is returned.
+            /// Otherwise (GUI not found), Register() is called and its result returned if AutoRegister was true,
+            /// NULL is returned if AutoRegister was false.
+            /// @param GuiScriptName The filename of the GUI script to search for.
+            /// @param AutoRegister Whether the script should be registered with this GUI manager if it is not found.
             GuiI* Find(const std::string& GuiScriptName, bool AutoRegister=false);
+
+            /// Makes sure that if multiple GUIs are active, Gui is the topmost one.
             void BringToFront(GuiI* Gui);
+
+            /// Returns the top-most GUI that is both active and interactive.
+            /// NULL is returned if no such GUI exists.
             GuiI* GetTopmostActiveAndInteractive();
+
+            /// Reloads all registered GUIs.
             void ReloadAllGuis();
+
+            /// Renders all the GUIs.
             void RenderAll();
+
+            /// Processes a keyboard event from the device that this GuiMan is running under,
+            /// sending it to the top-most GUI that is both active and interactive.
+            /// @param KE Keyboard event to process.
             void ProcessDeviceEvent(const CaKeyboardEventT& KE);
+
+            /// Processes a mouse event from the device that this GuiMan is running under,
+            /// sending it to the top-most GUI that is both active and interactive.
+            /// @param ME Mouse event to process.
             void ProcessDeviceEvent(const CaMouseEventT& ME);
+
+            /// "Creates" a time tick event for each window of each active GUI by calling its OnTimeTickEvent() methods.
+            /// Note that inactive GUIs do not get the time tick event, but active GUIs who get them usually pass them
+            /// to all their (sub-)windows, even if that part of the window(-hierarchy) is currently invisible.
+            /// @param t   The time in seconds since the last clock-tick.
             void DistributeClockTickEvents(float t);
 
 
@@ -69,6 +106,22 @@ namespace cf
             ArrayT<GuiI*>  Guis;
             bool           SuppressNextChar;    ///< Whether the next character (CaKeyboardEventT::CKE_CHAR) event should be suppressed. This is true whenever the preceeding CaKeyboardEventT::CKE_KEYDOWN event was positively processed.
         };
+
+
+        /// A global pointer to an implementation of the GuiManI interface.
+        ///
+        /// Each module (exe or dll) that uses this pointer must somewhere provide exactly one definition for it (none is provided by the GuiSys library).
+        /// That is, typically the main.cpp or similar file of each exe and dll must contain a line like
+        ///     cf::GuiSys::GuiManI* cf::GuiSys::GuiMan=NULL;
+        /// or else the module will not link successfully due to an undefined symbol.
+        ///
+        /// Exe files will then want to reset this pointer to an instance of a GuiManImplT during their initialization
+        /// e.g. by code like:   cf::GuiSys::GuiMan=new cf::GuiSys::GuiManImplT;
+        /// Note that the GuiManImplT ctor may require that other interfaces (e.g. the MatSys) have been inited first.
+        ///
+        /// Dlls typically get one of their init functions called immediately after they have been loaded.
+        /// By doing so, the exe passes a pointer to its above instance to the dll, which in turn copies it to its GuiMan variable.
+        extern GuiManImplT* GuiMan;
     }
 }
 

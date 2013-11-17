@@ -31,7 +31,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "PathRecorder.hpp"
 
 #include "GuiSys/Gui.hpp"
-#include "GuiSys/GuiMan.hpp"
+#include "GuiSys/GuiManImpl.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/Mesh.hpp"
 #include "MaterialSystem/Renderer.hpp"

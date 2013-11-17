@@ -35,7 +35,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameSys/Entity.hpp"
 #include "GameSys/World.hpp"
 #include "GuiSys/AllComponents.hpp"
-#include "GuiSys/GuiMan.hpp"
+#include "GuiSys/GuiManImpl.hpp"
 #include "GuiSys/Window.hpp"
 #include "MaterialSystem/MaterialManagerImpl.hpp"
 #include "Network/Network.hpp"
@@ -78,7 +78,7 @@ WinSockT* g_WinSock=NULL;
 // MatSys::RendererI* MatSys::Renderer=NULL;                    // TODO: Don't have it predefine the global pointer instance.
 // MatSys::TextureMapManagerI* MatSys::TextureMapManager=NULL;  // TODO: Don't have it predefine the global pointer instance.
 SoundSysI* SoundSystem=NULL;
-cf::GuiSys::GuiManI* cf::GuiSys::GuiMan=NULL;
+cf::GuiSys::GuiManImplT* cf::GuiSys::GuiMan=NULL;
 
 
 static bool CompareModes(const wxVideoMode& Mode1, const wxVideoMode& Mode2)

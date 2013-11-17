@@ -7,7 +7,7 @@
 #include "Libs/LookupTables.hpp"
 #include "ConsoleCommands/ConsoleInterpreter.hpp"
 #include "ConsoleCommands/Console.hpp"
-#include "GuiSys/GuiMan.hpp"
+#include "GuiSys/GuiManImpl.hpp"
 #include "FileSys/FileMan.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/Renderer.hpp"
@@ -255,13 +255,13 @@ const cf::TypeSys::TypeInfoT BaseEntityT::TypeInfo(GetBaseEntTIM(), "BaseEntityT
 // Therefore, it may happen that InitInterfaces() is called *many* times, namely on each world change once by the server and once
 // by the client. The parameters to this function however are always non-volatile, they don't change over multiple calls.
 // In future implementations I'll possibly change this and load and init the DLL only once, even before the client or server gets instantiated.
-cf::GuiSys::GuiManI*   cf::GuiSys::GuiMan=NULL;     // Define the global GuiMan pointer instance -- see GuiMan.hpp for more details.
-MaterialManagerI*      MaterialManager   =NULL;
-cf::ConsoleI*          Console=NULL;
-ConsoleInterpreterI*   ConsoleInterpreter=NULL;
-cf::FileSys::FileManI* cf::FileSys::FileMan=NULL;
+cf::GuiSys::GuiManImplT* cf::GuiSys::GuiMan=NULL;     // Define the global GuiMan pointer instance -- see GuiMan.hpp for more details.
+MaterialManagerI*        MaterialManager   =NULL;
+cf::ConsoleI*            Console=NULL;
+ConsoleInterpreterI*     ConsoleInterpreter=NULL;
+cf::FileSys::FileManI*   cf::FileSys::FileMan=NULL;
 
-DLL_EXPORT void __stdcall InitInterfaces(MatSys::RendererI* Renderer, MatSys::TextureMapManagerI* TexMapMan, MaterialManagerI* MatMan, cf::GuiSys::GuiManI* GuiMan_, cf::ConsoleI* Console_, ConsoleInterpreterI* ConInterpreter_)
+DLL_EXPORT void __stdcall InitInterfaces(MatSys::RendererI* Renderer, MatSys::TextureMapManagerI* TexMapMan, MaterialManagerI* MatMan, cf::GuiSys::GuiManImplT* GuiMan_, cf::ConsoleI* Console_, ConsoleInterpreterI* ConInterpreter_)
 {
     MatSys::Renderer         =Renderer;
     MatSys::TextureMapManager=TexMapMan;
