@@ -33,6 +33,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "OpenGL/OpenGLWindow.hpp"  // Just for the Ca*EventT classes...
 #include "String.hpp"
 #include "TypeSys.hpp"
+#include "UniScriptState.hpp"
 
 extern "C"
 {
@@ -354,6 +355,18 @@ const std::string& GuiImplT::GetScriptName() const
 }
 
 
+IntrusivePtrT<WindowT> GuiImplT::GetRootWindow() const
+{
+    return RootWindow;
+}
+
+
+IntrusivePtrT<WindowT> GuiImplT::GetFocusWindow() const
+{
+    return FocusWindow;
+}
+
+
 void GuiImplT::Activate(bool doActivate)
 {
     IsActive=doActivate;
@@ -573,16 +586,6 @@ void GuiImplT::DistributeClockTickEvents(float t)
 
     // Run the pending coroutines always, even if this GUI is currently not active.
     m_ScriptState->RunPendingCoroutines(t);
-}
-
-
-void GuiImplT::RegisterScriptLib(const char* LibName, const luaL_Reg Functions[])
-{
-    lua_State* LuaState = m_ScriptState->GetLuaState();
-
-    lua_newtable(LuaState);
-    luaL_setfuncs(LuaState, Functions, 0);
-    lua_setglobal(LuaState, LibName);   // Also pops the table from the stack.
 }
 
 

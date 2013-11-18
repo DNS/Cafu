@@ -20,7 +20,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "GuiManImpl.hpp"
-#include "Gui.hpp"
 #include "GuiImpl.hpp"
 #include "Window.hpp"
 #include "ConsoleCommands/Console.hpp"
@@ -50,7 +49,7 @@ GuiManImplT::~GuiManImplT()
 }
 
 
-GuiI* GuiManImplT::Register(const std::string& GuiScriptName)
+GuiImplT* GuiManImplT::Register(const std::string& GuiScriptName)
 {
     try
     {
@@ -67,7 +66,7 @@ GuiI* GuiManImplT::Register(const std::string& GuiScriptName)
 }
 
 
-GuiI* GuiManImplT::Register(GuiI* NewGui)
+GuiImplT* GuiManImplT::Register(GuiImplT* NewGui)
 {
     Guis.PushBack(NewGui);
 
@@ -75,7 +74,7 @@ GuiI* GuiManImplT::Register(GuiI* NewGui)
 }
 
 
-void GuiManImplT::Free(GuiI* Gui)
+void GuiManImplT::Free(GuiImplT* Gui)
 {
     for (unsigned long GuiNr=0; GuiNr<Guis.Size(); GuiNr++)
         if (Guis[GuiNr]==Gui)
@@ -87,7 +86,7 @@ void GuiManImplT::Free(GuiI* Gui)
 }
 
 
-GuiI* GuiManImplT::Find(const std::string& GuiScriptName, bool AutoRegister)
+GuiImplT* GuiManImplT::Find(const std::string& GuiScriptName, bool AutoRegister)
 {
     for (unsigned long GuiNr=0; GuiNr<Guis.Size(); GuiNr++)
         if (Guis[GuiNr]->GetScriptName()==GuiScriptName)
@@ -97,7 +96,7 @@ GuiI* GuiManImplT::Find(const std::string& GuiScriptName, bool AutoRegister)
 }
 
 
-void GuiManImplT::BringToFront(GuiI* Gui)
+void GuiManImplT::BringToFront(GuiImplT* Gui)
 {
     for (unsigned long GuiNr=0; GuiNr+1<Guis.Size(); GuiNr++)
         if (Guis[GuiNr]==Gui)
@@ -109,11 +108,11 @@ void GuiManImplT::BringToFront(GuiI* Gui)
 }
 
 
-GuiI* GuiManImplT::GetTopmostActiveAndInteractive()
+GuiImplT* GuiManImplT::GetTopmostActiveAndInteractive()
 {
     for (unsigned long GuiNr=0; GuiNr<Guis.Size(); GuiNr++)
     {
-        GuiI* Gui=Guis[Guis.Size()-1-GuiNr];
+        GuiImplT* Gui=Guis[Guis.Size()-1-GuiNr];
 
         if (Gui->GetIsActive() && Gui->GetIsInteractive())
             return Gui;
@@ -131,7 +130,7 @@ void GuiManImplT::ReloadAllGuis()
 
         try
         {
-            GuiI* Reloaded=new GuiImplT(m_GuiResources, Guis[GuiNr]->GetScriptName());
+            GuiImplT* Reloaded=new GuiImplT(m_GuiResources, Guis[GuiNr]->GetScriptName());
 
             delete Guis[GuiNr];
             Guis[GuiNr]=Reloaded;
@@ -177,7 +176,7 @@ void GuiManImplT::ProcessDeviceEvent(const CaKeyboardEventT& KE)
 {
     for (unsigned long GuiNr=0; GuiNr<Guis.Size(); GuiNr++)
     {
-        GuiI* Gui=Guis[Guis.Size()-1-GuiNr];
+        GuiImplT* Gui=Guis[Guis.Size()-1-GuiNr];
 
         if (Gui->GetIsActive() && Gui->GetIsInteractive())
         {
@@ -208,7 +207,7 @@ void GuiManImplT::ProcessDeviceEvent(const CaMouseEventT& ME)
 {
     for (unsigned long GuiNr=0; GuiNr<Guis.Size(); GuiNr++)
     {
-        GuiI* Gui=Guis[Guis.Size()-1-GuiNr];
+        GuiImplT* Gui=Guis[Guis.Size()-1-GuiNr];
 
         if (Gui->GetIsActive() && Gui->GetIsInteractive())
         {

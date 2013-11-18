@@ -27,7 +27,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 class CafuModelT;
-namespace cf { namespace GuiSys { class GuiI; } }
 namespace cf { namespace GuiSys { class GuiImplT; } }
 struct luaL_Reg;
 
@@ -52,7 +51,7 @@ namespace GAME_NAME
         void PostDraw(float FrameTime, bool FirstPersonView);
 
         /// Returns the GUI of this entity, or NULL if there is none.
-        cf::GuiSys::GuiI* GetGUI() const;
+        cf::GuiSys::GuiImplT* GetGUI() const;
 
         /// If this entity has a panel for an associated GUI, this method returns its related current plane in world space.
         /// @param GFNr         The number of the GUI fixture.

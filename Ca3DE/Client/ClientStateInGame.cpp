@@ -30,7 +30,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClientWorld.hpp"
 #include "PathRecorder.hpp"
 
-#include "GuiSys/Gui.hpp"
+#include "GuiSys/GuiImpl.hpp"
 #include "GuiSys/GuiManImpl.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/Mesh.hpp"
@@ -226,7 +226,7 @@ bool ClientStateInGameT::ProcessInputEvent(const CaKeyboardEventT& KE)
         case CaKeyboardEventT::CK_T:          // talk to other clients
         case CaKeyboardEventT::CK_Y:
         {
-            cf::GuiSys::GuiI* ChatInputGui=cf::GuiSys::GuiMan->Find(std::string("Games/") + Client.m_GameInfo->GetName() + "/GUIs/ChatInput.cgui", true);
+            cf::GuiSys::GuiImplT* ChatInputGui = cf::GuiSys::GuiMan->Find(std::string("Games/") + Client.m_GameInfo->GetName() + "/GUIs/ChatInput.cgui", true);
 
             // Could be NULL on file not found, parse error, etc.
             if (ChatInputGui!=NULL)
@@ -837,8 +837,8 @@ void ClientStateInGameT::MainLoop(float FrameTime)
     // The contents of this if-block used to be in the (now obsolete) EventManager(float FrameTime) method.
     if (World)
     {
-        cf::GuiSys::GuiI*  ActiveGui =cf::GuiSys::GuiMan->GetTopmostActiveAndInteractive();
-        const wxMouseState MouseState=wxGetMouseState();
+        cf::GuiSys::GuiImplT* ActiveGui  = cf::GuiSys::GuiMan->GetTopmostActiveAndInteractive();
+        const wxMouseState    MouseState = wxGetMouseState();
         assert(ActiveGui!=NULL);    // The GUI of the client for the world output must always be there.
 
         // This is unfortunately needed, because the users last click (in the GUI) that brought us here may still have the "LMB up" event pending.

@@ -48,6 +48,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../Games/Game.hpp"
 #include "../Games/GameInfo.hpp"
 #include "PlatformAux.hpp"
+#include "UniScriptState.hpp"
 
 #ifndef _WIN32
 #include <dlfcn.h>
@@ -73,7 +74,7 @@ class SvGuiCallbT : public ServerT::GuiCallbackI
         MainMenuGui->GetScriptState().Call("OnServerStateChanged", "s", NewState);
     }
 
-    cf::GuiSys::GuiI* MainMenuGui;
+    cf::GuiSys::GuiImplT* MainMenuGui;
 };
 
 
@@ -371,7 +372,7 @@ void MainCanvasT::Initialize()
         cf::GuiSys::GuiMan->Register(ClientGui);
 
 
-        cf::GuiSys::GuiI* MainMenuGui=cf::GuiSys::GuiMan->Find("Games/"+m_GameInfo->GetName()+"/GUIs/MainMenu/MainMenu_main.cgui", true);
+        cf::GuiSys::GuiImplT* MainMenuGui = cf::GuiSys::GuiMan->Find("Games/"+m_GameInfo->GetName()+"/GUIs/MainMenu/MainMenu_main.cgui", true);
         if (MainMenuGui==NULL)
         {
             MainMenuGui=new cf::GuiSys::GuiImplT(*m_GuiResources, "Err=gui:new('WindowT'); gui:SetRootWindow(Err); gui:activate(true); gui:setInteractive(true); gui:showMouse(false); Err:set('rect', 0, 0, 640, 480); Err:set('textScale', 0.8); Err:set('text', 'Error loading MainMenu_main.cgui,\\nsee console <F1> for details.');", cf::GuiSys::GuiImplT::InitFlag_InlineCode);
@@ -381,7 +382,7 @@ void MainCanvasT::Initialize()
         m_SvGuiCallback->MainMenuGui=MainMenuGui;       // This is the callback for the server, so that it can let the MainMenuGui know about its state changes.
         m_SvGuiCallback->OnServerStateChanged("idle");  // Argh, this is a HACK for setting the initial state... can we move this / do it better?
 
-        cf::GuiSys::GuiI*                  ConsoleGui   =cf::GuiSys::GuiMan->Find("Games/"+m_GameInfo->GetName()+"/GUIs/Console.cgui", true);
+        cf::GuiSys::GuiImplT*              ConsoleGui   =cf::GuiSys::GuiMan->Find("Games/"+m_GameInfo->GetName()+"/GUIs/Console.cgui", true);
         IntrusivePtrT<cf::GuiSys::WindowT> ConsoleWindow=ConsoleGui ? ConsoleGui->GetRootWindow()->Find("ConsoleOutput") : NULL;
 
         // Copy the previously collected console output to the new graphical console.
@@ -532,7 +533,7 @@ void MainCanvasT::OnIdle(wxIdleEvent& IE)
 
     // If the active GUI is the client GUI, see how far the mouse cursor is off center,
     // derive a mouse event from it, then recenter the mouse cursor.
-    cf::GuiSys::GuiI* ActiveGui=cf::GuiSys::GuiMan->GetTopmostActiveAndInteractive();
+    cf::GuiSys::GuiImplT* ActiveGui = cf::GuiSys::GuiMan->GetTopmostActiveAndInteractive();
 
     if (ActiveGui && ActiveGui->GetRootWindow()->GetBasics()->GetWindowName() == "Client")
     {
@@ -586,7 +587,7 @@ void MainCanvasT::OnMouseMove(wxMouseEvent& ME)
 {
     if (m_InitState!=INIT_SUCCESS) return;
 
-    cf::GuiSys::GuiI* Gui=cf::GuiSys::GuiMan->GetTopmostActiveAndInteractive();
+    cf::GuiSys::GuiImplT* Gui = cf::GuiSys::GuiMan->GetTopmostActiveAndInteractive();
 
     // This is equivalent to calling cf::GuiSys::GuiMan->ProcessDeviceEvent(MouseEvent),
     // but computing the amount of mouse movement is much easier (and more precise) like this.
@@ -835,7 +836,7 @@ void MainCanvasT::OnKeyDown(wxKeyEvent& KE)
         case WXK_F1:
         {
             // Activate the in-game console GUI (it's "F1" now, not CK_GRAVE ("^", accent grave) any longer).
-            cf::GuiSys::GuiI* ConsoleGui=cf::GuiSys::GuiMan->Find("Games/"+m_GameInfo->GetName()+"/GUIs/Console.cgui");
+            cf::GuiSys::GuiImplT* ConsoleGui = cf::GuiSys::GuiMan->Find("Games/"+m_GameInfo->GetName()+"/GUIs/Console.cgui");
 
             // ConsoleGui should be the same as in Initialize(), but could be NULL on file not found, parse error, etc.
             if (ConsoleGui!=NULL && !ConsoleGui->GetIsActive())

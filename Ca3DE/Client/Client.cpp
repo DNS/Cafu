@@ -28,7 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/Console.hpp"
 #include "ConsoleCommands/ConFunc.hpp"
 #include "ConsoleCommands/ConVar.hpp"
-#include "GuiSys/Gui.hpp"
+#include "GuiSys/GuiImpl.hpp"
 #include "UniScriptState.hpp"
 
 extern "C"
@@ -75,7 +75,7 @@ ClientT::~ClientT()
 }
 
 
-void ClientT::SetMainMenuGui(cf::GuiSys::GuiI* MainMenuGui_)
+void ClientT::SetMainMenuGui(cf::GuiSys::GuiImplT* MainMenuGui_)
 {
     MainMenuGui=MainMenuGui_;
 

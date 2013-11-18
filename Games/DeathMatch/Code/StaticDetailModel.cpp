@@ -340,7 +340,7 @@ void EntStaticDetailModelT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
 }
 
 
-cf::GuiSys::GuiI* EntStaticDetailModelT::GetGUI() const
+cf::GuiSys::GuiImplT* EntStaticDetailModelT::GetGUI() const
 {
     return Gui;
 }

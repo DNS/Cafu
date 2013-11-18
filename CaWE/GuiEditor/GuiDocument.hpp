@@ -29,6 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GuiSys/GuiImpl.hpp"
 #include "GuiSys/Window.hpp"
 #include "Templates/Pointer.hpp"
+#include "UniScriptState.hpp"
 #include "wx/wx.h"
 
 

@@ -29,7 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 namespace cf { namespace GameSys { class ComponentModelT; } }
-namespace cf { namespace GuiSys { class GuiI; } }
+namespace cf { namespace GuiSys { class GuiImplT; } }
 struct luaL_Reg;
 
 
@@ -104,7 +104,7 @@ namespace GAME_NAME
      // char              ThisHumanPlayerNum;       // The sole purpose is to help to make a good descision about the light source color in GetLightSourceInfo().
         mutable VectorT   LastSeenAmbientColor;     // This is a client-side variable, unrelated to prediction, and thus allowed.
         float             TimeForLightSource;
-        cf::GuiSys::GuiI* GuiHUD;                   ///< The HUD GUI for this local human player entity.
+        cf::GuiSys::GuiImplT* GuiHUD;                   ///< The HUD GUI for this local human player entity.
     };
 }
 

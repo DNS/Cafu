@@ -27,7 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 namespace cf { namespace GameSys { class GameI; } }
 namespace cf { namespace GameSys { class GameInfoI; } }
-namespace cf { namespace GuiSys { class GuiI; } }
+namespace cf { namespace GuiSys { class GuiImplT; } }
 namespace cf { namespace GuiSys { class GuiResourcesT; } }
 struct CaKeyboardEventT;
 struct CaMouseEventT;
@@ -43,7 +43,7 @@ class ClientT
     ClientT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* Game, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes);
     ~ClientT();
 
-    void SetMainMenuGui(cf::GuiSys::GuiI* MainMenuGui_);
+    void SetMainMenuGui(cf::GuiSys::GuiImplT* MainMenuGui_);
 
     // These methods are driven (called) by the GUI window that "owns" this client.
     bool ProcessInputEvent(const CaKeyboardEventT& KE);
@@ -89,7 +89,7 @@ class ClientT
     SOCKET                     Socket;              ///< The socket that we're using for the connection to the server. This is a native socket that is managed by this class.
     NetAddressT                ServerAddress;       ///< The server address we're using for the connection. Copied from the related ConVar whenever a new connection is established.
     unsigned long              PacketIDConnLess;    ///< The ever increasing (and thus unique) PacketID for outgoing connection-less packets (e.g. connection requests, rcon commands, etc.).
-    cf::GuiSys::GuiI*          MainMenuGui;         ///< We inform the MainMenuGui whenever we enter a new state (a mini-implementation of the MVC pattern).
+    cf::GuiSys::GuiImplT*      MainMenuGui;         ///< We inform the MainMenuGui whenever we enter a new state (a mini-implementation of the MVC pattern).
     ModelManagerT&             m_ModelMan;          ///< The model manager that our client worlds load their models from.
     cf::GuiSys::GuiResourcesT& m_GuiRes;            ///< The GUI resources that are commonly used in our client worlds.
 };

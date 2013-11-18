@@ -41,7 +41,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #endif
 
 
-namespace cf { namespace GuiSys { class GuiI; } }
+namespace cf { namespace GuiSys { class GuiImplT; } }
 namespace cf { namespace GuiSys { class WindowT; } }
 
 

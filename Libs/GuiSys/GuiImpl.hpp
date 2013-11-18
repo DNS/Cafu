@@ -19,17 +19,20 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef CAFU_GUISYS_GUI_IMPL_HPP_INCLUDED
-#define CAFU_GUISYS_GUI_IMPL_HPP_INCLUDED
+#ifndef CAFU_GUISYS_GUI_HPP_INCLUDED
+#define CAFU_GUISYS_GUI_HPP_INCLUDED
 
-#include "Gui.hpp"
-#include "UniScriptState.hpp"
 #include "MaterialSystem/MaterialManagerImpl.hpp"
+#include "Templates/Pointer.hpp"
 
 #include <stdexcept>
 
 
+namespace cf { class UniScriptStateT; }
 namespace MatSys { class RenderMaterialT; }
+struct CaKeyboardEventT;
+struct CaMouseEventT;
+struct lua_State;
 
 
 namespace cf
@@ -37,10 +40,16 @@ namespace cf
     namespace GuiSys
     {
         class GuiResourcesT;
+        class WindowT;
+
+        /// Note that it is very difficult to change these constants later, because then all GUI scripts
+        /// in the world had to be changed too (and in a non-trivial way)!
+        const float VIRTUAL_SCREEN_SIZE_X=640.0f;
+        const float VIRTUAL_SCREEN_SIZE_Y=480.0f;
 
 
-        /// This class implements the GuiI interface.
-        class GuiImplT : public GuiI
+        /// This class implements a Graphical User Interface (GUI).
+        class GuiImplT
         {
             public:
 
@@ -96,28 +105,75 @@ namespace cf
             /// Returns the resource provider for fonts and models that are used in this GUI.
             GuiResourcesT& GetGuiResources() const { return m_GuiResources; }
 
-
-            // Implement all the (pure) virtual methods of the GuiI interface.
+            /// Returns the name of the script file of this GUI.
             const std::string& GetScriptName() const;
+
+            /// Returns the script state of this GUI.
             UniScriptStateT& GetScriptState() { return *m_ScriptState; }
-            IntrusivePtrT<WindowT> GetRootWindow() const { return RootWindow; }
-            IntrusivePtrT<WindowT> GetFocusWindow() const { return FocusWindow; }
-            void  Activate(bool doActivate=true);
-            bool  GetIsActive() const { return IsActive; }
-            void  SetInteractive(bool IsInteractive_=true);
-            bool  GetIsInteractive() const { return IsInteractive; }
-            bool  GetIsFullCover() const { return IsFullCover; }
-            void  GetMousePos(float& MousePosX_, float& MousePosY_) const;
-            void  SetMousePos(float MousePosX_, float MousePosY_);
+
+            /// Returns the root window of this GUI.
+            IntrusivePtrT<WindowT> GetRootWindow() const;
+
+            /// Returns the window in this GUI that has the keyboard input focus.
+            IntrusivePtrT<WindowT> GetFocusWindow() const;
+
+            /// Activates or deactivates this GUI.
+            void Activate(bool doActivate=true);
+
+            /// Returns whether this GUI is active or not. This is of importance mainly for the GuiMan, which doesn't send us events and doesn't draw us if we're not active.
+            bool GetIsActive() const { return IsActive; }
+
+            /// Sets whether this GUI is interactive or not. See GetIsInteractive() for additional information.
+            void SetInteractive(bool IsInteractive_=true);
+
+            /// Returns whether this GUI is interactive (reacts to device events) or not. This is of important mainly for the GuiMan, which doesn't send us device events if we are not interactive, and sends device events only to the top-most interactive GUI.
+            bool GetIsInteractive() const { return IsInteractive; }
+
+            /// Returns whether this GUI is fullscreen and fully opaque, i.e. whether this GUI covers everything under it. If true, the GuiSys saves the rendering of the GUIs "below" this one. This can improve the GUI performance significantly if e.g. the player is at a point in the game where the world rendering FPS is low.
+            bool GetIsFullCover() const { return IsFullCover; }
+
+            /// Returns the position of the mouse cursor.
+            void GetMousePos(float& MousePosX_, float& MousePosY_) const;
+
+            /// Sets the position of the mouse cursor.
+            void SetMousePos(float MousePosX_, float MousePosY_);
+
+            /// Returns the size of the mouse cursor.
             float GetMouseCursorSize() const { return m_MouseCursorSize; }
-            void  SetMouseCursorSize(float s) { m_MouseCursorSize = s; }
-            void  SetShowMouse(bool ShowMouse_);
-            bool  IsMouseShown() const { return MouseIsShown; }
-            void  Render(bool zLayerCoating=false) const;
-            bool  ProcessDeviceEvent(const CaKeyboardEventT& KE);
-            bool  ProcessDeviceEvent(const CaMouseEventT& ME);
-            void  DistributeClockTickEvents(float t);
-            void  RegisterScriptLib(const char* LibName, const luaL_Reg Functions[]);
+
+            /// Sets the size of the mouse cursor.
+            void SetMouseCursorSize(float s) { m_MouseCursorSize = s; }
+
+            /// Sets whether this GUI shows a mouse cursor.
+            void SetShowMouse(bool ShowMouse_);
+
+            /// Returns whether this GUI shows a mouse cursor.
+            bool IsMouseShown() const { return MouseIsShown; }
+
+            /// Renders this GUI.
+            /// Note that this method does *not* setup any of the MatSys's model, view or projection matrices:
+            /// it's up to the caller to do that.
+            /// @param zLayerCoating   Whether a z-layer coating should be applied to the GUI screen when finishing the rendering.
+            ///     This is useful whenever the z-ordering of scene elements can be imperfect, e.g. in the Map Editor.
+            ///     Generally, 3D world GUIs should use \c true, 2D GUIs should use \c false.
+            void Render(bool zLayerCoating=false) const;
+
+            /// Processes a keyboard event by forwarding it to the window that currently has the input focus.
+            /// The GuiMan should make the descision to call this method dependend on the result of the GetIsInteractive() method.
+            /// @param KE Keyboard event to process.
+            /// @returns true if the device has been successfully processed, false otherwise.
+            bool ProcessDeviceEvent(const CaKeyboardEventT& KE);
+
+            /// Processes a mouse event by forwarding it to the window that currently has the input focus.
+            /// The GuiMan should make the descision to call this method dependend on the result of the GetIsInteractive() method.
+            /// @param ME Mouse event to process.
+            /// @returns true if the device has been successfully processed, false otherwise.
+            bool ProcessDeviceEvent(const CaMouseEventT& ME);
+
+            /// "Creates" a time tick event for each window of the GUI (no matter whether its currently visible (shown) or not)
+            /// by calling its OnTimeTickEvent() methods.
+            /// @param t   The time in seconds since the last clock-tick.
+            void DistributeClockTickEvents(float t);
 
 
             /// Adds a new global variable of type (meta-)table and name "cf::GuiSys::GuiT" to the Lua state LuaState,

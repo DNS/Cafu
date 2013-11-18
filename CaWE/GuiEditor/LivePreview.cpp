@@ -29,6 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix.hpp"
 #include "Math3D/Vector3.hpp"
+#include "UniScriptState.hpp"
 
 #include "wx/glcanvas.h"
 
