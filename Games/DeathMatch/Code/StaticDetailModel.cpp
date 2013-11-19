@@ -177,20 +177,12 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
 
     // Let the GUI script know that its entity has now been fully initialized,
     // it can take the opportunity for additional initializations.
-    if (Gui) Gui->GetScriptState().Call("OnEntityInit");
-}
-
-
-EntStaticDetailModelT::~EntStaticDetailModelT()
-{
-    delete Gui;
-    Gui = NULL;
+    if (Gui != NULL) Gui->GetScriptState().Call("OnEntityInit");
 }
 
 
 void EntStaticDetailModelT::NotifyLeaveMap()
 {
-    delete Gui;
     Gui = NULL;
 }
 
@@ -223,7 +215,7 @@ void EntStaticDetailModelT::DoDeserialize(cf::Network::InStreamT& Stream)
 
 void EntStaticDetailModelT::Think(float FrameTime, unsigned long ServerFrameNr)
 {
-    if (Gui)
+    if (Gui != NULL)
     {
         // It is important that we advance the time on the server-side GUI, too,
         // so that it can for example work off the "pending interpolations" that the GUI scripts can create.
@@ -340,7 +332,7 @@ void EntStaticDetailModelT::PostDraw(float FrameTime, bool /*FirstPersonView*/)
 }
 
 
-cf::GuiSys::GuiImplT* EntStaticDetailModelT::GetGUI() const
+IntrusivePtrT<cf::GuiSys::GuiImplT> EntStaticDetailModelT::GetGUI() const
 {
     return Gui;
 }

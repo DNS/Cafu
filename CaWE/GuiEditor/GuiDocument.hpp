@@ -58,7 +58,7 @@ namespace GuiEditor
         GuiDocumentT(GameConfigT* GameConfig, const wxString& GuiInitFileName="");
         ~GuiDocumentT();
 
-        cf::GuiSys::GuiImplT* GetGui() { return m_Gui; }
+        IntrusivePtrT<cf::GuiSys::GuiImplT> GetGui() { return m_Gui; }
         IntrusivePtrT<cf::GuiSys::WindowT> GetRootWindow() { return m_Gui->GetRootWindow(); }
 
         GuiPropertiesT& GetGuiProperties() { return m_GuiProperties; }
@@ -81,7 +81,7 @@ namespace GuiEditor
         void operator = (const GuiDocumentT&);      ///< Use of the Assignment Operator is not allowed.
 
         cf::UniScriptStateT                          m_ScriptState;     ///< The script state that the m_Gui is bound to and lives in.
-        cf::GuiSys::GuiImplT*                        m_Gui;
+        IntrusivePtrT<cf::GuiSys::GuiImplT>          m_Gui;
         ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > m_Selection;
         GuiPropertiesT                               m_GuiProperties;
         ArrayT<EditorMaterialI*>                     m_EditorMaterials; ///< One editor material for each material in the GUI (its material manager).

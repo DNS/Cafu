@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_CLIENT_HPP_INCLUDED
 
 #include "Network/Network.hpp"
+#include "Templates/Pointer.hpp"
 
 
 namespace cf { namespace GameSys { class GameI; } }
@@ -43,7 +44,7 @@ class ClientT
     ClientT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* Game, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes);
     ~ClientT();
 
-    void SetMainMenuGui(cf::GuiSys::GuiImplT* MainMenuGui_);
+    void SetMainMenuGui(IntrusivePtrT<cf::GuiSys::GuiImplT> MainMenuGui_);
 
     // These methods are driven (called) by the GUI window that "owns" this client.
     bool ProcessInputEvent(const CaKeyboardEventT& KE);
@@ -84,14 +85,14 @@ class ClientT
     StateIDT          NextState;        ///< The (ID of the) state that will become the current state before the next call to any of the methods of CurrentState.
 
     // Private data that is used in all (or at least multiple) states.
-    cf::GameSys::GameInfoI*    m_GameInfo;          ///< The info for the game that we're running.
-    cf::GameSys::GameI*        m_Game;              ///< The game that we are a client for.
-    SOCKET                     Socket;              ///< The socket that we're using for the connection to the server. This is a native socket that is managed by this class.
-    NetAddressT                ServerAddress;       ///< The server address we're using for the connection. Copied from the related ConVar whenever a new connection is established.
-    unsigned long              PacketIDConnLess;    ///< The ever increasing (and thus unique) PacketID for outgoing connection-less packets (e.g. connection requests, rcon commands, etc.).
-    cf::GuiSys::GuiImplT*      MainMenuGui;         ///< We inform the MainMenuGui whenever we enter a new state (a mini-implementation of the MVC pattern).
-    ModelManagerT&             m_ModelMan;          ///< The model manager that our client worlds load their models from.
-    cf::GuiSys::GuiResourcesT& m_GuiRes;            ///< The GUI resources that are commonly used in our client worlds.
+    cf::GameSys::GameInfoI*             m_GameInfo;         ///< The info for the game that we're running.
+    cf::GameSys::GameI*                 m_Game;             ///< The game that we are a client for.
+    SOCKET                              Socket;             ///< The socket that we're using for the connection to the server. This is a native socket that is managed by this class.
+    NetAddressT                         ServerAddress;      ///< The server address we're using for the connection. Copied from the related ConVar whenever a new connection is established.
+    unsigned long                       PacketIDConnLess;   ///< The ever increasing (and thus unique) PacketID for outgoing connection-less packets (e.g. connection requests, rcon commands, etc.).
+    IntrusivePtrT<cf::GuiSys::GuiImplT> MainMenuGui;        ///< We inform the MainMenuGui whenever we enter a new state (a mini-implementation of the MVC pattern).
+    ModelManagerT&                      m_ModelMan;         ///< The model manager that our client worlds load their models from.
+    cf::GuiSys::GuiResourcesT&          m_GuiRes;           ///< The GUI resources that are commonly used in our client worlds.
 };
 
 #endif

@@ -131,7 +131,6 @@ ModelEditor::ModelDocumentT::~ModelDocumentT()
     delete m_Ground;
     m_Ground = NULL;
 
-    delete m_Gui;
     m_Gui = NULL;
 
     delete m_ScriptState;
@@ -154,6 +153,12 @@ wxString ModelEditor::ModelDocumentT::GetSelSkinString() const
         return "default skin";
 
     return wxString::Format("skin %u: \"%s\"", m_Selection[SKIN][0], m_Model->GetSkins()[m_Selection[SKIN][0]].Name);
+}
+
+
+IntrusivePtrT<const cf::GuiSys::GuiImplT> ModelEditor::ModelDocumentT::GetGui() const
+{
+    return m_Gui;
 }
 
 

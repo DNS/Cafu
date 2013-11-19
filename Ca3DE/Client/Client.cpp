@@ -75,7 +75,7 @@ ClientT::~ClientT()
 }
 
 
-void ClientT::SetMainMenuGui(cf::GuiSys::GuiImplT* MainMenuGui_)
+void ClientT::SetMainMenuGui(IntrusivePtrT<cf::GuiSys::GuiImplT> MainMenuGui_)
 {
     MainMenuGui=MainMenuGui_;
 

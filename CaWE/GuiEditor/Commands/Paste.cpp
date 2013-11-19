@@ -46,7 +46,7 @@ bool CommandPasteT::Do()
     if (m_Done) return false;
 
     for (unsigned long WinNr=0; WinNr<m_Windows.Size(); WinNr++)
-        if (&m_Windows[WinNr]->GetGui() != m_GuiDocument->GetGui())
+        if (m_GuiDocument->GetGui() != &m_Windows[WinNr]->GetGui())
         {
             wxMessageBox("Sorry, cannot copy windows from one GUI document and paste them into another at this time.");
             return false;

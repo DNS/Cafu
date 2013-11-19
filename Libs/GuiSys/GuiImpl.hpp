@@ -49,7 +49,7 @@ namespace cf
 
 
         /// This class implements a Graphical User Interface (GUI).
-        class GuiImplT
+        class GuiImplT : public RefCountedT
         {
             public:
 

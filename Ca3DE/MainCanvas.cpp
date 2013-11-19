@@ -69,12 +69,12 @@ class SvGuiCallbT : public ServerT::GuiCallbackI
 
     void OnServerStateChanged(const char* NewState) const
     {
-        if (!MainMenuGui) return;
+        if (MainMenuGui.IsNull()) return;
 
         MainMenuGui->GetScriptState().Call("OnServerStateChanged", "s", NewState);
     }
 
-    cf::GuiSys::GuiImplT* MainMenuGui;
+    IntrusivePtrT<cf::GuiSys::GuiImplT> MainMenuGui;
 };
 
 
@@ -351,7 +351,7 @@ void MainCanvasT::Initialize()
         // Finish the initialization of the GuiSys.
         // Note that in the line below, the call to gui:setMousePos() is important, because it sets "MouseOverWindow" in the GUI properly to "Cl".
         // Without this, a left mouse button click that was not preceeded by a mouse movement would erroneously remove the input focus from "Cl".
-        cf::GuiSys::GuiImplT* ClientGui = new cf::GuiSys::GuiImplT(*m_GuiResources,
+        IntrusivePtrT<cf::GuiSys::GuiImplT> ClientGui = new cf::GuiSys::GuiImplT(*m_GuiResources,
             "Cl=gui:new('WindowT', 'Client')\n"
             "\n"
             "gui:SetRootWindow(Cl)\n"
@@ -372,7 +372,7 @@ void MainCanvasT::Initialize()
         cf::GuiSys::GuiMan->Register(ClientGui);
 
 
-        cf::GuiSys::GuiImplT* MainMenuGui = cf::GuiSys::GuiMan->Find("Games/"+m_GameInfo->GetName()+"/GUIs/MainMenu/MainMenu_main.cgui", true);
+        IntrusivePtrT<cf::GuiSys::GuiImplT> MainMenuGui = cf::GuiSys::GuiMan->Find("Games/"+m_GameInfo->GetName()+"/GUIs/MainMenu/MainMenu_main.cgui", true);
         if (MainMenuGui==NULL)
         {
             MainMenuGui=new cf::GuiSys::GuiImplT(*m_GuiResources, "Err=gui:new('WindowT'); gui:SetRootWindow(Err); gui:activate(true); gui:setInteractive(true); gui:showMouse(false); Err:set('rect', 0, 0, 640, 480); Err:set('textScale', 0.8); Err:set('text', 'Error loading MainMenu_main.cgui,\\nsee console <F1> for details.');", cf::GuiSys::GuiImplT::InitFlag_InlineCode);
@@ -382,8 +382,8 @@ void MainCanvasT::Initialize()
         m_SvGuiCallback->MainMenuGui=MainMenuGui;       // This is the callback for the server, so that it can let the MainMenuGui know about its state changes.
         m_SvGuiCallback->OnServerStateChanged("idle");  // Argh, this is a HACK for setting the initial state... can we move this / do it better?
 
-        cf::GuiSys::GuiImplT*              ConsoleGui   =cf::GuiSys::GuiMan->Find("Games/"+m_GameInfo->GetName()+"/GUIs/Console.cgui", true);
-        IntrusivePtrT<cf::GuiSys::WindowT> ConsoleWindow=ConsoleGui ? ConsoleGui->GetRootWindow()->Find("ConsoleOutput") : NULL;
+        IntrusivePtrT<cf::GuiSys::GuiImplT> ConsoleGui    = cf::GuiSys::GuiMan->Find("Games/"+m_GameInfo->GetName()+"/GUIs/Console.cgui", true);
+        IntrusivePtrT<cf::GuiSys::WindowT>  ConsoleWindow = ConsoleGui != NULL ? ConsoleGui->GetRootWindow()->Find("ConsoleOutput") : NULL;
 
         // Copy the previously collected console output to the new graphical console.
         m_ConByGuiWin=new cf::GuiSys::ConsoleByWindowT(ConsoleWindow);
@@ -533,9 +533,9 @@ void MainCanvasT::OnIdle(wxIdleEvent& IE)
 
     // If the active GUI is the client GUI, see how far the mouse cursor is off center,
     // derive a mouse event from it, then recenter the mouse cursor.
-    cf::GuiSys::GuiImplT* ActiveGui = cf::GuiSys::GuiMan->GetTopmostActiveAndInteractive();
+    IntrusivePtrT<cf::GuiSys::GuiImplT> ActiveGui = cf::GuiSys::GuiMan->GetTopmostActiveAndInteractive();
 
-    if (ActiveGui && ActiveGui->GetRootWindow()->GetBasics()->GetWindowName() == "Client")
+    if (ActiveGui != NULL && ActiveGui->GetRootWindow()->GetBasics()->GetWindowName() == "Client")
     {
         const wxPoint MousePos  =ScreenToClient(wxGetMousePosition());  // Note: ScreenToClient() is a method of wxWindow.
         const wxSize  WinCenter =GetClientSize()/2;
@@ -587,11 +587,11 @@ void MainCanvasT::OnMouseMove(wxMouseEvent& ME)
 {
     if (m_InitState!=INIT_SUCCESS) return;
 
-    cf::GuiSys::GuiImplT* Gui = cf::GuiSys::GuiMan->GetTopmostActiveAndInteractive();
+    IntrusivePtrT<cf::GuiSys::GuiImplT> Gui = cf::GuiSys::GuiMan->GetTopmostActiveAndInteractive();
 
     // This is equivalent to calling cf::GuiSys::GuiMan->ProcessDeviceEvent(MouseEvent),
     // but computing the amount of mouse movement is much easier (and more precise) like this.
-    if (Gui && Gui->GetRootWindow()->GetBasics()->GetWindowName() != "Client")
+    if (Gui != NULL && Gui->GetRootWindow()->GetBasics()->GetWindowName() != "Client")
     {
         float OldMousePosX;
         float OldMousePosY;
@@ -836,7 +836,7 @@ void MainCanvasT::OnKeyDown(wxKeyEvent& KE)
         case WXK_F1:
         {
             // Activate the in-game console GUI (it's "F1" now, not CK_GRAVE ("^", accent grave) any longer).
-            cf::GuiSys::GuiImplT* ConsoleGui = cf::GuiSys::GuiMan->Find("Games/"+m_GameInfo->GetName()+"/GUIs/Console.cgui");
+            IntrusivePtrT<cf::GuiSys::GuiImplT> ConsoleGui = cf::GuiSys::GuiMan->Find("Games/"+m_GameInfo->GetName()+"/GUIs/Console.cgui");
 
             // ConsoleGui should be the same as in Initialize(), but could be NULL on file not found, parse error, etc.
             if (ConsoleGui!=NULL && !ConsoleGui->GetIsActive())

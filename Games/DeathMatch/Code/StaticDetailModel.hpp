@@ -42,7 +42,6 @@ namespace GAME_NAME
         public:
 
         EntStaticDetailModelT(const EntityCreateParamsT& Params);
-        ~EntStaticDetailModelT();
 
         void Think(float FrameTime, unsigned long ServerFrameNr);
 
@@ -51,7 +50,7 @@ namespace GAME_NAME
         void PostDraw(float FrameTime, bool FirstPersonView);
 
         /// Returns the GUI of this entity, or NULL if there is none.
-        cf::GuiSys::GuiImplT* GetGUI() const;
+        IntrusivePtrT<cf::GuiSys::GuiImplT> GetGUI() const;
 
         /// If this entity has a panel for an associated GUI, this method returns its related current plane in world space.
         /// @param GFNr         The number of the GUI fixture.
@@ -84,8 +83,8 @@ namespace GAME_NAME
         mutable IntrusivePtrT<AnimExpressionT>   m_AnimExpr;    ///< The state of the currently playing animation sequence. Used <em>independently</em> on the server and the clients; only a <em>restart</em> of a sequence is sync'ed over the network via the EventID_RestartSequ event.
         mutable IntrusivePtrT<AnimExprStandardT> m_LastStdAE;   ///< The most recent standard expression that we set (as a subexpression of m_AnimExpr).
 
-        std::string           GuiName;  ///< If our "gui" entity key is set, store the value here.
-        cf::GuiSys::GuiImplT* Gui;      ///< If the model has GUI fixtures, we load the GUI here, *both* on the server- as well as on the client-side.
+        std::string                         GuiName;  ///< If our "gui" entity key is set, store the value here.
+        IntrusivePtrT<cf::GuiSys::GuiImplT> Gui;      ///< If the model has GUI fixtures, we load the GUI here, *both* on the server- as well as on the client-side.
 
 
         // Script methods (to be called from the map/entity Lua scripts).

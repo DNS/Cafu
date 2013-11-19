@@ -100,8 +100,6 @@ GuiDocumentT::~GuiDocumentT()
 {
     for (unsigned long MatNr=0; MatNr<m_EditorMaterials.Size(); MatNr++)
         delete m_EditorMaterials[MatNr];
-
-    delete m_Gui;
 }
 
 

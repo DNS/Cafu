@@ -100,19 +100,19 @@ namespace ModelEditor
         /// The destructor.
         ~ModelDocumentT();
 
-        const CafuModelT*               GetModel() const           { return m_Model; }
-        const ArrayT<unsigned int>&     GetSelection(ModelElementTypeT Type) const { wxASSERT(Type<6); return m_Selection[Type]; }
-        const BoundingBox3fT&           GetSequenceBB() const      { return m_SequenceBB; }
-        int                             GetSelSkinNr() const;      ///< Return the index number of the currently selected skin, or -1 when no skin (that is, the default skin) is selected.
-        wxString                        GetSelSkinString() const;  ///< Returns a string representation for the currently selected skin.
-        const ArrayT<EditorMaterialI*>& GetEditorMaterials() const { return m_EditorMaterials; }
-        const AnimStateT&               GetAnimState() const       { return m_AnimState; }
-        const ArrayT<SubmodelT*>&       GetSubmodels() const       { return m_Submodels; }
-        const cf::GuiSys::GuiImplT*     GetGui() const             { return m_Gui; }
-        const MapBrushT*                GetGround() const          { return m_Ground; }
-        const ArrayT<CameraT*>&         GetCameras() const         { return m_Cameras; }
-        const ArrayT<LightSourceT*>&    GetLightSources() const    { return m_LightSources; }
-        const GameConfigT*              GetGameConfig() const      { return m_GameConfig; }
+        const CafuModelT*                         GetModel() const           { return m_Model; }
+        const ArrayT<unsigned int>&               GetSelection(ModelElementTypeT Type) const { wxASSERT(Type<6); return m_Selection[Type]; }
+        const BoundingBox3fT&                     GetSequenceBB() const      { return m_SequenceBB; }
+        int                                       GetSelSkinNr() const;      ///< Return the index number of the currently selected skin, or -1 when no skin (that is, the default skin) is selected.
+        wxString                                  GetSelSkinString() const;  ///< Returns a string representation for the currently selected skin.
+        const ArrayT<EditorMaterialI*>&           GetEditorMaterials() const { return m_EditorMaterials; }
+        const AnimStateT&                         GetAnimState() const       { return m_AnimState; }
+        const ArrayT<SubmodelT*>&                 GetSubmodels() const       { return m_Submodels; }
+        IntrusivePtrT<const cf::GuiSys::GuiImplT> GetGui() const;
+        const MapBrushT*                          GetGround() const          { return m_Ground; }
+        const ArrayT<CameraT*>&                   GetCameras() const         { return m_Cameras; }
+        const ArrayT<LightSourceT*>&              GetLightSources() const    { return m_LightSources; }
+        const GameConfigT*                        GetGameConfig() const      { return m_GameConfig; }
 
         CafuModelT*      GetModel()      { return m_Model; }
         void             SetSelection(ModelElementTypeT Type, const ArrayT<unsigned int>& NewSel);
@@ -135,18 +135,18 @@ namespace ModelEditor
 
         static CafuModelT* LoadModel(const wxString& FileName);
 
-        CafuModelT*              m_Model;           ///< The model that is being edited.
-        ArrayT<unsigned int>     m_Selection[6];    ///< The selected joints, meshes, animations, channels, skins and GUI fixtures.
-        ArrayT<EditorMaterialI*> m_EditorMaterials; ///< One editor material for each material in the model (its material manager).
-        AnimStateT               m_AnimState;       ///< The current state of the model animation.
-        BoundingBox3fT           m_SequenceBB;      ///< The bounding-box encompassing all frames of the currently selected animation sequence(s).
-        ArrayT<SubmodelT*>       m_Submodels;       ///< The submodels that are shown with the main model.
-        cf::UniScriptStateT*     m_ScriptState;     ///< The script state that the m_Gui is bound to and lives in.
-        cf::GuiSys::GuiImplT*    m_Gui;             ///< The GUI that is rendered where the model has GUI fixtures.
-        MapBrushT*               m_Ground;          ///< The ground brush.
-        ArrayT<CameraT*>         m_Cameras;         ///< The cameras in the scene (used by the 3D views for rendering), there is always at least one.
-        ArrayT<LightSourceT*>    m_LightSources;    ///< The light sources that exist in the scene.
-        GameConfigT*             m_GameConfig;      ///< The game configuration that the model is used with.
+        CafuModelT*                         m_Model;            ///< The model that is being edited.
+        ArrayT<unsigned int>                m_Selection[6];     ///< The selected joints, meshes, animations, channels, skins and GUI fixtures.
+        ArrayT<EditorMaterialI*>            m_EditorMaterials;  ///< One editor material for each material in the model (its material manager).
+        AnimStateT                          m_AnimState;        ///< The current state of the model animation.
+        BoundingBox3fT                      m_SequenceBB;       ///< The bounding-box encompassing all frames of the currently selected animation sequence(s).
+        ArrayT<SubmodelT*>                  m_Submodels;        ///< The submodels that are shown with the main model.
+        cf::UniScriptStateT*                m_ScriptState;      ///< The script state that the m_Gui is bound to and lives in.
+        IntrusivePtrT<cf::GuiSys::GuiImplT> m_Gui;              ///< The GUI that is rendered where the model has GUI fixtures.
+        MapBrushT*                          m_Ground;           ///< The ground brush.
+        ArrayT<CameraT*>                    m_Cameras;          ///< The cameras in the scene (used by the 3D views for rendering), there is always at least one.
+        ArrayT<LightSourceT*>               m_LightSources;     ///< The light sources that exist in the scene.
+        GameConfigT*                        m_GameConfig;       ///< The game configuration that the model is used with.
     };
 }
 

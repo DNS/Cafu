@@ -268,7 +268,6 @@ void ComponentModelT::VarGuiNameT::Set(const std::string& v)
 
     // Simply invalidate the related m_Gui instance and leave it up to the ComponentModelT
     // user code to re-instantiate it as required.
-    delete m_Comp.m_Gui;
     m_Comp.m_Gui = NULL;
 
     delete m_Comp.m_ScriptState;
@@ -357,7 +356,6 @@ void ComponentModelT::FillMemberVars()
 
 ComponentModelT::~ComponentModelT()
 {
-    delete m_Gui;
     m_Gui = NULL;
 
     delete m_ScriptState;
@@ -382,18 +380,18 @@ AnimPoseT* ComponentModelT::GetPose() const
 }
 
 
-cf::GuiSys::GuiImplT* ComponentModelT::GetGui() const
+IntrusivePtrT<cf::GuiSys::GuiImplT> ComponentModelT::GetGui() const
 {
     if (!m_Model || !m_Model->GetGuiFixtures().Size())
     {
         // Not a model with GUI fixtures.
         assert(!m_ScriptState);
-        assert(!m_Gui);
+        assert(m_Gui == NULL);
         return NULL;
     }
 
     // If we have a model with GUI fixtures, return a valid GUI instance in any case.
-    if (m_Gui) return m_Gui;
+    if (m_Gui != NULL) return m_Gui;
 
     static const char* FallbackGUI =
         "Root = gui:new('WindowT', 'Root')\n"
@@ -477,7 +475,6 @@ void ComponentModelT::ReInit(std::string* ErrorMsg)
     // It is possible that this is called (e.g. from a script) for a component that is not yet part of an entity.
     if (!GetEntity())
     {
-        delete m_Gui;
         m_Gui = NULL;
 
         delete m_ScriptState;
@@ -498,7 +495,6 @@ void ComponentModelT::ReInit(std::string* ErrorMsg)
     if (NewModel == m_Model) return;
 
     // The new model may or may not have GUI fixtures, so make sure that the GUI instance is reset.
-    delete m_Gui;
     m_Gui = NULL;
 
     delete m_ScriptState;
@@ -594,7 +590,7 @@ void ComponentModelT::DoServerFrame(float t)
 {
     // It is important that we advance the time on the server-side GUI, too, so that it can
     // for example work off the "pending interpolations" that the GUI scripts can create.
-    if (GetGui())
+    if (GetGui() != NULL)
         GetGui()->DistributeClockTickEvents(t);
 }
 
@@ -604,7 +600,7 @@ void ComponentModelT::DoClientFrame(float t)
     if (GetPose())
         GetPose()->GetAnimExpr()->AdvanceTime(t);
 
-    if (GetGui())
+    if (GetGui() != NULL)
         GetGui()->DistributeClockTickEvents(t);
 }
 

@@ -41,15 +41,7 @@ GuiManImplT::GuiManImplT(GuiResourcesT& GuiRes)
 }
 
 
-GuiManImplT::~GuiManImplT()
-{
-    // Delete all the GUIs.
-    for (unsigned long GuiNr=0; GuiNr<Guis.Size(); GuiNr++)
-        delete Guis[GuiNr];
-}
-
-
-GuiImplT* GuiManImplT::Register(const std::string& GuiScriptName)
+IntrusivePtrT<GuiImplT> GuiManImplT::Register(const std::string& GuiScriptName)
 {
     try
     {
@@ -66,7 +58,7 @@ GuiImplT* GuiManImplT::Register(const std::string& GuiScriptName)
 }
 
 
-GuiImplT* GuiManImplT::Register(GuiImplT* NewGui)
+IntrusivePtrT<GuiImplT> GuiManImplT::Register(IntrusivePtrT<GuiImplT> NewGui)
 {
     Guis.PushBack(NewGui);
 
@@ -74,19 +66,18 @@ GuiImplT* GuiManImplT::Register(GuiImplT* NewGui)
 }
 
 
-void GuiManImplT::Free(GuiImplT* Gui)
+void GuiManImplT::Free(IntrusivePtrT<GuiImplT> Gui)
 {
     for (unsigned long GuiNr=0; GuiNr<Guis.Size(); GuiNr++)
-        if (Guis[GuiNr]==Gui)
+        if (Guis[GuiNr] == Gui)
         {
-            delete Gui;
             Guis.RemoveAtAndKeepOrder(GuiNr);
             return;
         }
 }
 
 
-GuiImplT* GuiManImplT::Find(const std::string& GuiScriptName, bool AutoRegister)
+IntrusivePtrT<GuiImplT> GuiManImplT::Find(const std::string& GuiScriptName, bool AutoRegister)
 {
     for (unsigned long GuiNr=0; GuiNr<Guis.Size(); GuiNr++)
         if (Guis[GuiNr]->GetScriptName()==GuiScriptName)
@@ -96,7 +87,7 @@ GuiImplT* GuiManImplT::Find(const std::string& GuiScriptName, bool AutoRegister)
 }
 
 
-void GuiManImplT::BringToFront(GuiImplT* Gui)
+void GuiManImplT::BringToFront(IntrusivePtrT<GuiImplT> Gui)
 {
     for (unsigned long GuiNr=0; GuiNr+1<Guis.Size(); GuiNr++)
         if (Guis[GuiNr]==Gui)
@@ -108,11 +99,11 @@ void GuiManImplT::BringToFront(GuiImplT* Gui)
 }
 
 
-GuiImplT* GuiManImplT::GetTopmostActiveAndInteractive()
+IntrusivePtrT<GuiImplT> GuiManImplT::GetTopmostActiveAndInteractive()
 {
     for (unsigned long GuiNr=0; GuiNr<Guis.Size(); GuiNr++)
     {
-        GuiImplT* Gui=Guis[Guis.Size()-1-GuiNr];
+        IntrusivePtrT<GuiImplT> Gui=Guis[Guis.Size()-1-GuiNr];
 
         if (Gui->GetIsActive() && Gui->GetIsInteractive())
             return Gui;
@@ -130,10 +121,7 @@ void GuiManImplT::ReloadAllGuis()
 
         try
         {
-            GuiImplT* Reloaded=new GuiImplT(m_GuiResources, Guis[GuiNr]->GetScriptName());
-
-            delete Guis[GuiNr];
-            Guis[GuiNr]=Reloaded;
+            Guis[GuiNr] = new GuiImplT(m_GuiResources, Guis[GuiNr]->GetScriptName());
         }
         catch (const GuiImplT::InitErrorT&)
         {
@@ -176,7 +164,7 @@ void GuiManImplT::ProcessDeviceEvent(const CaKeyboardEventT& KE)
 {
     for (unsigned long GuiNr=0; GuiNr<Guis.Size(); GuiNr++)
     {
-        GuiImplT* Gui=Guis[Guis.Size()-1-GuiNr];
+        IntrusivePtrT<GuiImplT> Gui=Guis[Guis.Size()-1-GuiNr];
 
         if (Gui->GetIsActive() && Gui->GetIsInteractive())
         {
@@ -207,7 +195,7 @@ void GuiManImplT::ProcessDeviceEvent(const CaMouseEventT& ME)
 {
     for (unsigned long GuiNr=0; GuiNr<Guis.Size(); GuiNr++)
     {
-        GuiImplT* Gui=Guis[Guis.Size()-1-GuiNr];
+        IntrusivePtrT<GuiImplT> Gui=Guis[Guis.Size()-1-GuiNr];
 
         if (Gui->GetIsActive() && Gui->GetIsInteractive())
         {

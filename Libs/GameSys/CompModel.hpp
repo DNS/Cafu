@@ -54,7 +54,7 @@ namespace cf
             AnimPoseT* GetPose() const;
 
             /// Returns the GUI instance of this model, if it has one (or `NULL` otherwise).
-            cf::GuiSys::GuiImplT* GetGui() const;
+            IntrusivePtrT<cf::GuiSys::GuiImplT> GetGui() const;
 
             // Base class overrides.
             ComponentModelT* Clone() const;
@@ -173,17 +173,17 @@ namespace cf
             void FillMemberVars();                          ///< A helper method for the constructors.
             void ReInit(std::string* ErrorMsg=NULL);        ///< A helper method.
 
-            TypeSys::VarT<bool>           m_ModelShow;      ///< Whether the model is currently shown.
-            VarModelNameT                 m_ModelName;      ///< The file name of the model.
-            VarModelAnimNrT               m_ModelAnimNr;    ///< The animation sequence number of the model.
-            VarModelSkinNrT               m_ModelSkinNr;    ///< The skin used for rendering the model.
-            TypeSys::VarT<float>          m_ModelScale;     ///< The scale factor applied to the model coordinates when converted to world space.
-            VarGuiNameT                   m_GuiName;        ///< The file name of the GUI to be used with the models GUI fixtures (if there are any).
+            TypeSys::VarT<bool>                         m_ModelShow;    ///< Whether the model is currently shown.
+            VarModelNameT                               m_ModelName;    ///< The file name of the model.
+            VarModelAnimNrT                             m_ModelAnimNr;  ///< The animation sequence number of the model.
+            VarModelSkinNrT                             m_ModelSkinNr;  ///< The skin used for rendering the model.
+            TypeSys::VarT<float>                        m_ModelScale;   ///< The scale factor applied to the model coordinates when converted to world space.
+            VarGuiNameT                                 m_GuiName;      ///< The file name of the GUI to be used with the models GUI fixtures (if there are any).
 
-            const CafuModelT*             m_Model;          ///< The model instance, updated by changes to m_ModelName.
-            mutable AnimPoseT*            m_Pose;           ///< The pose of the model, updated by changes to m_ModelAnimNr.
-            mutable cf::UniScriptStateT*  m_ScriptState;    ///< The script state that the m_Gui is bound to and lives in.
-            mutable cf::GuiSys::GuiImplT* m_Gui;            ///< The GUI instance, updated by changes to m_GuiName.
+            const CafuModelT*                           m_Model;        ///< The model instance, updated by changes to m_ModelName.
+            mutable AnimPoseT*                          m_Pose;         ///< The pose of the model, updated by changes to m_ModelAnimNr.
+            mutable cf::UniScriptStateT*                m_ScriptState;  ///< The script state that the m_Gui is bound to and lives in.
+            mutable IntrusivePtrT<cf::GuiSys::GuiImplT> m_Gui;          ///< The GUI instance, updated by changes to m_GuiName.
         };
     }
 }

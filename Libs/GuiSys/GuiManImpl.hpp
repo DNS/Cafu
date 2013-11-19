@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_GUISYS_GUIMAN_HPP_INCLUDED
 
 #include "Templates/Array.hpp"
+#include "Templates/Pointer.hpp"
 #include <string>
 
 
@@ -47,17 +48,14 @@ namespace cf
             /// The MatSys *must* be initialized *before* this constructor is called (i.e. a GuiManImplT is instantiated)!
             GuiManImplT(GuiResourcesT& GuiRes);
 
-            /// The destructor.
-            ~GuiManImplT();
-
             /// Creates a GUI from the script with name GuiScriptName and registers it with the GUI manager.
-            GuiImplT* Register(const std::string& GuiScriptName);
+            IntrusivePtrT<GuiImplT> Register(const std::string& GuiScriptName);
 
             /// Registers a programmatically instantiated GUI with the GUI manager.
-            GuiImplT* Register(GuiImplT* NewGui);
+            IntrusivePtrT<GuiImplT> Register(IntrusivePtrT<GuiImplT> NewGui);
 
-            /// Removes the Gui from the GUI manager and deletes the pointer.
-            void Free(GuiImplT* Gui);
+            /// Removes the Gui from the GUI manager.
+            void Free(IntrusivePtrT<GuiImplT> Gui);
 
             /// Searches the GUI manager for a GUI whose script name is GuiScriptName.
             /// If the GUI was found, the pointer to the GuiImplT instance is returned.
@@ -65,14 +63,14 @@ namespace cf
             /// NULL is returned if AutoRegister was false.
             /// @param GuiScriptName The filename of the GUI script to search for.
             /// @param AutoRegister Whether the script should be registered with this GUI manager if it is not found.
-            GuiImplT* Find(const std::string& GuiScriptName, bool AutoRegister=false);
+            IntrusivePtrT<GuiImplT> Find(const std::string& GuiScriptName, bool AutoRegister=false);
 
             /// Makes sure that if multiple GUIs are active, Gui is the topmost one.
-            void BringToFront(GuiImplT* Gui);
+            void BringToFront(IntrusivePtrT<GuiImplT> Gui);
 
             /// Returns the top-most GUI that is both active and interactive.
             /// NULL is returned if no such GUI exists.
-            GuiImplT* GetTopmostActiveAndInteractive();
+            IntrusivePtrT<GuiImplT> GetTopmostActiveAndInteractive();
 
             /// Reloads all registered GUIs.
             void ReloadAllGuis();
@@ -102,9 +100,9 @@ namespace cf
             GuiManImplT(const GuiManImplT&);            ///< Use of the Copy Constructor    is not allowed.
             void operator = (const GuiManImplT&);       ///< Use of the Assignment Operator is not allowed.
 
-            GuiResourcesT&    m_GuiResources;       ///< The provider for resources (fonts and models) that are used in the GUIs created by this GuiMan.
-            ArrayT<GuiImplT*> Guis;
-            bool              SuppressNextChar;     ///< Whether the next character (CaKeyboardEventT::CKE_CHAR) event should be suppressed. This is true whenever the preceeding CaKeyboardEventT::CKE_KEYDOWN event was positively processed.
+            GuiResourcesT&                    m_GuiResources;   ///< The provider for resources (fonts and models) that are used in the GUIs created by this GuiMan.
+            ArrayT< IntrusivePtrT<GuiImplT> > Guis;
+            bool                              SuppressNextChar; ///< Whether the next character (CaKeyboardEventT::CKE_CHAR) event should be suppressed. This is true whenever the preceeding CaKeyboardEventT::CKE_KEYDOWN event was positively processed.
         };
 
 

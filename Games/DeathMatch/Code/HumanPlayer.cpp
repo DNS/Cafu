@@ -184,7 +184,7 @@ EntHumanPlayerT::~EntHumanPlayerT()
 
 void EntHumanPlayerT::NotifyLeaveMap()
 {
-    if (GuiHUD)
+    if (GuiHUD != NULL)
     {
         cf::GuiSys::GuiMan->Free(GuiHUD);
         GuiHUD = NULL;
@@ -337,7 +337,7 @@ void EntHumanPlayerT::ProcessConfigString(const void* ConfigData, const char* Co
 bool EntHumanPlayerT::CheckGUI(IntrusivePtrT<cf::GameSys::ComponentModelT> CompModel, Vector3fT& MousePos) const
 {
     // 1. Has this entitiy an interactive GUI at all?
-    cf::GuiSys::GuiImplT* Gui = CompModel->GetGui();
+    IntrusivePtrT<cf::GuiSys::GuiImplT> Gui = CompModel->GetGui();
 
     if (Gui==NULL) return false;
     if (!Gui->GetIsInteractive()) return false;
@@ -725,8 +725,8 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
                         if (CheckGUI(CompModel, MousePos))
                         {
-                            cf::GuiSys::GuiImplT* Gui = CompModel->GetGui();
-                            CaMouseEventT         ME;
+                            IntrusivePtrT<cf::GuiSys::GuiImplT> Gui = CompModel->GetGui();
+                            CaMouseEventT ME;
 
                             Gui->SetMousePos(MousePos.x, MousePos.y);
 
@@ -1226,7 +1226,7 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
         {
             GuiHUD = cf::GuiSys::GuiMan->Find("Games/DeathMatch/GUIs/HUD_main.cgui", true);
 
-            if (GuiHUD)
+            if (GuiHUD != NULL)
             {
                 // Bind "this" player entity instance to the global variable "Player" in the GuiHUD script.
                 cf::UniScriptStateT& ScriptState = GuiHUD->GetScriptState();

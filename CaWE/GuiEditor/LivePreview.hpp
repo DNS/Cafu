@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_GUIEDITOR_LIVE_PREVIEW_HPP_INCLUDED
 #define CAFU_GUIEDITOR_LIVE_PREVIEW_HPP_INCLUDED
 
+#include "Templates/Pointer.hpp"
 #include "wx/wx.h"
 
 
@@ -38,17 +39,17 @@ namespace GuiEditor
     {
         public:
 
-        LivePreviewT(wxWindow* Parent, cf::UniScriptStateT* ScriptState, cf::GuiSys::GuiImplT* Gui, const wxString& ScriptFileName);
+        LivePreviewT(wxWindow* Parent, cf::UniScriptStateT* ScriptState, IntrusivePtrT<cf::GuiSys::GuiImplT> Gui, const wxString& ScriptFileName);
         ~LivePreviewT();
 
-        cf::GuiSys::GuiImplT* GetGui() { return m_Gui; }
+        IntrusivePtrT<cf::GuiSys::GuiImplT> GetGui() { return m_Gui; }
 
 
         private:
 
-        cf::UniScriptStateT*  m_ScriptState;
-        cf::GuiSys::GuiImplT* m_Gui;
-        PreviewCanvasT*       m_Canvas;
+        cf::UniScriptStateT*                m_ScriptState;
+        IntrusivePtrT<cf::GuiSys::GuiImplT> m_Gui;
+        PreviewCanvasT*                     m_Canvas;
 
         void OnClose(wxCloseEvent& CE);
 
