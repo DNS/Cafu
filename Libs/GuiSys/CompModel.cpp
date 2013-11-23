@@ -463,7 +463,7 @@ int ComponentModelT::GetNumSkins(lua_State* LuaState)
 
 static const cf::TypeSys::MethsDocT META_toString =
 {
-    "__toString",
+    "__tostring",
     "This method returns a readable string representation of this object.",
     "string", "()"
 };

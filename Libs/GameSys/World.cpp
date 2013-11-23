@@ -394,7 +394,7 @@ int WorldT::TraceRay(lua_State* LuaState)
 
 static const cf::TypeSys::MethsDocT META_toString =
 {
-    "__toString",
+    "__tostring",
     "Returns a short string description of this world.",
     "string", "()"
 };
