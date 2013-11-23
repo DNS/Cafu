@@ -386,7 +386,7 @@ IntrusivePtrT<cf::GuiSys::GuiImplT> ComponentModelT::GetGui() const
     {
         // Not a model with GUI fixtures.
         assert(!m_ScriptState);
-        assert(m_Gui == NULL);
+        assert(m_Gui.IsNull());
         return NULL;
     }
 
@@ -431,18 +431,20 @@ IntrusivePtrT<cf::GuiSys::GuiImplT> ComponentModelT::GetGui() const
 
     try
     {
+        m_Gui = new cf::GuiSys::GuiImplT(
+            *m_ScriptState,
+            GetEntity()->GetWorld().GetGuiResources());
+
         if (m_GuiName.Get() == "")
         {
-            m_Gui = new cf::GuiSys::GuiImplT(
-                *m_ScriptState,
-                GetEntity()->GetWorld().GetGuiResources(),
+            m_Gui->LoadScript(
                 cf::String::Replace(FallbackGUI, "%s", "This is a\nfull-scale sample GUI.\n\n"
                     "Set the 'Gui' property\nof the Model component\nto assign the real GUI."),
                 cf::GuiSys::GuiImplT::InitFlag_InlineCode);
         }
         else
         {
-            m_Gui = new cf::GuiSys::GuiImplT(*m_ScriptState, GetEntity()->GetWorld().GetGuiResources(), m_GuiName.Get());
+            m_Gui->LoadScript(m_GuiName.Get());
 
             // Active status is not really relevant for our Gui that is not managed by the GuiMan,
             // but still make sure that clock tick events are properly propagated to all windows.
@@ -452,10 +454,13 @@ IntrusivePtrT<cf::GuiSys::GuiImplT> ComponentModelT::GetGui() const
     }
     catch (const cf::GuiSys::GuiImplT::InitErrorT& IE)
     {
-        // This one must not throw again...
+        // Need a new GuiImplT instance here, as the one allocated above is in unknown state.
         m_Gui = new cf::GuiSys::GuiImplT(
             *m_ScriptState,
-            GetEntity()->GetWorld().GetGuiResources(),
+            GetEntity()->GetWorld().GetGuiResources());
+
+        // This one must not throw again...
+        m_Gui->LoadScript(
             cf::String::Replace(FallbackGUI, "%s", "Could not load GUI\n" + m_GuiName.Get() + "\n\n" + IE.what()),
             cf::GuiSys::GuiImplT::InitFlag_InlineCode);
     }

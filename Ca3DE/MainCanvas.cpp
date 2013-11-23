@@ -351,13 +351,16 @@ void MainCanvasT::Initialize()
         // Finish the initialization of the GuiSys.
         // Note that in the line below, the call to gui:setMousePos() is important, because it sets "MouseOverWindow" in the GUI properly to "Cl".
         // Without this, a left mouse button click that was not preceeded by a mouse movement would erroneously remove the input focus from "Cl".
-        IntrusivePtrT<cf::GuiSys::GuiImplT> ClientGui = new cf::GuiSys::GuiImplT(*m_GuiResources,
+        IntrusivePtrT<cf::GuiSys::GuiImplT> ClientGui = new cf::GuiSys::GuiImplT(*m_GuiResources);
+
+        ClientGui->LoadScript(
             "Cl=gui:new('WindowT', 'Client')\n"
             "\n"
             "gui:SetRootWindow(Cl)\n"
             "gui:showMouse(false)\n"
             "gui:setMousePos(320, 240)\n"
-            "gui:setFocus(Cl)\n", cf::GuiSys::GuiImplT::InitFlag_InlineCode);
+            "gui:setFocus(Cl)\n",
+            cf::GuiSys::GuiImplT::InitFlag_InlineCode);
 
         IntrusivePtrT<cf::GuiSys::WindowT> ClientWindow = ClientGui->GetRootWindow()->Find("Client");
         IntrusivePtrT<ComponentClientT>    CompClient   = new ComponentClientT;
@@ -375,7 +378,19 @@ void MainCanvasT::Initialize()
         IntrusivePtrT<cf::GuiSys::GuiImplT> MainMenuGui = cf::GuiSys::GuiMan->Find("Games/"+m_GameInfo->GetName()+"/GUIs/MainMenu/MainMenu_main.cgui", true);
         if (MainMenuGui==NULL)
         {
-            MainMenuGui=new cf::GuiSys::GuiImplT(*m_GuiResources, "Err=gui:new('WindowT'); gui:SetRootWindow(Err); gui:activate(true); gui:setInteractive(true); gui:showMouse(false); Err:set('rect', 0, 0, 640, 480); Err:set('textScale', 0.8); Err:set('text', 'Error loading MainMenu_main.cgui,\\nsee console <F1> for details.');", cf::GuiSys::GuiImplT::InitFlag_InlineCode);
+            MainMenuGui = new cf::GuiSys::GuiImplT(*m_GuiResources);
+
+            MainMenuGui->LoadScript(
+                "Err=gui:new('WindowT')\n"
+                "gui:SetRootWindow(Err)\n"
+                "gui:activate(true)\n"
+                "gui:setInteractive(true)\n"
+                "gui:showMouse(false)\n"
+                "Err:set('rect', 0, 0, 640, 480)\n"
+                "Err:set('textScale', 0.8)\n"
+                "Err:set('text', 'Error loading MainMenu_main.cgui,\\nsee console <F1> for details.')",
+                cf::GuiSys::GuiImplT::InitFlag_InlineCode);
+
             cf::GuiSys::GuiMan->Register(MainMenuGui);
         }
         m_Client->SetMainMenuGui(MainMenuGui);

@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "MaterialSystem/MaterialManagerImpl.hpp"
 #include "Templates/Pointer.hpp"
+#include "TypeSys.hpp"
 
 #include <stdexcept>
 
@@ -39,6 +40,10 @@ namespace cf
 {
     namespace GuiSys
     {
+        /// The TypeInfoTs of all GuiImplT-derived classes must register with this TypeInfoManT instance.
+        cf::TypeSys::TypeInfoManT& GetGuiTIM();
+
+
         class GuiResourcesT;
         class WindowT;
 
@@ -55,7 +60,7 @@ namespace cf
 
             class InitErrorT;
 
-            /// Flags for initializing a GUI, used in the GuiImplT constructor.
+            /// Flags for initializing a GUI from a script.
             enum InitFlagsT
             {
                 InitFlag_InlineCode  = 1,   ///< Normally, the `GuiScriptName` parameter to the GuiImplT ctor is a filename. If this is set, it is treated as inline script code.
@@ -67,26 +72,27 @@ namespace cf
 
 
             /// Constructor for creating a window hierarchy (=="a GUI") from the GUI script file GuiScriptName.
-            /// @param ScriptState     The caller will use this GUI with this script state (binds the GUI to it).
-            /// @param GuiRes          The provider for resources (fonts and models) that are used in this GUI.
-            /// @param GuiScriptName   The file name of the GUI script to load or inline script code (if InitFlag_InlineCode is set).
-            /// @param Flags           A combination of the flags in InitFlagsT.
-            /// @throws Throws an InitErrorT object on problems initializing the GUI.
-            GuiImplT(UniScriptStateT& ScriptState, GuiResourcesT& GuiRes, const std::string& GuiScriptName, int Flags = 0);
+            /// @param ScriptState   The caller will use this GUI with this script state (binds the GUI to it).
+            /// @param GuiRes        The provider for resources (fonts and models) that are used in this GUI.
+            GuiImplT(UniScriptStateT& ScriptState, GuiResourcesT& GuiRes);
 
             /// Constructor for creating a window hierarchy (=="a GUI") from the GUI script file GuiScriptName.
             ///
             /// This constructor is *DEPRECATED*. It only exists so that code that uses it can be updated to
             /// the new constructor at a convenient time. It should not be used in any new code.
             ///
-            /// @param GuiRes          The provider for resources (fonts and models) that are used in this GUI.
-            /// @param GuiScriptName   The file name of the GUI script to load or inline script code (if InitFlag_InlineCode is set).
-            /// @param Flags           A combination of the flags in InitFlagsT.
-            /// @throws Throws an InitErrorT object on problems initializing the GUI.
-            GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, int Flags = 0);
+            /// @param GuiRes        The provider for resources (fonts and models) that are used in this GUI.
+            GuiImplT(GuiResourcesT& GuiRes);
 
             /// The destructor.
             ~GuiImplT();
+
+            /// Assigns the given GUI to the global "gui" and loads the given script in order to initialize it.
+            /// @param Gui          The GUI to init.
+            /// @param ScriptName   The file name of the script to load or inline script code (if InitFlag_InlineCode is set).
+            /// @param Flags        A combination of the flags in InitFlagsT.
+            /// @throws Throws an InitErrorT object on problems initializing the GUI.
+            void LoadScript(const std::string& ScriptName, int Flags = 0);
 
             /// Returns the string with the result of loading and running the GUI script.
             /// Note that errors reported here are not necessarily fatal: the GUI may be usable (at least partially) anyway.
@@ -176,13 +182,10 @@ namespace cf
             void DistributeClockTickEvents(float t);
 
 
-            /// Adds a new global variable of type (meta-)table and name "cf::GuiSys::GuiT" to the Lua state LuaState,
-            /// containing functions (or rather "methods") that can be called on userdata objects of type cf::GuiSys::GuiT.
-            /// This is very analogous to how normal C-code modules are registered with Lua, except for
-            /// the fact that this table is intended to be set as metatable for userdata objects of type cf::GuiSys::GuiT.
-            /// For more details, see the implementation of this function and the PiL2 book, chapter 28.1 to 28.3.
-            /// @param LuaState DOCTODO
-            static void RegisterLua(lua_State* LuaState);
+            // The TypeSys related declarations for this class.
+            virtual const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
+            static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
+            static const cf::TypeSys::TypeInfoT TypeInfo;
 
 
             private:
@@ -190,7 +193,6 @@ namespace cf
             GuiImplT(const GuiImplT&);          ///< Use of the Copy Constructor    is not allowed.
             void operator = (const GuiImplT&);  ///< Use of the Assignment Operator is not allowed.
 
-            void CtorInit(const std::string& GuiScriptName, int Flags);   ///< A helper for the ctors.
             void Init();    ///< Calls the OnInit() script methods of all windows.
 
 
@@ -235,6 +237,10 @@ namespace cf
             static int CreateNew(lua_State* LuaState);          ///< Creates and returns a new window or component.
             static int Init(lua_State* LuaState);               ///< Calls the OnInit() script methods of all windows.
             static int toString(lua_State* LuaState);           ///< Returns a string representation of this GUI.
+
+            static const luaL_Reg               MethodsList[];  ///< List of methods registered with Lua.
+            static const char*                  DocClass;
+            static const cf::TypeSys::MethsDocT DocMethods[];
         };
     }
 }

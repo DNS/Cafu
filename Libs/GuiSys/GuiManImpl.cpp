@@ -45,7 +45,11 @@ IntrusivePtrT<GuiImplT> GuiManImplT::Register(const std::string& GuiScriptName)
 {
     try
     {
-        Guis.PushBack(new GuiImplT(m_GuiResources, GuiScriptName));
+        IntrusivePtrT<GuiImplT> Gui = new GuiImplT(m_GuiResources);
+
+        Gui->LoadScript(GuiScriptName);
+
+        Guis.PushBack(Gui);
 
         return Guis[Guis.Size()-1];
     }
@@ -121,7 +125,11 @@ void GuiManImplT::ReloadAllGuis()
 
         try
         {
-            Guis[GuiNr] = new GuiImplT(m_GuiResources, Guis[GuiNr]->GetScriptName());
+            IntrusivePtrT<GuiImplT> Gui = new GuiImplT(m_GuiResources);
+
+            Gui->LoadScript(Guis[GuiNr]->GetScriptName());
+
+            Guis[GuiNr] = Gui;
         }
         catch (const GuiImplT::InitErrorT&)
         {

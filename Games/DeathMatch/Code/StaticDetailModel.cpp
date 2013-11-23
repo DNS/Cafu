@@ -115,8 +115,9 @@ EntStaticDetailModelT::EntStaticDetailModelT(const EntityCreateParamsT& Params)
             // Load the Gui. Note that this is done BOTH on the client as well as on the server.
             try
             {
-                Gui = new cf::GuiSys::GuiImplT(GameWorld->GetGuiResources(), GuiName);
+                Gui = new cf::GuiSys::GuiImplT(GameWorld->GetGuiResources());
 
+                Gui->LoadScript(GuiName);
                 Gui->Activate();    // Active status is not really relevant for our Gui that is not managed by the GuiMan, but still make sure that clock tick events are properly propagated to all windows.
                 Gui->SetMouseCursorSize(40.0f);
 

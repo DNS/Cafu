@@ -339,7 +339,7 @@ bool EntHumanPlayerT::CheckGUI(IntrusivePtrT<cf::GameSys::ComponentModelT> CompM
     // 1. Has this entitiy an interactive GUI at all?
     IntrusivePtrT<cf::GuiSys::GuiImplT> Gui = CompModel->GetGui();
 
-    if (Gui==NULL) return false;
+    if (Gui.IsNull()) return false;
     if (!Gui->GetIsInteractive()) return false;
 
 

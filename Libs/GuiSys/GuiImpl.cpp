@@ -49,6 +49,21 @@ extern "C"
 using namespace cf::GuiSys;
 
 
+// Note that we cannot simply replace this method with a global TypeInfoManT instance,
+// because it is called during global static initialization time. The TIM instance being
+// embedded in the function guarantees that it is properly initialized before first use.
+cf::TypeSys::TypeInfoManT& cf::GuiSys::GetGuiTIM()
+{
+    static cf::TypeSys::TypeInfoManT TIM;
+
+    return TIM;
+}
+
+
+const char* GuiImplT::DocClass =
+    "This class holds the hierarchy of windows that together form a GUI.";
+
+
 GuiImplT::InitErrorT::InitErrorT(const std::string& Message)
     : std::runtime_error(Message)
 {
@@ -65,21 +80,19 @@ GuiImplT::InitErrorT::InitErrorT(const std::string& Message)
     // Load the "ci" (console interpreter) library. (Adds a global table with name "ci" to the LuaState with (some of) the functions of the ConsoleInterpreterI interface.)
     ConsoleInterpreterI::RegisterLua(LuaState);
 
-    // Adds a global (meta-)table with methods for cf::GuiSys::GuiTs to the LuaState, to be used as metatable for userdata of type cf::GuiSys::GuiT.
-    GuiImplT::RegisterLua(LuaState);
-
     // For each class that the TypeInfoManTs know about, add a (meta-)table to the registry of the LuaState.
     // The (meta-)table holds the Lua methods that the respective class implements in C++,
     // and is to be used as metatable for instances of this class.
     ScriptBinderT Binder(LuaState);
 
+    Binder.Init(GetGuiTIM());
     Binder.Init(GetWindowTIM());
     Binder.Init(GetComponentTIM());
 }
 
 
-GuiImplT::GuiImplT(cf::UniScriptStateT& ScriptState, GuiResourcesT& GuiRes, const std::string& GuiScriptName, int Flags)
-    : ScriptName((Flags & InitFlag_InlineCode) ? "" : GuiScriptName),
+GuiImplT::GuiImplT(cf::UniScriptStateT& ScriptState, GuiResourcesT& GuiRes)
+    : ScriptName(),
       m_ScriptState(&ScriptState),
       m_IsOwnScriptSt(false),
       ScriptInitResult(""),
@@ -100,12 +113,11 @@ GuiImplT::GuiImplT(cf::UniScriptStateT& ScriptState, GuiResourcesT& GuiRes, cons
       m_MouseCursorSize(20.0f),
       MouseIsShown(true)
 {
-    CtorInit(GuiScriptName, Flags);
 }
 
 
-GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, int Flags)
-    : ScriptName((Flags & InitFlag_InlineCode) ? "" : GuiScriptName),
+GuiImplT::GuiImplT(GuiResourcesT& GuiRes)
+    : ScriptName(),
       m_ScriptState(new UniScriptStateT()),
       m_IsOwnScriptSt(true),
       ScriptInitResult(""),
@@ -127,12 +139,13 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes, const std::string& GuiScriptName, int 
       MouseIsShown(true)
 {
     InitScriptState(*m_ScriptState);
-    CtorInit(GuiScriptName, Flags);
 }
 
 
-void GuiImplT::CtorInit(const std::string& GuiScriptName, int Flags)
+void GuiImplT::LoadScript(const std::string& GuiScriptName, int Flags)
 {
+    ScriptName = (Flags & InitFlag_InlineCode) ? "" : GuiScriptName;
+
     if ((Flags & InitFlag_InlineCode) == 0)
     {
         std::string s=cf::String::StripExt(GuiScriptName);
@@ -187,55 +200,22 @@ void GuiImplT::CtorInit(const std::string& GuiScriptName, int Flags)
         m_MaterialMan.RegisterMaterial(Mat);
     }
 
-    m_GuiDefaultRM=MatSys::Renderer->RegisterMaterial(m_MaterialMan.GetMaterial("Gui/Default"));
-    m_GuiPointerRM=MatSys::Renderer->RegisterMaterial(m_MaterialMan.GetMaterial("Gui/Cursors/Pointer"));
-    m_GuiFinishZRM=MatSys::Renderer->RegisterMaterial(m_MaterialMan.GetMaterial("Gui/FinishZ"));
+    MatSys::Renderer->FreeMaterial(m_GuiDefaultRM);    // It shouldn't happen, but LoadScript() might still be called multiple times.
+    MatSys::Renderer->FreeMaterial(m_GuiPointerRM);
+    MatSys::Renderer->FreeMaterial(m_GuiFinishZRM);
+
+    m_GuiDefaultRM = MatSys::Renderer->RegisterMaterial(m_MaterialMan.GetMaterial("Gui/Default"));
+    m_GuiPointerRM = MatSys::Renderer->RegisterMaterial(m_MaterialMan.GetMaterial("Gui/Cursors/Pointer"));
+    m_GuiFinishZRM = MatSys::Renderer->RegisterMaterial(m_MaterialMan.GetMaterial("Gui/FinishZ"));
 
 
-    lua_State* LuaState = m_ScriptState->GetLuaState();
+    const std::string PrintScriptName((Flags & InitFlag_InlineCode) ? "<inline code>" : GuiScriptName);
+    lua_State*        LuaState = GetScriptState().GetLuaState();
+    ScriptBinderT     Binder(LuaState);
 
-    // Add a global variable with name "gui" to the Lua state. "gui" is a table that scripts can use to call GUI methods.
-    {
-        assert(lua_gettop(LuaState)==0);
-
-        // Stack indices of the table and userdata that we create.
-        const int USERDATA_INDEX=2;
-        const int TABLE_INDEX   =1;
-
-        // Create a new table T, which is pushed on the stack and thus at stack index TABLE_INDEX.
-        lua_newtable(LuaState);
-
-        // Create a new user datum UD, which is pushed on the stack and thus at stack index USERDATA_INDEX.
-        GuiImplT** UserData=(GuiImplT**)lua_newuserdata(LuaState, sizeof(GuiImplT*));
-
-        // Initialize the memory allocated by the lua_newuserdata() function.
-        *UserData=this;
-
-        // T["__userdata_cf"] = UD
-        lua_pushvalue(LuaState, USERDATA_INDEX);    // Duplicate the userdata on top of the stack (as the argument for lua_setfield()).
-        lua_setfield(LuaState, TABLE_INDEX, "__userdata_cf");
-
-        // Get the table with name (key) "cf::GuiSys::GuiT" from the registry,
-        // and set it as metatable of the newly created table.
-        luaL_getmetatable(LuaState, "cf::GuiSys::GuiT");
-        lua_setmetatable(LuaState, TABLE_INDEX);
-
-        // Get the table with name (key) "cf::GuiSys::GuiT" from the registry,
-        // and set it as metatable of the newly created user data (for user data type safety, see PiL2, chapter 28.2).
-        luaL_getmetatable(LuaState, "cf::GuiSys::GuiT");
-        lua_setmetatable(LuaState, USERDATA_INDEX);
-
-        // Remove UD from the stack, so that only the new table T is left on top of the stack.
-        // Then add it as a global variable whose name is "gui".
-        // As lua_setglobal() pops the table from the stack, the stack is left empty.
-        lua_pop(LuaState, 1);
-        lua_setglobal(LuaState, "gui");
-        // Could instead do   lua_setfield(LuaState, LUA_REGISTRYINDEX, "gui");   as well,
-        // so that script methods like "new()" and "thread()" could also be called without the "gui:" prefix.
-    }
-
-    // Make sure that everyone dealt properly with the Lua stack so far.
-    assert(lua_gettop(LuaState)==0);
+    // Add a global variable with name "gui" to the Lua state.
+    Binder.Push(IntrusivePtrT<GuiImplT>(this));
+    lua_setglobal(LuaState, "gui");
 
 
     // Load the user script!
@@ -245,8 +225,8 @@ void GuiImplT::CtorInit(const std::string& GuiScriptName, int Flags)
     if (LoadResult!=0 || lua_pcall(LuaState, 0, 0, 0)!=0)
     {
         Console->Warning(std::string("Lua script \"")+GuiScriptName+"\" could not be loaded\n");
-        ScriptInitResult=lua_tostring(LuaState, -1);
-        Console->Print("("+ScriptInitResult+").\n");
+        ScriptInitResult = lua_tostring(LuaState, -1);
+        Console->Print("(" + ScriptInitResult + ").\n");
         lua_pop(LuaState, 1);
     }
 
@@ -254,7 +234,7 @@ void GuiImplT::CtorInit(const std::string& GuiScriptName, int Flags)
     assert(lua_gettop(LuaState)==0);
 
 
-    if (RootWindow==NULL)
+    if (RootWindow == NULL)
     {
         Console->Warning("No root window set for GUI \""+GuiScriptName+"\"!\n");
 
@@ -267,7 +247,7 @@ void GuiImplT::CtorInit(const std::string& GuiScriptName, int Flags)
         MatSys::Renderer->FreeMaterial(m_GuiFinishZRM);
 
         // The LuaState will be closed by the m_ScriptState.
-        throw InitErrorT("No root window set. Probable cause:\n"+ScriptInitResult);
+        throw InitErrorT("No root window set. Probable cause:\n" + ScriptInitResult);
     }
 
 
@@ -593,23 +573,17 @@ void GuiImplT::DistributeClockTickEvents(float t)
 /*** Implementation of Lua binding functions ***/
 /***********************************************/
 
-static GuiImplT* CheckParams(lua_State* LuaState)
+static const cf::TypeSys::MethsDocT META_Activate =
 {
-    luaL_argcheck(LuaState, lua_istable(LuaState, 1), 1, "Expected a table that represents a GUI.");
-    lua_getfield(LuaState, 1, "__userdata_cf");
-
-    GuiImplT** UserData=(GuiImplT**)luaL_checkudata(LuaState, -1, "cf::GuiSys::GuiT"); if (UserData==NULL) luaL_error(LuaState, "NULL userdata in GUI table.");
-    GuiImplT*  Gui     =(*UserData);
-
-    // Pop the userdata from the stack again. Not necessary though as it doesn't hurt there.
-    // lua_pop(LuaState, 1);
-    return Gui;
-}
-
+    "activate",
+    "Sets the IsActive flag of this GUI.",
+    "", "(bool IsActive)"
+};
 
 int GuiImplT::Activate(lua_State* LuaState)
 {
-    GuiImplT* Gui=CheckParams(LuaState);
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<GuiImplT> Gui = Binder.GetCheckedObjectParam< IntrusivePtrT<GuiImplT> >(1);
 
     // I also want to treat the number 0 as false, not just "false" and "nil".
     if (lua_isnumber(LuaState, 2)) Gui->IsActive=lua_tointeger(LuaState, 2)!=0;
@@ -619,18 +593,34 @@ int GuiImplT::Activate(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_Close =
+{
+    "close",
+    "Same as calling `gui:activate(false);`",
+    "", "()"
+};
+
 int GuiImplT::Close(lua_State* LuaState)
 {
-    GuiImplT* Gui=CheckParams(LuaState);
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<GuiImplT> Gui = Binder.GetCheckedObjectParam< IntrusivePtrT<GuiImplT> >(1);
 
     Gui->IsActive=false;
     return 0;
 }
 
 
+static const cf::TypeSys::MethsDocT META_SetInteractive =
+{
+    "setInteractive",
+    "Sets the IsInteractive flag of this GUI.",
+    "", "(bool IsInteractive)"
+};
+
 int GuiImplT::SetInteractive(lua_State* LuaState)
 {
-    GuiImplT* Gui=CheckParams(LuaState);
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<GuiImplT> Gui = Binder.GetCheckedObjectParam< IntrusivePtrT<GuiImplT> >(1);
 
     // I also want to treat the number 0 as false, not just "false" and "nil".
     if (lua_isnumber(LuaState, 2)) Gui->IsInteractive=lua_tointeger(LuaState, 2)!=0;
@@ -640,9 +630,17 @@ int GuiImplT::SetInteractive(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_SetFullCover =
+{
+    "setFullCover",
+    "Sets the IsFullCover flag of this GUI.",
+    "", "(bool IsFullCover)"
+};
+
 int GuiImplT::SetFullCover(lua_State* LuaState)
 {
-    GuiImplT* Gui=CheckParams(LuaState);
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<GuiImplT> Gui = Binder.GetCheckedObjectParam< IntrusivePtrT<GuiImplT> >(1);
 
     // I also want to treat the number 0 as false, not just "false" and "nil".
     if (lua_isnumber(LuaState, 2)) Gui->IsFullCover=lua_tointeger(LuaState, 2)!=0;
@@ -652,9 +650,17 @@ int GuiImplT::SetFullCover(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_SetMousePos =
+{
+    "setMousePos",
+    "Sets the position of the mouse cursor.",
+    "", "(number x, number y)"
+};
+
 int GuiImplT::SetMousePos(lua_State* LuaState)
 {
-    GuiImplT* Gui=CheckParams(LuaState);
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<GuiImplT> Gui = Binder.GetCheckedObjectParam< IntrusivePtrT<GuiImplT> >(1);
 
     Gui->SetMousePos(float(lua_tonumber(LuaState, 2)),
                      float(lua_tonumber(LuaState, 3)));
@@ -663,9 +669,17 @@ int GuiImplT::SetMousePos(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_SetMouseCursorSize =
+{
+    "setMouseCursorSize",
+    "Sets the size of the mouse cursor.",
+    "", "(number size)"
+};
+
 int GuiImplT::SetMouseCursorSize(lua_State* LuaState)
 {
-    GuiImplT* Gui=CheckParams(LuaState);
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<GuiImplT> Gui = Binder.GetCheckedObjectParam< IntrusivePtrT<GuiImplT> >(1);
 
     Gui->SetMouseCursorSize(float(lua_tonumber(LuaState, 2)));
 
@@ -673,17 +687,31 @@ int GuiImplT::SetMouseCursorSize(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_SetMouseMat =
+{
+    "setMouseMat",
+    "Sets the material that is used to render the mouse cursor.\n"
+    "(This method is not yet implemented.)",
+    "", "()"
+};
+
 int GuiImplT::SetMouseMat(lua_State* LuaState)
 {
-    // GuiImplT* Gui=CheckParams(LuaState);
-
     return 0;
 }
 
 
+static const cf::TypeSys::MethsDocT META_SetMouseIsShown =
+{
+    "showMouse",
+    "Determines whether the mouse cursor is shown at all.",
+    "", "(bool IsShown)"
+};
+
 int GuiImplT::SetMouseIsShown(lua_State* LuaState)
 {
-    GuiImplT* Gui=CheckParams(LuaState);
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<GuiImplT> Gui = Binder.GetCheckedObjectParam< IntrusivePtrT<GuiImplT> >(1);
 
     // I also want to treat the number 0 as false, not just "false" and "nil".
     if (lua_isnumber(LuaState, 2)) Gui->MouseIsShown=lua_tointeger(LuaState, 2)!=0;
@@ -693,10 +721,18 @@ int GuiImplT::SetMouseIsShown(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_SetFocus =
+{
+    "setFocus",
+    "Sets the keyboard input focus to the given window. Does *not* call the OnFocusLose() or OnFocusGain() callbacks!\n"
+    "Instead of a window instance, it is also possible to pass the name of the window (a string).",
+    "", "(WindowT Window)"
+};
+
 int GuiImplT::SetFocus(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    GuiImplT*     Gui=CheckParams(LuaState);
+    IntrusivePtrT<GuiImplT> Gui = Binder.GetCheckedObjectParam< IntrusivePtrT<GuiImplT> >(1);
 
     if (lua_isstring(LuaState, 2))
     {
@@ -715,22 +751,37 @@ int GuiImplT::SetFocus(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_SetRootWindow =
+{
+    "SetRootWindow",
+    "Sets the root window for this GUI.",
+    "", "(WindowT Window)"
+};
+
 int GuiImplT::SetRootWindow(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    GuiImplT*     Gui = CheckParams(LuaState);
+    IntrusivePtrT<GuiImplT> Gui = Binder.GetCheckedObjectParam< IntrusivePtrT<GuiImplT> >(1);
 
     Gui->RootWindow = Binder.GetCheckedObjectParam< IntrusivePtrT<WindowT> >(2);
     return 0;
 }
 
 
+static const cf::TypeSys::MethsDocT META_CreateNew =
+{
+    "new",
+    "Creates and returns a new window or component.",
+    "object", "(string ClassName)"
+};
+
 int GuiImplT::CreateNew(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    GuiImplT*     Gui      = CheckParams(LuaState);
-    const char*   TypeName = luaL_checkstring(LuaState, 2);
-    const char*   ObjName  = lua_tostring(LuaState, 3);    // Passing an object name is optional.
+    IntrusivePtrT<GuiImplT> Gui = Binder.GetCheckedObjectParam< IntrusivePtrT<GuiImplT> >(1);
+
+    const char* TypeName = luaL_checkstring(LuaState, 2);
+    const char* ObjName  = lua_tostring(LuaState, 3);   // Passing an object name is optional.
 
     const cf::TypeSys::TypeInfoT* TI = GetWindowTIM().FindTypeInfoByName(TypeName);
 
@@ -762,19 +813,34 @@ int GuiImplT::CreateNew(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_Init =
+{
+    "Init",
+    "Calls the OnInit() script methods of all windows.",
+    "", "()"
+};
+
 int GuiImplT::Init(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
-    GuiImplT*     Gui = CheckParams(LuaState);
+    IntrusivePtrT<GuiImplT> Gui = Binder.GetCheckedObjectParam< IntrusivePtrT<GuiImplT> >(1);
 
     Gui->Init();
     return 0;
 }
 
 
+static const cf::TypeSys::MethsDocT META_toString =
+{
+    "__tostring",
+    "Returns a short string representation of this GUI.",
+    "string", "()"
+};
+
 int GuiImplT::toString(lua_State* LuaState)
 {
-    GuiImplT* Gui=CheckParams(LuaState);
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<GuiImplT> Gui = Binder.GetCheckedObjectParam< IntrusivePtrT<GuiImplT> >(1);
 
     if (Gui->ScriptName=="") lua_pushfstring(LuaState, "A programmatically generated GUI.");
                         else lua_pushfstring(LuaState, "A gui generated from the script \"%s\".", Gui->ScriptName.c_str());
@@ -783,38 +849,55 @@ int GuiImplT::toString(lua_State* LuaState)
 }
 
 
-void GuiImplT::RegisterLua(lua_State* LuaState)
+/***********************************/
+/*** TypeSys-related definitions ***/
+/***********************************/
+
+void* GuiImplT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 {
-    // Create a new table T and add it into the registry table with "cf::GuiSys::GuiT" as the key and T as the value.
-    // This also leaves T on top of the stack. See PiL2 chapter 28.2 for more details.
-    luaL_newmetatable(LuaState, "cf::GuiSys::GuiT");
+    // At this time, GuiImplT instances cannot be created "anonymously" via the TypeSys' CreateInstance() method,
+    // as it would require us to derive from cf::TypeSys::CreateParamsT and deal with that.
+    // That's not a problem though, because there is no class hierarchy deriving from GuiImplT, so any code that
+    // instantiates GuiImplTs can do so by using the normal constructor -- no "virtual constructor" is needed.
 
-    // See PiL2 chapter 28.3 for a great explanation on what is going on here.
-    // Essentially, we set T.__index = T (the luaL_newmetatable() function left T on the top of the stack).
-    lua_pushvalue(LuaState, -1);                // Pushes/duplicates the new table T on the stack.
-    lua_setfield(LuaState, -2, "__index");      // T.__index = T;
-
-    static const luaL_Reg GuiMethods[]=
-    {
-        { "activate",           Activate },
-        { "close",              Close },
-        { "setInteractive",     SetInteractive },
-        { "setFullCover",       SetFullCover },
-        { "setMousePos",        SetMousePos },
-        { "setMouseCursorSize", SetMouseCursorSize },
-        { "setMouseMat",        SetMouseMat },
-        { "showMouse",          SetMouseIsShown },
-        { "setFocus",           SetFocus },
-        { "SetRootWindow",      SetRootWindow },
-        { "new",                CreateNew },
-        { "Init",               Init },
-        { "__tostring",         toString },
-        { NULL, NULL }
-    };
-
-    // Now insert the functions listed in GuiMethods into T (the table on top of the stack).
-    luaL_setfuncs(LuaState, GuiMethods, 0);
-
-    // Clear the stack.
-    lua_settop(LuaState, 0);
+    // return new GuiImplT(*static_cast<const cf::GameSys::GuiCreateParamsT*>(&Params));
+    return NULL;
 }
+
+const luaL_Reg GuiImplT::MethodsList[] =
+{
+    { "activate",           Activate },
+    { "close",              Close },
+    { "setInteractive",     SetInteractive },
+    { "setFullCover",       SetFullCover },
+    { "setMousePos",        SetMousePos },
+    { "setMouseCursorSize", SetMouseCursorSize },
+    { "setMouseMat",        SetMouseMat },
+    { "showMouse",          SetMouseIsShown },
+    { "setFocus",           SetFocus },
+    { "SetRootWindow",      SetRootWindow },
+    { "new",                CreateNew },
+    { "Init",               Init },
+    { "__tostring",         toString },
+    { NULL, NULL }
+};
+
+const cf::TypeSys::MethsDocT GuiImplT::DocMethods[] =
+{
+    META_Activate,
+    META_Close,
+    META_SetInteractive,
+    META_SetFullCover,
+    META_SetMousePos,
+    META_SetMouseCursorSize,
+    META_SetMouseMat,
+    META_SetMouseIsShown,
+    META_SetFocus,
+    META_SetRootWindow,
+    META_CreateNew,
+    META_Init,
+    META_toString,
+    { NULL, NULL, NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT GuiImplT::TypeInfo(GetGuiTIM(), "GuiImplT", NULL /*No base class.*/, CreateInstance, MethodsList, DocClass, DocMethods);

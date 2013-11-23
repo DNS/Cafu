@@ -36,6 +36,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameSys/World.hpp"
 #include "GuiSys/AllComponents.hpp"
 #include "GuiSys/GuiManImpl.hpp"
+#include "GuiSys/GuiImpl.hpp"
 #include "GuiSys/Window.hpp"
 #include "MaterialSystem/MaterialManagerImpl.hpp"
 #include "Network/Network.hpp"
@@ -193,8 +194,9 @@ AppCafuT::AppCafuT()
     cf::GameSys::GetGameSysEntityTIM().Init();  // The one-time init of the GameSys entity type info manager.
     cf::GameSys::GetWorldTIM().Init();          // The one-time init of the GameSys world type info manager.
 
-    cf::GuiSys::GetComponentTIM().Init();       // The one-time init of the components type info manager.
-    cf::GuiSys::GetWindowTIM().Init();          // The one-time init of the windows type info manager.
+    cf::GuiSys::GetComponentTIM().Init();       // The one-time init of the GuiSys components type info manager.
+    cf::GuiSys::GetWindowTIM().Init();          // The one-time init of the GuiSys window type info manager.
+    cf::GuiSys::GetGuiTIM().Init();             // The one-time init of the GuiSys GUI type info manager.
 
     // Gather infos about all available games.
     InitGameInfos();

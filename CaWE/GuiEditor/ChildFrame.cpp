@@ -779,7 +779,9 @@ void GuiEditor::ChildFrameT::OnToolbar(wxCommandEvent& CE)
                 cf::UniScriptStateT* ScriptState = new cf::UniScriptStateT();
                 cf::GuiSys::GuiImplT::InitScriptState(*ScriptState);
 
-                IntrusivePtrT<cf::GuiSys::GuiImplT> Gui = new cf::GuiSys::GuiImplT(*ScriptState, m_GameConfig->GetGuiResources(), std::string(MainScriptFileName));
+                IntrusivePtrT<cf::GuiSys::GuiImplT> Gui = new cf::GuiSys::GuiImplT(*ScriptState, m_GameConfig->GetGuiResources());
+
+                Gui->LoadScript(std::string(MainScriptFileName));
 
                 if (Gui->GetScriptInitResult()!="")
                 {
