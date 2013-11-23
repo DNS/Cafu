@@ -753,18 +753,18 @@ void* WindowT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 
 const luaL_Reg WindowT::MethodsList[]=
 {
-    { "AddChild",        WindowT::AddChild },
-    { "RemoveChild",     WindowT::RemoveChild },
-    { "GetParent",       WindowT::GetParent },
-    { "GetChildren",     WindowT::GetChildren },
-    { "GetTime",         WindowT::GetTime },
-    { "GetBasics",       WindowT::GetBasics },
-    { "GetTransform",    WindowT::GetTransform },
-    { "AddComponent",    WindowT::AddComponent },
-    { "RemoveComponent", WindowT::RmvComponent },
-    { "GetComponents",   WindowT::GetComponents },
-    { "GetComponent",    WindowT::GetComponent },
-    { "__tostring",      WindowT::toString },
+    { "AddChild",        AddChild },
+    { "RemoveChild",     RemoveChild },
+    { "GetParent",       GetParent },
+    { "GetChildren",     GetChildren },
+    { "GetTime",         GetTime },
+    { "GetBasics",       GetBasics },
+    { "GetTransform",    GetTransform },
+    { "AddComponent",    AddComponent },
+    { "RemoveComponent", RmvComponent },
+    { "GetComponents",   GetComponents },
+    { "GetComponent",    GetComponent },
+    { "__tostring",      toString },
     { NULL, NULL }
 };
 

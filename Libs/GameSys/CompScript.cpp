@@ -256,9 +256,9 @@ void* ComponentScriptT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 
 const luaL_Reg ComponentScriptT::MethodsList[] =
 {
-    { "InitEventTypes", ComponentScriptT::InitEventTypes },
-    { "PostEvent",      ComponentScriptT::PostEvent },
-    { "__tostring",     ComponentScriptT::toString },
+    { "InitEventTypes", InitEventTypes },
+    { "PostEvent",      PostEvent },
+    { "__tostring",     toString },
     { NULL, NULL }
 };
 

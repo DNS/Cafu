@@ -267,9 +267,9 @@ void* ComponentChoiceT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 
 const luaL_Reg ComponentChoiceT::MethodsList[] =
 {
-    { "set",        ComponentChoiceT::Set },
-    { "GetSelItem", ComponentChoiceT::GetSelItem },
-    { "__tostring", ComponentChoiceT::toString },
+    { "set",        Set },
+    { "GetSelItem", GetSelItem },
+    { "__tostring", toString },
     { NULL, NULL }
 };
 

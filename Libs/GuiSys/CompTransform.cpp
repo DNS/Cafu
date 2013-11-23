@@ -103,7 +103,7 @@ void* ComponentTransformT::CreateInstance(const cf::TypeSys::CreateParamsT& Para
 
 const luaL_Reg ComponentTransformT::MethodsList[] =
 {
-    { "__tostring", ComponentTransformT::toString },
+    { "__tostring", toString },
     { NULL, NULL }
 };
 

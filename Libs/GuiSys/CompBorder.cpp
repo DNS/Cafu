@@ -173,7 +173,7 @@ void* ComponentBorderT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 
 const luaL_Reg ComponentBorderT::MethodsList[] =
 {
-    { "__tostring", ComponentBorderT::toString },
+    { "__tostring", toString },
     { NULL, NULL }
 };
 

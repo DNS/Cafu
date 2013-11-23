@@ -840,18 +840,18 @@ void* EntityT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 
 const luaL_Reg EntityT::MethodsList[]=
 {
-    { "GetID",           EntityT::GetID },
-    { "AddChild",        EntityT::AddChild },
-    { "RemoveChild",     EntityT::RemoveChild },
-    { "GetParent",       EntityT::GetParent },
-    { "GetChildren",     EntityT::GetChildren },
-    { "GetBasics",       EntityT::GetBasics },
-    { "GetTransform",    EntityT::GetTransform },
-    { "AddComponent",    EntityT::AddComponent },
-    { "RemoveComponent", EntityT::RmvComponent },
-    { "GetComponents",   EntityT::GetComponents },
-    { "GetComponent",    EntityT::GetComponent },
-    { "__tostring",      EntityT::toString },
+    { "GetID",           GetID },
+    { "AddChild",        AddChild },
+    { "RemoveChild",     RemoveChild },
+    { "GetParent",       GetParent },
+    { "GetChildren",     GetChildren },
+    { "GetBasics",       GetBasics },
+    { "GetTransform",    GetTransform },
+    { "AddComponent",    AddComponent },
+    { "RemoveComponent", RmvComponent },
+    { "GetComponents",   GetComponents },
+    { "GetComponent",    GetComponent },
+    { "__tostring",      toString },
     { NULL, NULL }
 };
 

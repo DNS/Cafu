@@ -334,11 +334,11 @@ void* ComponentBaseT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 
 const luaL_Reg ComponentBaseT::MethodsList[] =
 {
-    { "get",             ComponentBaseT::Get },
-    { "set",             ComponentBaseT::Set },
-    { "GetExtraMessage", ComponentBaseT::GetExtraMessage },
-    { "interpolate",     ComponentBaseT::Interpolate },
-    { "__tostring",      ComponentBaseT::toString },
+    { "get",             Get },
+    { "set",             Set },
+    { "GetExtraMessage", GetExtraMessage },
+    { "interpolate",     Interpolate },
+    { "__tostring",      toString },
     { NULL, NULL }
 };
 

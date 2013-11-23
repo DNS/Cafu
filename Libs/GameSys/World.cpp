@@ -423,11 +423,11 @@ void* WorldT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 
 const luaL_Reg WorldT::MethodsList[] =
 {
-    { "SetRootEntity", WorldT::SetRootEntity },
-    { "new",           WorldT::CreateNew },
-    { "Init",          WorldT::Init },
-    { "TraceRay",      WorldT::TraceRay },
-    { "__tostring",    WorldT::toString },
+    { "SetRootEntity", SetRootEntity },
+    { "new",           CreateNew },
+    { "Init",          Init },
+    { "TraceRay",      TraceRay },
+    { "__tostring",    toString },
     { NULL, NULL }
 };
 

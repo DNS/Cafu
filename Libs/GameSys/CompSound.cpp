@@ -213,8 +213,8 @@ void* ComponentSoundT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 
 const luaL_Reg ComponentSoundT::MethodsList[] =
 {
-    { "Play",       ComponentSoundT::Play },
-    { "__tostring", ComponentSoundT::toString },
+    { "Play",       Play },
+    { "__tostring", toString },
     { NULL, NULL }
 };
 

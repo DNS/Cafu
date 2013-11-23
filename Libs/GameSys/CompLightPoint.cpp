@@ -135,7 +135,7 @@ void* ComponentPointLightT::CreateInstance(const cf::TypeSys::CreateParamsT& Par
 
 const luaL_Reg ComponentPointLightT::MethodsList[] =
 {
-    { "__tostring", ComponentPointLightT::toString },
+    { "__tostring", toString },
     { NULL, NULL }
 };
 

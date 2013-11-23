@@ -414,8 +414,8 @@ void* ComponentListBoxT::CreateInstance(const cf::TypeSys::CreateParamsT& Params
 
 const luaL_Reg ComponentListBoxT::MethodsList[] =
 {
-    { "GetSelItem", ComponentListBoxT::GetSelItem },
-    { "__tostring", ComponentListBoxT::toString },
+    { "GetSelItem", GetSelItem },
+    { "__tostring", toString },
     { NULL, NULL }
 };
 

@@ -41,7 +41,7 @@ void* ComponentClientT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 
 const luaL_Reg ComponentClientT::MethodsList[] =
 {
-    { "__tostring", ComponentClientT::toString },
+    { "__tostring", toString },
     { NULL, NULL }
 };
 

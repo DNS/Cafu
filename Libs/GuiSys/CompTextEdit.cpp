@@ -379,8 +379,8 @@ void* ComponentTextEditT::CreateInstance(const cf::TypeSys::CreateParamsT& Param
 
 const luaL_Reg ComponentTextEditT::MethodsList[] =
 {
-    { "SetText",    ComponentTextEditT::SetText },
-    { "__tostring", ComponentTextEditT::toString },
+    { "SetText",    SetText },
+    { "__tostring", toString },
     { NULL, NULL }
 };
 

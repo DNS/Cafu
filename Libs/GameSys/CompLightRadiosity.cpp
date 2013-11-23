@@ -112,7 +112,7 @@ void* ComponentRadiosityLightT::CreateInstance(const cf::TypeSys::CreateParamsT&
 
 const luaL_Reg ComponentRadiosityLightT::MethodsList[] =
 {
-    { "__tostring", ComponentRadiosityLightT::toString },
+    { "__tostring", toString },
     { NULL, NULL }
 };
 

@@ -225,12 +225,12 @@ void* ComponentTransformT::CreateInstance(const cf::TypeSys::CreateParamsT& Para
 
 const luaL_Reg ComponentTransformT::MethodsList[] =
 {
-    { "GetAngles",  ComponentTransformT::GetAngles },
-    { "SetAngles",  ComponentTransformT::SetAngles },
-    { "GetAxisX",   ComponentTransformT::GetAxisX },
-    { "GetAxisY",   ComponentTransformT::GetAxisY },
-    { "GetAxisZ",   ComponentTransformT::GetAxisZ },
-    { "__tostring", ComponentTransformT::toString },
+    { "GetAngles",  GetAngles },
+    { "SetAngles",  SetAngles },
+    { "GetAxisX",   GetAxisX },
+    { "GetAxisY",   GetAxisY },
+    { "GetAxisZ",   GetAxisZ },
+    { "__tostring", toString },
     { NULL, NULL }
 };
 

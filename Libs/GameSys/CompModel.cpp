@@ -705,10 +705,10 @@ void* ComponentModelT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 
 const luaL_Reg ComponentModelT::MethodsList[] =
 {
-    { "GetNumAnims", ComponentModelT::GetNumAnims },
-    { "SetAnim",     ComponentModelT::SetAnim },
-    { "GetNumSkins", ComponentModelT::GetNumSkins },
-    { "__tostring",  ComponentModelT::toString },
+    { "GetNumAnims", GetNumAnims },
+    { "SetAnim",     SetAnim },
+    { "GetNumSkins", GetNumSkins },
+    { "__tostring",  toString },
     { NULL, NULL }
 };
 

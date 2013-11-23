@@ -260,8 +260,8 @@ void* ComponentCollisionModelT::CreateInstance(const cf::TypeSys::CreateParamsT&
 
 const luaL_Reg ComponentCollisionModelT::MethodsList[] =
 {
-    { "SetBoundingBox", ComponentCollisionModelT::SetBoundingBox },
-    { "__tostring",     ComponentCollisionModelT::toString },
+    { "SetBoundingBox", SetBoundingBox },
+    { "__tostring",     toString },
     { NULL, NULL }
 };
 
