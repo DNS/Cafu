@@ -97,6 +97,7 @@ WorldT::InitErrorT::InitErrorT(const std::string& Message)
     {
         const std::string Msg = "Could not load \"" + PrintScriptName + "\":\n" + lua_tostring(LuaState, -1);
 
+        lua_pop(LuaState, 1);
         Console->Warning(Msg + "\n");
 
         // The LuaState will be closed by the m_ScriptState.

@@ -52,38 +52,28 @@ GuiDocumentT::GuiDocumentT(GameConfigT* GameConfig, const wxString& GuiInitFileN
 {
     cf::GuiSys::GuiImplT::InitScriptState(m_ScriptState);
 
+    m_Gui = new cf::GuiSys::GuiImplT(m_ScriptState, GameConfig->GetGuiResources());
+
     // Load GUI initialization script and create documents window hierarchy.
     if (GuiInitFileName!="")
     {
-        const std::string gifn(GuiInitFileName);
-
-        m_Gui = new cf::GuiSys::GuiImplT(m_ScriptState, GameConfig->GetGuiResources());
-
-        m_Gui->LoadScript(gifn, cf::GuiSys::GuiImplT::InitFlag_InGuiEditor);
-
-        if (m_Gui->GetScriptInitResult()!="")
-        {
-            // GuiImplT::InitErrorT excecptions are caught in the caller code.
-            // Here we handle the case that initializing the GUI succeeded "halfway".
-            wxMessageBox("GUI file "+GuiInitFileName+" was loaded, but errors occurred:\n\n"+
-                         m_Gui->GetScriptInitResult()+"\n\n"+
-                         "You may choose to ignore this error and proceed,\n"+
-                         "but it is probably better to edit the file and manually fix the problem first.",
-                         "GUI initialization warning", wxOK | wxICON_EXCLAMATION);
-        }
-
-        m_GuiProperties=GuiPropertiesT(*m_Gui);
+        m_Gui->LoadScript(
+            std::string(GuiInitFileName),
+            cf::GuiSys::GuiImplT::InitFlag_InGuiEditor);
     }
     else
     {
-        m_Gui = new cf::GuiSys::GuiImplT(m_ScriptState, GameConfig->GetGuiResources());
-
         m_Gui->LoadScript(
-            "Win=gui:new('WindowT'); gui:SetRootWindow(Win); gui:showMouse(false); gui:setFocus(Win); Win:SetName('Root'); Win:set(\"rect\", 0, 0, 640, 480);",
+            "Win=gui:new('WindowT')\n"
+            "gui:SetRootWindow(Win)\n"
+            "gui:showMouse(false)\n"
+            "gui:setFocus(Win)\n"
+            "Win:SetName('Root')\n"
+            "Win:set(\"rect\", 0, 0, 640, 480)\n",
             cf::GuiSys::GuiImplT::InitFlag_InlineCode | cf::GuiSys::GuiImplT::InitFlag_InGuiEditor);
-
-        m_GuiProperties=GuiPropertiesT(*m_Gui);
     }
+
+    m_GuiProperties = GuiPropertiesT(*m_Gui);
 
     // Set the root window as the initial selection.
     ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > NewSel;

@@ -783,25 +783,18 @@ void GuiEditor::ChildFrameT::OnToolbar(wxCommandEvent& CE)
 
                 Gui->LoadScript(std::string(MainScriptFileName));
 
-                if (Gui->GetScriptInitResult()!="")
-                {
-                    wxMessageBox("The script interpreter reported an error when initializing the live preview:\n\n"+
-                                 Gui->GetScriptInitResult()+"\n\n"+
-                                 "This is most likely a problem in your custom script code that you should look into.\n"+
-                                 "We will proceed anyway, using the script portions that were loaded before the error occurred.",
-                                 MainScriptFileName, wxOK | wxICON_EXCLAMATION);
-                }
-
                 // Make sure that the Gui is active for the live preview, so that clock tick events are properly propagated to all windows.
                 Gui->Activate();
 
                 LivePreviewT* Preview = new LivePreviewT(this, ScriptState, Gui, MainScriptFileName);
                 Preview->Show();
             }
-            catch (const cf::GuiSys::GuiImplT::InitErrorT& /*InitError*/)
+            catch (const cf::GuiSys::GuiImplT::InitErrorT& IE)
             {
-                // Getting here means the GUI has no root window set, but this should never happen within CaWE.
-                wxMessageBox("There was an error initializing the live preview from script\n"+MainScriptFileName, "Live Preview", wxOK | wxICON_ERROR);
+                wxMessageBox(
+                    "There was a problem initializing the live preview.\n\n"
+                    "Loading script " + MainScriptFileName + " finished with an error:\n" + IE.what(),
+                    "Live Preview", wxOK | wxICON_ERROR);
             }
 
             break;

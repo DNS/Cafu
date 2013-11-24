@@ -94,11 +94,6 @@ namespace cf
             /// @throws Throws an InitErrorT object on problems initializing the GUI.
             void LoadScript(const std::string& ScriptName, int Flags = 0);
 
-            /// Returns the string with the result of loading and running the GUI script.
-            /// Note that errors reported here are not necessarily fatal: the GUI may be usable (at least partially) anyway.
-            /// @returns the empty string when there have been no errors, or the error message otherwise.
-            const std::string& GetScriptInitResult() const { return ScriptInitResult; }
-
             /// Returns the material manager instance of this GUI.
             const MaterialManagerImplT& GetMaterialManager() const { return m_MaterialMan; }
 
@@ -199,7 +194,6 @@ namespace cf
             std::string              ScriptName;        ///< The name of the *.cgui file that contains this GUI's script.
             UniScriptStateT*         m_ScriptState;     ///< The script state of this GUI.
             const bool               m_IsOwnScriptSt;   ///< Are we the owner of the m_ScriptState instance?
-            std::string              ScriptInitResult;  ///< The result of loading and running the script. "" if there have been no errors, the error message otherwise.
             MaterialManagerImplT     m_MaterialMan;     ///< The material manager for the materials that are used in this GUI.
             MatSys::RenderMaterialT* m_GuiDefaultRM;    ///< Used for the window borders and the backgrounds if no other material is specified.
             MatSys::RenderMaterialT* m_GuiPointerRM;    ///< Used for the mouse pointer.

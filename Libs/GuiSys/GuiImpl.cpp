@@ -95,7 +95,6 @@ GuiImplT::GuiImplT(cf::UniScriptStateT& ScriptState, GuiResourcesT& GuiRes)
     : ScriptName(),
       m_ScriptState(&ScriptState),
       m_IsOwnScriptSt(false),
-      ScriptInitResult(""),
       m_MaterialMan(),
       m_GuiDefaultRM(NULL),
       m_GuiPointerRM(NULL),
@@ -120,7 +119,6 @@ GuiImplT::GuiImplT(GuiResourcesT& GuiRes)
     : ScriptName(),
       m_ScriptState(new UniScriptStateT()),
       m_IsOwnScriptSt(true),
-      ScriptInitResult(""),
       m_MaterialMan(),
       m_GuiDefaultRM(NULL),
       m_GuiPointerRM(NULL),
@@ -222,33 +220,29 @@ void GuiImplT::LoadScript(const std::string& GuiScriptName, int Flags)
     const int LoadResult = (Flags & InitFlag_InlineCode) ? luaL_loadstring(LuaState, GuiScriptName.c_str())
                                                          : luaL_loadfile  (LuaState, GuiScriptName.c_str());
 
-    if (LoadResult!=0 || lua_pcall(LuaState, 0, 0, 0)!=0)
+    if (LoadResult != 0 || lua_pcall(LuaState, 0, 0, 0) != 0)
     {
-        Console->Warning(std::string("Lua script \"")+GuiScriptName+"\" could not be loaded\n");
-        ScriptInitResult = lua_tostring(LuaState, -1);
-        Console->Print("(" + ScriptInitResult + ").\n");
+        const std::string Msg = "Could not load \"" + PrintScriptName + "\":\n" + lua_tostring(LuaState, -1);
+
         lua_pop(LuaState, 1);
+        Console->Warning(Msg + "\n");
+
+        // The LuaState will be closed by the m_ScriptState.
+        throw InitErrorT(Msg);
+    }
+
+    if (RootWindow == NULL)
+    {
+        const std::string Msg = "No root window set for GUI \"" + PrintScriptName + "\".";
+
+        Console->Warning(Msg + "\n");
+
+        // The LuaState will be closed by the m_ScriptState.
+        throw InitErrorT(Msg);
     }
 
     // Make sure that everyone dealt properly with the Lua stack so far.
     assert(lua_gettop(LuaState)==0);
-
-
-    if (RootWindow == NULL)
-    {
-        Console->Warning("No root window set for GUI \""+GuiScriptName+"\"!\n");
-
-        // Note that just running some Lua code like "gui:SetRootWindow(gui:new('WindowT'));"
-        // here in order to save the situation is not as easy as it seems, because running
-        // this code is not guaranteed to be fail-safe and thus not guaranteed to fix the
-        // problem. That is, there might still be a case left where we might want to throw.
-        MatSys::Renderer->FreeMaterial(m_GuiDefaultRM);
-        MatSys::Renderer->FreeMaterial(m_GuiPointerRM);
-        MatSys::Renderer->FreeMaterial(m_GuiFinishZRM);
-
-        // The LuaState will be closed by the m_ScriptState.
-        throw InitErrorT("No root window set. Probable cause:\n" + ScriptInitResult);
-    }
 
 
     // Finally call the Lua OnInit() and OnInit2() methods of each window.
