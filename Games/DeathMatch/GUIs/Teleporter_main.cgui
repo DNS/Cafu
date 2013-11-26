@@ -1,4 +1,6 @@
-dofile("Games/DeathMatch/GUIs/Teleporter_init.cgui");
+local gui = ...
+
+assert(loadfile("Games/DeathMatch/GUIs/Teleporter_init.cgui"))(gui)
 
 
 

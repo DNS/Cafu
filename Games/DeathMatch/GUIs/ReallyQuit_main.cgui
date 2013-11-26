@@ -1,4 +1,6 @@
-dofile("Games/DeathMatch/GUIs/ReallyQuit_init.cgui");
+local gui = ...
+
+assert(loadfile("Games/DeathMatch/GUIs/ReallyQuit_init.cgui"))(gui)
 
 
 function Background:OnFrame()

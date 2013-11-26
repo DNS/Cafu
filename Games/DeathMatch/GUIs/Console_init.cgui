@@ -7,7 +7,8 @@
 -- Instantiation of all windows.
 -- *****************************
 
-Background=gui:new("WindowT", "Background");
+local gui = ...
+Background = gui:new("WindowT", "Background");
 
 ConsoleFrame=gui:new("WindowT", "ConsoleFrame");
 ConsoleFrame.ConsoleOutput=gui:new("WindowT", "ConsoleOutput");

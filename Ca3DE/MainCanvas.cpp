@@ -354,7 +354,8 @@ void MainCanvasT::Initialize()
         IntrusivePtrT<cf::GuiSys::GuiImplT> ClientGui = new cf::GuiSys::GuiImplT(*m_GuiResources);
 
         ClientGui->LoadScript(
-            "Cl=gui:new('WindowT', 'Client')\n"
+            "local gui = ...\n"
+            "local Cl = gui:new('WindowT', 'Client')\n"
             "\n"
             "gui:SetRootWindow(Cl)\n"
             "gui:showMouse(false)\n"
@@ -381,14 +382,21 @@ void MainCanvasT::Initialize()
             MainMenuGui = new cf::GuiSys::GuiImplT(*m_GuiResources);
 
             MainMenuGui->LoadScript(
-                "Err=gui:new('WindowT')\n"
+                "local gui = ...\n"
+                "local Err = gui:new('WindowT')\n"
+                "\n"
                 "gui:SetRootWindow(Err)\n"
                 "gui:activate(true)\n"
                 "gui:setInteractive(true)\n"
                 "gui:showMouse(false)\n"
-                "Err:set('rect', 0, 0, 640, 480)\n"
-                "Err:set('textScale', 0.8)\n"
-                "Err:set('text', 'Error loading MainMenu_main.cgui,\\nsee console <F1> for details.')",
+                "\n"
+                "Err:GetTransform():set('Pos', 0, 0)\n"
+                "Err:GetTransform():set('Size', 640, 480)\n"
+                "\n"
+                "local c1 = gui:new('ComponentTextT')\n"
+                "c1:set('Text', 'Error loading MainMenu_main.cgui,\\nsee console <F1> for details.')\n"
+                "c1:set('Scale', 0.8)\n"
+                "Err:AddComponent(c1)\n",
                 cf::GuiSys::GuiImplT::InitFlag_InlineCode);
 
             cf::GuiSys::GuiMan->Register(MainMenuGui);
@@ -397,7 +405,7 @@ void MainCanvasT::Initialize()
         m_SvGuiCallback->MainMenuGui=MainMenuGui;       // This is the callback for the server, so that it can let the MainMenuGui know about its state changes.
         m_SvGuiCallback->OnServerStateChanged("idle");  // Argh, this is a HACK for setting the initial state... can we move this / do it better?
 
-        IntrusivePtrT<cf::GuiSys::GuiImplT> ConsoleGui    = cf::GuiSys::GuiMan->Find("Games/"+m_GameInfo->GetName()+"/GUIs/Console.cgui", true);
+        IntrusivePtrT<cf::GuiSys::GuiImplT> ConsoleGui    = cf::GuiSys::GuiMan->Find("Games/"+m_GameInfo->GetName()+"/GUIs/Console_main.cgui", true);
         IntrusivePtrT<cf::GuiSys::WindowT>  ConsoleWindow = ConsoleGui != NULL ? ConsoleGui->GetRootWindow()->Find("ConsoleOutput") : NULL;
 
         // Copy the previously collected console output to the new graphical console.
@@ -851,7 +859,7 @@ void MainCanvasT::OnKeyDown(wxKeyEvent& KE)
         case WXK_F1:
         {
             // Activate the in-game console GUI (it's "F1" now, not CK_GRAVE ("^", accent grave) any longer).
-            IntrusivePtrT<cf::GuiSys::GuiImplT> ConsoleGui = cf::GuiSys::GuiMan->Find("Games/"+m_GameInfo->GetName()+"/GUIs/Console.cgui");
+            IntrusivePtrT<cf::GuiSys::GuiImplT> ConsoleGui = cf::GuiSys::GuiMan->Find("Games/"+m_GameInfo->GetName()+"/GUIs/Console_main.cgui");
 
             // ConsoleGui should be the same as in Initialize(), but could be NULL on file not found, parse error, etc.
             if (ConsoleGui!=NULL && !ConsoleGui->GetIsActive())

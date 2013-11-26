@@ -126,7 +126,7 @@ PatchDef
   rendercolor "0 0 0"
   scale "1.0"
   model "Models/Terminals/Terminal_2.cmdl"
-  gui "GUIs/Test.cgui"
+  gui "GUIs/Test_main.cgui"
   collisionModel "Models/Terminals/Terminal_2.cmap"
   origin "-47.999992 96 0"
 }

@@ -1,4 +1,6 @@
-dofile("Games/DeathMatch/GUIs/TechDemo/gui4_init.cgui");
+local gui = ...
+
+assert(loadfile("Games/DeathMatch/GUIs/TechDemo/gui4_init.cgui"))(gui)
 
 
 function TextArea2:OnFrame()

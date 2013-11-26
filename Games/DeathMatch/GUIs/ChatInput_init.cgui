@@ -7,6 +7,7 @@
 -- Instantiation of all windows.
 -- *****************************
 
+local gui = ...
 Background=gui:new("WindowT", "Background");
 
 ChatInputFrame=gui:new("WindowT", "ChatInputFrame");

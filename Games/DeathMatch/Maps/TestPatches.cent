@@ -83,7 +83,7 @@ function Map.static_detail_model:OnInit()
     c1:set("Animation", -1)
     c1:set("Skin", -1)
     c1:set("Scale", 1)
-    c1:set("Gui", "Games/DeathMatch/GUIs/Test.cgui")
+    c1:set("Gui", "Games/DeathMatch/GUIs/Test_main.cgui")
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_2.cmap")

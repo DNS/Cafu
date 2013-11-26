@@ -7,6 +7,7 @@
 -- Instantiation of all windows.
 -- *****************************
 
+local gui = ...
 FarewellGUI=gui:new("WindowT", "FarewellGUI");
 
 Heading1=gui:new("WindowT", "Heading1");

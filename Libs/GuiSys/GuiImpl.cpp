@@ -211,16 +211,13 @@ void GuiImplT::LoadScript(const std::string& GuiScriptName, int Flags)
     lua_State*        LuaState = GetScriptState().GetLuaState();
     ScriptBinderT     Binder(LuaState);
 
-    // Add a global variable with name "gui" to the Lua state.
-    Binder.Push(IntrusivePtrT<GuiImplT>(this));
-    lua_setglobal(LuaState, "gui");
-
-
     // Load the user script!
     const int LoadResult = (Flags & InitFlag_InlineCode) ? luaL_loadstring(LuaState, GuiScriptName.c_str())
                                                          : luaL_loadfile  (LuaState, GuiScriptName.c_str());
 
-    if (LoadResult != 0 || lua_pcall(LuaState, 0, 0, 0) != 0)
+    Binder.Push(IntrusivePtrT<GuiImplT>(this));
+
+    if (LoadResult != 0 || lua_pcall(LuaState, 1, 0, 0) != 0)
     {
         const std::string Msg = "Could not load \"" + PrintScriptName + "\":\n" + lua_tostring(LuaState, -1);
 

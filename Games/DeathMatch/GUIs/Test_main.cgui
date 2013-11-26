@@ -1,4 +1,6 @@
-dofile("Games/DeathMatch/GUIs/Test_init.cgui");
+local gui = ...
+
+assert(loadfile("Games/DeathMatch/GUIs/Test_init.cgui"))(gui)
 
 
 function SomeImage:OnFrame()

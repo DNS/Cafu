@@ -1,4 +1,6 @@
-dofile("Games/DeathMatch/GUIs/HUD_init.cgui");
+local gui = ...
+
+assert(loadfile("Games/DeathMatch/GUIs/HUD_init.cgui"))(gui)
 
 --[[
  This "head-up display" GUI is instantiated by the EntHumanPlayerT entity,

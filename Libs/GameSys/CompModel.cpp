@@ -394,7 +394,8 @@ IntrusivePtrT<cf::GuiSys::GuiImplT> ComponentModelT::GetGui() const
     if (m_Gui != NULL) return m_Gui;
 
     static const char* FallbackGUI =
-        "Root = gui:new('WindowT', 'Root')\n"
+        "local gui = ...\n"
+        "local Root = gui:new('WindowT', 'Root')\n"
         "gui:SetRootWindow(Root)\n"
         "\n"
         "function Root:OnInit()\n"

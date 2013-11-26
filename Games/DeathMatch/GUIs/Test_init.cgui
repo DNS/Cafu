@@ -7,6 +7,7 @@
 -- Instantiation of all windows.
 -- *****************************
 
+local gui = ...
 TestGUI=gui:new("WindowT", "TestGUI");
 
 SomeImage=gui:new("WindowT", "SomeImage");

@@ -1,4 +1,6 @@
-dofile("Games/DeathMatch/GUIs/ChatInput_init.cgui");
+local gui = ...
+
+assert(loadfile("Games/DeathMatch/GUIs/ChatInput_init.cgui"))(gui)
 
 
 function Background:OnKeyPress(Key)

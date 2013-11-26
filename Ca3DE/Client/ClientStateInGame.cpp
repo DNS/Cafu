@@ -226,7 +226,7 @@ bool ClientStateInGameT::ProcessInputEvent(const CaKeyboardEventT& KE)
         case CaKeyboardEventT::CK_T:          // talk to other clients
         case CaKeyboardEventT::CK_Y:
         {
-            IntrusivePtrT<cf::GuiSys::GuiImplT> ChatInputGui = cf::GuiSys::GuiMan->Find(std::string("Games/") + Client.m_GameInfo->GetName() + "/GUIs/ChatInput.cgui", true);
+            IntrusivePtrT<cf::GuiSys::GuiImplT> ChatInputGui = cf::GuiSys::GuiMan->Find(std::string("Games/") + Client.m_GameInfo->GetName() + "/GUIs/ChatInput_main.cgui", true);
 
             // Could be NULL on file not found, parse error, etc.
             if (ChatInputGui!=NULL)
@@ -664,7 +664,7 @@ void ClientStateInGameT::ParseServerPacket(NetDataT& InData)
                 LoadingFont   =&Font_v;
 
                 // BEGIN Load Map
-                cf::GuiSys::GuiMan->Find("Games/" + Client.m_GameInfo->GetName() + "/GUIs/Console.cgui", true)->Activate(false);    // Close console on map change.
+                cf::GuiSys::GuiMan->Find("Games/" + Client.m_GameInfo->GetName() + "/GUIs/Console_main.cgui", true)->Activate(false);    // Close console on map change.
                 Console->Print(std::string("Load World \"")+WorldName+"\".\n");
 
                 char PathName[512];

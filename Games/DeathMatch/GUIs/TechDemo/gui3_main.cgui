@@ -1,4 +1,6 @@
-dofile("Games/DeathMatch/GUIs/TechDemo/gui3_init.cgui");
+local gui = ...
+
+assert(loadfile("Games/DeathMatch/GUIs/TechDemo/gui3_init.cgui"))(gui)
 
 
 function EngineLogo:OnFrame()

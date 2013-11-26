@@ -1,4 +1,0 @@
--- This file exists for backwards-compatibility, because maps and/or code
--- still refer to it. As soon as these places have been updated to directly
--- refer to the _main.cgui variant instead, this file can be deleted.
-dofile("Games/DeathMatch/GUIs/Console_main.cgui");
