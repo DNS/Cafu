@@ -742,6 +742,31 @@ int GuiImplT::SetFocus(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_GetRootWindow =
+{
+    "GetRootWindow",
+    "Returns the root window of this GUI as previously set by SetRootWindow().",
+    "WindowT", "()"
+};
+
+int GuiImplT::GetRootWindow(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<GuiImplT> Gui = Binder.GetCheckedObjectParam< IntrusivePtrT<GuiImplT> >(1);
+
+    if (Gui->RootWindow.IsNull())
+    {
+        lua_pushnil(LuaState);
+    }
+    else
+    {
+        Binder.Push(Gui->RootWindow);
+    }
+
+    return 1;
+}
+
+
 static const cf::TypeSys::MethsDocT META_SetRootWindow =
 {
     "SetRootWindow",
@@ -866,6 +891,7 @@ const luaL_Reg GuiImplT::MethodsList[] =
     { "setMouseMat",        SetMouseMat },
     { "showMouse",          SetMouseIsShown },
     { "setFocus",           SetFocus },
+    { "GetRootWindow",      GetRootWindow },
     { "SetRootWindow",      SetRootWindow },
     { "new",                CreateNew },
     { "Init",               Init },
@@ -884,6 +910,7 @@ const cf::TypeSys::MethsDocT GuiImplT::DocMethods[] =
     META_SetMouseMat,
     META_SetMouseIsShown,
     META_SetFocus,
+    META_GetRootWindow,
     META_SetRootWindow,
     META_CreateNew,
     META_Init,

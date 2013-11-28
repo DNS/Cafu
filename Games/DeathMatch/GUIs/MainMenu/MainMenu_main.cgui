@@ -2,6 +2,23 @@ local gui = ...
 
 assert(loadfile("Games/DeathMatch/GUIs/MainMenu/MainMenu_init.cgui"))(gui)
 
+local MainMenu               = gui:GetRootWindow()
+local PulsatingBackImage     = MainMenu.PulsatingBackImage
+local NormalControls         = MainMenu.NormalControls
+local NewGameDialog          = MainMenu.NewGameDialog
+local MultiplayerContextMenu = MainMenu.MultiplayerContextMenu
+local OptionsContextMenu     = MainMenu.OptionsContextMenu
+local JoinGameDialog         = MainMenu.JoinGameDialog
+local HostGameDialog         = MainMenu.HostGameDialog
+local InitServerInfoPanel    = MainMenu.InitServerInfoPanel
+local InputOptionsDialog     = MainMenu.InputOptionsDialog
+local PlayerOptionsDialog    = MainMenu.PlayerOptionsDialog
+local VideoOptionsDialog     = MainMenu.VideoOptionsDialog
+local AudioOptionsDialog     = MainMenu.AudioOptionsDialog
+local CreditsDialog          = MainMenu.CreditsDialog
+local ReallyQuitDialog       = MainMenu.ReallyQuitDialog
+
+
 -- Make sure that all the OnInit() methods are called, so that we can rely in the rest of this script
 -- on the proper default values being set, the components being instantiated, etc.
 gui:Init()

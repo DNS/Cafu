@@ -2,6 +2,9 @@ local gui = ...
 
 assert(loadfile("Games/DeathMatch/GUIs/TechDemo/gui4_init.cgui"))(gui)
 
+local ElevatorMalfunctionGUI = gui:GetRootWindow()
+local TextArea2 = ElevatorMalfunctionGUI.TextArea2
+
 
 function TextArea2:OnFrame()
     self:GetComponent("Text"):set("Color", 1, 1, (math.sin( self:GetTime()*8 )+1) / 2)

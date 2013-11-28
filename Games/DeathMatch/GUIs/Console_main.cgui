@@ -2,6 +2,9 @@ local gui = ...
 
 assert(loadfile("Games/DeathMatch/GUIs/Console_init.cgui"))(gui)
 
+local Background = gui:GetRootWindow()
+local ConsoleFrame = Background.ConsoleFrame
+
 
 function Background:OnKeyPress(Key)
     if (Key==1 or Key==59) then    -- Key number 1 is the ESC key, Key number 59 [41] is the F1 [accent grave] key (see CaKeyboardEventT struct for details).

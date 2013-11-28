@@ -8,45 +8,38 @@
 -- *****************************
 
 local gui = ...
-Root=gui:new("WindowT", "Root");
-
-InfoStation=gui:new("WindowT", "InfoStation");
-
-InfoTextSelectNode=gui:new("WindowT", "InfoTextSelectNode");
-
-DestNode=gui:new("WindowT", "DestNode");
-
-ButtonMinus=gui:new("WindowT", "ButtonMinus");
-
-ButtonPlus=gui:new("WindowT", "ButtonPlus");
-
-ButtonGo=gui:new("WindowT", "ButtonGo");
+local Root = gui:new("WindowT", "Root")
+Root.InfoStation = gui:new("WindowT", "InfoStation")
+Root.InfoTextSelectNode = gui:new("WindowT", "InfoTextSelectNode")
+Root.DestNode = gui:new("WindowT", "DestNode")
+Root.ButtonMinus = gui:new("WindowT", "ButtonMinus")
+Root.ButtonPlus = gui:new("WindowT", "ButtonPlus")
+Root.ButtonGo = gui:new("WindowT", "ButtonGo")
 
 
 -- Set the GUIs root window.
 -- *************************
 
-gui:SetRootWindow(Root);
+gui:SetRootWindow(Root)
+gui:activate(false)
+gui:setInteractive(true)
+gui:showMouse(true)
+gui:setFocus(Root)
 
 
 -- Setup the window hierarchy.
 -- ***************************
 
-Root:AddChild(InfoStation);
-
-Root:AddChild(InfoTextSelectNode);
-
-Root:AddChild(DestNode);
-
-Root:AddChild(ButtonMinus);
-
-Root:AddChild(ButtonPlus);
-
-Root:AddChild(ButtonGo);
+Root:AddChild(Root.InfoStation)
+Root:AddChild(Root.InfoTextSelectNode)
+Root:AddChild(Root.DestNode)
+Root:AddChild(Root.ButtonMinus)
+Root:AddChild(Root.ButtonPlus)
+Root:AddChild(Root.ButtonGo)
 
 
--- Initialization of the window contents ("constructor code").
--- ***********************************************************
+-- Initialization of the window contents ("constructors").
+-- *******************************************************
 
 function Root:OnInit()
     self:GetTransform():set("Pos", 0, 0)
@@ -71,14 +64,9 @@ Wormhole Teleportation Services Inc.
     c2:set("Alpha", 0.5)
 
     self:AddComponent(c1, c2)
-
-    gui:activate      (false);
-    gui:setInteractive(true);
-    gui:showMouse     (true);
-    gui:setFocus      (Root);
 end
 
-function InfoStation:OnInit()
+function Root.InfoStation:OnInit()
     self:GetTransform():set("Pos", 0, 10)
     self:GetTransform():set("Size", 640, 30)
 
@@ -95,7 +83,7 @@ function InfoStation:OnInit()
     self:AddComponent(c1)
 end
 
-function InfoTextSelectNode:OnInit()
+function Root.InfoTextSelectNode:OnInit()
     self:GetTransform():set("Pos", 0, 60)
     self:GetTransform():set("Size", 640, 80)
 
@@ -112,7 +100,7 @@ function InfoTextSelectNode:OnInit()
     self:AddComponent(c1)
 end
 
-function DestNode:OnInit()
+function Root.DestNode:OnInit()
     self:GetTransform():set("Pos", 200, 150)
     self:GetTransform():set("Size", 240, 120)
 
@@ -129,7 +117,7 @@ function DestNode:OnInit()
     self:AddComponent(c1)
 end
 
-function ButtonMinus:OnInit()
+function Root.ButtonMinus:OnInit()
     self:GetTransform():set("Pos", 100, 150)
     self:GetTransform():set("Size", 100, 120)
 
@@ -156,7 +144,7 @@ function ButtonMinus:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function ButtonPlus:OnInit()
+function Root.ButtonPlus:OnInit()
     self:GetTransform():set("Pos", 440, 150)
     self:GetTransform():set("Size", 100, 120)
 
@@ -183,7 +171,7 @@ function ButtonPlus:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function ButtonGo:OnInit()
+function Root.ButtonGo:OnInit()
     self:GetTransform():set("Pos", 20, 340)
     self:GetTransform():set("Size", 600, 50)
 
@@ -209,4 +197,3 @@ function ButtonGo:OnInit()
 
     self:AddComponent(c1, c2, c3)
 end
-

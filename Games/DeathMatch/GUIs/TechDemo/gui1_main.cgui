@@ -2,6 +2,15 @@ local gui = ...
 
 assert(loadfile("Games/DeathMatch/GUIs/TechDemo/gui1_init.cgui"))(gui)
 
+local FarewellGUI    = gui:GetRootWindow()
+local Heading1       = FarewellGUI.Heading1
+local TextArea1      = FarewellGUI.TextArea1
+local Heading2       = FarewellGUI.Heading2
+local TextArea2      = FarewellGUI.TextArea2
+local EngineLogo     = FarewellGUI.EngineLogo
+local LayDepthBuffer = FarewellGUI.LayDepthBuffer
+local BottomLine     = FarewellGUI.BottomLine
+
 
 function EngineLogo:OnFrame()
     self:GetTransform():set("Rotation", self:GetTime() * 50)

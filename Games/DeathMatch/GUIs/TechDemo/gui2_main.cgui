@@ -2,6 +2,12 @@ local gui = ...
 
 assert(loadfile("Games/DeathMatch/GUIs/TechDemo/gui2_init.cgui"))(gui)
 
+local EmgTunnelStorageRoomGUI = gui:GetRootWindow()
+local Heading          = EmgTunnelStorageRoomGUI.Heading
+local TunnelLocation   = EmgTunnelStorageRoomGUI.TunnelLocation
+local CallRescueText   = EmgTunnelStorageRoomGUI.CallRescueText
+local CallRescueButton = EmgTunnelStorageRoomGUI.CallRescueButton
+
 
 function CallRescueButton:OnMouseEnter()
     self:GetComponent("Image"):interpolate("Color.r", 0.5, 1.0, 500)

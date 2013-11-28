@@ -8,45 +8,37 @@
 -- *****************************
 
 local gui = ...
-TestGUI=gui:new("WindowT", "TestGUI");
-
-SomeImage=gui:new("WindowT", "SomeImage");
-
-ButtonToggleHor=gui:new("WindowT", "ButtonToggleHor");
-
-ButtonToggleVer=gui:new("WindowT", "ButtonToggleVer");
-
-ButtonQuit=gui:new("WindowT", "ButtonQuit");
-
-Counter=gui:new("WindowT", "Counter");
-
-FPS=gui:new("WindowT", "FPS");
+local TestGUI = gui:new("WindowT", "TestGUI")
+TestGUI.SomeImage = gui:new("WindowT", "SomeImage")
+TestGUI.ButtonToggleHor = gui:new("WindowT", "ButtonToggleHor")
+TestGUI.ButtonToggleVer = gui:new("WindowT", "ButtonToggleVer")
+TestGUI.ButtonQuit = gui:new("WindowT", "ButtonQuit")
+TestGUI.Counter = gui:new("WindowT", "Counter")
+TestGUI.FPS = gui:new("WindowT", "FPS")
 
 
 -- Set the GUIs root window.
 -- *************************
 
-gui:SetRootWindow(TestGUI);
+gui:SetRootWindow(TestGUI)
+gui:activate(false)
+gui:setInteractive(true)
+gui:showMouse(true)
 
 
 -- Setup the window hierarchy.
 -- ***************************
 
-TestGUI:AddChild(SomeImage);
-
-TestGUI:AddChild(ButtonToggleHor);
-
-TestGUI:AddChild(ButtonToggleVer);
-
-TestGUI:AddChild(ButtonQuit);
-
-TestGUI:AddChild(Counter);
-
-TestGUI:AddChild(FPS);
+TestGUI:AddChild(TestGUI.SomeImage)
+TestGUI:AddChild(TestGUI.ButtonToggleHor)
+TestGUI:AddChild(TestGUI.ButtonToggleVer)
+TestGUI:AddChild(TestGUI.ButtonQuit)
+TestGUI:AddChild(TestGUI.Counter)
+TestGUI:AddChild(TestGUI.FPS)
 
 
--- Initialization of the window contents ("constructor code").
--- ***********************************************************
+-- Initialization of the window contents ("constructors").
+-- *******************************************************
 
 function TestGUI:OnInit()
     self:GetTransform():set("Pos", 0, 0)
@@ -63,13 +55,9 @@ function TestGUI:OnInit()
     c1:set("ver. Align", -1)
 
     self:AddComponent(c1)
-
-    gui:activate      (false);
-    gui:setInteractive(true);
-    gui:showMouse     (true);
 end
 
-function SomeImage:OnInit()
+function TestGUI.SomeImage:OnInit()
     self:GetTransform():set("Pos", 30, 130)
     self:GetTransform():set("Size", 200, 200)
 
@@ -81,7 +69,7 @@ function SomeImage:OnInit()
     self:AddComponent(c1)
 end
 
-function ButtonToggleHor:OnInit()
+function TestGUI.ButtonToggleHor:OnInit()
     self:GetTransform():set("Pos", 10, 380)
     self:GetTransform():set("Size", 140, 80)
 
@@ -105,7 +93,7 @@ alignment]])
     self:AddComponent(c1, c2)
 end
 
-function ButtonToggleVer:OnInit()
+function TestGUI.ButtonToggleVer:OnInit()
     self:GetTransform():set("Pos", 170, 380)
     self:GetTransform():set("Size", 140, 80)
 
@@ -129,7 +117,7 @@ alignment]])
     self:AddComponent(c1, c2)
 end
 
-function ButtonQuit:OnInit()
+function TestGUI.ButtonQuit:OnInit()
     self:GetTransform():set("Pos", 400, 380)
     self:GetTransform():set("Size", 160, 80)
 
@@ -151,7 +139,7 @@ function ButtonQuit:OnInit()
     self:AddComponent(c1, c2)
 end
 
-function Counter:OnInit()
+function TestGUI.Counter:OnInit()
     self:GetTransform():set("Pos", 400, 20)
     self:GetTransform():set("Size", 120, 100)
 
@@ -175,7 +163,7 @@ Counter
     self:AddComponent(c1, c2)
 end
 
-function FPS:OnInit()
+function TestGUI.FPS:OnInit()
     self:GetTransform():set("Pos", 400, 150)
     self:GetTransform():set("Size", 220, 160)
 
@@ -198,4 +186,3 @@ FPS
 
     self:AddComponent(c1, c2)
 end
-

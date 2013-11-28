@@ -2,6 +2,14 @@ local gui = ...
 
 assert(loadfile("Games/DeathMatch/GUIs/Test_init.cgui"))(gui)
 
+local TestGUI         = gui:GetRootWindow()
+local SomeImage       = TestGUI.SomeImage
+local ButtonToggleHor = TestGUI.ButtonToggleHor
+local ButtonToggleVer = TestGUI.ButtonToggleVer
+local ButtonQuit      = TestGUI.ButtonQuit
+local Counter         = TestGUI.Counter
+local FPS             = TestGUI.FPS
+
 
 function SomeImage:OnFrame()
     self:GetTransform():set("Rotation", self:GetTime() * 50)

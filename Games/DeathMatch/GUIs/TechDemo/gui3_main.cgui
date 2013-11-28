@@ -2,6 +2,9 @@ local gui = ...
 
 assert(loadfile("Games/DeathMatch/GUIs/TechDemo/gui3_init.cgui"))(gui)
 
+local EmgTunnelBeachGUI = gui:GetRootWindow()
+local EngineLogo = EmgTunnelBeachGUI.EngineLogo
+
 
 function EngineLogo:OnFrame()
     self:GetTransform():set("Rotation", self:GetTime() * 50)

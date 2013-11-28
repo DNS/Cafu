@@ -2,6 +2,9 @@ local gui = ...
 
 assert(loadfile("Games/DeathMatch/GUIs/ReallyQuit_init.cgui"))(gui)
 
+local Background = gui:GetRootWindow()
+local ReallyQuit = Background.ReallyQuit
+
 
 function Background:OnFrame()
     self:GetComponent("Image"):set("Color", 0.07 + 0.07*math.sin(self:GetTime()), 0, 0)

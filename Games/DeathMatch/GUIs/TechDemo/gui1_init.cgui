@@ -8,49 +8,39 @@
 -- *****************************
 
 local gui = ...
-FarewellGUI=gui:new("WindowT", "FarewellGUI");
-
-Heading1=gui:new("WindowT", "Heading1");
-
-TextArea1=gui:new("WindowT", "TextArea1");
-
-Heading2=gui:new("WindowT", "Heading2");
-
-TextArea2=gui:new("WindowT", "TextArea2");
-
-EngineLogo=gui:new("WindowT", "EngineLogo");
-
-LayDepthBuffer=gui:new("WindowT", "LayDepthBuffer");
-
-BottomLine=gui:new("WindowT", "BottomLine");
+local FarewellGUI = gui:new("WindowT", "FarewellGUI")
+FarewellGUI.Heading1 = gui:new("WindowT", "Heading1")
+FarewellGUI.TextArea1 = gui:new("WindowT", "TextArea1")
+FarewellGUI.Heading2 = gui:new("WindowT", "Heading2")
+FarewellGUI.TextArea2 = gui:new("WindowT", "TextArea2")
+FarewellGUI.EngineLogo = gui:new("WindowT", "EngineLogo")
+FarewellGUI.LayDepthBuffer = gui:new("WindowT", "LayDepthBuffer")
+FarewellGUI.BottomLine = gui:new("WindowT", "BottomLine")
 
 
 -- Set the GUIs root window.
 -- *************************
 
-gui:SetRootWindow(FarewellGUI);
+gui:SetRootWindow(FarewellGUI)
+gui:activate(false)
+gui:setInteractive(true)
+gui:showMouse(true)
 
 
 -- Setup the window hierarchy.
 -- ***************************
 
-FarewellGUI:AddChild(Heading1);
-
-FarewellGUI:AddChild(TextArea1);
-
-FarewellGUI:AddChild(Heading2);
-
-FarewellGUI:AddChild(TextArea2);
-
-FarewellGUI:AddChild(EngineLogo);
-
-FarewellGUI:AddChild(LayDepthBuffer);
-
-FarewellGUI:AddChild(BottomLine);
+FarewellGUI:AddChild(FarewellGUI.Heading1)
+FarewellGUI:AddChild(FarewellGUI.TextArea1)
+FarewellGUI:AddChild(FarewellGUI.Heading2)
+FarewellGUI:AddChild(FarewellGUI.TextArea2)
+FarewellGUI:AddChild(FarewellGUI.EngineLogo)
+FarewellGUI:AddChild(FarewellGUI.LayDepthBuffer)
+FarewellGUI:AddChild(FarewellGUI.BottomLine)
 
 
--- Initialization of the window contents ("constructor code").
--- ***********************************************************
+-- Initialization of the window contents ("constructors").
+-- *******************************************************
 
 function FarewellGUI:OnInit()
     self:GetTransform():set("Pos", 0, 0)
@@ -62,13 +52,9 @@ function FarewellGUI:OnInit()
     c1:set("Alpha", 0.5)
 
     self:AddComponent(c1)
-
-    gui:activate      (false);
-    gui:setInteractive(true);
-    gui:showMouse     (true);
 end
 
-function Heading1:OnInit()
+function FarewellGUI.Heading1:OnInit()
     self:GetTransform():set("Pos", 43, 45)
     self:GetTransform():set("Size", 558, 28)
 
@@ -85,7 +71,7 @@ function Heading1:OnInit()
     self:AddComponent(c1)
 end
 
-function TextArea1:OnInit()
+function FarewellGUI.TextArea1:OnInit()
     self:GetTransform():set("Pos", 43, 91)
     self:GetTransform():set("Size", 558, 324)
 
@@ -112,7 +98,7 @@ The Cafu Team]])
     self:AddComponent(c1)
 end
 
-function Heading2:OnInit()
+function FarewellGUI.Heading2:OnInit()
     self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 43, 45)
     self:GetTransform():set("Size", 558, 28)
@@ -130,7 +116,7 @@ function Heading2:OnInit()
     self:AddComponent(c1)
 end
 
-function TextArea2:OnInit()
+function FarewellGUI.TextArea2:OnInit()
     self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 43, 91)
     self:GetTransform():set("Size", 558, 324)
@@ -159,7 +145,7 @@ There is no way back up.  ;-)]])
     self:AddComponent(c1)
 end
 
-function EngineLogo:OnInit()
+function FarewellGUI.EngineLogo:OnInit()
     self:GetTransform():set("Pos", 480, 325)
     self:GetTransform():set("Size", 128, 64)
 
@@ -171,7 +157,7 @@ function EngineLogo:OnInit()
     self:AddComponent(c1)
 end
 
-function LayDepthBuffer:OnInit()
+function FarewellGUI.LayDepthBuffer:OnInit()
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 640, 480)
 
@@ -183,7 +169,7 @@ function LayDepthBuffer:OnInit()
     self:AddComponent(c1)
 end
 
-function BottomLine:OnInit()
+function FarewellGUI.BottomLine:OnInit()
     self:GetTransform():set("Pos", 37, 428)
     self:GetTransform():set("Size", 568, 21)
 
@@ -199,4 +185,3 @@ function BottomLine:OnInit()
 
     self:AddComponent(c1)
 end
-

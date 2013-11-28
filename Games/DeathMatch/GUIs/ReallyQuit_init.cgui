@@ -8,29 +8,32 @@
 -- *****************************
 
 local gui = ...
-Background=gui:new("WindowT", "Background");
-
-ReallyQuit=gui:new("WindowT", "ReallyQuit");
-ReallyQuit.ButtonYes=gui:new("WindowT", "ButtonYes");
-ReallyQuit.ButtonNo=gui:new("WindowT", "ButtonNo");
+local Background = gui:new("WindowT", "Background")
+Background.ReallyQuit = gui:new("WindowT", "ReallyQuit")
+Background.ReallyQuit.ButtonYes = gui:new("WindowT", "ButtonYes")
+Background.ReallyQuit.ButtonNo = gui:new("WindowT", "ButtonNo")
 
 
 -- Set the GUIs root window.
 -- *************************
 
-gui:SetRootWindow(Background);
+gui:SetRootWindow(Background)
+gui:activate(true)
+gui:setInteractive(true)
+gui:showMouse(true)
+gui:setFocus(Background.ReallyQuit.ButtonYes)
 
 
 -- Setup the window hierarchy.
 -- ***************************
 
-Background:AddChild(ReallyQuit);
-ReallyQuit:AddChild(ReallyQuit.ButtonYes);
-ReallyQuit:AddChild(ReallyQuit.ButtonNo);
+Background:AddChild(Background.ReallyQuit)
+Background.ReallyQuit:AddChild(Background.ReallyQuit.ButtonYes)
+Background.ReallyQuit:AddChild(Background.ReallyQuit.ButtonNo)
 
 
--- Initialization of the window contents ("constructor code").
--- ***********************************************************
+-- Initialization of the window contents ("constructors").
+-- *******************************************************
 
 function Background:OnInit()
     self:GetTransform():set("Pos", 0, 0)
@@ -42,14 +45,9 @@ function Background:OnInit()
     c1:set("Alpha", 0.7)
 
     self:AddComponent(c1)
-
-    gui:activate      (true);
-    gui:setInteractive(true);
-    gui:showMouse     (true);
-    gui:setFocus      (ReallyQuit.ButtonYes);
 end
 
-function ReallyQuit:OnInit()
+function Background.ReallyQuit:OnInit()
     self:GetTransform():set("Pos", 120, 90)
     self:GetTransform():set("Size", 400, 300)
 
@@ -76,7 +74,7 @@ function ReallyQuit:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function ReallyQuit.ButtonYes:OnInit()
+function Background.ReallyQuit.ButtonYes:OnInit()
     self:GetTransform():set("Pos", 53, 250)
     self:GetTransform():set("Size", 120, 40)
 
@@ -103,7 +101,7 @@ function ReallyQuit.ButtonYes:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function ReallyQuit.ButtonNo:OnInit()
+function Background.ReallyQuit.ButtonNo:OnInit()
     self:GetTransform():set("Pos", 227, 250)
     self:GetTransform():set("Size", 120, 40)
 
@@ -129,4 +127,3 @@ function ReallyQuit.ButtonNo:OnInit()
 
     self:AddComponent(c1, c2, c3)
 end
-

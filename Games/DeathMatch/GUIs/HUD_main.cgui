@@ -2,6 +2,14 @@ local gui = ...
 
 assert(loadfile("Games/DeathMatch/GUIs/HUD_init.cgui"))(gui)
 
+local Background = gui:GetRootWindow()
+local InfoHealth = Background.InfoHealth
+local InfoArmor  = Background.InfoArmor
+local InfoFrags  = Background.InfoFrags
+local InfoAmmo   = Background.InfoAmmo
+local FPS        = Background.FPS
+local CrossHair  = Background.CrossHair
+
 --[[
  This "head-up display" GUI is instantiated by the EntHumanPlayerT entity,
  which in turn binds itself to the global script variable "Player".

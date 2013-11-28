@@ -8,29 +8,32 @@
 -- *****************************
 
 local gui = ...
-Background=gui:new("WindowT", "Background");
-
-ChatInputFrame=gui:new("WindowT", "ChatInputFrame");
-ChatInputFrame.ChatInput=gui:new("WindowT", "ChatInput");
-ChatInputFrame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
+local Background = gui:new("WindowT", "Background")
+Background.ChatInputFrame = gui:new("WindowT", "ChatInputFrame")
+Background.ChatInputFrame.ChatInput = gui:new("WindowT", "ChatInput")
+Background.ChatInputFrame.ButtonCancel = gui:new("WindowT", "ButtonCancel")
 
 
 -- Set the GUIs root window.
 -- *************************
 
-gui:SetRootWindow(Background);
+gui:SetRootWindow(Background)
+gui:activate(false)
+gui:setInteractive(true)
+gui:showMouse(true)
+gui:setFocus(Background.ChatInputFrame.ChatInput)
 
 
 -- Setup the window hierarchy.
 -- ***************************
 
-Background:AddChild(ChatInputFrame);
-ChatInputFrame:AddChild(ChatInputFrame.ChatInput);
-ChatInputFrame:AddChild(ChatInputFrame.ButtonCancel);
+Background:AddChild(Background.ChatInputFrame)
+Background.ChatInputFrame:AddChild(Background.ChatInputFrame.ChatInput)
+Background.ChatInputFrame:AddChild(Background.ChatInputFrame.ButtonCancel)
 
 
--- Initialization of the window contents ("constructor code").
--- ***********************************************************
+-- Initialization of the window contents ("constructors").
+-- *******************************************************
 
 function Background:OnInit()
     self:GetTransform():set("Pos", 0, 100)
@@ -42,14 +45,9 @@ function Background:OnInit()
     c1:set("Alpha", 0.7)
 
     self:AddComponent(c1)
-
-    gui:activate      (false);
-    gui:setInteractive(true);
-    gui:showMouse     (true);
-    gui:setFocus      (ChatInputFrame.ChatInput);
 end
 
-function ChatInputFrame:OnInit()
+function Background.ChatInputFrame:OnInit()
     self:GetTransform():set("Pos", 5, 5)
     self:GetTransform():set("Size", 630, 40)
 
@@ -76,7 +74,7 @@ function ChatInputFrame:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function ChatInputFrame.ChatInput:OnInit()
+function Background.ChatInputFrame.ChatInput:OnInit()
     self:GetTransform():set("Pos", 30, 10)
     self:GetTransform():set("Size", 520, 20)
 
@@ -105,7 +103,7 @@ function ChatInputFrame.ChatInput:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function ChatInputFrame.ButtonCancel:OnInit()
+function Background.ChatInputFrame.ButtonCancel:OnInit()
     self:GetTransform():set("Pos", 560, 10)
     self:GetTransform():set("Size", 60, 20)
 
@@ -131,4 +129,3 @@ function ChatInputFrame.ButtonCancel:OnInit()
 
     self:AddComponent(c1, c2, c3)
 end
-

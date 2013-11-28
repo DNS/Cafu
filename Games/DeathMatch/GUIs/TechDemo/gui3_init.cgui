@@ -8,37 +8,33 @@
 -- *****************************
 
 local gui = ...
-EmgTunnelBeachGUI=gui:new("WindowT", "EmgTunnelBeachGUI");
-
-Heading=gui:new("WindowT", "Heading");
-
-TunnelLocation=gui:new("WindowT", "TunnelLocation");
-
-ThirdMsg=gui:new("WindowT", "ThirdMsg");
-
-EngineLogo=gui:new("WindowT", "EngineLogo");
+local EmgTunnelBeachGUI = gui:new("WindowT", "EmgTunnelBeachGUI")
+EmgTunnelBeachGUI.Heading = gui:new("WindowT", "Heading")
+EmgTunnelBeachGUI.TunnelLocation = gui:new("WindowT", "TunnelLocation")
+EmgTunnelBeachGUI.ThirdMsg = gui:new("WindowT", "ThirdMsg")
+EmgTunnelBeachGUI.EngineLogo = gui:new("WindowT", "EngineLogo")
 
 
 -- Set the GUIs root window.
 -- *************************
 
-gui:SetRootWindow(EmgTunnelBeachGUI);
+gui:SetRootWindow(EmgTunnelBeachGUI)
+gui:activate(false)
+gui:setInteractive(false)
+gui:showMouse(false)
 
 
 -- Setup the window hierarchy.
 -- ***************************
 
-EmgTunnelBeachGUI:AddChild(Heading);
-
-EmgTunnelBeachGUI:AddChild(TunnelLocation);
-
-EmgTunnelBeachGUI:AddChild(ThirdMsg);
-
-EmgTunnelBeachGUI:AddChild(EngineLogo);
+EmgTunnelBeachGUI:AddChild(EmgTunnelBeachGUI.Heading)
+EmgTunnelBeachGUI:AddChild(EmgTunnelBeachGUI.TunnelLocation)
+EmgTunnelBeachGUI:AddChild(EmgTunnelBeachGUI.ThirdMsg)
+EmgTunnelBeachGUI:AddChild(EmgTunnelBeachGUI.EngineLogo)
 
 
--- Initialization of the window contents ("constructor code").
--- ***********************************************************
+-- Initialization of the window contents ("constructors").
+-- *******************************************************
 
 function EmgTunnelBeachGUI:OnInit()
     self:GetTransform():set("Pos", 0, 0)
@@ -50,13 +46,9 @@ function EmgTunnelBeachGUI:OnInit()
     c1:set("Alpha", 0.4)
 
     self:AddComponent(c1)
-
-    gui:activate      (false);
-    gui:setInteractive(false);
-    gui:showMouse     (false);
 end
 
-function Heading:OnInit()
+function EmgTunnelBeachGUI.Heading:OnInit()
     self:GetTransform():set("Pos", 50, 30)
     self:GetTransform():set("Size", 540, 120)
 
@@ -80,7 +72,7 @@ Evacuation Tunnel
     self:AddComponent(c1, c2)
 end
 
-function TunnelLocation:OnInit()
+function EmgTunnelBeachGUI.TunnelLocation:OnInit()
     self:GetTransform():set("Pos", 50, 180)
     self:GetTransform():set("Size", 540, 120)
 
@@ -105,7 +97,7 @@ Checkpoint: Beach
     self:AddComponent(c1, c2)
 end
 
-function ThirdMsg:OnInit()
+function EmgTunnelBeachGUI.ThirdMsg:OnInit()
     self:GetTransform():set("Pos", 50, 330)
     self:GetTransform():set("Size", 390, 120)
 
@@ -129,7 +121,7 @@ INCERFA]])
     self:AddComponent(c1, c2)
 end
 
-function EngineLogo:OnInit()
+function EmgTunnelBeachGUI.EngineLogo:OnInit()
     self:GetTransform():set("Pos", 470, 358)
     self:GetTransform():set("Size", 128, 64)
 
@@ -140,4 +132,3 @@ function EngineLogo:OnInit()
 
     self:AddComponent(c1)
 end
-

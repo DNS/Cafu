@@ -2,6 +2,9 @@ local gui = ...
 
 assert(loadfile("Games/DeathMatch/GUIs/ChatInput_init.cgui"))(gui)
 
+local Background = gui:GetRootWindow()
+local ChatInputFrame = Background.ChatInputFrame
+
 
 function Background:OnKeyPress(Key)
     if (Key==1) then    -- Key number 1 is the ESC key (see CaKeyboardEventT struct for details).

@@ -8,263 +8,240 @@
 -- *****************************
 
 local gui = ...
-MainMenu=gui:new("WindowT", "MainMenu");
-
-PulsatingBackImage=gui:new("WindowT", "PulsatingBackImage");
-
-NormalControls=gui:new("WindowT", "NormalControls");
-NormalControls.Headline=gui:new("WindowT", "Headline");
-NormalControls.ButtonNewGame=gui:new("WindowT", "ButtonNewGame");
-NormalControls.ButtonLoadGame=gui:new("WindowT", "ButtonLoadGame");
-NormalControls.ButtonSaveGame=gui:new("WindowT", "ButtonSaveGame");
-NormalControls.ButtonQuitCurrentGame=gui:new("WindowT", "ButtonQuitCurrentGame");
-NormalControls.ButtonReturnToGame=gui:new("WindowT", "ButtonReturnToGame");
-NormalControls.ButtonMultiplayer=gui:new("WindowT", "ButtonMultiplayer");
-NormalControls.ButtonOptions=gui:new("WindowT", "ButtonOptions");
-NormalControls.ButtonCredits=gui:new("WindowT", "ButtonCredits");
-NormalControls.ButtonQuit=gui:new("WindowT", "ButtonQuit");
-NormalControls.FPS=gui:new("WindowT", "FPS");
-
-NewGameDialog=gui:new("WindowT", "NewGameDialog");
-NewGameDialog.Frame=gui:new("WindowT", "Frame");
-NewGameDialog.Frame.MapList=gui:new("WindowT", "MapList");
-NewGameDialog.Frame.MapPreview=gui:new("WindowT", "MapPreview");
-NewGameDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
-NewGameDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
-
-MultiplayerContextMenu=gui:new("WindowT", "MultiplayerContextMenu");
-MultiplayerContextMenu.Frame=gui:new("WindowT", "Frame");
-MultiplayerContextMenu.Frame.JoinGame=gui:new("WindowT", "JoinGame");
-MultiplayerContextMenu.Frame.HostGame=gui:new("WindowT", "HostGame");
-
-OptionsContextMenu=gui:new("WindowT", "OptionsContextMenu");
-OptionsContextMenu.Frame=gui:new("WindowT", "Frame");
-OptionsContextMenu.Frame.Controls=gui:new("WindowT", "Controls");
-OptionsContextMenu.Frame.Player=gui:new("WindowT", "Player");
-OptionsContextMenu.Frame.Video=gui:new("WindowT", "Video");
-OptionsContextMenu.Frame.Audio=gui:new("WindowT", "Audio");
-
-JoinGameDialog=gui:new("WindowT", "JoinGameDialog");
-JoinGameDialog.Frame=gui:new("WindowT", "Frame");
-JoinGameDialog.Frame.PlayerNameText=gui:new("WindowT", "PlayerNameText");
-JoinGameDialog.Frame.PlayerNameEdit=gui:new("WindowT", "PlayerNameEdit");
-JoinGameDialog.Frame.ModelNameText=gui:new("WindowT", "ModelNameText");
-JoinGameDialog.Frame.ModelNameChoice=gui:new("WindowT", "ModelNameChoice");
-JoinGameDialog.Frame.RemoteHostText=gui:new("WindowT", "RemoteHostText");
-JoinGameDialog.Frame.RemoteHostEdit=gui:new("WindowT", "RemoteHostEdit");
-JoinGameDialog.Frame.RemotePortText=gui:new("WindowT", "RemotePortText");
-JoinGameDialog.Frame.RemotePortEdit=gui:new("WindowT", "RemotePortEdit");
-JoinGameDialog.Frame.ModelPreview=gui:new("WindowT", "ModelPreview");
-JoinGameDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
-JoinGameDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
-
-HostGameDialog=gui:new("WindowT", "HostGameDialog");
-HostGameDialog.Frame=gui:new("WindowT", "Frame");
-HostGameDialog.Frame.WorldNameText=gui:new("WindowT", "WorldNameText");
-HostGameDialog.Frame.WorldNameChoice=gui:new("WindowT", "WorldNameChoice");
-HostGameDialog.Frame.LocalSvPortText=gui:new("WindowT", "LocalSvPortText");
-HostGameDialog.Frame.LocalSvPortEdit=gui:new("WindowT", "LocalSvPortEdit");
-HostGameDialog.Frame.ListenSvText=gui:new("WindowT", "ListenSvText");
-HostGameDialog.Frame.ListenSvChoice=gui:new("WindowT", "ListenSvChoice");
-HostGameDialog.Frame.PlayerNameText=gui:new("WindowT", "PlayerNameText");
-HostGameDialog.Frame.PlayerNameEdit=gui:new("WindowT", "PlayerNameEdit");
-HostGameDialog.Frame.ModelNameText=gui:new("WindowT", "ModelNameText");
-HostGameDialog.Frame.ModelNameChoice=gui:new("WindowT", "ModelNameChoice");
-HostGameDialog.Frame.MapPreview=gui:new("WindowT", "MapPreview");
-HostGameDialog.Frame.ModelPreview=gui:new("WindowT", "ModelPreview");
-HostGameDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
-HostGameDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
-
-InitServerInfoPanel=gui:new("WindowT", "InitServerInfoPanel");
-InitServerInfoPanel.Frame=gui:new("WindowT", "Frame");
-
-InputOptionsDialog=gui:new("WindowT", "InputOptionsDialog");
-InputOptionsDialog.Frame=gui:new("WindowT", "Frame");
-InputOptionsDialog.Frame.ReverseMouseYAxisText=gui:new("WindowT", "ReverseMouseYAxisText");
-InputOptionsDialog.Frame.ReverseMouseYAxisChoice=gui:new("WindowT", "ReverseMouseYAxisChoice");
-InputOptionsDialog.Frame.InfoKeyboardText=gui:new("WindowT", "InfoKeyboardText");
-InputOptionsDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
-InputOptionsDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
-
-PlayerOptionsDialog=gui:new("WindowT", "PlayerOptionsDialog");
-PlayerOptionsDialog.Frame=gui:new("WindowT", "Frame");
-PlayerOptionsDialog.Frame.PlayerNameText=gui:new("WindowT", "PlayerNameText");
-PlayerOptionsDialog.Frame.PlayerNameEdit=gui:new("WindowT", "PlayerNameEdit");
-PlayerOptionsDialog.Frame.ModelNameText=gui:new("WindowT", "ModelNameText");
-PlayerOptionsDialog.Frame.ModelNameChoice=gui:new("WindowT", "ModelNameChoice");
-PlayerOptionsDialog.Frame.ModelPreview=gui:new("WindowT", "ModelPreview");
-PlayerOptionsDialog.Frame.ShowHUDText=gui:new("WindowT", "ShowHUDText");
-PlayerOptionsDialog.Frame.ShowHUDChoice=gui:new("WindowT", "ShowHUDChoice");
-PlayerOptionsDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
-PlayerOptionsDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
-
-VideoOptionsDialog=gui:new("WindowT", "VideoOptionsDialog");
-VideoOptionsDialog.Frame=gui:new("WindowT", "Frame");
-VideoOptionsDialog.Frame.ScreenResText=gui:new("WindowT", "ScreenResText");
-VideoOptionsDialog.Frame.ScreenResChoice=gui:new("WindowT", "ScreenResChoice");
-VideoOptionsDialog.Frame.FullScreenText=gui:new("WindowT", "FullScreenText");
-VideoOptionsDialog.Frame.FullScreenChoice=gui:new("WindowT", "FullScreenChoice");
-VideoOptionsDialog.Frame.TextureDetailText=gui:new("WindowT", "TextureDetailText");
-VideoOptionsDialog.Frame.TextureDetailChoice=gui:new("WindowT", "TextureDetailChoice");
-VideoOptionsDialog.Frame.InfoRestartText=gui:new("WindowT", "InfoRestartText");
-VideoOptionsDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
-VideoOptionsDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
-
-AudioOptionsDialog=gui:new("WindowT", "AudioOptionsDialog");
-AudioOptionsDialog.Frame=gui:new("WindowT", "Frame");
-AudioOptionsDialog.Frame.VolumeText=gui:new("WindowT", "VolumeText");
-AudioOptionsDialog.Frame.VolumeChoice=gui:new("WindowT", "VolumeChoice");
-AudioOptionsDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
-AudioOptionsDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
-
-CreditsDialog=gui:new("WindowT", "CreditsDialog");
-CreditsDialog.Frame=gui:new("WindowT", "Frame");
-CreditsDialog.Frame.CreditsText=gui:new("WindowT", "CreditsText");
-CreditsDialog.Frame.ExtLibsText=gui:new("WindowT", "ExtLibsText");
-CreditsDialog.Frame.CopyrightText=gui:new("WindowT", "CopyrightText");
-CreditsDialog.Frame.ButtonOK=gui:new("WindowT", "ButtonOK");
-CreditsDialog.Frame.ButtonCancel=gui:new("WindowT", "ButtonCancel");
-
-ReallyQuitDialog=gui:new("WindowT", "ReallyQuitDialog");
-ReallyQuitDialog.QuitHeadline=gui:new("WindowT", "QuitHeadline");
-ReallyQuitDialog.ReallyQuit=gui:new("WindowT", "ReallyQuit");
-ReallyQuitDialog.ReallyQuit.ButtonYes=gui:new("WindowT", "ButtonYes");
-ReallyQuitDialog.ReallyQuit.ButtonNo=gui:new("WindowT", "ButtonNo");
+local MainMenu = gui:new("WindowT", "MainMenu")
+MainMenu.PulsatingBackImage = gui:new("WindowT", "PulsatingBackImage")
+MainMenu.NormalControls = gui:new("WindowT", "NormalControls")
+MainMenu.NormalControls.Headline = gui:new("WindowT", "Headline")
+MainMenu.NormalControls.ButtonNewGame = gui:new("WindowT", "ButtonNewGame")
+MainMenu.NormalControls.ButtonLoadGame = gui:new("WindowT", "ButtonLoadGame")
+MainMenu.NormalControls.ButtonSaveGame = gui:new("WindowT", "ButtonSaveGame")
+MainMenu.NormalControls.ButtonQuitCurrentGame = gui:new("WindowT", "ButtonQuitCurrentGame")
+MainMenu.NormalControls.ButtonReturnToGame = gui:new("WindowT", "ButtonReturnToGame")
+MainMenu.NormalControls.ButtonMultiplayer = gui:new("WindowT", "ButtonMultiplayer")
+MainMenu.NormalControls.ButtonOptions = gui:new("WindowT", "ButtonOptions")
+MainMenu.NormalControls.ButtonCredits = gui:new("WindowT", "ButtonCredits")
+MainMenu.NormalControls.ButtonQuit = gui:new("WindowT", "ButtonQuit")
+MainMenu.NormalControls.FPS = gui:new("WindowT", "FPS")
+MainMenu.NewGameDialog = gui:new("WindowT", "NewGameDialog")
+MainMenu.NewGameDialog.Frame = gui:new("WindowT", "Frame")
+MainMenu.NewGameDialog.Frame.MapList = gui:new("WindowT", "MapList")
+MainMenu.NewGameDialog.Frame.MapPreview = gui:new("WindowT", "MapPreview")
+MainMenu.NewGameDialog.Frame.ButtonOK = gui:new("WindowT", "ButtonOK")
+MainMenu.NewGameDialog.Frame.ButtonCancel = gui:new("WindowT", "ButtonCancel")
+MainMenu.MultiplayerContextMenu = gui:new("WindowT", "MultiplayerContextMenu")
+MainMenu.MultiplayerContextMenu.Frame = gui:new("WindowT", "Frame")
+MainMenu.MultiplayerContextMenu.Frame.JoinGame = gui:new("WindowT", "JoinGame")
+MainMenu.MultiplayerContextMenu.Frame.HostGame = gui:new("WindowT", "HostGame")
+MainMenu.OptionsContextMenu = gui:new("WindowT", "OptionsContextMenu")
+MainMenu.OptionsContextMenu.Frame = gui:new("WindowT", "Frame")
+MainMenu.OptionsContextMenu.Frame.Controls = gui:new("WindowT", "Controls")
+MainMenu.OptionsContextMenu.Frame.Player = gui:new("WindowT", "Player")
+MainMenu.OptionsContextMenu.Frame.Video = gui:new("WindowT", "Video")
+MainMenu.OptionsContextMenu.Frame.Audio = gui:new("WindowT", "Audio")
+MainMenu.JoinGameDialog = gui:new("WindowT", "JoinGameDialog")
+MainMenu.JoinGameDialog.Frame = gui:new("WindowT", "Frame")
+MainMenu.JoinGameDialog.Frame.PlayerNameText = gui:new("WindowT", "PlayerNameText")
+MainMenu.JoinGameDialog.Frame.PlayerNameEdit = gui:new("WindowT", "PlayerNameEdit")
+MainMenu.JoinGameDialog.Frame.ModelNameText = gui:new("WindowT", "ModelNameText")
+MainMenu.JoinGameDialog.Frame.ModelNameChoice = gui:new("WindowT", "ModelNameChoice")
+MainMenu.JoinGameDialog.Frame.RemoteHostText = gui:new("WindowT", "RemoteHostText")
+MainMenu.JoinGameDialog.Frame.RemoteHostEdit = gui:new("WindowT", "RemoteHostEdit")
+MainMenu.JoinGameDialog.Frame.RemotePortText = gui:new("WindowT", "RemotePortText")
+MainMenu.JoinGameDialog.Frame.RemotePortEdit = gui:new("WindowT", "RemotePortEdit")
+MainMenu.JoinGameDialog.Frame.ModelPreview = gui:new("WindowT", "ModelPreview")
+MainMenu.JoinGameDialog.Frame.ButtonOK = gui:new("WindowT", "ButtonOK")
+MainMenu.JoinGameDialog.Frame.ButtonCancel = gui:new("WindowT", "ButtonCancel")
+MainMenu.HostGameDialog = gui:new("WindowT", "HostGameDialog")
+MainMenu.HostGameDialog.Frame = gui:new("WindowT", "Frame")
+MainMenu.HostGameDialog.Frame.WorldNameText = gui:new("WindowT", "WorldNameText")
+MainMenu.HostGameDialog.Frame.WorldNameChoice = gui:new("WindowT", "WorldNameChoice")
+MainMenu.HostGameDialog.Frame.LocalSvPortText = gui:new("WindowT", "LocalSvPortText")
+MainMenu.HostGameDialog.Frame.LocalSvPortEdit = gui:new("WindowT", "LocalSvPortEdit")
+MainMenu.HostGameDialog.Frame.ListenSvText = gui:new("WindowT", "ListenSvText")
+MainMenu.HostGameDialog.Frame.ListenSvChoice = gui:new("WindowT", "ListenSvChoice")
+MainMenu.HostGameDialog.Frame.PlayerNameText = gui:new("WindowT", "PlayerNameText")
+MainMenu.HostGameDialog.Frame.PlayerNameEdit = gui:new("WindowT", "PlayerNameEdit")
+MainMenu.HostGameDialog.Frame.ModelNameText = gui:new("WindowT", "ModelNameText")
+MainMenu.HostGameDialog.Frame.ModelNameChoice = gui:new("WindowT", "ModelNameChoice")
+MainMenu.HostGameDialog.Frame.MapPreview = gui:new("WindowT", "MapPreview")
+MainMenu.HostGameDialog.Frame.ModelPreview = gui:new("WindowT", "ModelPreview")
+MainMenu.HostGameDialog.Frame.ButtonOK = gui:new("WindowT", "ButtonOK")
+MainMenu.HostGameDialog.Frame.ButtonCancel = gui:new("WindowT", "ButtonCancel")
+MainMenu.InitServerInfoPanel = gui:new("WindowT", "InitServerInfoPanel")
+MainMenu.InitServerInfoPanel.Frame = gui:new("WindowT", "Frame")
+MainMenu.InputOptionsDialog = gui:new("WindowT", "InputOptionsDialog")
+MainMenu.InputOptionsDialog.Frame = gui:new("WindowT", "Frame")
+MainMenu.InputOptionsDialog.Frame.ReverseMouseYAxisText = gui:new("WindowT", "ReverseMouseYAxisText")
+MainMenu.InputOptionsDialog.Frame.ReverseMouseYAxisChoice = gui:new("WindowT", "ReverseMouseYAxisChoice")
+MainMenu.InputOptionsDialog.Frame.InfoKeyboardText = gui:new("WindowT", "InfoKeyboardText")
+MainMenu.InputOptionsDialog.Frame.ButtonOK = gui:new("WindowT", "ButtonOK")
+MainMenu.InputOptionsDialog.Frame.ButtonCancel = gui:new("WindowT", "ButtonCancel")
+MainMenu.PlayerOptionsDialog = gui:new("WindowT", "PlayerOptionsDialog")
+MainMenu.PlayerOptionsDialog.Frame = gui:new("WindowT", "Frame")
+MainMenu.PlayerOptionsDialog.Frame.PlayerNameText = gui:new("WindowT", "PlayerNameText")
+MainMenu.PlayerOptionsDialog.Frame.PlayerNameEdit = gui:new("WindowT", "PlayerNameEdit")
+MainMenu.PlayerOptionsDialog.Frame.ModelNameText = gui:new("WindowT", "ModelNameText")
+MainMenu.PlayerOptionsDialog.Frame.ModelNameChoice = gui:new("WindowT", "ModelNameChoice")
+MainMenu.PlayerOptionsDialog.Frame.ModelPreview = gui:new("WindowT", "ModelPreview")
+MainMenu.PlayerOptionsDialog.Frame.ShowHUDText = gui:new("WindowT", "ShowHUDText")
+MainMenu.PlayerOptionsDialog.Frame.ShowHUDChoice = gui:new("WindowT", "ShowHUDChoice")
+MainMenu.PlayerOptionsDialog.Frame.ButtonOK = gui:new("WindowT", "ButtonOK")
+MainMenu.PlayerOptionsDialog.Frame.ButtonCancel = gui:new("WindowT", "ButtonCancel")
+MainMenu.VideoOptionsDialog = gui:new("WindowT", "VideoOptionsDialog")
+MainMenu.VideoOptionsDialog.Frame = gui:new("WindowT", "Frame")
+MainMenu.VideoOptionsDialog.Frame.ScreenResText = gui:new("WindowT", "ScreenResText")
+MainMenu.VideoOptionsDialog.Frame.ScreenResChoice = gui:new("WindowT", "ScreenResChoice")
+MainMenu.VideoOptionsDialog.Frame.FullScreenText = gui:new("WindowT", "FullScreenText")
+MainMenu.VideoOptionsDialog.Frame.FullScreenChoice = gui:new("WindowT", "FullScreenChoice")
+MainMenu.VideoOptionsDialog.Frame.TextureDetailText = gui:new("WindowT", "TextureDetailText")
+MainMenu.VideoOptionsDialog.Frame.TextureDetailChoice = gui:new("WindowT", "TextureDetailChoice")
+MainMenu.VideoOptionsDialog.Frame.InfoRestartText = gui:new("WindowT", "InfoRestartText")
+MainMenu.VideoOptionsDialog.Frame.ButtonOK = gui:new("WindowT", "ButtonOK")
+MainMenu.VideoOptionsDialog.Frame.ButtonCancel = gui:new("WindowT", "ButtonCancel")
+MainMenu.AudioOptionsDialog = gui:new("WindowT", "AudioOptionsDialog")
+MainMenu.AudioOptionsDialog.Frame = gui:new("WindowT", "Frame")
+MainMenu.AudioOptionsDialog.Frame.VolumeText = gui:new("WindowT", "VolumeText")
+MainMenu.AudioOptionsDialog.Frame.VolumeChoice = gui:new("WindowT", "VolumeChoice")
+MainMenu.AudioOptionsDialog.Frame.ButtonOK = gui:new("WindowT", "ButtonOK")
+MainMenu.AudioOptionsDialog.Frame.ButtonCancel = gui:new("WindowT", "ButtonCancel")
+MainMenu.CreditsDialog = gui:new("WindowT", "CreditsDialog")
+MainMenu.CreditsDialog.Frame = gui:new("WindowT", "Frame")
+MainMenu.CreditsDialog.Frame.CreditsText = gui:new("WindowT", "CreditsText")
+MainMenu.CreditsDialog.Frame.ExtLibsText = gui:new("WindowT", "ExtLibsText")
+MainMenu.CreditsDialog.Frame.CopyrightText = gui:new("WindowT", "CopyrightText")
+MainMenu.CreditsDialog.Frame.ButtonOK = gui:new("WindowT", "ButtonOK")
+MainMenu.CreditsDialog.Frame.ButtonCancel = gui:new("WindowT", "ButtonCancel")
+MainMenu.ReallyQuitDialog = gui:new("WindowT", "ReallyQuitDialog")
+MainMenu.ReallyQuitDialog.QuitHeadline = gui:new("WindowT", "QuitHeadline")
+MainMenu.ReallyQuitDialog.ReallyQuit = gui:new("WindowT", "ReallyQuit")
+MainMenu.ReallyQuitDialog.ReallyQuit.ButtonYes = gui:new("WindowT", "ButtonYes")
+MainMenu.ReallyQuitDialog.ReallyQuit.ButtonNo = gui:new("WindowT", "ButtonNo")
 
 
 -- Set the GUIs root window.
 -- *************************
 
-gui:SetRootWindow(MainMenu);
+gui:SetRootWindow(MainMenu)
+gui:activate(true)
+gui:setInteractive(true)
+gui:showMouse(true)
+gui:setFocus(MainMenu.NormalControls)
 
 
 -- Setup the window hierarchy.
 -- ***************************
 
-MainMenu:AddChild(PulsatingBackImage);
-
-MainMenu:AddChild(NormalControls);
-NormalControls:AddChild(NormalControls.Headline);
-NormalControls:AddChild(NormalControls.ButtonNewGame);
-NormalControls:AddChild(NormalControls.ButtonLoadGame);
-NormalControls:AddChild(NormalControls.ButtonSaveGame);
-NormalControls:AddChild(NormalControls.ButtonQuitCurrentGame);
-NormalControls:AddChild(NormalControls.ButtonReturnToGame);
-NormalControls:AddChild(NormalControls.ButtonMultiplayer);
-NormalControls:AddChild(NormalControls.ButtonOptions);
-NormalControls:AddChild(NormalControls.ButtonCredits);
-NormalControls:AddChild(NormalControls.ButtonQuit);
-NormalControls:AddChild(NormalControls.FPS);
-
-MainMenu:AddChild(NewGameDialog);
-NewGameDialog:AddChild(NewGameDialog.Frame);
-NewGameDialog.Frame:AddChild(NewGameDialog.Frame.MapList);
-NewGameDialog.Frame:AddChild(NewGameDialog.Frame.MapPreview);
-NewGameDialog.Frame:AddChild(NewGameDialog.Frame.ButtonOK);
-NewGameDialog.Frame:AddChild(NewGameDialog.Frame.ButtonCancel);
-
-MainMenu:AddChild(MultiplayerContextMenu);
-MultiplayerContextMenu:AddChild(MultiplayerContextMenu.Frame);
-MultiplayerContextMenu.Frame:AddChild(MultiplayerContextMenu.Frame.JoinGame);
-MultiplayerContextMenu.Frame:AddChild(MultiplayerContextMenu.Frame.HostGame);
-
-MainMenu:AddChild(OptionsContextMenu);
-OptionsContextMenu:AddChild(OptionsContextMenu.Frame);
-OptionsContextMenu.Frame:AddChild(OptionsContextMenu.Frame.Controls);
-OptionsContextMenu.Frame:AddChild(OptionsContextMenu.Frame.Player);
-OptionsContextMenu.Frame:AddChild(OptionsContextMenu.Frame.Video);
-OptionsContextMenu.Frame:AddChild(OptionsContextMenu.Frame.Audio);
-
-MainMenu:AddChild(JoinGameDialog);
-JoinGameDialog:AddChild(JoinGameDialog.Frame);
-JoinGameDialog.Frame:AddChild(JoinGameDialog.Frame.PlayerNameText);
-JoinGameDialog.Frame:AddChild(JoinGameDialog.Frame.PlayerNameEdit);
-JoinGameDialog.Frame:AddChild(JoinGameDialog.Frame.ModelNameText);
-JoinGameDialog.Frame:AddChild(JoinGameDialog.Frame.ModelNameChoice);
-JoinGameDialog.Frame:AddChild(JoinGameDialog.Frame.RemoteHostText);
-JoinGameDialog.Frame:AddChild(JoinGameDialog.Frame.RemoteHostEdit);
-JoinGameDialog.Frame:AddChild(JoinGameDialog.Frame.RemotePortText);
-JoinGameDialog.Frame:AddChild(JoinGameDialog.Frame.RemotePortEdit);
-JoinGameDialog.Frame:AddChild(JoinGameDialog.Frame.ModelPreview);
-JoinGameDialog.Frame:AddChild(JoinGameDialog.Frame.ButtonOK);
-JoinGameDialog.Frame:AddChild(JoinGameDialog.Frame.ButtonCancel);
-
-MainMenu:AddChild(HostGameDialog);
-HostGameDialog:AddChild(HostGameDialog.Frame);
-HostGameDialog.Frame:AddChild(HostGameDialog.Frame.WorldNameText);
-HostGameDialog.Frame:AddChild(HostGameDialog.Frame.WorldNameChoice);
-HostGameDialog.Frame:AddChild(HostGameDialog.Frame.LocalSvPortText);
-HostGameDialog.Frame:AddChild(HostGameDialog.Frame.LocalSvPortEdit);
-HostGameDialog.Frame:AddChild(HostGameDialog.Frame.ListenSvText);
-HostGameDialog.Frame:AddChild(HostGameDialog.Frame.ListenSvChoice);
-HostGameDialog.Frame:AddChild(HostGameDialog.Frame.PlayerNameText);
-HostGameDialog.Frame:AddChild(HostGameDialog.Frame.PlayerNameEdit);
-HostGameDialog.Frame:AddChild(HostGameDialog.Frame.ModelNameText);
-HostGameDialog.Frame:AddChild(HostGameDialog.Frame.ModelNameChoice);
-HostGameDialog.Frame:AddChild(HostGameDialog.Frame.MapPreview);
-HostGameDialog.Frame:AddChild(HostGameDialog.Frame.ModelPreview);
-HostGameDialog.Frame:AddChild(HostGameDialog.Frame.ButtonOK);
-HostGameDialog.Frame:AddChild(HostGameDialog.Frame.ButtonCancel);
-
-MainMenu:AddChild(InitServerInfoPanel);
-InitServerInfoPanel:AddChild(InitServerInfoPanel.Frame);
-
-MainMenu:AddChild(InputOptionsDialog);
-InputOptionsDialog:AddChild(InputOptionsDialog.Frame);
-InputOptionsDialog.Frame:AddChild(InputOptionsDialog.Frame.ReverseMouseYAxisText);
-InputOptionsDialog.Frame:AddChild(InputOptionsDialog.Frame.ReverseMouseYAxisChoice);
-InputOptionsDialog.Frame:AddChild(InputOptionsDialog.Frame.InfoKeyboardText);
-InputOptionsDialog.Frame:AddChild(InputOptionsDialog.Frame.ButtonOK);
-InputOptionsDialog.Frame:AddChild(InputOptionsDialog.Frame.ButtonCancel);
-
-MainMenu:AddChild(PlayerOptionsDialog);
-PlayerOptionsDialog:AddChild(PlayerOptionsDialog.Frame);
-PlayerOptionsDialog.Frame:AddChild(PlayerOptionsDialog.Frame.PlayerNameText);
-PlayerOptionsDialog.Frame:AddChild(PlayerOptionsDialog.Frame.PlayerNameEdit);
-PlayerOptionsDialog.Frame:AddChild(PlayerOptionsDialog.Frame.ModelNameText);
-PlayerOptionsDialog.Frame:AddChild(PlayerOptionsDialog.Frame.ModelNameChoice);
-PlayerOptionsDialog.Frame:AddChild(PlayerOptionsDialog.Frame.ModelPreview);
-PlayerOptionsDialog.Frame:AddChild(PlayerOptionsDialog.Frame.ShowHUDText);
-PlayerOptionsDialog.Frame:AddChild(PlayerOptionsDialog.Frame.ShowHUDChoice);
-PlayerOptionsDialog.Frame:AddChild(PlayerOptionsDialog.Frame.ButtonOK);
-PlayerOptionsDialog.Frame:AddChild(PlayerOptionsDialog.Frame.ButtonCancel);
-
-MainMenu:AddChild(VideoOptionsDialog);
-VideoOptionsDialog:AddChild(VideoOptionsDialog.Frame);
-VideoOptionsDialog.Frame:AddChild(VideoOptionsDialog.Frame.ScreenResText);
-VideoOptionsDialog.Frame:AddChild(VideoOptionsDialog.Frame.ScreenResChoice);
-VideoOptionsDialog.Frame:AddChild(VideoOptionsDialog.Frame.FullScreenText);
-VideoOptionsDialog.Frame:AddChild(VideoOptionsDialog.Frame.FullScreenChoice);
-VideoOptionsDialog.Frame:AddChild(VideoOptionsDialog.Frame.TextureDetailText);
-VideoOptionsDialog.Frame:AddChild(VideoOptionsDialog.Frame.TextureDetailChoice);
-VideoOptionsDialog.Frame:AddChild(VideoOptionsDialog.Frame.InfoRestartText);
-VideoOptionsDialog.Frame:AddChild(VideoOptionsDialog.Frame.ButtonOK);
-VideoOptionsDialog.Frame:AddChild(VideoOptionsDialog.Frame.ButtonCancel);
-
-MainMenu:AddChild(AudioOptionsDialog);
-AudioOptionsDialog:AddChild(AudioOptionsDialog.Frame);
-AudioOptionsDialog.Frame:AddChild(AudioOptionsDialog.Frame.VolumeText);
-AudioOptionsDialog.Frame:AddChild(AudioOptionsDialog.Frame.VolumeChoice);
-AudioOptionsDialog.Frame:AddChild(AudioOptionsDialog.Frame.ButtonOK);
-AudioOptionsDialog.Frame:AddChild(AudioOptionsDialog.Frame.ButtonCancel);
-
-MainMenu:AddChild(CreditsDialog);
-CreditsDialog:AddChild(CreditsDialog.Frame);
-CreditsDialog.Frame:AddChild(CreditsDialog.Frame.CreditsText);
-CreditsDialog.Frame:AddChild(CreditsDialog.Frame.ExtLibsText);
-CreditsDialog.Frame:AddChild(CreditsDialog.Frame.CopyrightText);
-CreditsDialog.Frame:AddChild(CreditsDialog.Frame.ButtonOK);
-CreditsDialog.Frame:AddChild(CreditsDialog.Frame.ButtonCancel);
-
-MainMenu:AddChild(ReallyQuitDialog);
-ReallyQuitDialog:AddChild(ReallyQuitDialog.QuitHeadline);
-ReallyQuitDialog:AddChild(ReallyQuitDialog.ReallyQuit);
-ReallyQuitDialog.ReallyQuit:AddChild(ReallyQuitDialog.ReallyQuit.ButtonYes);
-ReallyQuitDialog.ReallyQuit:AddChild(ReallyQuitDialog.ReallyQuit.ButtonNo);
+MainMenu:AddChild(MainMenu.PulsatingBackImage)
+MainMenu:AddChild(MainMenu.NormalControls)
+MainMenu.NormalControls:AddChild(MainMenu.NormalControls.Headline)
+MainMenu.NormalControls:AddChild(MainMenu.NormalControls.ButtonNewGame)
+MainMenu.NormalControls:AddChild(MainMenu.NormalControls.ButtonLoadGame)
+MainMenu.NormalControls:AddChild(MainMenu.NormalControls.ButtonSaveGame)
+MainMenu.NormalControls:AddChild(MainMenu.NormalControls.ButtonQuitCurrentGame)
+MainMenu.NormalControls:AddChild(MainMenu.NormalControls.ButtonReturnToGame)
+MainMenu.NormalControls:AddChild(MainMenu.NormalControls.ButtonMultiplayer)
+MainMenu.NormalControls:AddChild(MainMenu.NormalControls.ButtonOptions)
+MainMenu.NormalControls:AddChild(MainMenu.NormalControls.ButtonCredits)
+MainMenu.NormalControls:AddChild(MainMenu.NormalControls.ButtonQuit)
+MainMenu.NormalControls:AddChild(MainMenu.NormalControls.FPS)
+MainMenu:AddChild(MainMenu.NewGameDialog)
+MainMenu.NewGameDialog:AddChild(MainMenu.NewGameDialog.Frame)
+MainMenu.NewGameDialog.Frame:AddChild(MainMenu.NewGameDialog.Frame.MapList)
+MainMenu.NewGameDialog.Frame:AddChild(MainMenu.NewGameDialog.Frame.MapPreview)
+MainMenu.NewGameDialog.Frame:AddChild(MainMenu.NewGameDialog.Frame.ButtonOK)
+MainMenu.NewGameDialog.Frame:AddChild(MainMenu.NewGameDialog.Frame.ButtonCancel)
+MainMenu:AddChild(MainMenu.MultiplayerContextMenu)
+MainMenu.MultiplayerContextMenu:AddChild(MainMenu.MultiplayerContextMenu.Frame)
+MainMenu.MultiplayerContextMenu.Frame:AddChild(MainMenu.MultiplayerContextMenu.Frame.JoinGame)
+MainMenu.MultiplayerContextMenu.Frame:AddChild(MainMenu.MultiplayerContextMenu.Frame.HostGame)
+MainMenu:AddChild(MainMenu.OptionsContextMenu)
+MainMenu.OptionsContextMenu:AddChild(MainMenu.OptionsContextMenu.Frame)
+MainMenu.OptionsContextMenu.Frame:AddChild(MainMenu.OptionsContextMenu.Frame.Controls)
+MainMenu.OptionsContextMenu.Frame:AddChild(MainMenu.OptionsContextMenu.Frame.Player)
+MainMenu.OptionsContextMenu.Frame:AddChild(MainMenu.OptionsContextMenu.Frame.Video)
+MainMenu.OptionsContextMenu.Frame:AddChild(MainMenu.OptionsContextMenu.Frame.Audio)
+MainMenu:AddChild(MainMenu.JoinGameDialog)
+MainMenu.JoinGameDialog:AddChild(MainMenu.JoinGameDialog.Frame)
+MainMenu.JoinGameDialog.Frame:AddChild(MainMenu.JoinGameDialog.Frame.PlayerNameText)
+MainMenu.JoinGameDialog.Frame:AddChild(MainMenu.JoinGameDialog.Frame.PlayerNameEdit)
+MainMenu.JoinGameDialog.Frame:AddChild(MainMenu.JoinGameDialog.Frame.ModelNameText)
+MainMenu.JoinGameDialog.Frame:AddChild(MainMenu.JoinGameDialog.Frame.ModelNameChoice)
+MainMenu.JoinGameDialog.Frame:AddChild(MainMenu.JoinGameDialog.Frame.RemoteHostText)
+MainMenu.JoinGameDialog.Frame:AddChild(MainMenu.JoinGameDialog.Frame.RemoteHostEdit)
+MainMenu.JoinGameDialog.Frame:AddChild(MainMenu.JoinGameDialog.Frame.RemotePortText)
+MainMenu.JoinGameDialog.Frame:AddChild(MainMenu.JoinGameDialog.Frame.RemotePortEdit)
+MainMenu.JoinGameDialog.Frame:AddChild(MainMenu.JoinGameDialog.Frame.ModelPreview)
+MainMenu.JoinGameDialog.Frame:AddChild(MainMenu.JoinGameDialog.Frame.ButtonOK)
+MainMenu.JoinGameDialog.Frame:AddChild(MainMenu.JoinGameDialog.Frame.ButtonCancel)
+MainMenu:AddChild(MainMenu.HostGameDialog)
+MainMenu.HostGameDialog:AddChild(MainMenu.HostGameDialog.Frame)
+MainMenu.HostGameDialog.Frame:AddChild(MainMenu.HostGameDialog.Frame.WorldNameText)
+MainMenu.HostGameDialog.Frame:AddChild(MainMenu.HostGameDialog.Frame.WorldNameChoice)
+MainMenu.HostGameDialog.Frame:AddChild(MainMenu.HostGameDialog.Frame.LocalSvPortText)
+MainMenu.HostGameDialog.Frame:AddChild(MainMenu.HostGameDialog.Frame.LocalSvPortEdit)
+MainMenu.HostGameDialog.Frame:AddChild(MainMenu.HostGameDialog.Frame.ListenSvText)
+MainMenu.HostGameDialog.Frame:AddChild(MainMenu.HostGameDialog.Frame.ListenSvChoice)
+MainMenu.HostGameDialog.Frame:AddChild(MainMenu.HostGameDialog.Frame.PlayerNameText)
+MainMenu.HostGameDialog.Frame:AddChild(MainMenu.HostGameDialog.Frame.PlayerNameEdit)
+MainMenu.HostGameDialog.Frame:AddChild(MainMenu.HostGameDialog.Frame.ModelNameText)
+MainMenu.HostGameDialog.Frame:AddChild(MainMenu.HostGameDialog.Frame.ModelNameChoice)
+MainMenu.HostGameDialog.Frame:AddChild(MainMenu.HostGameDialog.Frame.MapPreview)
+MainMenu.HostGameDialog.Frame:AddChild(MainMenu.HostGameDialog.Frame.ModelPreview)
+MainMenu.HostGameDialog.Frame:AddChild(MainMenu.HostGameDialog.Frame.ButtonOK)
+MainMenu.HostGameDialog.Frame:AddChild(MainMenu.HostGameDialog.Frame.ButtonCancel)
+MainMenu:AddChild(MainMenu.InitServerInfoPanel)
+MainMenu.InitServerInfoPanel:AddChild(MainMenu.InitServerInfoPanel.Frame)
+MainMenu:AddChild(MainMenu.InputOptionsDialog)
+MainMenu.InputOptionsDialog:AddChild(MainMenu.InputOptionsDialog.Frame)
+MainMenu.InputOptionsDialog.Frame:AddChild(MainMenu.InputOptionsDialog.Frame.ReverseMouseYAxisText)
+MainMenu.InputOptionsDialog.Frame:AddChild(MainMenu.InputOptionsDialog.Frame.ReverseMouseYAxisChoice)
+MainMenu.InputOptionsDialog.Frame:AddChild(MainMenu.InputOptionsDialog.Frame.InfoKeyboardText)
+MainMenu.InputOptionsDialog.Frame:AddChild(MainMenu.InputOptionsDialog.Frame.ButtonOK)
+MainMenu.InputOptionsDialog.Frame:AddChild(MainMenu.InputOptionsDialog.Frame.ButtonCancel)
+MainMenu:AddChild(MainMenu.PlayerOptionsDialog)
+MainMenu.PlayerOptionsDialog:AddChild(MainMenu.PlayerOptionsDialog.Frame)
+MainMenu.PlayerOptionsDialog.Frame:AddChild(MainMenu.PlayerOptionsDialog.Frame.PlayerNameText)
+MainMenu.PlayerOptionsDialog.Frame:AddChild(MainMenu.PlayerOptionsDialog.Frame.PlayerNameEdit)
+MainMenu.PlayerOptionsDialog.Frame:AddChild(MainMenu.PlayerOptionsDialog.Frame.ModelNameText)
+MainMenu.PlayerOptionsDialog.Frame:AddChild(MainMenu.PlayerOptionsDialog.Frame.ModelNameChoice)
+MainMenu.PlayerOptionsDialog.Frame:AddChild(MainMenu.PlayerOptionsDialog.Frame.ModelPreview)
+MainMenu.PlayerOptionsDialog.Frame:AddChild(MainMenu.PlayerOptionsDialog.Frame.ShowHUDText)
+MainMenu.PlayerOptionsDialog.Frame:AddChild(MainMenu.PlayerOptionsDialog.Frame.ShowHUDChoice)
+MainMenu.PlayerOptionsDialog.Frame:AddChild(MainMenu.PlayerOptionsDialog.Frame.ButtonOK)
+MainMenu.PlayerOptionsDialog.Frame:AddChild(MainMenu.PlayerOptionsDialog.Frame.ButtonCancel)
+MainMenu:AddChild(MainMenu.VideoOptionsDialog)
+MainMenu.VideoOptionsDialog:AddChild(MainMenu.VideoOptionsDialog.Frame)
+MainMenu.VideoOptionsDialog.Frame:AddChild(MainMenu.VideoOptionsDialog.Frame.ScreenResText)
+MainMenu.VideoOptionsDialog.Frame:AddChild(MainMenu.VideoOptionsDialog.Frame.ScreenResChoice)
+MainMenu.VideoOptionsDialog.Frame:AddChild(MainMenu.VideoOptionsDialog.Frame.FullScreenText)
+MainMenu.VideoOptionsDialog.Frame:AddChild(MainMenu.VideoOptionsDialog.Frame.FullScreenChoice)
+MainMenu.VideoOptionsDialog.Frame:AddChild(MainMenu.VideoOptionsDialog.Frame.TextureDetailText)
+MainMenu.VideoOptionsDialog.Frame:AddChild(MainMenu.VideoOptionsDialog.Frame.TextureDetailChoice)
+MainMenu.VideoOptionsDialog.Frame:AddChild(MainMenu.VideoOptionsDialog.Frame.InfoRestartText)
+MainMenu.VideoOptionsDialog.Frame:AddChild(MainMenu.VideoOptionsDialog.Frame.ButtonOK)
+MainMenu.VideoOptionsDialog.Frame:AddChild(MainMenu.VideoOptionsDialog.Frame.ButtonCancel)
+MainMenu:AddChild(MainMenu.AudioOptionsDialog)
+MainMenu.AudioOptionsDialog:AddChild(MainMenu.AudioOptionsDialog.Frame)
+MainMenu.AudioOptionsDialog.Frame:AddChild(MainMenu.AudioOptionsDialog.Frame.VolumeText)
+MainMenu.AudioOptionsDialog.Frame:AddChild(MainMenu.AudioOptionsDialog.Frame.VolumeChoice)
+MainMenu.AudioOptionsDialog.Frame:AddChild(MainMenu.AudioOptionsDialog.Frame.ButtonOK)
+MainMenu.AudioOptionsDialog.Frame:AddChild(MainMenu.AudioOptionsDialog.Frame.ButtonCancel)
+MainMenu:AddChild(MainMenu.CreditsDialog)
+MainMenu.CreditsDialog:AddChild(MainMenu.CreditsDialog.Frame)
+MainMenu.CreditsDialog.Frame:AddChild(MainMenu.CreditsDialog.Frame.CreditsText)
+MainMenu.CreditsDialog.Frame:AddChild(MainMenu.CreditsDialog.Frame.ExtLibsText)
+MainMenu.CreditsDialog.Frame:AddChild(MainMenu.CreditsDialog.Frame.CopyrightText)
+MainMenu.CreditsDialog.Frame:AddChild(MainMenu.CreditsDialog.Frame.ButtonOK)
+MainMenu.CreditsDialog.Frame:AddChild(MainMenu.CreditsDialog.Frame.ButtonCancel)
+MainMenu:AddChild(MainMenu.ReallyQuitDialog)
+MainMenu.ReallyQuitDialog:AddChild(MainMenu.ReallyQuitDialog.QuitHeadline)
+MainMenu.ReallyQuitDialog:AddChild(MainMenu.ReallyQuitDialog.ReallyQuit)
+MainMenu.ReallyQuitDialog.ReallyQuit:AddChild(MainMenu.ReallyQuitDialog.ReallyQuit.ButtonYes)
+MainMenu.ReallyQuitDialog.ReallyQuit:AddChild(MainMenu.ReallyQuitDialog.ReallyQuit.ButtonNo)
 
 
--- Initialization of the window contents ("constructor code").
--- ***********************************************************
+-- Initialization of the window contents ("constructors").
+-- *******************************************************
 
 function MainMenu:OnInit()
     self:GetTransform():set("Pos", 0, 0)
@@ -276,14 +253,9 @@ function MainMenu:OnInit()
     c1:set("Alpha", 1)
 
     self:AddComponent(c1)
-
-    gui:activate      (true);
-    gui:setInteractive(true);
-    gui:showMouse     (true);
-    gui:setFocus      (NormalControls);
 end
 
-function PulsatingBackImage:OnInit()
+function MainMenu.PulsatingBackImage:OnInit()
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 640, 480)
 
@@ -295,7 +267,7 @@ function PulsatingBackImage:OnInit()
     self:AddComponent(c1)
 end
 
-function NormalControls:OnInit()
+function MainMenu.NormalControls:OnInit()
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 640, 480)
 
@@ -307,7 +279,7 @@ function NormalControls:OnInit()
     self:AddComponent(c1)
 end
 
-function NormalControls.Headline:OnInit()
+function MainMenu.NormalControls.Headline:OnInit()
     self:GetTransform():set("Pos", 0, 10)
     self:GetTransform():set("Size", 640, 45)
 
@@ -329,7 +301,7 @@ function NormalControls.Headline:OnInit()
     self:AddComponent(c1, c2)
 end
 
-function NormalControls.ButtonNewGame:OnInit()
+function MainMenu.NormalControls.ButtonNewGame:OnInit()
     self:GetTransform():set("Pos", 30, 420)
     self:GetTransform():set("Size", 130, 40)
 
@@ -356,7 +328,7 @@ function NormalControls.ButtonNewGame:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function NormalControls.ButtonLoadGame:OnInit()
+function MainMenu.NormalControls.ButtonLoadGame:OnInit()
     self:GetTransform():set("Pos", 190, 420)
     self:GetTransform():set("Size", 130, 40)
 
@@ -383,7 +355,7 @@ function NormalControls.ButtonLoadGame:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function NormalControls.ButtonSaveGame:OnInit()
+function MainMenu.NormalControls.ButtonSaveGame:OnInit()
     self:GetTransform():set("Pos", 30, 420)
     self:GetTransform():set("Size", 130, 40)
 
@@ -410,7 +382,7 @@ function NormalControls.ButtonSaveGame:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function NormalControls.ButtonQuitCurrentGame:OnInit()
+function MainMenu.NormalControls.ButtonQuitCurrentGame:OnInit()
     self:GetTransform():set("Pos", 30, 340)
     self:GetTransform():set("Size", 130, 60)
 
@@ -439,7 +411,7 @@ Game]])
     self:AddComponent(c1, c2, c3)
 end
 
-function NormalControls.ButtonReturnToGame:OnInit()
+function MainMenu.NormalControls.ButtonReturnToGame:OnInit()
     self:GetTransform():set("Pos", 30, 260)
     self:GetTransform():set("Size", 130, 60)
 
@@ -468,7 +440,7 @@ Game]])
     self:AddComponent(c1, c2, c3)
 end
 
-function NormalControls.ButtonMultiplayer:OnInit()
+function MainMenu.NormalControls.ButtonMultiplayer:OnInit()
     self:GetTransform():set("Pos", 350, 420)
     self:GetTransform():set("Size", 130, 40)
 
@@ -495,7 +467,7 @@ function NormalControls.ButtonMultiplayer:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function NormalControls.ButtonOptions:OnInit()
+function MainMenu.NormalControls.ButtonOptions:OnInit()
     self:GetTransform():set("Pos", 520, 300)
     self:GetTransform():set("Size", 90, 40)
 
@@ -522,7 +494,7 @@ function NormalControls.ButtonOptions:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function NormalControls.ButtonCredits:OnInit()
+function MainMenu.NormalControls.ButtonCredits:OnInit()
     self:GetTransform():set("Pos", 520, 360)
     self:GetTransform():set("Size", 90, 40)
 
@@ -549,7 +521,7 @@ function NormalControls.ButtonCredits:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function NormalControls.ButtonQuit:OnInit()
+function MainMenu.NormalControls.ButtonQuit:OnInit()
     self:GetTransform():set("Pos", 520, 420)
     self:GetTransform():set("Size", 90, 40)
 
@@ -576,7 +548,7 @@ function NormalControls.ButtonQuit:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function NormalControls.FPS:OnInit()
+function MainMenu.NormalControls.FPS:OnInit()
     self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 510, 20)
     self:GetTransform():set("Size", 100, 45)
@@ -601,13 +573,13 @@ FPS
     self:AddComponent(c1, c2)
 end
 
-function NewGameDialog:OnInit()
+function MainMenu.NewGameDialog:OnInit()
     self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 640, 480)
 end
 
-function NewGameDialog.Frame:OnInit()
+function MainMenu.NewGameDialog.Frame:OnInit()
     self:GetTransform():set("Pos", 120, 90)
     self:GetTransform():set("Size", 380, 300)
 
@@ -634,7 +606,7 @@ function NewGameDialog.Frame:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function NewGameDialog.Frame.MapList:OnInit()
+function MainMenu.NewGameDialog.Frame.MapList:OnInit()
     self:GetTransform():set("Pos", 10, 40)
     self:GetTransform():set("Size", 175, 250)
 
@@ -668,7 +640,7 @@ function NewGameDialog.Frame.MapList:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function NewGameDialog.Frame.MapPreview:OnInit()
+function MainMenu.NewGameDialog.Frame.MapPreview:OnInit()
     self:GetTransform():set("Pos", 195, 40)
     self:GetTransform():set("Size", 175, 175)
 
@@ -685,7 +657,7 @@ function NewGameDialog.Frame.MapPreview:OnInit()
     self:AddComponent(c1, c2)
 end
 
-function NewGameDialog.Frame.ButtonOK:OnInit()
+function MainMenu.NewGameDialog.Frame.ButtonOK:OnInit()
     self:GetTransform():set("Pos", 290, 260)
     self:GetTransform():set("Size", 80, 30)
 
@@ -712,7 +684,7 @@ function NewGameDialog.Frame.ButtonOK:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function NewGameDialog.Frame.ButtonCancel:OnInit()
+function MainMenu.NewGameDialog.Frame.ButtonCancel:OnInit()
     self:GetTransform():set("Pos", 357, 8)
     self:GetTransform():set("Size", 13, 13)
 
@@ -739,13 +711,13 @@ function NewGameDialog.Frame.ButtonCancel:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function MultiplayerContextMenu:OnInit()
+function MainMenu.MultiplayerContextMenu:OnInit()
     self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 640, 480)
 end
 
-function MultiplayerContextMenu.Frame:OnInit()
+function MainMenu.MultiplayerContextMenu.Frame:OnInit()
     self:GetTransform():set("Pos", 330, 338)
     self:GetTransform():set("Size", 150, 80)
 
@@ -762,7 +734,7 @@ function MultiplayerContextMenu.Frame:OnInit()
     self:AddComponent(c1, c2)
 end
 
-function MultiplayerContextMenu.Frame.JoinGame:OnInit()
+function MainMenu.MultiplayerContextMenu.Frame.JoinGame:OnInit()
     self:GetTransform():set("Pos", 10, 10)
     self:GetTransform():set("Size", 130, 29)
 
@@ -789,7 +761,7 @@ function MultiplayerContextMenu.Frame.JoinGame:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function MultiplayerContextMenu.Frame.HostGame:OnInit()
+function MainMenu.MultiplayerContextMenu.Frame.HostGame:OnInit()
     self:GetTransform():set("Pos", 10, 41)
     self:GetTransform():set("Size", 130, 29)
 
@@ -816,13 +788,13 @@ function MultiplayerContextMenu.Frame.HostGame:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function OptionsContextMenu:OnInit()
+function MainMenu.OptionsContextMenu:OnInit()
     self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 640, 480)
 end
 
-function OptionsContextMenu.Frame:OnInit()
+function MainMenu.OptionsContextMenu.Frame:OnInit()
     self:GetTransform():set("Pos", 368, 225)
     self:GetTransform():set("Size", 150, 142)
 
@@ -839,7 +811,7 @@ function OptionsContextMenu.Frame:OnInit()
     self:AddComponent(c1, c2)
 end
 
-function OptionsContextMenu.Frame.Controls:OnInit()
+function MainMenu.OptionsContextMenu.Frame.Controls:OnInit()
     self:GetTransform():set("Pos", 10, 10)
     self:GetTransform():set("Size", 130, 29)
 
@@ -866,7 +838,7 @@ function OptionsContextMenu.Frame.Controls:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function OptionsContextMenu.Frame.Player:OnInit()
+function MainMenu.OptionsContextMenu.Frame.Player:OnInit()
     self:GetTransform():set("Pos", 10, 41)
     self:GetTransform():set("Size", 130, 29)
 
@@ -893,7 +865,7 @@ function OptionsContextMenu.Frame.Player:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function OptionsContextMenu.Frame.Video:OnInit()
+function MainMenu.OptionsContextMenu.Frame.Video:OnInit()
     self:GetTransform():set("Pos", 10, 72)
     self:GetTransform():set("Size", 130, 29)
 
@@ -920,7 +892,7 @@ function OptionsContextMenu.Frame.Video:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function OptionsContextMenu.Frame.Audio:OnInit()
+function MainMenu.OptionsContextMenu.Frame.Audio:OnInit()
     self:GetTransform():set("Pos", 10, 103)
     self:GetTransform():set("Size", 130, 29)
 
@@ -947,13 +919,13 @@ function OptionsContextMenu.Frame.Audio:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function JoinGameDialog:OnInit()
+function MainMenu.JoinGameDialog:OnInit()
     self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 640, 480)
 end
 
-function JoinGameDialog.Frame:OnInit()
+function MainMenu.JoinGameDialog.Frame:OnInit()
     self:GetTransform():set("Pos", 110, 90)
     self:GetTransform():set("Size", 390, 300)
 
@@ -980,7 +952,7 @@ function JoinGameDialog.Frame:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function JoinGameDialog.Frame.PlayerNameText:OnInit()
+function MainMenu.JoinGameDialog.Frame.PlayerNameText:OnInit()
     self:GetTransform():set("Pos", 10, 50)
     self:GetTransform():set("Size", 190, 30)
 
@@ -997,7 +969,7 @@ function JoinGameDialog.Frame.PlayerNameText:OnInit()
     self:AddComponent(c1)
 end
 
-function JoinGameDialog.Frame.PlayerNameEdit:OnInit()
+function MainMenu.JoinGameDialog.Frame.PlayerNameEdit:OnInit()
     self:GetTransform():set("Pos", 150, 50)
     self:GetTransform():set("Size", 140, 30)
 
@@ -1031,7 +1003,7 @@ function JoinGameDialog.Frame.PlayerNameEdit:OnInit()
     self:AddComponent(c1, c2, c3, c4)
 end
 
-function JoinGameDialog.Frame.ModelNameText:OnInit()
+function MainMenu.JoinGameDialog.Frame.ModelNameText:OnInit()
     self:GetTransform():set("Pos", 10, 90)
     self:GetTransform():set("Size", 190, 30)
 
@@ -1048,7 +1020,7 @@ function JoinGameDialog.Frame.ModelNameText:OnInit()
     self:AddComponent(c1)
 end
 
-function JoinGameDialog.Frame.ModelNameChoice:OnInit()
+function MainMenu.JoinGameDialog.Frame.ModelNameChoice:OnInit()
     self:GetTransform():set("Pos", 150, 90)
     self:GetTransform():set("Size", 140, 30)
 
@@ -1079,7 +1051,7 @@ function JoinGameDialog.Frame.ModelNameChoice:OnInit()
     self:AddComponent(c1, c2, c3, c4)
 end
 
-function JoinGameDialog.Frame.RemoteHostText:OnInit()
+function MainMenu.JoinGameDialog.Frame.RemoteHostText:OnInit()
     self:GetTransform():set("Pos", 10, 130)
     self:GetTransform():set("Size", 190, 30)
 
@@ -1096,7 +1068,7 @@ function JoinGameDialog.Frame.RemoteHostText:OnInit()
     self:AddComponent(c1)
 end
 
-function JoinGameDialog.Frame.RemoteHostEdit:OnInit()
+function MainMenu.JoinGameDialog.Frame.RemoteHostEdit:OnInit()
     self:GetTransform():set("Pos", 150, 130)
     self:GetTransform():set("Size", 140, 30)
 
@@ -1130,7 +1102,7 @@ function JoinGameDialog.Frame.RemoteHostEdit:OnInit()
     self:AddComponent(c1, c2, c3, c4)
 end
 
-function JoinGameDialog.Frame.RemotePortText:OnInit()
+function MainMenu.JoinGameDialog.Frame.RemotePortText:OnInit()
     self:GetTransform():set("Pos", 10, 170)
     self:GetTransform():set("Size", 190, 30)
 
@@ -1147,7 +1119,7 @@ function JoinGameDialog.Frame.RemotePortText:OnInit()
     self:AddComponent(c1)
 end
 
-function JoinGameDialog.Frame.RemotePortEdit:OnInit()
+function MainMenu.JoinGameDialog.Frame.RemotePortEdit:OnInit()
     self:GetTransform():set("Pos", 150, 170)
     self:GetTransform():set("Size", 140, 30)
 
@@ -1181,7 +1153,7 @@ function JoinGameDialog.Frame.RemotePortEdit:OnInit()
     self:AddComponent(c1, c2, c3, c4)
 end
 
-function JoinGameDialog.Frame.ModelPreview:OnInit()
+function MainMenu.JoinGameDialog.Frame.ModelPreview:OnInit()
     self:GetTransform():set("Pos", 300, 50)
     self:GetTransform():set("Size", 80, 150)
 
@@ -1202,7 +1174,7 @@ function JoinGameDialog.Frame.ModelPreview:OnInit()
     self:AddComponent(c1, c2)
 end
 
-function JoinGameDialog.Frame.ButtonOK:OnInit()
+function MainMenu.JoinGameDialog.Frame.ButtonOK:OnInit()
     self:GetTransform():set("Pos", 260, 260)
     self:GetTransform():set("Size", 120, 30)
 
@@ -1229,7 +1201,7 @@ function JoinGameDialog.Frame.ButtonOK:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function JoinGameDialog.Frame.ButtonCancel:OnInit()
+function MainMenu.JoinGameDialog.Frame.ButtonCancel:OnInit()
     self:GetTransform():set("Pos", 367, 8)
     self:GetTransform():set("Size", 13, 13)
 
@@ -1256,13 +1228,13 @@ function JoinGameDialog.Frame.ButtonCancel:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function HostGameDialog:OnInit()
+function MainMenu.HostGameDialog:OnInit()
     self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 640, 480)
 end
 
-function HostGameDialog.Frame:OnInit()
+function MainMenu.HostGameDialog.Frame:OnInit()
     self:GetTransform():set("Pos", 110, 90)
     self:GetTransform():set("Size", 390, 300)
 
@@ -1289,7 +1261,7 @@ function HostGameDialog.Frame:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function HostGameDialog.Frame.WorldNameText:OnInit()
+function MainMenu.HostGameDialog.Frame.WorldNameText:OnInit()
     self:GetTransform():set("Pos", 10, 50)
     self:GetTransform():set("Size", 190, 30)
 
@@ -1306,7 +1278,7 @@ function HostGameDialog.Frame.WorldNameText:OnInit()
     self:AddComponent(c1)
 end
 
-function HostGameDialog.Frame.WorldNameChoice:OnInit()
+function MainMenu.HostGameDialog.Frame.WorldNameChoice:OnInit()
     self:GetTransform():set("Pos", 160, 50)
     self:GetTransform():set("Size", 140, 30)
 
@@ -1337,7 +1309,7 @@ function HostGameDialog.Frame.WorldNameChoice:OnInit()
     self:AddComponent(c1, c2, c3, c4)
 end
 
-function HostGameDialog.Frame.LocalSvPortText:OnInit()
+function MainMenu.HostGameDialog.Frame.LocalSvPortText:OnInit()
     self:GetTransform():set("Pos", 10, 90)
     self:GetTransform():set("Size", 190, 30)
 
@@ -1354,7 +1326,7 @@ function HostGameDialog.Frame.LocalSvPortText:OnInit()
     self:AddComponent(c1)
 end
 
-function HostGameDialog.Frame.LocalSvPortEdit:OnInit()
+function MainMenu.HostGameDialog.Frame.LocalSvPortEdit:OnInit()
     self:GetTransform():set("Pos", 160, 90)
     self:GetTransform():set("Size", 140, 30)
 
@@ -1388,7 +1360,7 @@ function HostGameDialog.Frame.LocalSvPortEdit:OnInit()
     self:AddComponent(c1, c2, c3, c4)
 end
 
-function HostGameDialog.Frame.ListenSvText:OnInit()
+function MainMenu.HostGameDialog.Frame.ListenSvText:OnInit()
     self:GetTransform():set("Pos", 10, 130)
     self:GetTransform():set("Size", 190, 30)
 
@@ -1405,7 +1377,7 @@ function HostGameDialog.Frame.ListenSvText:OnInit()
     self:AddComponent(c1)
 end
 
-function HostGameDialog.Frame.ListenSvChoice:OnInit()
+function MainMenu.HostGameDialog.Frame.ListenSvChoice:OnInit()
     self:GetTransform():set("Pos", 160, 130)
     self:GetTransform():set("Size", 140, 30)
 
@@ -1436,7 +1408,7 @@ function HostGameDialog.Frame.ListenSvChoice:OnInit()
     self:AddComponent(c1, c2, c3, c4)
 end
 
-function HostGameDialog.Frame.PlayerNameText:OnInit()
+function MainMenu.HostGameDialog.Frame.PlayerNameText:OnInit()
     self:GetTransform():set("Pos", 10, 170)
     self:GetTransform():set("Size", 190, 30)
 
@@ -1453,7 +1425,7 @@ function HostGameDialog.Frame.PlayerNameText:OnInit()
     self:AddComponent(c1)
 end
 
-function HostGameDialog.Frame.PlayerNameEdit:OnInit()
+function MainMenu.HostGameDialog.Frame.PlayerNameEdit:OnInit()
     self:GetTransform():set("Pos", 160, 170)
     self:GetTransform():set("Size", 140, 30)
 
@@ -1487,7 +1459,7 @@ function HostGameDialog.Frame.PlayerNameEdit:OnInit()
     self:AddComponent(c1, c2, c3, c4)
 end
 
-function HostGameDialog.Frame.ModelNameText:OnInit()
+function MainMenu.HostGameDialog.Frame.ModelNameText:OnInit()
     self:GetTransform():set("Pos", 10, 210)
     self:GetTransform():set("Size", 190, 30)
 
@@ -1504,7 +1476,7 @@ function HostGameDialog.Frame.ModelNameText:OnInit()
     self:AddComponent(c1)
 end
 
-function HostGameDialog.Frame.ModelNameChoice:OnInit()
+function MainMenu.HostGameDialog.Frame.ModelNameChoice:OnInit()
     self:GetTransform():set("Pos", 160, 210)
     self:GetTransform():set("Size", 140, 30)
 
@@ -1535,7 +1507,7 @@ function HostGameDialog.Frame.ModelNameChoice:OnInit()
     self:AddComponent(c1, c2, c3, c4)
 end
 
-function HostGameDialog.Frame.MapPreview:OnInit()
+function MainMenu.HostGameDialog.Frame.MapPreview:OnInit()
     self:GetTransform():set("Pos", 310, 50)
     self:GetTransform():set("Size", 70, 70)
 
@@ -1552,7 +1524,7 @@ function HostGameDialog.Frame.MapPreview:OnInit()
     self:AddComponent(c1, c2)
 end
 
-function HostGameDialog.Frame.ModelPreview:OnInit()
+function MainMenu.HostGameDialog.Frame.ModelPreview:OnInit()
     self:GetTransform():set("Pos", 310, 130)
     self:GetTransform():set("Size", 70, 110)
 
@@ -1573,7 +1545,7 @@ function HostGameDialog.Frame.ModelPreview:OnInit()
     self:AddComponent(c1, c2)
 end
 
-function HostGameDialog.Frame.ButtonOK:OnInit()
+function MainMenu.HostGameDialog.Frame.ButtonOK:OnInit()
     self:GetTransform():set("Pos", 300, 260)
     self:GetTransform():set("Size", 80, 30)
 
@@ -1600,7 +1572,7 @@ function HostGameDialog.Frame.ButtonOK:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function HostGameDialog.Frame.ButtonCancel:OnInit()
+function MainMenu.HostGameDialog.Frame.ButtonCancel:OnInit()
     self:GetTransform():set("Pos", 367, 8)
     self:GetTransform():set("Size", 13, 13)
 
@@ -1627,13 +1599,13 @@ function HostGameDialog.Frame.ButtonCancel:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function InitServerInfoPanel:OnInit()
+function MainMenu.InitServerInfoPanel:OnInit()
     self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 640, 480)
 end
 
-function InitServerInfoPanel.Frame:OnInit()
+function MainMenu.InitServerInfoPanel.Frame:OnInit()
     self:GetTransform():set("Pos", 120, 150)
     self:GetTransform():set("Size", 380, 180)
 
@@ -1660,13 +1632,13 @@ function InitServerInfoPanel.Frame:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function InputOptionsDialog:OnInit()
+function MainMenu.InputOptionsDialog:OnInit()
     self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 640, 480)
 end
 
-function InputOptionsDialog.Frame:OnInit()
+function MainMenu.InputOptionsDialog.Frame:OnInit()
     self:GetTransform():set("Pos", 150, 90)
     self:GetTransform():set("Size", 310, 300)
 
@@ -1693,7 +1665,7 @@ function InputOptionsDialog.Frame:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function InputOptionsDialog.Frame.ReverseMouseYAxisText:OnInit()
+function MainMenu.InputOptionsDialog.Frame.ReverseMouseYAxisText:OnInit()
     self:GetTransform():set("Pos", 10, 50)
     self:GetTransform():set("Size", 190, 30)
 
@@ -1710,7 +1682,7 @@ function InputOptionsDialog.Frame.ReverseMouseYAxisText:OnInit()
     self:AddComponent(c1)
 end
 
-function InputOptionsDialog.Frame.ReverseMouseYAxisChoice:OnInit()
+function MainMenu.InputOptionsDialog.Frame.ReverseMouseYAxisChoice:OnInit()
     self:GetTransform():set("Pos", 160, 50)
     self:GetTransform():set("Size", 140, 30)
 
@@ -1741,12 +1713,12 @@ function InputOptionsDialog.Frame.ReverseMouseYAxisChoice:OnInit()
     self:AddComponent(c1, c2, c3, c4)
 end
 
-function InputOptionsDialog.Frame.InfoKeyboardText:OnInit()
+function MainMenu.InputOptionsDialog.Frame.InfoKeyboardText:OnInit()
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 80, 60)
 end
 
-function InputOptionsDialog.Frame.ButtonOK:OnInit()
+function MainMenu.InputOptionsDialog.Frame.ButtonOK:OnInit()
     self:GetTransform():set("Pos", 200, 260)
     self:GetTransform():set("Size", 100, 30)
 
@@ -1773,7 +1745,7 @@ function InputOptionsDialog.Frame.ButtonOK:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function InputOptionsDialog.Frame.ButtonCancel:OnInit()
+function MainMenu.InputOptionsDialog.Frame.ButtonCancel:OnInit()
     self:GetTransform():set("Pos", 287, 8)
     self:GetTransform():set("Size", 13, 13)
 
@@ -1800,13 +1772,13 @@ function InputOptionsDialog.Frame.ButtonCancel:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function PlayerOptionsDialog:OnInit()
+function MainMenu.PlayerOptionsDialog:OnInit()
     self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 640, 480)
 end
 
-function PlayerOptionsDialog.Frame:OnInit()
+function MainMenu.PlayerOptionsDialog.Frame:OnInit()
     self:GetTransform():set("Pos", 110, 90)
     self:GetTransform():set("Size", 390, 300)
 
@@ -1833,7 +1805,7 @@ function PlayerOptionsDialog.Frame:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function PlayerOptionsDialog.Frame.PlayerNameText:OnInit()
+function MainMenu.PlayerOptionsDialog.Frame.PlayerNameText:OnInit()
     self:GetTransform():set("Pos", 10, 50)
     self:GetTransform():set("Size", 190, 30)
 
@@ -1850,7 +1822,7 @@ function PlayerOptionsDialog.Frame.PlayerNameText:OnInit()
     self:AddComponent(c1)
 end
 
-function PlayerOptionsDialog.Frame.PlayerNameEdit:OnInit()
+function MainMenu.PlayerOptionsDialog.Frame.PlayerNameEdit:OnInit()
     self:GetTransform():set("Pos", 130, 50)
     self:GetTransform():set("Size", 140, 30)
 
@@ -1884,7 +1856,7 @@ function PlayerOptionsDialog.Frame.PlayerNameEdit:OnInit()
     self:AddComponent(c1, c2, c3, c4)
 end
 
-function PlayerOptionsDialog.Frame.ModelNameText:OnInit()
+function MainMenu.PlayerOptionsDialog.Frame.ModelNameText:OnInit()
     self:GetTransform():set("Pos", 10, 90)
     self:GetTransform():set("Size", 190, 30)
 
@@ -1901,7 +1873,7 @@ function PlayerOptionsDialog.Frame.ModelNameText:OnInit()
     self:AddComponent(c1)
 end
 
-function PlayerOptionsDialog.Frame.ModelNameChoice:OnInit()
+function MainMenu.PlayerOptionsDialog.Frame.ModelNameChoice:OnInit()
     self:GetTransform():set("Pos", 130, 90)
     self:GetTransform():set("Size", 140, 30)
 
@@ -1932,7 +1904,7 @@ function PlayerOptionsDialog.Frame.ModelNameChoice:OnInit()
     self:AddComponent(c1, c2, c3, c4)
 end
 
-function PlayerOptionsDialog.Frame.ModelPreview:OnInit()
+function MainMenu.PlayerOptionsDialog.Frame.ModelPreview:OnInit()
     self:GetTransform():set("Pos", 280, 50)
     self:GetTransform():set("Size", 100, 200)
 
@@ -1953,7 +1925,7 @@ function PlayerOptionsDialog.Frame.ModelPreview:OnInit()
     self:AddComponent(c1, c2)
 end
 
-function PlayerOptionsDialog.Frame.ShowHUDText:OnInit()
+function MainMenu.PlayerOptionsDialog.Frame.ShowHUDText:OnInit()
     self:GetTransform():set("Pos", 10, 130)
     self:GetTransform():set("Size", 190, 30)
 
@@ -1970,7 +1942,7 @@ function PlayerOptionsDialog.Frame.ShowHUDText:OnInit()
     self:AddComponent(c1)
 end
 
-function PlayerOptionsDialog.Frame.ShowHUDChoice:OnInit()
+function MainMenu.PlayerOptionsDialog.Frame.ShowHUDChoice:OnInit()
     self:GetTransform():set("Pos", 130, 130)
     self:GetTransform():set("Size", 140, 30)
 
@@ -2001,7 +1973,7 @@ function PlayerOptionsDialog.Frame.ShowHUDChoice:OnInit()
     self:AddComponent(c1, c2, c3, c4)
 end
 
-function PlayerOptionsDialog.Frame.ButtonOK:OnInit()
+function MainMenu.PlayerOptionsDialog.Frame.ButtonOK:OnInit()
     self:GetTransform():set("Pos", 280, 260)
     self:GetTransform():set("Size", 100, 30)
 
@@ -2028,7 +2000,7 @@ function PlayerOptionsDialog.Frame.ButtonOK:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function PlayerOptionsDialog.Frame.ButtonCancel:OnInit()
+function MainMenu.PlayerOptionsDialog.Frame.ButtonCancel:OnInit()
     self:GetTransform():set("Pos", 367, 8)
     self:GetTransform():set("Size", 13, 13)
 
@@ -2055,13 +2027,13 @@ function PlayerOptionsDialog.Frame.ButtonCancel:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function VideoOptionsDialog:OnInit()
+function MainMenu.VideoOptionsDialog:OnInit()
     self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 640, 480)
 end
 
-function VideoOptionsDialog.Frame:OnInit()
+function MainMenu.VideoOptionsDialog.Frame:OnInit()
     self:GetTransform():set("Pos", 110, 90)
     self:GetTransform():set("Size", 390, 300)
 
@@ -2088,7 +2060,7 @@ function VideoOptionsDialog.Frame:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function VideoOptionsDialog.Frame.ScreenResText:OnInit()
+function MainMenu.VideoOptionsDialog.Frame.ScreenResText:OnInit()
     self:GetTransform():set("Pos", 10, 50)
     self:GetTransform():set("Size", 190, 30)
 
@@ -2105,7 +2077,7 @@ function VideoOptionsDialog.Frame.ScreenResText:OnInit()
     self:AddComponent(c1)
 end
 
-function VideoOptionsDialog.Frame.ScreenResChoice:OnInit()
+function MainMenu.VideoOptionsDialog.Frame.ScreenResChoice:OnInit()
     self:GetTransform():set("Pos", 160, 50)
     self:GetTransform():set("Size", 220, 30)
 
@@ -2136,7 +2108,7 @@ function VideoOptionsDialog.Frame.ScreenResChoice:OnInit()
     self:AddComponent(c1, c2, c3, c4)
 end
 
-function VideoOptionsDialog.Frame.FullScreenText:OnInit()
+function MainMenu.VideoOptionsDialog.Frame.FullScreenText:OnInit()
     self:GetTransform():set("Pos", 10, 90)
     self:GetTransform():set("Size", 190, 30)
 
@@ -2153,7 +2125,7 @@ function VideoOptionsDialog.Frame.FullScreenText:OnInit()
     self:AddComponent(c1)
 end
 
-function VideoOptionsDialog.Frame.FullScreenChoice:OnInit()
+function MainMenu.VideoOptionsDialog.Frame.FullScreenChoice:OnInit()
     self:GetTransform():set("Pos", 160, 90)
     self:GetTransform():set("Size", 220, 30)
 
@@ -2184,7 +2156,7 @@ function VideoOptionsDialog.Frame.FullScreenChoice:OnInit()
     self:AddComponent(c1, c2, c3, c4)
 end
 
-function VideoOptionsDialog.Frame.TextureDetailText:OnInit()
+function MainMenu.VideoOptionsDialog.Frame.TextureDetailText:OnInit()
     self:GetTransform():set("Pos", 10, 130)
     self:GetTransform():set("Size", 190, 30)
 
@@ -2201,7 +2173,7 @@ function VideoOptionsDialog.Frame.TextureDetailText:OnInit()
     self:AddComponent(c1)
 end
 
-function VideoOptionsDialog.Frame.TextureDetailChoice:OnInit()
+function MainMenu.VideoOptionsDialog.Frame.TextureDetailChoice:OnInit()
     self:GetTransform():set("Pos", 160, 130)
     self:GetTransform():set("Size", 220, 30)
 
@@ -2232,7 +2204,7 @@ function VideoOptionsDialog.Frame.TextureDetailChoice:OnInit()
     self:AddComponent(c1, c2, c3, c4)
 end
 
-function VideoOptionsDialog.Frame.InfoRestartText:OnInit()
+function MainMenu.VideoOptionsDialog.Frame.InfoRestartText:OnInit()
     self:GetTransform():set("Pos", 10, 220)
     self:GetTransform():set("Size", 370, 30)
 
@@ -2251,7 +2223,7 @@ Setting the Texture Detail to "high" requires 256+ MB video RAM.]])
     self:AddComponent(c1)
 end
 
-function VideoOptionsDialog.Frame.ButtonOK:OnInit()
+function MainMenu.VideoOptionsDialog.Frame.ButtonOK:OnInit()
     self:GetTransform():set("Pos", 280, 260)
     self:GetTransform():set("Size", 100, 30)
 
@@ -2278,7 +2250,7 @@ function VideoOptionsDialog.Frame.ButtonOK:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function VideoOptionsDialog.Frame.ButtonCancel:OnInit()
+function MainMenu.VideoOptionsDialog.Frame.ButtonCancel:OnInit()
     self:GetTransform():set("Pos", 367, 8)
     self:GetTransform():set("Size", 13, 13)
 
@@ -2305,13 +2277,13 @@ function VideoOptionsDialog.Frame.ButtonCancel:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function AudioOptionsDialog:OnInit()
+function MainMenu.AudioOptionsDialog:OnInit()
     self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 640, 480)
 end
 
-function AudioOptionsDialog.Frame:OnInit()
+function MainMenu.AudioOptionsDialog.Frame:OnInit()
     self:GetTransform():set("Pos", 160, 90)
     self:GetTransform():set("Size", 290, 300)
 
@@ -2338,7 +2310,7 @@ function AudioOptionsDialog.Frame:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function AudioOptionsDialog.Frame.VolumeText:OnInit()
+function MainMenu.AudioOptionsDialog.Frame.VolumeText:OnInit()
     self:GetTransform():set("Pos", 10, 50)
     self:GetTransform():set("Size", 190, 30)
 
@@ -2355,7 +2327,7 @@ function AudioOptionsDialog.Frame.VolumeText:OnInit()
     self:AddComponent(c1)
 end
 
-function AudioOptionsDialog.Frame.VolumeChoice:OnInit()
+function MainMenu.AudioOptionsDialog.Frame.VolumeChoice:OnInit()
     self:GetTransform():set("Pos", 160, 50)
     self:GetTransform():set("Size", 120, 30)
 
@@ -2386,7 +2358,7 @@ function AudioOptionsDialog.Frame.VolumeChoice:OnInit()
     self:AddComponent(c1, c2, c3, c4)
 end
 
-function AudioOptionsDialog.Frame.ButtonOK:OnInit()
+function MainMenu.AudioOptionsDialog.Frame.ButtonOK:OnInit()
     self:GetTransform():set("Pos", 180, 260)
     self:GetTransform():set("Size", 100, 30)
 
@@ -2413,7 +2385,7 @@ function AudioOptionsDialog.Frame.ButtonOK:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function AudioOptionsDialog.Frame.ButtonCancel:OnInit()
+function MainMenu.AudioOptionsDialog.Frame.ButtonCancel:OnInit()
     self:GetTransform():set("Pos", 267, 8)
     self:GetTransform():set("Size", 13, 13)
 
@@ -2440,13 +2412,13 @@ function AudioOptionsDialog.Frame.ButtonCancel:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function CreditsDialog:OnInit()
+function MainMenu.CreditsDialog:OnInit()
     self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 640, 480)
 end
 
-function CreditsDialog.Frame:OnInit()
+function MainMenu.CreditsDialog.Frame:OnInit()
     self:GetTransform():set("Pos", 110, 10)
     self:GetTransform():set("Size", 420, 460)
 
@@ -2473,7 +2445,7 @@ function CreditsDialog.Frame:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function CreditsDialog.Frame.CreditsText:OnInit()
+function MainMenu.CreditsDialog.Frame.CreditsText:OnInit()
     self:GetTransform():set("Pos", 10, 40)
     self:GetTransform():set("Size", 400, 140)
 
@@ -2497,7 +2469,7 @@ and many more...]])
     self:AddComponent(c1)
 end
 
-function CreditsDialog.Frame.ExtLibsText:OnInit()
+function MainMenu.CreditsDialog.Frame.ExtLibsText:OnInit()
     self:GetTransform():set("Pos", 10, 160)
     self:GetTransform():set("Size", 400, 250)
 
@@ -2540,7 +2512,7 @@ For more information, refer to file LICENSE.txt
     self:AddComponent(c1)
 end
 
-function CreditsDialog.Frame.CopyrightText:OnInit()
+function MainMenu.CreditsDialog.Frame.CopyrightText:OnInit()
     self:GetTransform():set("Pos", 10, 420)
     self:GetTransform():set("Size", 310, 30)
 
@@ -2557,7 +2529,7 @@ function CreditsDialog.Frame.CopyrightText:OnInit()
     self:AddComponent(c1)
 end
 
-function CreditsDialog.Frame.ButtonOK:OnInit()
+function MainMenu.CreditsDialog.Frame.ButtonOK:OnInit()
     self:GetTransform():set("Pos", 330, 420)
     self:GetTransform():set("Size", 80, 30)
 
@@ -2584,7 +2556,7 @@ function CreditsDialog.Frame.ButtonOK:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function CreditsDialog.Frame.ButtonCancel:OnInit()
+function MainMenu.CreditsDialog.Frame.ButtonCancel:OnInit()
     self:GetTransform():set("Pos", 397, 8)
     self:GetTransform():set("Size", 13, 13)
 
@@ -2611,7 +2583,7 @@ function CreditsDialog.Frame.ButtonCancel:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function ReallyQuitDialog:OnInit()
+function MainMenu.ReallyQuitDialog:OnInit()
     self:GetBasics():set("Show", false)
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 640, 480)
@@ -2624,7 +2596,7 @@ function ReallyQuitDialog:OnInit()
     self:AddComponent(c1)
 end
 
-function ReallyQuitDialog.QuitHeadline:OnInit()
+function MainMenu.ReallyQuitDialog.QuitHeadline:OnInit()
     self:GetTransform():set("Pos", 0, 10)
     self:GetTransform():set("Size", 640, 45)
 
@@ -2646,7 +2618,7 @@ function ReallyQuitDialog.QuitHeadline:OnInit()
     self:AddComponent(c1, c2)
 end
 
-function ReallyQuitDialog.ReallyQuit:OnInit()
+function MainMenu.ReallyQuitDialog.ReallyQuit:OnInit()
     self:GetTransform():set("Pos", 120, 90)
     self:GetTransform():set("Size", 400, 300)
 
@@ -2673,7 +2645,7 @@ function ReallyQuitDialog.ReallyQuit:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function ReallyQuitDialog.ReallyQuit.ButtonYes:OnInit()
+function MainMenu.ReallyQuitDialog.ReallyQuit.ButtonYes:OnInit()
     self:GetTransform():set("Pos", 53, 250)
     self:GetTransform():set("Size", 120, 40)
 
@@ -2700,7 +2672,7 @@ function ReallyQuitDialog.ReallyQuit.ButtonYes:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function ReallyQuitDialog.ReallyQuit.ButtonNo:OnInit()
+function MainMenu.ReallyQuitDialog.ReallyQuit.ButtonNo:OnInit()
     self:GetTransform():set("Pos", 227, 250)
     self:GetTransform():set("Size", 120, 40)
 
@@ -2726,4 +2698,3 @@ function ReallyQuitDialog.ReallyQuit.ButtonNo:OnInit()
 
     self:AddComponent(c1, c2, c3)
 end
-

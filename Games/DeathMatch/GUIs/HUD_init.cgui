@@ -8,45 +8,37 @@
 -- *****************************
 
 local gui = ...
-Background=gui:new("WindowT", "Background");
-
-InfoHealth=gui:new("WindowT", "InfoHealth");
-
-InfoArmor=gui:new("WindowT", "InfoArmor");
-
-InfoFrags=gui:new("WindowT", "InfoFrags");
-
-InfoAmmo=gui:new("WindowT", "InfoAmmo");
-
-FPS=gui:new("WindowT", "FPS");
-
-CrossHair=gui:new("WindowT", "CrossHair");
+local Background = gui:new("WindowT", "Background")
+Background.InfoHealth = gui:new("WindowT", "InfoHealth")
+Background.InfoArmor = gui:new("WindowT", "InfoArmor")
+Background.InfoFrags = gui:new("WindowT", "InfoFrags")
+Background.InfoAmmo = gui:new("WindowT", "InfoAmmo")
+Background.FPS = gui:new("WindowT", "FPS")
+Background.CrossHair = gui:new("WindowT", "CrossHair")
 
 
 -- Set the GUIs root window.
 -- *************************
 
-gui:SetRootWindow(Background);
+gui:SetRootWindow(Background)
+gui:activate(false)
+gui:setInteractive(false)
+gui:showMouse(false)
 
 
 -- Setup the window hierarchy.
 -- ***************************
 
-Background:AddChild(InfoHealth);
-
-Background:AddChild(InfoArmor);
-
-Background:AddChild(InfoFrags);
-
-Background:AddChild(InfoAmmo);
-
-Background:AddChild(FPS);
-
-Background:AddChild(CrossHair);
+Background:AddChild(Background.InfoHealth)
+Background:AddChild(Background.InfoArmor)
+Background:AddChild(Background.InfoFrags)
+Background:AddChild(Background.InfoAmmo)
+Background:AddChild(Background.FPS)
+Background:AddChild(Background.CrossHair)
 
 
--- Initialization of the window contents ("constructor code").
--- ***********************************************************
+-- Initialization of the window contents ("constructors").
+-- *******************************************************
 
 function Background:OnInit()
     self:GetTransform():set("Pos", 0, 0)
@@ -58,13 +50,9 @@ function Background:OnInit()
     c1:set("Alpha", 0.7)
 
     self:AddComponent(c1)
-
-    gui:activate      (false);
-    gui:setInteractive(false);
-    gui:showMouse     (false);
 end
 
-function InfoHealth:OnInit()
+function Background.InfoHealth:OnInit()
     self:GetTransform():set("Pos", 5, 430)
     self:GetTransform():set("Size", 70, 20)
 
@@ -91,7 +79,7 @@ function InfoHealth:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function InfoArmor:OnInit()
+function Background.InfoArmor:OnInit()
     self:GetTransform():set("Pos", 5, 455)
     self:GetTransform():set("Size", 70, 20)
 
@@ -118,7 +106,7 @@ function InfoArmor:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function InfoFrags:OnInit()
+function Background.InfoFrags:OnInit()
     self:GetTransform():set("Pos", 95, 455)
     self:GetTransform():set("Size", 80, 20)
 
@@ -145,7 +133,7 @@ function InfoFrags:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function InfoAmmo:OnInit()
+function Background.InfoAmmo:OnInit()
     self:GetTransform():set("Pos", 465, 455)
     self:GetTransform():set("Size", 170, 20)
 
@@ -172,7 +160,7 @@ function InfoAmmo:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function FPS:OnInit()
+function Background.FPS:OnInit()
     self:GetTransform():set("Pos", 580, 5)
     self:GetTransform():set("Size", 55, 20)
 
@@ -199,7 +187,7 @@ function FPS:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function CrossHair:OnInit()
+function Background.CrossHair:OnInit()
     self:GetTransform():set("Pos", 310, 230)
     self:GetTransform():set("Size", 20, 20)
 
@@ -210,4 +198,3 @@ function CrossHair:OnInit()
 
     self:AddComponent(c1)
 end
-

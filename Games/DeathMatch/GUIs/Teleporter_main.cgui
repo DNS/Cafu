@@ -2,6 +2,14 @@ local gui = ...
 
 assert(loadfile("Games/DeathMatch/GUIs/Teleporter_init.cgui"))(gui)
 
+local Root = gui:GetRootWindow()
+local InfoStation = Root.InfoStation
+local InfoTextSelectNode = Root.InfoTextSelectNode
+local DestNode = Root.DestNode
+local ButtonMinus = Root.ButtonMinus
+local ButtonPlus = Root.ButtonPlus
+local ButtonGo = Root.ButtonGo
+
 
 
 function ButtonMinus:OnMouseEnter()

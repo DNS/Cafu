@@ -8,39 +8,35 @@
 -- *****************************
 
 local gui = ...
-EmgTunnelStorageRoomGUI=gui:new("WindowT", "EmgTunnelStorageRoomGUI");
-
-Heading=gui:new("WindowT", "Heading");
-
-TunnelLocation=gui:new("WindowT", "TunnelLocation");
-
-CallRescueText=gui:new("WindowT", "CallRescueText");
-CallRescueText.HelpText=gui:new("WindowT", "HelpText");
-
-CallRescueButton=gui:new("WindowT", "CallRescueButton");
+local EmgTunnelStorageRoomGUI = gui:new("WindowT", "EmgTunnelStorageRoomGUI")
+EmgTunnelStorageRoomGUI.Heading = gui:new("WindowT", "Heading")
+EmgTunnelStorageRoomGUI.TunnelLocation = gui:new("WindowT", "TunnelLocation")
+EmgTunnelStorageRoomGUI.CallRescueText = gui:new("WindowT", "CallRescueText")
+EmgTunnelStorageRoomGUI.CallRescueText.HelpText = gui:new("WindowT", "HelpText")
+EmgTunnelStorageRoomGUI.CallRescueButton = gui:new("WindowT", "CallRescueButton")
 
 
 -- Set the GUIs root window.
 -- *************************
 
-gui:SetRootWindow(EmgTunnelStorageRoomGUI);
+gui:SetRootWindow(EmgTunnelStorageRoomGUI)
+gui:activate(false)
+gui:setInteractive(true)
+gui:showMouse(true)
 
 
 -- Setup the window hierarchy.
 -- ***************************
 
-EmgTunnelStorageRoomGUI:AddChild(Heading);
-
-EmgTunnelStorageRoomGUI:AddChild(TunnelLocation);
-
-EmgTunnelStorageRoomGUI:AddChild(CallRescueText);
-CallRescueText:AddChild(CallRescueText.HelpText);
-
-EmgTunnelStorageRoomGUI:AddChild(CallRescueButton);
+EmgTunnelStorageRoomGUI:AddChild(EmgTunnelStorageRoomGUI.Heading)
+EmgTunnelStorageRoomGUI:AddChild(EmgTunnelStorageRoomGUI.TunnelLocation)
+EmgTunnelStorageRoomGUI:AddChild(EmgTunnelStorageRoomGUI.CallRescueText)
+EmgTunnelStorageRoomGUI.CallRescueText:AddChild(EmgTunnelStorageRoomGUI.CallRescueText.HelpText)
+EmgTunnelStorageRoomGUI:AddChild(EmgTunnelStorageRoomGUI.CallRescueButton)
 
 
--- Initialization of the window contents ("constructor code").
--- ***********************************************************
+-- Initialization of the window contents ("constructors").
+-- *******************************************************
 
 function EmgTunnelStorageRoomGUI:OnInit()
     self:GetTransform():set("Pos", 0, 0)
@@ -52,13 +48,9 @@ function EmgTunnelStorageRoomGUI:OnInit()
     c1:set("Alpha", 1)
 
     self:AddComponent(c1)
-
-    gui:activate      (false);
-    gui:setInteractive(true);
-    gui:showMouse     (true);
 end
 
-function Heading:OnInit()
+function EmgTunnelStorageRoomGUI.Heading:OnInit()
     self:GetTransform():set("Pos", 50, 30)
     self:GetTransform():set("Size", 540, 120)
 
@@ -82,7 +74,7 @@ Evacuation Tunnel
     self:AddComponent(c1, c2)
 end
 
-function TunnelLocation:OnInit()
+function EmgTunnelStorageRoomGUI.TunnelLocation:OnInit()
     self:GetTransform():set("Pos", 50, 180)
     self:GetTransform():set("Size", 540, 120)
 
@@ -107,7 +99,7 @@ Checkpoint: Storage Room
     self:AddComponent(c1, c2)
 end
 
-function CallRescueText:OnInit()
+function EmgTunnelStorageRoomGUI.CallRescueText:OnInit()
     self:GetTransform():set("Pos", 50, 330)
     self:GetTransform():set("Size", 410, 120)
 
@@ -131,7 +123,7 @@ rescue service! ]])
     self:AddComponent(c1, c2)
 end
 
-function CallRescueText.HelpText:OnInit()
+function EmgTunnelStorageRoomGUI.CallRescueText.HelpText:OnInit()
     self:GetTransform():set("Pos", 0, 0)
     self:GetTransform():set("Size", 410, 120)
 
@@ -150,7 +142,7 @@ use the "0" (zero) key on your keyboard to "click" the button.]])
     self:AddComponent(c1)
 end
 
-function CallRescueButton:OnInit()
+function EmgTunnelStorageRoomGUI.CallRescueButton:OnInit()
     self:GetTransform():set("Pos", 475, 330)
     self:GetTransform():set("Size", 115, 120)
 
@@ -178,4 +170,3 @@ RESCUE]])
 
     self:AddComponent(c1, c2, c3)
 end
-
