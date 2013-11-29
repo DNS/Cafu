@@ -31,7 +31,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Models/ModelManager.hpp"
 #include "Network/State.hpp"
 #include "String.hpp"
-#include "UniScriptState.hpp"
 
 extern "C"
 {
@@ -269,9 +268,6 @@ void ComponentModelT::VarGuiNameT::Set(const std::string& v)
     // Simply invalidate the related m_Gui instance and leave it up to the ComponentModelT
     // user code to re-instantiate it as required.
     m_Comp.m_Gui = NULL;
-
-    delete m_Comp.m_ScriptState;
-    m_Comp.m_ScriptState = NULL;
 }
 
 
@@ -313,7 +309,6 @@ ComponentModelT::ComponentModelT()
       m_GuiName("Gui", "", FlagsIsGuiFileName, *this),
       m_Model(NULL),
       m_Pose(NULL),
-      m_ScriptState(NULL),
       m_Gui(NULL)
 {
     // There is no need to init the NULL members here:
@@ -333,7 +328,6 @@ ComponentModelT::ComponentModelT(const ComponentModelT& Comp)
       m_GuiName(Comp.m_GuiName, *this),
       m_Model(NULL),
       m_Pose(NULL),
-      m_ScriptState(NULL),
       m_Gui(NULL)
 {
     // There is no need to init the NULL members here:
@@ -357,9 +351,6 @@ void ComponentModelT::FillMemberVars()
 ComponentModelT::~ComponentModelT()
 {
     m_Gui = NULL;
-
-    delete m_ScriptState;
-    m_ScriptState = NULL;
 
     delete m_Pose;
     m_Pose = NULL;
@@ -385,7 +376,6 @@ IntrusivePtrT<cf::GuiSys::GuiImplT> ComponentModelT::GetGui() const
     if (!m_Model || !m_Model->GetGuiFixtures().Size())
     {
         // Not a model with GUI fixtures.
-        assert(!m_ScriptState);
         assert(m_Gui.IsNull());
         return NULL;
     }
@@ -403,7 +393,7 @@ IntrusivePtrT<cf::GuiSys::GuiImplT> ComponentModelT::GetGui() const
         "    self:GetTransform():set('Size', 640, 480)\n"
         "\n"
         "    local c1 = gui:new('ComponentTextT')\n"
-        "    c1:set('Text', [=====[%s]=====])\n"    // This is indended for use with e.g. wxString::Format().
+        "    c1:set('Text', [=====[%s]=====])\n"    // This is intended for use with e.g. wxString::Format().
         " -- c1:set('Font', 'Fonts/Impact')\n"
         "    c1:set('Scale', 0.6)\n"
         "    c1:set('Padding', 0, 0)\n"
@@ -425,16 +415,13 @@ IntrusivePtrT<cf::GuiSys::GuiImplT> ComponentModelT::GetGui() const
         "    gui:setFocus      (Root)\n"
         "end\n";
 
-    assert(!m_ScriptState);
-    m_ScriptState = new cf::UniScriptStateT();
-
-    cf::GuiSys::GuiImplT::InitScriptState(*m_ScriptState);
+    WorldT& World = GetEntity()->GetWorld();
 
     try
     {
         m_Gui = new cf::GuiSys::GuiImplT(
-            *m_ScriptState,
-            GetEntity()->GetWorld().GetGuiResources());
+            World.GetScriptState(),
+            World.GetGuiResources());
 
         if (m_GuiName.Get() == "")
         {
@@ -457,8 +444,8 @@ IntrusivePtrT<cf::GuiSys::GuiImplT> ComponentModelT::GetGui() const
     {
         // Need a new GuiImplT instance here, as the one allocated above is in unknown state.
         m_Gui = new cf::GuiSys::GuiImplT(
-            *m_ScriptState,
-            GetEntity()->GetWorld().GetGuiResources());
+            World.GetScriptState(),
+            World.GetGuiResources());
 
         // This one must not throw again...
         m_Gui->LoadScript(
@@ -483,9 +470,6 @@ void ComponentModelT::ReInit(std::string* ErrorMsg)
     {
         m_Gui = NULL;
 
-        delete m_ScriptState;
-        m_ScriptState = NULL;
-
         delete m_Pose;
         m_Pose = NULL;
 
@@ -502,9 +486,6 @@ void ComponentModelT::ReInit(std::string* ErrorMsg)
 
     // The new model may or may not have GUI fixtures, so make sure that the GUI instance is reset.
     m_Gui = NULL;
-
-    delete m_ScriptState;
-    m_ScriptState = NULL;
 
     // Need a new pose and updated parameters for the new model.
     delete m_Pose;

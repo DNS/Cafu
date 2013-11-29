@@ -30,6 +30,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClipSys/TraceSolid.hpp"
 #include "ConsoleCommands/Console.hpp"      // For cf::va().
 #include "GameSys/World.hpp"
+#include "GuiSys/AllComponents.hpp"         // for initing the m_ScriptState_NEW
+#include "GuiSys/GuiImpl.hpp"               // for initing the m_ScriptState_NEW
+#include "GuiSys/Window.hpp"                // for initing the m_ScriptState_NEW
 #include "MaterialSystem/Material.hpp"
 #include "Models/ModelManager.hpp"
 #include "../Common/CompGameEntity.hpp"
@@ -61,6 +64,25 @@ Ca3DEWorldT::Ca3DEWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* G
       m_GuiRes(GuiRes)
 {
     cf::GameSys::WorldT::InitScriptState(*m_ScriptState_NEW);
+
+#if 0
+    // We cannot use this method, which in fact is kind of obsolete:
+    // It would attempt to re-register the Console and ConsoleInterface libraries,
+    // which was already done above in cf::GameSys::WorldT::InitScriptState().
+    // (Both InitScriptState() methods should probably be removed / refactored.)
+    cf::GuiSys::GuiImplT::InitScriptState(*m_ScriptState_NEW);
+#else
+    {
+        // For each class that the TypeInfoManTs know about, add a (meta-)table to the registry of the LuaState.
+        // The (meta-)table holds the Lua methods that the respective class implements in C++,
+        // and is to be used as metatable for instances of this class.
+        cf::ScriptBinderT Binder(m_ScriptState_NEW->GetLuaState());
+
+        Binder.Init(cf::GuiSys::GetGuiTIM());
+        Binder.Init(cf::GuiSys::GetWindowTIM());
+        Binder.Init(cf::GuiSys::GetComponentTIM());
+    }
+#endif
 
     try
     {
