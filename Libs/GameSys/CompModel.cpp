@@ -432,6 +432,24 @@ IntrusivePtrT<cf::GuiSys::GuiImplT> ComponentModelT::GetGui() const
         }
         else
         {
+            // Set the GUI object's "Model"  field to the related component instance (`this`),
+            // and the GUI object's "Entity" field to the related entity instance.
+            // Expressed as pseudo code:
+            //     gui.Model  = this
+            //     gui.Entity = this->GetEntity()
+            {
+                lua_State*    LuaState = World.GetScriptState().GetLuaState();
+                StackCheckerT StackChecker(LuaState);
+                ScriptBinderT Binder(LuaState);
+
+                Binder.Push(m_Gui);
+                Binder.Push(IntrusivePtrT<ComponentModelT>(const_cast<ComponentModelT*>(this)));
+                lua_setfield(LuaState, -2, "Model");
+                Binder.Push(IntrusivePtrT<EntityT>(GetEntity()));
+                lua_setfield(LuaState, -2, "Entity");
+                lua_pop(LuaState, 1);
+            }
+
             m_Gui->LoadScript(m_GuiName.Get());
 
             // Active status is not really relevant for our Gui that is not managed by the GuiMan,
@@ -659,6 +677,31 @@ int ComponentModelT::GetNumSkins(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_GetGui =
+{
+    "GetGui",
+    "Returns the (first) GUI of this model.",
+    "GuiImplT", "()"
+};
+
+int ComponentModelT::GetGui(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<ComponentModelT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentModelT> >(1);
+
+    if (Comp->GetGui() != NULL)
+    {
+        Binder.Push(Comp->GetGui());
+    }
+    else
+    {
+        lua_pushnil(LuaState);
+    }
+
+    return 1;
+}
+
+
 static const cf::TypeSys::MethsDocT META_toString =
 {
     "__tostring",
@@ -690,6 +733,7 @@ const luaL_Reg ComponentModelT::MethodsList[] =
     { "GetNumAnims", GetNumAnims },
     { "SetAnim",     SetAnim },
     { "GetNumSkins", GetNumSkins },
+    { "GetGui",      GetGui },
     { "__tostring",  toString },
     { NULL, NULL }
 };
@@ -699,6 +743,7 @@ const cf::TypeSys::MethsDocT ComponentModelT::DocMethods[] =
     META_GetNumAnims,
     META_SetAnim,
     META_GetNumSkins,
+    META_GetGui,
     META_toString,
     { NULL, NULL, NULL, NULL }
 };
