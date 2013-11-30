@@ -37,9 +37,6 @@ class CaServerWorldT : public Ca3DEWorldT
     // Erstellt eine neue ServerWorld anhand des World-Files 'FileName', wobei 'FileName' den kompletten (wenn auch relativen) Pfad und Namen enthält.
     CaServerWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* Game, const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes);
 
-    // Der Destruktor.
-    ~CaServerWorldT();
-
     // The virtual methods inherited from the base class GameWorldI.
     unsigned long CreateNewEntity(const std::map<std::string, std::string>& Properties, unsigned long CreationFrameNr, const VectorT& Origin);
     void          RemoveEntity(unsigned long EntityID);

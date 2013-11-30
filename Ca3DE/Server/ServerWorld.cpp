@@ -45,29 +45,6 @@ CaServerWorldT::CaServerWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::Ga
 {
     // Note that we must NOT modify anything about the entity states here --
     // all entity states at frame 1 must be EXACT matches on the client and the server!
-
-
-    /// Finished calling CreateGameEntity() for all entities in the world file.
-    /// Now load/insert the user provided map script (e.g. "TechDemo.lua") to the script state.
-    std::string  LuaScriptName=FileName;
-    const size_t SuffixPos    =LuaScriptName.rfind(".cw");
-
-    if (SuffixPos==std::string::npos) LuaScriptName+=".lua";
-                                 else LuaScriptName.replace(SuffixPos, 3, ".lua");
-
-    m_ScriptState.GetScriptState().DoFile(LuaScriptName.c_str());
-
-    // Call each entities OnInit() script method here???
-    // Finally call the Lua OnInit() method of each entity.
-    //for (unsigned long ChildNr=0; ChildNr<AllChildren.Size(); ChildNr++)
-    //{
-    //    AllChildren[ChildNr]->OnLuaEventHandler(LuaState, "OnInit");
-    //}
-}
-
-
-CaServerWorldT::~CaServerWorldT()
-{
 }
 
 
@@ -161,8 +138,7 @@ void CaServerWorldT::Think(float FrameTime)
     // Must never move this above the PreThink() calls above, because ...(?)
     m_PhysicsWorld.Think(FrameTime);
 
-    m_ScriptState.GetScriptState().RunPendingCoroutines(FrameTime);   // Should do this early: new coroutines are usually added "during" thinking.
-    m_ScriptWorld->GetScriptState().RunPendingCoroutines(FrameTime);  // Should do this early: new coroutines are usually added "during" thinking.
+    m_ScriptWorld->GetScriptState().RunPendingCoroutines(FrameTime);    // Should do this early: new coroutines are usually added "during" thinking.
 
     for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
         if (m_EngineEntities[EntityNr]!=NULL)

@@ -63,9 +63,6 @@ namespace cf
             /// Returns the physics world for the game world.
             virtual PhysicsWorldT& GetPhysicsWorld()=0;
 
-            /// Returns the script state for the game world.
-            virtual cf::UniScriptStateT& GetScriptState()=0;
-
             /// Returns a "good" ambient light color for an arbitrary object (i.e. a model) of size Dimensions at Origin.
             /// The return value is derived from the worlds lightmap information "close" to the Dimensions at Origin.
             virtual Vector3fT GetAmbientLightColorFromBB(const BoundingBox3T<double>& Dimensions, const VectorT& Origin) const=0;

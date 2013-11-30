@@ -66,7 +66,6 @@ const luaL_Reg EntStaticDetailModelT::MethodsList[]=
     { "SetSequNr",       EntStaticDetailModelT::SetSequNr },
     { "RestartSequ",     EntStaticDetailModelT::RestartSequ },
     { "GetNumSequences", EntStaticDetailModelT::GetNumSequences },
-    { "RunMapCommand",   EntStaticDetailModelT::RunMapCommand },
  // { "__tostring", toString },
     { NULL, NULL }
 };
@@ -429,21 +428,4 @@ int EntStaticDetailModelT::GetNumSequences(lua_State* LuaState)
 
     lua_pushinteger(LuaState, Ent->m_Model->GetAnims().Size());
     return 1;
-}
-
-
-// Runs the given command in the map script state.
-// The call chain is as follows:
-//     1) HumanPlayerT::Think();           // Called during server thinking, client prediction and client repredection.
-//     2) GuiT::ProcessDeviceEvent();      // Player stands before and uses this GUI.
-//     3) call into the GUI script (event handlers).
-//     4) The script calls this Entity:RunMapCommand(xy) function.
-//     5) The xy command is run in the server map script or in the client map script, respectively.
-int EntStaticDetailModelT::RunMapCommand(lua_State* LuaState)
-{
-    cf::ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<EntStaticDetailModelT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<EntStaticDetailModelT> >(1);
-
-    Ent->GameWorld->GetScriptState().DoString(luaL_checkstring(LuaState, 2));
-    return 0;
 }

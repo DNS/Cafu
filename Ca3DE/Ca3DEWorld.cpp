@@ -56,7 +56,7 @@ Ca3DEWorldT::Ca3DEWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* G
       m_World(WorldMan.LoadWorld(FileName, ModelMan, GuiRes, InitForGraphics, ProgressFunction)),
       m_ClipWorld(new cf::ClipSys::ClipWorldT(m_World->m_StaticEntityData[0]->m_CollModel)),
       m_PhysicsWorld(m_World->m_StaticEntityData[0]->m_CollModel),
-      m_ScriptState(GameInfo, m_Game),
+      m_ScriptState_OLD(GameInfo, m_Game),
       m_ScriptState_NEW(new cf::UniScriptStateT),   // Need a pointer because the dtor order is important.
       m_ScriptWorld(NULL),
       m_EngineEntities(),
@@ -186,12 +186,6 @@ PhysicsWorldT& Ca3DEWorldT::GetPhysicsWorld()
 }
 
 
-cf::UniScriptStateT& Ca3DEWorldT::GetScriptState()
-{
-    return m_ScriptState.GetScriptState();
-}
-
-
 Vector3fT Ca3DEWorldT::GetAmbientLightColorFromBB(const BoundingBox3T<double>& Dimensions, const VectorT& Origin) const
 {
     const Vector3dT BBCenter = scale(Dimensions.Min+Dimensions.Max, 0.5) + Origin;
@@ -308,7 +302,7 @@ unsigned long Ca3DEWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<const Comp
 
         const std::string EntClassName = EntClassNamePair->second;
 
-        std::string CppClassName = m_ScriptState.GetCppClassNameFromEntityClassName(EntClassName);
+        std::string CppClassName = m_ScriptState_OLD.GetCppClassNameFromEntityClassName(EntClassName);
 
         if (CppClassName == "")
         {

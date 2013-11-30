@@ -158,8 +158,9 @@ static ConFuncT ConFunc_changeLevel("changeLevel", ServerT::ConFunc_changeLevel_
     if (!ServerPtr) return luaL_error(LuaState, "The local server is not available.");
     if (!ServerPtr->World) return luaL_error(LuaState, "There is no world loaded in the local server.");
 
-    ServerPtr->World->GetScriptState().DoString(luaL_checkstring(LuaState, 1));
-    return 0;
+    // ServerPtr->World->GetScriptState_OLD().DoString(luaL_checkstring(LuaState, 1));
+    // return 0;
+    return luaL_error(LuaState, "Sorry, this function is not implemented at this time.");
 }
 
 static ConFuncT ConFunc_runMapCmd("runMapCmd", ServerT::ConFunc_runMapCmd_Callback, ConFuncT::FLAG_MAIN_EXE,

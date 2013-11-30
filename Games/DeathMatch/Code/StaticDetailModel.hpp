@@ -94,7 +94,6 @@ namespace GAME_NAME
         static int SetSequNr(lua_State* LuaState);
         static int RestartSequ(lua_State* LuaState);
         static int GetNumSequences(lua_State* LuaState);
-        static int RunMapCommand(lua_State* LuaState);      ///< Runs the given string in the map script state (if there is one).
 
         static const luaL_Reg MethodsList[];
     };
