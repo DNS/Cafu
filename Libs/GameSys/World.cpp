@@ -289,7 +289,7 @@ int WorldT::SetRootEntity(lua_State* LuaState)
 
 static const cf::TypeSys::MethsDocT META_CreateNew =
 {
-    "CreateNew",
+    "new",
     "Creates and returns a new entity or component.",
     "object", "(string ClassName)"
 };

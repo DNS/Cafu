@@ -489,7 +489,7 @@ namespace
     {
         if (TI->MethodsList) Out << "\n\n";
 
-        // This group is created empty, we no items inside it.
+        // This group is created empty, with no items inside it.
         // Good news is that if this group remains empty (no manually added callbacks in the src/ files),
         // Doxygen will not generate any output for it. That is, there is no harm in creating it universally
         // for every class.
@@ -554,70 +554,8 @@ namespace
     }
 
 
-    // Write template file for the given cf::GameSys::EntityT or cf::GuiSys::WindowT hierarchy.
-    void WriteObjectHierarchy(const char* FileName, cf::TypeSys::TypeInfoManT& TIM, const char* ScriptNamespace, const char* CppNamespace)
-    {
-        std::ofstream Out(FileName);
-
-        if (!Out.is_open()) return;
-
-        Out << "namespace " << ScriptNamespace << "\n";
-        Out << "{\n";
-
-        const ArrayT<const cf::TypeSys::TypeInfoT*>& TIs = TIM.GetTypeInfosByName();
-
-        for (unsigned int TypeNr = 0; TypeNr < TIs.Size(); TypeNr++)
-        {
-            const cf::TypeSys::TypeInfoT* TI = TIs[TypeNr];
-
-            Out << "\n\n";
-            Out << FormatDoxyComment(TI->DocClass, "");
-
-            const std::string InfoNew = (&TIM == &cf::GuiSys::GetWindowTIM()) ?
-                std::string(
-                    "\n"
-                    "If you would like to create a new window explicitly "
-                    "(those defined in the CaWE %GUI Editor are instantiated automatically), "  // Don't auto-link "GUI".
-                    "use GuiT::new():\n"
-                    "\\code{.lua}\n"
-                    "    local win = gui:new(\"") + TI->ClassName + std::string("\", \"my_window\")\n"
-                    "\\endcode\n") :
-                std::string(
-                    "\n"
-                    "If you would like to create a new entity explicitly "
-                    "(those defined in the CaWE %Map Editor are instantiated automatically), "  // Don't auto-link "Map".
-                    "use WorldT::new():\n"
-                    "\\code{.lua}\n"
-                    "    local entity = world:new(\"") + TI->ClassName + std::string("\", \"my_entity\")\n"
-                    "\\endcode\n");
-
-            if (!TI->Child)   // Only do this for "leaf" classes.
-                Out << FormatDoxyComment(InfoNew.c_str(), "");
-
-            // We need this so that the "Event Handlers (Callbacks)" group is not made a sub-group of
-            // "Public Member Functions", but at the same level (next to it) instead.
-            Out << "/// @nosubgrouping\n";
-
-            Out << "/// @cppName{cf," << CppNamespace << "," << TI->ClassName << "}\n";
-            Out << "class " << TI->ClassName;
-            if (TI->Base) Out << " : public " << TI->BaseClassName;
-            Out << "\n";
-            Out << "{\n";
-
-            WriteDoxyMethods(Out, TI);
-            WriteDoxyCallbacks(Out, TI);
-
-            Out << "};\n";
-        }
-
-        Out << "\n";
-        Out << "\n";
-        Out << "}   // namespace " << ScriptNamespace << "\n";
-    }
-
-
-    // Write template file for the cf::GameSys::ComponentBaseT or cf::GuiSys::ComponentBaseT hierarchy.
-    void WriteComponentHierarchy(const char* FileName, cf::TypeSys::TypeInfoManT& TIM, const char* ScriptNamespace, const char* CppNamespace)
+    // Write a template file for the classes kept in the given TIM.
+    void WriteClassHierarchy(const char* FileName, cf::TypeSys::TypeInfoManT& TIM, const char* ScriptNamespace, const char* CppNamespace)
     {
         std::ofstream Out(FileName);
 
@@ -646,16 +584,44 @@ namespace
                     "must be used with the get() and set() methods at this time -- see get() and set() for details.", "");
             }
 
-            const std::string InfoNew = (&TIM == &cf::GuiSys::GetComponentTIM()) ?
-                std::string(
+            std::string InfoNew = "";
+
+            if (&TIM == &cf::GuiSys::GetWindowTIM())
+            {
+                InfoNew = std::string(
+                    "\n"
+                    "If you would like to create a new window explicitly "
+                    "(those defined in the CaWE %GUI Editor are instantiated automatically), "  // Don't auto-link "GUI".
+                    "use GuiT::new():\n"
+                    "\\code{.lua}\n"
+                    "    local win = gui:new(\"") + TI->ClassName + std::string("\", \"my_window\")\n"
+                    "\\endcode\n");
+            }
+            else if (&TIM == &cf::GameSys::GetGameSysEntityTIM())
+            {
+                InfoNew = std::string(
+                    "\n"
+                    "If you would like to create a new entity explicitly "
+                    "(those defined in the CaWE %Map Editor are instantiated automatically), "  // Don't auto-link "Map".
+                    "use WorldT::new():\n"
+                    "\\code{.lua}\n"
+                    "    local entity = world:new(\"") + TI->ClassName + std::string("\", \"my_entity\")\n"
+                    "\\endcode\n");
+            }
+            else if (&TIM == &cf::GuiSys::GetComponentTIM())
+            {
+                InfoNew = std::string(
                     "\n"
                     "If you would like to create a new component of this type explicitly "
                     "(those defined in the CaWE %GUI Editor are instantiated automatically), "  // Don't auto-link "GUI".
                     "use GuiT::new():\n"
                     "\\code{.lua}\n"
                     "    local comp = gui:new(\"") + TI->ClassName + std::string("\")\n"
-                    "\\endcode\n") :
-                std::string(
+                    "\\endcode\n");
+            }
+            else if (&TIM == &cf::GameSys::GetComponentTIM())
+            {
+                InfoNew = std::string(
                     "\n"
                     "If you would like to create a new component of this type explicitly "
                     "(those defined in the CaWE %Map Editor are instantiated automatically), "  // Don't auto-link "Map".
@@ -663,8 +629,9 @@ namespace
                     "\\code{.lua}\n"
                     "    local comp = world:new(\"") + TI->ClassName + std::string("\")\n"
                     "\\endcode\n");
+            }
 
-            if (!TI->Child)   // Only do this for "leaf" classes.
+            if (InfoNew != "" && !TI->Child)    // Only do this for "leaf" classes.
                 Out << FormatDoxyComment(InfoNew.c_str(), "");
 
             // We need this so that the "Event Handlers (Callbacks)" group is not made a sub-group of
@@ -702,7 +669,8 @@ namespace
                 WriteDoxyVars(Out, VarMan, TI);
             }
 
-            Out << "};\n"; Out.flush();
+            Out << "};\n";
+            Out.flush();
         }
 
         Out << "\n";
@@ -718,9 +686,11 @@ namespace
 /// related reference documentation.
 void AppCaWE::WriteLuaDoxygenHeaders() const
 {
-    WriteObjectHierarchy("Doxygen/scripting/tmpl/GameEntities.hpp", cf::GameSys::GetGameSysEntityTIM(), "Game", "GameSys");
-    WriteComponentHierarchy("Doxygen/scripting/tmpl/GameComponents.hpp", cf::GameSys::GetComponentTIM(), "Game", "GameSys");
+    WriteClassHierarchy("Doxygen/scripting/tmpl/GameWorld.hpp",      cf::GameSys::GetWorldTIM(), "Game", "GameSys");
+    WriteClassHierarchy("Doxygen/scripting/tmpl/GameEntities.hpp",   cf::GameSys::GetGameSysEntityTIM(), "Game", "GameSys");
+    WriteClassHierarchy("Doxygen/scripting/tmpl/GameComponents.hpp", cf::GameSys::GetComponentTIM(), "Game", "GameSys");
 
-    WriteObjectHierarchy("Doxygen/scripting/tmpl/GuiWindows.hpp", cf::GuiSys::GetWindowTIM(), "GUI", "GuiSys");
-    WriteComponentHierarchy("Doxygen/scripting/tmpl/GuiComponents.hpp", cf::GuiSys::GetComponentTIM(), "GUI", "GuiSys");
+    WriteClassHierarchy("Doxygen/scripting/tmpl/GuiGui.hpp",        cf::GuiSys::GetGuiTIM(), "GUI", "GuiSys");
+    WriteClassHierarchy("Doxygen/scripting/tmpl/GuiWindows.hpp",    cf::GuiSys::GetWindowTIM(), "GUI", "GuiSys");
+    WriteClassHierarchy("Doxygen/scripting/tmpl/GuiComponents.hpp", cf::GuiSys::GetComponentTIM(), "GUI", "GuiSys");
 }

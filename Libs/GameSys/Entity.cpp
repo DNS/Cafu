@@ -553,7 +553,7 @@ static const cf::TypeSys::MethsDocT META_GetID =
     "GetID",
     "Returns the ID of this entity.\n"
     "The ID is unique in the world, and is used (in C++ code) to unambiguously identify\n"
-    "the entity in network messages and as entity index number into `.cw` world files.\n"
+    "the entity in network messages and as entity index number into `.cw` world files.\n",
     "number", "()"
 };
 

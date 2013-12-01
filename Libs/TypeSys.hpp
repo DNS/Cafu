@@ -23,7 +23,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_TYPESYS_TYPEINFO_HPP_INCLUDED
 
 #include "Templates/Array.hpp"
-#include <ostream>
 
 
 struct luaL_Reg;

@@ -1,5 +1,8 @@
-The automatically generated "template" header files are created in this
-- initially empty - directory.
+When a DEBUG build of the CaWE application is started, it automatically
+generates "template" header files in this -initially empty- directory.
+
+These header files contain as much documentation for our scripting classes
+as can automatically be generated.
 
 They are intended to help documentation writers to keep the actual header
 files in `src/` up-to-date (e.g. by using a tool like BeyondCompare for
