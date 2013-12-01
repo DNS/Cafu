@@ -555,24 +555,48 @@ namespace
 
 
     // Write a template file for the classes kept in the given TIM.
-    void WriteClassHierarchy(const char* FileName, cf::TypeSys::TypeInfoManT& TIM, const char* ScriptNamespace, const char* CppNamespace)
+    void WriteClassHierarchy(const char* FileName, cf::TypeSys::TypeInfoManT& TIM)
     {
         std::ofstream Out(FileName);
 
         if (!Out.is_open()) return;
 
-        Out << "namespace " << ScriptNamespace << "\n";
-        Out << "{\n";
-
         const ArrayT<const cf::TypeSys::TypeInfoT*>& TIs = TIM.GetTypeInfosByName();
+        std::string CurrentNamespace = "";
 
         for (unsigned int TypeNr = 0; TypeNr < TIs.Size(); TypeNr++)
         {
             const cf::TypeSys::TypeInfoT* TI = TIs[TypeNr];
 
+            std::string Namespace = "";
+            std::string ClassName = TI->ClassName;
+
+            const size_t ColonPos = ClassName.find("::");
+            if (ColonPos != std::string::npos)
+            {
+                Namespace = ClassName.substr(0, ColonPos);
+                ClassName = ClassName.substr(ColonPos + 2);
+            }
+
             // Skip the CaWE implementation-specific component.
-            if (strcmp(TI->ClassName, "ComponentSelectionT") == 0)
+            if (Namespace == "GuiEditor")
                 continue;
+
+            if (CurrentNamespace != Namespace)
+            {
+                if (CurrentNamespace != "")
+                {
+                    Out << "\n";
+                    Out << "\n";
+                    Out << "}   // namespace " << CurrentNamespace << "\n";
+                    Out << "\n";
+                }
+
+                CurrentNamespace = Namespace;
+
+                Out << "namespace " << CurrentNamespace << "\n";
+                Out << "{\n";
+            }
 
             Out << "\n\n";
             Out << FormatDoxyComment(TI->DocClass, "");
@@ -594,7 +618,7 @@ namespace
                     "(those defined in the CaWE %GUI Editor are instantiated automatically), "  // Don't auto-link "GUI".
                     "use GuiT::new():\n"
                     "\\code{.lua}\n"
-                    "    local win = gui:new(\"") + TI->ClassName + std::string("\", \"my_window\")\n"
+                    "    local win = gui:new(\"") + ClassName + std::string("\", \"my_window\")\n"
                     "\\endcode\n");
             }
             else if (&TIM == &cf::GameSys::GetGameSysEntityTIM())
@@ -605,7 +629,7 @@ namespace
                     "(those defined in the CaWE %Map Editor are instantiated automatically), "  // Don't auto-link "Map".
                     "use WorldT::new():\n"
                     "\\code{.lua}\n"
-                    "    local entity = world:new(\"") + TI->ClassName + std::string("\", \"my_entity\")\n"
+                    "    local entity = world:new(\"") + ClassName + std::string("\", \"my_entity\")\n"
                     "\\endcode\n");
             }
             else if (&TIM == &cf::GuiSys::GetComponentTIM())
@@ -616,7 +640,7 @@ namespace
                     "(those defined in the CaWE %GUI Editor are instantiated automatically), "  // Don't auto-link "GUI".
                     "use GuiT::new():\n"
                     "\\code{.lua}\n"
-                    "    local comp = gui:new(\"") + TI->ClassName + std::string("\")\n"
+                    "    local comp = gui:new(\"") + ClassName + std::string("\")\n"
                     "\\endcode\n");
             }
             else if (&TIM == &cf::GameSys::GetComponentTIM())
@@ -627,7 +651,7 @@ namespace
                     "(those defined in the CaWE %Map Editor are instantiated automatically), "  // Don't auto-link "Map".
                     "use WorldT::new():\n"
                     "\\code{.lua}\n"
-                    "    local comp = world:new(\"") + TI->ClassName + std::string("\")\n"
+                    "    local comp = world:new(\"") + ClassName + std::string("\")\n"
                     "\\endcode\n");
             }
 
@@ -638,9 +662,19 @@ namespace
             // "Public Member Functions", but at the same level (next to it) instead.
             Out << "/// @nosubgrouping\n";
 
-            Out << "/// @cppName{cf," << CppNamespace << "," << TI->ClassName << "}\n";
-            Out << "class " << TI->ClassName;
-            if (TI->Base) Out << " : public " << TI->BaseClassName;
+            Out << "/// @cppName{cf," << Namespace << "," << ClassName << "}\n";
+            Out << "class " << ClassName;
+            if (TI->Base)
+            {
+                if (std::string(TI->BaseClassName, 0, ColonPos + 2) == Namespace + "::")
+                {
+                    Out << " : public " << &TI->BaseClassName[ColonPos + 2];
+                }
+                else
+                {
+                    Out << " : public " << TI->BaseClassName;
+                }
+            }
             Out << "\n";
             Out << "{\n";
 
@@ -675,7 +709,7 @@ namespace
 
         Out << "\n";
         Out << "\n";
-        Out << "}   // namespace " << ScriptNamespace << "\n";
+        Out << "}   // namespace " << CurrentNamespace << "\n";
     }
 }
 
@@ -686,11 +720,11 @@ namespace
 /// related reference documentation.
 void AppCaWE::WriteLuaDoxygenHeaders() const
 {
-    WriteClassHierarchy("Doxygen/scripting/tmpl/GameWorld.hpp",      cf::GameSys::GetWorldTIM(), "Game", "GameSys");
-    WriteClassHierarchy("Doxygen/scripting/tmpl/GameEntities.hpp",   cf::GameSys::GetGameSysEntityTIM(), "Game", "GameSys");
-    WriteClassHierarchy("Doxygen/scripting/tmpl/GameComponents.hpp", cf::GameSys::GetComponentTIM(), "Game", "GameSys");
+    WriteClassHierarchy("Doxygen/scripting/tmpl/GameWorld.hpp",      cf::GameSys::GetWorldTIM());
+    WriteClassHierarchy("Doxygen/scripting/tmpl/GameEntities.hpp",   cf::GameSys::GetGameSysEntityTIM());
+    WriteClassHierarchy("Doxygen/scripting/tmpl/GameComponents.hpp", cf::GameSys::GetComponentTIM());
 
-    WriteClassHierarchy("Doxygen/scripting/tmpl/GuiGui.hpp",        cf::GuiSys::GetGuiTIM(), "GUI", "GuiSys");
-    WriteClassHierarchy("Doxygen/scripting/tmpl/GuiWindows.hpp",    cf::GuiSys::GetWindowTIM(), "GUI", "GuiSys");
-    WriteClassHierarchy("Doxygen/scripting/tmpl/GuiComponents.hpp", cf::GuiSys::GetComponentTIM(), "GUI", "GuiSys");
+    WriteClassHierarchy("Doxygen/scripting/tmpl/GuiGui.hpp",        cf::GuiSys::GetGuiTIM());
+    WriteClassHierarchy("Doxygen/scripting/tmpl/GuiWindows.hpp",    cf::GuiSys::GetWindowTIM());
+    WriteClassHierarchy("Doxygen/scripting/tmpl/GuiComponents.hpp", cf::GuiSys::GetComponentTIM());
 }

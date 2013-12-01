@@ -352,4 +352,4 @@ const cf::TypeSys::MethsDocT ComponentBaseT::DocMethods[] =
     { NULL, NULL, NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentBaseT::TypeInfo(GetComponentTIM(), "ComponentBaseT", NULL /*No base class.*/, ComponentBaseT::CreateInstance, MethodsList, DocClass, DocMethods);
+const cf::TypeSys::TypeInfoT ComponentBaseT::TypeInfo(GetComponentTIM(), "GuiSys::ComponentBaseT", NULL /*No base class.*/, ComponentBaseT::CreateInstance, MethodsList, DocClass, DocMethods);

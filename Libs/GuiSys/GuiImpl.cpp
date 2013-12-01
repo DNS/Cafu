@@ -796,10 +796,10 @@ int GuiImplT::CreateNew(lua_State* LuaState)
     ScriptBinderT Binder(LuaState);
     IntrusivePtrT<GuiImplT> Gui = Binder.GetCheckedObjectParam< IntrusivePtrT<GuiImplT> >(1);
 
-    const char* TypeName = luaL_checkstring(LuaState, 2);
-    const char* ObjName  = lua_tostring(LuaState, 3);   // Passing an object name is optional.
+    const std::string TypeName = std::string("GuiSys::") + luaL_checkstring(LuaState, 2);
+    const char*       ObjName  = lua_tostring(LuaState, 3);   // Passing an object name is optional.
 
-    const cf::TypeSys::TypeInfoT* TI = GetWindowTIM().FindTypeInfoByName(TypeName);
+    const cf::TypeSys::TypeInfoT* TI = GetWindowTIM().FindTypeInfoByName(TypeName.c_str());
 
     if (TI)
     {
@@ -807,7 +807,7 @@ int GuiImplT::CreateNew(lua_State* LuaState)
 
         // Console->DevPrint(cf::va("Creating window %p.\n", Win));
         assert(Win->GetType() == TI);
-        assert(strcmp(TI->ClassName, TypeName) == 0);
+        assert(strcmp(TI->ClassName, TypeName.c_str()) == 0);
 
         if (ObjName) Win->GetBasics()->SetWindowName(ObjName);
 
@@ -815,7 +815,7 @@ int GuiImplT::CreateNew(lua_State* LuaState)
         return 1;
     }
 
-    TI = GetComponentTIM().FindTypeInfoByName(TypeName);
+    TI = GetComponentTIM().FindTypeInfoByName(TypeName.c_str());
 
     if (TI)
     {
@@ -918,4 +918,4 @@ const cf::TypeSys::MethsDocT GuiImplT::DocMethods[] =
     { NULL, NULL, NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT GuiImplT::TypeInfo(GetGuiTIM(), "GuiImplT", NULL /*No base class.*/, CreateInstance, MethodsList, DocClass, DocMethods);
+const cf::TypeSys::TypeInfoT GuiImplT::TypeInfo(GetGuiTIM(), "GuiSys::GuiImplT", NULL /*No base class.*/, CreateInstance, MethodsList, DocClass, DocMethods);

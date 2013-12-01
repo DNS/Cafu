@@ -51,4 +51,4 @@ void* ComponentLightT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
     return new ComponentLightT();
 }
 
-const cf::TypeSys::TypeInfoT ComponentLightT::TypeInfo(GetComponentTIM(), "ComponentLightT", "ComponentBaseT", ComponentLightT::CreateInstance, NULL, DocClass);
+const cf::TypeSys::TypeInfoT ComponentLightT::TypeInfo(GetComponentTIM(), "GameSys::ComponentLightT", "GameSys::ComponentBaseT", ComponentLightT::CreateInstance, NULL, DocClass);

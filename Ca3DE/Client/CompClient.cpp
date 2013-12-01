@@ -45,7 +45,7 @@ const luaL_Reg ComponentClientT::MethodsList[] =
     { NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentClientT::TypeInfo(GetComponentTIM(), "ComponentClientT", "ComponentBaseT", ComponentClientT::CreateInstance, MethodsList);
+const cf::TypeSys::TypeInfoT ComponentClientT::TypeInfo(GetComponentTIM(), "Cafu::ComponentClientT", "GuiSys::ComponentBaseT", ComponentClientT::CreateInstance, MethodsList);
 
 
 ComponentClientT::ComponentClientT()

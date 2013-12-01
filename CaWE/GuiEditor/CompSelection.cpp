@@ -48,7 +48,7 @@ const luaL_Reg ComponentSelectionT::MethodsList[] =
     { NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentSelectionT::TypeInfo(cf::GuiSys::GetComponentTIM(), "ComponentSelectionT", "ComponentBaseT", ComponentSelectionT::CreateInstance, MethodsList);
+const cf::TypeSys::TypeInfoT ComponentSelectionT::TypeInfo(cf::GuiSys::GetComponentTIM(), "GuiEditor::ComponentSelectionT", "GuiSys::ComponentBaseT", ComponentSelectionT::CreateInstance, MethodsList);
 
 
 ComponentSelectionT::ComponentSelectionT()

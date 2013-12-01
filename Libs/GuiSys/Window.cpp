@@ -785,4 +785,4 @@ const cf::TypeSys::MethsDocT WindowT::DocMethods[] =
     { NULL, NULL, NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT WindowT::TypeInfo(GetWindowTIM(), "WindowT", NULL /*No base class.*/, WindowT::CreateInstance, MethodsList, DocClass, DocMethods);
+const cf::TypeSys::TypeInfoT WindowT::TypeInfo(GetWindowTIM(), "GuiSys::WindowT", NULL /*No base class.*/, WindowT::CreateInstance, MethodsList, DocClass, DocMethods);

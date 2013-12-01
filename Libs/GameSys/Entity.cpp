@@ -872,4 +872,4 @@ const cf::TypeSys::MethsDocT EntityT::DocMethods[] =
     { NULL, NULL, NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT EntityT::TypeInfo(GetGameSysEntityTIM(), "EntityT", NULL /*No base class.*/, EntityT::CreateInstance, MethodsList, DocClass, DocMethods);
+const cf::TypeSys::TypeInfoT EntityT::TypeInfo(GetGameSysEntityTIM(), "GameSys::EntityT", NULL /*No base class.*/, EntityT::CreateInstance, MethodsList, DocClass, DocMethods);

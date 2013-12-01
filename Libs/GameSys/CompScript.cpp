@@ -270,4 +270,4 @@ const cf::TypeSys::MethsDocT ComponentScriptT::DocMethods[] =
     { NULL, NULL, NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentScriptT::TypeInfo(GetComponentTIM(), "ComponentScriptT", "ComponentBaseT", ComponentScriptT::CreateInstance, MethodsList, DocClass, DocMethods, DocVars);
+const cf::TypeSys::TypeInfoT ComponentScriptT::TypeInfo(GetComponentTIM(), "GameSys::ComponentScriptT", "GameSys::ComponentBaseT", ComponentScriptT::CreateInstance, MethodsList, DocClass, DocMethods, DocVars);

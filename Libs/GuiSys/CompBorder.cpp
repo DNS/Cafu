@@ -183,4 +183,4 @@ const cf::TypeSys::MethsDocT ComponentBorderT::DocMethods[] =
     { NULL, NULL, NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentBorderT::TypeInfo(GetComponentTIM(), "ComponentBorderT", "ComponentBaseT", ComponentBorderT::CreateInstance, MethodsList, DocClass, DocMethods, DocVars);
+const cf::TypeSys::TypeInfoT ComponentBorderT::TypeInfo(GetComponentTIM(), "GuiSys::ComponentBorderT", "GuiSys::ComponentBaseT", ComponentBorderT::CreateInstance, MethodsList, DocClass, DocMethods, DocVars);

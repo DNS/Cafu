@@ -113,4 +113,4 @@ const cf::TypeSys::MethsDocT ComponentTransformT::DocMethods[] =
     { NULL, NULL, NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentTransformT::TypeInfo(GetComponentTIM(), "ComponentTransformT", "ComponentBaseT", ComponentTransformT::CreateInstance, MethodsList, DocClass, DocMethods, DocVars);
+const cf::TypeSys::TypeInfoT ComponentTransformT::TypeInfo(GetComponentTIM(), "GuiSys::ComponentTransformT", "GuiSys::ComponentBaseT", ComponentTransformT::CreateInstance, MethodsList, DocClass, DocMethods, DocVars);

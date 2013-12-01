@@ -298,10 +298,10 @@ int WorldT::CreateNew(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
     IntrusivePtrT<WorldT> World    = Binder.GetCheckedObjectParam< IntrusivePtrT<WorldT> >(1);
-    const char*           TypeName = luaL_checkstring(LuaState, 2);
+    const std::string     TypeName = std::string("GameSys::") + luaL_checkstring(LuaState, 2);
     const char*           ObjName  = lua_tostring(LuaState, 3);    // Passing an object name is optional.
 
-    const cf::TypeSys::TypeInfoT* TI = GetGameSysEntityTIM().FindTypeInfoByName(TypeName);
+    const cf::TypeSys::TypeInfoT* TI = GetGameSysEntityTIM().FindTypeInfoByName(TypeName.c_str());
 
     if (TI)
     {
@@ -309,7 +309,7 @@ int WorldT::CreateNew(lua_State* LuaState)
 
         // Console->DevPrint(cf::va("Creating entity %p.\n", Entity));
         assert(Entity->GetType() == TI);
-        assert(strcmp(TI->ClassName, TypeName) == 0);
+        assert(strcmp(TI->ClassName, TypeName.c_str()) == 0);
 
         if (ObjName) Entity->GetBasics()->SetEntityName(ObjName);
 
@@ -317,7 +317,7 @@ int WorldT::CreateNew(lua_State* LuaState)
         return 1;
     }
 
-    TI = GetComponentTIM().FindTypeInfoByName(TypeName);
+    TI = GetComponentTIM().FindTypeInfoByName(TypeName.c_str());
 
     if (TI)
     {
@@ -442,4 +442,4 @@ const cf::TypeSys::MethsDocT WorldT::DocMethods[] =
     { NULL, NULL, NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT WorldT::TypeInfo(GetWorldTIM(), "WorldT", NULL /*No base class.*/, CreateInstance, MethodsList, DocClass, DocMethods);
+const cf::TypeSys::TypeInfoT WorldT::TypeInfo(GetWorldTIM(), "GameSys::WorldT", NULL /*No base class.*/, CreateInstance, MethodsList, DocClass, DocMethods);
