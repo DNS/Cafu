@@ -698,7 +698,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
                         IntrusivePtrT<cf::GameSys::ComponentModelT> CompModel = static_pointer_cast<cf::GameSys::ComponentModelT>(Components[CompNr]);
 
-                        // TODO 1: Also deal with the GUI when this is a REPREDICTION run???
+                        // TODO: Also deal with the GUI when this is a REPREDICTION run???
                         //
                         // Answer: Normally not, because what is done during prediction is only for eye candy,
                         // and repeating it in REprediction would e.g. trigger/schedule interpolations *twice* (or in fact even more often).
@@ -735,20 +735,24 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
                             Gui->ProcessDeviceEvent(ME);
 
-                            if ((Keys >> 28)==10 /*TODO 2(?): && ThinkingOnServerSide*/)
+                            // Process mouse button events only on the server side.
+                            // Note that this is a somewhat *arbitrary* compromise to the question "Where do we stop / how far do we go in"
+                            // client prediction.
+                            // Drawing the line here means that GUIs should be programmed in a way such that mouse movements do *not* affect
+                            // world state -- only mouse clicks can do that. (In fact, we should probably also keep mouse movement events from
+                            // the GUI when this is a *reprediction* run, as detailed in the (much older) comment above.)
+                            if (ThinkingOnServerSide)
                             {
-                                // TODO 3:   When a GUI script calls an entity script (or modifies entity variables),
-                                // TODO 3:   we somehow must make sure that that only happens on the server-side,
-                                // TODO 3:    but never on the client-side (i.e. during prediction or reprediction)!!
-                                // TODO 3:   (E.g. the glue code that connects entity and gui scripts could do that.)
-                                // Note: The TODOs "TODO 1", "TODO 2" and "TODO 3" belong together...!
-                                ME.Type=CaMouseEventT::CM_BUTTON0;
+                                if ((Keys >> 28) == 10)
+                                {
+                                    ME.Type = CaMouseEventT::CM_BUTTON0;
 
-                                ME.Amount=1;    // Button down.
-                                Gui->ProcessDeviceEvent(ME);
+                                    ME.Amount = 1;  // Button down.
+                                    Gui->ProcessDeviceEvent(ME);
 
-                                ME.Amount=0;    // Button up.
-                                Gui->ProcessDeviceEvent(ME);
+                                    ME.Amount = 0;  // Button up.
+                                    Gui->ProcessDeviceEvent(ME);
+                                }
                             }
                         }
                     }

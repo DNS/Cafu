@@ -93,6 +93,18 @@ end
 
 function Map.MyFirstLift:OnInit()
     self:GetTransform():set("Origin", -96, -8, 4)
+
+    local c1 = world:new("ComponentScriptT")
+    c1:set("Name", "")
+    c1:set("ScriptCode", [[
+local ScriptComp = ...
+
+function ScriptComp:OnActivate(Other)
+    Console.Print("Hello from Map.MyFirstLift's OnActivate()!\n")
+end
+]])
+
+    self:AddComponent(c1)
 end
 
 function Map.MyLight:OnInit()
@@ -104,7 +116,83 @@ function Map.MyLight:OnInit()
     c1:set("Radius", 125)
     c1:set("ShadowType", 1)
 
-    self:AddComponent(c1)
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "")
+    c2:set("ScriptCode", [=[
+-- This thread function can easily be reused with any PointLight component.
+function LightBlinkThread(Light)
+    local BlinkColors = { { 0, 1, 1 }, { 1, 0, 1 }, { 1, 1, 0 } }
+    local ColNr = 1
+
+    while Light.IsBlinking do
+        ColNr = ColNr + 1
+        if ColNr > #BlinkColors then ColNr = 1 end
+        Light:set("Color", BlinkColors[ColNr])
+
+        coroutine.yield(1.0)    -- Wait 1.0 seconds.
+    end
+end
+
+local ScriptComp = ...
+local LightComp = ScriptComp:GetEntity():GetComponent("PointLight")
+local variant = 2
+
+LightComp.IsBlinking = false
+LightComp.OrigColor = { LightComp:get("Color") }
+
+function ScriptComp:OnActivate(Other)
+    Console.Print("Hello from Map.MyLight's OnActivate()!\n")
+
+    if variant == 1 then
+        -- Toggles between cyclic red/green/blue blinking and not blinking.
+        if LightComp.IsBlinking then
+            -- Currently blinking, turn it off now.
+            -- This will break the loop below.
+            LightComp.IsBlinking = false
+            LightComp:set("Color", LightComp.OrigColor)
+        else
+            -- Currently not blinking, turn it on now.
+            LightComp.IsBlinking = true
+
+            local BlinkColors = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } }
+            local ColNr = 1
+
+            while LightComp.IsBlinking do
+                ColNr = ColNr + 1
+                if ColNr > #BlinkColors then ColNr = 1 end
+                LightComp:set("Color", BlinkColors[ColNr])
+
+                coroutine.yield(1.0)    -- Wait 1.0 seconds.
+            end
+        end
+    elseif variant == 2 then
+        -- As variant 1 above (toggles blinking on and off),
+        -- but implemented with an explicit thread (coroutine).
+        -- As opposed to variant 1, using a thread allows this method to return normally,
+        -- rather than returning control only via the call to coroutine.yield().
+        if LightComp.IsBlinking then
+            -- Currently blinking, turn it off now.
+            -- This will break the loop in the thread.
+            LightComp.IsBlinking = false
+            LightComp:set("Color", LightComp.OrigColor)
+        else
+            -- Currently not blinking, turn it on now.
+            LightComp.IsBlinking = true
+
+            -- Register the function LightBlinkThread as a new thread.
+            -- The thread is given the LightComp as its first parameter.
+            thread(LightBlinkThread, LightComp);
+        end
+    else
+        -- Implements a one-time blink.
+        LightComp:set("Color", 1, 1, 0)   -- Set to yellow.
+        coroutine.yield(1.0)              -- Wait 1.0 seconds.
+        LightComp:set("Color", LightComp.OrigColor)
+    end
+end
+]=])
+
+    self:AddComponent(c1, c2)
 end
 
 function Map.LiftWeldTank:OnInit()

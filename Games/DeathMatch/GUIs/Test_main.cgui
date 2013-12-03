@@ -78,28 +78,26 @@ function Counter:OnMouseEnter()
 end
 
 function Counter:OnMouseButtonDown()
-    self.count=self.count+1;
+    -- As this GUI is a 3D world GUI, it is "operated" from within the HumanPlayerT::Think() code,
+    -- which at this time is implemented such that we get here only on server thinking, but not on
+    -- client prediction or reprediction.
+    self.count = self.count + 1
     self:GetComponent("Text"):set("Text", "Counter\n" .. self.count)
 
-    -- IMPORTANT INFORMATION:
-    --
-    -- As this GUI is a 3D world GUI, it is "operated" from within the HumanPlayerT::Think() code,
-    -- which in turn is run on server thinking, client prediction and client reprediction.
-    -- Therefore, we can easily get here a lot more often than expected:
-    -- Once or more on the client side during (re-)prediction, then again on the server side during thinking.
-    -- (If we're running a local single player game, then even all of these occur.)
-    --
-    -- *** Therefore, anything we do here must have side-effects *ONLY* on the server! ***
-    -- The Entity:RunMapCommand() fulfils this requirement, because it actively checks and does nothing when being run on the client.
-    -- However, a call to ci.RunCommand("xy();"); *will* run xy() multiple times in the above outlined cases.
+    -- gui.Model  is the model (component) that this GUI is attached to.
+    -- gui.Entity is the entity that holds the model that holds this GUI.
+    -- This, if we wanted to call a script that is attached to "our" entity:
+    --     gui.Entity:OnActivate()
 
-    -- Call the MyFirstLift:OnTrigger() method.
- -- ci.RunCommand("runMapCmd('MyFirstLift:OnTrigger();');");
-    Entity:RunMapCommand("MyFirstLift:OnTrigger();");
+    -- This is not yet implemented, but something like this is how a reusable GUI might flexibly
+    -- work with arbitrary target entities:
+    --     gui.Entity:GetComponent("Target"):GetEntity():OnActivate()
 
- -- Entity:RunMapCommand("MyLight:SetColor(255, 0, 0);");
-    Entity:RunMapCommand("MyLight:OnTrigger();");
-    return true;
+    -- For now, just work with well-known globals (this makes this code non-reusable, though...).
+    Map.MyFirstLift:GetComponent("Script"):OnActivate()
+    Map.MyLight:GetComponent("Script"):OnActivate()
+
+    return true
 end
 
 
