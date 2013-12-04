@@ -22,7 +22,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "HumanPlayer.hpp"
 #include "Corpse.hpp"
 #include "InfoPlayerStart.hpp"
-#include "StaticDetailModel.hpp"
 #include "cw.hpp"
 #include "Constants_AmmoSlots.hpp"
 #include "Constants_WeaponSlots.hpp"

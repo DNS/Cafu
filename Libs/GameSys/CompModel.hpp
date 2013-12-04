@@ -35,6 +35,10 @@ namespace cf
     namespace GameSys
     {
         /// This component adds a 3D model to its entity.
+        /// Models can be used to add geometric detail to a map. Some models also have ready-made
+        /// "GUI fixtures" where scripted GUIs can be attached that players can interact with.
+        /// Use the CaWE Model Editor in order to import mesh and animation data for models, and
+        /// to prepare them for use in game maps.
         class ComponentModelT : public ComponentBaseT
         {
             public:

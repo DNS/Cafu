@@ -49,7 +49,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Mover.hpp"
 #include "RigidBody.hpp"
 #include "Rocket.hpp"
-#include "StaticDetailModel.hpp"
 #include "Worldspawn.hpp"
 
 #include "TypeSys.hpp"
@@ -118,7 +117,6 @@ namespace GAME_NAME
         &EntFuncMoverT::TypeInfo,
         &EntRigidBodyT::TypeInfo,
         &EntRocketT::TypeInfo,
-        &EntStaticDetailModelT::TypeInfo,
         &EntWorldspawnT::TypeInfo,
     };
 }

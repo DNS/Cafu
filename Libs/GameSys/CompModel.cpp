@@ -284,7 +284,11 @@ namespace
 
 
 const char* ComponentModelT::DocClass =
-    "This component adds a 3D model to its entity.";
+    "This component adds a 3D model to its entity.\n"
+    "Models can be used to add geometric detail to a map. Some models also have ready-made\n"
+    "\"GUI fixtures\" where scripted GUIs can be attached that players can interact with.\n"
+    "Use the CaWE Model Editor in order to import mesh and animation data for models, and\n"
+    "to prepare them for use in game maps.\n";
 
 
 const cf::TypeSys::VarsDocT ComponentModelT::DocVars[] =
