@@ -33,7 +33,7 @@ namespace GAME_NAME
 
         EntInfoGenericT(const EntityCreateParamsT& Params);
 
-        bool GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const override;
+        bool GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const;
 
 
         const cf::TypeSys::TypeInfoT* GetType() const;

@@ -675,7 +675,7 @@ void DirectLighting(const CaLightWorldT& CaLightWorld, const ArrayT< IntrusivePt
                 }
         }
     }
-    printf("2. # point light sources: %6lu\n", RL_Count);
+    printf("2. # point light sources: %6u\n", RL_Count);
 }
 
 
