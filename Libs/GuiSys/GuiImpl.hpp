@@ -87,6 +87,10 @@ namespace cf
             /// The destructor.
             ~GuiImplT();
 
+            /// A method that is needed when the obsolete, deprecated ctor above is used.
+            /// Without this method, it is impossible to break cycles of IntrusivePtrT%s.
+            void ObsoleteForceKill();
+
             /// Assigns the given GUI to the global "gui" and loads the given script in order to initialize it.
             /// @param Gui          The GUI to init.
             /// @param ScriptName   The file name of the script to load or inline script code (if InitFlag_InlineCode is set).

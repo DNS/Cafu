@@ -289,6 +289,18 @@ GuiImplT::~GuiImplT()
 }
 
 
+void GuiImplT::ObsoleteForceKill()
+{
+    assert(m_IsOwnScriptSt);
+
+    if (m_IsOwnScriptSt)
+    {
+        delete m_ScriptState;
+        m_ScriptState = NULL;
+    }
+}
+
+
 void GuiImplT::Init()
 {
     if (m_IsInited) return;

@@ -44,7 +44,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameSys/World.hpp"
 #include "GuiSys/GuiImpl.hpp"
 #include "GuiSys/GuiManImpl.hpp"
-#include "GuiSys/Window.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
@@ -186,6 +185,10 @@ void EntHumanPlayerT::NotifyLeaveMap()
     if (GuiHUD != NULL)
     {
         cf::GuiSys::GuiMan->Free(GuiHUD);
+
+        GuiHUD->ObsoleteForceKill();
+        assert(GuiHUD->GetRefCount() == 1);
+
         GuiHUD = NULL;
     }
 }
