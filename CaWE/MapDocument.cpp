@@ -84,6 +84,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameSys/Entity.hpp"
 #include "GameSys/EntityCreateParams.hpp"
 #include "GameSys/World.hpp"
+#include "GuiSys/AllComponents.hpp"
+#include "GuiSys/GuiImpl.hpp"
+#include "GuiSys/Window.hpp"
 #include "Math3D/Matrix3x3.hpp"     // For converting "angles" to Quaternions.
 #include "Math3D/Misc.hpp"
 #include "Templates/Array.hpp"
@@ -209,6 +212,25 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig)
 {
     cf::GameSys::WorldT::InitScriptState(m_ScriptState);
 
+#if 0
+    // We cannot use this method, which in fact is kind of obsolete:
+    // It would attempt to re-register the Console and ConsoleInterface libraries,
+    // which was already done above in cf::GameSys::WorldT::InitScriptState().
+    // (Both InitScriptState() methods should probably be removed / refactored.)
+    cf::GuiSys::GuiImplT::InitScriptState(m_ScriptState);
+#else
+    {
+        // For each class that the TypeInfoManTs know about, add a (meta-)table to the registry of the LuaState.
+        // The (meta-)table holds the Lua methods that the respective class implements in C++,
+        // and is to be used as metatable for instances of this class.
+        cf::ScriptBinderT Binder(m_ScriptState.GetLuaState());
+
+        Binder.Init(cf::GuiSys::GetGuiTIM());
+        Binder.Init(cf::GuiSys::GetWindowTIM());
+        Binder.Init(cf::GuiSys::GetComponentTIM());
+    }
+#endif
+
     m_ScriptWorld = new cf::GameSys::WorldT(
         m_ScriptState,
         m_GameConfig->GetModelMan(),
@@ -309,6 +331,25 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
 
 
     cf::GameSys::WorldT::InitScriptState(m_ScriptState);
+
+#if 0
+    // We cannot use this method, which in fact is kind of obsolete:
+    // It would attempt to re-register the Console and ConsoleInterface libraries,
+    // which was already done above in cf::GameSys::WorldT::InitScriptState().
+    // (Both InitScriptState() methods should probably be removed / refactored.)
+    cf::GuiSys::GuiImplT::InitScriptState(m_ScriptState);
+#else
+    {
+        // For each class that the TypeInfoManTs know about, add a (meta-)table to the registry of the LuaState.
+        // The (meta-)table holds the Lua methods that the respective class implements in C++,
+        // and is to be used as metatable for instances of this class.
+        cf::ScriptBinderT Binder(m_ScriptState.GetLuaState());
+
+        Binder.Init(cf::GuiSys::GetGuiTIM());
+        Binder.Init(cf::GuiSys::GetWindowTIM());
+        Binder.Init(cf::GuiSys::GetComponentTIM());
+    }
+#endif
 
     if (cmapFileVersion >= 14)
     {
