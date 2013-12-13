@@ -997,10 +997,19 @@ MapDocumentT::~MapDocumentT()
 
 namespace
 {
+    const char* StripNamespace(const char* ClassName)
+    {
+        if (strncmp(ClassName, "GameSys::", 9) == 0)
+            return ClassName + 9;
+
+        return ClassName;
+    }
+
+
     // Recursively saves the entity instantiation of the passed entity and all of its children.
     void SaveEntityInstantiation(std::ostream& OutFile, IntrusivePtrT<cf::GameSys::EntityT> Entity, const wxString& ParentName)
     {
-        OutFile << ParentName << Entity->GetBasics()->GetEntityName() << " = world:new(\"" << Entity->GetType()->ClassName << "\", \"" << Entity->GetBasics()->GetEntityName() << "\")\n";
+        OutFile << ParentName << Entity->GetBasics()->GetEntityName() << " = world:new(\"" << StripNamespace(Entity->GetType()->ClassName) << "\", \"" << Entity->GetBasics()->GetEntityName() << "\")\n";
 
         const wxString NewParentName = ParentName + Entity->GetBasics()->GetEntityName() + ".";
 
@@ -1050,7 +1059,7 @@ namespace
             IntrusivePtrT<cf::GameSys::ComponentBaseT> Comp = Entity->GetComponents()[CompNr - 1];
             const ArrayT<cf::TypeSys::VarBaseT*>&      Vars = Comp->GetMemberVars().GetArray();
 
-            OutFile << "    local c" << CompNr << " = world:new(\"" << Comp->GetType()->ClassName << "\")\n";
+            OutFile << "    local c" << CompNr << " = world:new(\"" << StripNamespace(Comp->GetType()->ClassName) << "\")\n";
 
             for (unsigned int VarNr = 0; VarNr < Vars.Size(); VarNr++)
             {
