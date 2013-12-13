@@ -60,7 +60,7 @@ end
 
 function Map.info_player_start:OnInit()
     self:GetTransform():set("Origin", 16, -16, 56)
-    self:GetTransform():set("Orientation", -0, 0, -1)
+    self:GetTransform():set("Orientation", 0, -0, 1)
 end
 
 function Map.func_group:OnInit()
@@ -118,7 +118,7 @@ function Map.MyLight:OnInit()
 
     local c2 = world:new("ComponentScriptT")
     c2:set("Name", "")
-    c2:set("ScriptCode", [=[
+    c2:set("ScriptCode", [[
 -- This thread function can easily be reused with any PointLight component.
 function LightBlinkThread(Light)
     local BlinkColors = { { 0, 1, 1 }, { 1, 0, 1 }, { 1, 1, 0 } }
@@ -190,7 +190,7 @@ function ScriptComp:OnActivate(Other)
         LightComp:set("Color", LightComp.OrigColor)
     end
 end
-]=])
+]])
 
     self:AddComponent(c1, c2)
 end
@@ -276,7 +276,7 @@ end
 
 function Map.TestSpeaker:OnInit()
     self:GetTransform():set("Origin", 48, -416, 72)
-    self:GetTransform():set("Orientation", -0, -0, -1)
+    self:GetTransform():set("Orientation", 0, 0, 1)
 
     local c1 = world:new("ComponentSoundT")
     c1:set("Name", "Ambient/Jungle")
