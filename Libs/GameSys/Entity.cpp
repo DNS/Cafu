@@ -340,9 +340,9 @@ IntrusivePtrT<EntityT> EntityT::Find(const std::string& WantedName)
 // Note that this method is the twin of Deserialize(), whose implementation it must match.
 void EntityT::Serialize(cf::Network::OutStreamT& Stream, bool WithChildren) const
 {
- // m_App->Serialize(Stream);       // Don't serialize anything that is application-specific.
     m_Basics->Serialize(Stream);
     m_Transform->Serialize(Stream);
+    if (m_App != NULL) m_App->Serialize(Stream);       // Don't serialize anything that is application-specific, but see below for why we do it anyway.
 
     // Serialize the "custom" components.
     assert(m_Components.Size() < 256);
@@ -372,9 +372,17 @@ void EntityT::Serialize(cf::Network::OutStreamT& Stream, bool WithChildren) cons
 // Note that this method is the twin of Serialize(), whose implementation it must match.
 void EntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
 {
- // m_App->Deserialize(Stream, IsIniting);
     m_Basics->Deserialize(Stream, IsIniting);
     m_Transform->Deserialize(Stream, IsIniting);
+
+    // This is really not what we want:
+    //   1. Normally, we shouldn't serialize anything that is application-specific.
+    //   2. Breaks our implicit convention to handle m_App before m_Basics and m_Transform.
+    //   3. What if m_App != NULL on the server and == NULL on the client, or vice versa?
+    // However, we need it so that CompGameEntityT can update its clip models, just like and ComponentCollisionModelT
+    // (and thus it must be done *after* deserializing m_Transform).
+    // The right solution would be to add some PostDeserialize() method instead (and some PostThink() as well).
+    if (m_App != NULL) m_App->Deserialize(Stream, IsIniting);
 
     // Deserialize the "custom" components.
     uint8_t NumComponents = 0;

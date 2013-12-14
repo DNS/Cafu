@@ -105,12 +105,21 @@ void ComponentCollisionModelT::UpdateDependencies(EntityT* Entity)
 }
 
 
+void ComponentCollisionModelT::DoDeserialize(cf::Network::InStreamT& Stream, bool IsIniting)
+{
+    // Deserialization may have updated our origin or orientation,
+    // so we have to update the clip model.
+    UpdateClipModel();
+}
+
+
 void ComponentCollisionModelT::DoServerFrame(float t)
 {
     // TODO:
     // This should actually be in some PostThink() method, so that we can be sure that
     // all behaviour and physics scripts (that possibly alter the origin and orientation)
     // have already been run when we update the clip model.
+    // (Same is true for the clip model in the CompGameEntityT class.)
     UpdateClipModel();
 }
 
@@ -178,14 +187,6 @@ void ComponentCollisionModelT::UpdateClipModel()
         m_ClipPrevOrigin = o;
         m_ClipPrevQuat   = q;
     }
-}
-
-
-void ComponentCollisionModelT::DoDeserialize(cf::Network::InStreamT& Stream, bool IsIniting)
-{
-    // Deserialization may have updated our origin or orientation,
-    // so we have to update the clip model.
-    UpdateClipModel();
 }
 
 

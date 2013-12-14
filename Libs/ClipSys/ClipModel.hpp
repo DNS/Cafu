@@ -27,7 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/Vector3.hpp"
 
 
-namespace cf { namespace GameSys { class ComponentCollisionModelT; } }
+namespace cf { namespace GameSys { class ComponentBaseT; } }
 
 
 namespace cf
@@ -85,13 +85,13 @@ namespace cf
             /// Returns the user data associated with this clip model.
             /// This is usually the pointer to the entity that "owns" this clip model, i.e. this clip model is a member of this entity.
             void* GetUserData() const { return UserData; }
-            cf::GameSys::ComponentCollisionModelT* GetOwner() const { return m_Owner; }
+            cf::GameSys::ComponentBaseT* GetOwner() const { return m_Owner; }
 
             /// Sets the user data associated with this clip model.
             /// @param UD   The new user data to be associated with this clip model.
             /// @see GetUserData()
             void SetUserData(void* UD);
-            void SetOwner(GameSys::ComponentCollisionModelT* Owner) { m_Owner = Owner; }
+            void SetOwner(GameSys::ComponentBaseT* Owner) { m_Owner = Owner; }
 
             /// Returns the bounding box of this clip model in absolute world coordinates.
             /// Note that the clip model must be registered (linked) with the clip world when this method is called.
@@ -139,7 +139,7 @@ namespace cf
             Vector3T<double>         Origin;        ///< The translation of the collision model that positions it in world space. Origin and Orientation together form a matrix M that transforms a point from model to world space.
             math::Matrix3x3T<double> Orientation;   ///< The local axes  of the collision model that positions it in world space. Origin and Orientation together form a matrix M that transforms a point from model to world space.
             void*                    UserData;      ///< This is usually the pointer to the entity that "owns" this clip model, i.e. this clip model is a member of this entity.
-            GameSys::ComponentCollisionModelT* m_Owner; ///< The collision model component that "owns" this clip model, i.e. this clip model belongs to and is a member of this component.
+            GameSys::ComponentBaseT* m_Owner;       ///< The component that "owns" this clip model, i.e. this clip model belongs to and is a member of this component.
             BoundingBox3dT           AbsoluteBB;    ///< The world-space bounding box of the collision model, i.e. with Transformation applied.
             ClipLinkT*               ListOfSectors; ///< The list of sectors that this model is in.
             bool                     IsEnabled;     ///< Whether this model is enabled for clipping or not. When disabled, the model is not taken into account even while being registered with the clip world.

@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameSys/Entity.hpp"       // For GetGameEnt() only.
 
 
+namespace cf { namespace ClipSys { class ClipModelT; } }
 class StaticEntityDataT;
 
 
@@ -54,12 +55,21 @@ class CompGameEntityT : public cf::GameSys::ComponentBaseT
     // Base class overrides.
     CompGameEntityT* Clone() const;
     const char* GetName() const { return "GameEntity"; }
+    void UpdateDependencies(cf::GameSys::EntityT* Entity);
 
 
     private:
 
-    StaticEntityDataT* m_StaticEntityData;
-    const bool         m_DeleteSED;
+    void DoDeserialize(cf::Network::InStreamT& Stream, bool IsIniting) /*override*/;
+    void DoServerFrame(float t) /*override*/;
+    void UpdateClipModel();
+
+    StaticEntityDataT*       m_StaticEntityData;
+    const bool               m_DeleteSED;
+
+    cf::ClipSys::ClipModelT* m_ClipModel;       ///< The clip model for the m_StaticEntityData->m_CollModel (the collision model made of the map primitives), NULL for none.
+    Vector3fT                m_ClipPrevOrigin;
+    cf::math::QuaternionfT   m_ClipPrevQuat;
 };
 
 

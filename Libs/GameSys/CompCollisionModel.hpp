@@ -53,7 +53,6 @@ namespace cf
             ComponentCollisionModelT* Clone() const;
             const char* GetName() const { return "CollisionModel"; }
             void UpdateDependencies(EntityT* Entity);
-            void DoServerFrame(float t);
 
 
             // The TypeSys related declarations for this class.
@@ -76,9 +75,10 @@ namespace cf
 
             private:
 
+            void DoDeserialize(cf::Network::InStreamT& Stream, bool IsIniting) /*override*/;
+            void DoServerFrame(float t);
             void CleanUp();
             void UpdateClipModel();
-            void DoDeserialize(cf::Network::InStreamT& Stream, bool IsIniting) /*override*/;
 
             TypeSys::VarT<std::string>          m_CollMdlName;      ///< The file name of the collision model.
             std::string                         m_PrevName;         ///< The previous file name, used to detect changes in `m_CollMdlName`.

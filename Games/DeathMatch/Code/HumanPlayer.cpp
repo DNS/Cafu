@@ -832,10 +832,10 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                         }
 
 
-                        cf::GameSys::ComponentCollisionModelT* CollMdl = ClipModels[ClipModelNr]->GetOwner();
-                        if (CollMdl == NULL) continue;
+                        cf::GameSys::ComponentBaseT* Owner = ClipModels[ClipModelNr]->GetOwner();
+                        if (Owner == NULL) continue;
 
-                        cf::GameSys::EntityT* Ent = CollMdl->GetEntity();
+                        cf::GameSys::EntityT* Ent = Owner->GetEntity();
                         if (Ent == NULL) continue;
 
                         IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = dynamic_pointer_cast<cf::GameSys::ComponentScriptT>(Ent->GetComponent("Script"));
