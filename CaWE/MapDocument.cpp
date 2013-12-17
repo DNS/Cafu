@@ -890,6 +890,14 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             Ent->AddComponent(ScriptComp);
         }
 
+        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "func_mover")
+        {
+            IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
+
+            ScriptComp->SetMember("Name", std::string(m_GameConfig->ModDir + "/Scripts/Mover.lua"));
+            Ent->AddComponent(ScriptComp);
+        }
+
         if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && (MapEnt->GetClass()->GetName().StartsWith("ammo_") || MapEnt->GetClass()->GetName().StartsWith("item_")))
         {
             // This is a perfect example how Prefabs would be highly useful!!!
