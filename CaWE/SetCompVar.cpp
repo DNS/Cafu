@@ -106,4 +106,6 @@ template class CommandSetCompVarT<bool>;
 template class CommandSetCompVarT<std::string>;
 template class CommandSetCompVarT<Vector2fT>;
 template class CommandSetCompVarT<Vector3fT>;
+template class CommandSetCompVarT<Vector3dT>;
+template class CommandSetCompVarT<BoundingBox3dT>;
 template class CommandSetCompVarT< ArrayT<std::string> >;

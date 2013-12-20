@@ -67,6 +67,8 @@ namespace cf
             void visit(cf::TypeSys::VarT<std::string>& Var);
             void visit(cf::TypeSys::VarT<Vector2fT>& Var);
             void visit(cf::TypeSys::VarT<Vector3fT>& Var);
+            void visit(cf::TypeSys::VarT<Vector3dT>& Var);
+            void visit(cf::TypeSys::VarT<BoundingBox3dT>& Var);
             void visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var);
 
 
@@ -169,6 +171,11 @@ namespace cf
         }
 
         template<> inline bool VarInterpolatorT<Vector3fT>::CanContinue(const Vector3fT& DeltaY) const
+        {
+            return length(DeltaY) < 128;
+        }
+
+        template<> inline bool VarInterpolatorT<Vector3dT>::CanContinue(const Vector3dT& DeltaY) const
         {
             return length(DeltaY) < 128;
         }

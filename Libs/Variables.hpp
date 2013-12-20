@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Templates/Array.hpp"
 #include "Math3D/Vector2.hpp"
 #include "Math3D/Vector3.hpp"
+#include "Math3D/BoundingBox.hpp"
 
 #include <cstring>
 #include <map>
@@ -237,6 +238,8 @@ namespace cf
             virtual void visit(VarT<std::string>& Var) = 0;
             virtual void visit(VarT<Vector2fT>& Var) = 0;
             virtual void visit(VarT<Vector3fT>& Var) = 0;
+            virtual void visit(VarT<Vector3dT>& Var) = 0;
+            virtual void visit(VarT<BoundingBox3dT>& Var) = 0;
             virtual void visit(VarT< ArrayT<std::string> >& Var) = 0;
         };
 
@@ -258,6 +261,8 @@ namespace cf
             virtual void visit(const VarT<std::string>& Var) = 0;
             virtual void visit(const VarT<Vector2fT>& Var) = 0;
             virtual void visit(const VarT<Vector3fT>& Var) = 0;
+            virtual void visit(const VarT<Vector3dT>& Var) = 0;
+            virtual void visit(const VarT<BoundingBox3dT>& Var) = 0;
             virtual void visit(const VarT< ArrayT<std::string> >& Var) = 0;
         };
 

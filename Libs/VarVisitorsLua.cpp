@@ -101,6 +101,26 @@ void VarVisitorGetToLuaT::visit(const cf::TypeSys::VarT<Vector3fT>& Var)
 }
 
 
+void VarVisitorGetToLuaT::visit(const cf::TypeSys::VarT<Vector3dT>& Var)
+{
+    lua_pushnumber(m_LuaState, Var.Get().x); m_NumResults++;
+    lua_pushnumber(m_LuaState, Var.Get().y); m_NumResults++;
+    lua_pushnumber(m_LuaState, Var.Get().z); m_NumResults++;
+}
+
+
+void VarVisitorGetToLuaT::visit(const cf::TypeSys::VarT<BoundingBox3dT>& Var)
+{
+    lua_pushnumber(m_LuaState, Var.Get().Min.x); m_NumResults++;
+    lua_pushnumber(m_LuaState, Var.Get().Min.y); m_NumResults++;
+    lua_pushnumber(m_LuaState, Var.Get().Min.z); m_NumResults++;
+
+    lua_pushnumber(m_LuaState, Var.Get().Max.x); m_NumResults++;
+    lua_pushnumber(m_LuaState, Var.Get().Max.y); m_NumResults++;
+    lua_pushnumber(m_LuaState, Var.Get().Max.z); m_NumResults++;
+}
+
+
 void VarVisitorGetToLuaT::visit(const cf::TypeSys::VarT< ArrayT<std::string> >& Var)
 {
     lua_newtable(m_LuaState);
@@ -204,6 +224,43 @@ void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT<Vector3fT>& Var)
 }
 
 
+void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT<Vector3dT>& Var)
+{
+    Vector3dT v;
+
+    if (lua_istable(m_LuaState, -1))
+    {
+        lua_rawgeti(m_LuaState, -1, 1); v.x = lua_tonumber(m_LuaState, -1); lua_pop(m_LuaState, 1);
+        lua_rawgeti(m_LuaState, -1, 2); v.y = lua_tonumber(m_LuaState, -1); lua_pop(m_LuaState, 1);
+        lua_rawgeti(m_LuaState, -1, 3); v.z = lua_tonumber(m_LuaState, -1); lua_pop(m_LuaState, 1);
+    }
+    else
+    {
+        v.x = luaL_checknumber(m_LuaState, -3);
+        v.y = luaL_checknumber(m_LuaState, -2);
+        v.z = luaL_checknumber(m_LuaState, -1);
+    }
+
+    Var.Set(v);
+}
+
+
+void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT<BoundingBox3dT>& Var)
+{
+    BoundingBox3dT BB;
+
+    BB.Min.x = luaL_checknumber(m_LuaState, -6);
+    BB.Min.y = luaL_checknumber(m_LuaState, -5);
+    BB.Min.z = luaL_checknumber(m_LuaState, -4);
+
+    BB.Max.x = luaL_checknumber(m_LuaState, -3);
+    BB.Max.y = luaL_checknumber(m_LuaState, -2);
+    BB.Max.z = luaL_checknumber(m_LuaState, -1);
+
+    Var.Set(BB);
+}
+
+
 void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var)
 {
     ArrayT<std::string> A;
@@ -277,6 +334,8 @@ void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<int>& Var) { }
 void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<unsigned int>& Var) { }
 void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<bool>& Var) { }
 void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<std::string>& Var) { }
+void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<Vector3dT>& Var) { }
+void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<BoundingBox3dT>& Var) { }
 void VarVisitorSetFloatT::visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var) { }
 
 
@@ -335,6 +394,19 @@ void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<Vector2fT>& Var)
 void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<Vector3fT>& Var)
 {
     m_Out << Var.Get().x << ", " << Var.Get().y << ", " << Var.Get().z;
+}
+
+
+void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<Vector3dT>& Var)
+{
+    m_Out << Var.Get().x << ", " << Var.Get().y << ", " << Var.Get().z;
+}
+
+
+void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<BoundingBox3dT>& Var)
+{
+    m_Out << Var.Get().Min.x << ", " << Var.Get().Min.y << ", " << Var.Get().Min.z << ", ";
+    m_Out << Var.Get().Max.x << ", " << Var.Get().Max.y << ", " << Var.Get().Max.z;
 }
 
 

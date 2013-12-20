@@ -87,6 +87,26 @@ namespace cf
             Stream << Get().y;
             Stream << Get().z;
         }
+
+        template<>  // Must specialize, because an OutStreamT cannot take a Vector3dT directly.
+        void VarT<Vector3dT>::Serialize(cf::Network::OutStreamT& Stream) const
+        {
+            Stream << Get().x;
+            Stream << Get().y;
+            Stream << Get().z;
+        }
+
+        template<>  // Must specialize, because an OutStreamT cannot take a BoundingBox3dT directly.
+        void VarT<BoundingBox3dT>::Serialize(cf::Network::OutStreamT& Stream) const
+        {
+            Stream << Get().Min.x;
+            Stream << Get().Min.y;
+            Stream << Get().Min.z;
+
+            Stream << Get().Max.x;
+            Stream << Get().Max.y;
+            Stream << Get().Max.z;
+        }
     }
 }
 
@@ -136,6 +156,38 @@ namespace cf
             // Therefore, we cannot write `m_Value = v;` in place of `Set(v);` here.
             Set(v);
         }
+
+        template<>  // Must specialize, because an InStreamT cannot take a Vector3dT directly.
+        void VarT<Vector3dT>::Deserialize(cf::Network::InStreamT& Stream)
+        {
+            Vector3dT v;
+
+            Stream >> v.x;
+            Stream >> v.y;
+            Stream >> v.z;
+
+            // Derived classes may have overridden Set() to add "side-effects", such as updating graphical resources.
+            // Therefore, we cannot write `m_Value = v;` in place of `Set(v);` here.
+            Set(v);
+        }
+
+        template<>  // Must specialize, because an InStreamT cannot take a BoundingBox3dT directly.
+        void VarT<BoundingBox3dT>::Deserialize(cf::Network::InStreamT& Stream)
+        {
+            BoundingBox3dT BB;
+
+            Stream >> BB.Min.x;
+            Stream >> BB.Min.y;
+            Stream >> BB.Min.z;
+
+            Stream >> BB.Max.x;
+            Stream >> BB.Max.y;
+            Stream >> BB.Max.z;
+
+            // Derived classes may have overridden Set() to add "side-effects", such as updating graphical resources.
+            // Therefore, we cannot write `m_Value = BB;` in place of `Set(BB);` here.
+            Set(BB);
+        }
     }
 }
 
@@ -162,4 +214,6 @@ template class cf::TypeSys::VarT<bool>;
 template class cf::TypeSys::VarT<std::string>;
 template class cf::TypeSys::VarT<Vector2fT>;
 template class cf::TypeSys::VarT<Vector3fT>;
+template class cf::TypeSys::VarT<Vector3dT>;
+template class cf::TypeSys::VarT<BoundingBox3dT>;
 template class cf::TypeSys::VarT< ArrayT<std::string> >;

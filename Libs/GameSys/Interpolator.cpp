@@ -76,9 +76,18 @@ void VarVisitorGetApproxT::visit(cf::TypeSys::VarT<Vector3fT>& Var)
 }
 
 
+void VarVisitorGetApproxT::visit(cf::TypeSys::VarT<Vector3dT>& Var)
+{
+    assert(!Var.HasFlag("IsQuat"));     // User code should really use a Vector3fT instead.
+    assert(m_Approx == NULL);
+    m_Approx = new VarInterpolatorT<Vector3dT>(Var);
+}
+
+
 // Non-float variables cannot be interpolated.
 void VarVisitorGetApproxT::visit(cf::TypeSys::VarT<int>& Var) { }
 void VarVisitorGetApproxT::visit(cf::TypeSys::VarT<unsigned int>& Var) { }
 void VarVisitorGetApproxT::visit(cf::TypeSys::VarT<bool>& Var) { }
 void VarVisitorGetApproxT::visit(cf::TypeSys::VarT<std::string>& Var) { }
+void VarVisitorGetApproxT::visit(cf::TypeSys::VarT<BoundingBox3dT>& Var) { }
 void VarVisitorGetApproxT::visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var) { }

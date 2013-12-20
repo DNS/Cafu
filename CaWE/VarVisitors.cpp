@@ -425,6 +425,66 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT<Vector3fT>& Var)
 }
 
 
+void VarVisitorAddPropT::visit(cf::TypeSys::VarT<Vector3dT>& Var)
+{
+    assert(!Var.HasFlag("IsColor"));    // User code should really use a Vector3fT instead.
+
+    wxPGProperty* Prop = new wxStringProperty(Var.GetName(), wxString::Format("%p", &Var), "<composed>");
+
+    SetHelpString(Prop);
+    m_PropMan.Append(Prop)->SetClientData(&Var);
+
+    wxPGProperty* px = new wxFloatProperty("x", wxPG_LABEL, Var.Get().x);
+    wxPGProperty* py = new wxFloatProperty("y", wxPG_LABEL, Var.Get().y);
+    wxPGProperty* pz = new wxFloatProperty("z", wxPG_LABEL, Var.Get().z);
+
+    SetHelpString(px, Prop);
+    SetHelpString(py, Prop);
+    SetHelpString(pz, Prop);
+
+    m_PropMan.AppendIn(Prop, px);
+    m_PropMan.AppendIn(Prop, py);
+    m_PropMan.AppendIn(Prop, pz);
+
+    // For unknown reasons, the text color can only be set *after* AppendIn() has been called.
+    px->SetTextColour(wxColour(200, 0, 0));
+    py->SetTextColour(wxColour(0, 200, 0));
+    pz->SetTextColour(wxColour(0, 0, 200));
+}
+
+
+void VarVisitorAddPropT::visit(cf::TypeSys::VarT<BoundingBox3dT>& Var)
+{
+    wxPGProperty* Prop = new wxStringProperty(Var.GetName(), wxString::Format("%p", &Var), "<composed>");
+
+    SetHelpString(Prop);
+    m_PropMan.Append(Prop)->SetClientData(&Var);
+
+    for (unsigned int i = 0; i < 2; i++)
+    {
+        const Vector3dT& MinMax = (i == 0) ? Var.Get().Min : Var.Get().Max;
+        wxPGProperty*    MinMaxProp = new wxStringProperty(i == 0 ? "Min" : "Max", wxPG_LABEL, "<composed>");
+
+        wxPGProperty* px = new wxFloatProperty("x", wxPG_LABEL, MinMax.x);
+        wxPGProperty* py = new wxFloatProperty("y", wxPG_LABEL, MinMax.y);
+        wxPGProperty* pz = new wxFloatProperty("z", wxPG_LABEL, MinMax.z);
+
+        SetHelpString(px, Prop);
+        SetHelpString(py, Prop);
+        SetHelpString(pz, Prop);
+
+        m_PropMan.AppendIn(MinMaxProp, px);
+        m_PropMan.AppendIn(MinMaxProp, py);
+        m_PropMan.AppendIn(MinMaxProp, pz);
+
+        // For unknown reasons, the text color can only be set *after* AppendIn() has been called.
+        px->SetTextColour(wxColour(200, 0, 0));
+        py->SetTextColour(wxColour(0, 200, 0));
+        pz->SetTextColour(wxColour(0, 0, 200));
+    }
+}
+
+
 void VarVisitorAddPropT::visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var)
 {
     wxString Lines;
@@ -543,6 +603,32 @@ void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT<Vector3fT>& Var)
         for (unsigned int i = 0; i < Count; i++)
             m_Prop.Item(i)->SetValue(Var.Get()[i]);
     }
+}
+
+
+void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT<Vector3dT>& Var)
+{
+    assert(!Var.HasFlag("IsColor"));    // User code should really use a Vector3fT instead.
+
+    const unsigned int Count = std::min(3u, m_Prop.GetChildCount());
+
+    for (unsigned int i = 0; i < Count; i++)
+        m_Prop.Item(i)->SetValue(Var.Get()[i]);
+}
+
+
+void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT<BoundingBox3dT>& Var)
+{
+    if (m_Prop.GetChildCount() != 2) return;
+
+    const unsigned int CountMin = std::min(3u, m_Prop.Item(0)->GetChildCount());
+    const unsigned int CountMax = std::min(3u, m_Prop.Item(1)->GetChildCount());
+
+    for (unsigned int i = 0; i < CountMin; i++)
+        m_Prop.Item(0)->Item(i)->SetValue(Var.Get().Min[i]);
+
+    for (unsigned int i = 0; i < CountMax; i++)
+        m_Prop.Item(1)->Item(i)->SetValue(Var.Get().Max[i]);
 }
 
 
@@ -705,6 +791,53 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<Vector3fT>& Var
 }
 
 
+void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<Vector3dT>& Var)
+{
+    Vector3dT v;
+
+    assert(!Var.HasFlag("IsColor"));    // User code should really use a Vector3fT instead.
+
+    // This is a "<composed>" property, and its summary string is changing.
+    // For example, the value could be changing from "100.0; 0.0; 50.0" to "100.0; 150; 200.0".
+    wxStringTokenizer Tokenizer(m_Event.GetValue().GetString(), "; \t\r\n", wxTOKEN_STRTOK);
+
+    for (unsigned int i = 0; i < 3; i++)
+    {
+        // On error, return with m_Ok == false.
+        if (!Tokenizer.HasMoreTokens()) return;
+        if (!Tokenizer.GetNextToken().ToCDouble(&v[i])) return;
+    }
+
+    if (Tokenizer.HasMoreTokens()) return;
+
+    wxASSERT(m_Command == NULL);
+    m_Command = new CommandSetCompVarT<Vector3dT>(m_DocAdapter, Var, v);
+}
+
+
+void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<BoundingBox3dT>& Var)
+{
+    BoundingBox3dT BB;
+
+    // This is a "<composed>" property, and its summary string is changing.
+    // For example, the value could be changing from "100.0; 0.0; 50.0" to "100.0; 150; 200.0".
+    wxStringTokenizer Tokenizer(m_Event.GetValue().GetString(), "; \t\r\n", wxTOKEN_STRTOK);
+
+/*   TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    for (unsigned int i = 0; i < 3; i++)
+    {
+        // On error, return with m_Ok == false.
+        if (!Tokenizer.HasMoreTokens()) return;
+        if (!Tokenizer.GetNextToken().ToCDouble(&v[i])) return;
+    } */
+
+    if (Tokenizer.HasMoreTokens()) return;
+
+    wxASSERT(m_Command == NULL);
+    m_Command = new CommandSetCompVarT<BoundingBox3dT>(m_DocAdapter, Var, BB);
+}
+
+
 void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var)
 {
     ArrayT<std::string> A;
@@ -786,6 +919,42 @@ void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<Vector3fT>& Var)
 
     wxASSERT(m_Command == NULL);
     m_Command = new CommandSetCompVarT<Vector3fT>(m_DocAdapter, Var, v);
+}
+
+
+void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<Vector3dT>& Var)
+{
+    wxASSERT(!Var.HasFlag("IsColor"));
+
+    Vector3dT          v = Var.Get();
+    const unsigned int i = m_Event.GetProperty()->GetIndexInParent();
+
+    // On error, return with m_Ok == false.
+    if (i >= 3) return;
+
+    v[i] = m_Event.GetValue().GetDouble();
+
+    wxASSERT(m_Command == NULL);
+    m_Command = new CommandSetCompVarT<Vector3dT>(m_DocAdapter, Var, v);
+}
+
+
+void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<BoundingBox3dT>& Var)
+{
+    BoundingBox3dT     BB = Var.Get();
+    const unsigned int i  = m_Event.GetProperty()->GetIndexInParent();
+
+    // On error, return with m_Ok == false.
+    if (i >= 3) return;
+    if (!m_Event.GetProperty()->GetParent()) return;
+
+    if (m_Event.GetProperty()->GetParent()->GetIndexInParent() == 0)
+        BB.Min[i] = m_Event.GetValue().GetDouble();
+    else
+        BB.Max[i] = m_Event.GetValue().GetDouble();
+
+    wxASSERT(m_Command == NULL);
+    m_Command = new CommandSetCompVarT<BoundingBox3dT>(m_DocAdapter, Var, BB);
 }
 
 

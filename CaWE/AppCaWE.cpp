@@ -347,6 +347,8 @@ namespace
         void visit(const cf::TypeSys::VarT<std::string>& Var);
         void visit(const cf::TypeSys::VarT<Vector2fT>& Var);
         void visit(const cf::TypeSys::VarT<Vector3fT>& Var);
+        void visit(const cf::TypeSys::VarT<Vector3dT>& Var);
+        void visit(const cf::TypeSys::VarT<BoundingBox3dT>& Var);
         void visit(const cf::TypeSys::VarT< ArrayT<std::string> >& Var);
 
 
@@ -381,6 +383,14 @@ namespace
     }
 
 
+    template<> std::string VarVisitorGetLuaTypeStringT::GetChoicesString(const cf::TypeSys::VarT<BoundingBox3dT>& Var)
+    {
+        // We have no operator << that could take entire BoundingBox3dT as input,
+        // so just specialize in order to ignore this case at this time.
+        return "";
+    }
+
+
     template<> std::string VarVisitorGetLuaTypeStringT::GetChoicesString(const cf::TypeSys::VarT< ArrayT<std::string> >& Var)
     {
         // We have no operator << that could take entire ArrayT<std::string> as input,
@@ -397,6 +407,8 @@ namespace
     void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<std::string>& Var)           { m_CppType = "std::string";         m_LuaType = "string";  m_Choices = GetChoicesString(Var); }
     void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<Vector2fT>& Var)             { m_CppType = "Vector2fT";           m_LuaType = "tuple";   m_Choices = GetChoicesString(Var); }
     void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<Vector3fT>& Var)             { m_CppType = "Vector3fT";           m_LuaType = "tuple";   m_Choices = GetChoicesString(Var); }
+    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<Vector3dT>& Var)             { m_CppType = "Vector3dT";           m_LuaType = "tuple";   m_Choices = GetChoicesString(Var); }
+    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<BoundingBox3dT>& Var)        { m_CppType = "BoundingBox3dT";      m_LuaType = "tuple";   m_Choices = GetChoicesString(Var); }
     void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT< ArrayT<std::string> >& Var) { m_CppType = "ArrayT<std::string>"; m_LuaType = "table";   m_Choices = GetChoicesString(Var); }
 
 

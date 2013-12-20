@@ -49,6 +49,8 @@ class VarVisitorAddPropT : public cf::TypeSys::VisitorT
     void visit(cf::TypeSys::VarT<std::string>& Var);
     void visit(cf::TypeSys::VarT<Vector2fT>& Var);
     void visit(cf::TypeSys::VarT<Vector3fT>& Var);
+    void visit(cf::TypeSys::VarT<Vector3dT>& Var);
+    void visit(cf::TypeSys::VarT<BoundingBox3dT>& Var);
     void visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var);
 
 
@@ -77,6 +79,8 @@ class VarVisitorUpdatePropT : public cf::TypeSys::VisitorConstT
     void visit(const cf::TypeSys::VarT<std::string>& Var);
     void visit(const cf::TypeSys::VarT<Vector2fT>& Var);
     void visit(const cf::TypeSys::VarT<Vector3fT>& Var);
+    void visit(const cf::TypeSys::VarT<Vector3dT>& Var);
+    void visit(const cf::TypeSys::VarT<BoundingBox3dT>& Var);
     void visit(const cf::TypeSys::VarT< ArrayT<std::string> >& Var);
 
 
@@ -105,6 +109,8 @@ class VarVisitorHandlePropChangingEventT : public cf::TypeSys::VisitorT
     void visit(cf::TypeSys::VarT<std::string>& Var);
     void visit(cf::TypeSys::VarT<Vector2fT>& Var);
     void visit(cf::TypeSys::VarT<Vector3fT>& Var);
+    void visit(cf::TypeSys::VarT<Vector3dT>& Var);
+    void visit(cf::TypeSys::VarT<BoundingBox3dT>& Var);
     void visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var);
 
 
@@ -136,6 +142,8 @@ class VarVisitorHandleSubChangingEventT : public cf::TypeSys::VisitorT
     void visit(cf::TypeSys::VarT<std::string>& Var);
     void visit(cf::TypeSys::VarT<Vector2fT>& Var);
     void visit(cf::TypeSys::VarT<Vector3fT>& Var);
+    void visit(cf::TypeSys::VarT<Vector3dT>& Var);
+    void visit(cf::TypeSys::VarT<BoundingBox3dT>& Var);
     void visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var);
 
 
