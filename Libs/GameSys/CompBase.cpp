@@ -91,6 +91,32 @@ ComponentBaseT::~ComponentBaseT()
 }
 
 
+bool ComponentBaseT::InitClientApprox(const char* VarName)  // This method also has a twin for script code!
+{
+    cf::TypeSys::VarBaseT* Var = m_MemberVars.Find(VarName);
+
+    if (!Var)
+        return false;
+
+    // TODO: Only do this if we're in a client world!
+    // No need to do it on the server, in CaWE, or the map compile tools.
+
+    for (unsigned int caNr = 0; caNr < m_ClientApprox.Size(); caNr++)
+        if (Var == m_ClientApprox[caNr]->GetVar())
+            return false;
+
+    VarVisitorGetApproxT VarVisGetApprox;
+    Var->accept(VarVisGetApprox);
+    ApproxBaseT* Approx = VarVisGetApprox.TransferApprox();
+
+    if (!Approx)
+        return false;
+
+    m_ClientApprox.PushBack(Approx);
+    return true;
+}
+
+
 bool ComponentBaseT::CallLuaMethod(const char* MethodName, int NumExtraArgs, const char* Signature, ...)
 {
     va_list vl;
@@ -432,7 +458,7 @@ static const cf::TypeSys::MethsDocT META_InitClientApprox =
     "", "(string VarName)"
 };
 
-int ComponentBaseT::InitClientApprox(lua_State* LuaState)
+int ComponentBaseT::InitClientApprox(lua_State* LuaState)   // This method also has a twin for C++ code!
 {
     ScriptBinderT                 Binder(LuaState);
     IntrusivePtrT<ComponentBaseT> Comp    = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(1);

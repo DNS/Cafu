@@ -109,6 +109,12 @@ namespace cf
                 v->Set(Value);
             }
 
+            /// Registers the member variable with the given name for interpolation over client
+            /// frames in order to bridge the larger intervals between server frames.
+            /// This method only works with variables whose related type is `float`, `double`,
+            /// `Vector2fT`, `Vector3fT` or `Vector3dT`.
+            bool InitClientApprox(const char* VarName);
+
             /// Calls the given Lua method of this component.
             /// This method is analogous to UniScriptStateT::CallMethod(), see there for details.
             /// @param MethodName     The name of the Lua method to call.
