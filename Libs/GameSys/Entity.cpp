@@ -402,7 +402,9 @@ void EntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
             const cf::TypeSys::TypeInfoT* TI = GetComponentTIM().FindTypeInfoByNr(CompTypeNr);
             IntrusivePtrT<ComponentBaseT> Comp(static_cast<ComponentBaseT*>(TI->CreateInstance(cf::TypeSys::CreateParamsT())));
 
-            m_Components.PushBack(Comp);
+            // Add the component, updating the dependencies as required.
+            // (This is not efficient whenever multiple components are added...)
+            AddComponent(Comp);
         }
 
         if (m_Components[CompNr]->GetType()->TypeNr != CompTypeNr)
@@ -411,7 +413,10 @@ void EntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
             const cf::TypeSys::TypeInfoT* TI = GetComponentTIM().FindTypeInfoByNr(CompTypeNr);
             IntrusivePtrT<ComponentBaseT> Comp(static_cast<ComponentBaseT*>(TI->CreateInstance(cf::TypeSys::CreateParamsT())));
 
-            m_Components[CompNr] = Comp;
+            // Replace the component, updating the dependencies as required.
+            // (This is not efficient whenever multiple components are replaced...)
+            DeleteComponent(CompNr);
+            AddComponent(Comp, CompNr);
         }
 
         m_Components[CompNr]->Deserialize(Stream, IsIniting);
