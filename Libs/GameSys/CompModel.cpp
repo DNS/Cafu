@@ -607,7 +607,24 @@ void ComponentModelT::DoServerFrame(float t)
 void ComponentModelT::DoClientFrame(float t)
 {
     if (GetPose())
-        GetPose()->GetAnimExpr()->AdvanceTime(t);
+    {
+        IntrusivePtrT<AnimExpressionT>   AnimExpr = GetPose()->GetAnimExpr();
+        IntrusivePtrT<AnimExprStandardT> StdAE = dynamic_pointer_cast<AnimExprStandardT>(AnimExpr);
+
+        if (StdAE != NULL)
+        {
+            const float OldFrameNr = StdAE->GetFrameNr();
+
+            AnimExpr->AdvanceTime(t);
+
+            if (StdAE->GetFrameNr() < OldFrameNr)
+                CallLuaMethod("OnSequenceWrap", 0);
+        }
+        else
+        {
+            AnimExpr->AdvanceTime(t);
+        }
+    }
 
     if (GetGui() != NULL)
         GetGui()->DistributeClockTickEvents(t);
