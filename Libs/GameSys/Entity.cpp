@@ -384,17 +384,24 @@ void EntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
     // The right solution would be to add some PostDeserialize() method instead (and some PostThink() as well).
     if (m_App != NULL) m_App->Deserialize(Stream, IsIniting);
 
+
     // Deserialize the "custom" components.
     uint8_t NumComponents = 0;
     Stream >> NumComponents;
 
     while (m_Components.Size() > NumComponents)
-        m_Components.DeleteBack();
+    {
+        // Remove any extra components, updating the dependencies as required.
+        // (This is not efficient whenever multiple components are removed...)
+        DeleteComponent(m_Components.Size() - 1);
+    }
 
     for (unsigned int CompNr = 0; CompNr < NumComponents; CompNr++)
     {
         uint8_t CompTypeNr = 0;
         Stream >> CompTypeNr;
+
+        bool IsNew = false;
 
         if (CompNr >= m_Components.Size())
         {
@@ -405,6 +412,7 @@ void EntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
             // Add the component, updating the dependencies as required.
             // (This is not efficient whenever multiple components are added...)
             AddComponent(Comp);
+            IsNew = true;
         }
 
         if (m_Components[CompNr]->GetType()->TypeNr != CompTypeNr)
@@ -417,10 +425,19 @@ void EntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
             // (This is not efficient whenever multiple components are replaced...)
             DeleteComponent(CompNr);
             AddComponent(Comp, CompNr);
+            IsNew = true;
         }
 
         m_Components[CompNr]->Deserialize(Stream, IsIniting);
+
+        if (IsNew)
+        {
+            // The component was newly added to an entity that exists in a live map.
+            // Consequently, we must run the post-load stuff here.
+            m_Components[CompNr]->OnPostLoad(false);
+        }
     }
+
 
     // Recursively deserialize the children (if requested).
     bool WithChildren = false;
