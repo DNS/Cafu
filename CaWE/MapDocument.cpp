@@ -835,6 +835,14 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             Ent->AddComponent(SoundComp);
         }
 
+        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "monster_facehugger")
+        {
+            // Well, I don't think that we have any such entities in any of our maps, because
+            // they're normally only created dynamically, when the player throws them by firing
+            // the related weapon.
+            wxMessageBox("Unexpected \"" + MapEnt->GetClass()->GetName() + "\" entity found in the map!");
+        }
+
         if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "PointLight")
         {
             IntrusivePtrT<cf::GameSys::ComponentRadiosityLightT> RadiosityLight = new cf::GameSys::ComponentRadiosityLightT();
