@@ -67,6 +67,7 @@ namespace cf
             // The Lua API methods of this class.
             static int InitEventTypes(lua_State* LuaState);
             static int PostEvent(lua_State* LuaState);
+            static int DamageAll(lua_State* LuaState);
             static int toString(lua_State* LuaState);
 
             static const luaL_Reg               MethodsList[];  ///< The list of Lua methods for this class.

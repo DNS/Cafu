@@ -228,6 +228,68 @@ int ComponentScriptT::PostEvent(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_DamageAll =
+{
+    "DamageAll",
+    "Inflicts damage to nearby entities.\n"
+    "\n"
+    "This function finds all entities that are close to this (within a distance of `OuterRadius`,\n"
+    "excluding this entity itself) and have a ComponentScriptT component.\n"
+    "It then calls that script component's TakeDamage() method in order to apply the damage accordingly.\n"
+    "\n"
+    "@param Damage        The maximum damage to apply to nearby entities.\n"
+    "@param InnerRadius   Entities that are closer than `InnerRaduis` are damaged by the full amount of `Damage`.\n"
+    "@param OuterRadius   Entities that are farther than `OuterRadius` are not damaged at all.\n"
+    "\n"
+    "The damage that is inflicted to entities that are between `InnerRaduis` and `OuterRadius`\n"
+    "is linearly scaled from `Damage` to 0. Entities must implement the TakeDamage() script callback\n"
+    "method in order to actually process the inflicted damage.",
+    "", "(number Damage, number InnerRadius, number OuterRadius)"
+};
+
+int ComponentScriptT::DamageAll(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<ComponentScriptT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentScriptT> >(1);
+
+    const float DamageAmount = float(luaL_checknumber(LuaState, 2));
+    const float InnerRadius  = float(luaL_checknumber(LuaState, 3));
+    const float OuterRadius  = float(luaL_checknumber(LuaState, 4));
+
+    if (!Comp->GetEntity())
+        luaL_error(LuaState, "The component must be added to an entity before this function can be called.");
+
+    IntrusivePtrT<EntityT> This = Comp->GetEntity();
+    ArrayT< IntrusivePtrT<EntityT> > Entities;
+
+    This->GetWorld().GetRootEntity()->GetAll(Entities);
+
+    for (unsigned int EntNr = 0; EntNr < Entities.Size(); EntNr++)
+    {
+        IntrusivePtrT<EntityT>          OtherEnt    = Entities[EntNr];
+        IntrusivePtrT<ComponentScriptT> OtherScript = dynamic_pointer_cast<ComponentScriptT>(OtherEnt->GetComponent("Script"));
+
+        if (OtherEnt == This) continue;   // We don't damage us ourselves.
+        if (OtherScript.IsNull()) continue;
+
+        const Vector3fT Impact = OtherEnt->GetTransform()->GetOrigin() - This->GetTransform()->GetOrigin();
+        const float     Dist   = length(Impact);
+
+        if (Dist >= OuterRadius) continue;
+
+        // TODO: In order to avoid damaging entities through thin walls, we should also perform a simple "visibility test".
+        ScriptBinderT OtherBinder(OtherEnt->GetWorld().GetScriptState().GetLuaState());
+
+        OtherBinder.Push(This);
+        OtherScript->CallLuaMethod("TakeDamage", 1, "ff",
+            DamageAmount * (1.0f - (std::max(InnerRadius, Dist) - InnerRadius)/(OuterRadius - InnerRadius)),
+            scale(Impact, 1.0f/Dist));
+    }
+
+    return 0;
+}
+
+
 static const cf::TypeSys::MethsDocT META_toString =
 {
     "__tostring",
@@ -258,6 +320,7 @@ const luaL_Reg ComponentScriptT::MethodsList[] =
 {
     { "InitEventTypes", InitEventTypes },
     { "PostEvent",      PostEvent },
+    { "DamageAll",      DamageAll },
     { "__tostring",     toString },
     { NULL, NULL }
 };
@@ -266,6 +329,7 @@ const cf::TypeSys::MethsDocT ComponentScriptT::DocMethods[] =
 {
     META_InitEventTypes,
     META_PostEvent,
+    META_DamageAll,
     META_toString,
     { NULL, NULL, NULL, NULL }
 };
