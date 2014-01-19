@@ -79,6 +79,7 @@ void CaServerWorldT::RemoveEntity(unsigned long EntityID)
         // Currently not thinking, so it should be safe to remove the entity immediately.
         if (EntityID < m_EngineEntities.Size())
         {
+            Console->Print(cf::va("Entity %lu removed (\"%s\") in CaServerWorldT::RemoveEntity().\n", EntityID, m_EngineEntities[EntityID]->GetEntity()->GetBasics()->GetEntityName().c_str()));
             delete m_EngineEntities[EntityID];
             m_EngineEntities[EntityID]=NULL;
         }
@@ -148,10 +149,25 @@ void CaServerWorldT::Think(float FrameTime)
 
 
     // If entities removed other entities (or even themselves!) while thinking, remove them now.
+    for (unsigned long EntNr = 0; EntNr < m_EngineEntities.Size(); EntNr++)
+    {
+        if (m_EngineEntities[EntNr] == NULL) continue;
+
+        IntrusivePtrT<cf::GameSys::EntityT> Ent = m_EngineEntities[EntNr]->GetEntity();
+
+        if (Ent != m_ScriptWorld->GetRootEntity() && Ent->GetParent().IsNull())
+        {
+            Console->Print(cf::va("Entity %lu removed (\"%s\"), it no longer has a parent.\n", EntNr, m_EngineEntities[EntNr]->GetEntity()->GetBasics()->GetEntityName().c_str()));
+            delete m_EngineEntities[EntNr];
+            m_EngineEntities[EntNr]=NULL;
+        }
+    }
+
     for (unsigned long RemoveNr=0; RemoveNr<m_EntityRemoveList.Size(); RemoveNr++)
     {
         const unsigned long EntityID=m_EntityRemoveList[RemoveNr];
 
+        Console->Print(cf::va("Entity %lu removed (\"%s\") via m_EntityRemoveList.\n", EntityID, m_EngineEntities[EntityID]->GetEntity()->GetBasics()->GetEntityName().c_str()));
         delete m_EngineEntities[EntityID];
         m_EngineEntities[EntityID]=NULL;
     }
