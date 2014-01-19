@@ -119,7 +119,7 @@ void ComponentPlayerPhysicsT::DoServerFrame(float t)
 /// Bestimme unsere PosCat innerhalb der World.
 ComponentPlayerPhysicsT::PosCatT ComponentPlayerPhysicsT::CategorizePosition() const
 {
-    // Bestimme die Brushes in der unmittelbaren Nähe unserer BB, insb. diejenigen unter uns. Bloate gemäß unserer Dimensions-BoundingBox.
+    // Bestimme die Brushes in der unmittelbaren NÃ¤he unserer BB, insb. diejenigen unter uns. Bloate gemÃ¤ÃŸ unserer Dimensions-BoundingBox.
     cf::ClipSys::TraceResultT Trace(1.0);
     m_ClipWorld->TraceBoundingBox(m_Dimensions.Get(), m_Origin, Vector3dT(0.0, 0.0, -0.1), MaterialT::Clip_Players, m_IgnoreClipModel, Trace);
 
@@ -148,7 +148,7 @@ ComponentPlayerPhysicsT::PosCatT ComponentPlayerPhysicsT::CategorizePosition() c
 }
 
 
-/// Ändert die Velocity gemäß der Reibung.
+/// Ã„ndert die Velocity gemÃ¤ÃŸ der Reibung.
 void ComponentPlayerPhysicsT::ApplyFriction(double FrameTime, PosCatT PosCat)
 {
     const double GroundFriction = 4.0;
@@ -187,7 +187,7 @@ void ComponentPlayerPhysicsT::ApplyFriction(double FrameTime, PosCatT PosCat)
 }
 
 
-/// Ändert die Velocity gemäß der Beschleunigung.
+/// Ã„ndert die Velocity gemÃ¤ÃŸ der Beschleunigung.
 void ComponentPlayerPhysicsT::ApplyAcceleration(double FrameTime, PosCatT PosCat, const Vector3dT& WishVelocity)
 {
     const double AirAcceleration   = 0.7;
@@ -302,7 +302,7 @@ void ComponentPlayerPhysicsT::FlyMove(double TimeLeft)
         }
 
         // If Velocity is against the OriginalVelocity, stop dead to avoid tiny occilations in sloping corners
-        // (es scheint nicht, als das dies jemals passieren könnte und wir jemals zum if-Code kommen?!?).
+        // (es scheint nicht, als das dies jemals passieren kÃ¶nnte und wir jemals zum if-Code kommen?!?).
         if (dot(m_Vel, OriginalVelocity)<=0)
         {
             m_Vel = Vector3dT(0, 0, 0);
@@ -315,10 +315,10 @@ void ComponentPlayerPhysicsT::FlyMove(double TimeLeft)
 /// MassChunk is on ground, with no upwards velocity
 void ComponentPlayerPhysicsT::GroundMove(double FrameTime, double StepHeight)
 {
-    // m_Vel.z=0;        // Ganz sicher gehen, daß wir an der Höhe wirklich nichts ändern
+    // m_Vel.z=0;        // Ganz sicher gehen, daÃŸ wir an der HÃ¶he wirklich nichts Ã¤ndern
     if (!m_Vel.x && !m_Vel.y && !m_Vel.z) return;
 
-    // Zunächst versuchen, das Ziel direkt zu erreichen
+    // ZunÃ¤chst versuchen, das Ziel direkt zu erreichen
     const Vector3dT           DistLeft = scale(m_Vel, FrameTime);
     cf::ClipSys::TraceResultT Trace(1.0);
 
@@ -330,8 +330,8 @@ void ComponentPlayerPhysicsT::GroundMove(double FrameTime, double StepHeight)
         return;
     }
 
-    // Versuche auf dem Boden sowie StepHeight Units höher vorwärts zu gleiten,
-    // und nimm die Bewegung, die am weitesten führt.
+    // Versuche auf dem Boden sowie StepHeight Units hÃ¶her vorwÃ¤rts zu gleiten,
+    // und nimm die Bewegung, die am weitesten fÃ¼hrt.
     Vector3dT OriginalPos = m_Origin;
     Vector3dT OriginalVel = m_Vel;
 
@@ -393,9 +393,9 @@ void ComponentPlayerPhysicsT::MoveHuman(float FrameTime, unsigned short Heading,
                                         const Vector3dT& WishVelLadder, bool WishJump, bool& OldWishJump, double StepHeight)
 {
     // 1. Die Positions-Kategorie des MassChunks bestimmen:
-    //    Wir können uns in der Luft befinden (im Flug/freien Fall oder schwebend im Wasser),
-    //    oder auf einem Entity stehen (dazu gehören die Map, alle Objekte wie Türen usw., Monster und andere Spieler).
-    //    Unabhängig davon kann in beiden Fällen das Wasser verschieden hoch stehen.
+    //    Wir kÃ¶nnen uns in der Luft befinden (im Flug/freien Fall oder schwebend im Wasser),
+    //    oder auf einem Entity stehen (dazu gehÃ¶ren die Map, alle Objekte wie TÃ¼ren usw., Monster und andere Spieler).
+    //    UnabhÃ¤ngig davon kann in beiden FÃ¤llen das Wasser verschieden hoch stehen.
     PosCatT PosCat=CategorizePosition();
 
 
@@ -461,7 +461,7 @@ void ComponentPlayerPhysicsT::MoveHuman(float FrameTime, unsigned short Heading,
     {
         // 3. Neubestimmen der Velocity - Physics
         //    Die neue Velocity des MassChunks ergibt sich aus (fast) allen Variablen,
-        //    die uns innerhalb der Klasse und dieser Funktion zur Verfügung stehen.
+        //    die uns innerhalb der Klasse und dieser Funktion zur VerfÃ¼gung stehen.
 
         // 3.1. Deal with WishJump
         //      Consider all eight possibilities and the actions to be taken:
@@ -486,7 +486,7 @@ void ComponentPlayerPhysicsT::MoveHuman(float FrameTime, unsigned short Heading,
                 {
                     // Jump
                     PosCat=InAir;
-                    m_Vel.z += 219.0;  // v=sqrt(2*a*s), mit a = 9.81m/s^2 und mit s = 44" = 44*0.026m = 1.144m für normalen Jump, und s = 62" = 1.612m für crouch-Jump.
+                    m_Vel.z += 219.0;  // v=sqrt(2*a*s), mit a = 9.81m/s^2 und mit s = 44" = 44*0.026m = 1.144m fÃ¼r normalen Jump, und s = 62" = 1.612m fÃ¼r crouch-Jump.
                 }
             }
         }
@@ -500,7 +500,7 @@ void ComponentPlayerPhysicsT::MoveHuman(float FrameTime, unsigned short Heading,
 
 
     // 4. Umsetzen der Bewegung in der World, so gut es geht.
-    //    Bestimme dazu alle Brushes, die unsere Bewegung evtl. behindern könnten, gebloated gemäß unserer Dimensions-BoundingBox.
+    //    Bestimme dazu alle Brushes, die unsere Bewegung evtl. behindern kÃ¶nnten, gebloated gemÃ¤ÃŸ unserer Dimensions-BoundingBox.
     switch (PosCat)
     {
         case InAir:   FlyMove   (FrameTime);             break;

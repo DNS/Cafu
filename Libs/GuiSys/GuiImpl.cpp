@@ -215,8 +215,8 @@ void GuiImplT::LoadScript(const std::string& GuiScriptName, int Flags)
     const int LoadResult = (Flags & InitFlag_InlineCode) ? luaL_loadstring(LuaState, GuiScriptName.c_str())
                                                          : luaL_loadfile  (LuaState, GuiScriptName.c_str());
 
-	if (LoadResult != 0)
-	{
+    if (LoadResult != 0)
+    {
         const std::string Msg = "Could not load \"" + PrintScriptName + "\":\n" + lua_tostring(LuaState, -1);
 
         lua_pop(LuaState, 1);
@@ -224,7 +224,7 @@ void GuiImplT::LoadScript(const std::string& GuiScriptName, int Flags)
 
         // The LuaState will be closed by the m_ScriptState.
         throw InitErrorT(Msg);
-	}
+    }
 
     Binder.Push(IntrusivePtrT<GuiImplT>(this));
 
