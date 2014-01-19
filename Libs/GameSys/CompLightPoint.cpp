@@ -78,7 +78,10 @@ ComponentPointLightT::ComponentPointLightT()
       m_On("On", true),
       m_Color("Color", Vector3fT(1.0f, 0.95f, 0.8f), FlagsIsColor),
       m_Radius("Radius", 128.0f),
-      m_ShadowType("ShadowType", VarShadowTypeT::NONE)
+      m_ShadowType("ShadowType", VarShadowTypeT::NONE),
+      m_UseClientEffects(false),
+      m_ClientColor(m_Color.Get()),
+      m_ClientRadius(m_Radius.Get())
 {
     GetMemberVars().Add(&m_On);
     GetMemberVars().Add(&m_Color);
@@ -92,7 +95,10 @@ ComponentPointLightT::ComponentPointLightT(const ComponentPointLightT& Comp)
       m_On(Comp.m_On),
       m_Color(Comp.m_Color),
       m_Radius(Comp.m_Radius),
-      m_ShadowType(Comp.m_ShadowType)
+      m_ShadowType(Comp.m_ShadowType),
+      m_UseClientEffects(false),
+      m_ClientColor(m_Color.Get()),
+      m_ClientRadius(m_Radius.Get())
 {
     GetMemberVars().Add(&m_On);
     GetMemberVars().Add(&m_Color);
@@ -104,6 +110,17 @@ ComponentPointLightT::ComponentPointLightT(const ComponentPointLightT& Comp)
 ComponentPointLightT* ComponentPointLightT::Clone() const
 {
     return new ComponentPointLightT(*this);
+}
+
+
+void ComponentPointLightT::DoClientFrame(float t)
+{
+    bool Result = false;
+
+    const bool HaveClEff = CallLuaMethod("ClientEffect", 0, "f>bffff", t,
+        &Result, &m_ClientColor.x, &m_ClientColor.y, &m_ClientColor.z, &m_ClientRadius);
+
+    m_UseClientEffects = HaveClEff && Result;
 }
 
 

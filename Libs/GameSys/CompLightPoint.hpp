@@ -56,14 +56,15 @@ namespace cf
             ComponentPointLightT(const ComponentPointLightT& Comp);
 
             bool IsOn() const { return m_On.Get(); }
-            Vector3fT GetColor() const { return m_Color.Get(); }
-            float GetRadius() const { return m_Radius.Get(); }
+            Vector3fT GetColor() const { return m_UseClientEffects ? m_ClientColor : m_Color.Get(); }
+            float GetRadius() const { return m_UseClientEffects ? m_ClientRadius : m_Radius.Get(); }
             bool CastsShadows() const { return m_ShadowType.Get() != VarShadowTypeT::NONE; }
 
 
             // Base class overrides.
             ComponentPointLightT* Clone() const;
             const char* GetName() const { return "PointLight"; }
+            void DoClientFrame(float t);
 
 
             // The TypeSys related declarations for this class.
@@ -89,6 +90,10 @@ namespace cf
             TypeSys::VarT<Vector3fT> m_Color;
             TypeSys::VarT<float>     m_Radius;
             VarShadowTypeT           m_ShadowType;
+
+            bool                     m_UseClientEffects;
+            Vector3fT                m_ClientColor;
+            float                    m_ClientRadius;
         };
     }
 }
