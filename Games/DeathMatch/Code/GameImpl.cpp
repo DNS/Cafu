@@ -40,7 +40,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Corpse.hpp"
 #include "FuncDoor.hpp"
 #include "FuncLadder.hpp"
-#include "HandGrenade.hpp"
 #include "HumanPlayer.hpp"
 #include "InfoGeneric.hpp"
 #include "InfoPlayerStart.hpp"
@@ -106,7 +105,6 @@ namespace GAME_NAME
         &EntCorpseT::TypeInfo,
         &EntFuncDoorT::TypeInfo,
         &EntFuncLadderT::TypeInfo,
-        &EntHandGrenadeT::TypeInfo,
         &EntHumanPlayerT::TypeInfo,
         &EntInfoGenericT::TypeInfo,
         &EntInfoPlayerStartT::TypeInfo,
