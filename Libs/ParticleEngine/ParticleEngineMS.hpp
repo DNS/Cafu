@@ -27,6 +27,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_PARTICLE_ENGINE_MATSYS_HPP_INCLUDED
 #define CAFU_PARTICLE_ENGINE_MATSYS_HPP_INCLUDED
 
+#include "Templates/Array.hpp"
+
 
 namespace MatSys { class RenderMaterialT; }
 struct ParticleMST;
@@ -40,17 +42,18 @@ typedef bool (*ParticleMoveFunctionMST)(ParticleMST* Particle, float Time);
 /// This structure describes a single particle.
 struct ParticleMST
 {
-    float                    Origin[3];     ///< Origin of the particle in Cafu world coordinates.
-    float                    Velocity[3];   ///< Velocity vector of the particle.
-    float                    Age;           ///< Age of the particle, in seconds.
-    unsigned char            Color[4];      ///< ?? REMOVE (MatSys respects ambient light color already) ??    The RGBA color with which this particles texture is modulated.
-    float                    Radius;        ///< Billboard radius in world coords.
-    unsigned char            Rotation;      ///< Rotation angle of the billboard in the "screen plane". A value of 256 corresponds to 360 degrees.
- // bool                     AsBillboard;   ///< Is this particle drawn as a billboard, or in world coordinates? (In the latter case we also need more data, e.g. a normal.)
-    float                    StretchY;      ///< Length of the Y-axis relative to the X-axis, e.g. for sparks, flashes etc.
-    MatSys::RenderMaterialT* RenderMat;     ///< The particles RenderMaterial ID.
-    ParticleMoveFunctionMST  MoveFunction;  ///< Pointer to the function that moves this particle through time.
-    float                    AuxData[8];    ///< Auxiliary particle data.
+    float                             Origin[3];    ///< Origin of the particle in Cafu world coordinates.
+    float                             Velocity[3];  ///< Velocity vector of the particle.
+    float                             Age;          ///< Age of the particle, in seconds.
+    unsigned char                     Color[4];     ///< ?? REMOVE (MatSys respects ambient light color already) ??    The RGBA color with which this particles texture is modulated.
+    float                             Radius;       ///< Billboard radius in world coords.
+    unsigned char                     Rotation;     ///< Rotation angle of the billboard in the "screen plane". A value of 256 corresponds to 360 degrees.
+ // bool                              AsBillboard;  ///< Is this particle drawn as a billboard, or in world coordinates? (In the latter case we also need more data, e.g. a normal.)
+    float                             StretchY;     ///< Length of the Y-axis relative to the X-axis, e.g. for sparks, flashes etc.
+    ArrayT<MatSys::RenderMaterialT*>* AllRMs;       ///< The list of all render materials possibly used with this particle.
+    MatSys::RenderMaterialT*          RenderMat;    ///< The particles RenderMaterial ID.
+    ParticleMoveFunctionMST           MoveFunction; ///< Pointer to the function that moves this particle through time.
+    float                             AuxData[8];   ///< Auxiliary particle data.
 };
 
 

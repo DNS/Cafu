@@ -50,8 +50,6 @@ ComponentParticleSystemOldT::ComponentParticleSystemOldT()
       m_Type("Type", "")
 {
     GetMemberVars().Add(&m_Type);
-
-    InitRenderMats();
 }
 
 
@@ -60,8 +58,6 @@ ComponentParticleSystemOldT::ComponentParticleSystemOldT(const ComponentParticle
       m_Type(Comp.m_Type)
 {
     GetMemberVars().Add(&m_Type);
-
-    InitRenderMats();
 }
 
 
@@ -82,6 +78,43 @@ ComponentParticleSystemOldT* ComponentParticleSystemOldT::Clone() const
 
 void ComponentParticleSystemOldT::InitRenderMats()
 {
+    if (m_RenderMats.Size() > 0) return;    // Already inited?
+
+    char ParticleName[256];
+
+    if (m_Type.Get() == "X")
+    {
+        for (unsigned int FrameNr = 0; FrameNr < 26; FrameNr++)
+        {
+            sprintf(ParticleName, "Sprites/expl1/expl_%02lu", FrameNr+1);
+            m_RenderMats.PushBack(MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial(ParticleName)));
+        }
+    }
+    else if (m_Type.Get() == "Y")
+    {
+        for (unsigned int FrameNr = 0; FrameNr < 55; FrameNr++)
+        {
+            sprintf(ParticleName, "Sprites/expl4/expl_%02lu", FrameNr+1);
+            m_RenderMats.PushBack(MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial(ParticleName)));
+        }
+    }
+    else if (m_Type.Get() == "Z")
+    {
+        for (unsigned int FrameNr = 0; FrameNr < 32; FrameNr++)
+        {
+            sprintf(ParticleName, "Sprites/smoke1/smoke_%02lu", FrameNr+1);
+            m_RenderMats.PushBack(MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial(ParticleName)));
+        }
+    }
+    else if (m_Type.Get() == "HandGrenade_Expl_main")
+    {
+        for (unsigned int FrameNr = 0; FrameNr < 27; FrameNr++)
+        {
+            sprintf(ParticleName, "Sprites/expl3/expl_%02lu", FrameNr+1);
+            m_RenderMats.PushBack(MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial(ParticleName)));
+        }
+    }
+    else  // FaceHugger, HandGrenade_Expl_sparkle, ...
     {
         m_RenderMats.PushBack(MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("Sprites/Generic1")));
     }
@@ -90,6 +123,43 @@ void ComponentParticleSystemOldT::InitRenderMats()
 
 namespace
 {
+    bool ParticleFunction_HandGrenadeExplMain(ParticleMST* Particle, float Time)
+    {
+        const float FPS    = 18.0f;     // The default value is 20.0.
+        const float MaxAge = 27.0f/FPS; // 27 frames at 18 FPS.
+
+        const unsigned long MatNr = (unsigned long)(Particle->Age * FPS);
+        assert(MatNr < Particle->AllRMs->Size());
+        Particle->RenderMat = (*Particle->AllRMs)[MatNr];
+
+        Particle->Age += Time;
+        if (Particle->Age >= MaxAge) return false;
+
+        return true;
+    }
+
+
+    bool ParticleFunction_HandGrenadeExplSparkle(ParticleMST* Particle, float Time)
+    {
+        const float MaxAge = 0.7f;
+
+        Particle->Age += Time;
+        if (Particle->Age > MaxAge) return false;
+
+        Particle->Origin[0]+=Particle->Velocity[0]*Time;
+        Particle->Origin[1]+=Particle->Velocity[1]*Time;
+        Particle->Origin[2]+=Particle->Velocity[2]*Time;
+
+        Particle->Velocity[0]*=0.98f;   // TODO: Deceleration should depend on 'Time'...
+        Particle->Velocity[1]*=0.98f;
+        Particle->Velocity[2]-=2.0f*392.4f*Time;     // double gravity...
+
+        Particle->Color[0]=char(255.0f*(MaxAge-Particle->Age)/MaxAge);
+        Particle->Color[1]=char(255.0f*(MaxAge-Particle->Age)/MaxAge*(MaxAge-Particle->Age)/MaxAge);
+        return true;
+    }
+
+
     bool ParticleMove_FaceHugger(ParticleMST* Particle, float Time)
     {
         const float MaxAge = 3.0f;
@@ -131,35 +201,71 @@ int ComponentParticleSystemOldT::EmitParticle(lua_State* LuaState)
     if (!Comp->GetEntity())
         luaL_error(LuaState, "The component must be added to an entity before this function can be called.");
 
+    Comp->InitRenderMats();
+
     const Vector3fT& Origin = Comp->GetEntity()->GetTransform()->GetOrigin();
 
     // Register a new particle.
-    static ParticleMST TestParticle;
+    static ParticleMST P;
 
+    P.Age       = 0.0;
+    P.StretchY  = 1.0;
+    P.AllRMs    = &Comp->m_RenderMats;
+    P.RenderMat = Comp->m_RenderMats[0];
+
+    if (Comp->m_Type.Get() == "HandGrenade_Expl_main")
     {
-        TestParticle.Origin[0] = Origin.x;
-        TestParticle.Origin[1] = Origin.y;
-        TestParticle.Origin[2] = Origin.z + 8.0f;
+        P.Origin[0] = Origin.x;
+        P.Origin[1] = Origin.y;
+        P.Origin[2] = Origin.z + 8.0f;
 
-        TestParticle.Velocity[0] = 0;
-        TestParticle.Velocity[1] = 0;
-        TestParticle.Velocity[2] = 0;
+        P.Color[0] = 255;
+        P.Color[1] = 255;
+        P.Color[2] = 255;
+        P.Color[3] = 0;
 
-        TestParticle.Age = 0.0;
+        P.Radius = 60.0;
+        P.Rotation = char(rand());
+        P.MoveFunction = ParticleFunction_HandGrenadeExplMain;
+    }
+    else if (Comp->m_Type.Get() == "HandGrenade_Expl_sparkle")
+    {
+        P.Origin[0] = Origin.x;
+        P.Origin[1] = Origin.y;
+        P.Origin[2] = Origin.z;
 
-        TestParticle.Color[0] = 255;
-        TestParticle.Color[1] = 255;
-        TestParticle.Color[2] = 255;
-        TestParticle.Color[3] = 255;
+        P.Velocity[0] = float(rand()-int(RAND_MAX/2)) / 25.0f;
+        P.Velocity[1] = float(rand()-int(RAND_MAX/2)) / 25.0f;
+        P.Velocity[2] = float(rand()) / 25.0f;
 
-        TestParticle.Radius       = 12.0;
-        TestParticle.StretchY     = 1.0;
-        TestParticle.RenderMat    = Comp->m_RenderMats[0];
-        TestParticle.MoveFunction = ParticleMove_FaceHugger;
+        P.Color[0] = 255;
+        P.Color[1] = 255;
+        P.Color[2] = 0;
+        P.Color[3] = 0;
+
+        P.Radius = 12.0;
+        P.MoveFunction = ParticleFunction_HandGrenadeExplSparkle;
+    }
+    else  // "FaceHugger"
+    {
+        P.Origin[0] = Origin.x;
+        P.Origin[1] = Origin.y;
+        P.Origin[2] = Origin.z + 8.0f;
+
+        P.Velocity[0] = 0;
+        P.Velocity[1] = 0;
+        P.Velocity[2] = 0;
+
+        P.Color[0] = 255;
+        P.Color[1] = 255;
+        P.Color[2] = 255;
+        P.Color[3] = 255;
+
+        P.Radius       = 12.0;
+        P.MoveFunction = ParticleMove_FaceHugger;
     }
 
-    ParticleEngineMS::RegisterNewParticle(TestParticle);
-
+    ParticleEngineMS::RegisterNewParticle(P);
     return 0;
 }
 
