@@ -92,7 +92,6 @@ namespace cf
             void ObsoleteForceKill();
 
             /// Assigns the given GUI to the global "gui" and loads the given script in order to initialize it.
-            /// @param Gui          The GUI to init.
             /// @param ScriptName   The file name of the script to load or inline script code (if InitFlag_InlineCode is set).
             /// @param Flags        A combination of the flags in InitFlagsT.
             /// @throws Throws an InitErrorT object on problems initializing the GUI.
@@ -230,10 +229,10 @@ namespace cf
             static int SetMouseCursorSize(lua_State* LuaState); ///< Sets the size of the mouse cursor.
             static int SetMouseMat(lua_State* LuaState);        ///< Sets the material that is used to render the mouse cursor.
             static int SetMouseIsShown(lua_State* LuaState);    ///< Determines whether the mouse cursor is shown at all.
+            static int CreateNew(lua_State* LuaState);          ///< Creates and returns a new window or component.
             static int SetFocus(lua_State* LuaState);           ///< Sets the keyboard input focus to the given window. Does *not* call the Lua OnFocusLose() or OnFocusGain() scripts!
             static int GetRootWindow(lua_State* LuaState);      ///< Returns the root window of this GUI.
             static int SetRootWindow(lua_State* LuaState);      ///< Sets the root window for this GUI.
-            static int CreateNew(lua_State* LuaState);          ///< Creates and returns a new window or component.
             static int Init(lua_State* LuaState);               ///< Calls the OnInit() script methods of all windows.
             static int toString(lua_State* LuaState);           ///< Returns a string representation of this GUI.
 

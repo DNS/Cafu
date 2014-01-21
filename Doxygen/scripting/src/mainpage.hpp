@@ -52,7 +52,7 @@
  * The related documentation groups such methods in a separate section that is labelled "Event Handlers (Callbacks)".
  *
  * The key feature about these methods is that they are called *automatically*.
- * Whenever the related event occurs, the related C++ code (e.g. the game code or the %GUI system)
+ * Whenever the related event occurs, the related C++ code (e.g. the game code or the GUI system)
  * calls the appropriate event handler.
  *
  * Contrary to "normal" methods, none of these methods is predefined by or pre-implemented,
@@ -60,7 +60,7 @@
  * Instead, with these methods, the roles are reversed:
  * If you're interested in handling a specific event, define (write) the related event handler method.
  *
- * The C++ code (the game code, the %GUI system, etc.) will call it when the related event occurs,
+ * The C++ code (the game code, the GUI system, etc.) will call it when the related event occurs,
  * using the appropriate function parameters for the event (this is similar to overriding virtual methods in C++).
  * Your own implementation code then determines how the event is handled.
  *
@@ -69,10 +69,10 @@
  * Methods for events that you are not interested in need not be implemented at all.
  *
  * Classes that have callback methods include (list may be incomplete!):
- *   - \link GUI::WindowT WindowT\endlink,
- *     \link GUI::ComponentBaseT ComponentBaseT\endlink,
- *     \link GUI::ComponentChoiceT ComponentChoiceT\endlink,
- *     \link GUI::ComponentListBoxT ComponentListBoxT\endlink
+ *   - \link GuiSys::WindowT WindowT\endlink,
+ *     \link GuiSys::ComponentBaseT ComponentBaseT\endlink,
+ *     \link GuiSys::ComponentChoiceT ComponentChoiceT\endlink,
+ *     \link GuiSys::ComponentListBoxT ComponentListBoxT\endlink
  */
 
 

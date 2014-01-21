@@ -1,4 +1,4 @@
-namespace GUI
+namespace GuiSys
 {
 
 
@@ -115,7 +115,7 @@ class ComponentBaseT
 /// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
 /// must be used with the get() and set() methods at this time -- see get() and set() for details.
 ///
-/// If you would like to create a new component of this type explicitly (those defined in the CaWE %GUI Editor are instantiated automatically), use GuiT::new():
+/// If you would like to create a new component of this type explicitly (those defined in the CaWE GUI Editor are instantiated automatically), use GuiT::new():
 /// \code{.lua}
 ///     local comp = gui:new("ComponentBasicsT")
 /// \endcode
@@ -161,7 +161,7 @@ class ComponentBasicsT : public ComponentBaseT
 /// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
 /// must be used with the get() and set() methods at this time -- see get() and set() for details.
 ///
-/// If you would like to create a new component of this type explicitly (those defined in the CaWE %GUI Editor are instantiated automatically), use GuiT::new():
+/// If you would like to create a new component of this type explicitly (those defined in the CaWE GUI Editor are instantiated automatically), use GuiT::new():
 /// \code{.lua}
 ///     local comp = gui:new("ComponentBorderT")
 /// \endcode
@@ -208,7 +208,7 @@ class ComponentBorderT : public ComponentBaseT
 /// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
 /// must be used with the get() and set() methods at this time -- see get() and set() for details.
 ///
-/// If you would like to create a new component of this type explicitly (those defined in the CaWE %GUI Editor are instantiated automatically), use GuiT::new():
+/// If you would like to create a new component of this type explicitly (those defined in the CaWE GUI Editor are instantiated automatically), use GuiT::new():
 /// \code{.lua}
 ///     local comp = gui:new("ComponentChoiceT")
 /// \endcode
@@ -263,7 +263,7 @@ class ComponentChoiceT : public ComponentBaseT
 /// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
 /// must be used with the get() and set() methods at this time -- see get() and set() for details.
 ///
-/// If you would like to create a new component of this type explicitly (those defined in the CaWE %GUI Editor are instantiated automatically), use GuiT::new():
+/// If you would like to create a new component of this type explicitly (those defined in the CaWE GUI Editor are instantiated automatically), use GuiT::new():
 /// \code{.lua}
 ///     local comp = gui:new("ComponentImageT")
 /// \endcode
@@ -310,7 +310,7 @@ class ComponentImageT : public ComponentBaseT
 /// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
 /// must be used with the get() and set() methods at this time -- see get() and set() for details.
 ///
-/// If you would like to create a new component of this type explicitly (those defined in the CaWE %GUI Editor are instantiated automatically), use GuiT::new():
+/// If you would like to create a new component of this type explicitly (those defined in the CaWE GUI Editor are instantiated automatically), use GuiT::new():
 /// \code{.lua}
 ///     local comp = gui:new("ComponentListBoxT")
 /// \endcode
@@ -394,7 +394,7 @@ class ComponentListBoxT : public ComponentBaseT
 /// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
 /// must be used with the get() and set() methods at this time -- see get() and set() for details.
 ///
-/// If you would like to create a new component of this type explicitly (those defined in the CaWE %GUI Editor are instantiated automatically), use GuiT::new():
+/// If you would like to create a new component of this type explicitly (those defined in the CaWE GUI Editor are instantiated automatically), use GuiT::new():
 /// \code{.lua}
 ///     local comp = gui:new("ComponentModelT")
 /// \endcode
@@ -469,7 +469,7 @@ class ComponentModelT : public ComponentBaseT
 /// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
 /// must be used with the get() and set() methods at this time -- see get() and set() for details.
 ///
-/// If you would like to create a new component of this type explicitly (those defined in the CaWE %GUI Editor are instantiated automatically), use GuiT::new():
+/// If you would like to create a new component of this type explicitly (those defined in the CaWE GUI Editor are instantiated automatically), use GuiT::new():
 /// \code{.lua}
 ///     local comp = gui:new("ComponentTextEditT")
 /// \endcode
@@ -533,7 +533,7 @@ class ComponentTextEditT : public ComponentBaseT
 /// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
 /// must be used with the get() and set() methods at this time -- see get() and set() for details.
 ///
-/// If you would like to create a new component of this type explicitly (those defined in the CaWE %GUI Editor are instantiated automatically), use GuiT::new():
+/// If you would like to create a new component of this type explicitly (those defined in the CaWE GUI Editor are instantiated automatically), use GuiT::new():
 /// \code{.lua}
 ///     local comp = gui:new("ComponentTextT")
 /// \endcode
@@ -624,7 +624,7 @@ class ComponentTextT : public ComponentBaseT
 /// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
 /// must be used with the get() and set() methods at this time -- see get() and set() for details.
 ///
-/// If you would like to create a new component of this type explicitly (those defined in the CaWE %GUI Editor are instantiated automatically), use GuiT::new():
+/// If you would like to create a new component of this type explicitly (those defined in the CaWE GUI Editor are instantiated automatically), use GuiT::new():
 /// \code{.lua}
 ///     local comp = gui:new("ComponentTransformT")
 /// \endcode
@@ -664,4 +664,4 @@ class ComponentTransformT : public ComponentBaseT
 };
 
 
-}   // namespace GUI
+}   // namespace GuiSys

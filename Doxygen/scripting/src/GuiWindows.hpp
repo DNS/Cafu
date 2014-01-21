@@ -1,4 +1,4 @@
-namespace GUI
+namespace GuiSys
 {
 
 
@@ -9,7 +9,7 @@ namespace GUI
 /// Each window essentially represents a rectangular shape, but only has very little features of its own.
 /// Instead, a window contains a set of components, each of which implements a specific feature for the window.
 ///
-/// If you would like to create a new window explicitly (those defined in the CaWE %GUI Editor are instantiated automatically), use GuiT::new():
+/// If you would like to create a new window explicitly (those defined in the CaWE GUI Editor are instantiated automatically), use GuiT::new():
 /// \code{.lua}
 ///     local win = gui:new("WindowT", "my_window")
 /// \endcode
@@ -68,11 +68,11 @@ class WindowT
      * @{
      */
 
-    /// Called for each window when the %GUI is activated (i.e.\ switched on for rendering).
-    /// For example, when the user toggles the in-game console, this method is called every time the console %GUI comes up.
+    /// Called for each window when the GUI is activated (i.e.\ switched on for rendering).
+    /// For example, when the user toggles the in-game console, this method is called every time the console GUI comes up.
     OnActivate();
 
-    /// Called for each window when the %GUI is deactivated.
+    /// Called for each window when the GUI is deactivated.
     ///
     ///   - This method mainly exists for symmetry with OnActivate(), it has little practical use.
     OnDeactivate();
@@ -98,7 +98,7 @@ class WindowT
     ///   - Obviously, expensive computations cannot be run in this method &mdash; they would directly impact the framerate!
     OnFrame();
 
-    /// This is the first method that is called for each window after a %GUI has been loaded.
+    /// This is the first method that is called for each window after a GUI has been loaded.
     /// It is only called once for each window.
     ///
     /// Note that OnInit() callbacks are special: They're automatically written by the CaWE GUI Editor as part of the
@@ -181,4 +181,4 @@ class WindowT
 };
 
 
-}   // namespace GUI
+}   // namespace GuiSys

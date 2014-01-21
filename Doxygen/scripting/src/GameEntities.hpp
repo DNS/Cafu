@@ -1,4 +1,4 @@
-namespace Game
+namespace GameSys
 {
 
 
@@ -9,7 +9,7 @@ namespace Game
 /// An entity is a separate unit that is self-contained and has its own identity, but has very little own features.
 /// Instead, an entity contains a set of components, each of which implements a specific feature for the entity.
 ///
-/// If you would like to create a new entity explicitly (those defined in the CaWE %Map Editor are instantiated automatically), use WorldT::new():
+/// If you would like to create a new entity explicitly (those defined in the CaWE Map Editor are instantiated automatically), use WorldT::new():
 /// \code{.lua}
 ///     local entity = world:new("EntityT", "my_entity")
 /// \endcode
@@ -20,6 +20,12 @@ class EntityT
 {
     public:
 
+    /// Returns the ID of this entity.
+    /// The ID is unique in the world, and is used (in C++ code) to unambiguously identify
+    /// the entity in network messages and as entity index number into `.cw` world files.
+    ///
+    number GetID();
+
     /// This method adds the given entity to the children of this entity.
     AddChild(entity child);
 
@@ -28,7 +34,7 @@ class EntityT
     RemoveChild(entity child);
 
     /// This method returns the parent of this entity (or `nil` if there is no parent).
-    entity GetParent();
+    EntityT GetParent();
 
     /// This method returns an array of the children of this entity.
     table GetChildren();
@@ -69,4 +75,4 @@ class EntityT
 };
 
 
-}   // namespace Game
+}   // namespace GameSys

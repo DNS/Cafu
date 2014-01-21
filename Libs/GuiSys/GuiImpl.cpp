@@ -706,7 +706,7 @@ static const cf::TypeSys::MethsDocT META_SetMouseMat =
     "setMouseMat",
     "Sets the material that is used to render the mouse cursor.\n"
     "(This method is not yet implemented.)",
-    "", "()"
+    "", "(string MatName)"
 };
 
 int GuiImplT::SetMouseMat(lua_State* LuaState)
@@ -732,6 +732,51 @@ int GuiImplT::SetMouseIsShown(lua_State* LuaState)
                               else Gui->MouseIsShown=lua_toboolean(LuaState, 2)!=0;
 
     return 0;
+}
+
+
+static const cf::TypeSys::MethsDocT META_CreateNew =
+{
+    "new",
+    "This method creates new GUI windows or new GUI components.",
+    "object", "(string ClassName, string InstanceName=\"\")"
+};
+
+int GuiImplT::CreateNew(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<GuiImplT> Gui = Binder.GetCheckedObjectParam< IntrusivePtrT<GuiImplT> >(1);
+
+    const std::string TypeName = std::string("GuiSys::") + luaL_checkstring(LuaState, 2);
+    const char*       ObjName  = lua_tostring(LuaState, 3);   // Passing an object name is optional.
+
+    const cf::TypeSys::TypeInfoT* TI = GetWindowTIM().FindTypeInfoByName(TypeName.c_str());
+
+    if (TI)
+    {
+        IntrusivePtrT<WindowT> Win(static_cast<WindowT*>(TI->CreateInstance(WindowCreateParamsT(*Gui))));
+
+        // Console->DevPrint(cf::va("Creating window %p.\n", Win));
+        assert(Win->GetType() == TI);
+        assert(strcmp(TI->ClassName, TypeName.c_str()) == 0);
+
+        if (ObjName) Win->GetBasics()->SetWindowName(ObjName);
+
+        Binder.Push(Win);
+        return 1;
+    }
+
+    TI = GetComponentTIM().FindTypeInfoByName(TypeName.c_str());
+
+    if (TI)
+    {
+        IntrusivePtrT<ComponentBaseT> Comp(static_cast<ComponentBaseT*>(TI->CreateInstance(cf::TypeSys::CreateParamsT())));
+
+        Binder.Push(Comp);
+        return 1;
+    }
+
+    return luaL_argerror(LuaState, 2, (std::string("unknown class name \"") + TypeName + "\"").c_str());
 }
 
 
@@ -807,51 +852,6 @@ int GuiImplT::SetRootWindow(lua_State* LuaState)
 }
 
 
-static const cf::TypeSys::MethsDocT META_CreateNew =
-{
-    "new",
-    "Creates and returns a new window or component.",
-    "object", "(string ClassName)"
-};
-
-int GuiImplT::CreateNew(lua_State* LuaState)
-{
-    ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<GuiImplT> Gui = Binder.GetCheckedObjectParam< IntrusivePtrT<GuiImplT> >(1);
-
-    const std::string TypeName = std::string("GuiSys::") + luaL_checkstring(LuaState, 2);
-    const char*       ObjName  = lua_tostring(LuaState, 3);   // Passing an object name is optional.
-
-    const cf::TypeSys::TypeInfoT* TI = GetWindowTIM().FindTypeInfoByName(TypeName.c_str());
-
-    if (TI)
-    {
-        IntrusivePtrT<WindowT> Win(static_cast<WindowT*>(TI->CreateInstance(WindowCreateParamsT(*Gui))));
-
-        // Console->DevPrint(cf::va("Creating window %p.\n", Win));
-        assert(Win->GetType() == TI);
-        assert(strcmp(TI->ClassName, TypeName.c_str()) == 0);
-
-        if (ObjName) Win->GetBasics()->SetWindowName(ObjName);
-
-        Binder.Push(Win);
-        return 1;
-    }
-
-    TI = GetComponentTIM().FindTypeInfoByName(TypeName.c_str());
-
-    if (TI)
-    {
-        IntrusivePtrT<ComponentBaseT> Comp(static_cast<ComponentBaseT*>(TI->CreateInstance(cf::TypeSys::CreateParamsT())));
-
-        Binder.Push(Comp);
-        return 1;
-    }
-
-    return luaL_argerror(LuaState, 2, (std::string("unknown class name \"") + TypeName + "\"").c_str());
-}
-
-
 static const cf::TypeSys::MethsDocT META_Init =
 {
     "Init",
@@ -913,10 +913,10 @@ const luaL_Reg GuiImplT::MethodsList[] =
     { "setMouseCursorSize", SetMouseCursorSize },
     { "setMouseMat",        SetMouseMat },
     { "showMouse",          SetMouseIsShown },
+    { "new",                CreateNew },
     { "setFocus",           SetFocus },
     { "GetRootWindow",      GetRootWindow },
     { "SetRootWindow",      SetRootWindow },
-    { "new",                CreateNew },
     { "Init",               Init },
     { "__tostring",         toString },
     { NULL, NULL }
@@ -932,10 +932,10 @@ const cf::TypeSys::MethsDocT GuiImplT::DocMethods[] =
     META_SetMouseCursorSize,
     META_SetMouseMat,
     META_SetMouseIsShown,
+    META_CreateNew,
     META_SetFocus,
     META_GetRootWindow,
     META_SetRootWindow,
-    META_CreateNew,
     META_Init,
     META_toString,
     { NULL, NULL, NULL, NULL }

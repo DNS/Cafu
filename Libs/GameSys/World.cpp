@@ -270,28 +270,11 @@ void WorldT::OnClientFrame(float t)
 /*** Implementation of Lua binding functions ***/
 /***********************************************/
 
-static const cf::TypeSys::MethsDocT META_SetRootEntity =
-{
-    "SetRootEntity",
-    "Sets the root entity for this world.",
-    "", "(EntityT ent)"
-};
-
-int WorldT::SetRootEntity(lua_State* LuaState)
-{
-    ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<WorldT> World = Binder.GetCheckedObjectParam< IntrusivePtrT<WorldT> >(1);
-
-    World->m_RootEntity = Binder.GetCheckedObjectParam< IntrusivePtrT<EntityT> >(2);
-    return 0;
-}
-
-
 static const cf::TypeSys::MethsDocT META_CreateNew =
 {
     "new",
-    "Creates and returns a new entity or component.",
-    "object", "(string ClassName)"
+    "This method creates new game entities or new entity components.",
+    "object", "(string ClassName, string InstanceName=\"\")"
 };
 
 int WorldT::CreateNew(lua_State* LuaState)
@@ -331,10 +314,27 @@ int WorldT::CreateNew(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_SetRootEntity =
+{
+    "SetRootEntity",
+    "Sets the root entity for this world.",
+    "", "(EntityT ent)"
+};
+
+int WorldT::SetRootEntity(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<WorldT> World = Binder.GetCheckedObjectParam< IntrusivePtrT<WorldT> >(1);
+
+    World->m_RootEntity = Binder.GetCheckedObjectParam< IntrusivePtrT<EntityT> >(2);
+    return 0;
+}
+
+
 static const cf::TypeSys::MethsDocT META_Init =
 {
     "Init",
-    "Calls the OnInit() script methods of all entities.",
+    "This method calls the `OnInit()` script methods of all entities.",
     "", "()"
 };
 
@@ -424,8 +424,8 @@ void* WorldT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 
 const luaL_Reg WorldT::MethodsList[] =
 {
-    { "SetRootEntity", SetRootEntity },
     { "new",           CreateNew },
+    { "SetRootEntity", SetRootEntity },
     { "Init",          Init },
     { "TraceRay",      TraceRay },
     { "__tostring",    toString },
@@ -434,8 +434,8 @@ const luaL_Reg WorldT::MethodsList[] =
 
 const cf::TypeSys::MethsDocT WorldT::DocMethods[] =
 {
-    META_SetRootEntity,
     META_CreateNew,
+    META_SetRootEntity,
     META_Init,
     META_TraceRay,
     META_toString,

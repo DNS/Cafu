@@ -6,4 +6,4 @@
  *
  * TODO: This description is very incomplete -- see GuiNamespace.hpp for a better example.
  */
-namespace Game { }
+namespace GameSys { }

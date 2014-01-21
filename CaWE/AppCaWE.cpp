@@ -627,7 +627,7 @@ namespace
                 InfoNew = std::string(
                     "\n"
                     "If you would like to create a new window explicitly "
-                    "(those defined in the CaWE %GUI Editor are instantiated automatically), "  // Don't auto-link "GUI".
+                    "(those defined in the CaWE GUI Editor are instantiated automatically), "
                     "use GuiT::new():\n"
                     "\\code{.lua}\n"
                     "    local win = gui:new(\"") + ClassName + std::string("\", \"my_window\")\n"
@@ -638,7 +638,7 @@ namespace
                 InfoNew = std::string(
                     "\n"
                     "If you would like to create a new entity explicitly "
-                    "(those defined in the CaWE %Map Editor are instantiated automatically), "  // Don't auto-link "Map".
+                    "(those defined in the CaWE Map Editor are instantiated automatically), "
                     "use WorldT::new():\n"
                     "\\code{.lua}\n"
                     "    local entity = world:new(\"") + ClassName + std::string("\", \"my_entity\")\n"
@@ -649,7 +649,7 @@ namespace
                 InfoNew = std::string(
                     "\n"
                     "If you would like to create a new component of this type explicitly "
-                    "(those defined in the CaWE %GUI Editor are instantiated automatically), "  // Don't auto-link "GUI".
+                    "(those defined in the CaWE GUI Editor are instantiated automatically), "
                     "use GuiT::new():\n"
                     "\\code{.lua}\n"
                     "    local comp = gui:new(\"") + ClassName + std::string("\")\n"
@@ -660,7 +660,7 @@ namespace
                 InfoNew = std::string(
                     "\n"
                     "If you would like to create a new component of this type explicitly "
-                    "(those defined in the CaWE %Map Editor are instantiated automatically), "  // Don't auto-link "Map".
+                    "(those defined in the CaWE Map Editor are instantiated automatically), "
                     "use WorldT::new():\n"
                     "\\code{.lua}\n"
                     "    local comp = world:new(\"") + ClassName + std::string("\")\n"
