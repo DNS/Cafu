@@ -21,13 +21,19 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "cw_9mmAR.hpp"
 #include "_ResourceManager.hpp"
-#include "ARGrenade.hpp"
 #include "HumanPlayer.hpp"
 #include "Constants_AmmoSlots.hpp"
 #include "Constants_WeaponSlots.hpp"
 #include "PhysicsWorld.hpp"
 #include "Libs/LookupTables.hpp"
 #include "../../GameWorld.hpp"
+#include "GameSys/CompLightPoint.hpp"
+#include "GameSys/CompModel.hpp"
+#include "GameSys/CompParticleSystemOld.hpp"
+#include "GameSys/CompPlayerPhysics.hpp"
+#include "GameSys/CompScript.hpp"
+#include "GameSys/CompSound.hpp"
+#include "Math3D/Angles.hpp"
 #include "Models/ModelManager.hpp"
 #include "ParticleEngine/ParticleEngineMS.hpp"
 #include "SoundSystem/SoundSys.hpp"
@@ -217,11 +223,49 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, const Player
 
                     if (ARGrenadeID!=0xFFFFFFFF)
                     {
-                        IntrusivePtrT<EntARGrenadeT> ARGrenade=dynamic_pointer_cast<EntARGrenadeT>(Player->GameWorld->GetGameEntityByID(ARGrenadeID));
+                        IntrusivePtrT<BaseEntityT> ARGrenade = dynamic_pointer_cast<BaseEntityT>(Player->GameWorld->GetGameEntityByID(ARGrenadeID));
+                        IntrusivePtrT<cf::GameSys::EntityT> Ent = ARGrenade->m_Entity;
 
-                        ARGrenade->ParentID=Player->ID;
-                        ARGrenade->SetHeading(Player->GetHeading());
-                        ARGrenade->SetVelocity(State.Velocity+scale(ViewDir, 800.0));
+                        Ent->GetBasics()->SetEntityName("ARGrenade");
+                        Ent->GetTransform()->SetOrigin(ARGrenadeOrigin.AsVectorOfFloat());
+                        Ent->GetTransform()->SetQuat(cf::math::QuaternionfT::Euler(0, float((90.0 - Player->GetHeading()/8192.0*45.0) * 3.1415926 / 180.0), 0));
+
+                        IntrusivePtrT<cf::GameSys::ComponentModelT> ModelComp = new cf::GameSys::ComponentModelT();
+                        ModelComp->SetMember("Name", std::string("Games/DeathMatch/Models/Weapons/Grenade/Grenade_w.cmdl"));
+                        Ent->AddComponent(ModelComp);
+
+                        IntrusivePtrT<cf::GameSys::ComponentPlayerPhysicsT> PlayerPhysicsComp = new cf::GameSys::ComponentPlayerPhysicsT();
+                        PlayerPhysicsComp->SetMember("Velocity", State.Velocity + scale(ViewDir, 800.0));
+                        PlayerPhysicsComp->SetMember("Dimensions", BoundingBox3dT(Vector3dT(3.0, 3.0, 6.0), Vector3dT(-3.0, -3.0, 0.0)));
+                        Ent->AddComponent(PlayerPhysicsComp);
+
+                        IntrusivePtrT<cf::GameSys::ComponentParticleSystemOldT> PaSysComp1 = new cf::GameSys::ComponentParticleSystemOldT();
+                        PaSysComp1->SetMember("Type", std::string("ARGrenade_Expl_main"));
+                        Ent->AddComponent(PaSysComp1);
+
+                        IntrusivePtrT<cf::GameSys::ComponentParticleSystemOldT> PaSysComp2 = new cf::GameSys::ComponentParticleSystemOldT();
+                        PaSysComp2->SetMember("Type", std::string("ARGrenade_Expl_sparkle"));
+                        Ent->AddComponent(PaSysComp2);
+
+                        IntrusivePtrT<cf::GameSys::ComponentPointLightT> LightComp = new cf::GameSys::ComponentPointLightT();
+                        LightComp->SetMember("On", false);
+                        LightComp->SetMember("Color", Vector3fT(1.0f, 1.0f, 1.0f));
+                        LightComp->SetMember("Radius", 400.0f);
+                        LightComp->SetMember("ShadowType", int(cf::GameSys::ComponentPointLightT::VarShadowTypeT::STENCIL));
+                        Ent->AddComponent(LightComp);
+
+                        IntrusivePtrT<cf::GameSys::ComponentSoundT> SoundComp = new cf::GameSys::ComponentSoundT();
+                        SoundComp->SetMember("Name", std::string("Weapon/Shotgun_dBarrel"));
+                        SoundComp->SetMember("AutoPlay", false);
+                        Ent->AddComponent(SoundComp);
+
+                        IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
+                        ScriptComp->SetMember("Name", std::string("Games/DeathMatch/Scripts/Grenade.lua"));
+                        ScriptComp->SetMember("ScriptCode", std::string("local Grenade = ...\nGrenade.LightDuration = 0.8\n"));
+                        Ent->AddComponent(ScriptComp);
+
+                        // As we're inserting a new entity into a live map, post-load stuff must be run here.
+                        ScriptComp->OnPostLoad(false);
                     }
                 }
                 break;

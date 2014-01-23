@@ -1,17 +1,19 @@
-local HandGrenade = ...   -- Retrieve the ComponentScriptT instance that is responsible for this script.
+-- This script implements grenade behaviour for both
+-- Hand Grenades as well as Assault Rifle Grenades.
+local Grenade = ...   -- Retrieve the ComponentScriptT instance that is responsible for this script.
 
-local Trafo = HandGrenade:GetEntity():GetTransform()
-local Model = HandGrenade:GetEntity():GetComponent("Model")
-local Light = HandGrenade:GetEntity():GetComponent("PointLight")
-local PlPhy = HandGrenade:GetEntity():GetComponent("PlayerPhysics")
+local Trafo = Grenade:GetEntity():GetTransform()
+local Model = Grenade:GetEntity():GetComponent("Model")
+local Light = Grenade:GetEntity():GetComponent("PointLight")
+local PlPhy = Grenade:GetEntity():GetComponent("PlayerPhysics")
 
-HandGrenade.EVENT_TYPE_EXPLODED = 1
-HandGrenade.Timer               = 0.0
+Grenade.EVENT_TYPE_EXPLODED = 1
+Grenade.Timer               = 0.0
 
-HandGrenade:InitEventTypes(1)
+Grenade:InitEventTypes(1)
 
 
--- There is no need to call InitClientApprox() here, because HandGrenades have
+-- There is no need to call InitClientApprox() here, because Grenades have
 -- a PlayerPhysics component that sets interpolation for the origin as well.
 if false then
     -- TODO: Call InitClientApprox() in some client-init (e.g. OnClientInit()) only?
@@ -19,7 +21,7 @@ if false then
 end
 
 
-function HandGrenade:Think(FrameTime)
+function Grenade:Think(FrameTime)
     -- Let the detonation timer tick.
     local OldTimer = self.Timer
     self.Timer = self.Timer + FrameTime
@@ -52,7 +54,7 @@ end
 
 
 -- This method is called automatically on the client whenever an event arrives.
-function HandGrenade:ProcessEvent(EventType)  -- (EventType, NumEvents)
+function Grenade:ProcessEvent(EventType)  -- (EventType, NumEvents)
     if EventType == self.EVENT_TYPE_EXPLODED then
         -- Main explosion particle system.
         local PaSys1 = self:GetEntity():GetComponent("ParticleSystemOld", 0)
@@ -70,7 +72,6 @@ end
 
 
 local clTime = 0.0
-local Duration = 0.5
 
 function Light:ClientEffect(t)
     if not self:get("On") then
@@ -79,6 +80,7 @@ function Light:ClientEffect(t)
     end
 
     clTime = clTime + t
+    local Duration = Grenade.LightDuration or 5.0
 
     if clTime >= Duration then
         return true, 0, 0, 0, 0

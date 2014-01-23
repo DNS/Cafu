@@ -176,7 +176,8 @@ void CarriedWeaponGrenadeT::ServerSide_Think(EntHumanPlayerT* Player, const Play
                         Ent->AddComponent(SoundComp);
 
                         IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
-                        ScriptComp->SetMember("Name", std::string("Games/DeathMatch/Scripts/HandGrenade.lua"));
+                        ScriptComp->SetMember("Name", std::string("Games/DeathMatch/Scripts/Grenade.lua"));
+                        ScriptComp->SetMember("ScriptCode", std::string("local Grenade = ...\nGrenade.LightDuration = 0.5\n"));
                         Ent->AddComponent(ScriptComp);
 
                         // As we're inserting a new entity into a live map, post-load stuff must be run here.

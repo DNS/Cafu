@@ -35,7 +35,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "cw_Shotgun.hpp"
 #include "EntityCreateParams.hpp"
 
-#include "ARGrenade.hpp"
 #include "CompanyBot.hpp"
 #include "Corpse.hpp"
 #include "FuncDoor.hpp"
@@ -100,7 +99,6 @@ namespace GAME_NAME
      *     http://blog.copton.net/articles/linker/index.html#linker-dependencies
      */
     const cf::TypeSys::TypeInfoT* AllTypeInfos[] = {
-        &EntARGrenadeT::TypeInfo,
         &EntCompanyBotT::TypeInfo,
         &EntCorpseT::TypeInfo,
         &EntFuncDoorT::TypeInfo,

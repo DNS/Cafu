@@ -90,7 +90,7 @@ void ComponentParticleSystemOldT::InitRenderMats()
             m_RenderMats.PushBack(MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial(ParticleName)));
         }
     }
-    else if (m_Type.Get() == "Y")
+    else if (m_Type.Get() == "ARGrenade_Expl_main")
     {
         for (unsigned int FrameNr = 0; FrameNr < 55; FrameNr++)
         {
@@ -114,7 +114,7 @@ void ComponentParticleSystemOldT::InitRenderMats()
             m_RenderMats.PushBack(MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial(ParticleName)));
         }
     }
-    else  // FaceHugger, HandGrenade_Expl_sparkle, ...
+    else  // FaceHugger, ARGrenade_Expl_sparkle, HandGrenade_Expl_sparkle, ...
     {
         m_RenderMats.PushBack(MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("Sprites/Generic1")));
     }
@@ -123,6 +123,50 @@ void ComponentParticleSystemOldT::InitRenderMats()
 
 namespace
 {
+    bool ParticleFunction_ARGrenadeExplMain(ParticleMST* Particle, float Time)
+    {
+        const float FPS    = 20.0f;       // The default value is 20.0.
+        const float MaxAge = 55.0f/FPS;   // 55 frames at 20 FPS.
+
+        const unsigned long MatNr = (unsigned long)(Particle->Age * FPS);
+        assert(MatNr < Particle->AllRMs->Size());
+        Particle->RenderMat = (*Particle->AllRMs)[MatNr];
+
+        Particle->Age += Time;
+        if (Particle->Age >= MaxAge) return false;
+
+        return true;
+    }
+
+
+    bool ParticleFunction_ARGrenadeExplSparkle(ParticleMST* Particle, float Time)
+    {
+        const float MaxAge = 3.0f;
+
+        Particle->Age += Time;
+        if (Particle->Age > MaxAge) return false;
+
+        Particle->Velocity[0] -= Particle->Velocity[0]*Time;  // Physically, this line is (mostly) nonsense.
+        Particle->Velocity[1] -= Particle->Velocity[1]*Time;  // Physically, this line is (mostly) nonsense.
+        Particle->Velocity[2] -= 392.4f*Time;                 // v = a*t    9810.0 / 25.0 == 392.4
+
+        Particle->Origin[0] += Particle->Velocity[0]*Time;    // s=v*t
+        Particle->Origin[1] += Particle->Velocity[1]*Time;
+        Particle->Origin[2] += Particle->Velocity[2]*Time;
+
+        if (Particle->Origin[2] < Particle->AuxData[0])
+        {
+            // Particle hit the ground.
+            Particle->Origin[2] = Particle->AuxData[0];
+            Particle->Velocity[2] = -Particle->Velocity[2]*0.5f;
+        }
+
+        Particle->Color[0] = char(255.0f*(MaxAge - Particle->Age)/MaxAge);
+        Particle->Color[1] = char(255.0f*(MaxAge - Particle->Age)/MaxAge*(MaxAge - Particle->Age)/MaxAge);
+        return true;
+    }
+
+
     bool ParticleFunction_HandGrenadeExplMain(ParticleMST* Particle, float Time)
     {
         const float FPS    = 18.0f;     // The default value is 20.0.
@@ -146,16 +190,16 @@ namespace
         Particle->Age += Time;
         if (Particle->Age > MaxAge) return false;
 
-        Particle->Origin[0]+=Particle->Velocity[0]*Time;
-        Particle->Origin[1]+=Particle->Velocity[1]*Time;
-        Particle->Origin[2]+=Particle->Velocity[2]*Time;
+        Particle->Origin[0] += Particle->Velocity[0]*Time;    // s=v*t
+        Particle->Origin[1] += Particle->Velocity[1]*Time;
+        Particle->Origin[2] += Particle->Velocity[2]*Time;
 
         Particle->Velocity[0]*=0.98f;   // TODO: Deceleration should depend on 'Time'...
         Particle->Velocity[1]*=0.98f;
         Particle->Velocity[2]-=2.0f*392.4f*Time;     // double gravity...
 
-        Particle->Color[0]=char(255.0f*(MaxAge-Particle->Age)/MaxAge);
-        Particle->Color[1]=char(255.0f*(MaxAge-Particle->Age)/MaxAge*(MaxAge-Particle->Age)/MaxAge);
+        Particle->Color[0] = char(255.0f*(MaxAge - Particle->Age)/MaxAge);
+        Particle->Color[1] = char(255.0f*(MaxAge - Particle->Age)/MaxAge*(MaxAge - Particle->Age)/MaxAge);
         return true;
     }
 
@@ -209,11 +253,46 @@ int ComponentParticleSystemOldT::EmitParticle(lua_State* LuaState)
     static ParticleMST P;
 
     P.Age       = 0.0;
+    P.Rotation  = 0;
     P.StretchY  = 1.0;
     P.AllRMs    = &Comp->m_RenderMats;
     P.RenderMat = Comp->m_RenderMats[0];
 
-    if (Comp->m_Type.Get() == "HandGrenade_Expl_main")
+    if (Comp->m_Type.Get() == "ARGrenade_Expl_main")
+    {
+        P.Origin[0] = Origin.x;
+        P.Origin[1] = Origin.y;
+        P.Origin[2] = Origin.z + 80.0f - 20.0f;
+
+        P.Color[0] = 255;
+        P.Color[1] = 255;
+        P.Color[2] = 255;
+        P.Color[3] = 255;
+
+        P.Radius = 40.0;
+        P.StretchY  = 2.0;
+        P.MoveFunction = ParticleFunction_ARGrenadeExplMain;
+    }
+    else if (Comp->m_Type.Get() == "ARGrenade_Expl_sparkle")
+    {
+        P.Origin[0] = Origin.x;
+        P.Origin[1] = Origin.y;
+        P.Origin[2] = Origin.z;
+
+        P.Velocity[0] = (rand()-int(RAND_MAX/2))/16.0f / 25.0f;
+        P.Velocity[1] = (rand()-int(RAND_MAX/2))/16.0f / 25.0f;
+        P.Velocity[2] = rand()/4.0f / 25.0f;
+
+        P.Color[0] = 255;
+        P.Color[1] = 255;
+        P.Color[2] = 0;
+        P.Color[3] = 0;
+
+        P.Radius = 4.0;
+        P.MoveFunction = ParticleFunction_ARGrenadeExplSparkle;
+        P.AuxData[0] = Origin.z;
+    }
+    else if (Comp->m_Type.Get() == "HandGrenade_Expl_main")
     {
         P.Origin[0] = Origin.x;
         P.Origin[1] = Origin.y;
