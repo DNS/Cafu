@@ -21,9 +21,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "cw_RPG.hpp"
 #include "HumanPlayer.hpp"
-#include "Rocket.hpp"
 #include "Constants_AmmoSlots.hpp"
 #include "Constants_WeaponSlots.hpp"
+#include "GameSys/CompLightPoint.hpp"
+#include "GameSys/CompModel.hpp"
+#include "GameSys/CompParticleSystemOld.hpp"
+#include "GameSys/CompScript.hpp"
+#include "GameSys/CompSound.hpp"
+#include "Math3D/Angles.hpp"
 #include "Libs/LookupTables.hpp"
 #include "../../GameWorld.hpp"
 #include "Models/ModelManager.hpp"
@@ -105,11 +110,61 @@ void CarriedWeaponRPGT::ServerSide_Think(EntHumanPlayerT* Player, const PlayerCo
 
                     if (RocketID!=0xFFFFFFFF)
                     {
-                        IntrusivePtrT<EntRocketT> Rocket=dynamic_pointer_cast<EntRocketT>(Player->GameWorld->GetGameEntityByID(RocketID));
+                        IntrusivePtrT<BaseEntityT> Rocket = dynamic_pointer_cast<BaseEntityT>(Player->GameWorld->GetGameEntityByID(RocketID));
+                        IntrusivePtrT<cf::GameSys::EntityT> Ent = Rocket->m_Entity;
 
-                        Rocket->ParentID=Player->ID;
-                        Rocket->SetHeading(Player->GetHeading());
-                        Rocket->SetVelocity(scale(ViewDir, 560.0));   // Rocket has own propulsion.
+                        Ent->GetBasics()->SetEntityName("Rocket");
+                        Ent->GetTransform()->SetOrigin(RocketOrigin.AsVectorOfFloat());
+                        Ent->GetTransform()->SetQuat(cf::math::QuaternionfT::Euler(
+                            float((Player->GetPitch()/8192.0*45.0) * 3.1415926 / 180.0),
+                            float((90.0 - Player->GetHeading()/8192.0*45.0) * 3.1415926 / 180.0),
+                            0));
+
+                        IntrusivePtrT<cf::GameSys::ComponentModelT> ModelComp = new cf::GameSys::ComponentModelT();
+                        ModelComp->SetMember("Name", std::string("Games/DeathMatch/Models/Weapons/Grenade/Grenade_w.cmdl"));
+                        Ent->AddComponent(ModelComp);
+
+#if 0
+                        // This is not needed: Rocket physics are simple, implemented in our script code.
+                        IntrusivePtrT<cf::GameSys::ComponentPlayerPhysicsT> PlayerPhysicsComp = new cf::GameSys::ComponentPlayerPhysicsT();
+                        PlayerPhysicsComp->SetMember("Velocity", State.Velocity + scale(ViewDir, 560.0));
+                        PlayerPhysicsComp->SetMember("Dimensions", BoundingBox3dT(Vector3dT(4.0, 4.0, 4.0), Vector3dT(-4.0, -4.0, -4.0)));
+                        Ent->AddComponent(PlayerPhysicsComp);
+#endif
+
+                        IntrusivePtrT<cf::GameSys::ComponentParticleSystemOldT> PaSysComp1 = new cf::GameSys::ComponentParticleSystemOldT();
+                        PaSysComp1->SetMember("Type", std::string("Rocket_Expl_main"));
+                        Ent->AddComponent(PaSysComp1);
+
+                        IntrusivePtrT<cf::GameSys::ComponentParticleSystemOldT> PaSysComp2 = new cf::GameSys::ComponentParticleSystemOldT();
+                        PaSysComp2->SetMember("Type", std::string("Rocket_Expl_sparkle"));
+                        Ent->AddComponent(PaSysComp2);
+
+                        IntrusivePtrT<cf::GameSys::ComponentPointLightT> LightComp = new cf::GameSys::ComponentPointLightT();
+                        LightComp->SetMember("On", true);
+                        LightComp->SetMember("Color", Vector3fT(1.0f, 0.9f, 0.0f));
+                        LightComp->SetMember("Radius", 500.0f);
+                        // Shadows are activated only at the time of the explosion (when the model is hidden),
+                        // because at this time, our light source origin is at the center of the model, which does not
+                        // agree well with shadow casting. Proper solution can be:
+                        //   - exempt the model from casting shadows,
+                        //   - offset the light source from the model center, e.g. by `-ViewDir * 16.0`.
+                        // The latter is what we did in pre-component-system versions of the code, but now it would
+                        // require the employment of a child entity.
+                        LightComp->SetMember("ShadowType", int(cf::GameSys::ComponentPointLightT::VarShadowTypeT::NONE));
+                        Ent->AddComponent(LightComp);
+
+                        IntrusivePtrT<cf::GameSys::ComponentSoundT> SoundComp = new cf::GameSys::ComponentSoundT();
+                        SoundComp->SetMember("Name", std::string("Weapon/Shotgun_dBarrel"));
+                        SoundComp->SetMember("AutoPlay", false);
+                        Ent->AddComponent(SoundComp);
+
+                        IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
+                        ScriptComp->SetMember("Name", std::string("Games/DeathMatch/Scripts/Rocket.lua"));
+                        Ent->AddComponent(ScriptComp);
+
+                        // As we're inserting a new entity into a live map, post-load stuff must be run here.
+                        ScriptComp->OnPostLoad(false);
                     }
                 }
                 break;

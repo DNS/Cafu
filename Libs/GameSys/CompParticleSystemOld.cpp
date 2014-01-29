@@ -82,7 +82,7 @@ void ComponentParticleSystemOldT::InitRenderMats()
 
     char ParticleName[256];
 
-    if (m_Type.Get() == "X")
+    if (m_Type.Get() == "Rocket_Expl_main")
     {
         for (unsigned int FrameNr = 0; FrameNr < 26; FrameNr++)
         {
@@ -114,7 +114,7 @@ void ComponentParticleSystemOldT::InitRenderMats()
             m_RenderMats.PushBack(MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial(ParticleName)));
         }
     }
-    else  // FaceHugger, ARGrenade_Expl_sparkle, HandGrenade_Expl_sparkle, ...
+    else  // FaceHugger, ARGrenade_Expl_sparkle, HandGrenade_Expl_sparkle, Rocket_Expl_sparkle, ...
     {
         m_RenderMats.PushBack(MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("Sprites/Generic1")));
     }
@@ -197,6 +197,43 @@ namespace
         Particle->Velocity[0]*=0.98f;   // TODO: Deceleration should depend on 'Time'...
         Particle->Velocity[1]*=0.98f;
         Particle->Velocity[2]-=2.0f*392.4f*Time;     // double gravity...
+
+        Particle->Color[0] = char(255.0f*(MaxAge - Particle->Age)/MaxAge);
+        Particle->Color[1] = char(255.0f*(MaxAge - Particle->Age)/MaxAge*(MaxAge - Particle->Age)/MaxAge);
+        return true;
+    }
+
+
+    bool ParticleFunction_RocketExplMain(ParticleMST* Particle, float Time)
+    {
+        const float FPS    = 15.0f;     // The default value is 20.0.
+        const float MaxAge = 26.0f/FPS; // 26 frames at 15 FPS.
+
+        const unsigned long MatNr = (unsigned long)(Particle->Age * FPS);
+        assert(MatNr < Particle->AllRMs->Size());
+        Particle->RenderMat = (*Particle->AllRMs)[MatNr];
+
+        Particle->Age += Time;
+        if (Particle->Age >= MaxAge) return false;
+
+        return true;
+    }
+
+
+    bool ParticleFunction_RocketExplSparkle(ParticleMST* Particle, float Time)
+    {
+        const float MaxAge = 0.5f;
+
+        Particle->Age += Time;
+        if (Particle->Age > MaxAge) return false;
+
+        Particle->Origin[0] += Particle->Velocity[0]*Time;    // s=v*t
+        Particle->Origin[1] += Particle->Velocity[1]*Time;
+        Particle->Origin[2] += Particle->Velocity[2]*Time;
+
+     // Particle->Velocity[0] *= 0.99;  // TODO: Deceleration should depend on 'Time'...
+     // Particle->Velocity[1] *= 0.99;
+     // Particle->Velocity[2] *= 0.90;
 
         Particle->Color[0] = char(255.0f*(MaxAge - Particle->Age)/MaxAge);
         Particle->Color[1] = char(255.0f*(MaxAge - Particle->Age)/MaxAge*(MaxAge - Particle->Age)/MaxAge);
@@ -324,6 +361,39 @@ int ComponentParticleSystemOldT::EmitParticle(lua_State* LuaState)
 
         P.Radius = 12.0;
         P.MoveFunction = ParticleFunction_HandGrenadeExplSparkle;
+    }
+    else if (Comp->m_Type.Get() == "Rocket_Expl_main")
+    {
+        P.Origin[0] = Origin.x;
+        P.Origin[1] = Origin.y;
+        P.Origin[2] = Origin.z;
+
+        P.Color[0] = 255;
+        P.Color[1] = 255;
+        P.Color[2] = 255;
+        P.Color[3] = 255;
+
+        P.Radius = 80.0;
+        P.Rotation = char(rand());
+        P.MoveFunction = ParticleFunction_RocketExplMain;
+    }
+    else if (Comp->m_Type.Get() == "Rocket_Expl_sparkle")
+    {
+        P.Origin[0] = Origin.x;
+        P.Origin[1] = Origin.y;
+        P.Origin[2] = Origin.z;
+
+        P.Velocity[0] = float(rand()-int(RAND_MAX/2)) / 25.0f;
+        P.Velocity[1] = float(rand()-int(RAND_MAX/2)) / 25.0f;
+        P.Velocity[2] = float(rand()-int(RAND_MAX/2)) / 25.0f;
+
+        P.Color[0] = 255;
+        P.Color[1] = 255;
+        P.Color[2] = 0;
+        P.Color[3] = 0;     // Additive blending is used for this particle.
+
+        P.Radius = 8.0;
+        P.MoveFunction = ParticleFunction_RocketExplSparkle;
     }
     else  // "FaceHugger"
     {

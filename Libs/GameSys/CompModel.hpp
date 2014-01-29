@@ -183,6 +183,7 @@ namespace cf
             VarModelSkinNrT                         m_ModelSkinNr;  ///< The skin used for rendering the model.
             TypeSys::VarT<float>                    m_ModelScale;   ///< The scale factor applied to the model coordinates when converted to world space.
             VarGuiNameT                             m_GuiName;      ///< The file name of the GUI to be used with the models GUI fixtures (if there are any).
+         // TypeSys::VarT<bool>                     m_CastShadows;  ///< Does this model cast shadows when lit by a dynamic light source?
 
             const CafuModelT*                       m_Model;        ///< The model instance, updated by changes to m_ModelName.
             mutable AnimPoseT*                      m_Pose;         ///< The pose of the model, updated by changes to m_ModelAnimNr.
