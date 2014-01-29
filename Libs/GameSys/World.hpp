@@ -180,6 +180,7 @@ namespace cf
             static int SetRootEntity(lua_State* LuaState);  ///< Sets the root entity for this world.
             static int Init(lua_State* LuaState);           ///< Calls the OnInit() script methods of all entities.
             static int TraceRay(lua_State* LuaState);       ///< Employs m_ClipWorld->TraceRay() to trace a ray through the (clip) world.
+            static int Phys_TraceBB(lua_State* LuaState);   ///< Employs m_PhysicsWorld->TraceBoundingBox() to trace a bounding-box through the (physics) world.
             static int toString(lua_State* LuaState);       ///< Returns a short string description of this world.
 
             static const luaL_Reg               MethodsList[];  ///< List of methods registered with Lua.

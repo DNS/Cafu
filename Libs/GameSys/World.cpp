@@ -395,6 +395,58 @@ int WorldT::TraceRay(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_Phys_TraceBB =
+{
+    "Phys_TraceBB",
+    "Employs m_PhysicsWorld->TraceBoundingBox() to trace a bounding-box through the (physics) world.\n"
+    "Note that this method is only useful with entities that do *not* have a collision model of their own,\n"
+    "because it currently is not capable to ignore specific collision models (the entity's) for the trace,\n"
+    "which was a necessity in this case.",
+    "table", "(table BB, table Start, table Ray)"
+};
+
+int WorldT::Phys_TraceBB(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<WorldT> World = Binder.GetCheckedObjectParam< IntrusivePtrT<WorldT> >(1);
+
+    if (!World->m_PhysicsWorld)
+        luaL_error(LuaState, "There is no physics world in this world.");
+
+    BoundingBox3dT BB;
+    Vector3dT      Start;
+    Vector3dT      Ray;
+
+    lua_rawgeti(LuaState, 2, 1); BB.Min.x = luaL_checknumber(LuaState, -1); lua_pop(LuaState, 1);
+    lua_rawgeti(LuaState, 2, 2); BB.Min.y = luaL_checknumber(LuaState, -1); lua_pop(LuaState, 1);
+    lua_rawgeti(LuaState, 2, 3); BB.Min.z = luaL_checknumber(LuaState, -1); lua_pop(LuaState, 1);
+    lua_rawgeti(LuaState, 2, 4); BB.Max.x = luaL_checknumber(LuaState, -1); lua_pop(LuaState, 1);
+    lua_rawgeti(LuaState, 2, 5); BB.Max.y = luaL_checknumber(LuaState, -1); lua_pop(LuaState, 1);
+    lua_rawgeti(LuaState, 2, 6); BB.Max.z = luaL_checknumber(LuaState, -1); lua_pop(LuaState, 1);
+
+    lua_rawgeti(LuaState, 3, 1); Start.x = luaL_checknumber(LuaState, -1); lua_pop(LuaState, 1);
+    lua_rawgeti(LuaState, 3, 2); Start.y = luaL_checknumber(LuaState, -1); lua_pop(LuaState, 1);
+    lua_rawgeti(LuaState, 3, 3); Start.z = luaL_checknumber(LuaState, -1); lua_pop(LuaState, 1);
+
+    lua_rawgeti(LuaState, 4, 1); Ray.x = luaL_checknumber(LuaState, -1); lua_pop(LuaState, 1);
+    lua_rawgeti(LuaState, 4, 2); Ray.y = luaL_checknumber(LuaState, -1); lua_pop(LuaState, 1);
+    lua_rawgeti(LuaState, 4, 3); Ray.z = luaL_checknumber(LuaState, -1); lua_pop(LuaState, 1);
+
+    // Delegate the work to the World->m_ClipWorld.
+    ShapeResultT ShapeResult;
+
+    World->m_PhysicsWorld->TraceBoundingBox(BB, Start, Ray, ShapeResult);
+
+    // Return the results.
+    lua_newtable(LuaState);
+
+    lua_pushstring(LuaState, "hasHit");             lua_pushboolean(LuaState, ShapeResult.hasHit());             lua_rawset(LuaState, -3);
+    lua_pushstring(LuaState, "closestHitFraction"); lua_pushnumber (LuaState, ShapeResult.m_closestHitFraction); lua_rawset(LuaState, -3);
+
+    return 1;
+}
+
+
 static const cf::TypeSys::MethsDocT META_toString =
 {
     "__tostring",
@@ -430,6 +482,7 @@ const luaL_Reg WorldT::MethodsList[] =
     { "SetRootEntity", SetRootEntity },
     { "Init",          Init },
     { "TraceRay",      TraceRay },
+    { "Phys_TraceBB",  Phys_TraceBB },
     { "__tostring",    toString },
     { NULL, NULL }
 };
@@ -440,6 +493,7 @@ const cf::TypeSys::MethsDocT WorldT::DocMethods[] =
     META_SetRootEntity,
     META_Init,
     META_TraceRay,
+    META_Phys_TraceBB,
     META_toString,
     { NULL, NULL, NULL, NULL }
 };
