@@ -30,6 +30,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/Console_Lua.hpp"
 #include "ConsoleCommands/ConsoleInterpreter.hpp"
 #include "MaterialSystem/Material.hpp"
+#include "PhysicsWorld.hpp"
 
 
 using namespace cf::GameSys;
@@ -167,7 +168,7 @@ WorldT::InitErrorT::InitErrorT(const std::string& Message)
 
 
 WorldT::WorldT(cf::UniScriptStateT& ScriptState, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes,
-               cf::ClipSys::CollModelManI& CollModelMan, cf::ClipSys::ClipWorldT* ClipWorld)
+               cf::ClipSys::CollModelManI& CollModelMan, cf::ClipSys::ClipWorldT* ClipWorld, PhysicsWorldT* PhysicsWorld)
     : m_ScriptState(ScriptState),
       m_RootEntity(NULL),
       m_IsInited(false),
@@ -175,7 +176,8 @@ WorldT::WorldT(cf::UniScriptStateT& ScriptState, ModelManagerT& ModelMan, cf::Gu
       m_ModelMan(ModelMan),
       m_GuiResources(GuiRes),
       m_CollModelMan(CollModelMan),
-      m_ClipWorld(ClipWorld)
+      m_ClipWorld(ClipWorld),
+      m_PhysicsWorld(PhysicsWorld)
 {
 }
 

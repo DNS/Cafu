@@ -31,6 +31,7 @@ namespace cf { namespace ClipSys { class ClipWorldT; } }
 namespace cf { namespace ClipSys { class CollModelManI; } }
 namespace cf { namespace GuiSys { class GuiResourcesT; } }
 class ModelManagerT;
+class PhysicsWorldT;
 struct CaKeyboardEventT;
 struct CaMouseEventT;
 
@@ -80,8 +81,9 @@ namespace cf
             /// @param GuiRes       The provider for resources (fonts and models) for all GUIs in this world.
             /// @param CollModelMan The manager for all collision models that are used in this world.
             /// @param ClipWorld    The clip world, where entities can register their collision models and run collision detection queries. Can be `NULL`, e.g. in CaWE or the map compile tools.
+            /// @param PhysicsWorld The physics world, where entities can register their rigid bodies and run collision detection queries. Can be `NULL`, e.g. in CaWE or the map compile tools.
             WorldT(UniScriptStateT& ScriptState, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes,
-                   cf::ClipSys::CollModelManI& CollModelMan, cf::ClipSys::ClipWorldT* ClipWorld);
+                   cf::ClipSys::CollModelManI& CollModelMan, cf::ClipSys::ClipWorldT* ClipWorld, PhysicsWorldT* PhysicsWorld);
 
             /// Returns the script state of this world.
             UniScriptStateT& GetScriptState() { return m_ScriptState; }
@@ -112,6 +114,10 @@ namespace cf
             /// The clip world, where entities can register their collision models and run collision detection queries.
             /// Can be `NULL`, e.g. in CaWE or the map compile tools.
             cf::ClipSys::ClipWorldT* GetClipWorld() const { return m_ClipWorld; }
+
+            /// The physics world, where entities can register their rigid bodies and run collision detection queries.
+            /// Can be `NULL`, e.g. in CaWE or the map compile tools.
+            PhysicsWorldT* GetPhysicsWorld() const { return m_PhysicsWorld; }
 
             /// Renders this world.
             /// Note that this method does *not* setup any of the MatSys's model, view or projection matrices:
@@ -166,6 +172,7 @@ namespace cf
             cf::GuiSys::GuiResourcesT&  m_GuiResources; ///< The provider for resources (fonts and models) for all GUIs in this world.
             cf::ClipSys::CollModelManI& m_CollModelMan; ///< The manager for all collision models that are used in this world.
             cf::ClipSys::ClipWorldT*    m_ClipWorld;    ///< The clip world, where entities can register their collision models and run collision detection queries. Can be `NULL`, e.g. in CaWE or the map compile tools.
+            PhysicsWorldT*              m_PhysicsWorld; ///< The physics world, where entities can register their rigid bodies and run collision detection queries. Can be `NULL`, e.g. in CaWE or the map compile tools.
 
 
             // Methods called from Lua scripts on cf::GameSys::WorldT instances.

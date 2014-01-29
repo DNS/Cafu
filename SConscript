@@ -7,7 +7,7 @@ Import('env', 'buildMode', 'compiler')
 envMapCompilers = env.Clone()
 
 envMapCompilers.Append(CPPPATH=['ExtLibs/lua/src'])
-envMapCompilers.Append(LIBS=Split("SceneGraph MatSys SoundSys ClipSys cfsLib ClipSys cfs_jpeg bulletcollision lua minizip lightwave png z"))
+envMapCompilers.Append(LIBS=Split("SceneGraph MatSys SoundSys ClipSys cfsLib ClipSys cfs_jpeg bulletdynamics bulletcollision bulletmath lua minizip lightwave png z"))
 
 if sys.platform=="win32":
     envMapCompilers.Append(LIBS=Split("wsock32"))
@@ -145,7 +145,7 @@ appCafu = envCafu.Program('Ca3DE/Cafu',
 
 envCaWE = wxEnv.Clone()
 envCaWE.Append(CPPPATH=['ExtLibs/lua/src', 'ExtLibs/noise/src'])
-envCaWE.Append(LIBS=Split("SceneGraph MatSys SoundSys ClipSys cfsLib ClipSys ModelLoaders cfs_jpeg bulletcollision noise lua minizip lightwave freetype png z"))
+envCaWE.Append(LIBS=Split("SceneGraph MatSys SoundSys ClipSys cfsLib ClipSys ModelLoaders cfs_jpeg bulletdynamics bulletcollision bulletmath noise lua minizip lightwave freetype png z"))
 
 SourceFilesList = (Glob("CaWE/*.cpp")
     +Glob("CaWE/FontWizard/*.cpp")

@@ -26,6 +26,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/Vector3.hpp"
 #include "btBulletDynamicsCommon.h"
 
+#undef min    // See http://stackoverflow.com/questions/5004858/stdmin-gives-error
+#undef max
+
 
 namespace cf { namespace ClipSys { class CollisionModelT; } }
 typedef void TraceUserEntityT;

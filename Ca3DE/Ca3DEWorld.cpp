@@ -95,7 +95,8 @@ Ca3DEWorldT::Ca3DEWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* G
             ModelMan,
             GuiRes,
             *cf::ClipSys::CollModelMan,   // TODO: The CollModelMan should not be a global, but rather be instantiated along with the ModelMan and GuiRes.
-            m_ClipWorld);
+            m_ClipWorld,
+            &m_PhysicsWorld);
 
         cf::GameSys::WorldT::LoadScript(
             m_ScriptWorld,

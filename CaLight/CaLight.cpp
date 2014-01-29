@@ -1464,7 +1464,8 @@ int main(int ArgC, const char* ArgV[])
             ModelMan,
             GuiRes,
             *cf::ClipSys::CollModelMan,   // TODO: The CollModelMan should not be a global, but rather be instantiated along with the ModelMan and GuiRes.
-            NULL);      // No clip world for this instance.
+            NULL,       // No clip world for this instance.
+            NULL);      // No physics world for this instance.
 
         cf::GameSys::WorldT::LoadScript(
             ScriptWorld,
