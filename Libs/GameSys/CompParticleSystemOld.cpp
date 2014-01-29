@@ -86,7 +86,7 @@ void ComponentParticleSystemOldT::InitRenderMats()
     {
         for (unsigned int FrameNr = 0; FrameNr < 26; FrameNr++)
         {
-            sprintf(ParticleName, "Sprites/expl1/expl_%02lu", FrameNr+1);
+            sprintf(ParticleName, "Sprites/expl1/expl_%02u", FrameNr+1);
             m_RenderMats.PushBack(MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial(ParticleName)));
         }
     }
@@ -94,7 +94,7 @@ void ComponentParticleSystemOldT::InitRenderMats()
     {
         for (unsigned int FrameNr = 0; FrameNr < 55; FrameNr++)
         {
-            sprintf(ParticleName, "Sprites/expl4/expl_%02lu", FrameNr+1);
+            sprintf(ParticleName, "Sprites/expl4/expl_%02u", FrameNr+1);
             m_RenderMats.PushBack(MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial(ParticleName)));
         }
     }
@@ -102,7 +102,7 @@ void ComponentParticleSystemOldT::InitRenderMats()
     {
         for (unsigned int FrameNr = 0; FrameNr < 32; FrameNr++)
         {
-            sprintf(ParticleName, "Sprites/smoke1/smoke_%02lu", FrameNr+1);
+            sprintf(ParticleName, "Sprites/smoke1/smoke_%02u", FrameNr+1);
             m_RenderMats.PushBack(MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial(ParticleName)));
         }
     }
@@ -110,7 +110,7 @@ void ComponentParticleSystemOldT::InitRenderMats()
     {
         for (unsigned int FrameNr = 0; FrameNr < 27; FrameNr++)
         {
-            sprintf(ParticleName, "Sprites/expl3/expl_%02lu", FrameNr+1);
+            sprintf(ParticleName, "Sprites/expl3/expl_%02u", FrameNr+1);
             m_RenderMats.PushBack(MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial(ParticleName)));
         }
     }
