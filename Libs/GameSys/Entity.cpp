@@ -94,24 +94,17 @@ EntityT::EntityT(const EntityT& Entity, bool Recursive)
       m_Transform(Entity.GetTransform()->Clone()),
       m_Components()
 {
-    if (Entity.GetApp() != NULL)
-    {
-        m_App = Entity.GetApp()->Clone();
-        m_App->UpdateDependencies(this);
-    }
-
-    m_Basics->UpdateDependencies(this);
-    m_Transform->UpdateDependencies(this);
-
     // Copy-create all components first.
+    if (Entity.GetApp() != NULL)
+        m_App = Entity.GetApp()->Clone();
+
     m_Components.PushBackEmptyExact(Entity.GetComponents().Size());
 
     for (unsigned int CompNr = 0; CompNr < Entity.GetComponents().Size(); CompNr++)
         m_Components[CompNr] = Entity.GetComponents()[CompNr]->Clone();
 
     // Now that all components have been copied, have them resolve their dependencies among themselves.
-    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
-        m_Components[CompNr]->UpdateDependencies(this);
+    UpdateAllDependencies();
 
     // Recursively copy the children.
     if (Recursive)
@@ -241,8 +234,10 @@ void EntityT::SetApp(IntrusivePtrT<ComponentBaseT> App)
     if (m_App == App) return;
 
     if (!m_App.IsNull()) m_App->UpdateDependencies(NULL);
+
     m_App = App;
-    if (!m_App.IsNull()) m_App->UpdateDependencies(this);
+
+    UpdateAllDependencies();
 }
 
 
@@ -285,8 +280,7 @@ bool EntityT::AddComponent(IntrusivePtrT<ComponentBaseT> Comp, unsigned long Ind
     m_Components.InsertAt(std::min(Index, m_Components.Size()), Comp);
 
     // Have the components re-resolve their dependencies among themselves.
-    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
-        m_Components[CompNr]->UpdateDependencies(this);
+    UpdateAllDependencies();
 
     return true;
 }
@@ -300,8 +294,7 @@ void EntityT::DeleteComponent(unsigned long CompNr)
     m_Components.RemoveAtAndKeepOrder(CompNr);
 
     // Have the remaining components re-resolve their dependencies among themselves.
-    for (CompNr = 0; CompNr < m_Components.Size(); CompNr++)
-        m_Components[CompNr]->UpdateDependencies(this);
+    UpdateAllDependencies();
 }
 
 
@@ -574,6 +567,19 @@ bool EntityT::CallLuaMethod(const char* MethodName, int NumExtraArgs, const char
 }
 
 
+void EntityT::UpdateAllDependencies()
+{
+    if (m_App != NULL)
+        m_App->UpdateDependencies(this);
+
+    m_Basics->UpdateDependencies(this);
+    m_Transform->UpdateDependencies(this);
+
+    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
+        m_Components[CompNr]->UpdateDependencies(this);
+}
+
+
 /***********************************************/
 /*** Implementation of Lua binding functions ***/
 /***********************************************/
@@ -764,8 +770,7 @@ int EntityT::AddComponent(lua_State* LuaState)
 
     // Now that the whole set of components has been added,
     // have the components re-resolve their dependencies among themselves.
-    for (unsigned int CompNr = 0; CompNr < Ent->m_Components.Size(); CompNr++)
-        Ent->m_Components[CompNr]->UpdateDependencies(Ent.get());
+    Ent->UpdateAllDependencies();
 
     return 0;
 }

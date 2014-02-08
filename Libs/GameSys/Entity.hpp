@@ -288,6 +288,7 @@ namespace cf
 
             private:
 
+            void UpdateAllDependencies();       ///< Updates the dependencies of all components.
             void operator = (const EntityT&);   ///< Use of the Assignment Operator is not allowed.
 
             WorldT&                                 m_World;        ///< The world instance in which this entity was created and exists. Useful in many regards, but especially for access to the commonly used resources, the script state, etc.
