@@ -220,6 +220,7 @@ const luaL_Reg ComponentSoundT::MethodsList[] =
 
 const cf::TypeSys::MethsDocT ComponentSoundT::DocMethods[] =
 {
+    META_Play,
     META_toString,
     { NULL, NULL, NULL, NULL }
 };

@@ -268,6 +268,7 @@ const luaL_Reg ComponentCollisionModelT::MethodsList[] =
 
 const cf::TypeSys::MethsDocT ComponentCollisionModelT::DocMethods[] =
 {
+    META_SetBoundingBox,
     META_toString,
     { NULL, NULL, NULL, NULL }
 };

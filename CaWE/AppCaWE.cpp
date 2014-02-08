@@ -446,24 +446,24 @@ namespace
 
         Out << "    public:\n";
 
-        for (unsigned int MethodNr = 0; TI->MethodsList[MethodNr].name; MethodNr++)
+        for (unsigned int MethodNr = 0, DocNr = 0; TI->MethodsList[MethodNr].name; MethodNr++)
         {
             const char* MethName = TI->MethodsList[MethodNr].name;
 
             if (strncmp(MethName, "__", 2) == 0) continue;
 
-            Out << "\n";
-
             if (!DocMethods)
             {
+                Out << "\n";
                 Out << "    // WARNING: No method documentation strings for this class!\n";
                 Out << "    " << MethName << "();\n";
 
                 continue;
             }
 
-            if (!DocMethods[MethodNr].Name)
+            if (!DocMethods[DocNr].Name)
             {
+                Out << "\n";
                 Out << "    // WARNING: Unexpected end of method documentation strings encountered!\n";
                 Out << "    " << MethName << "();\n";
 
@@ -471,8 +471,9 @@ namespace
                 continue;
             }
 
-            if (strcmp(MethName, DocMethods[MethodNr].Name) != 0)
+            if (strcmp(MethName, DocMethods[DocNr].Name) != 0)
             {
+                Out << "\n";
                 Out << "    // WARNING: Mismatching method documentation strings encountered!\n";
                 Out << "    " << MethName << "();\n";
 
@@ -480,19 +481,26 @@ namespace
                 continue;
             }
 
-            Out << FormatDoxyComment(DocMethods[MethodNr].Doc, "    ");
-            Out << "    ";
-            if (DocMethods[MethodNr].ReturnType && DocMethods[MethodNr].ReturnType[0]) Out << DocMethods[MethodNr].ReturnType << " ";
-            Out << MethName;
-            if (DocMethods[MethodNr].Parameters && DocMethods[MethodNr].Parameters[0])
+            // Write the documentation of the method, and all of its overloads.
+            while (DocMethods[DocNr].Name != NULL && strcmp(MethName, DocMethods[DocNr].Name) == 0)
             {
-                Out << DocMethods[MethodNr].Parameters;
+                Out << "\n";
+                Out << FormatDoxyComment(DocMethods[DocNr].Doc, "    ");
+                Out << "    ";
+                if (DocMethods[DocNr].ReturnType && DocMethods[DocNr].ReturnType[0]) Out << DocMethods[DocNr].ReturnType << " ";
+                Out << MethName;
+                if (DocMethods[DocNr].Parameters && DocMethods[DocNr].Parameters[0])
+                {
+                    Out << DocMethods[DocNr].Parameters;
+                }
+                else
+                {
+                    Out << "()";
+                }
+                Out << ";\n";
+
+                DocNr++;
             }
-            else
-            {
-                Out << "()";
-            }
-            Out << ";\n";
         }
     }
 
