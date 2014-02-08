@@ -275,15 +275,17 @@ int ComponentScriptT::DamageAll(lua_State* LuaState)
         const Vector3fT Impact = OtherEnt->GetTransform()->GetOrigin() - This->GetTransform()->GetOrigin();
         const float     Dist   = length(Impact);
 
-        if (Dist >= OuterRadius) continue;
+        if (Dist < 0.1f) continue;            // Should never happen.
+        if (Dist >= OuterRadius) continue;    // Too far away.
 
         // TODO: In order to avoid damaging entities through thin walls, we should also perform a simple "visibility test".
-        ScriptBinderT OtherBinder(OtherEnt->GetWorld().GetScriptState().GetLuaState());
+        ScriptBinderT   OtherBinder(OtherEnt->GetWorld().GetScriptState().GetLuaState());
+        const Vector3fT ImpDir = scale(Impact, 1.0f / Dist);
 
         OtherBinder.Push(This);
-        OtherScript->CallLuaMethod("TakeDamage", 1, "ff",
+        OtherScript->CallLuaMethod("TakeDamage", 1, "ffff",
             DamageAmount * (1.0f - (std::max(InnerRadius, Dist) - InnerRadius)/(OuterRadius - InnerRadius)),
-            scale(Impact, 1.0f/Dist));
+            ImpDir.x, ImpDir.y, ImpDir.z);
     }
 
     return 0;
