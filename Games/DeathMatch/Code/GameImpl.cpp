@@ -43,7 +43,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "InfoGeneric.hpp"
 #include "InfoPlayerStart.hpp"
 #include "MonsterMaker.hpp"
-#include "RigidBody.hpp"
 #include "Worldspawn.hpp"
 
 #include "TypeSys.hpp"
@@ -106,7 +105,6 @@ namespace GAME_NAME
         &EntInfoGenericT::TypeInfo,
         &EntInfoPlayerStartT::TypeInfo,
         &EntMonsterMakerT::TypeInfo,
-        &EntRigidBodyT::TypeInfo,
         &EntWorldspawnT::TypeInfo,
     };
 }

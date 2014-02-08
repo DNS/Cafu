@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_PHYSICS_WORLD_HPP_INCLUDED
 
 #include "Math3D/BoundingBox.hpp"   // Temporary for PhysicsWorldT::TraceBoundingBox().
+#include "Math3D/Quaternion.hpp"
 #include "Math3D/Vector3.hpp"
 #include "btBulletDynamicsCommon.h"
 
@@ -39,6 +40,9 @@ inline btVector3 conv(const Vector3T<float>& v) { return btVector3(v.x, v.y, v.z
 inline btVector3 conv(const Vector3T<double>& v) { return btVector3(float(v.x), float(v.y), float(v.z)); }
 inline Vector3fT conv(const btVector3& v) { return Vector3fT(v.x(), v.y(), v.z()); }
 inline Vector3dT convd(const btVector3& v) { return Vector3dT(v.x(), v.y(), v.z()); }
+
+inline cf::math::QuaternionfT conv(const btQuaternion&           v) { return cf::math::QuaternionfT(v.x(), v.y(), v.z(), v.w()); }
+inline btQuaternion           conv(const cf::math::QuaternionfT& v) { return btQuaternion(v.x, v.y, v.z, v.w); }
 
 inline float     UnitsToPhys(float            v) { return v * 0.0254f; }
 inline double    UnitsToPhys(double           v) { return v * 0.0254; }

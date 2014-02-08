@@ -79,6 +79,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameSys/CompLightPoint.hpp"
 #include "GameSys/CompLightRadiosity.hpp"
 #include "GameSys/CompModel.hpp"
+#include "GameSys/CompPhysics.hpp"
 #include "GameSys/CompScript.hpp"
 #include "GameSys/CompSound.hpp"
 #include "GameSys/Entity.hpp"
@@ -881,6 +882,18 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             PointLight->SetMember("Radius", float(wxAtof(MapEnt->GetAndRemove("light_radius"))));
             PointLight->SetMember("ShadowType", wxAtoi(MapEnt->GetAndRemove("light_casts_shadows")));
             Ent->AddComponent(PointLight);
+        }
+
+        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "Rigid Body")
+        {
+            IntrusivePtrT<cf::GameSys::ComponentPhysicsT> Physics    = new cf::GameSys::ComponentPhysicsT();
+            IntrusivePtrT<cf::GameSys::ComponentScriptT>  ScriptComp = new cf::GameSys::ComponentScriptT();
+
+            Physics->SetMember("Mass", float(wxAtof(MapEnt->GetAndRemove("Mass"))));
+            Ent->AddComponent(Physics);
+
+            ScriptComp->SetMember("Name", std::string(m_GameConfig->ModDir + "/Scripts/RigidBody.lua"));
+            Ent->AddComponent(ScriptComp);
         }
 
         if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "speaker")

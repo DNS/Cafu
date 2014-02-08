@@ -144,7 +144,7 @@ appCafu = envCafu.Program('Ca3DE/Cafu',
 
 
 envCaWE = wxEnv.Clone()
-envCaWE.Append(CPPPATH=['ExtLibs/lua/src', 'ExtLibs/noise/src'])
+envCaWE.Append(CPPPATH=['ExtLibs/lua/src', 'ExtLibs/bullet/src', 'ExtLibs/noise/src'])
 envCaWE.Append(LIBS=Split("SceneGraph MatSys SoundSys ClipSys cfsLib ClipSys ModelLoaders cfs_jpeg bulletdynamics bulletcollision bulletmath noise lua minizip lightwave freetype png z"))
 
 SourceFilesList = (Glob("CaWE/*.cpp")
