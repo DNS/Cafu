@@ -165,6 +165,12 @@ namespace cf
             /// Note that the returned bounding-box can be uninitialized, i.e. `GetEditorBB().IsInited() == false` is possible.
             virtual BoundingBox3fT GetEditorBB() const { return BoundingBox3fT(); }
 
+            /// This method inserts the dimensions of the collision model of this component into the given
+            /// bounding-box `BB`.
+            /// If the component does not contribute to collision detection (it does not have a collision model),
+            /// `BB` is not modified: `BB.IsInited() == false` is still possible after the call.
+            virtual void GetCollisionBB(BoundingBox3fT& BB) const { }
+
             /// This method implements the graphical output of this component.
             /// @param LodDist   The distance of the viewer entity to this component's entity.
             virtual void Render(float LodDist) const { }

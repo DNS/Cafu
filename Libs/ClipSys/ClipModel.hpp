@@ -59,8 +59,8 @@ namespace cf
             /// Unregisters this clip model from the clip world.
             void Unregister();
 
-            // /// Returns the collision model of this clip model.
-            // const CollisionModelT* GetCollisionModel() const { return CollisionModel; }
+            /// Returns the collision model of this clip model.
+            const CollisionModelT* GetCollisionModel() const { return CollisionModel; }
 
             /// Sets the given collision model for use with (as the basis of) this clip model.
             /// Unregisters from the clip world first.

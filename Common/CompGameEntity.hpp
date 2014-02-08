@@ -56,6 +56,7 @@ class CompGameEntityT : public cf::GameSys::ComponentBaseT
     CompGameEntityT* Clone() const;
     const char* GetName() const { return "GameEntity"; }
     void UpdateDependencies(cf::GameSys::EntityT* Entity);
+    void GetCollisionBB(BoundingBox3fT& BB) const;
 
 
     private:
