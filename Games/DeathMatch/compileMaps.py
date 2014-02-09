@@ -7,6 +7,7 @@ import os, sys
 Maps = [
     ("Test1",            [], [], ["-StopUE", "0.01"]),
     ("TestPatches",      [], [], ["-StopUE", "0.01"]),
+    ("TestPhysics",      [], [], ["-StopUE", "0.01"]),
     ("AEonsCanyonTower", [], [], ["-StopUE", "0.1"]),
     ("AEonsCube",        [], [], ["-StopUE", "0.1"]),
     ("BPRockB",          [], [], ["-StopUE", "0.1"]),

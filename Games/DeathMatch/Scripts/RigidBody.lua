@@ -5,6 +5,11 @@ local Physics   = RigidBody:GetEntity():GetComponent("Physics")
 local Trafo     = RigidBody:GetEntity():GetTransform()
 
 
+-- TODO: Call InitClientApprox() in some client-init (e.g. OnClientInit()) only?
+Trafo:InitClientApprox("Origin")
+Trafo:InitClientApprox("Orientation")
+
+
 -- This callback provides a default behaviour for rigid bodies that are hit by
 -- shots, explosions, or other kind of damage. Feel free to copy or vary!  :-)
 function RigidBody:TakeDamage(OtherEnt, Amount, ImpDirX, ImpDirY, ImpDirZ)
