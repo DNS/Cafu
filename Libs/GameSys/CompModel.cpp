@@ -434,6 +434,14 @@ IntrusivePtrT<cf::GuiSys::GuiImplT> ComponentModelT::GetGui() const
                     "Set the 'Gui' property\nof the Model component\nto assign the real GUI."),
                 cf::GuiSys::GuiImplT::InitFlag_InlineCode);
         }
+        if (cf::String::EndsWith(m_GuiName.Get(), "_init.cgui"))
+        {
+            m_Gui->LoadScript(
+                cf::String::Replace(FallbackGUI, "%s", "Please use filename\n" +
+                    cf::String::Replace(m_GuiName.Get(), "_init.cgui", "_main.cgui") +
+                    "\nrather than\n" + m_GuiName.Get() + "\nfor the GUI to work right."),
+                cf::GuiSys::GuiImplT::InitFlag_InlineCode);
+        }
         else
         {
             // Set the GUI object's "Model"  field to the related component instance (`this`),
