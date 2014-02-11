@@ -21,7 +21,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Physics.hpp"
 #include "LookupTables.hpp"
-#include "../FuncLadder.hpp"
 #include "../../../GameWorld.hpp"
 #include "ClipSys/ClipWorld.hpp"
 #include "ClipSys/TraceResult.hpp"
@@ -322,24 +321,12 @@ void PhysicsHelperT::MoveHuman(float FrameTime, unsigned short Heading, const Ve
 
     // 2. Determine if we are on a ladder.
     // ViewDir should probably be perpendicular to the gravity vector...
-    const Vector3dT ViewDir=Vector3dT(LookupTables::Angle16ToSin[Heading], LookupTables::Angle16ToCos[Heading], 0.0);
+    const Vector3dT ViewDir = Vector3dT(LookupTables::Angle16ToSin[Heading], LookupTables::Angle16ToCos[Heading], 0.0);
+    cf::ClipSys::TraceResultT LadderResult(1.0);
 
-    // Note that contrary to m_ClipWorld.TraceBoundingBox(), m_ClipWorld.GetContacts() doesn't consider the world,
-    // which is very helpful in some situations.
-    cf::ClipSys::ContactsResultT Contacts;
-    cf::ClipSys::TraceResultT    LadderResult(1.0);
+    m_ClipWorld.TraceBoundingBox(m_Dimensions, m_Origin, ViewDir * 6.0, MaterialT::Clip_Players, &m_ClipModel, LadderResult);
 
-    m_ClipWorld.GetContacts(m_Dimensions, m_Origin, ViewDir*6.0, MaterialT::Clip_Players, &m_ClipModel, Contacts);
-
-    for (unsigned long ContactNr=0; LadderResult.Fraction==1.0 && ContactNr<Contacts.NrOfRepContacts; ContactNr++)
-    {
-        const cf::ClipSys::ClipModelT* CM=Contacts.ClipModels[ContactNr];
-
-        if (CM->GetUserData()!=NULL && static_cast<BaseEntityT*>(CM->GetUserData())->GetType()==&EntFuncLadderT::TypeInfo)
-            LadderResult=Contacts.TraceResults[ContactNr];
-    }
-
-    const bool OnLadder=(LadderResult.Fraction<1.0);
+    const bool OnLadder = LadderResult.Fraction < 1.0 && LadderResult.Material && ((LadderResult.Material->ClipFlags & MaterialT::SP_Ladder) != 0);
 
     if (OnLadder)
     {

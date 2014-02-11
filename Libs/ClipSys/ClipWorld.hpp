@@ -72,7 +72,10 @@ namespace cf
                 unsigned long ClipMask, const ClipModelT* Ignore, TraceResultT& Result, ClipModelT** HitClipModel=NULL) const;
 
             /// Determines the set of clip models that touch a given bounding-box and meet a given contents mask.
-            ///   NOTE: The return list is always exclusive the world, that is, the world clip model is *never* mentioned in the list, even if it meets all criteria otherwise.
+            ///
+            /// @note The return list is always exclusive the world, that is, the world clip model is *never*
+            ///       mentioned in the list, even if it meets all criteria otherwise.
+            ///
             /// @param ClipModels    The method returns the found clip models by appending them to this list. Note: The list is *always* exclusive the "world" clip model!
             /// @param ContentMask   The content filter mask; only clip models that meet this content mask are returned.
             /// @param BB            The bounding-box to be queried for clip models.
@@ -80,6 +83,9 @@ namespace cf
 
             /// Determines all places of contact between all clip models in this world and the given trace model
             /// that would occur when the trace model was translated from trmOrig into direction trmMoveDir by trmMoveAmount.
+            ///
+            /// @note The contacts list is always exclusive the world, that is, the world clip model is *never*
+            ///       mentioned in the list, even if it meets all criteria otherwise.
             ///
             /// @returns This methods returns its results in the two parallel arrays Contacts and ClipModels,
             ///          where each contact that is described by FoundContacts[i] occurred with the clip model pointed to by FoundClipModels[i].

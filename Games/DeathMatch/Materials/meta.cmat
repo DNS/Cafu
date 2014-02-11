@@ -28,9 +28,11 @@ Textures/meta/clip_all
 
 Textures/meta/ladder
 {
-    diffusemap  Textures/meta/ladder_editor.png
-    lightmap    $lightmap
+    AmbientShader none
+    LightShader   none
 
+    // clip all, ladder
+    clip players, monsters, moveables, ik, ladder   // ... but not projectiles, sight, bspPortals and radiance.
     noShadows
     meta_editorImage Textures/meta/ladder_editor.png
 }

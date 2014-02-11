@@ -42,6 +42,23 @@ class MaterialT
     enum TexCoordGenT { Disabled, ObjectSpacePlane, EyeSpacePlane, SphereMap };
     enum PolygonModeT { Filled, Wireframe, Points };
 
+#if 0   // I think it should be like this:
+    /// The properties of the surfaces that this material is assigned to.
+    enum SurfacePropertiesT
+    {
+        SP_ClipPlayers     = 0x0001,
+        ...
+        SP_BlockBspPortals = ...,
+        ...
+        SP_Ladder          = ...
+    }
+
+    /// The properties of the volume that is defined by the brush on whose surface this material is used.
+    enum VolumePropertiesT
+    {
+        VP_Trigger = 0x0001
+    }
+#else
     // Note that Materials are applied to surfaces, and thus they inherently can have surface flags/properties/attributes/types,
     // but not easily (naturally) describe volume/contents properties...
     // Volume properties should only be contents we can teleport into or out of, e.g. water, trigger volumes, etc.
@@ -57,7 +74,8 @@ class MaterialT
         Clip_Radiance   =0x0080,
         Clip_AllBlocking=0x00FF,
         Clip_BlkButUtils=Clip_AllBlocking & ~Clip_BspPortals & ~Clip_Radiance,  // 0x003F
-        Clip_Trigger    =0x0100
+        Clip_Trigger    =0x0100,
+        SP_Ladder       =0x0200
     };
 
     // TODO: Rename ClipFlagsT to ContentsT (as in Q3, D3 etc.)?  Or is contents==volume, and thus something different from ClipFlags?
@@ -71,6 +89,8 @@ class MaterialT
     //       of the volume like WATER, TRIGGER, PAIN, etc.  Separately stored are the *surface* properties, which may be a set of flags plus the
     //       surface type, etc. The clip flags would then be a subset of the surface properties/flags. Only remaining issue: This is currently
     //       a bit inconsistent with the assumptions of the ClipSys... REVISE!
+#endif
+
     enum SurfaceTypeT { ST_None, ST_Stone, ST_Metal, ST_Sand, ST_Wood, ST_Liquid, ST_Glass, ST_Plastic };
 
 

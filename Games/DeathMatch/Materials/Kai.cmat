@@ -331,7 +331,7 @@ Textures/Kai/ladder_chrm
     lightmap    $lightmap
 
     alphaTest 0.5
-    clip players, monsters, moveables, ik   // ... but not projectiles, sight, bspPortals and radiance.
+    clip players, monsters, moveables, ik, ladder   // ... but not projectiles, sight, bspPortals and radiance.
 }
 
 
@@ -343,7 +343,7 @@ Textures/Kai/ladder_red
     lightmap    $lightmap
 
     alphaTest 0.5
-    clip players, monsters, moveables, ik   // ... but not projectiles, sight, bspPortals and radiance.
+    clip players, monsters, moveables, ik, ladder   // ... but not projectiles, sight, bspPortals and radiance.
 }
 
 

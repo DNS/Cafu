@@ -362,6 +362,7 @@ MaterialT::MaterialT(const std::string& MaterialName, const std::string& BaseDir
                 else if (ClipFlagStr=="radiance"   ) cf|=Clip_Radiance;
                 else if (ClipFlagStr=="all"        ) cf|=Clip_AllBlocking;
                 else if (ClipFlagStr=="trigger"    ) cf|=Clip_Trigger;
+                else if (ClipFlagStr=="ladder"     ) cf|=SP_Ladder;
                 else if (ClipFlagStr=="nothing"    ) { }
                 else throw TextParserT::ParseError();
 
