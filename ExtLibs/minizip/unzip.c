@@ -68,9 +68,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifndef NOUNCRYPT
-        #define NOUNCRYPT
-#endif
+// CF: What in the world made them add these three lines...?
+// #ifndef NOUNCRYPT
+//         #define NOUNCRYPT
+// #endif
 
 #include "zlib.h"
 #include "unzip.h"
