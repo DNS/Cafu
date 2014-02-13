@@ -53,12 +53,13 @@ unsigned long CaServerWorldT::CreateNewEntity(const std::map<std::string, std::s
     IntrusivePtrT<cf::GameSys::EntityT> NewEnt  = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
     IntrusivePtrT<CompGameEntityT>      GameEnt = new CompGameEntityT();
 
+    NewEnt->GetTransform()->SetOrigin(Origin.AsVectorOfFloat());
     NewEnt->SetApp(GameEnt);
     m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
 
     GameEnt->GetStaticEntityData()->m_Properties = Properties;
 
-    return CreateNewEntityFromBasicInfo(GameEnt, CreationFrameNr, Origin);
+    return CreateNewEntityFromBasicInfo(GameEnt, CreationFrameNr);
 }
 
 
@@ -92,6 +93,7 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
     IntrusivePtrT<cf::GameSys::EntityT> NewEnt  = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
     IntrusivePtrT<CompGameEntityT>      GameEnt = new CompGameEntityT();
 
+    NewEnt->GetTransform()->SetOrigin(m_World->InfoPlayerStarts[0].Origin.AsVectorOfFloat() + Vector3fT(0, 0, 40));
     NewEnt->SetApp(GameEnt);
     m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
 
@@ -99,7 +101,7 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
     GameEnt->GetStaticEntityData()->m_Properties["name"]      = cf::va("Player%lu", ClientInfoNr+1);     // Setting the name is needed so that player entities can have a corresponding script instance.
     GameEnt->GetStaticEntityData()->m_Properties["angles"]    = cf::va("0 %lu 0", (unsigned long)(m_World->InfoPlayerStarts[0].Heading/8192.0*45.0));
 
-    return CreateNewEntityFromBasicInfo(GameEnt, m_ServerFrameNr+1, m_World->InfoPlayerStarts[0].Origin+VectorT(0, 0, 40), PlayerName, ModelName);
+    return CreateNewEntityFromBasicInfo(GameEnt, m_ServerFrameNr+1, PlayerName, ModelName);
 }
 
 

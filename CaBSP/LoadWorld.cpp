@@ -402,14 +402,8 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
         // 1. Copy the properties.
         GameEnt->m_Properties = E.MFProperties;
 
-        // 2. Copy the origin point.
-        // Der Origin ist etwas besonderes, denn er kommt bei allen "point entities" vor
-        // (bei "solid entities" idR in Form eines Origin-Brushes),
-        // und in der Engine (EntityStateT) sogar bei allen Entities.
-        GameEnt->m_Origin = AllScriptEnts[EntNr]->GetTransform()->GetOrigin().AsVectorOfDouble() * CA3DE_SCALE;
-
         // Move all map primitives in this entity from world space into the local entity space.
-        MFEntityList[EntNr].Translate(-GameEnt->m_Origin);
+        MFEntityList[EntNr].Translate(-AllScriptEnts[EntNr]->GetTransform()->GetOrigin().AsVectorOfDouble() * CA3DE_SCALE);
 
         // 3. Fill-in the Terrains array.
         for (unsigned long TerrainNr = 0; TerrainNr < E.MFTerrains.Size(); TerrainNr++)

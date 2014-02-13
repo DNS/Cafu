@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/****************************/
-/*** CaLight World (Code) ***/
-/****************************/
-
 #include "CaLightWorld.hpp"
 #include "Bitmap/Bitmap.hpp"
 #include "ClipSys/CollisionModel_static.hpp"
@@ -59,7 +55,7 @@ void CaLightWorldT::SaveToDisk(const char* FileName) const
 }
 
 
-void CaLightWorldT::CreateLightMapsForEnts()
+void CaLightWorldT::CreateLightMapsForEnts(const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& AllEnts)
 {
     // Pre-cache some sample directional vectors.
     // Code copied from "CaSHL/Init2.cpp".
@@ -129,7 +125,8 @@ void CaLightWorldT::CreateLightMapsForEnts()
 
                         if (dot(Patch.Normal, SampleDirs[SampleNr])<0) continue;    // Don't try sample dirs against the normal.
 
-                        const Vector3dT RayOrigin = m_World.m_StaticEntityData[EntNr]->m_Origin + Patch.Coord;
+                        const double    CA3DE_SCALE = 25.4;
+                        const Vector3dT RayOrigin = AllEnts[EntNr]->GetTransform()->GetOrigin().AsVectorOfDouble() * CA3DE_SCALE + Patch.Coord;
                         const double    RayLength = 50000.0;    // 50 meters max.
                         const double    HitFrac   = TraceRay(RayOrigin, SampleDirs[SampleNr] * RayLength);
 

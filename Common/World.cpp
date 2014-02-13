@@ -149,11 +149,6 @@ StaticEntityDataT::StaticEntityDataT(std::istream& InFile, cf::SceneGraph::aux::
 
     m_CollModel = HasCollisionModel ? new cf::ClipSys::CollisionModelStaticT(InFile, Pool, ShTe_CollDet) : NULL;
 
-    // Read the origin.
-    InFile.read((char*)&m_Origin.x, sizeof(m_Origin.x));
-    InFile.read((char*)&m_Origin.y, sizeof(m_Origin.y));
-    InFile.read((char*)&m_Origin.z, sizeof(m_Origin.z));
-
     // Read the property pairs.
     for (unsigned long NrOfPropertyPairs = cf::SceneGraph::aux::ReadUInt32(InFile); NrOfPropertyPairs > 0; NrOfPropertyPairs--)
     {
@@ -194,11 +189,6 @@ void StaticEntityDataT::WriteTo(std::ostream& OutFile, cf::SceneGraph::aux::Pool
     OutFile.write((char*)&HasCollisionModel, sizeof(HasCollisionModel));
     if (m_CollModel)
         m_CollModel->SaveToFile(OutFile, Pool);
-
-    // Write the origin.
-    OutFile.write((char*)&m_Origin.x, sizeof(m_Origin.x));
-    OutFile.write((char*)&m_Origin.y, sizeof(m_Origin.y));
-    OutFile.write((char*)&m_Origin.z, sizeof(m_Origin.z));
 
     // Write the property pairs.
     cf::SceneGraph::aux::Write(OutFile, cf::SceneGraph::aux::cnc_ui32(m_Properties.size()));
@@ -326,8 +316,6 @@ void WorldT::ScaleDown254()
     for (unsigned int EntNr = 0; EntNr < m_StaticEntityData.Size(); EntNr++)
     {
         StaticEntityDataT* SED = m_StaticEntityData[EntNr];
-
-        SED->m_Origin /= CA3DE_SCALE;
 
         // This is already done in SharedTerrainT ctor.
         // for (unsigned int ShTe = 0; ShTe < SED->m_Terrains.Size(); ShTe++)

@@ -95,7 +95,6 @@ class StaticEntityDataT
     void WriteTo(std::ostream& OutFile, cf::SceneGraph::aux::PoolT& Pool) const;
 
 
-    Vector3dT                           m_Origin;
     ArrayT<SharedTerrainT*>             m_Terrains;   ///< Terrains are shared among the BspTree (graphics world) and the CollModel (physics world).
     cf::SceneGraph::BspTreeNodeT*       m_BspTree;
     cf::ClipSys::CollisionModelStaticT* m_CollModel;

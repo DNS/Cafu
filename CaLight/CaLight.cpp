@@ -1472,6 +1472,9 @@ int main(int ArgC, const char* ArgV[])
             ScriptName,
             cf::GameSys::WorldT::InitFlag_InMapEditor);
 
+        ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
+        ScriptWorld->GetRootEntity()->GetAll(AllEnts);
+
         unsigned long IterationCount=0;
 
         if (!CaLightOptions.EntitiesOnly)
@@ -1495,9 +1498,6 @@ int main(int ArgC, const char* ArgV[])
             InitializePatchMeshesPVSMatrix(CaLightWorld);   // Init1.cpp
 
             // Perform lighting
-            ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
-            ScriptWorld->GetRootEntity()->GetAll(AllEnts);
-
             DirectLighting(CaLightWorld, AllEnts, BlockSize4DirectLighting);
             IterationCount=BounceLighting(CaLightWorld, CaLightOptions.BlockSize, CaLightOptions.StopUE, CaLightOptions.AskForMore, ArgV[1]);
 
@@ -1520,7 +1520,7 @@ int main(int ArgC, const char* ArgV[])
 
         // Create (fake) lightmaps for (brush or bezier patch based) entities.
         printf("\n%-50s %s\n", "*** Creating entity lightmaps ***", GetTimeSinceProgramStart());
-        CaLightWorld.CreateLightMapsForEnts();
+        CaLightWorld.CreateLightMapsForEnts(AllEnts);
 
         printf("\n%-50s %s\n", "*** Saving World ***", GetTimeSinceProgramStart());
         printf("%s\n", ArgV[1]);

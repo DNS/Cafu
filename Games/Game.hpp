@@ -76,11 +76,10 @@ namespace cf
             /// @param CollisionModel The collision model of this entity as defined by map primitives. NULL if no collision model was defined by map primitives (the entity may still have a collision model based on the Properties).
             /// @param ID             The global unique ID of this entity (in the current map).
             /// @param GameWorld      Pointer to the game world implementation.
-            /// @param Origin         Where the new entity is supposed to be instantiated.
             /// @returns a pointer to the newly created game entity.
             virtual IntrusivePtrT<GameEntityI> CreateGameEntity(const cf::TypeSys::TypeInfoT* TI, IntrusivePtrT<cf::GameSys::EntityT> Entity, const std::map<std::string, std::string>& Properties,
                 const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID,
-                cf::GameSys::GameWorldI* GameWorld, const Vector3T<double>& Origin)=0;
+                cf::GameSys::GameWorldI* GameWorld)=0;
 
             /// The virtual destructor, so that derived classes can safely be deleted via a GameI (base class) pointer.
             virtual ~GameI() { }

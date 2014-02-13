@@ -19,14 +19,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/******************************/
-/*** CaLight World (Header) ***/
-/******************************/
-
 #ifndef CAFU_CALIGHTWORLD_HPP_INCLUDED
 #define CAFU_CALIGHTWORLD_HPP_INCLUDED
 
 #include "../Common/World.hpp"
+#include "GameSys/Entity.hpp"
 
 
 class CaLightWorldT
@@ -49,7 +46,7 @@ class CaLightWorldT
     /// original Radiosity computations.
     /// For example, this function can be implemented without reference to the "bins" of the tone-mapping operator of the
     /// world, which in turn makes the implementation of the "-onlyEnts" command-line option primally possible.
-    void CreateLightMapsForEnts();
+    void CreateLightMapsForEnts(const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& AllEnts);
 
     // Forwarded functions.
     void SaveToDisk(const char* FileName) const;

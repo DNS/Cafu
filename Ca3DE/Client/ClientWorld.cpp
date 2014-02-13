@@ -124,7 +124,7 @@ bool CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
     // denn spätestens bei der SequenceNr und FrameNr kommt es zu Problemen. Deshalb lieber erstmal ein GameEntityI mit "falschem" State erzeugen.
     const cf::TypeSys::TypeInfoT* TI = m_Game->GetEntityTIM().FindTypeInfoByNr(EntityTypeID);
 
-    IntrusivePtrT<GameEntityI> NewEntity = m_Game->CreateGameEntity(TI, NewEnt, Props, RootNode, CollMdl, EntityID, this, Vector3dT());
+    IntrusivePtrT<GameEntityI> NewEntity = m_Game->CreateGameEntity(TI, NewEnt, Props, RootNode, CollMdl, EntityID, this);
 
     // Dies kann nur passieren, wenn EntityTypeID ein unbekannter Typ ist! Ein solcher Fehler ist also fatal.
     // Andererseits sollte ein Disconnect dennoch nicht notwendig sein, der Fehler sollte ohnehin niemals auftreten.

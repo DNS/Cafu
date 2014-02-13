@@ -102,7 +102,7 @@ BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT
       CollisionModel(Params.CollisionModel),
       ClipModel(GameWorld->GetClipWorld()),  // Creates a clip model in the given clip world with a NULL collision model.
 
-      m_Origin(Params.Origin),
+      m_Origin(Params.Entity->GetTransform()->GetOrigin().AsVectorOfDouble()),
       m_Dimensions(Dimensions),
       m_Heading(0),
       m_Pitch(0),

@@ -133,7 +133,7 @@ Ca3DEWorldT::Ca3DEWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* G
 
         // Note that this can fail (and thus not add anything to the m_EngineEntities array),
         // especially for now unsupported entity classes like "func_group"!
-        CreateNewEntityFromBasicInfo(GE, 1 /*ServerFrameNr*/, GE->GetStaticEntityData()->m_Origin);
+        CreateNewEntityFromBasicInfo(GE, 1 /*ServerFrameNr*/);
     }
 }
 
@@ -291,7 +291,7 @@ cf::GuiSys::GuiResourcesT& Ca3DEWorldT::GetGuiResources() const
 
 
 unsigned long Ca3DEWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<const CompGameEntityT> CompGameEnt,
-    unsigned long CreationFrameNr, const Vector3dT& Origin, const char* PlayerName, const char* ModelName)
+    unsigned long CreationFrameNr, const char* PlayerName, const char* ModelName)
 {
     try
     {
@@ -336,7 +336,7 @@ unsigned long Ca3DEWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<const Comp
 
         IntrusivePtrT<GameEntityI> NewEntity = m_Game->CreateGameEntity(
             TI, CompGameEnt->GetEntity(), CompGameEnt->GetStaticEntityData()->m_Properties, CompGameEnt->GetStaticEntityData()->m_BspTree,
-            CompGameEnt->GetStaticEntityData()->m_CollModel, NewEntityID, this, Origin);
+            CompGameEnt->GetStaticEntityData()->m_CollModel, NewEntityID, this);
 
         if (NewEntity.IsNull())
             throw std::runtime_error("Could not create entity of class \""+EntClassName+"\" with C++ class name \""+CppClassName+"\".\n");

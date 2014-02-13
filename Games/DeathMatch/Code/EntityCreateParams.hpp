@@ -45,8 +45,7 @@ namespace GAME_NAME
             const std::map<std::string, std::string>& Properties_,
             const cf::SceneGraph::GenericNodeT*       RootNode_,
             const cf::ClipSys::CollisionModelT*       CollisionModel_,
-            cf::GameSys::GameWorldI*                  GameWorld_,
-            const Vector3dT&                          Origin_);
+            cf::GameSys::GameWorldI*                  GameWorld_);
 
 
         const unsigned long                       ID;
@@ -55,7 +54,6 @@ namespace GAME_NAME
         const cf::SceneGraph::GenericNodeT*       RootNode;
         const cf::ClipSys::CollisionModelT*       CollisionModel;
         cf::GameSys::GameWorldI*                  GameWorld;
-        const Vector3dT&                          Origin;
     };
 }
 
