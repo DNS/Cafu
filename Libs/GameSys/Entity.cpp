@@ -169,7 +169,12 @@ bool EntityT::AddChild(IntrusivePtrT<EntityT> Child, unsigned long Pos)
     Child->m_Parent = this;
 
     // Make sure that the childs name is unique among its siblings.
-    Child->GetBasics()->SetEntityName(Child->GetBasics()->GetEntityName());
+    // The method must be tricked in order to prevent its no-change shortcut erroneously skipping the checks.
+    const std::string ChildName = Child->GetBasics()->GetEntityName();
+
+    Child->GetBasics()->SetEntityName("");
+    Child->GetBasics()->SetEntityName(ChildName);
+
     return true;
 }
 
@@ -626,7 +631,12 @@ int EntityT::AddChild(lua_State* LuaState)
     Child->m_Parent = Ent.get();
 
     // Make sure that the childs name is unique among its siblings.
-    Child->GetBasics()->SetEntityName(Child->GetBasics()->GetEntityName());
+    // The method must be tricked in order to prevent its no-change shortcut erroneously skipping the checks.
+    const std::string ChildName = Child->GetBasics()->GetEntityName();
+
+    Child->GetBasics()->SetEntityName("");
+    Child->GetBasics()->SetEntityName(ChildName);
+
     return 0;
 }
 

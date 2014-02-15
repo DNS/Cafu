@@ -90,6 +90,7 @@ void ComponentBasicsT::EntityNameT::Set(const std::string& v)
     assert(this == &m_CompBasics.m_Name);
 
     // No change? Then skip re-establishing that the name is valid.
+    // Note that this is deliberately tricked in the EntityT::AddChild() methods...
     if (Get() == v) return;
 
     const std::string BaseName = cf::String::ToLuaIdentifier(v);
