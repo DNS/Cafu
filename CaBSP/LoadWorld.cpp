@@ -403,7 +403,21 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
         GameEnt->m_Properties = E.MFProperties;
 
         // Move all map primitives in this entity from world space into the local entity space.
-        MFEntityList[EntNr].Translate(-AllScriptEnts[EntNr]->GetTransform()->GetOrigin().AsVectorOfDouble() * CA3DE_SCALE);
+        //
+        // This is a horrible hack, a variant of cf::GameSys::EntityT::GetModelToWorld() that ignores the orientation
+        // (rather than using the inverse of cf::GameSys::EntityT::GetModelToWorld() directly).
+        //
+        // I did it because it seems to me that MapFileTerrainTs are, at this time, "incompatible" with rotation:
+        // their dimensions are specified with a bounding box. That only really makes sense without rotation,
+        // and we should probably switch to a origin, x- and y-axis representation first...
+        //
+        Vector3dT Delta = AllScriptEnts[EntNr]->GetTransform()->GetOrigin().AsVectorOfDouble();
+
+        for (IntrusivePtrT<const cf::GameSys::EntityT> P = AllScriptEnts[EntNr]->GetParent(); P != NULL; P = P->GetParent())
+            if (!P->GetTransform()->IsIdentity())
+                Delta += P->GetTransform()->GetOrigin().AsVectorOfDouble();
+
+        MFEntityList[EntNr].Translate(-Delta * CA3DE_SCALE);
 
         // 3. Fill-in the Terrains array.
         for (unsigned long TerrainNr = 0; TerrainNr < E.MFTerrains.Size(); TerrainNr++)
