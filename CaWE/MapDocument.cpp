@@ -735,6 +735,101 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
     }
 
 
+    // Set door entities of the same team as children of a new "door controller" entity.
+    {
+        AllScriptEnts.Overwrite();
+        m_ScriptWorld->GetRootEntity()->GetAll(AllScriptEnts);
+
+        std::map<std::string, ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > > Teams;
+
+        for (EntNr = 0; EntNr < AllScriptEnts.Size(); EntNr++)
+        {
+            IntrusivePtrT<cf::GameSys::EntityT> Ent    = AllScriptEnts[EntNr];
+            IntrusivePtrT<CompMapEntityT>       MapEnt = GetMapEnt(Ent);
+
+            if (Ent->GetParent() == m_ScriptWorld->GetRootEntity() && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "func_door")
+            {
+                const std::string TeamName = MapEnt->FindProperty("team") ? MapEnt->FindProperty("team")->Value.ToStdString() : Ent->GetBasics()->GetEntityName();
+
+                Teams[TeamName].PushBack(Ent);
+            }
+        }
+
+        // For each team, create a new entity, and assign the parts of the team as children of the entity.
+        for (std::map<std::string, ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > >::const_iterator It = Teams.begin(); It != Teams.end(); It++)
+        {
+            Vector3fT      Origin;
+            BoundingBox3fT BB;
+            float          triggerPadding = 8.0f;
+
+            for (unsigned int PartNr = 0; PartNr < It->second.Size(); PartNr++)
+            {
+                Origin += It->second[PartNr]->GetTransform()->GetOrigin();
+
+                const ArrayT<MapPrimitiveT*>& PartPrims = GetMapEnt(It->second[PartNr])->GetPrimitives();
+
+                for (unsigned int PrimNr = 0; PrimNr < PartPrims.Size(); PrimNr++)
+                    BB.Insert(PartPrims[PrimNr]->GetBB());
+
+                triggerPadding = std::max(triggerPadding, float(wxAtof(GetMapEnt(It->second[PartNr])->GetAndRemove("triggerPadding", "8.0"))));
+            }
+
+            Origin /= It->second.Size();
+
+            IntrusivePtrT<cf::GameSys::EntityT> DoorEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
+            IntrusivePtrT<CompMapEntityT>       MapEnt  = new CompMapEntityT(*this);
+            const EntityClassT*                 EntityClass = m_GameConfig->FindClass("info_generic");
+
+            MapEnt->SetClass(EntityClass ? EntityClass : FindOrCreateUnknownClass("info_generic", true));
+
+            DoorEnt->GetBasics()->SetEntityName("door");
+            DoorEnt->GetTransform()->SetOrigin(Origin);
+            DoorEnt->SetApp(MapEnt);
+
+            m_ScriptWorld->GetRootEntity()->AddChild(DoorEnt);
+
+            for (unsigned int PartNr = 0; PartNr < It->second.Size(); PartNr++)
+            {
+                IntrusivePtrT<cf::GameSys::EntityT> Part = It->second[PartNr];
+
+                const bool Result1 = m_ScriptWorld->GetRootEntity()->RemoveChild(Part);
+                wxASSERT(Result1);
+
+                const bool Result2 = DoorEnt->AddChild(Part);
+                wxASSERT(Result2);
+
+                // Set the origin of the part relative to the parent.
+                Part->GetTransform()->SetOrigin(Part->GetTransform()->GetOrigin() - Origin);
+
+                // Change the class of the part from "func_door" to "info_generic".
+                GetMapEnt(Part)->SetClass(EntityClass ? EntityClass : FindOrCreateUnknownClass("info_generic", true));
+            }
+
+            // Add an explicit trigger brush to the DoorEnt.
+            if (!BB.IsInited())
+                BB = BoundingBox3fT(Origin).GetEpsilonBox(32.0f);
+
+            unsigned int sa = 0;    // shortest axis
+
+            for (unsigned int i = 1; i < 3; i++)
+                if (BB.Max[i] - BB.Min[i] < BB.Max[sa] - BB.Min[sa])
+                    sa = i;
+
+            BB.Min[sa] -= triggerPadding;
+            BB.Max[sa] += triggerPadding;
+
+            MapEnt->AddPrim(MapBrushT::CreateBlock(BB,
+                m_GameConfig->GetMatMan().FindMaterial("Textures/meta/trigger", true)));
+
+            // Add a script component to the DoorEnt.
+            IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
+
+            ScriptComp->SetMember("Name", std::string(m_GameConfig->ModDir + "/Scripts/Door.lua"));
+            DoorEnt->AddComponent(ScriptComp);
+        }
+    }
+
+
     // Automatically migrate "old-style" properties (e.g. from cmap files version <= 13, or foreign imported map files)
     // to "new-style" entity components as much as possible.
     // Do this in a manner that allows us a smooth, backwards-compatible transition: It should be possible to account
