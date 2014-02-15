@@ -1244,13 +1244,15 @@ bool MapDocumentT::OnSaveDocument(const wxString& cmapFileName, bool IsAutoSave)
         for (unsigned long GroupNr=0; GroupNr<m_Groups.Size(); GroupNr++)
             m_Groups[GroupNr]->Save_cmap(cmapOutFile, GroupNr);
 
-        // Save entities.
-        const ArrayT< IntrusivePtrT<CompMapEntityT> >& MapEntities = GetEntities();
+        // Save entities (in depth-first order, as in the .cent file).
+        ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllScriptEnts;
 
-        for (unsigned long EntNr = 0/*with world*/; EntNr < MapEntities.Size(); EntNr++)
+        m_ScriptWorld->GetRootEntity()->GetAll(AllScriptEnts);
+
+        for (unsigned long EntNr = 0/*with world*/; EntNr < AllScriptEnts.Size(); EntNr++)
         {
             const BoundingBox3fT* Intersecting = NULL;
-            IntrusivePtrT<const CompMapEntityT> Ent = MapEntities[EntNr];
+            IntrusivePtrT<const CompMapEntityT> Ent = GetMapEnt(AllScriptEnts[EntNr]);
 
             if (!Intersecting || Ent->GetElemsBB().Intersects(*Intersecting))
             {
