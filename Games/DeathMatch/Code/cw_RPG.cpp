@@ -114,8 +114,8 @@ void CarriedWeaponRPGT::ServerSide_Think(EntHumanPlayerT* Player, const PlayerCo
                         IntrusivePtrT<cf::GameSys::EntityT> Ent = Rocket->m_Entity;
 
                         Ent->GetBasics()->SetEntityName("Rocket");
-                        Ent->GetTransform()->SetOrigin(RocketOrigin.AsVectorOfFloat());
-                        Ent->GetTransform()->SetQuat(cf::math::QuaternionfT::Euler(
+                        Ent->GetTransform()->SetOriginWS(RocketOrigin.AsVectorOfFloat());
+                        Ent->GetTransform()->SetQuatWS(cf::math::QuaternionfT::Euler(
                             float((Player->GetPitch()/8192.0*45.0) * 3.1415926 / 180.0),
                             float((90.0 - Player->GetHeading()/8192.0*45.0) * 3.1415926 / 180.0),
                             0));

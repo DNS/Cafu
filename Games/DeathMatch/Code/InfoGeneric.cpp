@@ -66,7 +66,7 @@ bool EntInfoGenericT::GetLightSourceInfo(unsigned long& DiffuseColor, unsigned l
 
     DiffuseColor  = (unsigned long)(Col.x) + ((unsigned long)(Col.y) << 8) + ((unsigned long)(Col.z) << 16);
     SpecularColor = DiffuseColor;
-    Position      = m_Entity->GetTransform()->GetOrigin().AsVectorOfDouble();
+    Position      = m_Entity->GetTransform()->GetOriginWS().AsVectorOfDouble();
     Radius        = L->GetRadius();
     CastsShadows  = L->CastsShadows();
 

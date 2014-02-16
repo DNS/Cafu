@@ -464,18 +464,6 @@ void EntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
 }
 
 
-MatrixT EntityT::GetModelToWorld() const
-{
-    MatrixT ModelToWorld(m_Transform->GetOrigin(), m_Transform->GetQuat());
-
-    for (const EntityT* P = m_Parent; P; P = P->m_Parent)
-        if (!P->m_Transform->IsIdentity())
-            ModelToWorld = MatrixT(P->m_Transform->GetOrigin(), P->m_Transform->GetQuat()) * ModelToWorld;
-
-    return ModelToWorld;
-}
-
-
 void EntityT::RenderComponents(float LodDist) const
 {
     if (!m_Basics->IsShown()) return;

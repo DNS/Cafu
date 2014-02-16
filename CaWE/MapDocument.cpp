@@ -643,7 +643,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
 
     while (EntNr < AllMapEnts.Size())
     {
-        // There were more entities in the `.cmap` file than in the `.cent` file.
+        // There were fewer entities in the `.cent` file than in the `.cmap` file.
         IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
         IntrusivePtrT<CompMapEntityT>       MapEnt = AllMapEnts[EntNr];
 
@@ -681,7 +681,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
         const EntPropertyT* OriginProp = MapEnt->FindProperty("origin");
         if (OriginProp)
         {
-            NewEnt->GetTransform()->SetOrigin(OriginProp->GetVector3f());
+            NewEnt->GetTransform()->SetOriginWS(OriginProp->GetVector3f());
             MapEnt->RemoveProperty("origin");
         }
         else
@@ -692,7 +692,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
                 BB += MapEnt->GetPrimitives()[PrimNr]->GetBB();
 
             if (BB.IsInited())
-                NewEnt->GetTransform()->SetOrigin(BB.GetCenter());
+                NewEnt->GetTransform()->SetOriginWS(BB.GetCenter());
         }
 
         const EntPropertyT* AnglesProp = MapEnt->FindProperty("angles");
@@ -727,7 +727,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             wxASSERT(length(Q1 - Q3) < 0.001f || length(Q1 + Q3) < 0.001f);
             wxASSERT(length(Q2 - Q3) < 0.001f || length(Q2 + Q3) < 0.001f);
 
-            NewEnt->GetTransform()->SetQuat(Q3);
+            NewEnt->GetTransform()->SetQuatWS(Q3);
             MapEnt->RemoveProperty("angles");
         }
 
@@ -764,7 +764,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
 
             for (unsigned int PartNr = 0; PartNr < It->second.Size(); PartNr++)
             {
-                Origin += It->second[PartNr]->GetTransform()->GetOrigin();
+                Origin += It->second[PartNr]->GetTransform()->GetOriginWS();
 
                 const ArrayT<MapPrimitiveT*>& PartPrims = GetMapEnt(It->second[PartNr])->GetPrimitives();
 
@@ -781,16 +781,16 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             const EntityClassT*                 EntityClass = m_GameConfig->FindClass("info_generic");
 
             MapEnt->SetClass(EntityClass ? EntityClass : FindOrCreateUnknownClass("info_generic", true));
+            m_ScriptWorld->GetRootEntity()->AddChild(DoorEnt);
 
             DoorEnt->GetBasics()->SetEntityName("door");
-            DoorEnt->GetTransform()->SetOrigin(Origin);
+            DoorEnt->GetTransform()->SetOriginWS(Origin);
             DoorEnt->SetApp(MapEnt);
-
-            m_ScriptWorld->GetRootEntity()->AddChild(DoorEnt);
 
             for (unsigned int PartNr = 0; PartNr < It->second.Size(); PartNr++)
             {
                 IntrusivePtrT<cf::GameSys::EntityT> Part = It->second[PartNr];
+                const Vector3fT                     PartPosWS = Part->GetTransform()->GetOriginWS();
 
                 const bool Result1 = m_ScriptWorld->GetRootEntity()->RemoveChild(Part);
                 wxASSERT(Result1);
@@ -798,8 +798,8 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
                 const bool Result2 = DoorEnt->AddChild(Part);
                 wxASSERT(Result2);
 
-                // Set the origin of the part relative to the parent.
-                Part->GetTransform()->SetOrigin(Part->GetTransform()->GetOrigin() - Origin);
+                // The part is now positioned relative to DoorEnt, but we want to keep its origin unchanged in world-space:
+                Part->GetTransform()->SetOriginWS(PartPosWS);
 
                 // Change the class of the part from "func_door" to "info_generic".
                 GetMapEnt(Part)->SetClass(EntityClass ? EntityClass : FindOrCreateUnknownClass("info_generic", true));
@@ -958,7 +958,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             // Some hack in CaBSP's LoadWorld.cpp file used to force direction (0, 0, -1), downwards, for the radiosity light.
             // With the new ComponentRadiosityLightT's, CaLight assumes that the main light direction is along the x-axis.
             // Thus, for backwards-compatibility, force an orientation here whose x-axis points downwards.
-            Ent->GetTransform()->SetQuat(cf::math::QuaternionfT(cf::math::Matrix3x3fT::GetRotateYMatrix(90.0f)));
+            Ent->GetTransform()->SetQuatWS(cf::math::QuaternionfT(cf::math::Matrix3x3fT::GetRotateYMatrix(90.0f)));
         }
 
         if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "PointLightSource")
@@ -1166,10 +1166,12 @@ namespace
         if (Entity->GetBasics()->IsStatic())
             OutFile << "    self:GetBasics():set(\"Static\", true)\n";
 
-        OutFile << "    self:GetTransform():set(\"Origin\", " << Entity->GetTransform()->GetOrigin().x << ", " << Entity->GetTransform()->GetOrigin().y << ", " << Entity->GetTransform()->GetOrigin().z << ")\n";
-     // OutFile << "    self:GetTransform():set(\"Size\", " << Entity->GetTransform()->GetSize().x << ", " << Entity->GetTransform()->GetSize().y << ")\n";
+        OutFile << "    self:GetTransform():set(\"Origin\", "
+                << Entity->GetTransform()->GetOriginPS().x << ", "
+                << Entity->GetTransform()->GetOriginPS().y << ", "
+                << Entity->GetTransform()->GetOriginPS().z << ")\n";
 
-        const Vector3fT QuatXYZ = Entity->GetTransform()->GetQuat().GetXYZ();
+        const Vector3fT QuatXYZ = Entity->GetTransform()->GetQuatPS().GetXYZ();
         if (QuatXYZ != Vector3fT(0, 0, 0))
             OutFile << "    self:GetTransform():set(\"Orientation\", " << QuatXYZ.x << ", " << QuatXYZ.y << ", " << QuatXYZ.z << ")\n";
 
@@ -2553,7 +2555,7 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
         IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
         IntrusivePtrT<CompMapEntityT>       MapEnt = new CompMapEntityT(*this);
 
-        NewEnt->GetTransform()->SetOrigin(SnapToGrid(GetMostRecentSelBB().GetCenter(), false /*Toggle*/, -1 /*AxisNoSnap*/));
+        NewEnt->GetTransform()->SetOriginWS(SnapToGrid(GetMostRecentSelBB().GetCenter(), false /*Toggle*/, -1 /*AxisNoSnap*/));
         NewEnt->SetApp(MapEnt);
 
         MapEnt->SetClass(NewEntityClass);

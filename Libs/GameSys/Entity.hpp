@@ -25,7 +25,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CompBasics.hpp"
 #include "CompTransform.hpp"
 
-#include "Math3D/Matrix.hpp"
 #include "Templates/Array.hpp"
 #include "Templates/Pointer.hpp"
 
@@ -214,10 +213,6 @@ namespace cf
             ///   Used to indicate that the call is part of the construction / first-time initialization of the entity.
             ///   The implementation will use this to not wrongly process the event counters, interpolation, etc.
             void Deserialize(cf::Network::InStreamT& Stream, bool IsIniting);
-
-            /// Returns the matrix that transforms points from local entity space to world space,
-            /// i.e. into "absolute" coordinates (as opposed to "relative" coordinates in the space of the parent).
-            MatrixT GetModelToWorld() const;
 
             /// Renders the components of this entity.
             /// Note that this method does *not* recurse into the children, and it does *not* setup any of the

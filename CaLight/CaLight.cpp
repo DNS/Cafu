@@ -563,8 +563,8 @@ void DirectLighting(const CaLightWorldT& CaLightWorld, const ArrayT< IntrusivePt
 
         // "RL" is short for "Radiosity Light", "PL" is short for "Point Light".
         const double        CA3DE_SCALE  = 25.4;
-        const Vector3dT     PL_Origin    = AllEnts[EntNr]->GetTransform()->GetOrigin().AsVectorOfDouble() * CA3DE_SCALE;
-        const Vector3dT     PL_Dir       = (cf::math::Matrix3x3fT(AllEnts[EntNr]->GetTransform()->GetQuat()) * Vector3fT(1, 0, 0)).AsVectorOfDouble();
+        const Vector3dT     PL_Origin    = AllEnts[EntNr]->GetTransform()->GetOriginWS().AsVectorOfDouble() * CA3DE_SCALE;
+        const Vector3dT     PL_Dir       = (cf::math::Matrix3x3fT(AllEnts[EntNr]->GetTransform()->GetQuatWS()) * Vector3fT(1, 0, 0)).AsVectorOfDouble();
         const Vector3dT     PL_Intensity = RL->GetColor().AsVectorOfDouble() * RL->GetIntensity();
         const double        cosPLAngle   = cos(RL->GetConeAngle() / 2.0f);
         const unsigned long PL_LeafNr    = Map.WhatLeaf(PL_Origin);

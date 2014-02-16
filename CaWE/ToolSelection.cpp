@@ -561,8 +561,8 @@ bool ToolSelectionT::OnMouseMove2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
 
                     if (!Entity->GetClass()->IsSolidClass() /*Entity->GetClass()->HasOrigin()*/)
                     {
-                        RefPoint   =Entity->GetOrigin();
-                        RefPointPtr=&RefPoint;
+                        RefPoint    = Entity->GetEntity()->GetTransform()->GetOriginWS();
+                        RefPointPtr = &RefPoint;
                     }
                 }
 

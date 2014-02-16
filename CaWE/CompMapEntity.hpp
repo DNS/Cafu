@@ -88,8 +88,6 @@ namespace MapEditor
         void SetClass(const EntityClassT* NewClass);
         const EntityClassT* GetClass() const { return m_Class; }
 
-        Vector3fT GetOrigin() const;
-
         const ArrayT<EntPropertyT>& GetProperties() const { return m_Properties; }
               ArrayT<EntPropertyT>& GetProperties()       { return m_Properties; }
 

@@ -143,8 +143,8 @@ void CarriedWeaponGrenadeT::ServerSide_Think(EntHumanPlayerT* Player, const Play
                         IntrusivePtrT<cf::GameSys::EntityT> Ent = HandGrenade->m_Entity;
 
                         Ent->GetBasics()->SetEntityName("HandGrenade");
-                        Ent->GetTransform()->SetOrigin(HandGrenadeOrigin.AsVectorOfFloat());
-                        Ent->GetTransform()->SetQuat(cf::math::QuaternionfT::Euler(0, float((90.0 - Player->GetHeading()/8192.0*45.0) * 3.1415926 / 180.0), 0));
+                        Ent->GetTransform()->SetOriginWS(HandGrenadeOrigin.AsVectorOfFloat());
+                        Ent->GetTransform()->SetQuatWS(cf::math::QuaternionfT::Euler(0, float((90.0 - Player->GetHeading()/8192.0*45.0) * 3.1415926 / 180.0), 0));
 
                         IntrusivePtrT<cf::GameSys::ComponentModelT> ModelComp = new cf::GameSys::ComponentModelT();
                         ModelComp->SetMember("Name", std::string("Games/DeathMatch/Models/Weapons/Grenade/Grenade_w.cmdl"));

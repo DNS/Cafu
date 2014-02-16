@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_GAMESYS_COMPONENT_TRANSFORM_HPP_INCLUDED
 
 #include "CompBase.hpp"
+#include "Math3D/Matrix.hpp"
 #include "Math3D/Quaternion.hpp"
 
 
@@ -30,9 +31,23 @@ namespace cf
 {
     namespace GameSys
     {
-        /// This component adds information about the position and orientation of the entity.
-        /// It is one of the components that is "fundamental" to an entity (cf::GameSys::IsFundamental() returns `true`).
-        /// Every entity must have exactly one.
+        /// This component adds information about the position and orientation of its entity.
+        /// Positions and orientations can be measured relative to several distinct spaces:
+        ///
+        /// world-space
+        ///   : The global and "absolute" coordinate space that also exists when nothing else does.
+        ///
+        /// entity-space
+        ///   : The local coordinate system of the entity. It is defined by the entity's transform component relative
+        ///     to the entity's parent-space. The term "model-space" can be used synonymously with "entity-space".
+        ///
+        /// parent-space
+        ///   : The entity-space of an entity's parent.
+        ///     If an entity has no parent entity, this is the same as world-space.
+        ///
+        /// Although transform components can theoretically and technically exist without being attached to an entity,
+        /// in practice this distinction is not made. Every entity has exactly one built-in transform component, and
+        /// terms like "the origin of the transform" and "the origin of the entity" are used synonymously.
         class ComponentTransformT : public ComponentBaseT
         {
             public:
@@ -47,21 +62,32 @@ namespace cf
             /// Returns whether the transformation described by this component is the identity ("no") transform.
             bool IsIdentity() const { return m_Origin.Get() == Vector3fT() && m_Quat.Get() == Vector3fT(); }
 
-            /// Returns the origin of the entity (in the coordinate system of its parent).
-            const Vector3fT& GetOrigin() const { return m_Origin.Get(); }
+            /// Returns the origin of the transform (in "parent-space").
+            const Vector3fT& GetOriginPS() const { return m_Origin.Get(); }
 
-            /// Sets the origin of the entity (in the coordinate system of its parent).
-            void SetOrigin(const Vector3fT& Origin) { m_Origin.Set(Origin); }
+            /// Sets the origin of the transform (in "parent-space").
+            void SetOriginPS(const Vector3fT& Origin) { m_Origin.Set(Origin); }
 
-            /// Returns the orientation of the entity (in the coordinate system of its parent).
-            /// The class keeps the orientation as the first three components (x, y, z) of a unit quaternion,
-            /// so the method has to convert appropriately.
-            const cf::math::QuaternionfT GetQuat() const { return cf::math::QuaternionfT::FromXYZ(m_Quat.Get()); }
+            /// Returns the orientation of the transform (in "parent-space").
+            const cf::math::QuaternionfT GetQuatPS() const { return cf::math::QuaternionfT::FromXYZ(m_Quat.Get()); }
 
-            /// Sets the orientation of the entity (in the coordinate system of its parent).
-            /// The class keeps the orientation as the first three components (x, y, z) of a unit quaternion,
-            /// so the method has to convert appropriately.
-            void SetQuat(const cf::math::QuaternionfT& Quat) { m_Quat.Set(Quat.GetXYZ()); }
+            /// Sets the orientation of the transform (in "parent-space").
+            void SetQuatPS(const cf::math::QuaternionfT& Quat) { m_Quat.Set(Quat.GetXYZ()); }
+
+            /// Returns the origin of the transform (in world-space).
+            Vector3fT GetOriginWS() const;
+
+            /// Sets the origin of the transform (in world-space).
+            void SetOriginWS(const Vector3fT& OriginWS);
+
+            /// Returns the orientation of the transform (in world-space).
+            const cf::math::QuaternionfT GetQuatWS() const;
+
+            /// Sets the orientation of the transform (in world-space).
+            void SetQuatWS(const cf::math::QuaternionfT& QuatWS);
+
+            /// Returns the transformation matrix from local entity-space to world-space.
+            MatrixT GetEntityToWorld() const;
 
 
             // Base class overrides.
@@ -93,8 +119,8 @@ namespace cf
 
             private:
 
-            TypeSys::VarT<Vector3fT> m_Origin;  ///< The origin of the entity (in the coordinate system of its parent).
-            TypeSys::VarT<Vector3fT> m_Quat;    ///< The orientation of the entity (in the coordinate system of its parent).
+            TypeSys::VarT<Vector3fT> m_Origin;  ///< The origin of the transform (in "parent-space").
+            TypeSys::VarT<Vector3fT> m_Quat;    ///< The orientation of the transform (in "parent-space"), kept as the first three components (x, y, z) of a unit quaternion.
         };
     }
 }

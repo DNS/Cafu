@@ -126,7 +126,7 @@ void CaLightWorldT::CreateLightMapsForEnts(const ArrayT< IntrusivePtrT<cf::GameS
                         if (dot(Patch.Normal, SampleDirs[SampleNr])<0) continue;    // Don't try sample dirs against the normal.
 
                         const double    CA3DE_SCALE = 25.4;
-                        const Vector3dT RayOrigin = AllEnts[EntNr]->GetTransform()->GetOrigin().AsVectorOfDouble() * CA3DE_SCALE + Patch.Coord;
+                        const Vector3dT RayOrigin = AllEnts[EntNr]->GetTransform()->GetOriginWS().AsVectorOfDouble() * CA3DE_SCALE + Patch.Coord;
                         const double    RayLength = 50000.0;    // 50 meters max.
                         const double    HitFrac   = TraceRay(RayOrigin, SampleDirs[SampleNr] * RayLength);
 

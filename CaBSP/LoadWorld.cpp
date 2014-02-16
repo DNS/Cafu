@@ -388,7 +388,7 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
             InfoPlayerStartT IPS;
             std::map<std::string, std::string>::const_iterator It;
 
-            IPS.Origin  = AllScriptEnts[EntNr]->GetTransform()->GetOrigin().AsVectorOfDouble() * CA3DE_SCALE;
+            IPS.Origin  = AllScriptEnts[EntNr]->GetTransform()->GetOriginWS().AsVectorOfDouble() * CA3DE_SCALE;
             IPS.Heading = 0;
             IPS.Pitch   = 0;
             IPS.Bank    = 0;
@@ -411,11 +411,11 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
         // their dimensions are specified with a bounding box. That only really makes sense without rotation,
         // and we should probably switch to a origin, x- and y-axis representation first...
         //
-        Vector3dT Delta = AllScriptEnts[EntNr]->GetTransform()->GetOrigin().AsVectorOfDouble();
+        Vector3dT Delta = AllScriptEnts[EntNr]->GetTransform()->GetOriginPS().AsVectorOfDouble();
 
         for (IntrusivePtrT<const cf::GameSys::EntityT> P = AllScriptEnts[EntNr]->GetParent(); P != NULL; P = P->GetParent())
             if (!P->GetTransform()->IsIdentity())
-                Delta += P->GetTransform()->GetOrigin().AsVectorOfDouble();
+                Delta += P->GetTransform()->GetOriginPS().AsVectorOfDouble();
 
         MFEntityList[EntNr].Translate(-Delta * CA3DE_SCALE);
 

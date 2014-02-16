@@ -355,7 +355,7 @@ bool EntHumanPlayerT::CheckGUI(IntrusivePtrT<cf::GameSys::ComponentModelT> CompM
     if (!Pose) return false;
     if (!Pose->GetGuiPlane(0, GuiOrigin, GuiAxisX, GuiAxisY)) return false;
 
-    const MatrixT M2W = CompModel->GetEntity()->GetModelToWorld();
+    const MatrixT M2W = CompModel->GetEntity()->GetTransform()->GetEntityToWorld();
 
     GuiOrigin = M2W.Mul1(GuiOrigin);
     GuiAxisX  = M2W.Mul0(GuiAxisX);

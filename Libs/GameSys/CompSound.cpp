@@ -114,7 +114,7 @@ void ComponentSoundT::DoClientFrame(float t)
 
     if (S && E)
     {
-        S->SetPosition(E->GetTransform()->GetOrigin().AsVectorOfDouble());
+        S->SetPosition(E->GetTransform()->GetOriginWS().AsVectorOfDouble());
      // S->SetVelocity(...);
     }
 

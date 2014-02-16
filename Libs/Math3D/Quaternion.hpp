@@ -92,6 +92,10 @@ namespace cf
                 return w<0 ? Vector3T<T>(x, y, z) : Vector3T<T>(-x, -y, -z);
             }
 
+            /// Returns the conjugate of this quaternion.
+            /// If the quaternion is of unit length, then the conjugate is also its inverse.
+            QuaternionT<T> GetConjugate() const { return QuaternionT<T>(-x, -y, -z, w); }
+
             /// Returns the dot product of this quaternion and B.
             T dot(const QuaternionT<T>& B) const { return x*B.x + y*B.y + z*B.z + w*B.w; }
 

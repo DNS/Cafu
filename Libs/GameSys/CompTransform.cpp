@@ -21,6 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "CompTransform.hpp"
 #include "AllComponents.hpp"
+#include "Entity.hpp"
 
 #include "Math3D/Angles.hpp"
 #include "UniScriptState.hpp"
@@ -42,7 +43,23 @@ namespace
 
 
 const char* ComponentTransformT::DocClass =
-    "This component adds information about the position and orientation of the entity.";
+    "This component adds information about the position and orientation of its entity.\n"
+    "Positions and orientations can be measured relative to several distinct spaces:\n"
+    "\n"
+    "world-space\n"
+    "  : The global and \"absolute\" coordinate space that also exists when nothing else does.\n"
+    "\n"
+    "entity-space\n"
+    "  : The local coordinate system of the entity. It is defined by the entity's transform component relative\n"
+    "    to the entity's parent-space. The term \"model-space\" can be used synonymously with \"entity-space\".\n"
+    "\n"
+    "parent-space\n"
+    "  : The entity-space of an entity's parent.\n"
+    "    If an entity has no parent entity, this is the same as world-space.\n"
+    "\n"
+    "Although transform components can theoretically and technically exist without being attached to an entity,\n"
+    "in practice this distinction is not made. Every entity has exactly one built-in transform component, and\n"
+    "terms like \"the origin of the transform\" and \"the origin of the entity\" are used synonymously.";
 
 
 const cf::TypeSys::VarsDocT ComponentTransformT::DocVars[] =
@@ -73,6 +90,121 @@ ComponentTransformT::ComponentTransformT(const ComponentTransformT& Comp)
 }
 
 
+Vector3fT ComponentTransformT::GetOriginWS() const
+{
+    IntrusivePtrT<const EntityT> Ent = GetEntity();
+
+    if (Ent == NULL)
+        return m_Origin.Get();
+
+    Ent = Ent->GetParent();
+
+    if (Ent == NULL)
+        return m_Origin.Get();
+
+    MatrixT Mat(Ent->GetTransform()->GetOriginPS(), Ent->GetTransform()->GetQuatPS());
+
+    for (Ent = Ent->GetParent(); Ent != NULL; Ent = Ent->GetParent())
+        if (!Ent->GetTransform()->IsIdentity())
+            Mat = MatrixT(Ent->GetTransform()->GetOriginPS(), Ent->GetTransform()->GetQuatPS()) * Mat;
+
+    // Mat now transforms from parent-space to world-space, so multiply m_Origin with it.
+    return Mat.Mul1(m_Origin.Get());
+}
+
+
+void ComponentTransformT::SetOriginWS(const Vector3fT& OriginWS)
+{
+    // This is largely analogous to GetOriginWS().
+    IntrusivePtrT<const EntityT> Ent = GetEntity();
+
+    if (Ent == NULL)
+    {
+        m_Origin.Set(OriginWS);
+        return;
+    }
+
+    Ent = Ent->GetParent();
+
+    if (Ent == NULL)
+    {
+        m_Origin.Set(OriginWS);
+        return;
+    }
+
+    MatrixT Mat(Ent->GetTransform()->GetOriginPS(), Ent->GetTransform()->GetQuatPS());
+
+    for (Ent = Ent->GetParent(); Ent != NULL; Ent = Ent->GetParent())
+        if (!Ent->GetTransform()->IsIdentity())
+            Mat = MatrixT(Ent->GetTransform()->GetOriginPS(), Ent->GetTransform()->GetQuatPS()) * Mat;
+
+    // The inverse of Mat now transforms from world-space to parent-space, so multiply OriginWS with it.
+    m_Origin.Set(Mat.InvXForm(OriginWS));
+}
+
+
+const cf::math::QuaternionfT ComponentTransformT::GetQuatWS() const
+{
+    cf::math::QuaternionfT Quat = GetQuatPS();
+
+    if (GetEntity() == NULL)
+        return Quat;
+
+    for (IntrusivePtrT<const EntityT> P = GetEntity()->GetParent(); P != NULL; P = P->GetParent())
+        if (P->GetTransform()->m_Quat.Get() != Vector3fT())
+            Quat = P->GetTransform()->GetQuatPS() * Quat;
+
+    // Quat describes the rotation from entity-space to world-space.
+    return Quat;
+}
+
+
+void ComponentTransformT::SetQuatWS(const cf::math::QuaternionfT& QuatWS)
+{
+    IntrusivePtrT<const EntityT> Ent = GetEntity();
+
+    if (Ent == NULL)
+    {
+        m_Quat.Set(QuatWS.GetXYZ());
+        return;
+    }
+
+    Ent = Ent->GetParent();
+
+    if (Ent == NULL)
+    {
+        m_Quat.Set(QuatWS.GetXYZ());
+        return;
+    }
+
+    cf::math::QuaternionfT Quat = Ent->GetTransform()->GetQuatPS();
+
+    for (Ent = Ent->GetParent(); Ent != NULL; Ent = Ent->GetParent())
+        if (Ent->GetTransform()->m_Quat.Get() != Vector3fT())
+            Quat = Ent->GetTransform()->GetQuatPS() * Quat;
+
+    // Quat describes the rotation from parent-space to world-space, that is:
+    //     QuatWS = Quat * GetQuatPS()
+    // As we have to find "GetQuatPS()", left-multiply both sides with the inverse of Quat.
+    m_Quat.Set((Quat.GetConjugate() * QuatWS).GetXYZ());
+}
+
+
+MatrixT ComponentTransformT::GetEntityToWorld() const
+{
+    MatrixT ModelToWorld(GetOriginPS(), GetQuatPS());
+
+    if (!GetEntity())
+        return ModelToWorld;
+
+    for (IntrusivePtrT<const EntityT> P = GetEntity()->GetParent(); P != NULL; P = P->GetParent())
+        if (!P->GetTransform()->IsIdentity())
+            ModelToWorld = MatrixT(P->GetTransform()->GetOriginPS(), P->GetTransform()->GetQuatPS()) * ModelToWorld;
+
+    return ModelToWorld;
+}
+
+
 ComponentTransformT* ComponentTransformT::Clone() const
 {
     return new ComponentTransformT(*this);
@@ -85,7 +217,8 @@ static const cf::TypeSys::MethsDocT META_GetAngles =
     "Returns the orientation of this entity as a tuple of three angles, measured in degrees:\n"
     "  - heading (yaw),\n"
     "  - pitch,\n"
-    "  - bank (roll).",
+    "  - bank (roll).\n"
+    "The angles are relative to the coordinate system of the parent entity.",
     "tuple", "()"
 };
 
@@ -93,7 +226,7 @@ int ComponentTransformT::GetAngles(lua_State* LuaState)
 {
     ScriptBinderT                      Binder(LuaState);
     IntrusivePtrT<ComponentTransformT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentTransformT> >(1);
-    const cf::math::AnglesfT           Angles(Comp->GetQuat());
+    const cf::math::AnglesfT           Angles(Comp->GetQuatPS());
 
     lua_pushnumber(LuaState, Angles.yaw());
     lua_pushnumber(LuaState, Angles.pitch());
@@ -108,7 +241,8 @@ static const cf::TypeSys::MethsDocT META_SetAngles =
     "Sets the orientation of this entity from a set of three angles, measured in degrees:\n"
     "  - heading (yaw),\n"
     "  - pitch,\n"
-    "  - bank (roll).",
+    "  - bank (roll).\n"
+    "The angles are relative to the coordinate system of the parent entity.",
     "", "(number heading, number pitch=0.0, number bank=0.0)"
 };
 
@@ -123,7 +257,7 @@ int ComponentTransformT::SetAngles(lua_State* LuaState)
     Angles.pitch() = float(lua_tonumber(LuaState, 3));
     Angles.roll()  = float(lua_tonumber(LuaState, 4));
 
-    Comp->SetQuat(cf::math::QuaternionfT(Angles));
+    Comp->SetQuatPS(cf::math::QuaternionfT(Angles));
     return 0;
 }
 
@@ -141,7 +275,7 @@ int ComponentTransformT::GetAxisX(lua_State* LuaState)
 {
     ScriptBinderT                      Binder(LuaState);
     IntrusivePtrT<ComponentTransformT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentTransformT> >(1);
-    const cf::math::QuaternionfT       Quat = Comp->GetQuat();
+    const cf::math::QuaternionfT       Quat = Comp->GetQuatPS();
 
     // This is the same code as in the related Matrix3x3T(Quat) constructor.
     lua_pushnumber(LuaState, 1 - 2 * Quat.y * Quat.y - 2 * Quat.z * Quat.z);
@@ -164,7 +298,7 @@ int ComponentTransformT::GetAxisY(lua_State* LuaState)
 {
     ScriptBinderT                      Binder(LuaState);
     IntrusivePtrT<ComponentTransformT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentTransformT> >(1);
-    const cf::math::QuaternionfT       Quat = Comp->GetQuat();
+    const cf::math::QuaternionfT       Quat = Comp->GetQuatPS();
 
     // This is the same code as in the related Matrix3x3T(Quat) constructor.
     lua_pushnumber(LuaState,     2 * Quat.x * Quat.y - 2 * Quat.w * Quat.z);
@@ -187,7 +321,7 @@ int ComponentTransformT::GetAxisZ(lua_State* LuaState)
 {
     ScriptBinderT                      Binder(LuaState);
     IntrusivePtrT<ComponentTransformT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentTransformT> >(1);
-    const cf::math::QuaternionfT       Quat = Comp->GetQuat();
+    const cf::math::QuaternionfT       Quat = Comp->GetQuatPS();
 
     // This is the same code as in the related Matrix3x3T(Quat) constructor.
     lua_pushnumber(LuaState,     2 * Quat.x * Quat.z + 2 * Quat.w * Quat.y);

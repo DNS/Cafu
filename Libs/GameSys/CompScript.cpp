@@ -272,7 +272,7 @@ int ComponentScriptT::DamageAll(lua_State* LuaState)
         if (OtherEnt == This) continue;   // We don't damage us ourselves.
         if (OtherScript.IsNull()) continue;
 
-        const Vector3fT Impact = OtherEnt->GetTransform()->GetOrigin() - This->GetTransform()->GetOrigin();
+        const Vector3fT Impact = OtherEnt->GetTransform()->GetOriginWS() - This->GetTransform()->GetOriginWS();
         const float     Dist   = length(Impact);
 
         if (Dist < 0.1f) continue;            // Should never happen.

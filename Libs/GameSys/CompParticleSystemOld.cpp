@@ -284,7 +284,7 @@ int ComponentParticleSystemOldT::EmitParticle(lua_State* LuaState)
 
     Comp->InitRenderMats();
 
-    const Vector3fT& Origin = Comp->GetEntity()->GetTransform()->GetOrigin();
+    const Vector3fT& Origin = Comp->GetEntity()->GetTransform()->GetOriginWS();
 
     // Register a new particle.
     static ParticleMST P;

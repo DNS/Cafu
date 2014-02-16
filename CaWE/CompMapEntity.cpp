@@ -102,12 +102,6 @@ void CompMapEntityT::SetClass(const EntityClassT* NewClass)
 }
 
 
-Vector3fT CompMapEntityT::GetOrigin() const
-{
-    return GetEntity()->GetTransform()->GetOrigin();
-}
-
-
 EntPropertyT* CompMapEntityT::FindProperty(const wxString& Key, int* Index, bool Create)
 {
     for (unsigned long PropNr=0; PropNr<m_Properties.Size(); PropNr++)

@@ -185,8 +185,8 @@ void ComponentCollisionModelT::UpdateClipModel()
     }
 
     // Has the origin or orientation changed since we last registered clip model? If so, re-register!
-    const Vector3fT              o = GetEntity()->GetTransform()->GetOrigin();
-    const cf::math::QuaternionfT q = GetEntity()->GetTransform()->GetQuat();
+    const Vector3fT              o = GetEntity()->GetTransform()->GetOriginWS();
+    const cf::math::QuaternionfT q = GetEntity()->GetTransform()->GetQuatWS();
 
     if (IsNewClipModel || o != m_ClipPrevOrigin || q != m_ClipPrevQuat)
     {

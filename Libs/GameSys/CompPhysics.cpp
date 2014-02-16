@@ -172,8 +172,8 @@ void ComponentPhysicsT::getWorldTransform(btTransform& worldTrans) const
 
     // Return the initial transformation of our rigid body to the physics world.
     worldTrans.setIdentity();
-    worldTrans.setOrigin(conv(UnitsToPhys(GetEntity()->GetTransform()->GetOrigin())));
-    worldTrans.setRotation(conv(GetEntity()->GetTransform()->GetQuat()));
+    worldTrans.setOrigin(conv(UnitsToPhys(GetEntity()->GetTransform()->GetOriginWS())));
+    worldTrans.setRotation(conv(GetEntity()->GetTransform()->GetQuatWS()));
 }
 
 
@@ -189,8 +189,8 @@ void ComponentPhysicsT::setWorldTransform(const btTransform& worldTrans)
     }
 
     // Update the transformation of our entity according to the physics world results.
-    GetEntity()->GetTransform()->SetOrigin(PhysToUnits(conv(worldTrans.getOrigin())));
-    GetEntity()->GetTransform()->SetQuat(conv(worldTrans.getRotation()));
+    GetEntity()->GetTransform()->SetOriginWS(PhysToUnits(conv(worldTrans.getOrigin())));
+    GetEntity()->GetTransform()->SetQuatWS(conv(worldTrans.getRotation()));
 }
 
 

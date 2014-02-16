@@ -106,12 +106,12 @@ void ComponentPlayerPhysicsT::DoServerFrame(float t)
     const unsigned short Heading = 0;   // TODO!
     bool OldWishJump = false;
 
-    m_Origin = GetEntity()->GetTransform()->GetOrigin().AsVectorOfDouble();
+    m_Origin = GetEntity()->GetTransform()->GetOriginWS().AsVectorOfDouble();
     m_Vel    = m_Velocity.Get();
 
     MoveHuman(t, Heading, Vector3dT() /*WishVelocity*/, Vector3dT() /*WishVelLadder*/, false /*WishJump*/, OldWishJump, 0.0);
 
-    GetEntity()->GetTransform()->SetOrigin(m_Origin.AsVectorOfFloat());
+    GetEntity()->GetTransform()->SetOriginWS(m_Origin.AsVectorOfFloat());
     m_Velocity.Set(m_Vel);
 }
 

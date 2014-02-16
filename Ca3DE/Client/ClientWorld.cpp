@@ -631,7 +631,7 @@ void CaClientWorldT::DrawEntities(unsigned long OurEntityID, bool SkipOurEntity,
                 MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
                 MatSys::Renderer->PushLightingParameters();
                 {
-                    const MatrixT ModelToWorld = Ent->GetModelToWorld();
+                    const MatrixT ModelToWorld = Ent->GetTransform()->GetEntityToWorld();
 
                     MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, ModelToWorld);
 
@@ -650,7 +650,7 @@ void CaClientWorldT::DrawEntities(unsigned long OurEntityID, bool SkipOurEntity,
                     // Set the ambient light color for this entity.
                     // This is not a global, but rather a per-entity value that is derived from the lightmaps that are close to that entity.
                     const Vector3fT AmbientEntityLight = GetAmbientLightColorFromBB(
-                        BoundingBox3dT(Vector3dT(-4, -4, -4), Vector3dT(4, 4, 4)), Ent->GetTransform()->GetOrigin().AsVectorOfDouble());
+                        BoundingBox3dT(Vector3dT(-4, -4, -4), Vector3dT(4, 4, 4)), Ent->GetTransform()->GetOriginWS().AsVectorOfDouble());
 
                     MatSys::Renderer->SetCurrentAmbientLightColor(AmbientEntityLight.x, AmbientEntityLight.y, AmbientEntityLight.z);
 
@@ -675,7 +675,7 @@ void CaClientWorldT::DrawEntities(unsigned long OurEntityID, bool SkipOurEntity,
                         }
                     }
 
-                    Ent->RenderComponents(length(ViewerPos.AsVectorOfFloat() - m_EngineEntities[EntityID]->GetEntity()->GetTransform()->GetOrigin()));
+                    Ent->RenderComponents(length(ViewerPos.AsVectorOfFloat() - m_EngineEntities[EntityID]->GetEntity()->GetTransform()->GetOriginWS()));
                 }
                 MatSys::Renderer->PopLightingParameters();
                 MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);

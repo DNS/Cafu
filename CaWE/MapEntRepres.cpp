@@ -95,8 +95,8 @@ void MapEntRepresT::Assign(const MapElementT* Elem)
     ThisEnt->SetClass(OtherEnt->GetClass());
     ThisEnt->GetProperties() = OtherEnt->GetProperties();
 
-    ThisEnt->GetEntity()->GetTransform()->SetOrigin(OtherEnt->GetOrigin());
-    ThisEnt->GetEntity()->GetTransform()->SetQuat(OtherEnt->GetEntity()->GetTransform()->GetQuat());
+    ThisEnt->GetEntity()->GetTransform()->SetOriginPS(OtherEnt->GetEntity()->GetTransform()->GetOriginPS());
+    ThisEnt->GetEntity()->GetTransform()->SetQuatPS(OtherEnt->GetEntity()->GetTransform()->GetQuatPS());
 }
 
 
@@ -167,7 +167,7 @@ void MapEntRepresT::Render2D(Renderer2DT& Renderer) const
 
             for (unsigned long EntNr = 0; EntNr < FoundEntities.Size(); EntNr++)
             {
-                const wxPoint OtherCenter = Renderer.GetViewWin2D().WorldToTool(FoundEntities[EntNr]->GetOrigin());
+                const wxPoint OtherCenter = Renderer.GetViewWin2D().WorldToTool(FoundEntities[EntNr]->GetEntity()->GetTransform()->GetOriginWS());
 
                 Renderer.DrawLine(Center, OtherCenter);
             }
@@ -177,14 +177,14 @@ void MapEntRepresT::Render2D(Renderer2DT& Renderer) const
     // Render the coordinate axes of our local system.
     if (IsSelected())
     {
-        Renderer.BasisVectors(m_Parent->GetOrigin(), cf::math::Matrix3x3fT(m_Parent->GetEntity()->GetTransform()->GetQuat()));
+        Renderer.BasisVectors(m_Parent->GetEntity()->GetTransform()->GetOriginWS(), cf::math::Matrix3x3fT(m_Parent->GetEntity()->GetTransform()->GetQuatWS()));
     }
 }
 
 
 void MapEntRepresT::Render3D(Renderer3DT& Renderer) const
 {
-    const float EntDist = length(m_Parent->GetOrigin() - Renderer.GetViewWin3D().GetCamera().Pos);
+    const float EntDist = length(m_Parent->GetEntity()->GetTransform()->GetOriginWS() - Renderer.GetViewWin3D().GetCamera().Pos);
 
     if (GetComponentsBB().IsInited() && EntDist < float(Options.view3d.ModelDistance))
     {
@@ -193,7 +193,7 @@ void MapEntRepresT::Render3D(Renderer3DT& Renderer) const
 
         MatSys::Renderer->SetCurrentAmbientLightColor(1.0f, 1.0f, 1.0f);
         MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
-        MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, Ent->GetModelToWorld());
+        MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, Ent->GetTransform()->GetEntityToWorld());
 
         Ent->RenderComponents(EntDist);
 
@@ -211,7 +211,7 @@ void MapEntRepresT::Render3D(Renderer3DT& Renderer) const
 
     // Render the coordinate axes of our local system.
     if (IsSelected())
-        Renderer.BasisVectors(m_Parent->GetOrigin(), cf::math::Matrix3x3fT(m_Parent->GetEntity()->GetTransform()->GetQuat()));
+        Renderer.BasisVectors(m_Parent->GetEntity()->GetTransform()->GetOriginWS(), cf::math::Matrix3x3fT(m_Parent->GetEntity()->GetTransform()->GetQuatWS()));
 }
 
 
@@ -232,7 +232,7 @@ BoundingBox3fT MapEntRepresT::GetBB() const
     }
 
     // Transform BB from the entity's local space into world space.
-    const MatrixT Mat = m_Parent->GetEntity()->GetModelToWorld();
+    const MatrixT Mat = m_Parent->GetEntity()->GetTransform()->GetEntityToWorld();
     Vector3fT     VerticesBB[8];
 
     BB.GetCornerVertices(VerticesBB);
@@ -279,9 +279,9 @@ bool MapEntRepresT::TracePixel(const wxPoint& Pixel, int Radius, const ViewWindo
 
 void MapEntRepresT::TrafoMove(const Vector3fT& Delta)
 {
-    const Vector3fT Origin = m_Parent->GetOrigin();
+    const Vector3fT Origin = m_Parent->GetEntity()->GetTransform()->GetOriginWS();
 
-    m_Parent->GetEntity()->GetTransform()->SetOrigin(Origin + Delta);
+    m_Parent->GetEntity()->GetTransform()->SetOriginWS(Origin + Delta);
 
     MapElementT::TrafoMove(Delta);
 }
@@ -289,7 +289,7 @@ void MapEntRepresT::TrafoMove(const Vector3fT& Delta)
 
 void MapEntRepresT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles)
 {
-    Vector3fT Origin = m_Parent->GetOrigin();
+    Vector3fT Origin = m_Parent->GetEntity()->GetTransform()->GetOriginWS();
 
     // Rotate the origin.
     Origin -= RefPoint;
@@ -302,11 +302,11 @@ void MapEntRepresT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::Angle
 
     const cf::math::AnglesfT AngRad = Angles * (cf::math::AnglesfT::PI / 180.0);
 
-    const cf::math::QuaternionfT OldQuat = m_Parent->GetEntity()->GetTransform()->GetQuat();
+    const cf::math::QuaternionfT OldQuat = m_Parent->GetEntity()->GetTransform()->GetQuatWS();
     const cf::math::QuaternionfT RotQuat = cf::math::QuaternionfT::Euler(-AngRad[1], AngRad[2], AngRad[0]);
 
-    m_Parent->GetEntity()->GetTransform()->SetOrigin(Origin);
-    m_Parent->GetEntity()->GetTransform()->SetQuat(OldQuat * RotQuat);
+    m_Parent->GetEntity()->GetTransform()->SetOriginWS(Origin);
+    m_Parent->GetEntity()->GetTransform()->SetQuatWS(OldQuat * RotQuat);
 
     MapElementT::TrafoRotate(RefPoint, Angles);
 }
@@ -314,9 +314,9 @@ void MapEntRepresT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::Angle
 
 void MapEntRepresT::TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale)
 {
-    const Vector3fT Origin = m_Parent->GetOrigin();
+    const Vector3fT Origin = m_Parent->GetEntity()->GetTransform()->GetOriginWS();
 
-    m_Parent->GetEntity()->GetTransform()->SetOrigin(RefPoint + (Origin - RefPoint).GetScaled(Scale));
+    m_Parent->GetEntity()->GetTransform()->SetOriginWS(RefPoint + (Origin - RefPoint).GetScaled(Scale));
 
     MapElementT::TrafoScale(RefPoint, Scale);
 }
@@ -324,11 +324,11 @@ void MapEntRepresT::TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale
 
 void MapEntRepresT::TrafoMirror(unsigned int NormalAxis, float Dist)
 {
-    Vector3fT Origin = m_Parent->GetOrigin();
+    Vector3fT Origin = m_Parent->GetEntity()->GetTransform()->GetOriginWS();
 
     Origin[NormalAxis] = Dist - (Origin[NormalAxis] - Dist);
 
-    m_Parent->GetEntity()->GetTransform()->SetOrigin(Origin);
+    m_Parent->GetEntity()->GetTransform()->SetOriginWS(Origin);
 
     MapElementT::TrafoMirror(NormalAxis, Dist);
 }
@@ -336,9 +336,9 @@ void MapEntRepresT::TrafoMirror(unsigned int NormalAxis, float Dist)
 
 void MapEntRepresT::Transform(const MatrixT& Matrix)
 {
-    const Vector3fT Origin = m_Parent->GetOrigin();
+    const Vector3fT Origin = m_Parent->GetEntity()->GetTransform()->GetOriginWS();
 
-    m_Parent->GetEntity()->GetTransform()->SetOrigin(Matrix.Mul1(Origin));
+    m_Parent->GetEntity()->GetTransform()->SetOriginWS(Matrix.Mul1(Origin));
 
     MapElementT::Transform(Matrix);
 }
@@ -370,8 +370,8 @@ BoundingBox3fT MapEntRepresT::GetRepresBB() const
 {
     BoundingBox3fT BB = m_Parent->GetClass() ? m_Parent->GetClass()->GetBoundingBox() : BoundingBox3fT(Vector3fT(-8, -8, -8), Vector3fT(8, 8, 8));
 
-    BB.Min += m_Parent->GetOrigin();
-    BB.Max += m_Parent->GetOrigin();
+    BB.Min += m_Parent->GetEntity()->GetTransform()->GetOriginWS();
+    BB.Max += m_Parent->GetEntity()->GetTransform()->GetOriginWS();
 
     return BB;
 }
