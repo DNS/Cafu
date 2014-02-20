@@ -803,6 +803,26 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
 
                 // Change the class of the part from "func_door" to "info_generic".
                 GetMapEnt(Part)->SetClass(EntityClass ? EntityClass : FindOrCreateUnknownClass("info_generic", true));
+
+                // Configure the part for the main Door script.
+                IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
+
+                std::istringstream iss(GetMapEnt(Part)->GetAndRemove("moveDir"));
+                Vector3fT          MoveDir;
+
+                iss >> MoveDir.x >> MoveDir.y >> MoveDir.z;
+                MoveDir = normalizeOr0(MoveDir);
+
+                const BoundingBox3fT PartBB     = GetMapEnt(Part)->GetElemsBB();
+                const Vector3fT      PartSize   = PartBB.Max - PartBB.Min;
+                const Vector3fT      AbsMoveDir = Vector3fT(fabs(MoveDir.x), fabs(MoveDir.y), fabs(MoveDir.z));
+                const double         Lip        = float(wxAtof(GetMapEnt(Part)->GetAndRemove("lip", "0.0")));
+
+                MoveDir *= dot(PartSize, AbsMoveDir) - Lip;
+
+                ScriptComp->SetMember("ScriptCode", wxString::Format(
+                    "local Part = ...\nPart:GetEntity().MoveVec = { %.1f, %.1f, %.1f }\n", MoveDir.x, MoveDir.y, MoveDir.z).ToStdString());
+                Part->AddComponent(ScriptComp);
             }
 
             // Add an explicit trigger brush to the DoorEnt.
@@ -825,6 +845,9 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
 
             ScriptComp->SetMember("Name", std::string(m_GameConfig->ModDir + "/Scripts/Door.lua"));
+            ScriptComp->SetMember("ScriptCode", std::string("local Door = ...\n") +
+                "Door.OpenTime = " + GetMapEnt(It->second[0])->GetAndRemove("openTime", "1.0") + "\n" +
+                "Door.MoveTime = " + GetMapEnt(It->second[0])->GetAndRemove("moveTime", "1.0") + "\n");
             DoorEnt->AddComponent(ScriptComp);
         }
     }
