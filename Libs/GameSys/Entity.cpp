@@ -433,6 +433,7 @@ void EntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
             // The component was newly added to an entity that exists in a live map.
             // Consequently, we must run the post-load stuff here.
             m_Components[CompNr]->OnPostLoad(false);
+            m_Components[CompNr]->CallLuaMethod("OnInit", 0);
         }
     }
 

@@ -119,11 +119,15 @@ WorldT::InitErrorT::InitErrorT(const std::string& Message)
     assert(lua_gettop(LuaState) == 0);
 
 
-    // Finally call the Lua OnInit() and OnInit2() methods of each entity.
+    // Finally call the Lua OnInit() methods of each entity.
     ArrayT< IntrusivePtrT<EntityT> > AllEnts;
     World->GetRootEntity()->GetAll(AllEnts);
 
-    World->Init();  // The script has the option to call this itself (via world:Init()) at an earlier time.
+    for (unsigned long EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
+    {
+        // The OnInit() methods are automatically written by the Cafu Map Editor (*_init.cgui files).
+        AllEnts[EntNr]->CallLuaMethod("OnInit", 0);
+    }
 
     for (unsigned long EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
     {
@@ -150,15 +154,29 @@ WorldT::InitErrorT::InitErrorT(const std::string& Message)
             // The LuaState will be closed by the m_ScriptState.
             throw InitErrorT(Msg);
         }
+    }
 
-        // The OnInit2() methods contain custom, hand-written code by the user (*_main.cgui files).
-        AllEnts[EntNr]->CallLuaMethod("OnInit2", 0);
-
-        // Let each component know that the "static" part of initialization is now complete.
+    for (unsigned long EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
+    {
+        // Let each component know that the "static" part of initialization is now complete
+        // (all components of the entity have been instantiated when we get here).
+        // For example, script components use this to actually load and run the custom scripts.
         const ArrayT< IntrusivePtrT<ComponentBaseT> >& Components = AllEnts[EntNr]->GetComponents();
 
         for (unsigned int CompNr = 0; CompNr < Components.Size(); CompNr++)
             Components[CompNr]->OnPostLoad((Flags & InitFlag_InMapEditor) != 0);
+    }
+
+    for (unsigned long EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
+    {
+        // As the final step of initialization, call each component's OnInit() script method.
+        // When we get here, the script components have loaded and initially run all custom scripts.
+        // For example, scripts for door entities can now assume that the scripts of their "parts"
+        // (child entities) have already been loaded and run, and thus access their custom values.
+        const ArrayT< IntrusivePtrT<ComponentBaseT> >& Components = AllEnts[EntNr]->GetComponents();
+
+        for (unsigned int CompNr = 0; CompNr < Components.Size(); CompNr++)
+            Components[CompNr]->CallLuaMethod("OnInit", 0);
     }
 
 
@@ -171,7 +189,6 @@ WorldT::WorldT(cf::UniScriptStateT& ScriptState, ModelManagerT& ModelMan, cf::Gu
                cf::ClipSys::CollModelManI& CollModelMan, cf::ClipSys::ClipWorldT* ClipWorld, PhysicsWorldT* PhysicsWorld)
     : m_ScriptState(ScriptState),
       m_RootEntity(NULL),
-      m_IsInited(false),
       m_NextEntID(0),
       m_ModelMan(ModelMan),
       m_GuiResources(GuiRes),
@@ -179,25 +196,6 @@ WorldT::WorldT(cf::UniScriptStateT& ScriptState, ModelManagerT& ModelMan, cf::Gu
       m_ClipWorld(ClipWorld),
       m_PhysicsWorld(PhysicsWorld)
 {
-}
-
-
-void WorldT::Init()
-{
-    if (m_IsInited) return;
-
-    ArrayT< IntrusivePtrT<EntityT> > AllChildren;
-
-    AllChildren.PushBack(m_RootEntity);
-    m_RootEntity->GetChildren(AllChildren, true);
-
-    for (unsigned long ChildNr = 0; ChildNr < AllChildren.Size(); ChildNr++)
-    {
-        // The OnInit() methods are automatically written by the Cafu Map Editor (*_init.cgui files).
-        AllChildren[ChildNr]->CallLuaMethod("OnInit", 0);
-    }
-
-    m_IsInited = true;
 }
 
 
@@ -333,23 +331,6 @@ int WorldT::SetRootEntity(lua_State* LuaState)
 }
 
 
-static const cf::TypeSys::MethsDocT META_Init =
-{
-    "Init",
-    "This method calls the `OnInit()` script methods of all entities.",
-    "", "()"
-};
-
-int WorldT::Init(lua_State* LuaState)
-{
-    ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<WorldT> World = Binder.GetCheckedObjectParam< IntrusivePtrT<WorldT> >(1);
-
-    World->Init();
-    return 0;
-}
-
-
 static const cf::TypeSys::MethsDocT META_TraceRay =
 {
     "TraceRay",
@@ -480,7 +461,6 @@ const luaL_Reg WorldT::MethodsList[] =
 {
     { "new",           CreateNew },
     { "SetRootEntity", SetRootEntity },
-    { "Init",          Init },
     { "TraceRay",      TraceRay },
     { "Phys_TraceBB",  Phys_TraceBB },
     { "__tostring",    toString },
@@ -491,7 +471,6 @@ const cf::TypeSys::MethsDocT WorldT::DocMethods[] =
 {
     META_CreateNew,
     META_SetRootEntity,
-    META_Init,
     META_TraceRay,
     META_Phys_TraceBB,
     META_toString,

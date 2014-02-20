@@ -165,6 +165,7 @@ void CarriedWeaponRPGT::ServerSide_Think(EntHumanPlayerT* Player, const PlayerCo
 
                         // As we're inserting a new entity into a live map, post-load stuff must be run here.
                         ScriptComp->OnPostLoad(false);
+                        ScriptComp->CallLuaMethod("OnInit", 0);
                     }
                 }
                 break;

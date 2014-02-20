@@ -166,7 +166,6 @@ namespace cf
 
             UniScriptStateT&            m_ScriptState;  ///< The script state that this world is bound to.
             IntrusivePtrT<EntityT>      m_RootEntity;   ///< The root of the entity hierarchy that forms this world.
-            bool                        m_IsInited;     ///< Has the Init() method already been called?
             unsigned int                m_NextEntID;    ///< The ID that the next newly created entity should get.
             ModelManagerT&              m_ModelMan;     ///< The manager for all models that are used in this world.
             cf::GuiSys::GuiResourcesT&  m_GuiResources; ///< The provider for resources (fonts and models) for all GUIs in this world.
@@ -178,7 +177,6 @@ namespace cf
             // Methods called from Lua scripts on cf::GameSys::WorldT instances.
             static int CreateNew(lua_State* LuaState);      ///< Creates and returns a new entity or component.
             static int SetRootEntity(lua_State* LuaState);  ///< Sets the root entity for this world.
-            static int Init(lua_State* LuaState);           ///< Calls the OnInit() script methods of all entities.
             static int TraceRay(lua_State* LuaState);       ///< Employs m_ClipWorld->TraceRay() to trace a ray through the (clip) world.
             static int Phys_TraceBB(lua_State* LuaState);   ///< Employs m_PhysicsWorld->TraceBoundingBox() to trace a bounding-box through the (physics) world.
             static int toString(lua_State* LuaState);       ///< Returns a short string description of this world.
