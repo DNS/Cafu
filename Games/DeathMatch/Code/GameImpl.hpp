@@ -50,7 +50,7 @@ namespace GAME_NAME
         void Release();
         const cf::TypeSys::TypeInfoManT& GetEntityTIM() const;
 
-        IntrusivePtrT<GameEntityI> CreateGameEntity(const cf::TypeSys::TypeInfoT* TI, IntrusivePtrT<cf::GameSys::EntityT> Entity, const std::map<std::string, std::string>& Properties, const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID, cf::GameSys::GameWorldI* GameWorld);
+        IntrusivePtrT<GameEntityI> CreateGameEntity(const cf::TypeSys::TypeInfoT* TI, IntrusivePtrT<cf::GameSys::EntityT> Entity, const std::map<std::string, std::string>& Properties, const cf::SceneGraph::GenericNodeT* RootNode, unsigned long ID, cf::GameSys::GameWorldI* GameWorld);
 
 
         // Additional methods.

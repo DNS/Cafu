@@ -99,7 +99,7 @@ BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT
       ParentID(0xFFFFFFFF),
       m_Entity(Params.Entity),
       GameWorld(Params.GameWorld),
-      CollisionModel(Params.CollisionModel),
+      CollisionModel(NULL),
       ClipModel(GameWorld->GetClipWorld()),  // Creates a clip model in the given clip world with a NULL collision model.
 
       m_Origin(Params.Entity->GetTransform()->GetOriginWS().AsVectorOfDouble()),
@@ -130,33 +130,6 @@ BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT
 
         iss >> d; iss >> d;
         m_Heading=(unsigned short)(d*8192.0/45.0);
-    }
-
-    if (CollisionModel==NULL)
-    {
-        // Okay, the mapper did not provide any map primitives (e.g. brushes, bezier patches, etc.) for this entity,
-        // meaning that for this entity, there is no "precompiled" collision model that comes with the world file.
-        // Now see if the "collisionModel" property has been set, specifying an external file or a parametric description
-        // (cube, cylinder, etc.) as the collision model.
-        It=Properties.find("collisionModel");
-
-        if (It!=Properties.end() && It->second!="")
-        {
-            if (It->second=="cube")     // consider:  if (It->second.BeginsWith("cube ")) ...  [params follow in same string].
-            {
-                // TODO...
-                ;
-            }
-            else if (It->second=="cylinder")
-            {
-                // TODO...
-                ;
-            }
-            else
-            {
-                CollisionModel=cf::ClipSys::CollModelMan->GetCM("Games/DeathMatch/"+It->second);
-            }
-        }
     }
 
     ClipModel.SetCollisionModel(CollisionModel);

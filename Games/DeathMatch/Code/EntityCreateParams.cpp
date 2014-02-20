@@ -29,13 +29,11 @@ EntityCreateParamsT::EntityCreateParamsT(
     IntrusivePtrT<cf::GameSys::EntityT>       Entity_,
     const std::map<std::string, std::string>& Properties_,
     const cf::SceneGraph::GenericNodeT*       RootNode_,
-    const cf::ClipSys::CollisionModelT*       CollisionModel_,
     cf::GameSys::GameWorldI*                  GameWorld_)
     : ID(ID_),
       Entity(Entity_),
       Properties(Properties_),
       RootNode(RootNode_),
-      CollisionModel(CollisionModel_),
       GameWorld(GameWorld_)
 {
 }

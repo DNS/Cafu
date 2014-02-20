@@ -251,15 +251,14 @@ const cf::TypeSys::TypeInfoManT& GameImplT::GetEntityTIM() const
 
 // This function is called both by the server and the client, in order to obtain a (pointer to a) 'BaseEntityT'.
 IntrusivePtrT<GameEntityI> GameImplT::CreateGameEntity(const cf::TypeSys::TypeInfoT* TI, IntrusivePtrT<cf::GameSys::EntityT> Entity, const std::map<std::string, std::string>& Properties,
-    const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID,
-    cf::GameSys::GameWorldI* GameWorld)
+    const cf::SceneGraph::GenericNodeT* RootNode, unsigned long ID, cf::GameSys::GameWorldI* GameWorld)
 {
     assert(TI != NULL);
     assert(TI->CreateInstance != NULL);
 
     // YES! THIS is how it SHOULD work!
     GameEntityI* NewEnt = static_cast<GameEntityI*>(TI->CreateInstance(
-        EntityCreateParamsT(ID, Entity, Properties, RootNode, CollisionModel, GameWorld)));
+        EntityCreateParamsT(ID, Entity, Properties, RootNode, GameWorld)));
 
     assert(NewEnt != NULL);
     assert(NewEnt->GetType() == TI);

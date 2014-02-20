@@ -127,10 +127,6 @@ Ca3DEWorldT::Ca3DEWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* G
 
         AllEnts[EntNr]->SetApp(GE);
 
-        // Register GE->CollModel also with the cf::ClipSys::CollModelMan, so that both the owner (the m_World->m_StaticEntityData[EntNr])
-        // as well as the game code can free/delete it in their destructors (one by "delete", the other by cf::ClipSys::CollModelMan->FreeCM()).
-        cf::ClipSys::CollModelMan->GetCM(GE->GetStaticEntityData()->m_CollModel);
-
         // Note that this can fail (and thus not add anything to the m_EngineEntities array),
         // especially for now unsupported entity classes like "func_group"!
         CreateNewEntityFromBasicInfo(GE, 1 /*ServerFrameNr*/);
@@ -335,8 +331,8 @@ unsigned long Ca3DEWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<const Comp
         const unsigned long NewEntityID = m_EngineEntities.Size();
 
         IntrusivePtrT<GameEntityI> NewEntity = m_Game->CreateGameEntity(
-            TI, CompGameEnt->GetEntity(), CompGameEnt->GetStaticEntityData()->m_Properties, CompGameEnt->GetStaticEntityData()->m_BspTree,
-            CompGameEnt->GetStaticEntityData()->m_CollModel, NewEntityID, this);
+            TI, CompGameEnt->GetEntity(), CompGameEnt->GetStaticEntityData()->m_Properties,
+            CompGameEnt->GetStaticEntityData()->m_BspTree, NewEntityID, this);
 
         if (NewEntity.IsNull())
             throw std::runtime_error("Could not create entity of class \""+EntClassName+"\" with C++ class name \""+CppClassName+"\".\n");
@@ -357,10 +353,6 @@ unsigned long Ca3DEWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<const Comp
     catch (const std::runtime_error& RE)
     {
         Console->Warning(RE.what());
-
-        // Free the collision model in place of the (never instantiated) entity destructor,
-        // so that the reference count of the CollModelMan gets right.
-        cf::ClipSys::CollModelMan->FreeCM(CompGameEnt->GetStaticEntityData()->m_CollModel);
     }
 
     // Return error code.

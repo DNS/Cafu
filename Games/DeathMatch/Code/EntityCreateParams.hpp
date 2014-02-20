@@ -28,7 +28,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <map>
 
 
-namespace cf { namespace ClipSys { class CollisionModelT; } }
 namespace cf { namespace GameSys { class GameWorldI; } }
 namespace cf { namespace SceneGraph { class GenericNodeT; } }
 
@@ -44,7 +43,6 @@ namespace GAME_NAME
             IntrusivePtrT<cf::GameSys::EntityT>       Entity_,
             const std::map<std::string, std::string>& Properties_,
             const cf::SceneGraph::GenericNodeT*       RootNode_,
-            const cf::ClipSys::CollisionModelT*       CollisionModel_,
             cf::GameSys::GameWorldI*                  GameWorld_);
 
 
@@ -52,7 +50,6 @@ namespace GAME_NAME
         IntrusivePtrT<cf::GameSys::EntityT>       Entity;
         const std::map<std::string, std::string>& Properties;
         const cf::SceneGraph::GenericNodeT*       RootNode;
-        const cf::ClipSys::CollisionModelT*       CollisionModel;
         cf::GameSys::GameWorldI*                  GameWorld;
     };
 }

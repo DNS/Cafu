@@ -32,7 +32,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 class GameEntityI;
 template<class T> class Vector3T;
 class ModelManagerT;
-namespace cf { namespace ClipSys { class CollisionModelT; } }
 namespace cf { namespace GameSys { class EntityT; } }
 namespace cf { namespace GameSys { class GameWorldI; } }
 namespace cf { namespace SceneGraph { class GenericNodeT; } }
@@ -73,13 +72,11 @@ namespace cf
             /// @param Entity         The associated entity in the cf::GameSys::WorldT.
             /// @param Properties     The properties dictionary in the map file of this entity (empty if the entity is created "dynamically"). Contains especially the "classname" key that was used by the caller to determine TI.
             /// @param RootNode       The root node of the scene graph of this entity as defined in the map file. NULL if the entity is created "dynamically".
-            /// @param CollisionModel The collision model of this entity as defined by map primitives. NULL if no collision model was defined by map primitives (the entity may still have a collision model based on the Properties).
             /// @param ID             The global unique ID of this entity (in the current map).
             /// @param GameWorld      Pointer to the game world implementation.
             /// @returns a pointer to the newly created game entity.
             virtual IntrusivePtrT<GameEntityI> CreateGameEntity(const cf::TypeSys::TypeInfoT* TI, IntrusivePtrT<cf::GameSys::EntityT> Entity, const std::map<std::string, std::string>& Properties,
-                const cf::SceneGraph::GenericNodeT* RootNode, const cf::ClipSys::CollisionModelT* CollisionModel, unsigned long ID,
-                cf::GameSys::GameWorldI* GameWorld)=0;
+                const cf::SceneGraph::GenericNodeT* RootNode, unsigned long ID, cf::GameSys::GameWorldI* GameWorld)=0;
 
             /// The virtual destructor, so that derived classes can safely be deleted via a GameI (base class) pointer.
             virtual ~GameI() { }
