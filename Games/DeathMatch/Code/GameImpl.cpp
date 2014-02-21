@@ -36,7 +36,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "EntityCreateParams.hpp"
 
 #include "CompanyBot.hpp"
-#include "Corpse.hpp"
 #include "HumanPlayer.hpp"
 #include "InfoGeneric.hpp"
 #include "InfoPlayerStart.hpp"
@@ -96,7 +95,6 @@ namespace GAME_NAME
      */
     const cf::TypeSys::TypeInfoT* AllTypeInfos[] = {
         &EntCompanyBotT::TypeInfo,
-        &EntCorpseT::TypeInfo,
         &EntHumanPlayerT::TypeInfo,
         &EntInfoGenericT::TypeInfo,
         &EntInfoPlayerStartT::TypeInfo,

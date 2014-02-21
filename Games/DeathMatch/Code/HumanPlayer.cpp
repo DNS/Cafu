@@ -20,7 +20,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "HumanPlayer.hpp"
-#include "Corpse.hpp"
 #include "InfoPlayerStart.hpp"
 #include "cw.hpp"
 #include "Constants_AmmoSlots.hpp"
@@ -933,13 +932,22 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                         std::map<std::string, std::string> Props; Props["classname"]="corpse";
 
                         // Create a new "corpse" entity in the place where we died, or else the model disappears.
-                        unsigned long CorpseID=GameWorld->CreateNewEntity(Props, ServerFrameNr, VectorT());
+                        unsigned long CorpseID=GameWorld->CreateNewEntity(Props, ServerFrameNr, m_Origin);
+                        IntrusivePtrT<cf::GameSys::ComponentModelT> PlayerModelComp = dynamic_pointer_cast<cf::GameSys::ComponentModelT>(m_Entity->GetComponent("Model"));
 
-                        if (CorpseID!=0xFFFFFFFF)
+                        if (CorpseID != 0xFFFFFFFF && PlayerModelComp != NULL)
                         {
-                            IntrusivePtrT<EntCorpseT> Corpse=dynamic_pointer_cast<EntCorpseT>(GameWorld->GetGameEntityByID(CorpseID));
+                            IntrusivePtrT<BaseEntityT> Corpse = dynamic_pointer_cast<BaseEntityT>(GameWorld->GetGameEntityByID(CorpseID));
+                            IntrusivePtrT<cf::GameSys::EntityT> Ent = Corpse->m_Entity;
 
-                            Corpse->AdoptState(this);
+                            Ent->GetTransform()->SetOriginWS(m_Origin.AsVectorOfFloat());
+                            Ent->GetTransform()->SetQuatWS(cf::math::QuaternionfT::Euler(0, float((90.0 - GetHeading()/8192.0*45.0) * 3.1415926 / 180.0), 0));
+
+                            IntrusivePtrT<cf::GameSys::ComponentModelT> ModelComp = new cf::GameSys::ComponentModelT(*PlayerModelComp);
+                            Ent->AddComponent(ModelComp);
+
+                            // TODO: Disappear when some condition is met (timeout, not in anyones PVS, alpha fade-out, too many corpses, ...)
+                            // TODO: Decompose to gibs when hit by a rocket.
                         }
                     }
 
