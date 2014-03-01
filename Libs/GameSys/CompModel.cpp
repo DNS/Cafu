@@ -293,12 +293,13 @@ const char* ComponentModelT::DocClass =
 
 const cf::TypeSys::VarsDocT ComponentModelT::DocVars[] =
 {
-    { "Show",      "Whether the model is currently shown (useful with scripts)." },
-    { "Name",      "The file name of the model." },
-    { "Animation", "The animation sequence number of the model." },
-    { "Skin",      "The skin used for rendering the model." },
-    { "Scale",     "The scale factor applied to the model coordinates when converted to world space." },
-    { "Gui",       "The file name of the GUI to be used with the models GUI fixtures (if there are any)." },
+    { "Show",       "Whether the model is currently shown (useful with scripts)." },
+    { "Name",       "The file name of the model." },
+    { "Animation",  "The animation sequence number of the model." },
+    { "Skin",       "The skin used for rendering the model." },
+    { "Scale",      "The scale factor applied to the model coordinates when converted to world space." },
+    { "Gui",        "The file name of the GUI to be used with the models GUI fixtures (if there are any)." },
+    { "IsSubmodel", "Is this model a submodel of another model? If set, the pose of this model is aligned with the first \"non-submodel\" in the entity." },
     { NULL, NULL }
 };
 
@@ -311,6 +312,7 @@ ComponentModelT::ComponentModelT()
       m_ModelSkinNr("Skin", -1, FlagsDontSerialize, *this),      // -1 is the default skin of the model. Already co-serialized along with m_ModelName.
       m_ModelScale("Scale", 1.0f),
       m_GuiName("Gui", "", FlagsIsGuiFileName, *this),
+      m_IsSubmodel("IsSubmodel", false),
       m_Model(NULL),
       m_Pose(NULL),
       m_Gui(NULL)
@@ -330,6 +332,7 @@ ComponentModelT::ComponentModelT(const ComponentModelT& Comp)
       m_ModelSkinNr(Comp.m_ModelSkinNr, *this),
       m_ModelScale(Comp.m_ModelScale),
       m_GuiName(Comp.m_GuiName, *this),
+      m_IsSubmodel(Comp.m_IsSubmodel),
       m_Model(NULL),
       m_Pose(NULL),
       m_Gui(NULL)
@@ -349,6 +352,7 @@ void ComponentModelT::FillMemberVars()
     GetMemberVars().Add(&m_ModelSkinNr);
     GetMemberVars().Add(&m_ModelScale);
     GetMemberVars().Add(&m_GuiName);
+    GetMemberVars().Add(&m_IsSubmodel);
 }
 
 
@@ -557,7 +561,25 @@ void ComponentModelT::Render(float LodDist) const
     MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
     MatSys::Renderer->Scale(MatSys::RendererI::MODEL_TO_WORLD, m_ModelScale.Get());
 
+    if (m_IsSubmodel.Get() && GetEntity() != NULL)
+    {
+        const ArrayT< IntrusivePtrT<ComponentBaseT> >& Components = GetEntity()->GetComponents();
+
+        for (unsigned int CompNr = 0; CompNr < Components.Size(); CompNr++)
+            if (strcmp(Components[CompNr]->GetName(), "Model") == 0)
+            {
+                IntrusivePtrT<const ComponentModelT> ModelComp = dynamic_pointer_cast<ComponentModelT>(Components[CompNr]);
+
+                if (ModelComp == NULL) continue;
+                if (ModelComp->m_IsSubmodel.Get()) continue;
+
+                GetPose()->SetSuperPose(ModelComp->GetPose());
+                break;
+            }
+    }
+
     GetPose()->Draw(m_ModelSkinNr.Get(), LodDist);
+    GetPose()->SetSuperPose(NULL);
 
     if (LodDist < 1024.0f && MatSys::Renderer->GetCurrentRenderAction() == MatSys::RendererI::AMBIENT)
     {
