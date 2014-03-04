@@ -93,6 +93,7 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
     IntrusivePtrT<cf::GameSys::EntityT> NewEnt  = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
     IntrusivePtrT<CompGameEntityT>      GameEnt = new CompGameEntityT();
 
+    NewEnt->GetBasics()->SetEntityName(cf::va("Player_%lu", ClientInfoNr+1));
     NewEnt->GetTransform()->SetOriginWS(m_World->InfoPlayerStarts[0].Origin.AsVectorOfFloat() + Vector3fT(0, 0, 40));
     NewEnt->SetApp(GameEnt);
     m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
