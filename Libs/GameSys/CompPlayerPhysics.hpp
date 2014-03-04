@@ -62,6 +62,7 @@ namespace cf
 
             // The Lua API methods of this class.
             static int toString(lua_State* LuaState);
+            static int SetWishVelocity(lua_State* LuaState);
 
             static const luaL_Reg               MethodsList[];  ///< The list of Lua methods for this class.
             static const char*                  DocClass;
@@ -76,20 +77,22 @@ namespace cf
             void DoServerFrame(float t) /*override*/;
             PosCatT CategorizePosition() const;
             void ApplyFriction(double FrameTime, PosCatT PosCat);
-            void ApplyAcceleration(double FrameTime, PosCatT PosCat, const VectorT& WishVelocity);
+            void ApplyAcceleration(double FrameTime, PosCatT PosCat);
             void ApplyGravity(double FrameTime, PosCatT PosCat);
             void FlyMove(double TimeLeft);
-            void GroundMove(double FrameTime, double StepHeight);
-            void MoveHuman(float FrameTime, unsigned short Heading, const VectorT& WishVelocity,
-                           const VectorT& WishVelLadder, bool WishJump, bool& OldWishJump, double StepHeight);
+            void GroundMove(double FrameTime);
+            void MoveHuman(float FrameTime, unsigned short Heading,
+                           const VectorT& WishVelLadder, bool WishJump, bool& OldWishJump);
 
-            TypeSys::VarT<Vector3dT>       m_Velocity;      ///< The velocity of the entity.
+            TypeSys::VarT<Vector3dT>       m_Velocity;      ///< The current velocity of the entity.
             TypeSys::VarT<BoundingBox3dT>  m_Dimensions;    ///< The bounding box of the entity (relative to the origin).
+            TypeSys::VarT<double>          m_StepHeight;    ///< The maximum height that the entity can climb in one step.
 
             const cf::ClipSys::ClipWorldT* m_ClipWorld;
             const cf::ClipSys::ClipModelT* m_IgnoreClipModel;
             Vector3dT                      m_Origin;
             Vector3dT                      m_Vel;
+            Vector3dT                      m_WishVelocity;  ///< The desired velocity that the entity *should* have.
         };
     }
 }

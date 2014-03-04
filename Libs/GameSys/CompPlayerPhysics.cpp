@@ -45,8 +45,9 @@ const char* ComponentPlayerPhysicsT::DocClass =
 
 const cf::TypeSys::VarsDocT ComponentPlayerPhysicsT::DocVars[] =
 {
-    { "Velocity",   "The velocity of the entity." },
+    { "Velocity",   "The current velocity of the entity." },
     { "Dimensions", "The bounding box of the entity (relative to the origin)." },
+    { "StepHeight", "The maximum height that the entity can climb in one step." },
     { NULL, NULL }
 };
 
@@ -55,12 +56,16 @@ ComponentPlayerPhysicsT::ComponentPlayerPhysicsT()
     : ComponentBaseT(),
       m_Velocity("Velocity", Vector3dT(0, 0, 0)),
       m_Dimensions("Dimensions", BoundingBox3dT(Vector3dT(-8, -8, -8), Vector3dT(8, 8, 8))),
+      m_StepHeight("StepHeight", 0.0),
       m_ClipWorld(NULL),
       m_IgnoreClipModel(NULL),
-      m_Origin()
+      m_Origin(),
+      m_Vel(),
+      m_WishVelocity()
 {
     GetMemberVars().Add(&m_Velocity);
     GetMemberVars().Add(&m_Dimensions);
+    GetMemberVars().Add(&m_StepHeight);
 }
 
 
@@ -68,12 +73,16 @@ ComponentPlayerPhysicsT::ComponentPlayerPhysicsT(const ComponentPlayerPhysicsT& 
     : ComponentBaseT(Comp),
       m_Velocity(Comp.m_Velocity),
       m_Dimensions(Comp.m_Dimensions),
+      m_StepHeight(Comp.m_StepHeight),
       m_ClipWorld(NULL),
       m_IgnoreClipModel(NULL),
-      m_Origin()
+      m_Origin(),
+      m_Vel(),
+      m_WishVelocity()
 {
     GetMemberVars().Add(&m_Velocity);
     GetMemberVars().Add(&m_Dimensions);
+    GetMemberVars().Add(&m_StepHeight);
 }
 
 
@@ -109,7 +118,7 @@ void ComponentPlayerPhysicsT::DoServerFrame(float t)
     m_Origin = GetEntity()->GetTransform()->GetOriginWS().AsVectorOfDouble();
     m_Vel    = m_Velocity.Get();
 
-    MoveHuman(t, Heading, Vector3dT() /*WishVelocity*/, Vector3dT() /*WishVelLadder*/, false /*WishJump*/, OldWishJump, 0.0);
+    MoveHuman(t, Heading, Vector3dT() /*WishVelLadder*/, false /*WishJump*/, OldWishJump);
 
     GetEntity()->GetTransform()->SetOriginWS(m_Origin.AsVectorOfFloat());
     m_Velocity.Set(m_Vel);
@@ -188,15 +197,15 @@ void ComponentPlayerPhysicsT::ApplyFriction(double FrameTime, PosCatT PosCat)
 
 
 /// Ändert die Velocity gemäß der Beschleunigung.
-void ComponentPlayerPhysicsT::ApplyAcceleration(double FrameTime, PosCatT PosCat, const Vector3dT& WishVelocity)
+void ComponentPlayerPhysicsT::ApplyAcceleration(double FrameTime, PosCatT PosCat)
 {
     const double AirAcceleration   = 0.7;
     const double GroundAcceleration=10.0;
 
-    double    WishSpeed=length(WishVelocity);
+    double    WishSpeed=length(m_WishVelocity);
     Vector3dT WishDir;
 
-    if (WishSpeed>0.001 /*Epsilon*/) WishDir=scale(WishVelocity, 1.0/WishSpeed);
+    if (WishSpeed>0.001 /*Epsilon*/) WishDir=scale(m_WishVelocity, 1.0/WishSpeed);
 
     // Velocity auf WishDir projezieren um festzustellen, wie schnell wir sowieso schon in WishDir laufen
     double CurrentSpeed = dot(m_Vel, WishDir);
@@ -313,7 +322,7 @@ void ComponentPlayerPhysicsT::FlyMove(double TimeLeft)
 
 
 /// MassChunk is on ground, with no upwards velocity
-void ComponentPlayerPhysicsT::GroundMove(double FrameTime, double StepHeight)
+void ComponentPlayerPhysicsT::GroundMove(double FrameTime)
 {
     // m_Vel.z=0;        // Ganz sicher gehen, daß wir an der Höhe wirklich nichts ändern
     if (!m_Vel.x && !m_Vel.y && !m_Vel.z) return;
@@ -345,8 +354,8 @@ void ComponentPlayerPhysicsT::GroundMove(double FrameTime, double StepHeight)
     m_Vel    = OriginalVel;
 
     // One step up.
-    const Vector3dT StepUp   = Vector3dT(0, 0,  StepHeight);
-    const Vector3dT StepDown = Vector3dT(0, 0, -StepHeight);
+    const Vector3dT StepUp   = Vector3dT(0, 0,  m_StepHeight.Get());
+    const Vector3dT StepDown = Vector3dT(0, 0, -m_StepHeight.Get());
 
     Trace = cf::ClipSys::TraceResultT(1.0);   // Very important - reset the trace results.
     m_ClipWorld->TraceBoundingBox(m_Dimensions.Get(), m_Origin, StepUp, MaterialT::Clip_Players, m_IgnoreClipModel, Trace);
@@ -389,8 +398,8 @@ void ComponentPlayerPhysicsT::GroundMove(double FrameTime, double StepHeight)
 }
 
 
-void ComponentPlayerPhysicsT::MoveHuman(float FrameTime, unsigned short Heading, const Vector3dT& WishVelocity,
-                                        const Vector3dT& WishVelLadder, bool WishJump, bool& OldWishJump, double StepHeight)
+void ComponentPlayerPhysicsT::MoveHuman(float FrameTime, unsigned short Heading,
+                                        const Vector3dT& WishVelLadder, bool WishJump, bool& OldWishJump)
 {
     // 1. Die Positions-Kategorie des MassChunks bestimmen:
     //    Wir können uns in der Luft befinden (im Flug/freien Fall oder schwebend im Wasser),
@@ -480,7 +489,7 @@ void ComponentPlayerPhysicsT::MoveHuman(float FrameTime, unsigned short Heading,
 
         // 3.2. Apply Physics
         ApplyFriction    (FrameTime, PosCat);
-        ApplyAcceleration(FrameTime, PosCat, WishVelocity);
+        ApplyAcceleration(FrameTime, PosCat);
         ApplyGravity     (FrameTime, PosCat);
     }
 
@@ -489,9 +498,28 @@ void ComponentPlayerPhysicsT::MoveHuman(float FrameTime, unsigned short Heading,
     //    Bestimme dazu alle Brushes, die unsere Bewegung evtl. behindern könnten, gebloated gemäß unserer Dimensions-BoundingBox.
     switch (PosCat)
     {
-        case InAir:   FlyMove   (FrameTime);             break;
-        case OnSolid: GroundMove(FrameTime, StepHeight); break;
+        case InAir:   FlyMove   (FrameTime); break;
+        case OnSolid: GroundMove(FrameTime); break;
     }
+}
+
+
+static const cf::TypeSys::MethsDocT META_SetWishVelocity =
+{
+    "SetWishVelocity",
+    "This method sets the desired velocity that the entity *should* have.\n"
+    "The physics code will apply acceleration and friction in order to bring the entity\n"
+    "to the desired velocity.\n",
+    "", "(x, y, z)"
+};
+
+int ComponentPlayerPhysicsT::SetWishVelocity(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<ComponentPlayerPhysicsT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentPlayerPhysicsT> >(1);
+
+    Comp->m_WishVelocity = Vector3dT(luaL_checknumber(LuaState, 2), luaL_checknumber(LuaState, 3), luaL_checknumber(LuaState, 4));
+    return 0;
 }
 
 
@@ -523,12 +551,14 @@ void* ComponentPlayerPhysicsT::CreateInstance(const cf::TypeSys::CreateParamsT& 
 
 const luaL_Reg ComponentPlayerPhysicsT::MethodsList[] =
 {
+    { "SetWishVelocity", SetWishVelocity },
     { "__tostring", toString },
     { NULL, NULL }
 };
 
 const cf::TypeSys::MethsDocT ComponentPlayerPhysicsT::DocMethods[] =
 {
+    META_SetWishVelocity,
     META_toString,
     { NULL, NULL, NULL, NULL }
 };
