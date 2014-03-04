@@ -1071,6 +1071,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
     }
 
     PlayerCommands.Clear();
+    m_Entity->GetTransform()->SetOriginWS(m_Origin.AsVectorOfFloat());      // "Sync" the origin.
 }
 
 
