@@ -685,6 +685,23 @@ int EntityT::GetParent(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_GetRoot =
+{
+    "GetRoot",
+    "Returns the top-most parent of this entity, that is, the root of the hierarchy that this entity is in.",
+    "EntityT", "()"
+};
+
+int EntityT::GetRoot(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<EntityT> Ent = Binder.GetCheckedObjectParam< IntrusivePtrT<EntityT> >(1);
+
+    Binder.Push(Ent->GetRoot());
+    return 1;
+}
+
+
 static const cf::TypeSys::MethsDocT META_GetChildren =
 {
     "GetChildren",
@@ -703,6 +720,64 @@ int EntityT::GetChildren(lua_State* LuaState)
     {
         Binder.Push(Ent->m_Children[ChildNr]);
         lua_rawseti(LuaState, -2, ChildNr+1);
+    }
+
+    return 1;
+}
+
+
+static const cf::TypeSys::MethsDocT META_FindByID =
+{
+    "FindByID",
+    "Finds the entity with the given ID in the hierachy tree of this entity.\n"
+    "Use `GetRoot():Find(xy)` in order to search the entire world for the entity with ID `xy`.\n"
+    "@param ID   The ID of the entity that is to be found.\n"
+    "@returns The entity with the desired ID, or `nil` if no entity with this ID exists.\n",
+    "EntityT", "(ID)"
+};
+
+int EntityT::FindByID(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<EntityT> Ent = Binder.GetCheckedObjectParam< IntrusivePtrT<EntityT> >(1);
+    IntrusivePtrT<EntityT> Res = Ent->FindID(luaL_checkint(LuaState, 2));
+
+    if (Res != NULL)
+    {
+        Binder.Push(Res);
+    }
+    else
+    {
+        lua_pushnil(LuaState);
+    }
+
+    return 1;
+}
+
+
+static const cf::TypeSys::MethsDocT META_FindByName =
+{
+    "FindByName",
+    "Finds the entity with the given name in the hierachy tree of this entity.\n"
+    "Use `GetRoot()->Find(\"xy\")` in order to search the entire world for the entity with name `xy`.\n"
+    "@param Name   The name of the entity that is to be found.\n"
+    "@returns The entity with the desired name, or `nil` if no entity with this name exists.\n",
+    "EntityT", "(Name)"
+};
+
+int EntityT::FindByName(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<EntityT> Ent = Binder.GetCheckedObjectParam< IntrusivePtrT<EntityT> >(1);
+    IntrusivePtrT<EntityT> Res = Ent->Find(luaL_checkstring(LuaState, 2));
+
+    if (Res != NULL)
+    {
+        Binder.Push(Res);
+    }
+    else
+    {
+        lua_pushnil(LuaState);
     }
 
     return 1;
@@ -878,7 +953,10 @@ const luaL_Reg EntityT::MethodsList[]=
     { "AddChild",        AddChild },
     { "RemoveChild",     RemoveChild },
     { "GetParent",       GetParent },
+    { "GetRoot",         GetRoot },
     { "GetChildren",     GetChildren },
+    { "FindByID",        FindByID },
+    { "FindByName",      FindByName },
     { "GetBasics",       GetBasics },
     { "GetTransform",    GetTransform },
     { "AddComponent",    AddComponent },
@@ -895,7 +973,10 @@ const cf::TypeSys::MethsDocT EntityT::DocMethods[] =
     META_AddChild,
     META_RemoveChild,
     META_GetParent,
+    META_GetRoot,
     META_GetChildren,
+    META_FindByID,
+    META_FindByName,
     META_GetBasics,
     META_GetTransform,
     META_AddComponent,

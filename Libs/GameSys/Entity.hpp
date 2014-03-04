@@ -267,7 +267,10 @@ namespace cf
             static int AddChild(lua_State* LuaState);
             static int RemoveChild(lua_State* LuaState);
             static int GetParent(lua_State* LuaState);
+            static int GetRoot(lua_State* LuaState);
             static int GetChildren(lua_State* LuaState);
+            static int FindByID(lua_State* LuaState);
+            static int FindByName(lua_State* LuaState);
             static int GetBasics(lua_State* LuaState);
             static int GetTransform(lua_State* LuaState);
             static int AddComponent(lua_State* LuaState);
