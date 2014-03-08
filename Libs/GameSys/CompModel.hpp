@@ -79,7 +79,6 @@ namespace cf
 
             // The Lua API methods of this class.
             static int GetNumAnims(lua_State* LuaState);
-            static int SetAnim(lua_State* LuaState);
             static int GetNumSkins(lua_State* LuaState);
             static int GetGui(lua_State* LuaState);
             static int toString(lua_State* LuaState);
@@ -124,14 +123,14 @@ namespace cf
                 VarModelAnimNrT(const char* Name, const int& Value, const char* Flags[], ComponentModelT& Comp);
                 VarModelAnimNrT(const VarModelAnimNrT& Var, ComponentModelT& Comp);
 
-                void SetAnimNr(int AnimNr, float BlendTime, bool ForceLoop);
-
                 // Base class overrides.
                 void Set(const int& v);
                 void GetChoices(ArrayT<std::string>& Strings, ArrayT<int>& Values) const;
 
 
                 private:
+
+                void SetAnimNr(int AnimNr);
 
                 ComponentModelT& m_Comp;    ///< The parent ComponentModelT that contains this variable.
             };

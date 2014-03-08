@@ -127,7 +127,7 @@ ComponentModelT::VarModelAnimNrT::VarModelAnimNrT(const VarModelAnimNrT& Var, Co
 //
 // Consequently, setting a variable to the same value must be dealt with as efficiently
 // as possible (for performance), and free of unwanted side effects (for correctness).
-void ComponentModelT::VarModelAnimNrT::SetAnimNr(int AnimNr, float BlendTime, bool ForceLoop)
+void ComponentModelT::VarModelAnimNrT::SetAnimNr(int AnimNr)
 {
     // Is the "not-normalized" value unchanged?
     // Then there is no need to update the related m_Pose resource (the BlendTime and ForceLoop are ignored).
@@ -144,7 +144,6 @@ void ComponentModelT::VarModelAnimNrT::SetAnimNr(int AnimNr, float BlendTime, bo
 
     // "Normalize" AnimNr.
     IntrusivePtrT<AnimExprStandardT> StdAE = m_Comp.m_Model->GetAnimExprPool().GetStandard(AnimNr, 0.0f);
-    StdAE->SetForceLoop(ForceLoop);
 
     // Is the "normalized" value unchanged?
     // Then there is no need to update the related m_Pose resource (the BlendTime and ForceLoop are ignored).
@@ -159,6 +158,13 @@ void ComponentModelT::VarModelAnimNrT::SetAnimNr(int AnimNr, float BlendTime, bo
     if (!m_Comp.m_Pose) return;
 
     // There is a m_Pose, so update it.
+    float BlendTime = 0.0f;
+    bool  ForceLoop = false;
+
+    m_Comp.CallLuaMethod("OnAnimationChange", 0, "i>fb", AnimNr, &BlendTime, &ForceLoop);
+
+    StdAE->SetForceLoop(ForceLoop);
+
     if (BlendTime > 0.0f)
     {
         IntrusivePtrT<AnimExpressionT> BlendFrom = m_Comp.m_Pose->GetAnimExpr();
@@ -174,7 +180,7 @@ void ComponentModelT::VarModelAnimNrT::SetAnimNr(int AnimNr, float BlendTime, bo
 
 void ComponentModelT::VarModelAnimNrT::Set(const int& v)
 {
-    SetAnimNr(v, 0.0f, true);
+    SetAnimNr(v);
 }
 
 
@@ -627,6 +633,11 @@ void ComponentModelT::Render(float LodDist) const
 
 void ComponentModelT::DoServerFrame(float t)
 {
+    // Advance the time of anim expressions on the server-side, too, so that e.g. blending
+    // expressions can complete and eventually clean-up their subexpressions that become unused.
+    if (m_Pose)
+        m_Pose->GetAnimExpr()->AdvanceTime(t);
+
     // It is important that we advance the time on the server-side GUI, too, so that it can
     // for example work off the "pending interpolations" that the GUI scripts can create.
     if (GetGui() != NULL)
@@ -678,33 +689,6 @@ int ComponentModelT::GetNumAnims(lua_State* LuaState)
 
     lua_pushinteger(LuaState, Comp->m_Model->GetAnims().Size());
     return 1;
-}
-
-
-static const cf::TypeSys::MethsDocT META_SetAnim =
-{
-    "SetAnim",
-    "Sets a new animation sequence for the pose of this model.\n"
-    "Optionally, there is a blending from the previous sequence over a given time.\n"
-    "Also optionally, the \"force loop\" flag for the new sequence can be set.\n"
-    "For example: `SetAnim(8, 3.0, true)`",
-    "", "(number anim, number blend_time=0.0, boolean force_loop=false)"
-};
-
-int ComponentModelT::SetAnim(lua_State* LuaState)
-{
-    ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<ComponentModelT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentModelT> >(1);
-
-    if (!Comp->m_Model)
-        luaL_error(LuaState, "The component must be added to an entity before this function can be called.");
-
-    const int   AnimNr    = luaL_checkint(LuaState, 2);
-    const float BlendTime = float(luaL_checknumber(LuaState, 3));
-    const bool  ForceLoop = lua_isnumber(LuaState, 4) ? (lua_tointeger(LuaState, 4) != 0) : (lua_toboolean(LuaState, 4) != 0);
-
-    Comp->m_ModelAnimNr.SetAnimNr(AnimNr, BlendTime, ForceLoop);
-    return 0;
 }
 
 
@@ -782,7 +766,6 @@ void* ComponentModelT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 const luaL_Reg ComponentModelT::MethodsList[] =
 {
     { "GetNumAnims", GetNumAnims },
-    { "SetAnim",     SetAnim },
     { "GetNumSkins", GetNumSkins },
     { "GetGui",      GetGui },
     { "__tostring",  toString },
@@ -792,7 +775,6 @@ const luaL_Reg ComponentModelT::MethodsList[] =
 const cf::TypeSys::MethsDocT ComponentModelT::DocMethods[] =
 {
     META_GetNumAnims,
-    META_SetAnim,
     META_GetNumSkins,
     META_GetGui,
     META_toString,
