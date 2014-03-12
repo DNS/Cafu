@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Entity.hpp"
 
 #include "Math3D/Angles.hpp"
+#include "Math3D/Matrix3x3.hpp"
 #include "UniScriptState.hpp"
 
 extern "C"
@@ -205,6 +206,82 @@ MatrixT ComponentTransformT::GetEntityToWorld() const
 }
 
 
+void ComponentTransformT::LookAt(const Vector3fT& Pos, unsigned int AxisNr, bool NoPitch)
+{
+#if 1
+    if (AxisNr > 1) AxisNr = 0;             // AxisNr can only be 0 or 1.
+
+    Vector3fT Dir = Pos - m_Origin.Get();   // Pos is in parent-space already.
+
+    if (NoPitch)
+        Dir.z = 0.0f;
+
+    const float DirL = length(Dir);
+
+    if (DirL < 0.001f) return;
+    Dir /= DirL;
+
+    // Choose Other orthogonal to Dir and in the XY plane.
+    Vector3fT   Other(-Dir.y, Dir.x, 0.0f);
+    const float OtherL = length(Other);
+
+    if (OtherL < 0.001f)
+    {
+        Dir   = Vector3fT(0, 0, Dir.z < 0.0f ? -1.0f : 1.0f);
+        Other = Vector3fT(0, 1.0f, 0);
+    }
+    else
+    {
+        Other /= OtherL;
+    }
+
+    cf::math::Matrix3x3fT Mat;
+
+    for (unsigned int i = 0; i < 3; i++)
+    {
+        Mat[i][AxisNr]     = Dir[i];
+        Mat[i][1 - AxisNr] = Other[i];
+    }
+
+    if (!NoPitch)
+    {
+        const Vector3fT zAxis = cross(Dir, Other);
+
+        for (unsigned int i = 0; i < 3; i++)
+            Mat[i][2] = zAxis[i];
+    }
+
+    SetQuatPS(cf::math::QuaternionfT(Mat));
+#else
+    /*
+     * This code works, but it's too generic for most use cases: While it perfectly aligns
+     * the desired axis along the desired direction, it also arbitrarily mutates the other
+     * two axes, introducing a "skew" to the orientation that is normally not desired.
+     */
+    const cf::math::Matrix3x3fT Mat(GetQuatPS());   // Our principal axes, in parent-space.
+    const Vector3fT             Axis(Mat[0][AxisNr], Mat[1][AxisNr], Mat[2][AxisNr]);
+
+    if (NoPitch)  // Optional: Project Pos (or rather Dir) into the xy-plane.
+    {
+        // ...
+    }
+
+    // Find the axis and the angle that we have to rotate about in order to map Axis onto Dir.
+    // Note that Pos is in parent-space already.
+    const Vector3fT Dir      = normalizeOr0(Pos - m_Origin.Get());
+    const Vector3fT RotAxis  = cross(Axis, Dir);
+    const float     RotAxisL = length(RotAxis);
+    const float     RotAngle = acos(clamp(-1.0f, dot(Axis, Dir), 1.0f));
+
+    if (RotAxisL < 0.0001f) return;
+
+    const cf::math::QuaternionfT RotQuat = cf::math::QuaternionfT(RotAxis / RotAxisL, RotAngle);
+
+    SetQuatPS(RotQuat * GetQuatPS());
+#endif
+}
+
+
 ComponentTransformT* ComponentTransformT::Clone() const
 {
     return new ComponentTransformT(*this);
@@ -331,6 +408,47 @@ int ComponentTransformT::GetAxisZ(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_LookAt =
+{
+    "LookAt",
+    "Sets the orientation of the transform so that it \"looks at\" the given position.\n"
+    "The new orientation is chosen such that the bank angle is always 0 relative to the xy-plane.\n"
+    "@param PosX      The target position to look at (x-component).\n"
+    "@param PosY      The target position to look at (y-component).\n"
+    "@param PosZ      The target position to look at (z-component).\n"
+    "@param AxisNr    The \"look axis\", i.e. the number of the axis to orient towards `Pos`:\n"
+    "                 0 for the x-axis, 1 for the y-axis.\n"
+    "@param NoPitch   If `true`, the pitch angle is kept at 0, and the given axis points towards `Pos`\n"
+    "                 only in the XY-Plane and the z-axis points straight up (0, 0, 1).",
+    "", "(number PosX, number PosY, number PosZ, integer AxisNr = 0, boolean NoPitch = false)"
+};
+
+int ComponentTransformT::LookAt(lua_State* LuaState)
+{
+    ScriptBinderT                      Binder(LuaState);
+    IntrusivePtrT<ComponentTransformT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentTransformT> >(1);
+
+    Vector3fT    Pos;
+    unsigned int AxisNr  = 0;
+    bool         NoPitch = false;
+
+    Pos.x = float(luaL_checknumber(LuaState, 2));
+    Pos.y = float(luaL_checknumber(LuaState, 3));
+    Pos.z = float(luaL_checknumber(LuaState, 4));
+
+    if (lua_isnumber(LuaState, 5))
+        AxisNr = lua_tointeger(LuaState, 5);
+
+    if (lua_isnumber(LuaState, 6))
+        NoPitch = lua_tointeger(LuaState, 6) != 0;
+    else if (lua_isboolean(LuaState, 6))
+        NoPitch = lua_toboolean(LuaState, 6) != 0;
+
+    Comp->LookAt(Pos, AxisNr, NoPitch);
+    return 0;
+}
+
+
 static const cf::TypeSys::MethsDocT META_toString =
 {
     "__tostring",
@@ -364,6 +482,7 @@ const luaL_Reg ComponentTransformT::MethodsList[] =
     { "GetAxisX",   GetAxisX },
     { "GetAxisY",   GetAxisY },
     { "GetAxisZ",   GetAxisZ },
+    { "LookAt",     LookAt },
     { "__tostring", toString },
     { NULL, NULL }
 };
@@ -375,6 +494,7 @@ const cf::TypeSys::MethsDocT ComponentTransformT::DocMethods[] =
     META_GetAxisX,
     META_GetAxisY,
     META_GetAxisZ,
+    META_LookAt,
     META_toString,
     { NULL, NULL, NULL, NULL }
 };

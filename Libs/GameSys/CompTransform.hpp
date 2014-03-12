@@ -89,6 +89,15 @@ namespace cf
             /// Returns the transformation matrix from local entity-space to world-space.
             MatrixT GetEntityToWorld() const;
 
+            /// Sets the orientation of the transform so that it "looks at" the given position.
+            /// The new orientation is chosen such that the bank angle is always 0 relative to the xy-plane.
+            /// @param Pos       The target position to look at.
+            /// @param AxisNr    The "look axis", i.e. the number of the axis to orient towards `Pos`:
+            ///                  0 for the x-axis, 1 for the y-axis.
+            /// @param NoPitch   If `true`, the pitch angle is kept at 0, and the given axis points towards `Pos`
+            ///                  only in the XY-Plane and the z-axis points straight up (0, 0, 1).
+            void LookAt(const Vector3fT& Pos, unsigned int AxisNr = 0, bool NoPitch = false);
+
 
             // Base class overrides.
             ComponentTransformT* Clone() const;
@@ -109,6 +118,7 @@ namespace cf
             static int GetAxisX(lua_State* LuaState);
             static int GetAxisY(lua_State* LuaState);
             static int GetAxisZ(lua_State* LuaState);
+            static int LookAt(lua_State* LuaState);
             static int toString(lua_State* LuaState);
 
             static const luaL_Reg               MethodsList[];  ///< The list of Lua methods for this class.

@@ -93,6 +93,24 @@ template<class T> QuaternionT<T>::QuaternionT(const Matrix3x3T<T>& Mat)
 }
 
 
+template<class T> QuaternionT<T>::QuaternionT(const Vector3T<T>& Axis, const T Angle)
+{
+    // Convert the rotation axis and angle to a quaternion as described at
+    // http://www.j3d.org/matrix_faq/matrfaq_latest.html#Q56
+    assert(::length(Axis) > T(0.99) && ::length(Axis) < T(1.01));
+
+    const T sin_a = sin(T(0.5) * Angle);
+    const T cos_a = cos(T(0.5) * Angle);
+
+    x = Axis.x * sin_a;
+    y = Axis.y * sin_a;
+    z = Axis.z * sin_a;
+    w = cos_a;
+
+    assert(IsNormal(T(0.01)));
+}
+
+
 template<class T> QuaternionT<T> QuaternionT<T>::Euler(const T Pitch, const T Yaw, const T Roll)
 {
     // See <http://www.j3d.org/matrix_faq/matrfaq_latest.html#Q60> for details.

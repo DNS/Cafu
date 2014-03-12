@@ -64,6 +64,13 @@ namespace cf
             /// If the matrix is not orthonormal, the result is undefined.
             QuaternionT(const Matrix3x3T<T>& Mat);
 
+            /// Constructs a quaternion from a rotation axis and angle.
+            /// This is useful, for example, to rotate one vector onto another, as is done in the
+            /// implementation of cf::GameSys::ComponentTransformT::LookAt().
+            /// @param Axis    The axis to rotate about. This given axis must be of unit length, or else the result is undefined.
+            /// @param Angle   The angle to rotate about, in radians.
+            QuaternionT(const Vector3T<T>& Axis, const T Angle);
+
             /// Constructs a quaternion from the first three components (x, y, z) of a unit quaternion.
             static QuaternionT FromXYZ(const Vector3T<T>& Vec)
             {
