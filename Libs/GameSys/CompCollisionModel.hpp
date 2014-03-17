@@ -49,6 +49,9 @@ namespace cf
             /// The destructor.
             ~ComponentCollisionModelT();
 
+            /// Returns the clip model of this component, NULL for none.
+            const cf::ClipSys::ClipModelT* GetClipModel() const { return m_ClipModel; }
+
             // Base class overrides.
             ComponentCollisionModelT* Clone() const;
             const char* GetName() const { return "CollisionModel"; }

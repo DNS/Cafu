@@ -21,6 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "CompPlayerPhysics.hpp"
 #include "AllComponents.hpp"
+#include "CompCollisionModel.hpp"
 #include "Entity.hpp"
 #include "World.hpp"
 
@@ -112,14 +113,20 @@ void ComponentPlayerPhysicsT::DoServerFrame(float t)
     if (!GetEntity()) return;
     if (!m_ClipWorld) return;
 
+    IntrusivePtrT<ComponentCollisionModelT> CompCollMdl = dynamic_pointer_cast<ComponentCollisionModelT>(GetEntity()->GetComponent("CollisionModel"));
+
     const unsigned short Heading = 0;   // TODO!
     bool OldWishJump = false;
+
+    if (CompCollMdl != NULL)
+        m_IgnoreClipModel = CompCollMdl->GetClipModel();
 
     m_Origin = GetEntity()->GetTransform()->GetOriginWS().AsVectorOfDouble();
     m_Vel    = m_Velocity.Get();
 
     MoveHuman(t, Heading, Vector3dT() /*WishVelLadder*/, false /*WishJump*/, OldWishJump);
 
+    m_IgnoreClipModel = NULL;
     GetEntity()->GetTransform()->SetOriginWS(m_Origin.AsVectorOfFloat());
     m_Velocity.Set(m_Vel);
 }
