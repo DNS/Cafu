@@ -80,6 +80,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameSys/CompLightRadiosity.hpp"
 #include "GameSys/CompModel.hpp"
 #include "GameSys/CompPhysics.hpp"
+#include "GameSys/CompPlayerPhysics.hpp"
 #include "GameSys/CompScript.hpp"
 #include "GameSys/CompSound.hpp"
 #include "GameSys/Entity.hpp"
@@ -937,6 +938,47 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
 
                 MapEnt->SetClass(EntityClass ? EntityClass : FindOrCreateUnknownClass("monster_eagle", true));
             }
+        }
+
+        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "monster_companybot")
+        {
+            IntrusivePtrT<cf::GameSys::ComponentModelT> ModelComp  = new cf::GameSys::ComponentModelT();
+            ModelComp->SetMember("Name", std::string("Games/DeathMatch/Models/Players/Trinity/Trinity.cmdl"));
+            Ent->AddComponent(ModelComp);
+
+            IntrusivePtrT<cf::GameSys::ComponentModelT> SubmodelComp  = new cf::GameSys::ComponentModelT();
+            SubmodelComp->SetMember("Name", std::string("Games/DeathMatch/Models/Weapons/DesertEagle/DesertEagle_p.cmdl"));
+            SubmodelComp->SetMember("IsSubmodel", true);
+            Ent->AddComponent(SubmodelComp);
+
+            IntrusivePtrT<cf::GameSys::ComponentPlayerPhysicsT> PlayerPhysicsComp = new cf::GameSys::ComponentPlayerPhysicsT();
+            PlayerPhysicsComp->SetMember("Dimensions", BoundingBox3dT(Vector3dT( 12.0,  12.0, 4.0), Vector3dT(-12.0, -12.0, -68.0)));
+            PlayerPhysicsComp->SetMember("StepHeight", 24.0);
+            Ent->AddComponent(PlayerPhysicsComp);
+
+            // Note that a collision model is added by the script code itself.
+            IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
+            ScriptComp->SetMember("Name", std::string(m_GameConfig->ModDir + "/Scripts/CompanyBot.lua"));
+            Ent->AddComponent(ScriptComp);
+
+            // Add a child entity with a point light source component (a "lantern").
+            IntrusivePtrT<cf::GameSys::EntityT> LanternEnt  = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
+            IntrusivePtrT<CompMapEntityT>       LntMapEnt   = new CompMapEntityT(*this);
+            const EntityClassT*                 EntityClass = m_GameConfig->FindClass("info_generic");
+
+            LntMapEnt->SetClass(EntityClass ? EntityClass : FindOrCreateUnknownClass("info_generic", true));
+            Ent->AddChild(LanternEnt);
+
+            LanternEnt->GetBasics()->SetEntityName("Lantern");
+            LanternEnt->GetTransform()->SetOriginPS(Vector3fT(20.0f, 0.0f, 0.0f));
+            LanternEnt->SetApp(LntMapEnt);
+
+            IntrusivePtrT<cf::GameSys::ComponentPointLightT> PointLight = new cf::GameSys::ComponentPointLightT();
+            PointLight->SetMember("Color", Vector3fT(0.0f, 0.0f, 0.0f));    // The CompanyBot.lua script brings this up to color.
+            PointLight->SetMember("On", true);
+            PointLight->SetMember("Radius", 400.0f);
+            PointLight->SetMember("ShadowType", 1);
+            LanternEnt->AddComponent(PointLight);
         }
 
         if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "monster_eagle")

@@ -20,7 +20,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "MonsterMaker.hpp"
-#include "CompanyBot.hpp"
 #include "EntityCreateParams.hpp"
 #include "HumanPlayer.hpp"
 #include "InfoPlayerStart.hpp"
@@ -150,11 +149,13 @@ void EntMonsterMakerT::Think(float FrameTime, unsigned long ServerFrameNr)
             // Gab es so einen Entity?
             if (EntityIDNr>=AllEntityIDs.Size()) return;
 
+            /* TODO:  This must be re-implemented in script code when the MonsterMaker is re-implemented in terms of the component system!
             std::map<std::string, std::string> Props; Props["classname"]="monster_companybot";
             unsigned long   NewCompanyBotID=GameWorld->CreateNewEntity(Props, ServerFrameNr, m_Origin);
             IntrusivePtrT<EntCompanyBotT> NewCompanyBot=dynamic_pointer_cast<EntCompanyBotT>(GameWorld->GetGameEntityByID(NewCompanyBotID));
 
             if (!NewCompanyBot.IsNull()) NewCompanyBot->SetHeading(m_Heading);
+            */
             break;
         }
 

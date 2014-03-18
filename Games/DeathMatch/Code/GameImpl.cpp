@@ -35,7 +35,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "cw_Shotgun.hpp"
 #include "EntityCreateParams.hpp"
 
-#include "CompanyBot.hpp"
 #include "HumanPlayer.hpp"
 #include "InfoGeneric.hpp"
 #include "InfoPlayerStart.hpp"
@@ -94,7 +93,6 @@ namespace GAME_NAME
      *     http://blog.copton.net/articles/linker/index.html#linker-dependencies
      */
     const cf::TypeSys::TypeInfoT* AllTypeInfos[] = {
-        &EntCompanyBotT::TypeInfo,
         &EntHumanPlayerT::TypeInfo,
         &EntInfoGenericT::TypeInfo,
         &EntInfoPlayerStartT::TypeInfo,
