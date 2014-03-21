@@ -176,6 +176,35 @@ void CaServerWorldT::Think(float FrameTime)
     }
 
     m_EntityRemoveList.Overwrite();
+
+
+    // If entities (script code) created new entities:
+    //   - they only exist in the script world, but not yet in m_EngineEntities,
+    //   - they have no App component, which we can use to identify them.
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
+
+    m_ScriptWorld->GetRootEntity()->GetAll(AllEnts);
+
+    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
+    {
+        if (AllEnts[EntNr]->GetApp() == NULL)
+        {
+            IntrusivePtrT<CompGameEntityT> GameEnt = new CompGameEntityT();
+
+            AllEnts[EntNr]->SetApp(GameEnt);
+            CreateNewEntityFromBasicInfo(GameEnt, m_ServerFrameNr);
+
+            const ArrayT< IntrusivePtrT<cf::GameSys::ComponentBaseT> >& Components = AllEnts[EntNr]->GetComponents();
+
+            for (unsigned int CompNr = 0; CompNr < Components.Size(); CompNr++)
+            {
+                // The components belong to an entity that was newly added to a live map.
+                // Consequently, we must run the post-load stuff here.
+                Components[CompNr]->OnPostLoad(false);
+                Components[CompNr]->CallLuaMethod("OnInit", 0);
+            }
+        }
+    }
 }
 
 
