@@ -1,4 +1,6 @@
-﻿from subprocess import call
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from subprocess import call
 import os, sys
 
 # Note that this script *must* be run from the Cafu top-level directory,
@@ -22,10 +24,16 @@ Maps = [
 
 
 def FindTools():
-    for compiler in ["vc11", "vc10", "vc9", "vc8"]:
-        for arch in ["x64", "x86"]:
-            path = 'build/' + sys.platform + '/' + compiler + "/" + arch + "/release"
-            if os.path.isfile(path + "/CaBSP/CaBSP.exe"):
+    if sys.platform == "win32":
+        for compiler in ["vc11", "vc10", "vc9", "vc8"]:
+            for arch in ["x64", "x86"]:
+                path = 'build/' + sys.platform + '/' + compiler + "/" + arch + "/release"
+                if os.path.isfile(path + "/CaBSP/CaBSP.exe"):
+                    return path
+    else:
+        for compiler in ["g++"]:
+            path = 'build/' + sys.platform + '/' + compiler + "/release"
+            if os.path.isfile(path + "/CaBSP/CaBSP"):
                 return path
     raise Exception("Could not find the Cafu map compile tools.")
 
@@ -41,9 +49,11 @@ for Map in Maps:
         if MapName.lower() not in [arg.lower() for arg in sys.argv[1:]]:
             continue
 
-    call([ToolPath + '/CaBSP/CaBSP.exe', 'Games/DeathMatch/Maps/%s.cmap' % MapName, 'Games/DeathMatch/Worlds/%s.cw' % MapName] + Map[1])
-    call([ToolPath + '/CaPVS/CaPVS.exe', 'Games/DeathMatch/Worlds/%s.cw' % MapName] + Map[2])
-    call([ToolPath + '/CaLight/CaLight.exe', 'Games/DeathMatch/Worlds/%s.cw' % MapName, '-gd=Games/DeathMatch'] + Map[3])
+    exeSuffix = ".exe" if sys.platform == "win32" else ""
+
+    call([ToolPath + '/CaBSP/CaBSP' + exeSuffix, 'Games/DeathMatch/Maps/%s.cmap' % MapName, 'Games/DeathMatch/Worlds/%s.cw' % MapName] + Map[1])
+    call([ToolPath + '/CaPVS/CaPVS' + exeSuffix, 'Games/DeathMatch/Worlds/%s.cw' % MapName] + Map[2])
+    call([ToolPath + '/CaLight/CaLight' + exeSuffix, 'Games/DeathMatch/Worlds/%s.cw' % MapName, '-gd=Games/DeathMatch'] + Map[3])
 
 
 # Finally shutdown the computer.
