@@ -76,6 +76,23 @@
 #include "zlib.h"
 #include "unzip.h"
 
+// CF: Work-around an issue with systems where we use the system's zlib, but the system's zlib
+//     is too old so that `z_crc_t` is not defined. This does not affect Windows, where we use
+//     our own copy of zlib, and not Ubuntu 13.10, whose zlib is recent enough, but is *does*
+//     affect Ubuntu 12.04 LTS, whose zlib is of version 1.2.3.4.
+#if ZLIB_VER_MAJOR == 1 && ZLIB_VER_MINOR == 2 && ZLIB_VER_REVISION < 5
+#  include <limits.h>
+#  if (UINT_MAX == 0xffffffffUL)
+#    define Z_U4 unsigned
+#  elif (ULONG_MAX == 0xffffffffUL)
+#    define Z_U4 unsigned long
+#  elif (USHRT_MAX == 0xffffffffUL)
+#    define Z_U4 unsigned short
+#  endif
+typedef Z_U4 z_crc_t;
+#endif
+// CF: End of work-around.
+
 #ifdef STDC
 #  include <stddef.h>
 #  include <string.h>
