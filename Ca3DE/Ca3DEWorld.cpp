@@ -294,10 +294,8 @@ unsigned long Ca3DEWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<const Comp
         // 1. Determine from the entity class name (e.g. "monster_argrenade") the C++ class name (e.g. "EntARGrenadeT").
         std::map<std::string, std::string>::const_iterator EntClassNamePair = CompGameEnt->GetStaticEntityData()->m_Properties.find("classname");
 
-        if (EntClassNamePair == CompGameEnt->GetStaticEntityData()->m_Properties.end())
-            throw std::runtime_error("\"classname\" property not found.\n");
-
-        const std::string EntClassName = EntClassNamePair->second;
+        const std::string EntClassName =
+            (EntClassNamePair == CompGameEnt->GetStaticEntityData()->m_Properties.end()) ? std::string("unknown") : EntClassNamePair->second;
 
         std::string CppClassName = m_ScriptState_OLD.GetCppClassNameFromEntityClassName(EntClassName);
 
