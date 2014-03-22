@@ -927,17 +927,26 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             Ent->AddComponent(ScriptComp);
         }
 
-        if (MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "LifeFormMaker")
+        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "LifeFormMaker")
         {
-            const EntPropertyT* Prop = MapEnt->FindProperty("monstertype");
+            IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
 
-            if (Prop && Prop->Value == "Eagle")
-            {
-                // First convert to a true eagle, then the code below will handle the rest (add components).
-                const EntityClassT* EntityClass = m_GameConfig->FindClass("monster_eagle");
+            const std::string MnType = MapEnt->GetAndRemove("monstertype", "Butterfly");
+            const std::string Count1 = MapEnt->GetAndRemove("monstercount", "-1");
+            const std::string Count2 = MapEnt->GetAndRemove("m_imaxlivechildren", "-1");
 
-                MapEnt->SetClass(EntityClass ? EntityClass : FindOrCreateUnknownClass("monster_eagle", true));
-            }
+            std::string Clearance = "16.0";
+            if (MnType == "CompanyBot") Clearance = "96.0";
+            if (MnType == "Eagle")      Clearance = "32.0";
+
+            ScriptComp->SetMember("Name", std::string(m_GameConfig->ModDir + "/Scripts/EntityFactory.lua"));
+            ScriptComp->SetMember("ScriptCode", std::string("local EntFac = ...\n") +
+                "EntFac.Type = \"" + MnType + "\"\n" +
+                "EntFac.NumTotal = " + (Count1 == "-1" ? Count2 : Count1) + "\n" +
+                "EntFac.Delay = " + MapEnt->GetAndRemove("delay", "3.0") + "\n" +
+                "EntFac.Clearance = " + Clearance + "\n");
+
+            Ent->AddComponent(ScriptComp);
         }
 
         if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "monster_companybot")
