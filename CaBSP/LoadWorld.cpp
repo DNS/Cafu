@@ -45,8 +45,7 @@ using namespace cf;
 
 void MapFileSanityCheck(const ArrayT<MapFileEntityT>& MFEntityList)
 {
-    unsigned long NrOfWorldSpawnEntities     =0;
-    unsigned long NrOfInfoPlayerStartEntities=0;
+    unsigned long NrOfWorldSpawnEntities = 0;
 
     for (unsigned long EntityNr=0; EntityNr<MFEntityList.Size(); EntityNr++)
     {
@@ -80,15 +79,10 @@ void MapFileSanityCheck(const ArrayT<MapFileEntityT>& MFEntityList)
             NrOfWorldSpawnEntities++;
         }
 
-        // If this is a 'classname info_player_start' entity, we count the occurence, because we insist that there is at least one such entity.
-        if (It->second=="info_player_start")
-            NrOfInfoPlayerStartEntities++;
-
         // No further checks should be necessary for now. We can always ignore invalid property pairs and/or fill in default values.
     }
 
-    if (NrOfWorldSpawnEntities     !=1) Error("Found %u worldspawn entities, expected exactly 1.", NrOfWorldSpawnEntities);
-    if (NrOfInfoPlayerStartEntities==0) Error("Found no info_player_start entities at all, expected at least 1.", NrOfInfoPlayerStartEntities);
+    if (NrOfWorldSpawnEntities != 1) Error("Found %u worldspawn entities, expected exactly 1.", NrOfWorldSpawnEntities);
 }
 
 
@@ -250,7 +244,7 @@ void ComputeBrushFaces(const MapFileBrushT& MFBrush, WorldT& World, cf::SceneGra
 
 
 // Liest ein MapFile, das die der Version entsprechenden "MapFile Specifications" erfüllen muß, in die World ein.
-void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, WorldT& World, ArrayT<VectorT>& DrawWorldOutsidePointSamples)
+void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, WorldT& World, ArrayT<Vector3dT>& FloodFillSources, ArrayT<Vector3dT>& DrawWorldOutsidePointSamples)
 {
     World.PlantDescrMan.SetModDir(GameDirectory);
 
@@ -383,20 +377,9 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
                 if (SHLMapPatchSize > 2000.0) { SHLMapPatchSize = 2000.0; Console->Print("NOTE: SHLMap PatchSize clamped to 2000.\n"); }
             }
         }
-        else if (ClassNamePair->second == "info_player_start")
-        {
-            InfoPlayerStartT IPS;
-            std::map<std::string, std::string>::const_iterator It;
 
-            IPS.Origin  = AllScriptEnts[EntNr]->GetTransform()->GetOriginWS().AsVectorOfDouble() * CA3DE_SCALE;
-            IPS.Heading = 0;
-            IPS.Pitch   = 0;
-            IPS.Bank    = 0;
-
-            It=E.MFProperties.find("angles"); if (It!=E.MFProperties.end()) IPS.Heading=(unsigned short)(GetVectorFromTripleToken(It->second).y*8192.0/45.0);
-
-            World.InfoPlayerStarts.PushBack(IPS);
-        }
+        if (AllScriptEnts[EntNr]->GetComponent("PlayerStart") != NULL)
+            FloodFillSources.PushBack(AllScriptEnts[EntNr]->GetTransform()->GetOriginWS().AsVectorOfDouble() * CA3DE_SCALE);
 
 
         // 1. Copy the properties.
@@ -515,7 +498,7 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
     Console->Print("All game entities done, processing the worldspawn entity now.\n");
 
     Console->Print(cf::va("Face Children    : %10lu    Draw World Outer Point Samples: %5lu\n", World.m_StaticEntityData[0]->m_BspTree->FaceChildren.Size(), DrawWorldOutsidePointSamples.Size()));
-    Console->Print(cf::va("InfoPlayerStarts : %10lu\n", World.InfoPlayerStarts.Size()));
+    Console->Print(cf::va("InfoPlayerStarts : %10lu\n", FloodFillSources.Size()));
     Console->Print(cf::va("Other Children   : %10lu\n", World.m_StaticEntityData[0]->m_BspTree->OtherChildren.Size()));
     Console->Print(cf::va("Entities         : %10lu\n", AllScriptEnts.Size()));
 }

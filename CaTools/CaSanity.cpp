@@ -192,7 +192,7 @@ void PrintMaterialCounts(int Mode)
 
 void ViewWorld()
 {
-    VectorT Viewer   =World->InfoPlayerStarts[0].Origin;
+    VectorT Viewer;     // = World->InfoPlayerStarts[0].Origin;
     float   Heading  =  0.0;
     float   Pitch    =  0.0;
     float   MoveSpeed=100.0;

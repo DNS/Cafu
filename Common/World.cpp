@@ -268,23 +268,6 @@ WorldT::WorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiRes
     SHLMapMan.ReadSHLCoeffsTable(InFile);
 
 
-    // 3. Read InfoPlayerStarts
-    InfoPlayerStarts.Clear();
-    if (ProgressFunction) ProgressFunction(float(InFile.tellg())/float(InFileSize), "Reading InfoPlayerStarts.");
-    for (unsigned long Size=cf::SceneGraph::aux::ReadUInt32(InFile); Size>0; Size--)
-    {
-        InfoPlayerStartT IPS;
-
-        InFile.read((char*)&IPS.Origin.x, sizeof(IPS.Origin.x));
-        InFile.read((char*)&IPS.Origin.y, sizeof(IPS.Origin.y));
-        InFile.read((char*)&IPS.Origin.z, sizeof(IPS.Origin.z));
-        InFile.read((char*)&IPS.Heading , sizeof(IPS.Heading ));
-        InFile.read((char*)&IPS.Pitch   , sizeof(IPS.Pitch   ));
-        InFile.read((char*)&IPS.Bank    , sizeof(IPS.Bank    ));
-
-        InfoPlayerStarts.PushBack(IPS);
-    }
-
     // 5. Read GameEntities
     if (ProgressFunction) ProgressFunction(float(InFile.tellg())/float(InFileSize), "Reading Game Entities.");
 
@@ -308,10 +291,7 @@ WorldT::WorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiRes
 
 void WorldT::ScaleDown254()
 {
-    const double CA3DE_SCALE = 25.4;
-
-    for (unsigned int IPSNr = 0; IPSNr < InfoPlayerStarts.Size(); IPSNr++)
-        InfoPlayerStarts[IPSNr].Origin /= CA3DE_SCALE;
+    // const double CA3DE_SCALE = 25.4;
 
     for (unsigned int EntNr = 0; EntNr < m_StaticEntityData.Size(); EntNr++)
     {
@@ -351,20 +331,6 @@ void WorldT::SaveToDisk(const char* FileName) const /*throw (SaveErrorT)*/
     // This writes a total of cf::SceneGraph::SHLMapManT::NrOfRepres*NR_OF_SH_COEFFS coefficients.
     SHLMapMan.WriteSHLCoeffsTable(OutFile);
 
-
-    // 3. Write InfoPlayerStarts
-    cf::SceneGraph::aux::Write(OutFile, cf::SceneGraph::aux::cnc_ui32(InfoPlayerStarts.Size()));
-    for (unsigned long IPSNr=0; IPSNr<InfoPlayerStarts.Size(); IPSNr++)
-    {
-        const InfoPlayerStartT& IPS=InfoPlayerStarts[IPSNr];
-
-        OutFile.write((char*)&IPS.Origin.x, sizeof(IPS.Origin.x));
-        OutFile.write((char*)&IPS.Origin.y, sizeof(IPS.Origin.y));
-        OutFile.write((char*)&IPS.Origin.z, sizeof(IPS.Origin.z));
-        OutFile.write((char*)&IPS.Heading , sizeof(IPS.Heading ));
-        OutFile.write((char*)&IPS.Pitch   , sizeof(IPS.Pitch   ));
-        OutFile.write((char*)&IPS.Bank    , sizeof(IPS.Bank    ));
-    }
 
     // 5. Write GameEntities
     cf::SceneGraph::aux::Write(OutFile, cf::SceneGraph::aux::cnc_ui32(m_StaticEntityData.Size()));

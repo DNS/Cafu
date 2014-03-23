@@ -265,18 +265,18 @@ int main(int ArgC, const char* ArgV[])
     ModelManagerT             ModelMan;
     cf::GuiSys::GuiResourcesT GuiRes(ModelMan);
     WorldT                    World;
-    ArrayT<VectorT>           DrawWorldOutsidePointSamples;
+    ArrayT<Vector3dT>         DrawWorldOutsidePointSamples;
+    ArrayT<Vector3dT>         FloodFillSources;
 
-    LoadWorld(ArgV[1], GameDirectory, ModelMan, GuiRes, World, DrawWorldOutsidePointSamples);
+    LoadWorld(ArgV[1], GameDirectory, ModelMan, GuiRes, World, FloodFillSources, DrawWorldOutsidePointSamples);
+
+    if (FloodFillSources.Size() == 0)
+        Error("No entities with PlayerStart component found, expected at least 1.");
 
     // What we need:
     // For each entity: The BspTree itself, OutsidePointSamples, FloodFillSources.
     // One common instance, shared for all: LeakDetectMat
     BspTreeBuilderT BspTreeBuilder(World.m_StaticEntityData[0]->m_BspTree, Option_MostSimpleTree, Option_MinimizeFaceSplits);
-
-    ArrayT<Vector3dT> FloodFillSources;
-    for (unsigned long IPSNr=0; IPSNr<World.InfoPlayerStarts.Size(); IPSNr++)
-        FloodFillSources.PushBack(World.InfoPlayerStarts[IPSNr].Origin);
 
     BspTreeBuilder.Build(true /*yes, this is the worldspawn entity*/, FloodFillSources, DrawWorldOutsidePointSamples, ArgV[1]);
 

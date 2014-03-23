@@ -54,15 +54,6 @@ struct MapT
 };
 
 
-struct InfoPlayerStartT
-{
-    VectorT        Origin;
-    unsigned short Heading;
-    unsigned short Pitch;
-    unsigned short Bank;
-};
-
-
 class SharedTerrainT
 {
     public:
@@ -131,7 +122,6 @@ class WorldT
     void SaveToDisk(const char* FileName) const /*throw (SaveErrorT)*/;
 
 
-    ArrayT<InfoPlayerStartT>     InfoPlayerStarts;
     ArrayT<StaticEntityDataT*>   m_StaticEntityData;
     cf::SceneGraph::LightMapManT LightMapMan;
     cf::SceneGraph::SHLMapManT   SHLMapMan;
