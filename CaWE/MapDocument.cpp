@@ -81,6 +81,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameSys/CompModel.hpp"
 #include "GameSys/CompPhysics.hpp"
 #include "GameSys/CompPlayerPhysics.hpp"
+#include "GameSys/CompPlayerStart.hpp"
 #include "GameSys/CompScript.hpp"
 #include "GameSys/CompSound.hpp"
 #include "GameSys/Entity.hpp"
@@ -871,6 +872,15 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
     {
         IntrusivePtrT<cf::GameSys::EntityT> Ent    = AllScriptEnts[EntNr];
         IntrusivePtrT<CompMapEntityT>       MapEnt = GetMapEnt(Ent);
+
+        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "info_player_start")
+        {
+            IntrusivePtrT<cf::GameSys::ComponentPlayerStartT> PlayerStartComp  = new cf::GameSys::ComponentPlayerStartT();
+
+            PlayerStartComp->SetMember("SinglePlayer", true);
+            PlayerStartComp->SetMember("MultiPlayer", true);
+            Ent->AddComponent(PlayerStartComp);
+        }
 
         if (Ent->GetComponent("Model") == NULL && MapEnt->FindProperty("model") && MapEnt->FindProperty("model")->Value != "")
         {

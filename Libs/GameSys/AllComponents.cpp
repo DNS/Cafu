@@ -30,6 +30,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CompParticleSystemOld.hpp"
 #include "CompPhysics.hpp"
 #include "CompPlayerPhysics.hpp"
+#include "CompPlayerStart.hpp"
 #include "CompScript.hpp"
 #include "CompSound.hpp"
 #include "CompTransform.hpp"
@@ -106,6 +107,7 @@ namespace cf
             &ComponentParticleSystemOldT::TypeInfo,
             &ComponentPhysicsT::TypeInfo,
             &ComponentPlayerPhysicsT::TypeInfo,
+            &ComponentPlayerStartT::TypeInfo,
             &ComponentPointLightT::TypeInfo,
             &ComponentRadiosityLightT::TypeInfo,
             &ComponentScriptT::TypeInfo,

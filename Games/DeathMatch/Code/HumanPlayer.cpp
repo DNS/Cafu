@@ -20,7 +20,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "HumanPlayer.hpp"
-#include "InfoPlayerStart.hpp"
 #include "cw.hpp"
 #include "Constants_AmmoSlots.hpp"
 #include "Constants_WeaponSlots.hpp"
@@ -995,11 +994,11 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     IPSEntity=static_pointer_cast<BaseEntityT>(GameWorld->GetGameEntityByID(AllEntityIDs[EntityIDNr]));
                     if (IPSEntity==NULL) continue;
 
-                    if (IPSEntity->GetType()!=&EntInfoPlayerStartT::TypeInfo) continue;
+                    if (IPSEntity->m_Entity->GetComponent("PlayerStart") == NULL) continue;
 
                     // This is actually an "InfoPlayerStart" entity. Now try to put our own bounding box at the origin of 'IPSEntity',
                     // but try to correct/choose the height such that we are on ground (instead of hovering above it).
-                    OurNewOrigin=IPSEntity->GetOrigin();
+                    OurNewOrigin = IPSEntity->m_Entity->GetTransform()->GetOriginWS().AsVectorOfDouble();
 
                     // First, create a BB of dimensions (-300.0, -300.0, -100.0) - (300.0, 300.0, 100.0).
                     const BoundingBox3T<double> ClearingBB(VectorT(m_Dimensions.Min.x, m_Dimensions.Min.y, -m_Dimensions.Max.z), m_Dimensions.Max);
