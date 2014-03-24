@@ -20,10 +20,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "cw_Grenade.hpp"
+#include "../../PlayerCommand.hpp"
+#include "../../GameWorld.hpp"
 #include "HumanPlayer.hpp"
 #include "Constants_WeaponSlots.hpp"
 #include "Libs/LookupTables.hpp"
-#include "../../GameWorld.hpp"
 #include "GameSys/CompLightPoint.hpp"
 #include "GameSys/CompModel.hpp"
 #include "GameSys/CompParticleSystemOld.hpp"

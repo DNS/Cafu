@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Network/Network.hpp"
 #include "Win32/Win32PrintHelp.hpp"
 #include "Ca3DEWorld.hpp"
+#include "GameSys/CompHumanPlayer.hpp"
 #include "GameSys/Entity.hpp"
 
 
@@ -264,7 +265,16 @@ bool EngineEntityT::Repredict(const ArrayT<PlayerCommandT>& PlayerCommands, unsi
 
     if (LastOutgoingSequenceNr-RemoteLastIncomingSequenceNr>PlayerCommands.Size())
     {
-        EnqueueString("WARNING - Prediction impossible: Last ack'ed PlayerCommand is too old (%u, %u)!\n", RemoteLastIncomingSequenceNr, LastOutgoingSequenceNr);
+        EnqueueString("WARNING - Reprediction impossible: Last ack'ed PlayerCommand is too old (%u, %u)!\n", RemoteLastIncomingSequenceNr, LastOutgoingSequenceNr);
+        return false;
+    }
+
+    IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP =
+        dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(m_Entity->GetComponent("HumanPlayer"));
+
+    if (CompHP == NULL)
+    {
+        EnqueueString("WARNING - Reprediction impossible: HumanPlayer component not found in human player entity!\n");
         return false;
     }
 
@@ -280,7 +290,7 @@ bool EngineEntityT::Repredict(const ArrayT<PlayerCommandT>& PlayerCommands, unsi
     // Falls dann auch noch der Server mit full-speed läuft, sollte daher immer RemoteLastIncomingSequenceNr==LastOutgoingSequenceNr sein,
     // was impliziert, daß dann keine Prediction stattfindet (da nicht notwendig!).
     for (unsigned long SequenceNr=RemoteLastIncomingSequenceNr+1; SequenceNr<=LastOutgoingSequenceNr; SequenceNr++)
-        Entity->ProcessConfigString(&PlayerCommands[SequenceNr & (PlayerCommands.Size()-1)], "PlayerCommand");
+        CompHP->GetPlayerCommands().PushBack(PlayerCommands[SequenceNr & (PlayerCommands.Size()-1)]);
 
     Entity->Think(-2.0, 0);
     return true;
@@ -292,7 +302,16 @@ void EngineEntityT::Predict(const PlayerCommandT& PlayerCommand, unsigned long O
     if (!UsePrediction.GetValueBool())
         return;
 
-    Entity->ProcessConfigString(&PlayerCommand, "PlayerCommand");
+    IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP =
+        dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(m_Entity->GetComponent("HumanPlayer"));
+
+    if (CompHP == NULL)
+    {
+        EnqueueString("WARNING - Prediction impossible: HumanPlayer component not found in human player entity!\n");
+        return;
+    }
+
+    CompHP->GetPlayerCommands().PushBack(PlayerCommand);
     Entity->Think(-1.0, 0);
 }
 

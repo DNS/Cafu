@@ -32,11 +32,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "SoundSystem/SoundSys.hpp"
 #include "../../GameWorld.hpp"
+#include "../../PlayerCommand.hpp"
 #include "ClipSys/ClipWorld.hpp"
 #include "ClipSys/CollisionModelMan.hpp"
 #include "ClipSys/TraceResult.hpp"
 #include "Fonts/Font.hpp"
 #include "GameSys/CompCollisionModel.hpp"
+#include "GameSys/CompHumanPlayer.hpp"
 #include "GameSys/CompModel.hpp"
 #include "GameSys/CompScript.hpp"
 #include "GameSys/World.hpp"
@@ -313,7 +315,7 @@ void EntHumanPlayerT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT
 
 void EntHumanPlayerT::ProcessConfigString(const void* ConfigData, const char* ConfigString)
 {
-         if (strcmp(ConfigString, "PlayerCommand")==0) PlayerCommands.PushBack(*((PlayerCommandT*)ConfigData));
+         if (strcmp(ConfigString, "PlayerCommand")==0) /* PlayerCommands.PushBack(*((PlayerCommandT*)ConfigData)) */;
     else if (strcmp(ConfigString, "IsAlive?"     )==0) *((bool*)ConfigData)=(State.StateOfExistance==StateOfExistance_Alive);
     else if (strcmp(ConfigString, "PlayerName"   )==0) strncpy(State.PlayerName, (const char*)ConfigData, sizeof(State.PlayerName));
     else if (strcmp(ConfigString, "ModelName"    )==0)
@@ -450,6 +452,12 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
     //
     // Note that all this applies ONLY to HumanPlayerT::Think()! All OTHER entities are NOT affected!
     // **********************************************************************************************************************************************
+
+    IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(m_Entity->GetComponent("HumanPlayer"));
+
+    if (CompHP == NULL) return;     // The presence of CompHP is mandatory...
+
+    ArrayT<PlayerCommandT>& PlayerCommands = CompHP->GetPlayerCommands();
 
     const bool ThinkingOnServerSide=FrameTime_BAD_DONT_USE>=0.0;
 
@@ -1069,7 +1077,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
         }
     }
 
-    PlayerCommands.Clear();
+    PlayerCommands.Overwrite();
     m_Entity->GetTransform()->SetOriginWS(m_Origin.AsVectorOfFloat());      // "Sync" the origin.
 }
 

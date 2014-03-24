@@ -20,13 +20,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "cw_9mmAR.hpp"
+#include "../../PlayerCommand.hpp"
+#include "../../GameWorld.hpp"
 #include "_ResourceManager.hpp"
 #include "HumanPlayer.hpp"
 #include "Constants_AmmoSlots.hpp"
 #include "Constants_WeaponSlots.hpp"
 #include "PhysicsWorld.hpp"
 #include "Libs/LookupTables.hpp"
-#include "../../GameWorld.hpp"
 #include "GameSys/CompLightPoint.hpp"
 #include "GameSys/CompModel.hpp"
 #include "GameSys/CompParticleSystemOld.hpp"

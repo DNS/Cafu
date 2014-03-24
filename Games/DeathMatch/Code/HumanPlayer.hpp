@@ -23,7 +23,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_HUMAN_PLAYER_HPP_INCLUDED
 
 #include "BaseEntity.hpp"
-#include "../../PlayerCommand.hpp"
 #include "Libs/Physics.hpp"
 #include "btBulletDynamicsCommon.h"
 
@@ -93,8 +92,6 @@ namespace GAME_NAME
 
         static const luaL_Reg MethodsList[];
 
-
-        ArrayT<PlayerCommandT> PlayerCommands;
 
         EntityStateT      State;                    ///< The current state of this entity.
         PhysicsHelperT    m_Physics;

@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../EngineEntity.hpp"
 #include "ConsoleCommands/ConVar.hpp"
 #include "ConsoleCommands/Console.hpp"      // For cf::va().
+#include "GameSys/CompHumanPlayer.hpp"
 #include "GameSys/Entity.hpp"
 #include "GameSys/EntityCreateParams.hpp"
 #include "GameSys/World.hpp"
@@ -106,6 +107,7 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
 
     NewEnt->GetBasics()->SetEntityName(cf::va("Player_%lu", ClientInfoNr+1));
     NewEnt->SetApp(GameEnt);
+    NewEnt->AddComponent(new cf::GameSys::ComponentHumanPlayerT());
     m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
 
     GameEnt->GetStaticEntityData()->m_Properties["classname"] = "HumanPlayer";
@@ -119,8 +121,14 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
 void CaServerWorldT::NotifyHumanPlayerEntityOfClientCommand(unsigned long HumanPlayerEntityID, const PlayerCommandT& PlayerCommand)
 {
     if (HumanPlayerEntityID < m_EngineEntities.Size())
-        if (m_EngineEntities[HumanPlayerEntityID]!=NULL)
-            m_EngineEntities[HumanPlayerEntityID]->ProcessConfigString(&PlayerCommand, "PlayerCommand");
+        if (m_EngineEntities[HumanPlayerEntityID] != NULL)
+        {
+            IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP =
+                dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(m_EngineEntities[HumanPlayerEntityID]->GetEntity()->GetComponent("HumanPlayer"));
+
+            if (CompHP != NULL)
+                CompHP->GetPlayerCommands().PushBack(PlayerCommand);
+        }
 }
 
 
