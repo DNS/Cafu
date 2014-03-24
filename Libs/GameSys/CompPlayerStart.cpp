@@ -83,7 +83,7 @@ int ComponentPlayerStartT::toString(lua_State* LuaState)
     // ScriptBinderT Binder(LuaState);
     // IntrusivePtrT<ComponentBaseT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentBaseT> >(1);
 
-    lua_pushfstring(LuaState, "transform component");
+    lua_pushfstring(LuaState, "player start component");
     return 1;
 }
 
