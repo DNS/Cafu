@@ -81,12 +81,12 @@ namespace cf
             void ApplyGravity(double FrameTime, PosCatT PosCat);
             void FlyMove(double TimeLeft);
             void GroundMove(double FrameTime);
-            void MoveHuman(float FrameTime, unsigned short Heading,
-                           const VectorT& WishVelLadder, bool WishJump, bool& OldWishJump);
+            void MoveHuman(float FrameTime, unsigned short Heading, const VectorT& WishVelLadder, bool WishJump);
 
             TypeSys::VarT<Vector3dT>       m_Velocity;      ///< The current velocity of the entity.
             TypeSys::VarT<BoundingBox3dT>  m_Dimensions;    ///< The bounding box of the entity (relative to the origin).
             TypeSys::VarT<double>          m_StepHeight;    ///< The maximum height that the entity can climb in one step.
+            TypeSys::VarT<bool>            m_OldWishJump;   ///< Only jump if the jump key was *not* pressed in the previous frame.
 
             const cf::ClipSys::ClipWorldT* m_ClipWorld;
             const cf::ClipSys::ClipModelT* m_IgnoreClipModel;

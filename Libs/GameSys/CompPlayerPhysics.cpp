@@ -46,9 +46,10 @@ const char* ComponentPlayerPhysicsT::DocClass =
 
 const cf::TypeSys::VarsDocT ComponentPlayerPhysicsT::DocVars[] =
 {
-    { "Velocity",   "The current velocity of the entity." },
-    { "Dimensions", "The bounding box of the entity (relative to the origin)." },
-    { "StepHeight", "The maximum height that the entity can climb in one step." },
+    { "Velocity",    "The current velocity of the entity." },
+    { "Dimensions",  "The bounding box of the entity (relative to the origin)." },
+    { "StepHeight",  "The maximum height that the entity can climb in one step." },
+    { "OldWishJump", "Only jump if the jump key was *not* pressed in the previous frame." },
     { NULL, NULL }
 };
 
@@ -58,6 +59,7 @@ ComponentPlayerPhysicsT::ComponentPlayerPhysicsT()
       m_Velocity("Velocity", Vector3dT(0, 0, 0)),
       m_Dimensions("Dimensions", BoundingBox3dT(Vector3dT(-8, -8, -8), Vector3dT(8, 8, 8))),
       m_StepHeight("StepHeight", 0.0),
+      m_OldWishJump("OldWishJump", false),      // This variable should not be shown in the map editor...
       m_ClipWorld(NULL),
       m_IgnoreClipModel(NULL),
       m_Origin(),
@@ -67,6 +69,7 @@ ComponentPlayerPhysicsT::ComponentPlayerPhysicsT()
     GetMemberVars().Add(&m_Velocity);
     GetMemberVars().Add(&m_Dimensions);
     GetMemberVars().Add(&m_StepHeight);
+    GetMemberVars().Add(&m_OldWishJump);
 }
 
 
@@ -75,6 +78,7 @@ ComponentPlayerPhysicsT::ComponentPlayerPhysicsT(const ComponentPlayerPhysicsT& 
       m_Velocity(Comp.m_Velocity),
       m_Dimensions(Comp.m_Dimensions),
       m_StepHeight(Comp.m_StepHeight),
+      m_OldWishJump(Comp.m_OldWishJump),
       m_ClipWorld(NULL),
       m_IgnoreClipModel(NULL),
       m_Origin(),
@@ -84,6 +88,7 @@ ComponentPlayerPhysicsT::ComponentPlayerPhysicsT(const ComponentPlayerPhysicsT& 
     GetMemberVars().Add(&m_Velocity);
     GetMemberVars().Add(&m_Dimensions);
     GetMemberVars().Add(&m_StepHeight);
+    GetMemberVars().Add(&m_OldWishJump);
 }
 
 
@@ -116,7 +121,6 @@ void ComponentPlayerPhysicsT::DoServerFrame(float t)
     IntrusivePtrT<ComponentCollisionModelT> CompCollMdl = dynamic_pointer_cast<ComponentCollisionModelT>(GetEntity()->GetComponent("CollisionModel"));
 
     const unsigned short Heading = 0;   // TODO!
-    bool OldWishJump = false;
 
     if (CompCollMdl != NULL)
         m_IgnoreClipModel = CompCollMdl->GetClipModel();
@@ -124,7 +128,7 @@ void ComponentPlayerPhysicsT::DoServerFrame(float t)
     m_Origin = GetEntity()->GetTransform()->GetOriginWS().AsVectorOfDouble();
     m_Vel    = m_Velocity.Get();
 
-    MoveHuman(t, Heading, Vector3dT() /*WishVelLadder*/, false /*WishJump*/, OldWishJump);
+    MoveHuman(t, Heading, Vector3dT() /*WishVelLadder*/, false /*WishJump*/);
 
     m_IgnoreClipModel = NULL;
     GetEntity()->GetTransform()->SetOriginWS(m_Origin.AsVectorOfFloat());
@@ -405,8 +409,7 @@ void ComponentPlayerPhysicsT::GroundMove(double FrameTime)
 }
 
 
-void ComponentPlayerPhysicsT::MoveHuman(float FrameTime, unsigned short Heading,
-                                        const Vector3dT& WishVelLadder, bool WishJump, bool& OldWishJump)
+void ComponentPlayerPhysicsT::MoveHuman(float FrameTime, unsigned short Heading, const Vector3dT& WishVelLadder, bool WishJump)
 {
     // 1. Die Positions-Kategorie des MassChunks bestimmen:
     //    Wir können uns in der Luft befinden (im Flug/freien Fall oder schwebend im Wasser),
@@ -428,9 +431,9 @@ void ComponentPlayerPhysicsT::MoveHuman(float FrameTime, unsigned short Heading,
     {
         if (WishJump)
         {
-            if (!OldWishJump)
+            if (!m_OldWishJump.Get())
             {
-                OldWishJump=true;
+                m_OldWishJump.Set(true);
                 // TODO: Move 'm_Origin' along 'ImpactNormal' until we do not touch this brush any longer.
                 m_Vel = scale(LadderResult.ImpactNormal, 248.0);    // 248 is just a guessed value.
             }
@@ -454,7 +457,7 @@ void ComponentPlayerPhysicsT::MoveHuman(float FrameTime, unsigned short Heading,
             m_Vel = Lateral - scale(cross(LadderResult.ImpactNormal, Perpend), Normal);
 
             if (PosCat == OnSolid && Normal > 0) m_Vel = m_Vel + scale(LadderResult.ImpactNormal, 168.0);
-            OldWishJump = false;
+            m_OldWishJump.Set(false);
         }
     }
 
@@ -480,9 +483,9 @@ void ComponentPlayerPhysicsT::MoveHuman(float FrameTime, unsigned short Heading,
         //      OnGround  1  1    nothing
         if (WishJump)
         {
-            if (!OldWishJump)
+            if (!m_OldWishJump.Get())
             {
-                OldWishJump=true;
+                m_OldWishJump.Set(true);
 
                 if (PosCat==OnSolid)
                 {
@@ -492,7 +495,7 @@ void ComponentPlayerPhysicsT::MoveHuman(float FrameTime, unsigned short Heading,
                 }
             }
         }
-        else OldWishJump=false;
+        else m_OldWishJump.Set(false);
 
         // 3.2. Apply Physics
         ApplyFriction    (FrameTime, PosCat);
