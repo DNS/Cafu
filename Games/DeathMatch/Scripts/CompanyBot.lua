@@ -1,7 +1,8 @@
 local CompanyBot   = ...   -- Retrieve the ComponentScriptT instance that is responsible for this script.
 local Entity       = CompanyBot:GetEntity()
-local Model        = Entity:GetComponent("Model")
 local Trafo        = Entity:GetTransform()
+local Model        = Entity:GetComponent("Model")
+local PlPhysics    = Entity:GetComponent("PlayerPhysics")
 local LanternEnt   = Entity:GetChildren()[1]
 local LanternLight = LanternEnt:GetComponent("PointLight")
 
@@ -55,12 +56,12 @@ function CompanyBot:TakeDamage(OtherEnt, Amount, ImpDirX, ImpDirY, ImpDirZ)
     end
 
     -- Nudge the entity into the direction of ImpDir.
-    local vx, vy, vz = Entity:GetComponent("PlayerPhysics"):get("Velocity")
+    local vx, vy, vz = PlPhysics:get("Velocity")
 
     vx = vx + 20.0 * Amount * ImpDirX
     vy = vy + 20.0 * Amount * ImpDirY
 
-    Entity:GetComponent("PlayerPhysics"):set("Velocity", vx, vy, vz)
+    PlPhysics:set("Velocity", vx, vy, vz)
 
     -- Reduce the entity's health.
     self.Health = self.Health - Amount
@@ -94,11 +95,7 @@ function CompanyBot:TakeDamage(OtherEnt, Amount, ImpDirX, ImpDirY, ImpDirZ)
 end
 
 
-local OldSpeed = 0.0
-
 function CompanyBot:Think(FrameTime)
-    Entity:GetComponent("PlayerPhysics"):SetWishVelocity(0, 0, 0)
-
     if self.Health <= 0 then
         -- As the PlayerPhysics component has been configured above already,
         -- there is nothing else to do.
@@ -114,6 +111,7 @@ function CompanyBot:Think(FrameTime)
     Dist[3] = 0
 
     local DistLen = math.sqrt(Dist[1]*Dist[1] + Dist[2]*Dist[2] + Dist[3]*Dist[3])
+    local WishVel = Vector3T()
 
     if DistLen > 400.0 then
         -- Have it look towards HumanPlayer.
@@ -121,18 +119,15 @@ function CompanyBot:Think(FrameTime)
         Trafo:LookAt(px, py, pz, 0, true)
 
         -- Set a speed towards HumanPlayer.
-        local wv = Dist / DistLen * 280.0
-        Entity:GetComponent("PlayerPhysics"):SetWishVelocity(wv[1], wv[2], wv[3])
+        WishVel = Dist / DistLen * 280.0
     end
 
-    -- TODO: Should PlayerPhysics component be before or after the Script component?
-    local vx, vy, vz = Entity:GetComponent("PlayerPhysics"):get("Velocity")
-    local NewSpeed   = math.sqrt(vx*vx + vy*vy)
+    PlPhysics:MoveHuman(FrameTime, WishVel[1], WishVel[2], WishVel[3], 0, 0, 0, false)
 
-    if OldSpeed <= 40.0 and NewSpeed > 40.0 then Model:set("Animation", 3) end
-    if OldSpeed >= 40.0 and NewSpeed < 40.0 then Model:set("Animation", 1) end
+    local vx, vy, vz = PlPhysics:get("Velocity")
+    local Speed      = math.sqrt(vx*vx + vy*vy)
 
-    OldSpeed = NewSpeed
+    Model:set("Animation", Speed < 40.0 and 1 or 3)
 end
 
 

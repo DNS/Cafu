@@ -22,18 +22,19 @@ end
 
 
 function Grenade:Think(FrameTime)
+    -- Move the grenade if the timer is still ticking.
+    if Model:get("Show") then
+        PlPhy:MoveHuman(FrameTime, 0, 0, 0, 0, 0, 0, false)
+    end
+
     -- Let the detonation timer tick.
     local OldTimer = self.Timer
     self.Timer = self.Timer + FrameTime
 
-    -- The PlayerPhysics component independently moves the grenade while the
-    -- timer is ticking. If it passes 3.0 seconds, let the grenade explode.
+    -- If the timer passes 3.0 seconds, let the grenade explode.
     if OldTimer < 3.0 and self.Timer >= 3.0 then
         Model:set("Show", false)
         Light:set("On", true)
-
-        -- Disable the PlayerPhysics component, it is no longer needed.
-        self:GetEntity():RemoveComponent(PlPhy)
 
         -- Inflict damage to all nearby entities.
         self:DamageAll(100.0, 40.0, 200.0)

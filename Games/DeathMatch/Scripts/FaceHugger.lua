@@ -3,6 +3,7 @@ local FaceHugger = ...  -- Retrieve the ComponentScriptT instance that is respon
 local Trafo = FaceHugger:GetEntity():GetTransform()
 local Model = FaceHugger:GetEntity():GetComponent("Model")
 local PaSys = FaceHugger:GetEntity():GetComponent("ParticleSystemOld")
+local PlPhy = FaceHugger:GetEntity():GetComponent("PlayerPhysics")
 
 
 -- There is no need to call InitClientApprox() here, because FaceHuggers have
@@ -10,6 +11,11 @@ local PaSys = FaceHugger:GetEntity():GetComponent("ParticleSystemOld")
 if false then
     -- TODO: Call InitClientApprox() in some client-init (e.g. OnClientInit()) only?
     Trafo:InitClientApprox("Origin")
+end
+
+
+function FaceHugger:Think(FrameTime)
+    PlPhy:MoveHuman(FrameTime, 0, 0, 0, 0, 0, 0, false)
 end
 
 

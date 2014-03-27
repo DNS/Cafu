@@ -34,6 +34,10 @@ namespace cf
     namespace GameSys
     {
         /// This component implements human player physics for its entity.
+        /// It updates the entity's origin according to the laws of simple physics
+        /// that are appropriate for player movement.
+        /// The component does not act on its own in a server's Think() step, but is
+        /// only a helper to other C++ or script code that must drive it explicitly.
         class ComponentPlayerPhysicsT : public ComponentBaseT
         {
             public:
@@ -45,6 +49,15 @@ namespace cf
             /// @param Comp   The component to create a copy of.
             ComponentPlayerPhysicsT(const ComponentPlayerPhysicsT& Comp);
 
+            /// This is the main method of this component: It advances the entity's origin
+            /// according to the laws of simple physics and the given state and parameters.
+            /// Other C++ or script code of the entity typically calls this method on each
+            /// clock-tick (frame) of the server.
+            /// @param FrameTime       The time across which the entity is to be advanced.
+            /// @param WishVelocity    The desired velocity of the entity as per user input.
+            /// @param WishVelLadder   The desired velocity on a ladder as per user input.
+            /// @param WishJump        Does the user want the entity to jump?
+            void MoveHuman(float FrameTime, const Vector3fT& WishVelocity, const Vector3fT& WishVelLadder, bool WishJump);
 
             // Base class overrides.
             ComponentPlayerPhysicsT* Clone() const;
@@ -61,8 +74,8 @@ namespace cf
             protected:
 
             // The Lua API methods of this class.
+            static int MoveHuman(lua_State* LuaState);
             static int toString(lua_State* LuaState);
-            static int SetWishVelocity(lua_State* LuaState);
 
             static const luaL_Reg               MethodsList[];  ///< The list of Lua methods for this class.
             static const char*                  DocClass;
@@ -74,14 +87,13 @@ namespace cf
 
             enum PosCatT { InAir, OnSolid };
 
-            void DoServerFrame(float t) /*override*/;
             PosCatT CategorizePosition() const;
             void ApplyFriction(double FrameTime, PosCatT PosCat);
-            void ApplyAcceleration(double FrameTime, PosCatT PosCat);
+            void ApplyAcceleration(double FrameTime, PosCatT PosCat, const Vector3dT& WishVelocity);
             void ApplyGravity(double FrameTime, PosCatT PosCat);
             void FlyMove(double TimeLeft);
             void GroundMove(double FrameTime);
-            void MoveHuman(float FrameTime, unsigned short Heading, const VectorT& WishVelLadder, bool WishJump);
+            void MoveHuman(float FrameTime, unsigned short Heading, const Vector3dT& WishVelocity, const VectorT& WishVelLadder, bool WishJump);
 
             TypeSys::VarT<Vector3dT>       m_Velocity;      ///< The current velocity of the entity.
             TypeSys::VarT<BoundingBox3dT>  m_Dimensions;    ///< The bounding box of the entity (relative to the origin).
@@ -92,7 +104,6 @@ namespace cf
             const cf::ClipSys::ClipModelT* m_IgnoreClipModel;
             Vector3dT                      m_Origin;
             Vector3dT                      m_Vel;
-            Vector3dT                      m_WishVelocity;  ///< The desired velocity that the entity *should* have.
         };
     }
 }

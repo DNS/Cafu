@@ -10,7 +10,7 @@ Rocket.TimeSinceExploded   = 0.0
 Rocket:InitEventTypes(1)
 
 -- TODO: Call InitClientApprox() in some client-init (e.g. OnClientInit()) only?
--- Trafo:InitClientApprox("Origin")
+Trafo:InitClientApprox("Origin")
 
 
 function Rocket:Think(FrameTime)

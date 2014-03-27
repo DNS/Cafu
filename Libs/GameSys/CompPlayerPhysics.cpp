@@ -41,7 +41,11 @@ using namespace cf::GameSys;
 
 
 const char* ComponentPlayerPhysicsT::DocClass =
-    "This component implements human player physics for its entity.";
+    "This component implements human player physics for its entity.\n"
+    "It updates the entity's origin according to the laws of simple physics\n"
+    "that are appropriate for player movement.\n"
+    "The component does not act on its own in a server's Think() step, but is\n"
+    "only a helper to other C++ or script code that must drive it explicitly.";
 
 
 const cf::TypeSys::VarsDocT ComponentPlayerPhysicsT::DocVars[] =
@@ -63,8 +67,7 @@ ComponentPlayerPhysicsT::ComponentPlayerPhysicsT()
       m_ClipWorld(NULL),
       m_IgnoreClipModel(NULL),
       m_Origin(),
-      m_Vel(),
-      m_WishVelocity()
+      m_Vel()
 {
     GetMemberVars().Add(&m_Velocity);
     GetMemberVars().Add(&m_Dimensions);
@@ -82,13 +85,35 @@ ComponentPlayerPhysicsT::ComponentPlayerPhysicsT(const ComponentPlayerPhysicsT& 
       m_ClipWorld(NULL),
       m_IgnoreClipModel(NULL),
       m_Origin(),
-      m_Vel(),
-      m_WishVelocity()
+      m_Vel()
 {
     GetMemberVars().Add(&m_Velocity);
     GetMemberVars().Add(&m_Dimensions);
     GetMemberVars().Add(&m_StepHeight);
     GetMemberVars().Add(&m_OldWishJump);
+}
+
+
+void ComponentPlayerPhysicsT::MoveHuman(float FrameTime, const Vector3fT& WishVelocity, const Vector3fT& WishVelLadder, bool WishJump)
+{
+    if (!GetEntity()) return;
+    if (!m_ClipWorld) return;
+
+    IntrusivePtrT<ComponentCollisionModelT> CompCollMdl = dynamic_pointer_cast<ComponentCollisionModelT>(GetEntity()->GetComponent("CollisionModel"));
+
+    const unsigned short Heading = 0;   // TODO!
+
+    if (CompCollMdl != NULL)
+        m_IgnoreClipModel = CompCollMdl->GetClipModel();
+
+    m_Origin = GetEntity()->GetTransform()->GetOriginWS().AsVectorOfDouble();
+    m_Vel    = m_Velocity.Get();
+
+    MoveHuman(FrameTime, Heading, WishVelocity.AsVectorOfDouble(), WishVelLadder.AsVectorOfDouble(), WishJump);
+
+    m_IgnoreClipModel = NULL;
+    GetEntity()->GetTransform()->SetOriginWS(m_Origin.AsVectorOfFloat());
+    m_Velocity.Set(m_Vel);
 }
 
 
@@ -110,29 +135,6 @@ void ComponentPlayerPhysicsT::UpdateDependencies(EntityT* Entity)
 
         Entity->GetTransform()->InitClientApprox("Origin");
     }
-}
-
-
-void ComponentPlayerPhysicsT::DoServerFrame(float t)
-{
-    if (!GetEntity()) return;
-    if (!m_ClipWorld) return;
-
-    IntrusivePtrT<ComponentCollisionModelT> CompCollMdl = dynamic_pointer_cast<ComponentCollisionModelT>(GetEntity()->GetComponent("CollisionModel"));
-
-    const unsigned short Heading = 0;   // TODO!
-
-    if (CompCollMdl != NULL)
-        m_IgnoreClipModel = CompCollMdl->GetClipModel();
-
-    m_Origin = GetEntity()->GetTransform()->GetOriginWS().AsVectorOfDouble();
-    m_Vel    = m_Velocity.Get();
-
-    MoveHuman(t, Heading, Vector3dT() /*WishVelLadder*/, false /*WishJump*/);
-
-    m_IgnoreClipModel = NULL;
-    GetEntity()->GetTransform()->SetOriginWS(m_Origin.AsVectorOfFloat());
-    m_Velocity.Set(m_Vel);
 }
 
 
@@ -208,15 +210,15 @@ void ComponentPlayerPhysicsT::ApplyFriction(double FrameTime, PosCatT PosCat)
 
 
 /// Ändert die Velocity gemäß der Beschleunigung.
-void ComponentPlayerPhysicsT::ApplyAcceleration(double FrameTime, PosCatT PosCat)
+void ComponentPlayerPhysicsT::ApplyAcceleration(double FrameTime, PosCatT PosCat, const Vector3dT& WishVelocity)
 {
     const double AirAcceleration   = 0.7;
     const double GroundAcceleration=10.0;
 
-    double    WishSpeed=length(m_WishVelocity);
+    double    WishSpeed=length(WishVelocity);
     Vector3dT WishDir;
 
-    if (WishSpeed>0.001 /*Epsilon*/) WishDir=scale(m_WishVelocity, 1.0/WishSpeed);
+    if (WishSpeed>0.001 /*Epsilon*/) WishDir=scale(WishVelocity, 1.0/WishSpeed);
 
     // Velocity auf WishDir projezieren um festzustellen, wie schnell wir sowieso schon in WishDir laufen
     double CurrentSpeed = dot(m_Vel, WishDir);
@@ -409,7 +411,7 @@ void ComponentPlayerPhysicsT::GroundMove(double FrameTime)
 }
 
 
-void ComponentPlayerPhysicsT::MoveHuman(float FrameTime, unsigned short Heading, const Vector3dT& WishVelLadder, bool WishJump)
+void ComponentPlayerPhysicsT::MoveHuman(float FrameTime, unsigned short Heading, const Vector3dT& WishVelocity, const Vector3dT& WishVelLadder, bool WishJump)
 {
     // 1. Die Positions-Kategorie des MassChunks bestimmen:
     //    Wir können uns in der Luft befinden (im Flug/freien Fall oder schwebend im Wasser),
@@ -499,7 +501,7 @@ void ComponentPlayerPhysicsT::MoveHuman(float FrameTime, unsigned short Heading,
 
         // 3.2. Apply Physics
         ApplyFriction    (FrameTime, PosCat);
-        ApplyAcceleration(FrameTime, PosCat);
+        ApplyAcceleration(FrameTime, PosCat, WishVelocity);
         ApplyGravity     (FrameTime, PosCat);
     }
 
@@ -514,21 +516,31 @@ void ComponentPlayerPhysicsT::MoveHuman(float FrameTime, unsigned short Heading,
 }
 
 
-static const cf::TypeSys::MethsDocT META_SetWishVelocity =
+static const cf::TypeSys::MethsDocT META_MoveHuman =
 {
-    "SetWishVelocity",
-    "This method sets the desired velocity that the entity *should* have.\n"
-    "The physics code will apply acceleration and friction in order to bring the entity\n"
-    "to the desired velocity.\n",
-    "", "(x, y, z)"
+    "MoveHuman",
+    "This is the main method of this component: It advances the entity's origin\n"
+    "according to the laws of simple physics and the given state and parameters.\n"
+    "Other C++ or script code of the entity typically calls this method on each\n"
+    "clock-tick (frame) of the server.\n"
+    "@param FrameTime       The time across which the entity is to be advanced.\n"
+    "@param WishVelocity    The desired velocity of the entity as per user input.\n"
+    "@param WishVelLadder   The desired velocity on a ladder as per user input.\n"
+    "@param WishJump        Does the user want the entity to jump?",
+    "", "(number FrameTime, Vector3T WishVelocity, Vector3T WishVelLadder, bool WishJump)"
 };
 
-int ComponentPlayerPhysicsT::SetWishVelocity(lua_State* LuaState)
+int ComponentPlayerPhysicsT::MoveHuman(lua_State* LuaState)
 {
     ScriptBinderT Binder(LuaState);
     IntrusivePtrT<ComponentPlayerPhysicsT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentPlayerPhysicsT> >(1);
 
-    Comp->m_WishVelocity = Vector3dT(luaL_checknumber(LuaState, 2), luaL_checknumber(LuaState, 3), luaL_checknumber(LuaState, 4));
+    const float     FrameTime = float(luaL_checknumber(LuaState, 2));
+    const Vector3dT WishVelocity (luaL_checknumber(LuaState, 3), luaL_checknumber(LuaState, 4), luaL_checknumber(LuaState, 5));
+    const Vector3dT WishVelLadder(luaL_checknumber(LuaState, 6), luaL_checknumber(LuaState, 7), luaL_checknumber(LuaState, 8));
+    const bool      WishJump = lua_isnumber(LuaState, 9) ? (lua_tointeger(LuaState, 9) != 0) : (lua_toboolean(LuaState, 9) != 0);
+
+    Comp->MoveHuman(FrameTime, WishVelocity.AsVectorOfFloat(), WishVelLadder.AsVectorOfFloat(), WishJump);
     return 0;
 }
 
@@ -561,14 +573,14 @@ void* ComponentPlayerPhysicsT::CreateInstance(const cf::TypeSys::CreateParamsT& 
 
 const luaL_Reg ComponentPlayerPhysicsT::MethodsList[] =
 {
-    { "SetWishVelocity", SetWishVelocity },
+    { "MoveHuman", MoveHuman },
     { "__tostring", toString },
     { NULL, NULL }
 };
 
 const cf::TypeSys::MethsDocT ComponentPlayerPhysicsT::DocMethods[] =
 {
-    META_SetWishVelocity,
+    META_MoveHuman,
     META_toString,
     { NULL, NULL, NULL, NULL }
 };
