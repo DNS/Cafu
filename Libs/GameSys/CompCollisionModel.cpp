@@ -88,6 +88,31 @@ ComponentCollisionModelT::~ComponentCollisionModelT()
 }
 
 
+void ComponentCollisionModelT::SetBoundingBox(const BoundingBox3dT& BB, const char* MatName)
+{
+    if (!GetEntity()) return;
+
+    // Have to take the detour by 25.4, because the CollisionModelStaticT ctor uses epsilon values
+    // (MapT::RoundEpsilon and MapT::MinVertexDist) that are still coined to the millimeter worlds...
+    const double         CA3DE_SCALE = 25.4;
+    const BoundingBox3dT BB254(BB.Min * CA3DE_SCALE, BB.Max * CA3DE_SCALE);
+    MaterialT*           Mat = MaterialManager->GetMaterial(MatName);
+
+    CleanUp();
+    m_CollisionModel = GetEntity()->GetWorld().GetCollModelMan().GetCM(BB254, Mat);
+
+    // These lines can be removed, as soon as the 25.4 scaling above is removed. See the related commit of 2013-10-28 for details.
+    cf::ClipSys::CollisionModelStaticT* CMS = dynamic_cast<cf::ClipSys::CollisionModelStaticT*>(const_cast<cf::ClipSys::CollisionModelT*>(m_CollisionModel));
+    assert(CMS);
+    CMS->ScaleDown254();
+
+    m_CollMdlName.Set("bounding-box");
+    m_PrevName = m_CollMdlName.Get();
+
+    UpdateClipModel();
+}
+
+
 ComponentCollisionModelT* ComponentCollisionModelT::Clone() const
 {
     return new ComponentCollisionModelT(*this);
@@ -206,7 +231,7 @@ static const cf::TypeSys::MethsDocT META_SetBoundingBox =
     "Sets the given bounding-box as the collision model.\n"
     "Instead of loading a collision model from a file, a script can call this method\n"
     "to set a bounding-box with the given dimensions as the collision model.",
-    "", "(number min_x, number min_y, number min_z, number max_x, number max_y, number max_z)"
+    "", "(number min_x, number min_y, number min_z, number max_x, number max_y, number max_z, string MatName)"
 };
 
 int ComponentCollisionModelT::SetBoundingBox(lua_State* LuaState)
@@ -217,28 +242,11 @@ int ComponentCollisionModelT::SetBoundingBox(lua_State* LuaState)
     if (!Comp->GetEntity())
         luaL_error(LuaState, "The component must be added to an entity before this function can be called.");
 
-    // Have to take the detour by 25.4, because the CollisionModelStaticT ctor uses epsilon values
-    // (MapT::RoundEpsilon and MapT::MinVertexDist) that are still coined to the millimeters worlds...
-    const double CA3DE_SCALE = 25.4;
-
     const BoundingBox3dT BB(
-        Vector3dT(luaL_checknumber(LuaState, 2), luaL_checknumber(LuaState, 3), luaL_checknumber(LuaState, 4)) * CA3DE_SCALE,
-        Vector3dT(luaL_checknumber(LuaState, 5), luaL_checknumber(LuaState, 6), luaL_checknumber(LuaState, 7)) * CA3DE_SCALE);
+        Vector3dT(luaL_checknumber(LuaState, 2), luaL_checknumber(LuaState, 3), luaL_checknumber(LuaState, 4)),
+        Vector3dT(luaL_checknumber(LuaState, 5), luaL_checknumber(LuaState, 6), luaL_checknumber(LuaState, 7)));
 
-    MaterialT* Mat = MaterialManager->GetMaterial(luaL_checkstring(LuaState, 8));
-
-    Comp->CleanUp();
-    Comp->m_CollisionModel = Comp->GetEntity()->GetWorld().GetCollModelMan().GetCM(BB, Mat);
-
-    // These lines can be removed, as soon as the 25.4 scaling above is removed. See the related commit of 2013-10-28 for details.
-    cf::ClipSys::CollisionModelStaticT* CMS = dynamic_cast<cf::ClipSys::CollisionModelStaticT*>(const_cast<cf::ClipSys::CollisionModelT*>(Comp->m_CollisionModel));
-    assert(CMS);
-    CMS->ScaleDown254();
-
-    Comp->m_CollMdlName.Set("bounding-box");
-    Comp->m_PrevName = Comp->m_CollMdlName.Get();
-
-    Comp->UpdateClipModel();
+    Comp->SetBoundingBox(BB, luaL_checkstring(LuaState, 8));
     return 0;
 }
 

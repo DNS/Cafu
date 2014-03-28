@@ -49,6 +49,11 @@ namespace cf
             /// The destructor.
             ~ComponentCollisionModelT();
 
+            // Sets the given bounding-box as the collision model.
+            // Instead of loading a collision model from a file, user code can call this method
+            // to set a bounding-box with the given dimensions as the collision model.
+            void SetBoundingBox(const BoundingBox3dT& BB, const char* MatName);
+
             /// Returns the clip model of this component, NULL for none.
             const cf::ClipSys::ClipModelT* GetClipModel() const { return m_ClipModel; }
 
