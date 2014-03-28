@@ -23,7 +23,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_HUMAN_PLAYER_HPP_INCLUDED
 
 #include "BaseEntity.hpp"
-#include "Libs/Physics.hpp"
 #include "btBulletDynamicsCommon.h"
 
 
@@ -94,7 +93,6 @@ namespace GAME_NAME
 
 
         EntityStateT      State;                    ///< The current state of this entity.
-        PhysicsHelperT    m_Physics;
         btCollisionShape* m_CollisionShape;         ///< The collision shape that is used to approximate and represent this player in the physics world.
         btRigidBody*      m_RigidBody;              ///< The rigid body (of "kinematic" type) for use in the physics world.
 

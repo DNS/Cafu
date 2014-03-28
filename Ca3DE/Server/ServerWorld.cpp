@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/Console.hpp"      // For cf::va().
 #include "GameSys/CompCollisionModel.hpp"
 #include "GameSys/CompHumanPlayer.hpp"
+#include "GameSys/CompPlayerPhysics.hpp"
 #include "GameSys/Entity.hpp"
 #include "GameSys/EntityCreateParams.hpp"
 #include "GameSys/World.hpp"
@@ -113,6 +114,11 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
     IntrusivePtrT<cf::GameSys::ComponentCollisionModelT> CollMdl = new cf::GameSys::ComponentCollisionModelT();
     // The player script code will set the details of the collision model itself.
     NewEnt->AddComponent(CollMdl);
+
+    IntrusivePtrT<cf::GameSys::ComponentPlayerPhysicsT> PlayerPhysicsComp = new cf::GameSys::ComponentPlayerPhysicsT();
+    PlayerPhysicsComp->SetMember("Dimensions", BoundingBox3dT(Vector3dT(16.0,  16.0, 4.0), Vector3dT(-16.0, -16.0, -68.0)));   // Isn't -36 ... 36 the proper heights?
+    PlayerPhysicsComp->SetMember("StepHeight", 18.5);
+    NewEnt->AddComponent(PlayerPhysicsComp);
 
     m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
 

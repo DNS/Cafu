@@ -28,7 +28,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Interpolator.hpp"
 #include "PhysicsWorld.hpp"
 #include "Libs/LookupTables.hpp"
-#include "Libs/Physics.hpp"
 
 #include "SoundSystem/SoundSys.hpp"
 #include "../../GameWorld.hpp"
@@ -40,6 +39,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameSys/CompCollisionModel.hpp"
 #include "GameSys/CompHumanPlayer.hpp"
 #include "GameSys/CompModel.hpp"
+#include "GameSys/CompPlayerPhysics.hpp"
 #include "GameSys/CompScript.hpp"
 #include "GameSys/World.hpp"
 #include "GuiSys/GuiImpl.hpp"
@@ -73,9 +73,6 @@ const char StateOfExistance_Alive          =0;
 const char StateOfExistance_Dead           =1;
 const char StateOfExistance_FrozenSpectator=2;
 const char StateOfExistance_FreeSpectator  =3;
-
-// Constants for State.Flags.
-const char Flags_OldWishJump=1;
 
 
 // Implement the type info related code.
@@ -121,7 +118,6 @@ EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
             0,      // ActiveWeaponSlot
             0,      // ActiveWeaponSequNr
             0.0),   // ActiveWeaponFrameNr
-      m_Physics(m_Origin, State.Velocity, m_Dimensions, ClipModel, GameWorld->GetClipWorld()),
       m_CollisionShape(NULL),
       m_RigidBody(NULL),
       TimeForLightSource(0.0),
@@ -449,8 +445,10 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
     // **********************************************************************************************************************************************
 
     IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(m_Entity->GetComponent("HumanPlayer"));
+    IntrusivePtrT<cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(m_Entity->GetComponent("PlayerPhysics"));
 
     if (CompHP == NULL) return;     // The presence of CompHP is mandatory...
+    if (CompPlayerPhysics == NULL) return;     // The presence of CompPlayerPhysics is mandatory...
 
     ArrayT<PlayerCommandT>& PlayerCommands = CompHP->GetPlayerCommands();
 
@@ -533,15 +531,16 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 }
                 else */
                 {
-                    VectorT XYVel      =State.Velocity; XYVel.z=0;
-                    double  OldSpeed   =length(XYVel);
-                    bool    OldWishJump=(State.Flags & Flags_OldWishJump) ? true : false;
+                    VectorT XYVel    = State.Velocity; XYVel.z = 0;
+                    double  OldSpeed = length(XYVel);
 
-                    m_Physics.MoveHuman(PlayerCommands[PCNr].FrameTime, m_Heading, WishVelocity, WishVelLadder, WishJump, OldWishJump, 18.5);
+                    m_Entity->GetTransform()->SetOriginWS(m_Origin.AsVectorOfFloat());      // "Sync" the origin.
 
+                    CompPlayerPhysics->SetMember("StepHeight", 18.5);
+                    CompPlayerPhysics->MoveHuman(PlayerCommands[PCNr].FrameTime, WishVelocity.AsVectorOfFloat(), WishVelLadder.AsVectorOfFloat(), WishJump);
 
-                    if (OldWishJump) State.Flags|= Flags_OldWishJump;
-                                else State.Flags&=~Flags_OldWishJump;
+                    m_Origin = m_Entity->GetTransform()->GetOriginWS().AsVectorOfDouble();
+
 
                     XYVel=State.Velocity;
                     XYVel.z=0;
@@ -888,14 +887,18 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
             case StateOfExistance_Dead:
             {
-                bool         DummyOldWishJump=false;
                 const double OldOriginZ      =m_Origin.z;
                 const float  OldModelFrameNr =State.ModelFrameNr;
 
                 if (m_RigidBody->isInWorld())
                     GameWorld->GetPhysicsWorld().RemoveRigidBody(m_RigidBody);
 
-                m_Physics.MoveHuman(PlayerCommands[PCNr].FrameTime, m_Heading, VectorT(), VectorT(), false, DummyOldWishJump, 0.0);
+                m_Entity->GetTransform()->SetOriginWS(m_Origin.AsVectorOfFloat());      // "Sync" the origin.
+
+                CompPlayerPhysics->SetMember("StepHeight", 4.0);
+                CompPlayerPhysics->MoveHuman(PlayerCommands[PCNr].FrameTime, Vector3fT(), Vector3fT(), false);
+
+                m_Origin = m_Entity->GetTransform()->GetOriginWS().AsVectorOfDouble();
 
                 // We want to lower the view of the local client after it has been killed (in order to indicate the body collapse).
                 // Unfortunately, the problem is much harder than just decreasing the 'm_Origin.z' in some way, because
