@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../EngineEntity.hpp"
 #include "ConsoleCommands/ConVar.hpp"
 #include "ConsoleCommands/Console.hpp"      // For cf::va().
+#include "GameSys/CompCollisionModel.hpp"
 #include "GameSys/CompHumanPlayer.hpp"
 #include "GameSys/Entity.hpp"
 #include "GameSys/EntityCreateParams.hpp"
@@ -108,6 +109,11 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
     NewEnt->GetBasics()->SetEntityName(cf::va("Player_%lu", ClientInfoNr+1));
     NewEnt->SetApp(GameEnt);
     NewEnt->AddComponent(new cf::GameSys::ComponentHumanPlayerT());
+
+    IntrusivePtrT<cf::GameSys::ComponentCollisionModelT> CollMdl = new cf::GameSys::ComponentCollisionModelT();
+    // The player script code will set the details of the collision model itself.
+    NewEnt->AddComponent(CollMdl);
+
     m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
 
     GameEnt->GetStaticEntityData()->m_Properties["classname"] = "HumanPlayer";

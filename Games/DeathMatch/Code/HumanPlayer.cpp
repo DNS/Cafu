@@ -145,15 +145,6 @@ EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
     // GuiHUD=(is local human player) ? cf::GuiSys::GuiMan->Find("Games/DeathMatch/GUIs/HUD.cgui", true) : NULL;
 
 
-    assert(CollisionModel==NULL);
-    // No "normal" collision model has been set for this entity.
-    // Now simply setup a bounding box as the collision model.
-    CollisionModel=cf::ClipSys::CollModelMan->GetCM(m_Dimensions, MaterialManager->GetMaterial("Textures/meta/collisionmodel"));
-    ClipModel.SetCollisionModel(CollisionModel);
-    ClipModel.SetOrigin(m_Origin);
- // ClipModel.Register();   // Do *not* register here! Registering/unregistering is done when there is a transition in State.StateOfExistance.
-
-
     // The /1000 is because our physics world is in meters.
     m_CollisionShape=new btBoxShape(conv(UnitsToPhys(m_Dimensions.Max-m_Dimensions.Min)/2.0));  // Should use a btCylinderShapeZ instead of btBoxShape?
 
@@ -265,7 +256,11 @@ void EntHumanPlayerT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT
         State.StateOfExistance=StateOfExistance_Dead;
         State.Health=0;
 
-        ClipModel.Unregister();
+        // Now that the player is dead, clear the collision model.
+        IntrusivePtrT<cf::GameSys::ComponentCollisionModelT> CompCollMdl = dynamic_pointer_cast<cf::GameSys::ComponentCollisionModelT>(m_Entity->GetComponent("CollisionModel"));
+
+        if (CompCollMdl != NULL)
+            CompCollMdl->SetMember("Name", std::string(""));
 
              if (DeltaAngle>=57344 || DeltaAngle< 8192) State.ModelSequNr=21;   // 315° ...  45° - die forwards
         else if (DeltaAngle>=8192  && DeltaAngle<16384) State.ModelSequNr=22;   //  45° ...  90° - headshot
@@ -544,9 +539,6 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
                     m_Physics.MoveHuman(PlayerCommands[PCNr].FrameTime, m_Heading, WishVelocity, WishVelLadder, WishJump, OldWishJump, 18.5);
 
-                    ClipModel.SetOrigin(m_Origin);
-                    ClipModel.Register();
-                    // The physics world will pick-up our new origin at the next opportunity from getWorldTransform().
 
                     if (OldWishJump) State.Flags|= Flags_OldWishJump;
                                 else State.Flags&=~Flags_OldWishJump;
@@ -1064,8 +1056,10 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 State.ActiveWeaponSequNr =0;
                 State.ActiveWeaponFrameNr=0.0;
 
-                ClipModel.SetOrigin(m_Origin);
-                ClipModel.Register();
+                IntrusivePtrT<cf::GameSys::ComponentCollisionModelT> CompCollMdl = dynamic_pointer_cast<cf::GameSys::ComponentCollisionModelT>(m_Entity->GetComponent("CollisionModel"));
+
+                if (CompCollMdl != NULL)
+                    CompCollMdl->SetBoundingBox(m_Dimensions, "Textures/meta/collisionmodel");
 
                 for (char Nr=0; Nr<15; Nr++) State.HaveAmmo         [Nr]=0;   // IMPORTANT: Do not clear the frags value in 'HaveAmmo[AMMO_SLOT_FRAGS]'!
                 for (char Nr=0; Nr<32; Nr++) State.HaveAmmoInWeapons[Nr]=0;
