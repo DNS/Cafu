@@ -120,7 +120,6 @@ EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
             0.0),   // ActiveWeaponFrameNr
       m_CollisionShape(NULL),
       m_RigidBody(NULL),
-      TimeForLightSource(0.0),
       GuiHUD(NULL)
 {
     // Interpolation is only required for client entities that are not "our" local entity (which is predicted).
@@ -1091,40 +1090,6 @@ void EntHumanPlayerT::ProcessEvent(unsigned int EventType, unsigned int /*NumEve
 }
 
 
-bool EntHumanPlayerT::GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const
-{
-#if 0
-    int Pitch    =m_Pitch; if (Pitch>=32768) Pitch-=65536;
-    int HalfPitch=Pitch/2; if (HalfPitch<0) HalfPitch+=65536;
-
-    const float LightDirZ=-LookupTables::Angle16ToSin[(unsigned short)HalfPitch];
-    const float LightDirY= LookupTables::Angle16ToCos[(unsigned short)HalfPitch];
-
-    const VectorT LightDir(LightDirY*LookupTables::Angle16ToSin[m_Heading], LightDirY*LookupTables::Angle16ToCos[m_Heading], LightDirZ);
-
-    DiffuseColor =0x00FF3018;
-    SpecularColor=0x00CCFF18;
-    /* switch (ID & 0x3)
-    {
-        case  0: Color=0x00FF6000; break;
-        case  1: Color=0x0060FF00; break;
-        case  2: Color=0x000060FF; break;
-        default: Color=0x00FF0060;
-    } */
-
-    const float f=120.0f*LookupTables::Angle16ToSin[(unsigned short)(TimeForLightSource/5.0f*65536.0f)];
-
-    Position    =m_Origin+VectorT(0.0, 0.0, -6.0)+scale(LightDir, 15.0)+VectorT(LookupTables::Angle16ToCos[m_Heading]*f, LookupTables::Angle16ToSin[m_Heading]*f, 0.0);
-    Radius      =800.0;
-    CastsShadows=true;
-
-    return true;
-#else
-    return false;
-#endif
-}
-
-
 void EntHumanPlayerT::Draw(bool FirstPersonView, float LodDist) const
 {
     if (MatSys::Renderer->GetCurrentRenderAction()==MatSys::RendererI::AMBIENT)
@@ -1338,9 +1303,6 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
 
         State.ModelFrameNr=StdAE->GetFrameNr();
     }
-
-    TimeForLightSource+=FrameTime;
-    if (TimeForLightSource>5.0) TimeForLightSource-=5.0;
 }
 
 

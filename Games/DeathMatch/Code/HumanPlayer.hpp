@@ -58,7 +58,6 @@ namespace GAME_NAME
         void Think(float FrameTime, unsigned long ServerFrameNr);
 
         void ProcessEvent(unsigned int EventType, unsigned int NumEvents);
-        bool GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const;
         void Draw(bool FirstPersonView, float LodDist) const;
         void PostDraw(float FrameTime, bool FirstPersonView);
 
@@ -96,9 +95,7 @@ namespace GAME_NAME
         btCollisionShape* m_CollisionShape;         ///< The collision shape that is used to approximate and represent this player in the physics world.
         btRigidBody*      m_RigidBody;              ///< The rigid body (of "kinematic" type) for use in the physics world.
 
-     // char              ThisHumanPlayerNum;       // The sole purpose is to help to make a good descision about the light source color in GetLightSourceInfo().
         mutable VectorT   LastSeenAmbientColor;     // This is a client-side variable, unrelated to prediction, and thus allowed.
-        float             TimeForLightSource;
         IntrusivePtrT<cf::GuiSys::GuiImplT> GuiHUD; ///< The HUD GUI for this local human player entity.
     };
 }
