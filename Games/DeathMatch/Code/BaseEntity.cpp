@@ -62,16 +62,13 @@ cf::TypeSys::TypeInfoManT& GAME_NAME::GetBaseEntTIM()
 // ************
 
 EntityStateT::EntityStateT(const VectorT& Velocity_,
-                           char StateOfExistance_, char Flags_, char ModelIndex_, char ModelSequNr_, float ModelFrameNr_,
+                           char StateOfExistance_, char Flags_,
                            char Health_, char Armor_, unsigned long HaveItems_, unsigned long HaveWeapons_,
                            char ActiveWeaponSlot_, char ActiveWeaponSequNr_, float ActiveWeaponFrameNr_)
     : Velocity(Velocity_),
       StateOfExistance(StateOfExistance_),
       Flags(Flags_),
    // PlayerName[]
-      ModelIndex(ModelIndex_),
-      ModelSequNr(ModelSequNr_),
-      ModelFrameNr(ModelFrameNr_),
 
       Health(Health_),
       Armor(Armor_),

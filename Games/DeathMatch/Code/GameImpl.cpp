@@ -122,14 +122,6 @@ GameImplT::GameImplT()
 
 void GameImplT::Initialize(bool AsClient, bool AsServer, ModelManagerT& ModelMan)
 {
-    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/Alien/Alien.cmdl"));
-    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/James/James.cmdl"));
-    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/Punisher/Punisher.cmdl"));
-    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/Sentinel/Sentinel.cmdl"));
-    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/Skeleton/Skeleton.cmdl"));
-    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/T801/T801.cmdl"));
-    m_PlayerModels.PushBack(ModelMan.GetModel("Games/DeathMatch/Models/Players/Trinity/Trinity.cmdl"));
-
     m_CarriedWeapons.PushBack(new CarriedWeaponBattleScytheT(ModelMan));
     m_CarriedWeapons.PushBack(new CarriedWeapon357T(ModelMan));     // The .357 acts as "dummy" implementation.
     m_CarriedWeapons.PushBack(new CarriedWeaponPistolT(ModelMan));
@@ -263,12 +255,6 @@ IntrusivePtrT<GameEntityI> GameImplT::CreateGameEntity(const cf::TypeSys::TypeIn
     }
 
     return NewEnt;
-}
-
-
-const CafuModelT* GameImplT::GetPlayerModel(unsigned int ModelIndex) const
-{
-    return m_PlayerModels[ModelIndex<m_PlayerModels.Size() ? ModelIndex : 0];
 }
 
 

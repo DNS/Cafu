@@ -25,7 +25,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/Console.hpp"      // For cf::va().
 #include "GameSys/CompCollisionModel.hpp"
 #include "GameSys/CompHumanPlayer.hpp"
+#include "GameSys/CompModel.hpp"
 #include "GameSys/CompPlayerPhysics.hpp"
+#include "GameSys/CompScript.hpp"
 #include "GameSys/Entity.hpp"
 #include "GameSys/EntityCreateParams.hpp"
 #include "GameSys/World.hpp"
@@ -120,13 +122,21 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
     PlayerPhysicsComp->SetMember("StepHeight", 18.5);
     NewEnt->AddComponent(PlayerPhysicsComp);
 
+    IntrusivePtrT<cf::GameSys::ComponentModelT> Model3rdPersonComp = new cf::GameSys::ComponentModelT();
+    Model3rdPersonComp->SetMember("Name", std::string("Games/DeathMatch/Models/Players/") + ModelName + "/" + ModelName + ".cmdl");     // TODO... don't hardcode the path!
+    NewEnt->AddComponent(Model3rdPersonComp);
+
+    IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
+    ScriptComp->SetMember("Name", std::string("Games/DeathMatch/Scripts/HumanPlayer.lua"));
+    NewEnt->AddComponent(ScriptComp);
+
     m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
 
     GameEnt->GetStaticEntityData()->m_Properties["classname"] = "HumanPlayer";
     GameEnt->GetStaticEntityData()->m_Properties["name"]      = cf::va("Player%lu", ClientInfoNr+1);     // Setting the name is needed so that player entities can have a corresponding script instance.
  // GameEnt->GetStaticEntityData()->m_Properties["angles"]    = cf::va("0 %lu 0", (unsigned long)(m_World->InfoPlayerStarts[0].Heading/8192.0*45.0));
 
-    return CreateNewEntityFromBasicInfo(GameEnt, m_ServerFrameNr+1, PlayerName, ModelName);
+    return CreateNewEntityFromBasicInfo(GameEnt, m_ServerFrameNr+1, PlayerName);
 }
 
 

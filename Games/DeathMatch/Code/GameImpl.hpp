@@ -55,10 +55,6 @@ namespace GAME_NAME
 
         // Additional methods.
 
-        /// Maps a player model index to a player model instance.
-        /// Used to obtain a player model from a player entities State.ModelIndex member.
-        const CafuModelT* GetPlayerModel(unsigned int ModelIndex) const;
-
         /// This function returns a pointer to the CarriedWeaponT instance for the desired ActiveWeaponSlot.
         /// When no such class exists, it returns a pointer to an empty dummy implementation
         /// (but for the convenience of the caller, it never returns NULL or an invalid pointer).
@@ -76,7 +72,6 @@ namespace GAME_NAME
         bool                      RunningAsClient;
         bool                      RunningAsServer;
 
-        ArrayT<const CafuModelT*> m_PlayerModels;   ///< The player models available in this game.
         ArrayT<CarriedWeaponT*>   m_CarriedWeapons; ///< The set of carry-able weapons in this game.
         ArrayT<SoundI*>           m_PreCacheSounds; ///< Array of all precached sounds.
     };

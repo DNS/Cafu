@@ -60,9 +60,6 @@ namespace GAME_NAME
         char           Flags;                   // Entity defined flags.
         char           PlayerName[64];          // If it is a human player, this is its name. Usually unused otherwise.
      // ArrayT<char>   PlayerName;
-        char           ModelIndex;              // An arbitrary (game defined) number that describes the BODY model of this entity (that OTHERS see).
-        char           ModelSequNr;             // The sequence number of the body model.
-        float          ModelFrameNr;            // The frame number of the current sequence of the body model.
 
         char           Health;                  // Health.
         char           Armor;                   // Armor.
@@ -75,7 +72,7 @@ namespace GAME_NAME
         unsigned char  HaveAmmoInWeapons[32];   // Entity can carry ammo in each of the 32 weapons. This is the amount of each.
 
         EntityStateT(const VectorT& Velocity_,
-                     char StateOfExistance_, char Flags_, char ModelIndex_, char ModelSequNr_, float ModelFrameNr_,
+                     char StateOfExistance_, char Flags_,
                      char Health_, char Armor_, unsigned long HaveItems_, unsigned long HaveWeapons_,
                      char ActiveWeaponSlot_, char ActiveWeaponSequNr_, float ActiveWeaponFrameNr_);
     };

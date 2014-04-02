@@ -59,6 +59,9 @@ namespace cf
             /// @param WishJump        Does the user want the entity to jump?
             void MoveHuman(float FrameTime, const Vector3fT& WishVelocity, const Vector3fT& WishVelLadder, bool WishJump);
 
+            /// Returns the current velocity.
+            const Vector3dT& GetVelocity() const { return m_Velocity.Get(); }
+
             // Base class overrides.
             ComponentPlayerPhysicsT* Clone() const;
             const char* GetName() const { return "PlayerPhysics"; }

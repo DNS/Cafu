@@ -108,9 +108,6 @@ EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
       State(VectorT(),
             StateOfExistance_FrozenSpectator,
             0,
-            0,      // ModelIndex
-            0,      // ModelSequNr
-            0.0,    // ModelFrameNr
             100,    // Health
             0,      // Armor
             0,      // HaveItems
@@ -194,9 +191,6 @@ void EntHumanPlayerT::DoSerialize(cf::Network::OutStreamT& Stream) const
     Stream << State.StateOfExistance;
     Stream << State.Flags;
     Stream << State.PlayerName;       // TODO: In the old code, the PlayerName apparently is read/written in *baseline* messages only.
-    Stream << State.ModelIndex;
-    Stream << State.ModelSequNr;
-    Stream << State.ModelFrameNr;
     Stream << State.Health;
     Stream << State.Armor;
     Stream << uint32_t(State.HaveItems);
@@ -221,9 +215,6 @@ void EntHumanPlayerT::DoDeserialize(cf::Network::InStreamT& Stream)
     Stream >> State.StateOfExistance;
     Stream >> State.Flags;
     Stream >> State.PlayerName;     // TODO: In the old code, the PlayerName apparently is read/written in *baseline* messages only.
-    Stream >> State.ModelIndex;
-    Stream >> State.ModelSequNr;
-    Stream >> State.ModelFrameNr;
     Stream >> State.Health;
     Stream >> State.Armor;
     Stream >> ui; State.HaveItems=ui;
@@ -253,19 +244,18 @@ void EntHumanPlayerT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT
 
         // Now that the player is dead, clear the collision model.
         IntrusivePtrT<cf::GameSys::ComponentCollisionModelT> CompCollMdl = dynamic_pointer_cast<cf::GameSys::ComponentCollisionModelT>(m_Entity->GetComponent("CollisionModel"));
+        IntrusivePtrT<cf::GameSys::ComponentModelT>          Model3rdPerson = dynamic_pointer_cast<cf::GameSys::ComponentModelT>(m_Entity->GetComponent("Model"));
 
         if (CompCollMdl != NULL)
             CompCollMdl->SetMember("Name", std::string(""));
 
-             if (DeltaAngle>=57344 || DeltaAngle< 8192) State.ModelSequNr=21;   // 315° ...  45° - die forwards
-        else if (DeltaAngle>=8192  && DeltaAngle<16384) State.ModelSequNr=22;   //  45° ...  90° - headshot
-        else if (DeltaAngle>=16384 && DeltaAngle<24576) State.ModelSequNr=24;   //  90° ... 135° - gutshot
-        else if (DeltaAngle>=24576 && DeltaAngle<32768) State.ModelSequNr=19;   // 135° ... 180° - die backwards1
-        else if (DeltaAngle>=32768 && DeltaAngle<40960) State.ModelSequNr=20;   // 180° ... 225° - die backwards
-        else if (DeltaAngle>=40960 && DeltaAngle<49152) State.ModelSequNr=18;   // 225° ... 270° - die simple
-        else /* (DeltaAngle>=49152&&DeltaAngle<57344)*/ State.ModelSequNr=23;   // 270° ... 315° - die spin
-
-        State.ModelFrameNr=0.0;
+             if (DeltaAngle>=57344 || DeltaAngle< 8192) Model3rdPerson->SetMember("Animation", 21);   // 315° ...  45° - die forwards
+        else if (DeltaAngle>=8192  && DeltaAngle<16384) Model3rdPerson->SetMember("Animation", 22);   //  45° ...  90° - headshot
+        else if (DeltaAngle>=16384 && DeltaAngle<24576) Model3rdPerson->SetMember("Animation", 24);   //  90° ... 135° - gutshot
+        else if (DeltaAngle>=24576 && DeltaAngle<32768) Model3rdPerson->SetMember("Animation", 19);   // 135° ... 180° - die backwards1
+        else if (DeltaAngle>=32768 && DeltaAngle<40960) Model3rdPerson->SetMember("Animation", 20);   // 180° ... 225° - die backwards
+        else if (DeltaAngle>=40960 && DeltaAngle<49152) Model3rdPerson->SetMember("Animation", 18);   // 225° ... 270° - die simple
+        else /* (DeltaAngle>=49152&&DeltaAngle<57344)*/ Model3rdPerson->SetMember("Animation", 23);   // 270° ... 315° - die spin
 
         // GameWorld->BroadcastText("%s was killed by %s", State.PlayerName, Entity->State.PlayerName);
 
@@ -308,21 +298,6 @@ void EntHumanPlayerT::ProcessConfigString(const void* ConfigData, const char* Co
          if (strcmp(ConfigString, "PlayerCommand")==0) /* PlayerCommands.PushBack(*((PlayerCommandT*)ConfigData)) */;
     else if (strcmp(ConfigString, "IsAlive?"     )==0) *((bool*)ConfigData)=(State.StateOfExistance==StateOfExistance_Alive);
     else if (strcmp(ConfigString, "PlayerName"   )==0) strncpy(State.PlayerName, (const char*)ConfigData, sizeof(State.PlayerName));
-    else if (strcmp(ConfigString, "ModelName"    )==0)
-    {
-        // This if course must match the ModelIndexToModel[] array above.
-             if (_stricmp((const char*)ConfigData, "Alien"   )==0) State.ModelIndex=0;
-        else if (_stricmp((const char*)ConfigData, "James"   )==0) State.ModelIndex=1;
-        else if (_stricmp((const char*)ConfigData, "Punisher")==0) State.ModelIndex=2;
-        else if (_stricmp((const char*)ConfigData, "Sentinel")==0) State.ModelIndex=3;
-        else if (_stricmp((const char*)ConfigData, "Skeleton")==0) State.ModelIndex=4;
-        else if (_stricmp((const char*)ConfigData, "T801"    )==0) State.ModelIndex=5;
-        else                                                       State.ModelIndex=6;
-    }
-
-    // player name
-    // model name
-    // noclip
 }
 
 
@@ -445,9 +420,11 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
     IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(m_Entity->GetComponent("HumanPlayer"));
     IntrusivePtrT<cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(m_Entity->GetComponent("PlayerPhysics"));
+    IntrusivePtrT<cf::GameSys::ComponentModelT> Model3rdPerson = dynamic_pointer_cast<cf::GameSys::ComponentModelT>(m_Entity->GetComponent("Model"));
 
     if (CompHP == NULL) return;     // The presence of CompHP is mandatory...
     if (CompPlayerPhysics == NULL) return;     // The presence of CompPlayerPhysics is mandatory...
+    if (Model3rdPerson == NULL) return;     // The presence of CompPlayerPhysics is mandatory...
 
     ArrayT<PlayerCommandT>& PlayerCommands = CompHP->GetPlayerCommands();
 
@@ -530,8 +507,9 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 }
                 else */
                 {
-                    VectorT XYVel    = State.Velocity; XYVel.z = 0;
+                    VectorT XYVel    = CompPlayerPhysics->GetVelocity(); XYVel.z = 0;
                     double  OldSpeed = length(XYVel);
+
 
                     m_Entity->GetTransform()->SetOriginWS(m_Origin.AsVectorOfFloat());      // "Sync" the origin.
 
@@ -541,12 +519,11 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     m_Origin = m_Entity->GetTransform()->GetOriginWS().AsVectorOfDouble();
 
 
-                    XYVel=State.Velocity;
-                    XYVel.z=0;
-                    double NewSpeed=length(XYVel);
+                    XYVel = CompPlayerPhysics->GetVelocity(); XYVel.z = 0;
+                    double NewSpeed = length(XYVel);
 
-                    if (OldSpeed<=40.0 && NewSpeed>40.0) State.ModelSequNr=3;
-                    if (OldSpeed>=40.0 && NewSpeed<40.0) State.ModelSequNr=1;
+                    if (OldSpeed <= 40.0 && NewSpeed > 40.0) Model3rdPerson->SetMember("Animation", 3);
+                    if (OldSpeed >= 40.0 && NewSpeed < 40.0) Model3rdPerson->SetMember("Animation", 1);
                 }
 
                 // GameWorld->ModelAdvanceFrameTime() is called on client side in Draw().
@@ -873,21 +850,12 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     }
                 }
 
-
-                // Advance frame time of model sequence.
-                const CafuModelT*                PlayerModel=GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
-                IntrusivePtrT<AnimExprStandardT> StdAE      =PlayerModel->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);
-
-                StdAE->SetForceLoop(true);
-                StdAE->AdvanceTime(PlayerCommands[PCNr].FrameTime);
-                State.ModelFrameNr=StdAE->GetFrameNr();
                 break;
             }
 
             case StateOfExistance_Dead:
             {
-                const double OldOriginZ      =m_Origin.z;
-                const float  OldModelFrameNr =State.ModelFrameNr;
+                const double OldOriginZ = m_Origin.z;
 
                 if (m_RigidBody->isInWorld())
                     GameWorld->GetPhysicsWorld().RemoveRigidBody(m_RigidBody);
@@ -916,17 +884,9 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     m_Bank            +=(unsigned short)(PlayerCommands[PCNr].FrameTime*36000.0);
                 }
 
-                // Advance frame time of model sequence.
-                const CafuModelT*                PlayerModel=GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
-                IntrusivePtrT<AnimExprStandardT> StdAE      =PlayerModel->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);
-
-                StdAE->SetForceLoop(false);
-                StdAE->AdvanceTime(PlayerCommands[PCNr].FrameTime);
-                State.ModelFrameNr=StdAE->GetFrameNr();
-
                 // We entered this state after we died.
                 // Now leave it only after we have come to a complete halt, and the death sequence is over.
-                if (OldOriginZ>=m_Origin.z && fabs(State.Velocity.x)<0.1 && fabs(State.Velocity.y)<0.1 && fabs(State.Velocity.z)<0.1 && OldModelFrameNr==State.ModelFrameNr)
+                if (OldOriginZ>=m_Origin.z && fabs(State.Velocity.x)<0.1 && fabs(State.Velocity.y)<0.1 && fabs(State.Velocity.z)<0.1 /* TODO: Is death anim sequence over?? */)
                 {
                     if (ThinkingOnServerSide)
                     {
@@ -1048,8 +1008,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 m_Pitch                  =0;
                 m_Bank                   =0;
                 State.StateOfExistance   =StateOfExistance_Alive;
-                State.ModelSequNr        =0;
-                State.ModelFrameNr       =0.0;
+                Model3rdPerson->SetMember("Animation", 0);
                 State.Health             =100;
                 State.Armor              =0;
                 State.HaveItems          =0;
@@ -1144,20 +1103,21 @@ void EntHumanPlayerT::Draw(bool FirstPersonView, float LodDist) const
         MatSys::Renderer->GetCurrentEyePosition        ()[2]-=OffsetZ;
         MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, 0.0f, 0.0f, OffsetZ);
 
-        // Draw the own player body model and the "_p" (player) model of the active weapon as sub-model of the body.
-        const CafuModelT* PlayerModel=GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
-        AnimPoseT*        Pose       =PlayerModel->GetSharedPose(PlayerModel->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr));
 
-        Pose->Draw(-1 /*default skin*/, LodDist);
-
+        // The own player body model is drawn autonomously by the respective Model component.
+        // Here, also draw the "_p" (player) model of the active weapon as sub-model of the body.
         if (State.HaveWeapons & (1 << State.ActiveWeaponSlot))
         {
-            const CafuModelT* WeaponModel=GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->GetPlayerWeaponModel();
-            AnimPoseT*        WeaponPose =WeaponModel->GetSharedPose(WeaponModel->GetAnimExprPool().GetStandard(0, 0.0f));
+            IntrusivePtrT<cf::GameSys::ComponentModelT> Model3rdPerson = dynamic_pointer_cast<cf::GameSys::ComponentModelT>(m_Entity->GetComponent("Model"));
+            const CafuModelT* WeaponModel = GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->GetPlayerWeaponModel();
+            AnimPoseT*        WeaponPose  = WeaponModel->GetSharedPose(WeaponModel->GetAnimExprPool().GetStandard(0, 0.0f));
 
-            WeaponPose->SetSuperPose(Pose);
-            WeaponPose->Draw(-1 /*default skin*/, LodDist);
-            WeaponPose->SetSuperPose(NULL);
+            if (Model3rdPerson != NULL)
+            {
+                WeaponPose->SetSuperPose(Model3rdPerson->GetPose());
+                WeaponPose->Draw(-1 /*default skin*/, LodDist);
+                WeaponPose->SetSuperPose(NULL);
+            }
         }
     }
 }
@@ -1291,17 +1251,6 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
         Vector3fT OrientationUp     ( 0.0f,  0.0f, 1.0f);
 
         SoundSystem->UpdateListener(m_Origin, State.Velocity, OrientationForward, OrientationUp);
-    }
-    else
-    {
-        const CafuModelT*                PlayerModel=GameImplT::GetInstance().GetPlayerModel(State.ModelIndex);
-        IntrusivePtrT<AnimExprStandardT> StdAE      =PlayerModel->GetAnimExprPool().GetStandard(State.ModelSequNr, State.ModelFrameNr);
-
-        // Implicit simple "mini-prediction". WARNING, this does not really work...!
-        StdAE->SetForceLoop(State.StateOfExistance!=StateOfExistance_Dead);
-        StdAE->AdvanceTime(FrameTime);
-
-        State.ModelFrameNr=StdAE->GetFrameNr();
     }
 }
 

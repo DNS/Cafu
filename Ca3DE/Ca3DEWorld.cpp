@@ -287,7 +287,7 @@ cf::GuiSys::GuiResourcesT& Ca3DEWorldT::GetGuiResources() const
 
 
 unsigned long Ca3DEWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<const CompGameEntityT> CompGameEnt,
-    unsigned long CreationFrameNr, const char* PlayerName, const char* ModelName)
+    unsigned long CreationFrameNr, const char* PlayerName)
 {
     try
     {
@@ -342,7 +342,7 @@ unsigned long Ca3DEWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<const Comp
 
         // Muß dies VOR dem Erzeugen des EngineEntitys tun, denn sonst stimmt dessen BaseLine nicht!
         if (PlayerName!=NULL) NewEntity->ProcessConfigString(PlayerName, "PlayerName");
-        if (ModelName !=NULL) NewEntity->ProcessConfigString(ModelName , "ModelName" );
+     // if (ModelName !=NULL) NewEntity->ProcessConfigString(ModelName , "ModelName" );
 
         m_EngineEntities.PushBack(new EngineEntityT(NewEntity, CompGameEnt->GetEntity(), CreationFrameNr));
 
