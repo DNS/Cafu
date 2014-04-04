@@ -99,7 +99,6 @@ BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT
       CollisionModel(NULL),
       ClipModel(GameWorld->GetClipWorld()),  // Creates a clip model in the given clip world with a NULL collision model.
 
-      m_Origin(Params.Entity->GetTransform()->GetOriginWS().AsVectorOfDouble()),
       m_Dimensions(Dimensions),
       m_Heading(0),
       m_Pitch(0),
@@ -153,9 +152,6 @@ void BaseEntityT::Register(ApproxBaseT* Interp)
 
 void BaseEntityT::Serialize(cf::Network::OutStreamT& Stream) const
 {
-    Stream << float(m_Origin.x);
-    Stream << float(m_Origin.y);
-    Stream << float(m_Origin.z);
     Stream << float(m_Dimensions.Min.z);
     Stream << float(m_Dimensions.Max.z);
     Stream << m_Heading;
@@ -174,9 +170,6 @@ void BaseEntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
 {
     float f=0.0f;
 
-    Stream >> f; m_Origin.x=f;
-    Stream >> f; m_Origin.y=f;
-    Stream >> f; m_Origin.z=f;
     Stream >> f; m_Dimensions.Min.z=f;
     Stream >> f; m_Dimensions.Max.z=f;
     Stream >> m_Heading;
@@ -318,16 +311,6 @@ void BaseEntityT::OnTrigger(BaseEntityT* /*Activator*/)
 }
 
 
-void BaseEntityT::OnPush(ArrayT<BaseEntityT*>& Pushers, const Vector3dT& PushVector)
-{
-    // For now, let's just implement this method in the most trivial way.
-    m_Origin+=PushVector;
-
-    ClipModel.SetOrigin(m_Origin);
-    ClipModel.Register();  // Re-register ourselves with the clip world.
-}
-
-
 void BaseEntityT::TakeDamage(BaseEntityT* /*Entity*/, char /*Amount*/, const VectorT& /*ImpactDir*/)
 {
 }
@@ -386,34 +369,6 @@ int BaseEntityT::GetName(lua_State* LuaState)
 }
 
 
-int BaseEntityT::GetOrigin(lua_State* LuaState)
-{
-    cf::ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<BaseEntityT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<BaseEntityT> >(1);
-
-    lua_pushnumber(LuaState, Ent->m_Origin.x);
-    lua_pushnumber(LuaState, Ent->m_Origin.y);
-    lua_pushnumber(LuaState, Ent->m_Origin.z);
-
-    return 3;
-}
-
-
-int BaseEntityT::SetOrigin(lua_State* LuaState)
-{
-    cf::ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<BaseEntityT> Ent=Binder.GetCheckedObjectParam< IntrusivePtrT<BaseEntityT> >(1);
-
-    const double Ox=luaL_checknumber(LuaState, 2);
-    const double Oy=luaL_checknumber(LuaState, 3);
-    const double Oz=luaL_checknumber(LuaState, 4);
-
-    Ent->m_Origin=Vector3dT(Ox, Oy, Oz);
-
-    return 0;
-}
-
-
 void* BaseEntityT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 {
     Console->Warning("Cannot instantiate abstract class!\n");
@@ -425,8 +380,6 @@ void* BaseEntityT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 static const luaL_Reg MethodsList[]=
 {
     { "GetName",    BaseEntityT::GetName   },
-    { "GetOrigin",  BaseEntityT::GetOrigin },
-    { "SetOrigin",  BaseEntityT::SetOrigin },
  // { "__tostring", toString },
     { NULL, NULL }
 };

@@ -119,9 +119,10 @@ EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
       m_RigidBody(NULL),
       GuiHUD(NULL)
 {
-    // Interpolation is only required for client entities that are not "our" local entity (which is predicted).
-    // Therefore, the engine core automatically exempts "our" client from interpolation, but applies it to others.
-    Register(new InterpolatorT<Vector3dT>(m_Origin));
+    // TODO: This must be reconsidered when finally switching to the Component System!
+    // // Interpolation is only required for client entities that are not "our" local entity (which is predicted).
+    // // Therefore, the engine core automatically exempts "our" client from interpolation, but applies it to others.
+    // Register(new InterpolatorT<Vector3dT>(m_Origin));
 
     // We can only hope that 'Origin' is a nice place for a "Frozen Spectator"...
 
@@ -340,8 +341,8 @@ bool EntHumanPlayerT::CheckGUI(IntrusivePtrT<cf::GameSys::ComponentModelT> CompM
 
     // 4. Does our view ray hit the screen panel?
     // (I've obtained the equation for r by rolling the corresponding Plane3T<T>::GetIntersection() method out.)
-    const Vector3fT OurOrigin=m_Origin.AsVectorOfFloat();
-    const float     r        =(GuiPlane.Dist-dot(GuiPlane.Normal, OurOrigin))/dot(GuiPlane.Normal, ViewDir);
+    const Vector3fT OurOrigin = m_Entity->GetTransform()->GetOriginWS();
+    const float     r         = (GuiPlane.Dist-dot(GuiPlane.Normal, OurOrigin))/dot(GuiPlane.Normal, ViewDir);
 
     if (r<0.0f || r>160.0f) return false;
 
@@ -510,14 +511,8 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     VectorT XYVel    = CompPlayerPhysics->GetVelocity(); XYVel.z = 0;
                     double  OldSpeed = length(XYVel);
 
-
-                    m_Entity->GetTransform()->SetOriginWS(m_Origin.AsVectorOfFloat());      // "Sync" the origin.
-
                     CompPlayerPhysics->SetMember("StepHeight", 18.5);
                     CompPlayerPhysics->MoveHuman(PlayerCommands[PCNr].FrameTime, WishVelocity.AsVectorOfFloat(), WishVelLadder.AsVectorOfFloat(), WishJump);
-
-                    m_Origin = m_Entity->GetTransform()->GetOriginWS().AsVectorOfDouble();
-
 
                     XYVel = CompPlayerPhysics->GetVelocity(); XYVel.z = 0;
                     double NewSpeed = length(XYVel);
@@ -759,8 +754,8 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     ArrayT<cf::ClipSys::ClipModelT*> ClipModels;
                     BoundingBox3dT                   AbsBB(m_Dimensions);
 
-                    AbsBB.Min+=m_Origin;
-                    AbsBB.Max+=m_Origin;
+                    AbsBB.Min += m_Entity->GetTransform()->GetOriginWS().AsVectorOfDouble();
+                    AbsBB.Max += m_Entity->GetTransform()->GetOriginWS().AsVectorOfDouble();
 
                     GameWorld->GetClipWorld().GetClipModelsFromBB(ClipModels, MaterialT::Clip_Trigger, AbsBB);
                     // printf("%lu clip models in AbsBB.\n", ClipModels.Size());
@@ -855,17 +850,13 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
             case StateOfExistance_Dead:
             {
-                const double OldOriginZ = m_Origin.z;
+                const Vector3fT OldOrigin = m_Entity->GetTransform()->GetOriginWS();
 
                 if (m_RigidBody->isInWorld())
                     GameWorld->GetPhysicsWorld().RemoveRigidBody(m_RigidBody);
 
-                m_Entity->GetTransform()->SetOriginWS(m_Origin.AsVectorOfFloat());      // "Sync" the origin.
-
                 CompPlayerPhysics->SetMember("StepHeight", 4.0);
                 CompPlayerPhysics->MoveHuman(PlayerCommands[PCNr].FrameTime, Vector3fT(), Vector3fT(), false);
-
-                m_Origin = m_Entity->GetTransform()->GetOriginWS().AsVectorOfDouble();
 
                 // We want to lower the view of the local client after it has been killed (in order to indicate the body collapse).
                 // Unfortunately, the problem is much harder than just decreasing the 'm_Origin.z' in some way, because
@@ -876,9 +867,12 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 // This way, we can re-derive the proper height in both cases a) and b).
                 const double Collapse=80.0*PlayerCommands[PCNr].FrameTime;
 
-                if (m_Dimensions.Min.z+Collapse<-100.0)
+                if (m_Dimensions.Min.z + Collapse < -100.0)
                 {
-                    m_Origin.z        -=Collapse;
+                    const Vector3dT O = m_Entity->GetTransform()->GetOriginWS().AsVectorOfDouble();
+
+                    m_Entity->GetTransform()->SetOriginWS(Vector3dT(O.x, O.y, O.z - Collapse).AsVectorOfFloat());
+
                     m_Dimensions.Min.z+=Collapse;
                     m_Dimensions.Max.z+=Collapse;
                     m_Bank            +=(unsigned short)(PlayerCommands[PCNr].FrameTime*36000.0);
@@ -886,14 +880,15 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
                 // We entered this state after we died.
                 // Now leave it only after we have come to a complete halt, and the death sequence is over.
-                if (OldOriginZ>=m_Origin.z && fabs(State.Velocity.x)<0.1 && fabs(State.Velocity.y)<0.1 && fabs(State.Velocity.z)<0.1 /* TODO: Is death anim sequence over?? */)
+                if (OldOrigin.z >= m_Entity->GetTransform()->GetOriginWS().z && fabs(State.Velocity.x) < 0.1 && fabs(State.Velocity.y) < 0.1 && fabs(State.Velocity.z) < 0.1 /* && TODO: Is death anim sequence over?? */)
                 {
                     if (ThinkingOnServerSide)
                     {
+                        const Vector3fT Origin = m_Entity->GetTransform()->GetOriginWS();
                         std::map<std::string, std::string> Props; Props["classname"]="corpse";
 
                         // Create a new "corpse" entity in the place where we died, or else the model disappears.
-                        unsigned long CorpseID=GameWorld->CreateNewEntity(Props, ServerFrameNr, m_Origin);
+                        unsigned long CorpseID = GameWorld->CreateNewEntity(Props, ServerFrameNr, Origin.AsVectorOfDouble());
                         IntrusivePtrT<cf::GameSys::ComponentModelT> PlayerModelComp = dynamic_pointer_cast<cf::GameSys::ComponentModelT>(m_Entity->GetComponent("Model"));
 
                         if (CorpseID != 0xFFFFFFFF && PlayerModelComp != NULL)
@@ -901,7 +896,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                             IntrusivePtrT<BaseEntityT> Corpse = dynamic_pointer_cast<BaseEntityT>(GameWorld->GetGameEntityByID(CorpseID));
                             IntrusivePtrT<cf::GameSys::EntityT> Ent = Corpse->m_Entity;
 
-                            Ent->GetTransform()->SetOriginWS(m_Origin.AsVectorOfFloat());
+                            Ent->GetTransform()->SetOriginWS(Origin);
                             Ent->GetTransform()->SetQuatWS(cf::math::QuaternionfT::Euler(0, float((90.0 - GetHeading()/8192.0*45.0) * 3.1415926 / 180.0), 0));
 
                             IntrusivePtrT<cf::GameSys::ComponentModelT> ModelComp = new cf::GameSys::ComponentModelT(*PlayerModelComp);
@@ -1001,7 +996,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 if (EntityIDNr>=AllEntityIDs.Size()) break;     // No suitable "InfoPlayerStart" entity found!
 
                 // Respawn!
-                m_Origin                 =OurNewOrigin;
+                m_Entity->GetTransform()->SetOriginWS(OurNewOrigin.AsVectorOfFloat());
                 State.Velocity           =VectorT();
                 m_Dimensions             =BoundingBox3dT(Vector3dT(16.0, 16.0, 4.0), Vector3dT(-16.0, -16.0, -68.0));
                 m_Heading                =IPSEntity->GetHeading();
@@ -1033,7 +1028,6 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
     }
 
     PlayerCommands.Overwrite();
-    m_Entity->GetTransform()->SetOriginWS(m_Origin.AsVectorOfFloat());      // "Sync" the origin.
 }
 
 
@@ -1250,14 +1244,14 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
         Vector3fT OrientationForward(ViewX, ViewY, 0.0f);
         Vector3fT OrientationUp     ( 0.0f,  0.0f, 1.0f);
 
-        SoundSystem->UpdateListener(m_Origin, State.Velocity, OrientationForward, OrientationUp);
+        SoundSystem->UpdateListener(m_Entity->GetTransform()->GetOriginWS().AsVectorOfDouble(), State.Velocity, OrientationForward, OrientationUp);
     }
 }
 
 
 void EntHumanPlayerT::getWorldTransform(btTransform& worldTrans) const
 {
-    Vector3dT Origin=m_Origin;
+    Vector3dT Origin = m_Entity->GetTransform()->GetOriginWS().AsVectorOfDouble();
 
     // The box shape of our physics body is equally centered around the origin point,
     // whereas our m_Dimensions box is "non-uniformely displaced".

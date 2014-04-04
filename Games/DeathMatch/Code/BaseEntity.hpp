@@ -108,7 +108,7 @@ namespace GAME_NAME
         virtual void NotifyLeaveMap() { }
         virtual unsigned long GetID() const { return ID; }
         virtual cf::GameSys::GameWorldI* GetGameWorld() const { return GameWorld; }
-        virtual const Vector3dT& GetOrigin() const { return m_Origin; }
+        virtual Vector3dT GetOrigin() const { return m_Entity->GetTransform()->GetOriginWS().AsVectorOfDouble(); }
         virtual const BoundingBox3dT& GetDimensions() const { return m_Dimensions; }
         virtual void GetCameraOrientation(unsigned short& h, unsigned short& p, unsigned short& b) const { h=m_Heading; p=m_Pitch; b=m_Bank; }
         virtual void GetBodyOrientation(unsigned short& h, unsigned short& p, unsigned short& b) const { h=m_Heading; p=m_Pitch; b=m_Bank; }
@@ -145,26 +145,6 @@ namespace GAME_NAME
         /// that they entered a trigger volume (it are not the entities with the triggers that detect that something entered their volume).
         /// (Unfortunately, this function cannot be declared as "protected": see "C++ FAQs, 2nd edition" by Cline, Lomow, Girou, pages 249f.)
         virtual void OnTrigger(BaseEntityT* Activator);
-
-        /// This SERVER-SIDE method is called whenever another entity pushes us.
-        /// Whenever an entity moves, it may want to push other entities that are touching it.
-        /// Examples are lifts that give the objects on it a ride, or players that push barrels or crates.
-        /// As the pusher itself may be pushed (e.g. when a player pushes a barrel that pushes a barrel or when a lift pushes a crate
-        /// that pushes the player on top of it), there can be an entire chain of pushers.
-        ///
-        /// @param Pushers
-        ///   The chain of pushers that are pushing this entity. Usually, there is only one element in this list,
-        ///   but in theory, e.g. when a train pushes a waggon that pushes a waggon that pushes a waggon..., the list can be
-        ///   arbitrarily long.
-        ///   The topmost pusher, i.e. Pushers[i] with i==Pushers.Size()-1, is our immediate pusher, Pushers[i-1] is the pusher of our pusher,
-        ///   and so forth. Pushers[0] is the source pusher of the entire chain.
-        ///   Note that the Pushers list must always be kept acyclic, i.e. each entity must occur in the list at most once,
-        ///   or otherwise there is momentum to infinite recursion. For example, the last waggon of as train must not also be a pusher of the train;
-        ///   when a T-shaped object pushes a U-shaped object sideways (with its vertical bar in the center of the U), the U must not also push the T, etc.
-        ///
-        /// @param PushVector
-        ///   This vector describes the desired and required direction and length of the push.
-        virtual void OnPush(ArrayT<BaseEntityT*>& Pushers, const Vector3dT& PushVector);
 
         /// This SERVER-SIDE function is used to have this entity take damage.
         /// 'Entity' is the entitiy that causes the damage (i.e., who fired a shot). It is usually the entity from which the call is made.
@@ -210,8 +190,6 @@ namespace GAME_NAME
 
         // Methods provided to be called from the map/entity Lua scripts.
         static int GetName(lua_State* L);
-        static int GetOrigin(lua_State* L);
-        static int SetOrigin(lua_State* L);
 
 
         protected:
@@ -227,7 +205,6 @@ namespace GAME_NAME
         /// for the interpolation in the next video frames.
         void Register(ApproxBaseT* Interp);
 
-        Vector3dT      m_Origin;        ///< World coordinate of (the eye of) this entity.
         BoundingBox3dT m_Dimensions;    ///< The bounding box of this entity (relative to the origin).
         unsigned short m_Heading;       ///< Heading (north is along the ??-axis).
         unsigned short m_Pitch;         ///< Pitch (for looking up/down).

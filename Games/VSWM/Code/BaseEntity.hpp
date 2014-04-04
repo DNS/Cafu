@@ -111,7 +111,7 @@ namespace GAME_NAME
         virtual unsigned long GetID() const { return ID; }
         virtual std::string GetName() const { return Name; }
         virtual cf::GameSys::GameWorldI* GetGameWorld() const { return GameWorld; }
-        virtual const Vector3dT& GetOrigin() const { return m_Origin; }
+        virtual Vector3dT GetOrigin() const { return m_Origin; }
         virtual const BoundingBox3dT& GetDimensions() const { return m_Dimensions; }
         virtual void GetCameraOrientation(unsigned short& h, unsigned short& p, unsigned short& b) const { h=m_Heading; p=m_Pitch; b=m_Bank; }
         virtual void GetBodyOrientation(unsigned short& h, unsigned short& p, unsigned short& b) const { h=m_Heading; p=m_Pitch; b=m_Bank; }

@@ -61,7 +61,7 @@ class GameEntityI : public RefCountedT
     /// Returns the origin point of this entity. Used for
     ///   - obtaining the camera position of the local human player entity (1st person view),
     ///   - computing light source positions.
-    virtual const Vector3dT& GetOrigin() const=0;
+    virtual Vector3dT GetOrigin() const=0;
 
     /// Returns the dimensions of this entity.
     virtual const BoundingBox3dT& GetDimensions() const=0;
