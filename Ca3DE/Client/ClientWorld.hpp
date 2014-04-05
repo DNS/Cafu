@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_CACLIENTWORLD_HPP_INCLUDED
 
 #include "../Ca3DEWorld.hpp"
+#include "GameSys/CompTransform.hpp"
 
 #if defined(_WIN32) && _MSC_VER<1600
 #include "pstdint.h"            // Paul Hsieh's portable implementation of the stdint.h header.
@@ -78,11 +79,12 @@ class CaClientWorldT : public Ca3DEWorldT
     /// Returns the camera details of "our" entity that the client should use to render the world.
     /// This is typically called for the local human player from whose perspective the world is rendered.
     ///
-    /// @returns \c false if "our" entity was not available (and no camera details could be retrieved), \c true on success.
-    bool OurEntity_GetCamera(Vector3dT& Origin, unsigned short& Heading, unsigned short& Pitch, unsigned short& Bank) const;
+    /// @returns `NULL` if "our" entity was not available (or no camera details could be retrieved),
+    ///          the Transform component of the camera entity on success.
+    IntrusivePtrT<const cf::GameSys::ComponentTransformT> OurEntity_GetCamera() const;
 
     void ComputeBFSPath(const VectorT& Start, const VectorT& End);
-    void Draw(float FrameTime, const Vector3dT& Origin, unsigned short Heading, unsigned short Pitch, unsigned short Bank) const;
+    void Draw(float FrameTime, IntrusivePtrT<const cf::GameSys::ComponentTransformT> CameraTrafo) const;
 
 
     private:

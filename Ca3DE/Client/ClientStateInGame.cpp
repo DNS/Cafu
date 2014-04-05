@@ -37,6 +37,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Renderer.hpp"
 #include "MaterialSystem/TextureMap.hpp"
 #include "SoundSystem/SoundSys.hpp"
+#include "Math3D/Angles.hpp"
 #include "Math3D/Matrix.hpp"
 #include "Network/Network.hpp"
 #include "OpenGL/OpenGLWindow.hpp"
@@ -366,16 +367,13 @@ void ClientStateInGameT::Render(float FrameTime)
 
     if (World)
     {
-        VectorT        Current_Origin;
-        unsigned short Current_Heading;
-        unsigned short Current_Pitch;
-        unsigned short Current_Bank;
+        IntrusivePtrT<const cf::GameSys::ComponentTransformT> CameraTrafo = World->OurEntity_GetCamera();
 
-        if (World->OurEntity_GetCamera(Current_Origin, Current_Heading, Current_Pitch, Current_Bank))
+        if (CameraTrafo != NULL)
         {
-            Graphs.Heading[ClientFrameNr & (512-1)]=(Current_Heading >> 5) & 511;
-            Graphs.PosY   [ClientFrameNr & (512-1)]=((unsigned short)(Current_Origin.y/20.0)) & 511;
-            Graphs.PosZ   [ClientFrameNr & (512-1)]=((unsigned short)(Current_Origin.z/20.0)) & 511;
+         // Graphs.Heading[ClientFrameNr & (512-1)]=(Current_Heading >> 5) & 511;
+            Graphs.PosY   [ClientFrameNr & (512-1)]=((unsigned short)(CameraTrafo->GetOriginWS().y/20.0)) & 511;
+            Graphs.PosZ   [ClientFrameNr & (512-1)]=((unsigned short)(CameraTrafo->GetOriginWS().z/20.0)) & 511;
 
             MatSys::Renderer->PushMatrix(MatSys::RendererI::PROJECTION    );
             MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
@@ -389,7 +387,7 @@ void ClientStateInGameT::Render(float FrameTime)
             MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());
             MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW,  MatrixT());
 
-            World->Draw(FrameTime, Current_Origin, Current_Heading, Current_Pitch, Current_Bank);
+            World->Draw(FrameTime, CameraTrafo);
 
             MatSys::Renderer->PopMatrix(MatSys::RendererI::PROJECTION    );
             MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
@@ -409,10 +407,12 @@ void ClientStateInGameT::Render(float FrameTime)
                 // if (World->GetCa3DEWorldP()->Map.Leaves[LeafNr].IsInnerLeaf)
                 //     LeafContents=World->GetCa3DEWorldP()->Map.Leaves[LeafNr].IsWaterLeaf ? 'w' : 'i';
 
-                Font_f.Print(FrameSize.GetWidth()-130, 15, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("X %10.1f", Current_Origin.x));
-                Font_f.Print(FrameSize.GetWidth()-130, 35, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("Y %10.1f", Current_Origin.y));
-                Font_f.Print(FrameSize.GetWidth()-130, 55, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("Z %10.1f", Current_Origin.z));
-                Font_f.Print(FrameSize.GetWidth()-130, 75, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("Hdg %8u", Current_Heading));
+                const Vector3fT Origin = CameraTrafo->GetOriginWS();
+
+                Font_f.Print(FrameSize.GetWidth()-130, 15, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("X %10.1f", Origin.x));
+                Font_f.Print(FrameSize.GetWidth()-130, 35, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("Y %10.1f", Origin.y));
+                Font_f.Print(FrameSize.GetWidth()-130, 55, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("Z %10.1f", Origin.z));
+                Font_f.Print(FrameSize.GetWidth()-130, 75, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("Hdg %8.1f", cf::math::AnglesfT(CameraTrafo->GetQuatWS()).yaw()));
              // Font_f.Print(FrameSize.GetWidth()-100, FrameSize.GetHeight()-32, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("L %4u %c", LeafNr, LeafContents));
             }
 
@@ -894,13 +894,10 @@ void ClientStateInGameT::MainLoop(float FrameTime)
 
         if (m_PathRecorder)
         {
-            VectorT        Origin;
-            unsigned short Heading;
-            unsigned short Pitch;
-            unsigned short Bank;
+            IntrusivePtrT<const cf::GameSys::ComponentTransformT> CameraTrafo = World->OurEntity_GetCamera();
 
-            if (World->OurEntity_GetCamera(Origin, Heading, Pitch, Bank))
-                m_PathRecorder->WritePath(Origin, Heading, FrameTime);
+            if (CameraTrafo != NULL)
+                m_PathRecorder->WritePath(CameraTrafo->GetOriginWS().AsVectorOfDouble(), 0 /*Fixme: Heading*/, FrameTime);
         }
 
         PlayerCommand=PlayerCommandT();     // Clear the PlayerCommand.

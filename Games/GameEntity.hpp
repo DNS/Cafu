@@ -66,10 +66,6 @@ class GameEntityI : public RefCountedT
     /// Returns the dimensions of this entity.
     virtual const BoundingBox3dT& GetDimensions() const=0;
 
-    /// Returns the camera orientation angles of this entity.
-    /// Used for setting up the camera of the local human player entity (1st person view).
-    virtual void GetCameraOrientation(unsigned short& h, unsigned short& p, unsigned short& b) const=0;
-
     /// Returns the orientation angles of the entity itself.
     /// Used for computing the light source and eye positions in entity (model) space.
     /// TODO: Both the signature as well as the implementation of this method are temporary,

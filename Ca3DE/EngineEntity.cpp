@@ -316,13 +316,6 @@ void EngineEntityT::Predict(const PlayerCommandT& PlayerCommand, unsigned long O
 }
 
 
-void EngineEntityT::GetCamera(Vector3dT& Origin, unsigned short& Heading, unsigned short& Pitch, unsigned short& Bank) const
-{
-    Origin = Entity->GetOrigin();
-    Entity->GetCameraOrientation(Heading, Pitch, Bank);
-}
-
-
 bool EngineEntityT::GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const
 {
     return Entity->GetLightSourceInfo(DiffuseColor, SpecularColor, Position, Radius, CastsShadows);

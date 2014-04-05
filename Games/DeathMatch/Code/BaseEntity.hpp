@@ -110,7 +110,6 @@ namespace GAME_NAME
         virtual cf::GameSys::GameWorldI* GetGameWorld() const { return GameWorld; }
         virtual Vector3dT GetOrigin() const { return m_Entity->GetTransform()->GetOriginWS().AsVectorOfDouble(); }
         virtual const BoundingBox3dT& GetDimensions() const { return m_Dimensions; }
-        virtual void GetCameraOrientation(unsigned short& h, unsigned short& p, unsigned short& b) const { h=m_Heading; p=m_Pitch; b=m_Bank; }
         virtual void GetBodyOrientation(unsigned short& h, unsigned short& p, unsigned short& b) const { h=m_Heading; p=m_Pitch; b=m_Bank; }
 
         /// Returns the heading of this entity.

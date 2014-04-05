@@ -31,6 +31,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameSys/Entity.hpp"
 #include "GameSys/EntityCreateParams.hpp"
 #include "GameSys/World.hpp"
+#include "Math3D/Matrix3x3.hpp"
 #include "Network/Network.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
 #include "Win32/Win32PrintHelp.hpp"
@@ -129,6 +130,20 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
     IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
     ScriptComp->SetMember("Name", std::string("Games/DeathMatch/Scripts/HumanPlayer.lua"));
     NewEnt->AddComponent(ScriptComp);
+
+    // Add a camera as a child entity of NewEnt.
+    {
+        IntrusivePtrT<cf::GameSys::EntityT> CameraEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
+
+        CameraEnt->GetBasics()->SetEntityName("Camera");
+        CameraEnt->GetTransform()->SetOriginPS(Vector3fT(-24.0f, 0.0f, 20.0f));
+
+        // Views are rendered along the y-axis, whereas models look along the x-axis.
+        // Therefore, rotate to align the camera's y-axis with the entity's x-axis.
+        CameraEnt->GetTransform()->SetQuatPS(cf::math::QuaternionfT(cf::math::Matrix3x3fT::GetRotateZMatrix(-90.0f)));
+
+        NewEnt->AddChild(CameraEnt);
+    }
 
     m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
 

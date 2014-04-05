@@ -324,16 +324,13 @@ void CaClientWorldT::OurEntity_Predict(const PlayerCommandT& PlayerCommand, unsi
 }
 
 
-bool CaClientWorldT::OurEntity_GetCamera(Vector3dT& Origin, unsigned short& Heading, unsigned short& Pitch, unsigned short& Bank) const
+IntrusivePtrT<const cf::GameSys::ComponentTransformT> CaClientWorldT::OurEntity_GetCamera() const
 {
-    if (OurEntityID<m_EngineEntities.Size())
-        if (m_EngineEntities[OurEntityID]!=NULL)
-        {
-            m_EngineEntities[OurEntityID]->GetCamera(Origin, Heading, Pitch, Bank);
-            return true;
-        }
+    if (OurEntityID >= m_EngineEntities.Size()) return NULL;
+    if (m_EngineEntities[OurEntityID] == NULL) return NULL;
+    if (m_EngineEntities[OurEntityID]->GetEntity()->GetChildren().Size() < 1) return NULL;
 
-    return false;
+    return m_EngineEntities[OurEntityID]->GetEntity()->GetChildren()[0]->GetTransform();
 }
 
 
@@ -398,21 +395,18 @@ void CaClientWorldT::ComputeBFSPath(const VectorT& Start, const VectorT& End)
 }
 
 
-void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned short DrawHeading, unsigned short DrawPitch, unsigned short DrawBank) const
+void CaClientWorldT::Draw(float FrameTime, IntrusivePtrT<const cf::GameSys::ComponentTransformT> CameraTrafo) const
 {
     MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());
 
-    MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW,  MatrixT::GetRotateXMatrix(-90.0f));   // Start with the global Ca3DE coordinate system (not the OpenGL coordinate system).
-    MatSys::Renderer->RotateY  (MatSys::RendererI::WORLD_TO_VIEW, -float(DrawBank   )*45.0f/8192.0f);    // *360/2^16
-    MatSys::Renderer->RotateX  (MatSys::RendererI::WORLD_TO_VIEW,  float(DrawPitch  )*45.0f/8192.0f);
-    MatSys::Renderer->RotateZ  (MatSys::RendererI::WORLD_TO_VIEW,  float(DrawHeading)*45.0f/8192.0f);
+    MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW,
+        MatrixT::GetRotateXMatrix(-90.0f) *     // Start with the global Ca3DE coordinate system (not the OpenGL coordinate system).
+        CameraTrafo->GetEntityToWorld().GetInverse());
 
 
-    // OBSOLETE: DrawableSkyDome.Draw();
 #if SHL_ENABLED
     MoveSHLSun(FrameTime);
 #endif
-    MatSys::Renderer->Translate(MatSys::RendererI::WORLD_TO_VIEW, -float(DrawOrigin.x), -float(DrawOrigin.y), -float(DrawOrigin.z));
 
 #if 0   // TODO: Move this into the scene graph.
 #ifdef DEBUG
@@ -444,7 +438,8 @@ void CaClientWorldT::Draw(float FrameTime, const Vector3dT& DrawOrigin, unsigned
     TotalTime+=FrameTime;
 
     // Add a small offset to the z-component of the eye position, which adds a mild nice moving effect to the specular highlights.
-    const float EyeOffsetZ=8.0f*sinf(TotalTime);
+    const float     EyeOffsetZ = 8.0f*sinf(TotalTime);
+    const Vector3dT DrawOrigin = CameraTrafo->GetOriginWS().AsVectorOfDouble();
 
     MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::AMBIENT);
     MatSys::Renderer->SetCurrentEyePosition(float(DrawOrigin.x), float(DrawOrigin.y), float(DrawOrigin.z)+EyeOffsetZ);    // Also required in some ambient shaders.
