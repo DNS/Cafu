@@ -100,16 +100,12 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, const P
                 // Important: ONLY create (throw) a new face-hugger IF we are on the server side!
                 if (ThinkingOnServerSide)
                 {
-                    // Clamp 'Pitch' values larger than 45° (==8192) to 45°.
-                    const unsigned short Pitch=(Player->GetPitch()>8192 && Player->GetPitch()<=16384) ? 8192 : Player->GetPitch();
-
-                    const float ViewDirZ=-LookupTables::Angle16ToSin[Pitch];
-                    const float ViewDirY= LookupTables::Angle16ToCos[Pitch];
+                    const Vector3dT ViewDir = Player->GetViewDir();
+                    // TODO: Clamp ViewDir.y to max. 1.0 (then renormalize) ? That is, clamp 'Pitch' values larger than 45° (==8192) to 45°.
 
                     // Note: There is a non-trivial relationship between heading, pitch, and the corresponding view vector.
                     // Especially does a heading and pitch of 45° NOT correspond to the view vector (1, 1, 1), and vice versa!
                     // Think carefully about this before changing the number 41.0 below (which actually is 2.0*(16.0+4.0) (+1.0 for "safety")).
-                    const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Player->GetHeading()], ViewDirY*LookupTables::Angle16ToCos[Player->GetHeading()], ViewDirZ);
                     const VectorT FaceHuggerOrigin(Player->GetOrigin()+scale(ViewDir, 41.0)+scale(State.Velocity, double(PlayerCommand.FrameTime)));
                     std::map<std::string, std::string> Props;
 
@@ -123,7 +119,7 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, const P
                         IntrusivePtrT<cf::GameSys::EntityT> Ent = FaceHugger->m_Entity;
 
                         Ent->GetTransform()->SetOriginWS(FaceHuggerOrigin.AsVectorOfFloat());
-                        Ent->GetTransform()->SetQuatWS(cf::math::QuaternionfT::Euler(0, float((90.0 - Player->GetHeading()/8192.0*45.0) * 3.1415926 / 180.0), 0));
+                        Ent->GetTransform()->SetQuatWS(Player->m_Entity->GetTransform()->GetQuatWS());
 
                         IntrusivePtrT<cf::GameSys::ComponentModelT> ModelComp = new cf::GameSys::ComponentModelT();
                         ModelComp->SetMember("Name", std::string("Games/DeathMatch/Models/LifeForms/FaceHugger/FaceHugger.cmdl"));
@@ -196,12 +192,8 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, const P
 
 void CarriedWeaponFaceHuggerT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT* Player, const VectorT& /*LastSeenAmbientColor*/) const
 {
-    const EntityStateT& State=Player->GetState();
-
-    const float ViewDirZ=-LookupTables::Angle16ToSin[Player->GetPitch()];
-    const float ViewDirY= LookupTables::Angle16ToCos[Player->GetPitch()];
-
-    const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Player->GetHeading()], ViewDirY*LookupTables::Angle16ToCos[Player->GetHeading()], ViewDirZ);
+    const EntityStateT& State   = Player->GetState();
+    const Vector3dT     ViewDir = Player->GetViewDir();
 
     // Update sound position and velocity.
     FireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 8.0));

@@ -88,10 +88,7 @@ void CarriedWeaponCrossBowT::ServerSide_Think(EntHumanPlayerT* Player, const Pla
                 if (ThinkingOnServerSide)
                 {
                     // If we are on the server-side, find out what or who we hit.
-                    const float ViewDirZ=-LookupTables::Angle16ToSin[Player->GetPitch()];
-                    const float ViewDirY= LookupTables::Angle16ToCos[Player->GetPitch()];
-
-                    const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Player->GetHeading()], ViewDirY*LookupTables::Angle16ToCos[Player->GetHeading()], ViewDirZ);
+                    const Vector3dT ViewDir = Player->GetViewDir();
 
                     RayResultT RayResult(Player->GetRigidBody());
                     Player->GameWorld->GetPhysicsWorld().TraceRay(UnitsToPhys(Player->GetOrigin()), scale(ViewDir, 9999999.0/1000.0), RayResult);

@@ -177,13 +177,7 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, const Player
                 if (ThinkingOnServerSide)
                 {
                     // If we are on server-side, fire the first single shot, and find out what or who we hit.
-                    const unsigned short Pitch  =Player->GetPitch()  +(rand() % 364)-182;  // ca. 2°
-                    const unsigned short Heading=Player->GetHeading()+(rand() % 364)-182;  // ca. 2°
-
-                    const float ViewDirZ=-LookupTables::Angle16ToSin[Pitch];
-                    const float ViewDirY= LookupTables::Angle16ToCos[Pitch];
-
-                    const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Heading], ViewDirY*LookupTables::Angle16ToCos[Heading], ViewDirZ);
+                    const Vector3dT ViewDir = Player->GetViewDir(0.03492);  // ca. 2°
 
                     RayResultT RayResult(Player->GetRigidBody());
                     Player->GameWorld->GetPhysicsWorld().TraceRay(UnitsToPhys(Player->GetOrigin()), scale(ViewDir, 9999999.0/1000.0), RayResult);
@@ -205,16 +199,12 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, const Player
                 // Important: ONLY create (throw) a new AR grenade IF we are on the server side!
                 if (ThinkingOnServerSide)
                 {
-                    // Clamp 'Pitch' values larger than 45° (==8192) to 45°.
-                    const unsigned short Pitch=(Player->GetPitch()>8192 && Player->GetPitch()<=16384) ? 8192 : Player->GetPitch();
-
-                    const float ViewDirZ=-LookupTables::Angle16ToSin[Pitch];
-                    const float ViewDirY= LookupTables::Angle16ToCos[Pitch];
+                    const Vector3dT ViewDir = Player->GetViewDir();
+                    // TODO: Clamp ViewDir.y to max. 1.0 (then renormalize) ? That is, clamp 'Pitch' values larger than 45° (==8192) to 45°.
 
                     // Note: There is a non-trivial relationship between heading, pitch, and the corresponding view vector.
                     // Especially does a heading and pitch of 45° NOT correspond to the view vector (1, 1, 1), and vice versa!
                     // Think carefully about this before changing the number 42.0 below (which actually is 2.0*(16.0+4.5) (+1.0 for "safety")).
-                    const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Player->GetHeading()], ViewDirY*LookupTables::Angle16ToCos[Player->GetHeading()], ViewDirZ);
                     const VectorT ARGrenadeOrigin(Player->GetOrigin()-VectorT(0.0, 0.0, 10.0)+scale(ViewDir, 42.0)+scale(State.Velocity, double(PlayerCommand.FrameTime)));
                     std::map<std::string, std::string> Props;
 
@@ -229,7 +219,7 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, const Player
 
                         Ent->GetBasics()->SetEntityName("ARGrenade");
                         Ent->GetTransform()->SetOriginWS(ARGrenadeOrigin.AsVectorOfFloat());
-                        Ent->GetTransform()->SetQuatWS(cf::math::QuaternionfT::Euler(0, float((90.0 - Player->GetHeading()/8192.0*45.0) * 3.1415926 / 180.0), 0));
+                        Ent->GetTransform()->SetQuatWS(Player->m_Entity->GetTransform()->GetQuatWS());
 
                         IntrusivePtrT<cf::GameSys::ComponentModelT> ModelComp = new cf::GameSys::ComponentModelT();
                         ModelComp->SetMember("Name", std::string("Games/DeathMatch/Models/Weapons/Grenade/Grenade_w.cmdl"));
@@ -324,12 +314,8 @@ static bool ParticleFunction_HitEntity(ParticleMST* Particle, float Time)
 
 void CarriedWeapon9mmART::ClientSide_HandleSecondaryFireEvent(const EntHumanPlayerT* Player, const VectorT& /*LastSeenAmbientColor*/) const
 {
-    const EntityStateT& State=Player->GetState();
-
-    const float ViewDirZ=-LookupTables::Angle16ToSin[Player->GetPitch()];
-    const float ViewDirY= LookupTables::Angle16ToCos[Player->GetPitch()];
-
-    const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Player->GetHeading()], ViewDirY*LookupTables::Angle16ToCos[Player->GetHeading()], ViewDirZ);
+    const EntityStateT& State   = Player->GetState();
+    const Vector3dT     ViewDir = Player->GetViewDir();
 
     // Update sound position and velocity.
     AltFireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 16.0));
@@ -348,13 +334,7 @@ void CarriedWeapon9mmART::ClientSide_HandleStateDrivenEffects(const EntHumanPlay
     {
         if (State.ActiveWeaponFrameNr==0.0)
         {
-            const unsigned short Pitch  =Player->GetPitch()  +(rand() % 400)-200;  // ca. 2°
-            const unsigned short Heading=Player->GetHeading()+(rand() % 400)-200;  // ca. 2°
-
-            const float ViewDirZ=-LookupTables::Angle16ToSin[Pitch];
-            const float ViewDirY= LookupTables::Angle16ToCos[Pitch];
-
-            const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Heading], ViewDirY*LookupTables::Angle16ToCos[Heading], ViewDirZ);
+            const Vector3dT ViewDir = Player->GetViewDir(0.03492);  // ca. 2°
 
             RayResultT RayResult(Player->GetRigidBody());
             Player->GameWorld->GetPhysicsWorld().TraceRay(UnitsToPhys(Player->GetOrigin()), scale(ViewDir, 9999999.0/1000.0), RayResult);

@@ -189,13 +189,7 @@ void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, const Play
                     // If we are on the server-side, find out what or who we hit.
                     for (char i=0; i<8; i++)
                     {
-                        const unsigned short Pitch  =Player->GetPitch()  +(rand() % 910)-455;  // ca. 5°
-                        const unsigned short Heading=Player->GetHeading()+(rand() % 910)-455;  // ca. 5°
-
-                        const float ViewDirZ=-LookupTables::Angle16ToSin[Pitch];
-                        const float ViewDirY= LookupTables::Angle16ToCos[Pitch];
-
-                        const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Heading], ViewDirY*LookupTables::Angle16ToCos[Heading], ViewDirZ);
+                        const Vector3dT ViewDir = Player->GetViewDir(0.08748866);   // ca. 5°
 
                         RayResultT RayResult(Player->GetRigidBody());
                         Player->GameWorld->GetPhysicsWorld().TraceRay(UnitsToPhys(Player->GetOrigin()), scale(ViewDir, 9999999.0/1000.0), RayResult);
@@ -221,13 +215,7 @@ void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, const Play
                     // If we are on the server-side, find out what or who we hit.
                     for (char i=0; i<16; i++)
                     {
-                        const unsigned short Pitch  =Player->GetPitch()  +(rand() % 910)-455;  // ca. 5°
-                        const unsigned short Heading=Player->GetHeading()+(rand() % 910)-455;  // ca. 5°
-
-                        const float ViewDirZ=-LookupTables::Angle16ToSin[Pitch];
-                        const float ViewDirY= LookupTables::Angle16ToCos[Pitch];
-
-                        const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Heading], ViewDirY*LookupTables::Angle16ToCos[Heading], ViewDirZ);
+                        const Vector3dT ViewDir = Player->GetViewDir(0.08748866);   // ca. 5°
 
                         RayResultT RayResult(Player->GetRigidBody());
                         Player->GameWorld->GetPhysicsWorld().TraceRay(UnitsToPhys(Player->GetOrigin()), scale(ViewDir, 9999999.0/1000.0), RayResult);
@@ -309,13 +297,7 @@ void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlay
 
     for (char i=0; i<8; i++)
     {
-        const unsigned short Pitch  =Player->GetPitch()  +(rand() % 910)-455;  // ca. 5°
-        const unsigned short Heading=Player->GetHeading()+(rand() % 910)-455;  // ca. 5°
-
-        const float ViewDirZ=-LookupTables::Angle16ToSin[Pitch];
-        const float ViewDirY= LookupTables::Angle16ToCos[Pitch];
-
-        const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Heading], ViewDirY*LookupTables::Angle16ToCos[Heading], ViewDirZ);
+        const Vector3dT ViewDir = Player->GetViewDir(0.08748866);   // ca. 5°
 
         RayResultT RayResult(Player->GetRigidBody());
         Player->GameWorld->GetPhysicsWorld().TraceRay(UnitsToPhys(Player->GetOrigin()), scale(ViewDir, 9999999.0/1000.0), RayResult);
@@ -344,9 +326,7 @@ void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlay
         ParticleEngineMS::RegisterNewParticle(NewParticle);
     }
 
-    const float   ViewDirZ=-LookupTables::Angle16ToSin[Player->GetPitch()];
-    const float   ViewDirY= LookupTables::Angle16ToCos[Player->GetPitch()];
-    const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Player->GetHeading()], ViewDirY*LookupTables::Angle16ToCos[Player->GetHeading()], ViewDirZ);
+    const Vector3dT ViewDir = Player->GetViewDir();
 
     // Register a new particle as "muzzle flash".
     ParticleMST NewParticle;
@@ -388,13 +368,7 @@ void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(const EntHumanPl
 
     for (char i=0; i<16; i++)
     {
-        const unsigned short Pitch  =Player->GetPitch()  +(rand() % 910)-455;  // ca. 5°
-        const unsigned short Heading=Player->GetHeading()+(rand() % 910)-455;  // ca. 5°
-
-        const float ViewDirZ=-LookupTables::Angle16ToSin[Pitch];
-        const float ViewDirY= LookupTables::Angle16ToCos[Pitch];
-
-        const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Heading], ViewDirY*LookupTables::Angle16ToCos[Heading], ViewDirZ);
+        const Vector3dT ViewDir = Player->GetViewDir(0.08748866);   // ca. 5°
 
         RayResultT RayResult(Player->GetRigidBody());
         Player->GameWorld->GetPhysicsWorld().TraceRay(UnitsToPhys(Player->GetOrigin()), scale(ViewDir, 9999999.0/1000.0), RayResult);
@@ -423,9 +397,7 @@ void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(const EntHumanPl
         ParticleEngineMS::RegisterNewParticle(NewParticle);
     }
 
-    const float   ViewDirZ=-LookupTables::Angle16ToSin[Player->GetPitch()];
-    const float   ViewDirY= LookupTables::Angle16ToCos[Player->GetPitch()];
-    const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Player->GetHeading()], ViewDirY*LookupTables::Angle16ToCos[Player->GetHeading()], ViewDirZ);
+    const Vector3dT ViewDir = Player->GetViewDir();
 
     // Register a new particle as "muzzle flash".
     ParticleMST NewParticle;

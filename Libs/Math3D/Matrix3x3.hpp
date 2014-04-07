@@ -98,6 +98,10 @@ namespace cf
             /// Returns the i-th row of this matrix.
             const T* operator [] (unsigned long i) const { assert(i<3); return m[i]; }
 
+            /// Returns the i-th column of this matrix.
+            /// The i-th column of the matrix corresponds to the i-th axis of the represented coordinate-system.
+            Vector3T<T> GetAxis(unsigned int i) const { return Vector3T<T>(m[0][i], m[1][i], m[2][i]); }
+
             /// Computes M*Other, that is, the matrix product of this and the Other matrix.
             /// @param  Other   The other matrix (right side).
             /// @return The matrix product of this and the Other matrix.

@@ -48,6 +48,7 @@ namespace GAME_NAME
         unsigned short GetPitch() const { return m_Pitch; }
         unsigned short GetBank() const { return m_Bank; }
         const btRigidBody* GetRigidBody() const { return m_RigidBody; }
+        Vector3dT GetViewDir(double Random = 0.0) const;
 
         /// Increases the frag count of this entity by the given number.
         void AddFrag(int NumFrags=1);

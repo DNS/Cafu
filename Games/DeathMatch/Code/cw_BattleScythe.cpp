@@ -161,12 +161,8 @@ void CarriedWeaponBattleScytheT::ServerSide_Think(EntHumanPlayerT* Player, const
 
 void CarriedWeaponBattleScytheT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT* Player, const VectorT& /*LastSeenAmbientColor*/) const
 {
-    const EntityStateT& State=Player->GetState();
-
-    const float ViewDirZ=-LookupTables::Angle16ToSin[Player->GetPitch()];
-    const float ViewDirY= LookupTables::Angle16ToCos[Player->GetPitch()];
-
-    const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Player->GetHeading()], ViewDirY*LookupTables::Angle16ToCos[Player->GetHeading()], ViewDirZ);
+    const EntityStateT& State   = Player->GetState();
+    const Vector3dT     ViewDir = Player->GetViewDir();
 
     // Update sound position and velocity.
     FireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 12.0));
@@ -179,12 +175,8 @@ void CarriedWeaponBattleScytheT::ClientSide_HandlePrimaryFireEvent(const EntHuma
 
 void CarriedWeaponBattleScytheT::ClientSide_HandleSecondaryFireEvent(const EntHumanPlayerT* Player, const VectorT& /*LastSeenAmbientColor*/) const
 {
-    const EntityStateT& State=Player->GetState();
-
-    const float ViewDirZ=-LookupTables::Angle16ToSin[Player->GetPitch()];
-    const float ViewDirY= LookupTables::Angle16ToCos[Player->GetPitch()];
-
-    const VectorT ViewDir(ViewDirY*LookupTables::Angle16ToSin[Player->GetHeading()], ViewDirY*LookupTables::Angle16ToCos[Player->GetHeading()], ViewDirZ);
+    const EntityStateT& State   = Player->GetState();
+    const Vector3dT     ViewDir = Player->GetViewDir();
 
     // Update sound position and velocity.
     FireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 12.0));

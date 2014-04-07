@@ -112,9 +112,6 @@ namespace GAME_NAME
         virtual const BoundingBox3dT& GetDimensions() const { return m_Dimensions; }
         virtual void GetBodyOrientation(unsigned short& h, unsigned short& p, unsigned short& b) const { h=m_Heading; p=m_Pitch; b=m_Bank; }
 
-        /// Returns the heading of this entity.
-        unsigned short GetHeading() const { return m_Heading; }
-
 
         // Some convenience functions for reading the Properties.
         // Actually, the Properties should be replaced by a PropDictT class that has these functions as its methods...

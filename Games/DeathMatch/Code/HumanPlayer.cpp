@@ -164,6 +164,32 @@ EntHumanPlayerT::~EntHumanPlayerT()
 }
 
 
+Vector3dT EntHumanPlayerT::GetViewDir(double Random) const
+{
+    IntrusivePtrT<cf::GameSys::ComponentTransformT> Trafo = m_Entity->GetTransform();
+
+    if (m_Entity->GetChildren().Size() > 0)
+    {
+        // The normal, expected case: Use the entity's camera transform.
+        Trafo = m_Entity->GetChildren()[0]->GetTransform();
+    }
+
+    const cf::math::Matrix3x3fT Mat(Trafo->GetQuatWS());
+
+    Vector3dT ViewDir = Mat.GetAxis(1).AsVectorOfDouble();
+
+    if (Random > 0.0)
+    {
+        ViewDir += Mat.GetAxis(0).AsVectorOfDouble() * ((rand() % 10000 - 5000) / 5000.0) * Random;
+        ViewDir += Mat.GetAxis(2).AsVectorOfDouble() * ((rand() % 10000 - 5000) / 5000.0) * Random;
+
+        ViewDir = normalizeOr0(ViewDir);
+    }
+
+    return ViewDir;
+}
+
+
 void EntHumanPlayerT::NotifyLeaveMap()
 {
     if (GuiHUD != NULL)
@@ -238,8 +264,6 @@ void EntHumanPlayerT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT
 
     if (State.Health<=Amount)
     {
-        unsigned short DeltaAngle=Entity->GetHeading()-m_Heading;
-
         State.StateOfExistance=StateOfExistance_Dead;
         State.Health=0;
 
@@ -250,13 +274,19 @@ void EntHumanPlayerT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT
         if (CompCollMdl != NULL)
             CompCollMdl->SetMember("Name", std::string(""));
 
-             if (DeltaAngle>=57344 || DeltaAngle< 8192) Model3rdPerson->SetMember("Animation", 21);   // 315° ...  45° - die forwards
-        else if (DeltaAngle>=8192  && DeltaAngle<16384) Model3rdPerson->SetMember("Animation", 22);   //  45° ...  90° - headshot
-        else if (DeltaAngle>=16384 && DeltaAngle<24576) Model3rdPerson->SetMember("Animation", 24);   //  90° ... 135° - gutshot
-        else if (DeltaAngle>=24576 && DeltaAngle<32768) Model3rdPerson->SetMember("Animation", 19);   // 135° ... 180° - die backwards1
-        else if (DeltaAngle>=32768 && DeltaAngle<40960) Model3rdPerson->SetMember("Animation", 20);   // 180° ... 225° - die backwards
-        else if (DeltaAngle>=40960 && DeltaAngle<49152) Model3rdPerson->SetMember("Animation", 18);   // 225° ... 270° - die simple
-        else /* (DeltaAngle>=49152&&DeltaAngle<57344)*/ Model3rdPerson->SetMember("Animation", 23);   // 270° ... 315° - die spin
+        const cf::math::Matrix3x3fT Mat(m_Entity->GetTransform()->GetQuatWS());
+
+        const float d1 = dot(Mat.GetAxis(0), ImpactDir.AsVectorOfFloat());
+        const float d2 = dot(Mat.GetAxis(1), ImpactDir.AsVectorOfFloat());
+
+        if (d1 > 0.7)
+            Model3rdPerson->SetMember("Animation", 21);                 // die forwards (315° ...  45°)
+        else if (d1 > 0.0)
+            Model3rdPerson->SetMember("Animation", d2 > 0 ? 23 : 22);   // die spin (270° ... 315°), headshot (45° ...  90°)
+        else if (d1 > -0.7)
+            Model3rdPerson->SetMember("Animation", d2 > 0 ? 18 : 24);   // die simple (225° ... 270°), gutshot (90° ... 135°)
+        else
+            Model3rdPerson->SetMember("Animation", d2 > 0 ? 20 : 19);   // die backwards (180° ... 225°), die backwards1 (135° ... 180°)
 
         // GameWorld->BroadcastText("%s was killed by %s", State.PlayerName, Entity->State.PlayerName);
 
@@ -897,7 +927,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                             IntrusivePtrT<cf::GameSys::EntityT> Ent = Corpse->m_Entity;
 
                             Ent->GetTransform()->SetOriginWS(Origin);
-                            Ent->GetTransform()->SetQuatWS(cf::math::QuaternionfT::Euler(0, float((90.0 - GetHeading()/8192.0*45.0) * 3.1415926 / 180.0), 0));
+                            Ent->GetTransform()->SetQuatWS(m_Entity->GetTransform()->GetQuatWS());
 
                             IntrusivePtrT<cf::GameSys::ComponentModelT> ModelComp = new cf::GameSys::ComponentModelT(*PlayerModelComp);
                             Ent->AddComponent(ModelComp);
@@ -997,9 +1027,10 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
                 // Respawn!
                 m_Entity->GetTransform()->SetOriginWS(OurNewOrigin.AsVectorOfFloat());
+                m_Entity->GetTransform()->SetQuatWS(IPSEntity->m_Entity->GetTransform()->GetQuatWS());  // TODO: Can we make sure that the z-axis points straight up, i.e. bank and pitch are 0?
                 State.Velocity           =VectorT();
                 m_Dimensions             =BoundingBox3dT(Vector3dT(16.0, 16.0, 4.0), Vector3dT(-16.0, -16.0, -68.0));
-                m_Heading                =IPSEntity->GetHeading();
+                m_Heading                =0;  // IPSEntity->GetHeading();
                 m_Pitch                  =0;
                 m_Bank                   =0;
                 State.StateOfExistance   =StateOfExistance_Alive;
