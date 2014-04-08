@@ -29,7 +29,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "PhysicsWorld.hpp"
 #include "Libs/LookupTables.hpp"
 
-#include "SoundSystem/SoundSys.hpp"
 #include "../../GameWorld.hpp"
 #include "../../PlayerCommand.hpp"
 #include "ClipSys/ClipWorld.hpp"
@@ -1266,16 +1265,6 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
                 else GuiHUD->GetScriptState().Call("UpdateCrosshairMaterial", "s", "");
             }
         }
-
-
-        // Update listener here since this is the entity of the player.
-        const float ViewX=sin(float(m_Heading)/32768.0f*3.1415926f);
-        const float ViewY=cos(float(m_Heading)/32768.0f*3.1415926f);
-
-        Vector3fT OrientationForward(ViewX, ViewY, 0.0f);
-        Vector3fT OrientationUp     ( 0.0f,  0.0f, 1.0f);
-
-        SoundSystem->UpdateListener(m_Entity->GetTransform()->GetOriginWS().AsVectorOfDouble(), State.Velocity, OrientationForward, OrientationUp);
     }
 }
 

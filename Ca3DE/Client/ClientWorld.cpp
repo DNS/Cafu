@@ -25,15 +25,18 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClipSys/CollisionModel_static.hpp"
 #include "ClipSys/CollisionModelMan.hpp"
 #include "ConsoleCommands/ConVar.hpp"
+#include "GameSys/CompPlayerPhysics.hpp"
 #include "GameSys/Entity.hpp"
 #include "GameSys/EntityCreateParams.hpp"
 #include "GameSys/World.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix.hpp"
+#include "Math3D/Matrix3x3.hpp"
 #include "Network/Network.hpp"
 #include "SceneGraph/Node.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
 #include "SceneGraph/FaceNode.hpp"
+#include "SoundSystem/SoundSys.hpp"
 #include "Win32/Win32PrintHelp.hpp"
 #include "DebugLog.hpp"
 #include "../Common/CompGameEntity.hpp"
@@ -676,28 +679,31 @@ void CaClientWorldT::DrawEntities(unsigned long OurEntityID, bool SkipOurEntity,
 
 void CaClientWorldT::PostDrawEntities(float FrameTime, const ArrayT<unsigned long>& EntityIDs) const
 {
-    for (unsigned long IDNr=0; IDNr<EntityIDs.Size(); IDNr++)
+    for (unsigned long IDNr = 0; IDNr < EntityIDs.Size(); IDNr++)
     {
-        const unsigned long EntityID=EntityIDs[IDNr];
+        const unsigned long EntityID    = EntityIDs[IDNr];
+        const bool          FirstPerson = (EntityID == OurEntityID);
 
-        if (EntityID!=OurEntityID && EntityID<m_EngineEntities.Size())
-            if (m_EngineEntities[EntityID]!=NULL)
-            {
-                m_EngineEntities[EntityID]->PostDraw(FrameTime, false);
-
-                IntrusivePtrT<cf::GameSys::EntityT> Ent = m_EngineEntities[EntityID]->GetEntity();
-
-                Ent->OnClientFrame(FrameTime);
-            }
-    }
-
-    if (OurEntityID<m_EngineEntities.Size())
-        if (m_EngineEntities[OurEntityID]!=NULL)
+        if (EntityID < m_EngineEntities.Size() && m_EngineEntities[EntityID] != NULL)
         {
-            m_EngineEntities[OurEntityID]->PostDraw(FrameTime, true);
+            m_EngineEntities[EntityID]->PostDraw(FrameTime, FirstPerson);
 
-            IntrusivePtrT<cf::GameSys::EntityT> Ent = m_EngineEntities[OurEntityID]->GetEntity();
+            IntrusivePtrT<cf::GameSys::EntityT> Ent = m_EngineEntities[EntityID]->GetEntity();
 
             Ent->OnClientFrame(FrameTime);
+
+            if (FirstPerson && Ent->GetChildren().Size() > 0)
+            {
+                // Update the sound system listener.
+                IntrusivePtrT<const cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(Ent->GetComponent("PlayerPhysics"));
+                IntrusivePtrT<const cf::GameSys::ComponentTransformT>     CameraTrafo = Ent->GetChildren()[0]->GetTransform();
+                const cf::math::Matrix3x3fT                               CameraMat(CameraTrafo->GetQuatWS());
+
+                SoundSystem->UpdateListener(
+                    CameraTrafo->GetOriginWS().AsVectorOfDouble(),
+                    CompPlayerPhysics != NULL ? CompPlayerPhysics->GetVelocity() : Vector3dT(),
+                    CameraMat.GetAxis(1), CameraMat.GetAxis(2));
+            }
         }
+    }
 }
