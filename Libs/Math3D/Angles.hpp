@@ -53,8 +53,11 @@ namespace cf
         /// For this purpose, all related code in Cafu (e.g. the matrix and quaternion classes) uses the
         /// following conventions:
         ///
-        ///   - As everywhere in Cafu, a right-handed coordinate system is used: the x-axis points right,
-        ///     the y-axis points forward, and the z-axis points up.
+        ///   - As everywhere in Cafu, a right-handed coordinate system is used: In world space, the x-axis
+        ///     points right, the y-axis points forward, and the z-axis points up.
+        ///     However, note that our entities and cameras, as detailed below, "look along" their x-axis,
+        ///     so that for them, the x-axis points forward, the y-axis points left, and the z-axis points up.
+        ///     It is this orientation that the following definitions of angles refer to.
         ///
         ///   - The rotations are done
         ///       - first about the z-axis (by the "heading" or "yaw" angle),
@@ -101,10 +104,10 @@ namespace cf
 
 
             // The "this->" cannot be omitted here, or else g++ 4.2.3 complains that "'x' was not declared in this scope".
-            T& pitch() { return this->x; }              ///< Provides the alias for the angle of rotation around the x-axis.
+            T& pitch() { return this->x; }              ///< Provides the alias for the angle of rotation around the x-axis. TODO: The impl. should actually use y, not x here!
             const T& pitch() const { return this->x; }  ///< Provides the alias for the angle of rotation around the x-axis.
 
-            T& roll() { return this->y; }               ///< Provides the alias for the angle of rotation around the y-axis.
+            T& roll() { return this->y; }               ///< Provides the alias for the angle of rotation around the y-axis. TODO: The impl. should actually use x, not y here!
             const T& roll() const { return this->y; }   ///< Provides the alias for the angle of rotation around the y-axis.
 
             T& yaw() { return this->z; }                ///< Provides the alias for the angle of rotation around the z-axis.

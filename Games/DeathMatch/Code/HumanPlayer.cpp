@@ -46,6 +46,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Renderer.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
+#include "Math3D/Angles.hpp"
 #include "Models/AnimPose.hpp"
 #include "Models/Model_cmdl.hpp"
 #include "Network/State.hpp"
@@ -127,8 +128,8 @@ EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
 
     // Because 'StateOfExistance==StateOfExistance_FrozenSpectator', we mis-use the 'Velocity' member variable a little
     // for slightly turning/swaying the head in this state. See the 'Think()' code below!
-    State.Velocity.y=m_Heading;
-    State.Velocity.z=m_Bank;
+    // TODO: HEAD SWAY: State.Velocity.y=m_Heading;
+    // TODO: HEAD SWAY: State.Velocity.z=m_Bank;
 
 
     // This would be the proper way to do it, but we don't know here whether this is the local human player of a client.
@@ -358,12 +359,9 @@ bool EntHumanPlayerT::CheckGUI(IntrusivePtrT<cf::GameSys::ComponentModelT> CompM
 
 
     // 3. Are we looking roughly into the screen normal?
-    const Vector3fT GuiNormal=normalize(cross(GuiAxisY, GuiAxisX), 0.0f);
-    const Plane3fT  GuiPlane =Plane3fT(GuiNormal, dot(GuiOrigin, GuiNormal));
-
-    const float     ViewDirZ =-LookupTables::Angle16ToSin[m_Pitch];
-    const float     ViewDirY = LookupTables::Angle16ToCos[m_Pitch];
-    const Vector3fT ViewDir  =Vector3fT(ViewDirY*LookupTables::Angle16ToSin[m_Heading], ViewDirY*LookupTables::Angle16ToCos[m_Heading], ViewDirZ);
+    const Vector3fT GuiNormal = normalize(cross(GuiAxisY, GuiAxisX), 0.0f);
+    const Plane3fT  GuiPlane  = Plane3fT(GuiNormal, dot(GuiOrigin, GuiNormal));
+    const Vector3fT ViewDir   = GetViewDir().AsVectorOfFloat();
 
     if (-dot(ViewDir, GuiPlane.Normal)<0.001f) return false;
 
@@ -470,49 +468,63 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     GameWorld->GetPhysicsWorld().AddRigidBody(m_RigidBody);
 
                 // Update Heading
-                m_Heading+=PlayerCommands[PCNr].DeltaHeading;
+                {
+                    cf::math::AnglesfT Angles(m_Entity->GetTransform()->GetQuatPS());       // We actually rotate the entity.
 
-                if (PlayerCommands[PCNr].Keys & PCK_TurnLeft ) m_Heading-=(unsigned short)(21845.0*PlayerCommands[PCNr].FrameTime);
-                if (PlayerCommands[PCNr].Keys & PCK_TurnRight) m_Heading+=(unsigned short)(21845.0*PlayerCommands[PCNr].FrameTime);
+                    Angles.yaw() -= PlayerCommands[PCNr].DeltaHeading / 8192.0f * 45.0f;
 
-                // Update Pitch
-                int OldPitch=m_Pitch;                         if (OldPitch>=32768) OldPitch-=65536;
-                int DltPitch=PlayerCommands[PCNr].DeltaPitch; if (DltPitch>=32768) DltPitch-=65536;
-                int NewPitch=OldPitch+DltPitch;
+                    if (PlayerCommands[PCNr].Keys & PCK_TurnLeft ) Angles.yaw() += 120.0f * PlayerCommands[PCNr].FrameTime;
+                    if (PlayerCommands[PCNr].Keys & PCK_TurnRight) Angles.yaw() -= 120.0f * PlayerCommands[PCNr].FrameTime;
 
-                if (PlayerCommands[PCNr].Keys & PCK_LookUp  ) NewPitch-=int(21845.0*PlayerCommands[PCNr].FrameTime);
-                if (PlayerCommands[PCNr].Keys & PCK_LookDown) NewPitch+=int(21845.0*PlayerCommands[PCNr].FrameTime);
+                    Angles.pitch() = 0.0f;
+                    Angles.roll()  = 0.0f;
 
-                if (NewPitch> 16384) NewPitch= 16384;
-                if (NewPitch<-16384) NewPitch=-16384;
+                    m_Entity->GetTransform()->SetQuatPS(cf::math::QuaternionfT(Angles));
+                }
 
-                if (NewPitch<0) NewPitch+=65536;
-                m_Pitch=NewPitch;
+                // Update Pitch and Bank
+                {
+                    cf::math::AnglesfT Angles(m_Entity->GetChildren()[0]->GetTransform()->GetQuatPS());     // We update the camera, not the entity.
 
-                // Update Bank
-                m_Bank+=PlayerCommands[PCNr].DeltaBank;
+                    const int dp = PlayerCommands[PCNr].DeltaPitch;
+                    Angles.pitch() += (dp < 32768 ? dp : dp - 65536) / 8192.0f * 45.0f;
+
+                    if (PlayerCommands[PCNr].Keys & PCK_LookUp  ) Angles.pitch() -= 120.0f * PlayerCommands[PCNr].FrameTime;
+                    if (PlayerCommands[PCNr].Keys & PCK_LookDown) Angles.pitch() += 120.0f * PlayerCommands[PCNr].FrameTime;
+
+                    if (Angles.pitch() >  90.0f) Angles.pitch() =  90.0f;
+                    if (Angles.pitch() < -90.0f) Angles.pitch() = -90.0f;
+
+                    const int db = PlayerCommands[PCNr].DeltaBank;
+                    Angles.roll() += (db < 32768 ? db : db - 65536) / 8192.0f * 45.0f;
+
+                    if (PlayerCommands[PCNr].Keys & PCK_CenterView)
+                    {
+                        Angles.yaw()   = 0.0f;
+                        Angles.pitch() = 0.0f;
+                        Angles.roll()  = 0.0f;
+                    }
+
+                    m_Entity->GetChildren()[0]->GetTransform()->SetQuatPS(cf::math::QuaternionfT(Angles));
+                }
 
 
                 VectorT             WishVelocity;
                 bool                WishJump=false;
-                const double        VelX    =240.0*LookupTables::Angle16ToSin[m_Heading];     // 240 == Client.MoveSpeed
-                const double        VelY    =240.0*LookupTables::Angle16ToCos[m_Heading];     // 240 == Client.MoveSpeed
+                const Vector3dT     Vel     = cf::math::Matrix3x3fT(m_Entity->GetTransform()->GetQuatWS()).GetAxis(0).AsVectorOfDouble() * 240.0;
                 const unsigned long Keys    =PlayerCommands[PCNr].Keys;
 
-                if (Keys & PCK_MoveForward ) WishVelocity=             VectorT( VelX,  VelY, 0);
-                if (Keys & PCK_MoveBackward) WishVelocity=WishVelocity+VectorT(-VelX, -VelY, 0);
-                if (Keys & PCK_StrafeLeft  ) WishVelocity=WishVelocity+VectorT(-VelY,  VelX, 0);
-                if (Keys & PCK_StrafeRight ) WishVelocity=WishVelocity+VectorT( VelY, -VelX, 0);
+                if (Keys & PCK_MoveForward ) WishVelocity=             VectorT( Vel.x,  Vel.y, 0);
+                if (Keys & PCK_MoveBackward) WishVelocity=WishVelocity+VectorT(-Vel.x, -Vel.y, 0);
+                if (Keys & PCK_StrafeLeft  ) WishVelocity=WishVelocity+VectorT(-Vel.y,  Vel.x, 0);
+                if (Keys & PCK_StrafeRight ) WishVelocity=WishVelocity+VectorT( Vel.y, -Vel.x, 0);
 
-                if (Keys & PCK_CenterView  ) { m_Pitch=0; m_Bank=0; }
                 if (Keys & PCK_Jump        ) WishJump=true;
              // if (Keys & PCK_Duck        ) ;
                 if (Keys & PCK_Walk        ) WishVelocity=scale(WishVelocity, 0.5);
 
                 VectorT       WishVelLadder;
-                const double  ViewLadderZ=-LookupTables::Angle16ToSin[m_Pitch];
-                const double  ViewLadderY= LookupTables::Angle16ToCos[m_Pitch];
-                const VectorT ViewLadder =scale(VectorT(ViewLadderY*LookupTables::Angle16ToSin[m_Heading], ViewLadderY*LookupTables::Angle16ToCos[m_Heading], ViewLadderZ), 150.0);
+                const VectorT ViewLadder = GetViewDir() * 150.0;
 
                 // TODO: Also take LATERAL movement into account.
                 // TODO: All this needs a HUGE clean-up! Can probably put a lot of this stuff into Physics::MoveHuman.
@@ -904,7 +916,10 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
                     m_Dimensions.Min.z+=Collapse;
                     m_Dimensions.Max.z+=Collapse;
-                    m_Bank            +=(unsigned short)(PlayerCommands[PCNr].FrameTime*36000.0);
+
+                    cf::math::AnglesfT Angles(m_Entity->GetChildren()[0]->GetTransform()->GetQuatPS());     // We update the camera, not the entity.
+                    Angles.roll() += PlayerCommands[PCNr].FrameTime * 200.0f;
+                    m_Entity->GetChildren()[0]->GetTransform()->SetQuatPS(cf::math::QuaternionfT(Angles));
                 }
 
                 // We entered this state after we died.
@@ -936,8 +951,8 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                         }
                     }
 
-                    State.Velocity.y=m_Heading;
-                    State.Velocity.z=m_Bank;
+                    // TODO: HEAD SWAY: State.Velocity.y=m_Heading;
+                    // TODO: HEAD SWAY: State.Velocity.z=m_Bank;
                     m_Dimensions=BoundingBox3dT(Vector3dT(16.0, 16.0, 4.0), Vector3dT(-16.0, -16.0, -68.0));
                     State.StateOfExistance=StateOfExistance_FrozenSpectator;
                 }
@@ -961,8 +976,8 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
                 const float SwingAngle=float(sin(State.Velocity.x)*200.0);
 
-                m_Heading=(unsigned short)(State.Velocity.y+SwingAngle);
-                m_Bank   =(unsigned short)(State.Velocity.z-SwingAngle);
+                // TODO: HEAD SWAY: m_Heading=(unsigned short)(State.Velocity.y+SwingAngle);
+                // TODO: HEAD SWAY: m_Bank   =(unsigned short)(State.Velocity.z-SwingAngle);
 
                 // TODO: We want the player to release the button between respawns in order to avoid permanent "respawn-flickering"
                 //       that otherwise may occur if the player keeps the button continuously pressed down.
@@ -1027,11 +1042,9 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 // Respawn!
                 m_Entity->GetTransform()->SetOriginWS(OurNewOrigin.AsVectorOfFloat());
                 m_Entity->GetTransform()->SetQuatWS(IPSEntity->m_Entity->GetTransform()->GetQuatWS());  // TODO: Can we make sure that the z-axis points straight up, i.e. bank and pitch are 0?
+                m_Entity->GetChildren()[0]->GetTransform()->SetQuatPS(cf::math::QuaternionfT());
                 State.Velocity           =VectorT();
                 m_Dimensions             =BoundingBox3dT(Vector3dT(16.0, 16.0, 4.0), Vector3dT(-16.0, -16.0, -68.0));
-                m_Heading                =0;  // IPSEntity->GetHeading();
-                m_Pitch                  =0;
-                m_Bank                   =0;
                 State.StateOfExistance   =StateOfExistance_Alive;
                 Model3rdPerson->SetMember("Animation", 0);
                 State.Health             =100;
@@ -1092,6 +1105,7 @@ void EntHumanPlayerT::Draw(bool FirstPersonView, float LodDist) const
         // Draw "view" model of the weapon
         if (State.HaveWeapons & (1 << State.ActiveWeaponSlot))     // Only draw the active weapon if we actually "have" it
         {
+#if 0     // TODO!
             Vector3fT LgtPos(MatSys::Renderer->GetCurrentLightSourcePosition());
             Vector3fT EyePos(MatSys::Renderer->GetCurrentEyePosition());
 
@@ -1109,6 +1123,7 @@ void EntHumanPlayerT::Draw(bool FirstPersonView, float LodDist) const
 
             MatSys::Renderer->SetCurrentLightSourcePosition(LgtPos.x, LgtPos.y, LgtPos.z);
             MatSys::Renderer->SetCurrentEyePosition(EyePos.x, EyePos.y, EyePos.z);
+#endif
 
 
             const CafuModelT* WeaponModel=GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->GetViewWeaponModel();

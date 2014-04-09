@@ -45,8 +45,6 @@ namespace GAME_NAME
 
         EntityStateT& GetState() { return State; }
         const EntityStateT& GetState() const { return State; }
-        unsigned short GetPitch() const { return m_Pitch; }
-        unsigned short GetBank() const { return m_Bank; }
         const btRigidBody* GetRigidBody() const { return m_RigidBody; }
         Vector3dT GetViewDir(double Random = 0.0) const;
 

@@ -100,9 +100,6 @@ BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT
       ClipModel(GameWorld->GetClipWorld()),  // Creates a clip model in the given clip world with a NULL collision model.
 
       m_Dimensions(Dimensions),
-      m_Heading(0),
-      m_Pitch(0),
-      m_Bank(0),
       m_EventsCount(),
       m_EventsRef(),
       m_Interpolators()
@@ -114,18 +111,6 @@ BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT
     {
         m_EventsCount[i] = 0;
         m_EventsRef  [i] = 0;
-    }
-
-    // Evaluate the common 'Properties'.
-    std::map<std::string, std::string>::const_iterator It=Properties.find("angles");
-
-    if (It!=Properties.end())
-    {
-        double d;
-        std::istringstream iss(It->second);
-
-        iss >> d; iss >> d;
-        m_Heading=(unsigned short)(d*8192.0/45.0);
     }
 
     ClipModel.SetCollisionModel(CollisionModel);
@@ -154,9 +139,6 @@ void BaseEntityT::Serialize(cf::Network::OutStreamT& Stream) const
 {
     Stream << float(m_Dimensions.Min.z);
     Stream << float(m_Dimensions.Max.z);
-    Stream << m_Heading;
-    Stream << m_Pitch;
-    Stream << m_Bank;
 
     for (unsigned int i = 0; i < m_EventsCount.Size(); i++)
         Stream << m_EventsCount[i];
@@ -172,9 +154,6 @@ void BaseEntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
 
     Stream >> f; m_Dimensions.Min.z=f;
     Stream >> f; m_Dimensions.Max.z=f;
-    Stream >> m_Heading;
-    Stream >> m_Pitch;
-    Stream >> m_Bank;
 
     for (unsigned int i = 0; i < m_EventsCount.Size(); i++)
         Stream >> m_EventsCount[i];

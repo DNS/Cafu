@@ -110,7 +110,7 @@ namespace GAME_NAME
         virtual cf::GameSys::GameWorldI* GetGameWorld() const { return GameWorld; }
         virtual Vector3dT GetOrigin() const { return m_Entity->GetTransform()->GetOriginWS().AsVectorOfDouble(); }
         virtual const BoundingBox3dT& GetDimensions() const { return m_Dimensions; }
-        virtual void GetBodyOrientation(unsigned short& h, unsigned short& p, unsigned short& b) const { h=m_Heading; p=m_Pitch; b=m_Bank; }
+        virtual void GetBodyOrientation(unsigned short& h, unsigned short& p, unsigned short& b) const { h=0; p=0; b=0; /*TODO: this method is called from obsolete methods only...*/ }
 
 
         // Some convenience functions for reading the Properties.
@@ -202,9 +202,6 @@ namespace GAME_NAME
         void Register(ApproxBaseT* Interp);
 
         BoundingBox3dT m_Dimensions;    ///< The bounding box of this entity (relative to the origin).
-        unsigned short m_Heading;       ///< Heading (north is along the ??-axis).
-        unsigned short m_Pitch;         ///< Pitch (for looking up/down).
-        unsigned short m_Bank;          ///< Bank (e.g. used when dead and lying on the side).
 
 
         private:
