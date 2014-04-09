@@ -175,7 +175,7 @@ Vector3dT EntHumanPlayerT::GetViewDir(double Random) const
 
     const cf::math::Matrix3x3fT Mat(Trafo->GetQuatWS());
 
-    Vector3dT ViewDir = Mat.GetAxis(1).AsVectorOfDouble();
+    Vector3dT ViewDir = Mat.GetAxis(0).AsVectorOfDouble();
 
     if (Random > 0.0)
     {

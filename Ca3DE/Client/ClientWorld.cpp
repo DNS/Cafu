@@ -402,8 +402,13 @@ void CaClientWorldT::Draw(float FrameTime, IntrusivePtrT<const cf::GameSys::Comp
 {
     MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());
 
+    // In the OpenGL default coordinate system, the camera looks along the negative z-axis.
+    // However, in Cafu we have to have it look along the (positive) x-axis in order to have it comply to
+    // the conventions defined with the cf::math::AnglesT<T> class. Only then can we meaningfully use the
+    // cf::math::AnglesT<T> angles in order to get and set the orientation of camera entities.
     MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW,
-        MatrixT::GetRotateXMatrix(-90.0f) *     // Start with the global Ca3DE coordinate system (not the OpenGL coordinate system).
+        MatrixT::GetRotateXMatrix(-90.0f) *     // See the comment above
+        MatrixT::GetRotateZMatrix( 90.0f) *     // for these two lines.
         CameraTrafo->GetEntityToWorld().GetInverse());
 
 
@@ -702,7 +707,7 @@ void CaClientWorldT::PostDrawEntities(float FrameTime, const ArrayT<unsigned lon
                 SoundSystem->UpdateListener(
                     CameraTrafo->GetOriginWS().AsVectorOfDouble(),
                     CompPlayerPhysics != NULL ? CompPlayerPhysics->GetVelocity() : Vector3dT(),
-                    CameraMat.GetAxis(1), CameraMat.GetAxis(2));
+                    CameraMat.GetAxis(0), CameraMat.GetAxis(2));
             }
         }
     }

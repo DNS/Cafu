@@ -138,10 +138,6 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
         CameraEnt->GetBasics()->SetEntityName("Camera");
         CameraEnt->GetTransform()->SetOriginPS(Vector3fT(-24.0f, 0.0f, 20.0f));
 
-        // Views are rendered along the y-axis, whereas models look along the x-axis.
-        // Therefore, rotate to align the camera's y-axis with the entity's x-axis.
-        CameraEnt->GetTransform()->SetQuatPS(cf::math::QuaternionfT(cf::math::Matrix3x3fT::GetRotateZMatrix(-90.0f)));
-
         NewEnt->AddChild(CameraEnt);
     }
 
