@@ -55,7 +55,6 @@ namespace GAME_NAME
     // This structure describes each entitys state and is transmitted from the server to the clients over the network.
     struct EntityStateT
     {
-        VectorT        Velocity;                // Velocity of this entity.
         char           StateOfExistance;        // For entity defined state machines, e.g. "specator, dead, alive, ...".
         char           Flags;                   // Entity defined flags.
         char           PlayerName[64];          // If it is a human player, this is its name. Usually unused otherwise.
@@ -71,8 +70,7 @@ namespace GAME_NAME
         unsigned short HaveAmmo[16];            // Entity can carry 16 different types of ammo (weapon independent). This is the amount of each.
         unsigned char  HaveAmmoInWeapons[32];   // Entity can carry ammo in each of the 32 weapons. This is the amount of each.
 
-        EntityStateT(const VectorT& Velocity_,
-                     char StateOfExistance_, char Flags_,
+        EntityStateT(char StateOfExistance_, char Flags_,
                      char Health_, char Armor_, unsigned long HaveItems_, unsigned long HaveWeapons_,
                      char ActiveWeaponSlot_, char ActiveWeaponSequNr_, float ActiveWeaponFrameNr_);
     };
@@ -111,16 +109,6 @@ namespace GAME_NAME
         virtual Vector3dT GetOrigin() const { return m_Entity->GetTransform()->GetOriginWS().AsVectorOfDouble(); }
         virtual const BoundingBox3dT& GetDimensions() const { return m_Dimensions; }
         virtual void GetBodyOrientation(unsigned short& h, unsigned short& p, unsigned short& b) const { h=0; p=0; b=0; /*TODO: this method is called from obsolete methods only...*/ }
-
-
-        // Some convenience functions for reading the Properties.
-        // Actually, the Properties should be replaced by a PropDictT class that has these functions as its methods...
-        float       GetProp(const std::string& Key, float       Default=0.0f) const;
-        double      GetProp(const std::string& Key, double      Default=0.0) const;
-        int         GetProp(const std::string& Key, int         Default=0) const;
-        std::string GetProp(const std::string& Key, std::string Default="") const;
-        Vector3fT   GetProp(const std::string& Key, Vector3fT   Default=Vector3fT()) const;
-        Vector3dT   GetProp(const std::string& Key, Vector3dT   Default=Vector3dT()) const;
 
 
         /// This SERVER-SIDE function is used to notify this entity that it was touched by another entity.

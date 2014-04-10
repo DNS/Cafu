@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "HumanPlayer.hpp"
 #include "Constants_WeaponSlots.hpp"
 #include "Libs/LookupTables.hpp"
+#include "GameSys/CompPlayerPhysics.hpp"
 #include "Models/ModelManager.hpp"
 #include "SoundSystem/SoundSys.hpp"
 #include "SoundSystem/SoundShaderManager.hpp"
@@ -165,8 +166,10 @@ void CarriedWeaponBattleScytheT::ClientSide_HandlePrimaryFireEvent(const EntHuma
     const Vector3dT     ViewDir = Player->GetViewDir();
 
     // Update sound position and velocity.
+    IntrusivePtrT<const cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(Player->m_Entity->GetComponent("PlayerPhysics"));
+
     FireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 12.0));
-    FireSound->SetVelocity(State.Velocity);
+    FireSound->SetVelocity(CompPlayerPhysics->GetVelocity());
 
     // Play the fire sound.
     FireSound->Play();
@@ -179,8 +182,10 @@ void CarriedWeaponBattleScytheT::ClientSide_HandleSecondaryFireEvent(const EntHu
     const Vector3dT     ViewDir = Player->GetViewDir();
 
     // Update sound position and velocity.
+    IntrusivePtrT<const cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(Player->m_Entity->GetComponent("PlayerPhysics"));
+
     FireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 12.0));
-    FireSound->SetVelocity(State.Velocity);
+    FireSound->SetVelocity(CompPlayerPhysics->GetVelocity());
 
     // Play the fire sound.
     FireSound->Play();

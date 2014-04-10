@@ -105,8 +105,7 @@ EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
                   BoundingBox3dT(Vector3dT( 16.0,  16.0,   4.0),    // A total of 32*32*72 inches, eye height at 68 inches.
                                  Vector3dT(-16.0, -16.0, -68.0)),
                   NUM_EVENT_TYPES),
-      State(VectorT(),
-            StateOfExistance_FrozenSpectator,
+      State(StateOfExistance_FrozenSpectator,
             0,
             100,    // Health
             0,      // Armor
@@ -212,9 +211,6 @@ void EntHumanPlayerT::AddFrag(int NumFrags)
 
 void EntHumanPlayerT::DoSerialize(cf::Network::OutStreamT& Stream) const
 {
-    Stream << float(State.Velocity.x);
-    Stream << float(State.Velocity.y);
-    Stream << float(State.Velocity.z);
     Stream << State.StateOfExistance;
     Stream << State.Flags;
     Stream << State.PlayerName;       // TODO: In the old code, the PlayerName apparently is read/written in *baseline* messages only.
@@ -236,9 +232,6 @@ void EntHumanPlayerT::DoDeserialize(cf::Network::InStreamT& Stream)
     float    f =0.0f;
     uint32_t ui=0;
 
-    Stream >> f; State.Velocity.x=f;
-    Stream >> f; State.Velocity.y=f;
-    Stream >> f; State.Velocity.z=f;
     Stream >> State.StateOfExistance;
     Stream >> State.Flags;
     Stream >> State.PlayerName;     // TODO: In the old code, the PlayerName apparently is read/written in *baseline* messages only.
@@ -258,9 +251,12 @@ void EntHumanPlayerT::DoDeserialize(cf::Network::InStreamT& Stream)
 void EntHumanPlayerT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT& ImpactDir)
 {
     // Only human players that are still alive can take damage.
-    if (State.StateOfExistance!=StateOfExistance_Alive) return;
+    if (State.StateOfExistance != StateOfExistance_Alive) return;
 
-    State.Velocity=State.Velocity+scale(VectorT(ImpactDir.x, ImpactDir.y, 0.0), 20.0*Amount);
+    IntrusivePtrT<cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(m_Entity->GetComponent("PlayerPhysics"));
+
+    CompPlayerPhysics->SetMember("Velocity",
+        CompPlayerPhysics->GetVelocity() + VectorT(ImpactDir.x, ImpactDir.y, 0.0) * (20.0 * Amount));
 
     if (State.Health<=Amount)
     {
@@ -924,7 +920,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
                 // We entered this state after we died.
                 // Now leave it only after we have come to a complete halt, and the death sequence is over.
-                if (OldOrigin.z >= m_Entity->GetTransform()->GetOriginWS().z && fabs(State.Velocity.x) < 0.1 && fabs(State.Velocity.y) < 0.1 && fabs(State.Velocity.z) < 0.1 /* && TODO: Is death anim sequence over?? */)
+                if (OldOrigin.z >= m_Entity->GetTransform()->GetOriginWS().z && length(CompPlayerPhysics->GetVelocity()) < 0.1 /* && TODO: Is death anim sequence over?? */)
                 {
                     if (ThinkingOnServerSide)
                     {
@@ -962,12 +958,13 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
             case StateOfExistance_FrozenSpectator:
             {
+                if (m_RigidBody->isInWorld())
+                    GameWorld->GetPhysicsWorld().RemoveRigidBody(m_RigidBody);
+
+#if 0   // TODO: HEAD SWAY
                 const float Pi          =3.14159265359f;
                 const float SecPerSwing =15.0f;
                 float       PC_FrameTime=PlayerCommands[PCNr].FrameTime;
-
-                if (m_RigidBody->isInWorld())
-                    GameWorld->GetPhysicsWorld().RemoveRigidBody(m_RigidBody);
 
                 // In this 'StateOfExistance' is the 'State.Velocity' unused - thus mis-use it for other purposes!
                 if (PC_FrameTime>0.05) PC_FrameTime=0.05f;  // Avoid jumpiness with very low FPS.
@@ -976,8 +973,9 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
                 const float SwingAngle=float(sin(State.Velocity.x)*200.0);
 
-                // TODO: HEAD SWAY: m_Heading=(unsigned short)(State.Velocity.y+SwingAngle);
-                // TODO: HEAD SWAY: m_Bank   =(unsigned short)(State.Velocity.z-SwingAngle);
+                m_Heading=(unsigned short)(State.Velocity.y+SwingAngle);
+                m_Bank   =(unsigned short)(State.Velocity.z-SwingAngle);
+#endif
 
                 // TODO: We want the player to release the button between respawns in order to avoid permanent "respawn-flickering"
                 //       that otherwise may occur if the player keeps the button continuously pressed down.
@@ -1043,7 +1041,6 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 m_Entity->GetTransform()->SetOriginWS(OurNewOrigin.AsVectorOfFloat());
                 m_Entity->GetTransform()->SetQuatWS(IPSEntity->m_Entity->GetTransform()->GetQuatWS());  // TODO: Can we make sure that the z-axis points straight up, i.e. bank and pitch are 0?
                 m_Entity->GetChildren()[0]->GetTransform()->SetQuatPS(cf::math::QuaternionfT());
-                State.Velocity           =VectorT();
                 m_Dimensions             =BoundingBox3dT(Vector3dT(16.0, 16.0, 4.0), Vector3dT(-16.0, -16.0, -68.0));
                 State.StateOfExistance   =StateOfExistance_Alive;
                 Model3rdPerson->SetMember("Animation", 0);

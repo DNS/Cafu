@@ -61,12 +61,10 @@ cf::TypeSys::TypeInfoManT& GAME_NAME::GetBaseEntTIM()
 // Entity State
 // ************
 
-EntityStateT::EntityStateT(const VectorT& Velocity_,
-                           char StateOfExistance_, char Flags_,
+EntityStateT::EntityStateT(char StateOfExistance_, char Flags_,
                            char Health_, char Armor_, unsigned long HaveItems_, unsigned long HaveWeapons_,
                            char ActiveWeaponSlot_, char ActiveWeaponSequNr_, float ActiveWeaponFrameNr_)
-    : Velocity(Velocity_),
-      StateOfExistance(StateOfExistance_),
+    : StateOfExistance(StateOfExistance_),
       Flags(Flags_),
    // PlayerName[]
 
@@ -188,90 +186,6 @@ void BaseEntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
             m_Interpolators[i]->NotifyOverwriteUpdate();
         }
     }
-}
-
-
-float BaseEntityT::GetProp(const std::string& Key, float Default) const
-{
-    std::map<std::string, std::string>::const_iterator KeyValue=Properties.find(Key);
-
-    if (KeyValue==Properties.end()) return Default;
-
-    float Value=Default;
-    std::istringstream iss(KeyValue->second);
-
-    iss >> Value;
-
-    return Value;
-}
-
-
-double BaseEntityT::GetProp(const std::string& Key, double Default) const
-{
-    std::map<std::string, std::string>::const_iterator KeyValue=Properties.find(Key);
-
-    if (KeyValue==Properties.end()) return Default;
-
-    double Value=Default;
-    std::istringstream iss(KeyValue->second);
-
-    iss >> Value;
-
-    return Value;
-}
-
-
-int BaseEntityT::GetProp(const std::string& Key, int Default) const
-{
-    std::map<std::string, std::string>::const_iterator KeyValue=Properties.find(Key);
-
-    if (KeyValue==Properties.end()) return Default;
-
-    int Value=Default;
-    std::istringstream iss(KeyValue->second);
-
-    iss >> Value;
-    return Value;
-}
-
-
-std::string BaseEntityT::GetProp(const std::string& Key, std::string Default) const
-{
-    std::map<std::string, std::string>::const_iterator KeyValue=Properties.find(Key);
-
-    if (KeyValue==Properties.end()) return Default;
-
-    return KeyValue->second;
-}
-
-
-Vector3fT BaseEntityT::GetProp(const std::string& Key, Vector3fT Default) const
-{
-    std::map<std::string, std::string>::const_iterator KeyValue=Properties.find(Key);
-
-    if (KeyValue==Properties.end()) return Default;
-
-    Vector3fT Value=Default;
-    std::istringstream iss(KeyValue->second);
-
-    iss >> Value.x >> Value.y >> Value.z;
-
-    return Value;
-}
-
-
-Vector3dT BaseEntityT::GetProp(const std::string& Key, Vector3dT Default) const
-{
-    std::map<std::string, std::string>::const_iterator KeyValue=Properties.find(Key);
-
-    if (KeyValue==Properties.end()) return Default;
-
-    Vector3dT Value=Default;
-    std::istringstream iss(KeyValue->second);
-
-    iss >> Value.x >> Value.y >> Value.z;
-
-    return Value;
 }
 
 

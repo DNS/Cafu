@@ -199,13 +199,14 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, const Player
                 // Important: ONLY create (throw) a new AR grenade IF we are on the server side!
                 if (ThinkingOnServerSide)
                 {
+                    IntrusivePtrT<const cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(Player->m_Entity->GetComponent("PlayerPhysics"));
                     const Vector3dT ViewDir = Player->GetViewDir();
                     // TODO: Clamp ViewDir.y to max. 1.0 (then renormalize) ? That is, clamp 'Pitch' values larger than 45° (==8192) to 45°.
 
                     // Note: There is a non-trivial relationship between heading, pitch, and the corresponding view vector.
                     // Especially does a heading and pitch of 45° NOT correspond to the view vector (1, 1, 1), and vice versa!
                     // Think carefully about this before changing the number 42.0 below (which actually is 2.0*(16.0+4.5) (+1.0 for "safety")).
-                    const VectorT ARGrenadeOrigin(Player->GetOrigin()-VectorT(0.0, 0.0, 10.0)+scale(ViewDir, 42.0)+scale(State.Velocity, double(PlayerCommand.FrameTime)));
+                    const VectorT ARGrenadeOrigin(Player->GetOrigin()-VectorT(0.0, 0.0, 10.0)+scale(ViewDir, 42.0)+scale(CompPlayerPhysics->GetVelocity(), double(PlayerCommand.FrameTime)));
                     std::map<std::string, std::string> Props;
 
                     Props["classname"]="monster_argrenade";
@@ -226,7 +227,7 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, const Player
                         Ent->AddComponent(ModelComp);
 
                         IntrusivePtrT<cf::GameSys::ComponentPlayerPhysicsT> PlayerPhysicsComp = new cf::GameSys::ComponentPlayerPhysicsT();
-                        PlayerPhysicsComp->SetMember("Velocity", State.Velocity + scale(ViewDir, 800.0));
+                        PlayerPhysicsComp->SetMember("Velocity", CompPlayerPhysics->GetVelocity() + scale(ViewDir, 800.0));
                         PlayerPhysicsComp->SetMember("Dimensions", BoundingBox3dT(Vector3dT(3.0, 3.0, 6.0), Vector3dT(-3.0, -3.0, 0.0)));
                         Ent->AddComponent(PlayerPhysicsComp);
 
@@ -318,8 +319,10 @@ void CarriedWeapon9mmART::ClientSide_HandleSecondaryFireEvent(const EntHumanPlay
     const Vector3dT     ViewDir = Player->GetViewDir();
 
     // Update sound position and velocity.
+    IntrusivePtrT<const cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(Player->m_Entity->GetComponent("PlayerPhysics"));
+
     AltFireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 16.0));
-    AltFireSound->SetVelocity(State.Velocity);
+    AltFireSound->SetVelocity(CompPlayerPhysics->GetVelocity());
 
     // Play the fire sound.
     AltFireSound->Play();
@@ -363,8 +366,10 @@ void CarriedWeapon9mmART::ClientSide_HandleStateDrivenEffects(const EntHumanPlay
             ParticleEngineMS::RegisterNewParticle(NewParticle);
 
             // Update sound position and velocity.
+            IntrusivePtrT<const cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(Player->m_Entity->GetComponent("PlayerPhysics"));
+
             FireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 16.0));
-            FireSound->SetVelocity(State.Velocity);
+            FireSound->SetVelocity(CompPlayerPhysics->GetVelocity());
 
             // Play the fire sound.
             FireSound->Play();
