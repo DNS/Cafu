@@ -100,14 +100,13 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, Intrusi
                 // Important: ONLY create (throw) a new face-hugger IF we are on the server side!
                 if (ThinkingOnServerSide)
                 {
-                    IntrusivePtrT<const cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(Player->m_Entity->GetComponent("PlayerPhysics"));
                     const Vector3dT ViewDir = Player->GetViewDir();
                     // TODO: Clamp ViewDir.y to max. 1.0 (then renormalize) ? That is, clamp 'Pitch' values larger than 45° (==8192) to 45°.
 
                     // Note: There is a non-trivial relationship between heading, pitch, and the corresponding view vector.
                     // Especially does a heading and pitch of 45° NOT correspond to the view vector (1, 1, 1), and vice versa!
                     // Think carefully about this before changing the number 41.0 below (which actually is 2.0*(16.0+4.0) (+1.0 for "safety")).
-                    const VectorT FaceHuggerOrigin(Player->GetOrigin()+scale(ViewDir, 41.0)+scale(CompPlayerPhysics->GetVelocity(), double(PlayerCommand.FrameTime)));
+                    const VectorT FaceHuggerOrigin(Player->GetOrigin()+scale(ViewDir, 41.0)+scale(HumanPlayer->GetPlayerVelocity(), double(PlayerCommand.FrameTime)));
                     std::map<std::string, std::string> Props;
 
                     Props["classname"]="monster_facehugger";
@@ -127,7 +126,7 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, Intrusi
                         Ent->AddComponent(ModelComp);
 
                         IntrusivePtrT<cf::GameSys::ComponentPlayerPhysicsT> PlayerPhysicsComp = new cf::GameSys::ComponentPlayerPhysicsT();
-                        PlayerPhysicsComp->SetMember("Velocity", CompPlayerPhysics->GetVelocity() + scale(ViewDir, 280.0));
+                        PlayerPhysicsComp->SetMember("Velocity", HumanPlayer->GetPlayerVelocity() + scale(ViewDir, 280.0));
                         PlayerPhysicsComp->SetMember("Dimensions", BoundingBox3dT(Vector3dT( 4.0,  4.0, 4.0), Vector3dT(-4.0, -4.0, 0.0)));
                         Ent->AddComponent(PlayerPhysicsComp);
 

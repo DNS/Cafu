@@ -28,7 +28,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Constants_WeaponSlots.hpp"
 #include "PhysicsWorld.hpp"
 #include "Libs/LookupTables.hpp"
-#include "GameSys/CompPlayerPhysics.hpp"
 #include "Models/ModelManager.hpp"
 #include "ParticleEngine/ParticleEngineMS.hpp"
 #include "SoundSystem/SoundSys.hpp"
@@ -355,10 +354,8 @@ void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlay
     ParticleEngineMS::RegisterNewParticle(NewParticle);
 
     // Update sound position and velocity.
-    IntrusivePtrT<const cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(Player->m_Entity->GetComponent("PlayerPhysics"));
-
     FireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 16.0));
-    FireSound->SetVelocity(CompPlayerPhysics->GetVelocity());
+    FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
     // Play the fire sound.
     FireSound->Play();
@@ -428,10 +425,8 @@ void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(const EntHumanPl
     ParticleEngineMS::RegisterNewParticle(NewParticle);
 
     // Update sound position and velocity.
-    IntrusivePtrT<const cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(Player->m_Entity->GetComponent("PlayerPhysics"));
-
     AltFireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 16.0));
-    AltFireSound->SetVelocity(CompPlayerPhysics->GetVelocity());
+    AltFireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
     // Play the fire sound.
     AltFireSound->Play();

@@ -46,6 +46,9 @@ namespace cf
             /// A temporary method for compatibility with old code.
             ArrayT<PlayerCommandT>& GetPlayerCommands() { return m_PlayerCommands; }
 
+            /// A convenience method for use by the `CarriedWeaponT` method implementations.
+            Vector3dT GetPlayerVelocity() const;
+
 
             // Base class overrides.
             ComponentHumanPlayerT* Clone() const;

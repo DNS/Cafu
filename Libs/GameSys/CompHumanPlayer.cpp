@@ -21,6 +21,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "CompHumanPlayer.hpp"
 #include "AllComponents.hpp"
+#include "CompPlayerPhysics.hpp"
+#include "Entity.hpp"
 
 extern "C"
 {
@@ -62,6 +64,21 @@ ComponentHumanPlayerT::ComponentHumanPlayerT(const ComponentHumanPlayerT& Comp)
   //  m_MultiPlayer(Comp.m_MultiPlayer)
 {
     // GetMemberVars().Add(&m_SinglePlayer);
+}
+
+
+Vector3dT ComponentHumanPlayerT::GetPlayerVelocity() const
+{
+    if (!GetEntity())
+        return Vector3dT();
+
+    IntrusivePtrT<cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics =
+        dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(GetEntity()->GetComponent("PlayerPhysics"));
+
+    if (CompPlayerPhysics == NULL)
+        return Vector3dT();
+
+    return CompPlayerPhysics->GetVelocity();
 }
 
 
