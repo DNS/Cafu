@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_CARRIEDWEAPON_HPP_INCLUDED
 #define CAFU_CARRIEDWEAPON_HPP_INCLUDED
 
+#include "GameSys/CompHumanPlayer.hpp"
 #include "Math3D/Vector3.hpp"
 
 
@@ -71,22 +72,22 @@ namespace GAME_NAME
         /// This function is to be called when the player has just picked up this weapon.
         /// Returns true if the weapon was successfully given to (picked up by) the entity, false otherwise.
         /// Usually called by a weapon entity (that represents the weapon lying around) on detection of touch by a human player.
-        virtual bool ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const;
+        virtual bool ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const;
 
         /// This functions handles the thinking for this carried weapon.
         /// Typically called from within EntHumanPlayerT::Think().
-        virtual void ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;
+        virtual void ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;
 
 
         /// This function handles the occurance of a "primary fire" event that was received by Entity.
-        virtual void ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT* Player, const VectorT& LastSeenAmbientColor) const;
+        virtual void ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT* Player, IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& LastSeenAmbientColor) const;
 
         /// This function handles the occurance of a "secondary fire" event that was received by Entity.
-        virtual void ClientSide_HandleSecondaryFireEvent(const EntHumanPlayerT* Player, const VectorT& LastSeenAmbientColor) const;
+        virtual void ClientSide_HandleSecondaryFireEvent(const EntHumanPlayerT* Player, IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& LastSeenAmbientColor) const;
 
         /// Function for handling state (vs. event) driven effects of the weapon of Player,
         /// e.g. drawing laser beams, keeping the sound on the weapon sound channel alive, and so on.
-        virtual void ClientSide_HandleStateDrivenEffects(const EntHumanPlayerT* Player) const;
+        virtual void ClientSide_HandleStateDrivenEffects(const EntHumanPlayerT* Player, IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const;
 
      // virtual void ClientSide_DrawCrossHair(BaseEntityT* Entity, int Seed,int OpenGLWindow_Width, int OpenGLWindow_Height); //for hud effect
      // virtual void ClientSide_GetAmmoString(BaseEntityT* Entity, int Seed);

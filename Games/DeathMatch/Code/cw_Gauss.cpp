@@ -37,7 +37,7 @@ CarriedWeaponGaussT::CarriedWeaponGaussT(ModelManagerT& ModelMan)
 }
 
 
-bool CarriedWeaponGaussT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const
+bool CarriedWeaponGaussT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
 {
     EntityStateT& State=Player->GetState();
 
@@ -69,7 +69,7 @@ bool CarriedWeaponGaussT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) c
 }
 
 
-void CarriedWeaponGaussT::ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool /*ThinkingOnServerSide*/, unsigned long /*ServerFrameNr*/, bool AnimSequenceWrap) const
+void CarriedWeaponGaussT::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool /*ThinkingOnServerSide*/, unsigned long /*ServerFrameNr*/, bool AnimSequenceWrap) const
 {
     EntityStateT& State=Player->GetState();
 

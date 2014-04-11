@@ -55,7 +55,7 @@ CarriedWeaponShotgunT::~CarriedWeaponShotgunT()
 }
 
 
-bool CarriedWeaponShotgunT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const
+bool CarriedWeaponShotgunT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
 {
     EntityStateT& State=Player->GetState();
 
@@ -87,7 +87,7 @@ bool CarriedWeaponShotgunT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player)
 }
 
 
-void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long /*ServerFrameNr*/, bool AnimSequenceWrap) const
+void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long /*ServerFrameNr*/, bool AnimSequenceWrap) const
 {
     EntityStateT& State=Player->GetState();
 
@@ -292,7 +292,7 @@ static bool ParticleFunction_ShotgunWhiteSmoke(ParticleMST* Particle, float Time
 }
 
 
-void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT* Player, const VectorT& LastSeenAmbientColor) const
+void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT* Player, IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& LastSeenAmbientColor) const
 {
     const EntityStateT& State=Player->GetState();
 
@@ -365,7 +365,7 @@ void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlay
 }
 
 
-void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(const EntHumanPlayerT* Player, const VectorT& LastSeenAmbientColor) const
+void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(const EntHumanPlayerT* Player, IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& LastSeenAmbientColor) const
 {
     const EntityStateT& State=Player->GetState();
 

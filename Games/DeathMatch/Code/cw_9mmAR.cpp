@@ -61,7 +61,7 @@ CarriedWeapon9mmART::~CarriedWeapon9mmART()
 }
 
 
-bool CarriedWeapon9mmART::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const
+bool CarriedWeapon9mmART::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
 {
     EntityStateT& State=Player->GetState();
 
@@ -96,7 +96,7 @@ bool CarriedWeapon9mmART::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) c
 }
 
 
-void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const
+void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const
 {
     EntityStateT& State=Player->GetState();
 
@@ -313,7 +313,7 @@ static bool ParticleFunction_HitEntity(ParticleMST* Particle, float Time)
 }
 
 
-void CarriedWeapon9mmART::ClientSide_HandleSecondaryFireEvent(const EntHumanPlayerT* Player, const VectorT& /*LastSeenAmbientColor*/) const
+void CarriedWeapon9mmART::ClientSide_HandleSecondaryFireEvent(const EntHumanPlayerT* Player, IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& /*LastSeenAmbientColor*/) const
 {
     const EntityStateT& State   = Player->GetState();
     const Vector3dT     ViewDir = Player->GetViewDir();
@@ -329,7 +329,7 @@ void CarriedWeapon9mmART::ClientSide_HandleSecondaryFireEvent(const EntHumanPlay
 }
 
 
-void CarriedWeapon9mmART::ClientSide_HandleStateDrivenEffects(const EntHumanPlayerT* Player) const
+void CarriedWeapon9mmART::ClientSide_HandleStateDrivenEffects(const EntHumanPlayerT* Player, IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
 {
     const EntityStateT& State=Player->GetState();
 

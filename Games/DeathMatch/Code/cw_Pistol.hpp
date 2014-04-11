@@ -33,7 +33,7 @@ namespace GAME_NAME
 
         CarriedWeaponPistolT(ModelManagerT& ModelMan);
 
-        bool ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const;
+        bool ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const;
     };
 }
 

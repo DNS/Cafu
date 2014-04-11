@@ -45,7 +45,7 @@ CarriedWeaponRPGT::CarriedWeaponRPGT(ModelManagerT& ModelMan)
 }
 
 
-bool CarriedWeaponRPGT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const
+bool CarriedWeaponRPGT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
 {
     EntityStateT& State=Player->GetState();
 
@@ -77,7 +77,7 @@ bool CarriedWeaponRPGT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) con
 }
 
 
-void CarriedWeaponRPGT::ServerSide_Think(EntHumanPlayerT* Player, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const
+void CarriedWeaponRPGT::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const
 {
     EntityStateT& State=Player->GetState();
 

@@ -35,7 +35,7 @@ CarriedWeaponPistolT::CarriedWeaponPistolT(ModelManagerT& ModelMan)
 }
 
 
-bool CarriedWeaponPistolT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player) const
+bool CarriedWeaponPistolT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
 {
     EntityStateT& State=Player->GetState();
 
