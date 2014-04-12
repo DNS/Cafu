@@ -158,7 +158,7 @@ void CarriedWeapon357T::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<
                 if (ThinkingOnServerSide)
                 {
                     // If we are on the server-side, find out what or who we hit.
-                    const Vector3dT  ViewDir = Player->GetViewDir();
+                    const Vector3dT  ViewDir = HumanPlayer->GetViewDirWS();
                     const RayResultT RayResult(HumanPlayer->TracePlayerRay(ViewDir));
 
                     if (RayResult.hasHit() && RayResult.GetHitPhysicsComp())
@@ -222,7 +222,7 @@ static bool ParticleFunction_HitEntity(ParticleMST* Particle, float Time)
 void CarriedWeapon357T::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT* Player, IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& /*LastSeenAmbientColor*/) const
 {
     const EntityStateT& State   = Player->GetState();
-    const Vector3dT     ViewDir = Player->GetViewDir();
+    const Vector3dT     ViewDir = HumanPlayer->GetViewDirWS();
     const RayResultT    RayResult(HumanPlayer->TracePlayerRay(ViewDir));
 
     if (!RayResult.hasHit()) return;

@@ -160,32 +160,6 @@ EntHumanPlayerT::~EntHumanPlayerT()
 }
 
 
-Vector3dT EntHumanPlayerT::GetViewDir(double Random) const
-{
-    IntrusivePtrT<cf::GameSys::ComponentTransformT> Trafo = m_Entity->GetTransform();
-
-    if (m_Entity->GetChildren().Size() > 0)
-    {
-        // The normal, expected case: Use the entity's camera transform.
-        Trafo = m_Entity->GetChildren()[0]->GetTransform();
-    }
-
-    const cf::math::Matrix3x3fT Mat(Trafo->GetQuatWS());
-
-    Vector3dT ViewDir = Mat.GetAxis(0).AsVectorOfDouble();
-
-    if (Random > 0.0)
-    {
-        ViewDir += Mat.GetAxis(0).AsVectorOfDouble() * ((rand() % 10000 - 5000) / 5000.0) * Random;
-        ViewDir += Mat.GetAxis(2).AsVectorOfDouble() * ((rand() % 10000 - 5000) / 5000.0) * Random;
-
-        ViewDir = normalizeOr0(ViewDir);
-    }
-
-    return ViewDir;
-}
-
-
 void EntHumanPlayerT::NotifyLeaveMap()
 {
     if (GuiHUD != NULL)
@@ -353,9 +327,11 @@ bool EntHumanPlayerT::CheckGUI(IntrusivePtrT<cf::GameSys::ComponentModelT> CompM
 
 
     // 3. Are we looking roughly into the screen normal?
+    IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(CompModel->GetEntity()->GetComponent("HumanPlayer"));
+
     const Vector3fT GuiNormal = normalize(cross(GuiAxisY, GuiAxisX), 0.0f);
     const Plane3fT  GuiPlane  = Plane3fT(GuiNormal, dot(GuiOrigin, GuiNormal));
-    const Vector3fT ViewDir   = GetViewDir().AsVectorOfFloat();
+    const Vector3fT ViewDir   = CompHP->GetViewDirWS().AsVectorOfFloat();
 
     if (-dot(ViewDir, GuiPlane.Normal)<0.001f) return false;
 
@@ -515,7 +491,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 if (Keys & PCK_Walk        ) WishVelocity=scale(WishVelocity, 0.5);
 
                 VectorT       WishVelLadder;
-                const VectorT ViewLadder = GetViewDir() * 150.0;
+                const VectorT ViewLadder = CompHP->GetViewDirWS() * 150.0;
 
                 // TODO: Also take LATERAL movement into account.
                 // TODO: All this needs a HUGE clean-up! Can probably put a lot of this stuff into Physics::MoveHuman.

@@ -44,7 +44,6 @@ namespace GAME_NAME
 
         EntityStateT& GetState() { return State; }
         const EntityStateT& GetState() const { return State; }
-        Vector3dT GetViewDir(double Random = 0.0) const;
 
         /// Increases the frag count of this entity by the given number.
         void AddFrag(int NumFrags=1);

@@ -92,7 +92,7 @@ void CarriedWeaponRPGT::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<
                 // Important: ONLY create (throw) a new rocket IF we are on the server side!
                 if (ThinkingOnServerSide)
                 {
-                    const Vector3dT ViewDir = Player->GetViewDir();
+                    const Vector3dT ViewDir = HumanPlayer->GetViewDirWS();
                     // TODO: Clamp ViewDir.y to max. 1.0 (then renormalize) ? That is, clamp 'Pitch' values larger than 45° (==8192) to 45°.
 
                     // Note: There is a non-trivial relationship between heading, pitch, and the corresponding view vector.

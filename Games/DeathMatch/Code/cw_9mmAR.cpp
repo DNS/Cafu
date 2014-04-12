@@ -178,7 +178,7 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtr
                 if (ThinkingOnServerSide)
                 {
                     // If we are on server-side, fire the first single shot, and find out what or who we hit.
-                    const Vector3dT  ViewDir = Player->GetViewDir(0.03492);  // ca. 2°
+                    const Vector3dT  ViewDir = HumanPlayer->GetViewDirWS(0.03492);  // ca. 2°
                     const RayResultT RayResult(HumanPlayer->TracePlayerRay(ViewDir));
 
                     if (RayResult.hasHit() && RayResult.GetHitPhysicsComp())
@@ -198,7 +198,7 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtr
                 // Important: ONLY create (throw) a new AR grenade IF we are on the server side!
                 if (ThinkingOnServerSide)
                 {
-                    const Vector3dT ViewDir = Player->GetViewDir();
+                    const Vector3dT ViewDir = HumanPlayer->GetViewDirWS();
                     // TODO: Clamp ViewDir.y to max. 1.0 (then renormalize) ? That is, clamp 'Pitch' values larger than 45° (==8192) to 45°.
 
                     // Note: There is a non-trivial relationship between heading, pitch, and the corresponding view vector.
@@ -314,7 +314,7 @@ static bool ParticleFunction_HitEntity(ParticleMST* Particle, float Time)
 void CarriedWeapon9mmART::ClientSide_HandleSecondaryFireEvent(const EntHumanPlayerT* Player, IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& /*LastSeenAmbientColor*/) const
 {
     const EntityStateT& State   = Player->GetState();
-    const Vector3dT     ViewDir = Player->GetViewDir();
+    const Vector3dT     ViewDir = HumanPlayer->GetViewDirWS();
 
     // Update sound position and velocity.
     IntrusivePtrT<const cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(Player->m_Entity->GetComponent("PlayerPhysics"));
@@ -335,7 +335,7 @@ void CarriedWeapon9mmART::ClientSide_HandleStateDrivenEffects(const EntHumanPlay
     {
         if (State.ActiveWeaponFrameNr==0.0)
         {
-            const Vector3dT  ViewDir = Player->GetViewDir(0.03492);  // ca. 2°
+            const Vector3dT  ViewDir = HumanPlayer->GetViewDirWS(0.03492);  // ca. 2°
             const RayResultT RayResult(HumanPlayer->TracePlayerRay(ViewDir));
 
             if (!RayResult.hasHit()) return;

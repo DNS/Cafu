@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CompScript.hpp"
 #include "Entity.hpp"
 #include "World.hpp"
+#include "Math3D/Matrix3x3.hpp"
 #include "UniScriptState.hpp"
 
 extern "C"
@@ -83,6 +84,34 @@ Vector3dT ComponentHumanPlayerT::GetPlayerVelocity() const
         return Vector3dT();
 
     return CompPlayerPhysics->GetVelocity();
+}
+
+
+Vector3dT ComponentHumanPlayerT::GetViewDirWS(double Random) const
+{
+    if (!GetEntity()) return Vector3dT();
+
+    IntrusivePtrT<ComponentTransformT> Trafo = GetEntity()->GetTransform();
+
+    if (GetEntity()->GetChildren().Size() > 0)
+    {
+        // The normal, expected case: Use the entity's camera transform.
+        Trafo = GetEntity()->GetChildren()[0]->GetTransform();
+    }
+
+    const cf::math::Matrix3x3fT Mat(Trafo->GetQuatWS());
+
+    Vector3dT ViewDir = Mat.GetAxis(0).AsVectorOfDouble();
+
+    if (Random > 0.0)
+    {
+        ViewDir += Mat.GetAxis(0).AsVectorOfDouble() * ((rand() % 10000 - 5000) / 5000.0) * Random;
+        ViewDir += Mat.GetAxis(2).AsVectorOfDouble() * ((rand() % 10000 - 5000) / 5000.0) * Random;
+
+        ViewDir = normalizeOr0(ViewDir);
+    }
+
+    return ViewDir;
 }
 
 
