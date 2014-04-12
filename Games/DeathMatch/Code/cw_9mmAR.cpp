@@ -204,7 +204,7 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtr
                     // Note: There is a non-trivial relationship between heading, pitch, and the corresponding view vector.
                     // Especially does a heading and pitch of 45° NOT correspond to the view vector (1, 1, 1), and vice versa!
                     // Think carefully about this before changing the number 42.0 below (which actually is 2.0*(16.0+4.5) (+1.0 for "safety")).
-                    const VectorT ARGrenadeOrigin(Player->GetOrigin()-VectorT(0.0, 0.0, 10.0)+scale(ViewDir, 42.0)+scale(HumanPlayer->GetPlayerVelocity(), double(PlayerCommand.FrameTime)));
+                    const VectorT ARGrenadeOrigin(HumanPlayer->GetOriginWS() - VectorT(0.0, 0.0, 10.0) + scale(ViewDir, 42.0) + scale(HumanPlayer->GetPlayerVelocity(), double(PlayerCommand.FrameTime)));
                     std::map<std::string, std::string> Props;
 
                     Props["classname"]="monster_argrenade";
@@ -319,7 +319,7 @@ void CarriedWeapon9mmART::ClientSide_HandleSecondaryFireEvent(const EntHumanPlay
     // Update sound position and velocity.
     IntrusivePtrT<const cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(Player->m_Entity->GetComponent("PlayerPhysics"));
 
-    AltFireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 16.0));
+    AltFireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 16.0));
     AltFireSound->SetVelocity(CompPlayerPhysics->GetVelocity());
 
     // Play the fire sound.
@@ -362,7 +362,7 @@ void CarriedWeapon9mmART::ClientSide_HandleStateDrivenEffects(const EntHumanPlay
             ParticleEngineMS::RegisterNewParticle(NewParticle);
 
             // Update sound position and velocity.
-            FireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 16.0));
+            FireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 16.0));
             FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
             // Play the fire sound.

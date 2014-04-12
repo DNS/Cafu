@@ -98,7 +98,7 @@ void CarriedWeaponRPGT::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<
                     // Note: There is a non-trivial relationship between heading, pitch, and the corresponding view vector.
                     // Especially does a heading and pitch of 45° NOT correspond to the view vector (1, 1, 1), and vice versa!
                     // Think carefully about this before changing the number 41.0 below (which actually is 2.0*(16.0+4.0) (+1.0 for "safety")).
-                    const VectorT RocketOrigin(Player->GetOrigin()-VectorT(0.0, 0.0, 8.0)+scale(ViewDir, 41.0)+scale(HumanPlayer->GetPlayerVelocity(), double(PlayerCommand.FrameTime)));
+                    const VectorT RocketOrigin(HumanPlayer->GetOriginWS() - VectorT(0.0, 0.0, 8.0)+scale(ViewDir, 41.0)+scale(HumanPlayer->GetPlayerVelocity(), double(PlayerCommand.FrameTime)));
                     std::map<std::string, std::string> Props;
 
                     Props["classname"]="monster_rocket";

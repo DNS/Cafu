@@ -250,7 +250,7 @@ void CarriedWeapon357T::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT*
     ParticleEngineMS::RegisterNewParticle(NewParticle);
 
     // Update sound position and velocity.
-    FireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 16.0));
+    FireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 16.0));
     FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
     // Play the fire sound.

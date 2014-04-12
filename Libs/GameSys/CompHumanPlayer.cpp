@@ -87,6 +87,14 @@ Vector3dT ComponentHumanPlayerT::GetPlayerVelocity() const
 }
 
 
+Vector3dT ComponentHumanPlayerT::GetOriginWS() const
+{
+    if (!GetEntity()) return Vector3dT();
+
+    return GetEntity()->GetTransform()->GetOriginWS().AsVectorOfDouble();
+}
+
+
 Vector3dT ComponentHumanPlayerT::GetViewDirWS(double Random) const
 {
     if (!GetEntity()) return Vector3dT();

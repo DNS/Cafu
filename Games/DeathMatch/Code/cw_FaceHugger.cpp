@@ -106,7 +106,7 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, Intrusi
                     // Note: There is a non-trivial relationship between heading, pitch, and the corresponding view vector.
                     // Especially does a heading and pitch of 45° NOT correspond to the view vector (1, 1, 1), and vice versa!
                     // Think carefully about this before changing the number 41.0 below (which actually is 2.0*(16.0+4.0) (+1.0 for "safety")).
-                    const VectorT FaceHuggerOrigin(Player->GetOrigin()+scale(ViewDir, 41.0)+scale(HumanPlayer->GetPlayerVelocity(), double(PlayerCommand.FrameTime)));
+                    const VectorT FaceHuggerOrigin(HumanPlayer->GetOriginWS() + scale(ViewDir, 41.0)+scale(HumanPlayer->GetPlayerVelocity(), double(PlayerCommand.FrameTime)));
                     std::map<std::string, std::string> Props;
 
                     Props["classname"]="monster_facehugger";
@@ -198,7 +198,7 @@ void CarriedWeaponFaceHuggerT::ClientSide_HandlePrimaryFireEvent(const EntHumanP
     // Update sound position and velocity.
     IntrusivePtrT<const cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(Player->m_Entity->GetComponent("PlayerPhysics"));
 
-    FireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 8.0));
+    FireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 8.0));
     FireSound->SetVelocity(CompPlayerPhysics->GetVelocity());
 
     // Play the fire sound.

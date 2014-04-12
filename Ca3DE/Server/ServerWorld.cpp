@@ -297,14 +297,15 @@ void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID
 
     ArrayT<unsigned long>* NewStatePVSEntityIDs=&ClientOldStatesPVSEntityIDs[ClientCurrentStateIndex];
     ArrayT<unsigned long>* OldStatePVSEntityIDs=NULL;
-    const unsigned long    ClientLeafNr        =(m_EngineEntities[ClientEntityID]!=NULL) ? BspTree->WhatLeaf(m_EngineEntities[ClientEntityID]->GetGameEntity()->GetOrigin()) : 0;
+    const unsigned long    ClientLeafNr        =(m_EngineEntities[ClientEntityID]!=NULL) ?
+        BspTree->WhatLeaf(m_EngineEntities[ClientEntityID]->GetEntity()->GetTransform()->GetOriginWS().AsVectorOfDouble()) : 0;
 
     // Finde heraus, welche Entities im PVS von diesem Client liegen. Erhalte ein Array von EntityIDs.
     for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
         if (m_EngineEntities[EntityNr]!=NULL)
         {
-            const Vector3dT&      EntityOrigin=m_EngineEntities[EntityNr]->GetGameEntity()->GetOrigin();
-            BoundingBox3T<double> EntityBB    =m_EngineEntities[EntityNr]->GetGameEntity()->GetDimensions();
+            const Vector3dT       EntityOrigin = m_EngineEntities[EntityNr]->GetEntity()->GetTransform()->GetOriginWS().AsVectorOfDouble();
+            BoundingBox3T<double> EntityBB     = m_EngineEntities[EntityNr]->GetGameEntity()->GetDimensions();
 
             EntityBB.Min += EntityOrigin;
             EntityBB.Max += EntityOrigin;

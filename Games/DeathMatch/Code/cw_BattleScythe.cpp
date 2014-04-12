@@ -165,7 +165,7 @@ void CarriedWeaponBattleScytheT::ClientSide_HandlePrimaryFireEvent(const EntHuma
     const Vector3dT     ViewDir = HumanPlayer->GetViewDirWS();
 
     // Update sound position and velocity.
-    FireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 12.0));
+    FireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 12.0));
     FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
     // Play the fire sound.
@@ -179,7 +179,7 @@ void CarriedWeaponBattleScytheT::ClientSide_HandleSecondaryFireEvent(const EntHu
     const Vector3dT     ViewDir = HumanPlayer->GetViewDirWS();
 
     // Update sound position and velocity.
-    FireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 12.0));
+    FireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 12.0));
     FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
     // Play the fire sound.

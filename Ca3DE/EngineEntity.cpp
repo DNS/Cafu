@@ -341,14 +341,15 @@ void EngineEntityT::Draw(bool FirstPersonView, const VectorT& ViewerPos) const
     const float* PosE=MatSys::Renderer->GetCurrentEyePosition();
     VectorT      EyePos=VectorT(PosE[0], PosE[1], PosE[2]);
 
+    const Vector3dT EntOrigin = GetEntity()->GetTransform()->GetOriginWS().AsVectorOfDouble();
 
     // Starting from world space, compute the position of the light source in model space.
-    LightSourcePos=LightSourcePos-Entity->GetOrigin();         // Convert into unrotated model space.
+    LightSourcePos=LightSourcePos-EntOrigin;         // Convert into unrotated model space.
     LightSourcePos=LightSourcePos.GetRotZ(-90.0+float(Ent_Heading)/8192.0*45.0);
 
 
     // Do the same for the eye: Starting from world space, compute the position of the eye in model space.
-    EyePos=EyePos-Entity->GetOrigin();         // Convert into unrotated model space.
+    EyePos=EyePos-EntOrigin;         // Convert into unrotated model space.
     EyePos=EyePos.GetRotZ(-90.0+float(Ent_Heading)/8192.0*45.0);
 
 
@@ -360,14 +361,14 @@ void EngineEntityT::Draw(bool FirstPersonView, const VectorT& ViewerPos) const
 
     // Set the ambient light color for this entity.
     // Paradoxically, this is not a global, but rather a per-entity value that is derived from the lightmaps that are close to that entity.
-    const Vector3fT AmbientEntityLight=Entity->GetGameWorld()->GetAmbientLightColorFromBB(Entity->GetDimensions(), Entity->GetOrigin());
+    const Vector3fT AmbientEntityLight=Entity->GetGameWorld()->GetAmbientLightColorFromBB(Entity->GetDimensions(), EntOrigin);
     MatSys::Renderer->SetCurrentAmbientLightColor(AmbientEntityLight.x, AmbientEntityLight.y, AmbientEntityLight.z);
 
 
-    MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, float(Entity->GetOrigin().x), float(Entity->GetOrigin().y), float(Entity->GetOrigin().z));
+    MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, float(EntOrigin.x), float(EntOrigin.y), float(EntOrigin.z));
     MatSys::Renderer->RotateZ  (MatSys::RendererI::MODEL_TO_WORLD, 90.0f-float(Ent_Heading)/8192.0f*45.0f);
 
-    Entity->Draw(FirstPersonView, (float)length(ViewerPos-Entity->GetOrigin()));
+    Entity->Draw(FirstPersonView, (float)length(ViewerPos-EntOrigin));
 
 
     MatSys::Renderer->PopLightingParameters();

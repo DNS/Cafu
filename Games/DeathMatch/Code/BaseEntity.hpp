@@ -106,7 +106,6 @@ namespace GAME_NAME
         virtual void NotifyLeaveMap() { }
         virtual unsigned long GetID() const { return ID; }
         virtual cf::GameSys::GameWorldI* GetGameWorld() const { return GameWorld; }
-        virtual Vector3dT GetOrigin() const { return m_Entity->GetTransform()->GetOriginWS().AsVectorOfDouble(); }
         virtual const BoundingBox3dT& GetDimensions() const { return m_Dimensions; }
         virtual void GetBodyOrientation(unsigned short& h, unsigned short& p, unsigned short& b) const { h=0; p=0; b=0; /*TODO: this method is called from obsolete methods only...*/ }
 

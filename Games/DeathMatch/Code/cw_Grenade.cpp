@@ -127,7 +127,7 @@ void CarriedWeaponGrenadeT::ServerSide_Think(EntHumanPlayerT* Player, IntrusiveP
                     // Note: There is a non-trivial relationship between heading, pitch, and the corresponding view vector.
                     // Especially does a heading and pitch of 45° NOT correspond to the view vector (1, 1, 1), and vice versa!
                     // Think carefully about this before changing the number 42.0 below (which actually is 2.0*(16.0+4.5) (+1.0 for "safety")).
-                    const VectorT HandGrenadeOrigin(Player->GetOrigin()+VectorT(0.0, 0.0, 10.0)+scale(ViewDir, 42.0)+scale(HumanPlayer->GetPlayerVelocity(), double(PlayerCommand.FrameTime)));
+                    const VectorT HandGrenadeOrigin(HumanPlayer->GetOriginWS() + VectorT(0.0, 0.0, 10.0)+scale(ViewDir, 42.0)+scale(HumanPlayer->GetPlayerVelocity(), double(PlayerCommand.FrameTime)));
                     std::map<std::string, std::string> Props;
 
                     Props["classname"]="monster_handgrenade";
@@ -217,7 +217,7 @@ void CarriedWeaponGrenadeT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlay
     // Update sound position and velocity.
     IntrusivePtrT<const cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(Player->m_Entity->GetComponent("PlayerPhysics"));
 
-    FireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 8.0));
+    FireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 8.0));
     FireSound->SetVelocity(CompPlayerPhysics->GetVelocity());
 
     // Play the fire sound.

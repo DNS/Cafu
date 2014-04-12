@@ -326,9 +326,9 @@ void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlay
     // Register a new particle as "muzzle flash".
     ParticleMST NewParticle;
 
-    NewParticle.Origin[0]=float(Player->GetOrigin().x+ViewDir.x*16.0);
-    NewParticle.Origin[1]=float(Player->GetOrigin().y+ViewDir.y*16.0);
-    NewParticle.Origin[2]=float(Player->GetOrigin().z+ViewDir.z*16.0-4.0);
+    NewParticle.Origin[0]=float(HumanPlayer->GetOriginWS().x + ViewDir.x*16.0);
+    NewParticle.Origin[1]=float(HumanPlayer->GetOriginWS().y + ViewDir.y*16.0);
+    NewParticle.Origin[2]=float(HumanPlayer->GetOriginWS().z + ViewDir.z*16.0-4.0);
 
     NewParticle.Velocity[0]=float(ViewDir.x*40.0);
     NewParticle.Velocity[1]=float(ViewDir.y*40.0);
@@ -349,7 +349,7 @@ void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlay
     ParticleEngineMS::RegisterNewParticle(NewParticle);
 
     // Update sound position and velocity.
-    FireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 16.0));
+    FireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 16.0));
     FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
     // Play the fire sound.
@@ -395,9 +395,9 @@ void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(const EntHumanPl
     // Register a new particle as "muzzle flash".
     ParticleMST NewParticle;
 
-    NewParticle.Origin[0]=float(Player->GetOrigin().x+ViewDir.x*16.0);
-    NewParticle.Origin[1]=float(Player->GetOrigin().y+ViewDir.y*16.0);
-    NewParticle.Origin[2]=float(Player->GetOrigin().z+ViewDir.z*16.0-4.0);
+    NewParticle.Origin[0]=float(HumanPlayer->GetOriginWS().x + ViewDir.x*16.0);
+    NewParticle.Origin[1]=float(HumanPlayer->GetOriginWS().y + ViewDir.y*16.0);
+    NewParticle.Origin[2]=float(HumanPlayer->GetOriginWS().z + ViewDir.z*16.0-4.0);
 
     NewParticle.Velocity[0]=float(ViewDir.x*60.0);
     NewParticle.Velocity[1]=float(ViewDir.y*60.0);
@@ -418,7 +418,7 @@ void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(const EntHumanPl
     ParticleEngineMS::RegisterNewParticle(NewParticle);
 
     // Update sound position and velocity.
-    AltFireSound->SetPosition(Player->GetOrigin()+scale(ViewDir, 16.0));
+    AltFireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 16.0));
     AltFireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
     // Play the fire sound.

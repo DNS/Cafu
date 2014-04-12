@@ -611,8 +611,8 @@ EntHumanPlayerT::EntHumanPlayerT(char TypeID, unsigned long ID, unsigned long Ma
         IntrusivePtrT<GameEntityI> BaseEntity=GameWorld->GetGameEntityByID(AllEntityIDs[EntityIDNr]);
         if (BaseEntity==NULL) continue;
 
-        if (BaseEntity->GetType()==&EntInfoPlayerStartT::TypeInfo) { Origin_IPS=BaseEntity->GetOrigin(); continue; }
-        if (BaseEntity->GetType()==&EntInfoNodeSpacingT::TypeInfo) { Origin_INS=BaseEntity->GetOrigin(); continue; }
+        if (BaseEntity->GetType()==&EntInfoPlayerStartT::TypeInfo) { /* FIXME Origin_IPS=BaseEntity->GetOrigin();*/ continue; }
+        if (BaseEntity->GetType()==&EntInfoNodeSpacingT::TypeInfo) { /* FIXME Origin_INS=BaseEntity->GetOrigin();*/ continue; }
         if (BaseEntity->GetType()==&EntInfo2DMoveDirT  ::TypeInfo) { AllInfo2DMoveDirEntities.PushBack(static_pointer_cast<EntInfo2DMoveDirT>(BaseEntity)); continue; }
 
         Console->DevWarning("Should never get here (ctor HP)!");
