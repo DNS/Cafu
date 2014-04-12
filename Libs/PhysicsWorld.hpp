@@ -32,7 +32,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 namespace cf { namespace ClipSys { class CollisionModelT; } }
-typedef void TraceUserEntityT;
+namespace cf { namespace GameSys { class ComponentPhysicsT; } }
+typedef cf::GameSys::ComponentPhysicsT TraceUserEntityT;
 
 
 // Auxiliary functions for making the conversion between Bullet and Cafu vectors easier.
@@ -71,14 +72,15 @@ class RayResultT : public btCollisionWorld::ClosestRayResultCallback
     }
 
 
-    /// If something was hit (hasHit() returns true), this method returns a pointer to the entity the hit collision object belongs to.
+    /// If something was hit (hasHit() returns true), this method returns a pointer to the
+    /// Physics component that the hit collision object belongs to.
     /// The returned pointer is NULL if the collision object belongs to the world.
     /// If nothing was hit (hasHit() returns false), NULL is always returned.
-    TraceUserEntityT* GetHitEntity() const
+    TraceUserEntityT* GetHitPhysicsComp() const
     {
         if (m_collisionObject==NULL) return NULL;
 
-        return m_collisionObject->getUserPointer();
+        return static_cast<TraceUserEntityT*>(m_collisionObject->getUserPointer());
     }
 
 
@@ -134,14 +136,15 @@ class ShapeResultT : public btCollisionWorld::ClosestConvexResultCallback
     }
 
 
-    /// If something was hit (hasHit() returns true), this method returns a pointer to the entity the hit collision object belongs to.
+    /// If something was hit (hasHit() returns true), this method returns a pointer to the
+    /// Physics component that the hit collision object belongs to.
     /// The returned pointer is NULL if the collision object belongs to the world.
     /// If nothing was hit (hasHit() returns false), NULL is always returned.
-    TraceUserEntityT* GetHitEntity() const
+    TraceUserEntityT* GetHitPhysicsComp() const
     {
         if (m_hitCollisionObject==NULL) return NULL;
 
-        return m_hitCollisionObject->getUserPointer();
+        return static_cast<TraceUserEntityT*>(m_hitCollisionObject->getUserPointer());
     }
 
 

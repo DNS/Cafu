@@ -21,8 +21,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "CompHumanPlayer.hpp"
 #include "AllComponents.hpp"
+#include "CompPhysics.hpp"
 #include "CompPlayerPhysics.hpp"
+#include "CompScript.hpp"
 #include "Entity.hpp"
+#include "World.hpp"
+#include "UniScriptState.hpp"
 
 extern "C"
 {
@@ -72,13 +76,49 @@ Vector3dT ComponentHumanPlayerT::GetPlayerVelocity() const
     if (!GetEntity())
         return Vector3dT();
 
-    IntrusivePtrT<cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics =
-        dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(GetEntity()->GetComponent("PlayerPhysics"));
+    IntrusivePtrT<ComponentPlayerPhysicsT> CompPlayerPhysics =
+        dynamic_pointer_cast<ComponentPlayerPhysicsT>(GetEntity()->GetComponent("PlayerPhysics"));
 
     if (CompPlayerPhysics == NULL)
         return Vector3dT();
 
     return CompPlayerPhysics->GetVelocity();
+}
+
+
+RayResultT ComponentHumanPlayerT::TracePlayerRay(const Vector3dT& Dir) const
+{
+    if (!GetEntity())
+        return RayResultT(NULL);
+
+    IntrusivePtrT<ComponentPhysicsT> Physics =
+        dynamic_pointer_cast<ComponentPhysicsT>(GetEntity()->GetComponent("Physics"));
+
+    RayResultT RayResult(Physics != NULL ? Physics->GetRigidBody() : NULL);
+
+    GetEntity()->GetWorld().GetPhysicsWorld()->TraceRay(
+        UnitsToPhys(GetEntity()->GetTransform()->GetOriginWS().AsVectorOfDouble()),
+        Dir * 9999.0, RayResult);
+
+    return RayResult;
+}
+
+
+void ComponentHumanPlayerT::InflictDamage(EntityT* OtherEnt, float Amount, const Vector3dT& Dir) const
+{
+    if (!OtherEnt) return;
+
+    IntrusivePtrT<ComponentScriptT> OtherScript =
+        dynamic_pointer_cast<ComponentScriptT>(OtherEnt->GetComponent("Script"));
+
+    if (OtherScript == NULL) return;
+
+    cf::ScriptBinderT      OtherBinder(OtherEnt->GetWorld().GetScriptState().GetLuaState());
+    IntrusivePtrT<EntityT> This = GetEntity();
+
+    OtherBinder.Push(This);
+
+    OtherScript->CallLuaMethod("TakeDamage", 1, "ffff", Amount, Dir.x, Dir.y, Dir.z);
 }
 
 

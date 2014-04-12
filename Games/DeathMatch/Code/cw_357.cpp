@@ -28,6 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Constants_WeaponSlots.hpp"
 #include "PhysicsWorld.hpp"
 #include "Libs/LookupTables.hpp"
+#include "GameSys/CompPhysics.hpp"
 #include "Models/ModelManager.hpp"
 #include "ParticleEngine/ParticleEngineMS.hpp"
 #include "SoundSystem/SoundSys.hpp"
@@ -157,13 +158,11 @@ void CarriedWeapon357T::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<
                 if (ThinkingOnServerSide)
                 {
                     // If we are on the server-side, find out what or who we hit.
-                    const Vector3dT ViewDir = Player->GetViewDir();
+                    const Vector3dT  ViewDir = Player->GetViewDir();
+                    const RayResultT RayResult(HumanPlayer->TracePlayerRay(ViewDir));
 
-                    RayResultT RayResult(Player->GetRigidBody());
-                    Player->GameWorld->GetPhysicsWorld().TraceRay(UnitsToPhys(Player->GetOrigin()), scale(ViewDir, 9999999.0/1000.0), RayResult);
-
-                    if (RayResult.hasHit() && RayResult.GetHitEntity()!=NULL)
-                        static_cast<BaseEntityT*>(RayResult.GetHitEntity())->TakeDamage(Player, 7, ViewDir);
+                    if (RayResult.hasHit() && RayResult.GetHitPhysicsComp())
+                        HumanPlayer->InflictDamage(RayResult.GetHitPhysicsComp()->GetEntity(), 7.0f, ViewDir);
                 }
                 break;
             }
@@ -224,9 +223,7 @@ void CarriedWeapon357T::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT*
 {
     const EntityStateT& State   = Player->GetState();
     const Vector3dT     ViewDir = Player->GetViewDir();
-
-    RayResultT RayResult(Player->GetRigidBody());
-    Player->GameWorld->GetPhysicsWorld().TraceRay(UnitsToPhys(Player->GetOrigin()), scale(ViewDir, 9999999.0/1000.0), RayResult);
+    const RayResultT    RayResult(HumanPlayer->TracePlayerRay(ViewDir));
 
     if (!RayResult.hasHit()) return;
 
@@ -248,7 +245,7 @@ void CarriedWeapon357T::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT*
     NewParticle.Radius=12.0;
     NewParticle.StretchY=1.0;
     NewParticle.RenderMat=ResMan.RenderMats[ResMan.PARTICLE_GENERIC1];
-    NewParticle.MoveFunction=RayResult.GetHitEntity()==NULL ? ParticleFunction_HitWall : ParticleFunction_HitEntity;
+    NewParticle.MoveFunction=RayResult.GetHitPhysicsComp()==NULL ? ParticleFunction_HitWall : ParticleFunction_HitEntity;
 
     ParticleEngineMS::RegisterNewParticle(NewParticle);
 

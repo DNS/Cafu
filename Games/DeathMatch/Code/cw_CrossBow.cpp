@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Constants_WeaponSlots.hpp"
 #include "PhysicsWorld.hpp"
 #include "Libs/LookupTables.hpp"
+#include "GameSys/CompPhysics.hpp"
 #include "Models/ModelManager.hpp"
 
 using namespace GAME_NAME;
@@ -88,13 +89,11 @@ void CarriedWeaponCrossBowT::ServerSide_Think(EntHumanPlayerT* Player, Intrusive
                 if (ThinkingOnServerSide)
                 {
                     // If we are on the server-side, find out what or who we hit.
-                    const Vector3dT ViewDir = Player->GetViewDir();
+                    const Vector3dT  ViewDir = Player->GetViewDir();
+                    const RayResultT RayResult(HumanPlayer->TracePlayerRay(ViewDir));
 
-                    RayResultT RayResult(Player->GetRigidBody());
-                    Player->GameWorld->GetPhysicsWorld().TraceRay(UnitsToPhys(Player->GetOrigin()), scale(ViewDir, 9999999.0/1000.0), RayResult);
-
-                    if (RayResult.hasHit() && RayResult.GetHitEntity()!=NULL)
-                        static_cast<BaseEntityT*>(RayResult.GetHitEntity())->TakeDamage(Player, 20, ViewDir);
+                    if (RayResult.hasHit() && RayResult.GetHitPhysicsComp())
+                        HumanPlayer->InflictDamage(RayResult.GetHitPhysicsComp()->GetEntity(), 20.0f, ViewDir);
                 }
                 break;
             }

@@ -150,12 +150,7 @@ void ComponentPhysicsT::UpdateDependencies(EntityT* Entity)
         m_RigidBody = new btRigidBody(btRigidBody::btRigidBodyConstructionInfo(
             m_Mass.Get(), this /*btMotionState for this body*/, m_CollisionShape, Inertia));
 
-#if 0
-        /******************/
-        /*** TODO *********/
-        /******************/
-        m_RigidBody->setUserPointer(this);  // This entity is associated to the m_RigidBody.
-#endif
+        m_RigidBody->setUserPointer(this);      // Associate the m_RigidBody and this component to each other.
 
         // TODO: Client-side rigid bodies should probably be "kinematic", not "dynamic", because the client doesn't actively simulate our bodies.
         //       From the pdf user manual: "every simulation frame, dynamics world will get new world transform using btMotionState::getWorldTransform"

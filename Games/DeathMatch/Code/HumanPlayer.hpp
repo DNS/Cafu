@@ -23,7 +23,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_HUMAN_PLAYER_HPP_INCLUDED
 
 #include "BaseEntity.hpp"
-#include "btBulletDynamicsCommon.h"
 
 
 namespace cf { namespace GameSys { class ComponentModelT; } }
@@ -33,7 +32,7 @@ struct luaL_Reg;
 
 namespace GAME_NAME
 {
-    class EntHumanPlayerT : public BaseEntityT, public btMotionState
+    class EntHumanPlayerT : public BaseEntityT
     {
         public:
 
@@ -45,7 +44,6 @@ namespace GAME_NAME
 
         EntityStateT& GetState() { return State; }
         const EntityStateT& GetState() const { return State; }
-        const btRigidBody* GetRigidBody() const { return m_RigidBody; }
         Vector3dT GetViewDir(double Random = 0.0) const;
 
         /// Increases the frag count of this entity by the given number.
@@ -59,10 +57,6 @@ namespace GAME_NAME
         void ProcessEvent(unsigned int EventType, unsigned int NumEvents);
         void Draw(bool FirstPersonView, float LodDist) const;
         void PostDraw(float FrameTime, bool FirstPersonView);
-
-        // Implement the btMotionState interface.
-        void getWorldTransform(btTransform& worldTrans) const;
-        void setWorldTransform(const btTransform& worldTrans);
 
 
         const cf::TypeSys::TypeInfoT* GetType() const;
@@ -91,9 +85,6 @@ namespace GAME_NAME
 
 
         EntityStateT      State;                    ///< The current state of this entity.
-        btCollisionShape* m_CollisionShape;         ///< The collision shape that is used to approximate and represent this player in the physics world.
-        btRigidBody*      m_RigidBody;              ///< The rigid body (of "kinematic" type) for use in the physics world.
-
         mutable VectorT   LastSeenAmbientColor;     // This is a client-side variable, unrelated to prediction, and thus allowed.
         IntrusivePtrT<cf::GuiSys::GuiImplT> GuiHUD; ///< The HUD GUI for this local human player entity.
     };

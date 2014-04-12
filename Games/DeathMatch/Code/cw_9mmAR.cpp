@@ -31,6 +31,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameSys/CompLightPoint.hpp"
 #include "GameSys/CompModel.hpp"
 #include "GameSys/CompParticleSystemOld.hpp"
+#include "GameSys/CompPhysics.hpp"
 #include "GameSys/CompPlayerPhysics.hpp"
 #include "GameSys/CompScript.hpp"
 #include "GameSys/CompSound.hpp"
@@ -177,13 +178,11 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtr
                 if (ThinkingOnServerSide)
                 {
                     // If we are on server-side, fire the first single shot, and find out what or who we hit.
-                    const Vector3dT ViewDir = Player->GetViewDir(0.03492);  // ca. 2°
+                    const Vector3dT  ViewDir = Player->GetViewDir(0.03492);  // ca. 2°
+                    const RayResultT RayResult(HumanPlayer->TracePlayerRay(ViewDir));
 
-                    RayResultT RayResult(Player->GetRigidBody());
-                    Player->GameWorld->GetPhysicsWorld().TraceRay(UnitsToPhys(Player->GetOrigin()), scale(ViewDir, 9999999.0/1000.0), RayResult);
-
-                    if (RayResult.hasHit() && RayResult.GetHitEntity()!=NULL)
-                        static_cast<BaseEntityT*>(RayResult.GetHitEntity())->TakeDamage(Player, 1, ViewDir);
+                    if (RayResult.hasHit() && RayResult.GetHitPhysicsComp())
+                        HumanPlayer->InflictDamage(RayResult.GetHitPhysicsComp()->GetEntity(), 1.0f, ViewDir);
                 }
                 break;
             }
@@ -336,10 +335,8 @@ void CarriedWeapon9mmART::ClientSide_HandleStateDrivenEffects(const EntHumanPlay
     {
         if (State.ActiveWeaponFrameNr==0.0)
         {
-            const Vector3dT ViewDir = Player->GetViewDir(0.03492);  // ca. 2°
-
-            RayResultT RayResult(Player->GetRigidBody());
-            Player->GameWorld->GetPhysicsWorld().TraceRay(UnitsToPhys(Player->GetOrigin()), scale(ViewDir, 9999999.0/1000.0), RayResult);
+            const Vector3dT  ViewDir = Player->GetViewDir(0.03492);  // ca. 2°
+            const RayResultT RayResult(HumanPlayer->TracePlayerRay(ViewDir));
 
             if (!RayResult.hasHit()) return;
 
@@ -360,7 +357,7 @@ void CarriedWeapon9mmART::ClientSide_HandleStateDrivenEffects(const EntHumanPlay
             NewParticle.Radius=12.0;
             NewParticle.StretchY=1.0;
             NewParticle.RenderMat=ResMan.RenderMats[ResMan.PARTICLE_GENERIC1];
-            NewParticle.MoveFunction=RayResult.GetHitEntity()==NULL ? ParticleFunction_HitWall : ParticleFunction_HitEntity;
+            NewParticle.MoveFunction=RayResult.GetHitPhysicsComp()==NULL ? ParticleFunction_HitWall : ParticleFunction_HitEntity;
 
             ParticleEngineMS::RegisterNewParticle(NewParticle);
 

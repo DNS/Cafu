@@ -53,6 +53,7 @@ namespace cf
             ~ComponentPhysicsT();
 
             float GetMass() const { return m_Mass.Get(); }
+            const btRigidBody* GetRigidBody() const { return m_RigidBody; }
 
 
             // Base class overrides.

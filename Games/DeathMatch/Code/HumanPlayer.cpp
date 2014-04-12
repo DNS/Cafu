@@ -114,8 +114,6 @@ EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
             0,      // ActiveWeaponSlot
             0,      // ActiveWeaponSequNr
             0.0),   // ActiveWeaponFrameNr
-      m_CollisionShape(NULL),
-      m_RigidBody(NULL),
       GuiHUD(NULL)
 {
     // TODO: This must be reconsidered when finally switching to the Component System!
@@ -137,6 +135,10 @@ EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
     // GuiHUD=(is local human player) ? cf::GuiSys::GuiMan->Find("Games/DeathMatch/GUIs/HUD.cgui", true) : NULL;
 
 
+#if 0   // TODO: Re-add a physics body to the human player when ported to the Component System!
+    // btCollisionShape* m_CollisionShape;         ///< The collision shape that is used to approximate and represent this player in the physics world.
+    // btRigidBody*      m_RigidBody;              ///< The rigid body (of "kinematic" type) for use in the physics world.
+
     // The /1000 is because our physics world is in meters.
     m_CollisionShape=new btBoxShape(conv(UnitsToPhys(m_Dimensions.Max-m_Dimensions.Min)/2.0));  // Should use a btCylinderShapeZ instead of btBoxShape?
 
@@ -148,17 +150,12 @@ EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
     m_RigidBody->setActivationState(DISABLE_DEACTIVATION);
 
     // GameWorld->GetPhysicsWorld().AddRigidBody(m_RigidBody);     // Don't add to the world here - adding/removing is done when State.StateOfExistance changes.
+#endif
 }
 
 
 EntHumanPlayerT::~EntHumanPlayerT()
 {
-    if (m_RigidBody->isInWorld())
-        GameWorld->GetPhysicsWorld().RemoveRigidBody(m_RigidBody);
-
-    delete m_RigidBody;
-    delete m_CollisionShape;
-
     cf::GuiSys::GuiMan->Free(GuiHUD);
 }
 
@@ -248,6 +245,7 @@ void EntHumanPlayerT::DoDeserialize(cf::Network::InStreamT& Stream)
 }
 
 
+// TODO: This is not longer called from anywhere, and should be ported to script! (HumanPlayer.lua) !!
 void EntHumanPlayerT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT& ImpactDir)
 {
     // Only human players that are still alive can take damage.
@@ -460,9 +458,6 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
         {
             case StateOfExistance_Alive:
             {
-                if (!m_RigidBody->isInWorld())
-                    GameWorld->GetPhysicsWorld().AddRigidBody(m_RigidBody);
-
                 // Update Heading
                 {
                     cf::math::AnglesfT Angles(m_Entity->GetTransform()->GetQuatPS());       // We actually rotate the entity.
@@ -889,9 +884,6 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
             {
                 const Vector3fT OldOrigin = m_Entity->GetTransform()->GetOriginWS();
 
-                if (m_RigidBody->isInWorld())
-                    GameWorld->GetPhysicsWorld().RemoveRigidBody(m_RigidBody);
-
                 CompPlayerPhysics->SetMember("StepHeight", 4.0);
                 CompPlayerPhysics->MoveHuman(PlayerCommands[PCNr].FrameTime, Vector3fT(), Vector3fT(), false);
 
@@ -958,9 +950,6 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
             case StateOfExistance_FrozenSpectator:
             {
-                if (m_RigidBody->isInWorld())
-                    GameWorld->GetPhysicsWorld().RemoveRigidBody(m_RigidBody);
-
 #if 0   // TODO: HEAD SWAY
                 const float Pi          =3.14159265359f;
                 const float SecPerSwing =15.0f;
@@ -1283,28 +1272,6 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
             }
         }
     }
-}
-
-
-void EntHumanPlayerT::getWorldTransform(btTransform& worldTrans) const
-{
-    Vector3dT Origin = m_Entity->GetTransform()->GetOriginWS().AsVectorOfDouble();
-
-    // The box shape of our physics body is equally centered around the origin point,
-    // whereas our m_Dimensions box is "non-uniformely displaced".
-    // In order to compensate, compute how far the m_Dimensions center is away from the origin.
-    Origin.z+=(m_Dimensions.Min.z+m_Dimensions.Max.z)/2.0;
-
-    // Return the current transformation of our rigid body to the physics world.
-    worldTrans.setIdentity();
-    worldTrans.setOrigin(conv(UnitsToPhys(Origin)));
-}
-
-
-void EntHumanPlayerT::setWorldTransform(const btTransform& /*worldTrans*/)
-{
-    // Never called for a kinematic rigid body.
-    assert(false);
 }
 
 
