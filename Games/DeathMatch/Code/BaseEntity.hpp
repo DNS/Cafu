@@ -56,7 +56,6 @@ namespace GAME_NAME
     struct EntityStateT
     {
         char           StateOfExistance;        // For entity defined state machines, e.g. "specator, dead, alive, ...".
-        char           Flags;                   // Entity defined flags.
         char           PlayerName[64];          // If it is a human player, this is its name. Usually unused otherwise.
      // ArrayT<char>   PlayerName;
 
@@ -70,7 +69,7 @@ namespace GAME_NAME
         unsigned short HaveAmmo[16];            // Entity can carry 16 different types of ammo (weapon independent). This is the amount of each.
         unsigned char  HaveAmmoInWeapons[32];   // Entity can carry ammo in each of the 32 weapons. This is the amount of each.
 
-        EntityStateT(char StateOfExistance_, char Flags_,
+        EntityStateT(char StateOfExistance_,
                      char Health_, char Armor_, unsigned long HaveItems_, unsigned long HaveWeapons_,
                      char ActiveWeaponSlot_, char ActiveWeaponSequNr_, float ActiveWeaponFrameNr_);
     };

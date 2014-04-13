@@ -105,7 +105,6 @@ EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
                                  Vector3dT(-16.0, -16.0, -68.0)),
                   NUM_EVENT_TYPES),
       State(StateOfExistance_FrozenSpectator,
-            0,
             100,    // Health
             0,      // Armor
             0,      // HaveItems
@@ -182,7 +181,6 @@ void EntHumanPlayerT::AddFrag(int NumFrags)
 void EntHumanPlayerT::DoSerialize(cf::Network::OutStreamT& Stream) const
 {
     Stream << State.StateOfExistance;
-    Stream << State.Flags;
     Stream << State.PlayerName;       // TODO: In the old code, the PlayerName apparently is read/written in *baseline* messages only.
     Stream << State.Health;
     Stream << State.Armor;
@@ -199,11 +197,9 @@ void EntHumanPlayerT::DoSerialize(cf::Network::OutStreamT& Stream) const
 
 void EntHumanPlayerT::DoDeserialize(cf::Network::InStreamT& Stream)
 {
-    float    f =0.0f;
     uint32_t ui=0;
 
     Stream >> State.StateOfExistance;
-    Stream >> State.Flags;
     Stream >> State.PlayerName;     // TODO: In the old code, the PlayerName apparently is read/written in *baseline* messages only.
     Stream >> State.Health;
     Stream >> State.Armor;
