@@ -51,7 +51,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Models/Model_cmdl.hpp"
 #include "Network/State.hpp"
 #include "OpenGL/OpenGLWindow.hpp"
-#include "ParticleEngine/ParticleEngineMS.hpp"
 #include "TypeSys.hpp"
 #include "UniScriptState.hpp"
 
@@ -1138,13 +1137,6 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
 
     if (FirstPersonView)
     {
-        // This is a quite good place to deal with the ParticleEngine,
-        // because we come here exactly once per frame, only after everything else has already been drawn,
-        // and with the OpenGL modelview matrix set to world space.
-        ParticleEngineMS::DrawParticles();
-        ParticleEngineMS::MoveParticles(FrameTime);
-
-
         // Inside the next { ... } block is some leftover of the HUD code as it was *before* it was implemented by means of the GuiSys.
         // It would be easy to implement this with the below GuiHUD code, too, but I intentionally leave it in for now,
         // as it demonstrates both the old was well as an alternative (to the GuiSys) way of text output (or "custom rendering").

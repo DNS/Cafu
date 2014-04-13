@@ -33,6 +33,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/Matrix.hpp"
 #include "Math3D/Matrix3x3.hpp"
 #include "Network/Network.hpp"
+#include "ParticleEngine/ParticleEngineMS.hpp"
 #include "SceneGraph/Node.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
 #include "SceneGraph/FaceNode.hpp"
@@ -557,6 +558,12 @@ void CaClientWorldT::Draw(float FrameTime, IntrusivePtrT<const cf::GameSys::Comp
 
     // Render translucent nodes back-to-front.
     BspTree->DrawTranslucentContrib(DrawOrigin);
+
+    // This is a quite good place to deal with the ParticleEngine,
+    // because we come here exactly once per frame, only after everything else has already been drawn,
+    // and with the OpenGL modelview matrix set to world space.
+    ParticleEngineMS::DrawParticles();
+    ParticleEngineMS::MoveParticles(FrameTime);
 
     // Zuletzt halbtransparente HUD-Elemente, Fonts usw. zeichnen.
     PostDrawEntities(FrameTime, CurrentFrame.EntityIDsInPVS);
