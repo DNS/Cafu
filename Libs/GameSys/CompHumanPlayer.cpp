@@ -46,29 +46,26 @@ const char* ComponentHumanPlayerT::DocClass =
 
 const cf::TypeSys::VarsDocT ComponentHumanPlayerT::DocVars[] =
 {
- // { "SinglePlayer", "If checked, players can be spawned here in single-player games." },
- // { "MultiPlayer",  "If checked, players can be spawned here in multi-player games." },
+    { "PlayerName", "The name that the player chose for himself." },
     { NULL, NULL }
 };
 
 
 ComponentHumanPlayerT::ComponentHumanPlayerT()
     : ComponentBaseT(),
+      m_PlayerName("PlayerName", "Player"),
       m_PlayerCommands()
-  //  m_SinglePlayer("SinglePlayer", true),
-  //  m_MultiPlayer("MultiPlayer", true)
 {
-    // GetMemberVars().Add(&m_SinglePlayer);
+    GetMemberVars().Add(&m_PlayerName);
 }
 
 
 ComponentHumanPlayerT::ComponentHumanPlayerT(const ComponentHumanPlayerT& Comp)
     : ComponentBaseT(Comp),
+      m_PlayerName(Comp.m_PlayerName),
       m_PlayerCommands()
-  //  m_SinglePlayer(Comp.m_SinglePlayer),
-  //  m_MultiPlayer(Comp.m_MultiPlayer)
 {
-    // GetMemberVars().Add(&m_SinglePlayer);
+    GetMemberVars().Add(&m_PlayerName);
 }
 
 

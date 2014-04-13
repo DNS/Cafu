@@ -50,7 +50,6 @@ namespace GAME_NAME
 
         // Implement the BaseEntityT interface.
         void TakeDamage(BaseEntityT* Entity, char Amount, const VectorT& ImpactDir);
-        void ProcessConfigString(const void* ConfigData, const char* ConfigString);
         void Think(float FrameTime, unsigned long ServerFrameNr);
 
         void ProcessEvent(unsigned int EventType, unsigned int NumEvents);

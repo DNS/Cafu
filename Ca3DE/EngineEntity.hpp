@@ -51,9 +51,6 @@ class EngineEntityT
     /// Returns the GameSys entity related to this EngineEntityT.
     IntrusivePtrT<cf::GameSys::EntityT> GetEntity() const { return m_Entity; }
 
-    // Bearbeitet den 'ConfigString' und die 'ConfigData'.
-    void ProcessConfigString(const void* ConfigData, const char* ConfigString);
-
 
     /*******************/
     /*** Server Side ***/

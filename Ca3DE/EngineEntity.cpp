@@ -54,12 +54,6 @@ IntrusivePtrT<GameEntityI> EngineEntityT::GetGameEntity() const
 }
 
 
-void EngineEntityT::ProcessConfigString(const void* ConfigData, const char* ConfigString)
-{
-    Entity->ProcessConfigString(ConfigData, ConfigString);
-}
-
-
 cf::Network::StateT EngineEntityT::GetState() const
 {
     cf::Network::StateT     State;

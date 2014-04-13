@@ -70,7 +70,7 @@ class Ca3DEWorldT : public cf::GameSys::GameWorldI
     /// @returns The ID of the newly created entity, so that the server can let the client know which entity the
     ///     client itself is. If it was not possible to create the entity, 0xFFFFFFFF is returned.
     unsigned long CreateNewEntityFromBasicInfo(IntrusivePtrT<const CompGameEntityT> CompGameEnt,
-        unsigned long CreationFrameNr, const char* PlayerName = NULL);
+        unsigned long CreationFrameNr);
 
     cf::GameSys::GameI*                m_Game;
     const WorldT*                      m_World;

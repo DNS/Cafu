@@ -93,17 +93,6 @@ class GameEntityI : public RefCountedT
     virtual void Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)=0;
 
 
-    /// THIS FUNCTION IS DEPRECATED! TRY TO AVOID TO USE IT!
-    /// This DEPRECATED, SERVER-SIDE function is called in order to "communicate" with this entity.
-    /// It is probably a (bad) replacement for additional, missing member functions, so don't use it!
-    /// Mostly used for setting/querying the properties of specific, concrete entities,
-    /// e.g. the player names, player model names, player commands, or if something is solid,
-    /// alive or was picked up (and is thus "invisible" for a while), and so on.
-    /// This should most certainly be resolved as soon as possible, requires careful design considerations, however.
-    /// At a first glance, the related methods are *only* called from the server (like passing in player commands),
-    /// or from within the Think() functions, but never on the client side.
-    virtual void ProcessConfigString(const void* ConfigData, const char* ConfigString)=0;
-
     /// This SERVER-SIDE function is called by the server in order to advance the world one clock-tick.
     /// That is, basing on the present (old) state, it is called for computing the next (new) state.
     /// 'FrameTime' is the time of the clock-tick, in seconds.

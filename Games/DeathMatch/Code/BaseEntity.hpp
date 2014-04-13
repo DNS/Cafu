@@ -56,9 +56,6 @@ namespace GAME_NAME
     struct EntityStateT
     {
         char           StateOfExistance;        // For entity defined state machines, e.g. "specator, dead, alive, ...".
-        char           PlayerName[64];          // If it is a human player, this is its name. Usually unused otherwise.
-     // ArrayT<char>   PlayerName;
-
         char           Health;                  // Health.
         char           Armor;                   // Armor.
         unsigned long  HaveItems;               // Bit field, entity can carry 32 different items.
@@ -144,7 +141,6 @@ namespace GAME_NAME
         void PostEvent(unsigned int EventType) { m_EventsCount[EventType]++; }
 
         // Implement SERVER-SIDE GameEntityI base class methods.
-        virtual void ProcessConfigString(const void* ConfigData, const char* ConfigString) /*override*/;
         virtual void Think(float FrameTime, unsigned long ServerFrameNr) /*override*/;
 
 

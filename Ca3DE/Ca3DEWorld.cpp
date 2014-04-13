@@ -287,7 +287,7 @@ cf::GuiSys::GuiResourcesT& Ca3DEWorldT::GetGuiResources() const
 
 
 unsigned long Ca3DEWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<const CompGameEntityT> CompGameEnt,
-    unsigned long CreationFrameNr, const char* PlayerName)
+    unsigned long CreationFrameNr)
 {
     try
     {
@@ -334,15 +334,6 @@ unsigned long Ca3DEWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<const Comp
 
         if (NewEntity.IsNull())
             throw std::runtime_error("Could not create entity of class \""+EntClassName+"\" with C++ class name \""+CppClassName+"\".\n");
-
-
-        // OPEN QUESTION:
-        // Should we copy the Properties into the Lua entity instance, into the C++ entity instance, or nowhere (just keep the std::map<> pointer around)?
-        // See   svn log -r 301   for one argument for the C++ instance.
-
-        // Muß dies VOR dem Erzeugen des EngineEntitys tun, denn sonst stimmt dessen BaseLine nicht!
-        if (PlayerName!=NULL) NewEntity->ProcessConfigString(PlayerName, "PlayerName");
-     // if (ModelName !=NULL) NewEntity->ProcessConfigString(ModelName , "ModelName" );
 
         m_EngineEntities.PushBack(new EngineEntityT(NewEntity, CompGameEnt->GetEntity(), CreationFrameNr));
 

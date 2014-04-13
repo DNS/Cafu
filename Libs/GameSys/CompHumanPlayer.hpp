@@ -89,7 +89,8 @@ namespace cf
 
             private:
 
-            ArrayT<PlayerCommandT> m_PlayerCommands;    ///< The commands to be processed in the next Think() step.
+            TypeSys::VarT<std::string> m_PlayerName;        ///< The name that the player chose for himself.
+            ArrayT<PlayerCommandT>     m_PlayerCommands;    ///< The commands to be processed in the next Think() step.
         };
     }
 }

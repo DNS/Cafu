@@ -65,8 +65,6 @@ EntityStateT::EntityStateT(char StateOfExistance_,
                            char Health_, char Armor_, unsigned long HaveItems_, unsigned long HaveWeapons_,
                            char ActiveWeaponSlot_, char ActiveWeaponSequNr_, float ActiveWeaponFrameNr_)
     : StateOfExistance(StateOfExistance_),
-   // PlayerName[]
-
       Health(Health_),
       Armor(Armor_),
       HaveItems(HaveItems_),
@@ -77,8 +75,6 @@ EntityStateT::EntityStateT(char StateOfExistance_,
    // HaveAmmo[]
    // HaveAmmoInWeapons[]
 {
-    PlayerName[0]=0;
-
     for (int Nr=0; Nr<16; Nr++) HaveAmmo         [Nr]=0;
     for (int Nr=0; Nr<32; Nr++) HaveAmmoInWeapons[Nr]=0;
 }
@@ -185,11 +181,6 @@ void BaseEntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
             m_Interpolators[i]->NotifyOverwriteUpdate();
         }
     }
-}
-
-
-void BaseEntityT::ProcessConfigString(const void* /*ConfigData*/, const char* /*ConfigString*/)
-{
 }
 
 

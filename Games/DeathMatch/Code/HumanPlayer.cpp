@@ -181,7 +181,6 @@ void EntHumanPlayerT::AddFrag(int NumFrags)
 void EntHumanPlayerT::DoSerialize(cf::Network::OutStreamT& Stream) const
 {
     Stream << State.StateOfExistance;
-    Stream << State.PlayerName;       // TODO: In the old code, the PlayerName apparently is read/written in *baseline* messages only.
     Stream << State.Health;
     Stream << State.Armor;
     Stream << uint32_t(State.HaveItems);
@@ -200,7 +199,6 @@ void EntHumanPlayerT::DoDeserialize(cf::Network::InStreamT& Stream)
     uint32_t ui=0;
 
     Stream >> State.StateOfExistance;
-    Stream >> State.PlayerName;     // TODO: In the old code, the PlayerName apparently is read/written in *baseline* messages only.
     Stream >> State.Health;
     Stream >> State.Armor;
     Stream >> ui; State.HaveItems=ui;
@@ -284,14 +282,6 @@ void EntHumanPlayerT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT
     {
         State.Health-=Amount;
     }
-}
-
-
-void EntHumanPlayerT::ProcessConfigString(const void* ConfigData, const char* ConfigString)
-{
-         if (strcmp(ConfigString, "PlayerCommand")==0) /* PlayerCommands.PushBack(*((PlayerCommandT*)ConfigData)) */;
-    else if (strcmp(ConfigString, "IsAlive?"     )==0) *((bool*)ConfigData)=(State.StateOfExistance==StateOfExistance_Alive);
-    else if (strcmp(ConfigString, "PlayerName"   )==0) strncpy(State.PlayerName, (const char*)ConfigData, sizeof(State.PlayerName));
 }
 
 
