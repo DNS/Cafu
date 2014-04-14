@@ -161,8 +161,7 @@ void CarriedWeaponBattleScytheT::ServerSide_Think(EntHumanPlayerT* Player, Intru
 
 void CarriedWeaponBattleScytheT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT* Player, IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& /*LastSeenAmbientColor*/) const
 {
-    const EntityStateT& State   = Player->GetState();
-    const Vector3dT     ViewDir = HumanPlayer->GetViewDirWS();
+    const Vector3dT ViewDir = HumanPlayer->GetViewDirWS();
 
     // Update sound position and velocity.
     FireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 12.0));
@@ -175,8 +174,7 @@ void CarriedWeaponBattleScytheT::ClientSide_HandlePrimaryFireEvent(const EntHuma
 
 void CarriedWeaponBattleScytheT::ClientSide_HandleSecondaryFireEvent(const EntHumanPlayerT* Player, IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& /*LastSeenAmbientColor*/) const
 {
-    const EntityStateT& State   = Player->GetState();
-    const Vector3dT     ViewDir = HumanPlayer->GetViewDirWS();
+    const Vector3dT ViewDir = HumanPlayer->GetViewDirWS();
 
     // Update sound position and velocity.
     FireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 12.0));

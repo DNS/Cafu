@@ -290,8 +290,6 @@ static bool ParticleFunction_ShotgunWhiteSmoke(ParticleMST* Particle, float Time
 
 void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT* Player, IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& LastSeenAmbientColor) const
 {
-    const EntityStateT& State=Player->GetState();
-
     for (char i=0; i<8; i++)
     {
         const Vector3dT  ViewDir = HumanPlayer->GetViewDirWS(0.08748866);   // ca. 5°
@@ -359,8 +357,6 @@ void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlay
 
 void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(const EntHumanPlayerT* Player, IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& LastSeenAmbientColor) const
 {
-    const EntityStateT& State=Player->GetState();
-
     for (char i=0; i<16; i++)
     {
         const Vector3dT  ViewDir = HumanPlayer->GetViewDirWS(0.08748866);   // ca. 5°

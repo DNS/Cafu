@@ -192,8 +192,7 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, Intrusi
 
 void CarriedWeaponFaceHuggerT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT* Player, IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& /*LastSeenAmbientColor*/) const
 {
-    const EntityStateT& State   = Player->GetState();
-    const Vector3dT     ViewDir = HumanPlayer->GetViewDirWS();
+    const Vector3dT ViewDir = HumanPlayer->GetViewDirWS();
 
     // Update sound position and velocity.
     IntrusivePtrT<const cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(Player->m_Entity->GetComponent("PlayerPhysics"));

@@ -221,9 +221,8 @@ static bool ParticleFunction_HitEntity(ParticleMST* Particle, float Time)
 
 void CarriedWeapon357T::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT* Player, IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& /*LastSeenAmbientColor*/) const
 {
-    const EntityStateT& State   = Player->GetState();
-    const Vector3dT     ViewDir = HumanPlayer->GetViewDirWS();
-    const RayResultT    RayResult(HumanPlayer->TracePlayerRay(ViewDir));
+    const Vector3dT  ViewDir = HumanPlayer->GetViewDirWS();
+    const RayResultT RayResult(HumanPlayer->TracePlayerRay(ViewDir));
 
     if (!RayResult.hasHit()) return;
 
