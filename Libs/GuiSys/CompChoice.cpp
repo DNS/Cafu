@@ -54,7 +54,7 @@ const cf::TypeSys::VarsDocT ComponentChoiceT::DocVars[] =
 ComponentChoiceT::ComponentChoiceT()
     : ComponentBaseT(),
       m_TextComp(NULL),
-      m_Choices("Choices", ArrayT<std::string>()),
+      m_Choices("Choices", 0, ""),
       m_Selection("Selection", 0)   // 0 is "no selection", 1 is the first choice.
 {
     GetMemberVars().Add(&m_Choices);
@@ -105,11 +105,11 @@ void ComponentChoiceT::OnPostLoad(bool InEditor)
 bool ComponentChoiceT::OnInputEvent(const CaKeyboardEventT& KE)
 {
     if (m_TextComp == NULL) return false;
-    if (m_Choices.Get().Size() == 0) return false;
+    if (m_Choices.Size() == 0) return false;
     if (KE.Type != CaKeyboardEventT::CKE_KEYDOWN) return false;
 
     // Note that the range of Sel is 1 ... Size, not 0 ... Size-1.
-    const unsigned int Num = m_Choices.Get().Size();
+    const unsigned int Num = m_Choices.Size();
     const unsigned int Sel = m_Selection.Get();
 
     switch (KE.Key)
@@ -165,7 +165,7 @@ bool ComponentChoiceT::OnInputEvent(const CaKeyboardEventT& KE)
 bool ComponentChoiceT::OnInputEvent(const CaMouseEventT& ME, float PosX, float PosY)
 {
     if (m_TextComp == NULL) return false;
-    if (m_Choices.Get().Size() == 0) return false;
+    if (m_Choices.Size() == 0) return false;
     if (ME.Type != CaMouseEventT::CM_BUTTON0) return false;
 
     if (ME.Amount == 0)
@@ -173,7 +173,7 @@ bool ComponentChoiceT::OnInputEvent(const CaMouseEventT& ME, float PosX, float P
         const unsigned int Sel = m_Selection.Get();
 
         // Note that the range of Sel is 1 ... Size, not 0 ... Size-1.
-        m_Selection.Set(Sel < m_Choices.Get().Size() ? Sel+1 : 1);
+        m_Selection.Set(Sel < m_Choices.Size() ? Sel+1 : 1);
 
         Sync();
         CallLuaMethod("OnSelectionChanged");
@@ -191,10 +191,10 @@ void ComponentChoiceT::Sync()
 
     if (m_TextComp == NULL) return;
     if (Sel < 1) return;
-    if (Sel > m_Choices.Get().Size()) return;
+    if (Sel > m_Choices.Size()) return;
 
     // Note that the range of Sel is 1 ... Size, not 0 ... Size-1.
-    m_TextComp->SetText(m_Choices.Get()[Sel-1]);
+    m_TextComp->SetText(m_Choices[Sel-1]);
 }
 
 
@@ -230,10 +230,10 @@ int ComponentChoiceT::GetSelItem(lua_State* LuaState)
     ScriptBinderT Binder(LuaState);
     IntrusivePtrT<ComponentChoiceT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentChoiceT> >(1);
 
-    if (Comp->m_Selection.Get() < 1 || Comp->m_Selection.Get() > Comp->m_Choices.Get().Size())
+    if (Comp->m_Selection.Get() < 1 || Comp->m_Selection.Get() > Comp->m_Choices.Size())
         lua_pushnil(LuaState);
     else
-        lua_pushstring(LuaState, Comp->m_Choices.Get()[Comp->m_Selection.Get() - 1].c_str());
+        lua_pushstring(LuaState, Comp->m_Choices[Comp->m_Selection.Get() - 1].c_str());
 
     return 1;
 }

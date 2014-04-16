@@ -71,10 +71,10 @@ namespace cf
             void visit(cf::TypeSys::VarT<Vector3fT>& Var);
             void visit(cf::TypeSys::VarT<Vector3dT>& Var);
             void visit(cf::TypeSys::VarT<BoundingBox3dT>& Var);
-            void visit(cf::TypeSys::VarT< ArrayT<uint32_t> >& Var);
-            void visit(cf::TypeSys::VarT< ArrayT<uint16_t> >& Var);
-            void visit(cf::TypeSys::VarT< ArrayT<uint8_t> >& Var);
-            void visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var);
+            void visit(cf::TypeSys::VarArrayT<uint32_t>& Var);
+            void visit(cf::TypeSys::VarArrayT<uint16_t>& Var);
+            void visit(cf::TypeSys::VarArrayT<uint8_t>& Var);
+            void visit(cf::TypeSys::VarArrayT<std::string>& Var);
 
 
             private:

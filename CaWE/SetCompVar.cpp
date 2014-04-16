@@ -38,6 +38,10 @@ namespace
 }
 
 
+/**************************/
+/*** CommandSetCompVarT ***/
+/**************************/
+
 template<class T>
 CommandSetCompVarT<T>::CommandSetCompVarT(DocAdapterI& DocAdapter, cf::TypeSys::VarT<T>& Var, const T& NewValue)
     : m_DocAdapter(DocAdapter),
@@ -98,6 +102,75 @@ wxString CommandSetCompVarT<T>::GetName() const
 }
 
 
+/*******************************/
+/*** CommandSetCompVarArrayT ***/
+/*******************************/
+
+template<class T>
+CommandSetCompVarArrayT<T>::CommandSetCompVarArrayT(DocAdapterI& DocAdapter, cf::TypeSys::VarArrayT<T>& Var, const ArrayT<T>& NewValues)
+    : m_DocAdapter(DocAdapter),
+      m_Var(Var),
+      m_OldState(GetOldState(Var)),
+      m_NewValues(NewValues)
+{
+}
+
+
+template<class T>
+CommandSetCompVarArrayT<T>::CommandSetCompVarArrayT(DocAdapterI& DocAdapter, cf::TypeSys::VarArrayT<T>& Var, const cf::Network::StateT& OldState)
+    : m_DocAdapter(DocAdapter),
+      m_Var(Var),
+      m_OldState(OldState),
+      m_NewValues(Var.Get())
+{
+    m_Done = true;
+}
+
+
+template<class T>
+bool CommandSetCompVarArrayT<T>::Do()
+{
+    wxASSERT(!m_Done);
+    if (m_Done) return false;
+
+    m_Var.Overwrite();
+    for (unsigned int i = 0; i < m_NewValues.Size(); i++)
+        m_Var[i] = m_NewValues[i];
+
+    m_DocAdapter.UpdateAllObservers_VarChanged(m_Var);
+    m_Done=true;
+    return true;
+}
+
+
+template<class T>
+void CommandSetCompVarArrayT<T>::Undo()
+{
+    wxASSERT(m_Done);
+    if (!m_Done) return;
+
+    cf::Network::InStreamT Stream(m_OldState);
+
+    // Working with VarArrayTs can actually not involve side-effects, so a loop that sets `m_Var[i] = m_OldValues[i]`
+    // would be feasible here. Still, let's use code like in CommandSetCompVarT for symmetry.
+    m_Var.Deserialize(Stream);
+
+    m_DocAdapter.UpdateAllObservers_VarChanged(m_Var);
+    m_Done=false;
+}
+
+
+template<class T>
+wxString CommandSetCompVarArrayT<T>::GetName() const
+{
+    return wxString("Set ") + m_Var.GetName();
+}
+
+
+/*******************************/
+/*** Template Instantiations ***/
+/*******************************/
+
 template class CommandSetCompVarT<float>;
 template class CommandSetCompVarT<double>;
 template class CommandSetCompVarT<int>;
@@ -110,7 +183,7 @@ template class CommandSetCompVarT<Vector2fT>;
 template class CommandSetCompVarT<Vector3fT>;
 template class CommandSetCompVarT<Vector3dT>;
 template class CommandSetCompVarT<BoundingBox3dT>;
-template class CommandSetCompVarT< ArrayT<uint32_t> >;
-template class CommandSetCompVarT< ArrayT<uint16_t> >;
-template class CommandSetCompVarT< ArrayT<uint8_t> >;
-template class CommandSetCompVarT< ArrayT<std::string> >;
+template class CommandSetCompVarArrayT<uint32_t>;
+template class CommandSetCompVarArrayT<uint16_t>;
+template class CommandSetCompVarArrayT<uint8_t>;
+template class CommandSetCompVarArrayT<std::string>;

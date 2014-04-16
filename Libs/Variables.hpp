@@ -211,16 +211,64 @@ namespace cf
             /// If the method returns no tuples at all, it means that user input is free and any value is acceptable.
             virtual void GetChoices(ArrayT<std::string>& Strings, ArrayT<T>& Values) const { }
 
-            void Serialize(Network::OutStreamT& Stream) const;
-            void Deserialize(Network::InStreamT& Stream);
+            void Serialize(Network::OutStreamT& Stream) const /*override*/;
+            void Deserialize(Network::InStreamT& Stream) /*override*/;
 
-            void accept(VisitorT&      Visitor);
-            void accept(VisitorConstT& Visitor) const;
+            void accept(VisitorT&      Visitor) /*override*/;
+            void accept(VisitorConstT& Visitor) const /*override*/;
 
 
             private:
 
             T m_Value;  ///< The actual variable that is wrapped by this class.
+        };
+
+
+        /// This is a "wrapper" around a normal C++ variable specifically of type ArrayT<T>.
+        ///
+        /// This class is similar to VarT< ArrayT<T> >, but was invented because working with VarT< ArrayT<T> >s
+        /// is actually difficult in practice:
+        ///
+        ///   - Setting individual elements of the array or modifying the array itself (e.g. pushing back another
+        ///     element) via the VarT::Set() method is cumbersome.
+        ///   - Adding a non-const Get() method to VarT< ArrayT<T> > was not desired, because it would break the
+        ///     accounting for side-effects that is guaranteed by the VarT::Set() method.
+        ///   - (Arrays seem to need side-effects as little as lists of pre-made choices.)
+        ///
+        /// Therefore, VarArrayT<T> was made to have an interface that is easier to use and more efficient when
+        /// working with arrays, and consciously omits the "possible side-effects" feature that VarT::Set() has.
+        ///
+        /// It can be used in place of a normal ArrayT variable whenever the functionality described in
+        /// \ref OverviewVariables is desired, for example in the member variables of component classes of game
+        /// entities and GUI windows.
+        ///
+        /// @see \ref OverviewVariables
+        template<class T> class VarArrayT : public VarBaseT
+        {
+            public:
+
+            /// The constructor.
+            VarArrayT(const char* Name, unsigned int InitSize, const T& InitValue, const char* Flags[]=NULL);
+
+            const ArrayT<T>& Get() const   { return m_Array; }
+            unsigned int Size() const      { return m_Array.Size(); }
+            void Clear()                   { m_Array.Clear(); }
+            void Overwrite()               { m_Array.Overwrite(); }
+            void PushBack(const T Element) { m_Array.PushBack(Element); }
+
+            const T& operator [] (unsigned int i) const { return m_Array[i]; }
+            T& operator [] (unsigned int i) { return m_Array[i]; }
+
+            void Serialize(Network::OutStreamT& Stream) const /*override*/;
+            void Deserialize(Network::InStreamT& Stream) /*override*/;
+
+            void accept(VisitorT&      Visitor) /*override*/;
+            void accept(VisitorConstT& Visitor) const /*override*/;
+
+
+            private:
+
+            ArrayT<T> m_Array;  ///< The actual array that is wrapped by this class.
         };
 
 
@@ -248,10 +296,10 @@ namespace cf
             virtual void visit(VarT<Vector3fT>& Var) = 0;
             virtual void visit(VarT<Vector3dT>& Var) = 0;
             virtual void visit(VarT<BoundingBox3dT>& Var) = 0;
-            virtual void visit(VarT< ArrayT<uint32_t> >& Var) = 0;
-            virtual void visit(VarT< ArrayT<uint16_t> >& Var) = 0;
-            virtual void visit(VarT< ArrayT<uint8_t> >& Var) = 0;
-            virtual void visit(VarT< ArrayT<std::string> >& Var) = 0;
+            virtual void visit(VarArrayT<uint32_t>& Var) = 0;
+            virtual void visit(VarArrayT<uint16_t>& Var) = 0;
+            virtual void visit(VarArrayT<uint8_t>& Var) = 0;
+            virtual void visit(VarArrayT<std::string>& Var) = 0;
         };
 
 
@@ -276,10 +324,10 @@ namespace cf
             virtual void visit(const VarT<Vector3fT>& Var) = 0;
             virtual void visit(const VarT<Vector3dT>& Var) = 0;
             virtual void visit(const VarT<BoundingBox3dT>& Var) = 0;
-            virtual void visit(const VarT< ArrayT<uint32_t> >& Var) = 0;
-            virtual void visit(const VarT< ArrayT<uint16_t> >& Var) = 0;
-            virtual void visit(const VarT< ArrayT<uint8_t> >& Var) = 0;
-            virtual void visit(const VarT< ArrayT<std::string> >& Var) = 0;
+            virtual void visit(const VarArrayT<uint32_t>& Var) = 0;
+            virtual void visit(const VarArrayT<uint16_t>& Var) = 0;
+            virtual void visit(const VarArrayT<uint8_t>& Var) = 0;
+            virtual void visit(const VarArrayT<std::string>& Var) = 0;
         };
 
 

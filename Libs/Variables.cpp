@@ -23,6 +23,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Network/State.hpp"
 
 
+/****************/
+/*** VarBaseT ***/
+/****************/
+
 bool cf::TypeSys::VarBaseT::HasFlag(const char* Flag) const
 {
     if (!m_Flags) return false;
@@ -53,12 +57,9 @@ const char* cf::TypeSys::VarBaseT::GetFlag(const char* Flag, unsigned int Nr, co
 }
 
 
-void cf::TypeSys::VarManT::Add(VarBaseT* Var)
-{
-    m_VarsArray.PushBack(Var);
-    m_VarsMap[Var->GetName()] = Var;
-}
-
+/***************/
+/*** VarT<T> ***/
+/***************/
 
 template<class T>
 void cf::TypeSys::VarT<T>::Serialize(cf::Network::OutStreamT& Stream) const
@@ -206,6 +207,67 @@ void cf::TypeSys::VarT<T>::accept(VisitorConstT& Visitor) const
 }
 
 
+/********************/
+/*** VarArrayT<T> ***/
+/********************/
+
+template<class T>
+cf::TypeSys::VarArrayT<T>::VarArrayT(const char* Name, unsigned int InitSize, const T& InitValue, const char* Flags[])
+    : VarBaseT(Name, Flags)
+{
+    m_Array.PushBackEmptyExact(InitSize);
+
+    for (unsigned int i = 0; i < InitSize; i++)
+        m_Array[i] = InitValue;
+}
+
+
+template<class T>
+void cf::TypeSys::VarArrayT<T>::Serialize(cf::Network::OutStreamT& Stream) const
+{
+    Stream << m_Array;
+}
+
+
+template<class T>
+void cf::TypeSys::VarArrayT<T>::Deserialize(cf::Network::InStreamT& Stream)
+{
+    // Contrary to `VarT::Deserialize()`, which calls `VarT::Set()` in order to account for
+    // side-effects resulting from derived classes that have provided an override for `VarT::Set()`,
+    // any such side-effects are not supported and not accounted for here.
+    Stream >> m_Array;
+}
+
+
+template<class T>
+void cf::TypeSys::VarArrayT<T>::accept(VisitorT& Visitor)
+{
+    Visitor.visit(*this);
+}
+
+
+template<class T>
+void cf::TypeSys::VarArrayT<T>::accept(VisitorConstT& Visitor) const
+{
+    Visitor.visit(*this);
+}
+
+
+/***************/
+/*** VarManT ***/
+/***************/
+
+void cf::TypeSys::VarManT::Add(VarBaseT* Var)
+{
+    m_VarsArray.PushBack(Var);
+    m_VarsMap[Var->GetName()] = Var;
+}
+
+
+/*******************************/
+/*** Template Instantiations ***/
+/*******************************/
+
 template class cf::TypeSys::VarT<float>;
 template class cf::TypeSys::VarT<double>;
 template class cf::TypeSys::VarT<int>;
@@ -218,7 +280,7 @@ template class cf::TypeSys::VarT<Vector2fT>;
 template class cf::TypeSys::VarT<Vector3fT>;
 template class cf::TypeSys::VarT<Vector3dT>;
 template class cf::TypeSys::VarT<BoundingBox3dT>;
-template class cf::TypeSys::VarT< ArrayT<uint32_t> >;
-template class cf::TypeSys::VarT< ArrayT<uint16_t> >;
-template class cf::TypeSys::VarT< ArrayT<uint8_t> >;
-template class cf::TypeSys::VarT< ArrayT<std::string> >;
+template class cf::TypeSys::VarArrayT<uint32_t>;
+template class cf::TypeSys::VarArrayT<uint16_t>;
+template class cf::TypeSys::VarArrayT<uint8_t>;
+template class cf::TypeSys::VarArrayT<std::string>;

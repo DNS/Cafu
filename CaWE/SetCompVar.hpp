@@ -28,6 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 class DocAdapterI;
 namespace cf { namespace TypeSys { template<class T> class VarT; } }
+namespace cf { namespace TypeSys { template<class T> class VarArrayT; } }
 
 
 template<class T>
@@ -54,6 +55,33 @@ class CommandSetCompVarT : public CommandT
     cf::TypeSys::VarT<T>&     m_Var;
     const cf::Network::StateT m_OldState;
     const T                   m_NewValue;
+};
+
+
+template<class T>
+class CommandSetCompVarArrayT : public CommandT
+{
+    public:
+
+    /// The constructor for setting the given arry to a new set of values.
+    CommandSetCompVarArrayT(DocAdapterI& DocAdapter, cf::TypeSys::VarArrayT<T>& Var, const ArrayT<T>& NewValues);
+
+    /// The constructor to be used when the array has already been set to the new set of values.
+    /// With this constructor, the command is initialized in the "already done" state.
+    CommandSetCompVarArrayT(DocAdapterI& DocAdapter, cf::TypeSys::VarArrayT<T>& Var, const cf::Network::StateT& OldState);
+
+    // CommandT implementation.
+    bool Do();
+    void Undo();
+    wxString GetName() const;
+
+
+    private:
+
+    DocAdapterI&               m_DocAdapter;
+    cf::TypeSys::VarArrayT<T>& m_Var;
+    const cf::Network::StateT  m_OldState;
+    const ArrayT<T>            m_NewValues;
 };
 
 #endif

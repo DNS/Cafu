@@ -81,7 +81,7 @@ const cf::TypeSys::VarsDocT ComponentListBoxT::DocVars[] =
 ComponentListBoxT::ComponentListBoxT()
     : ComponentBaseT(),
       m_TextComp(NULL),
-      m_Items("Items", ArrayT<std::string>()),
+      m_Items("Items", 0, ""),
       m_Selection("Selection", 1),  // 0 is "no selection", 1 is the first item.
       m_BgColorOdd("BgColorOdd", Vector3fT(0.0f, 0.396078f, 0.792157f), FlagsIsColor),
       m_BgAlphaOdd("BgAlphaOdd", 0.9f),
@@ -159,7 +159,7 @@ void ComponentListBoxT::Render() const
 {
     if (m_TextComp == NULL) return;
     if (!m_TextComp->m_FontInst) return;
-    if (m_Items.Get().Size() == 0) return;
+    if (m_Items.Size() == 0) return;
 
     const TrueTypeFontT* Font     = m_TextComp->m_FontInst;
     const float          Scale    = m_TextComp->m_Scale.Get();
@@ -190,15 +190,15 @@ void ComponentListBoxT::Render() const
     switch (m_TextComp->m_AlignVer.Get())
     {
         case ComponentTextT::VarTextAlignVerT::TOP:    LineOffsetY = y1 + PaddingY; break;
-        case ComponentTextT::VarTextAlignVerT::MIDDLE: LineOffsetY = y1 + (y2 - y1 - m_Items.Get().Size()*LineSpacing) / 2.0f; break;
-        case ComponentTextT::VarTextAlignVerT::BOTTOM: LineOffsetY = y2 - PaddingY - m_Items.Get().Size()*LineSpacing; break;
+        case ComponentTextT::VarTextAlignVerT::MIDDLE: LineOffsetY = y1 + (y2 - y1 - m_Items.Size()*LineSpacing) / 2.0f; break;
+        case ComponentTextT::VarTextAlignVerT::BOTTOM: LineOffsetY = y2 - PaddingY - m_Items.Size()*LineSpacing; break;
     }
 
     // Render the row background rectangles.
     {
         float yTop = LineOffsetY;
 
-        for (unsigned int ItemNr = 0; ItemNr < m_Items.Get().Size(); ItemNr++)
+        for (unsigned int ItemNr = 0; ItemNr < m_Items.Size(); ItemNr++)
         {
          // MatSys::Renderer->SetCurrentAmbientLightColor(BorderColor);
             MatSys::Renderer->SetCurrentMaterial(GetWindow()->GetGui().GetDefaultRM() /*BorderMaterial*/);
@@ -242,9 +242,9 @@ void ComponentListBoxT::Render() const
     // Without adding the ascender, the text baseline ("___") is at the top border of the window.
     LineOffsetY += Font->GetAscender(Scale);
 
-    for (unsigned int ItemNr = 0; ItemNr < m_Items.Get().Size(); ItemNr++)
+    for (unsigned int ItemNr = 0; ItemNr < m_Items.Size(); ItemNr++)
     {
-        const std::string& Item = m_Items.Get()[ItemNr];
+        const std::string& Item = m_Items[ItemNr];
         float AlignX = 0.0f;
 
         switch (m_TextComp->m_AlignHor.Get())
@@ -264,11 +264,11 @@ void ComponentListBoxT::Render() const
 bool ComponentListBoxT::OnInputEvent(const CaKeyboardEventT& KE)
 {
     if (m_TextComp == NULL) return false;
-    if (m_Items.Get().Size() == 0) return false;
+    if (m_Items.Size() == 0) return false;
     if (KE.Type != CaKeyboardEventT::CKE_KEYDOWN) return false;
 
     // Note that the range of Sel is 1 ... Size, not 0 ... Size-1.
-    const unsigned int Num = m_Items.Get().Size();
+    const unsigned int Num = m_Items.Size();
     const unsigned int Sel = m_Selection.Get();
 
     switch (KE.Key)
@@ -323,7 +323,7 @@ bool ComponentListBoxT::OnInputEvent(const CaMouseEventT& ME, float PosX, float 
 {
     if (m_TextComp == NULL) return false;
     if (!m_TextComp->m_FontInst) return false;
-    if (m_Items.Get().Size() == 0) return false;
+    if (m_Items.Size() == 0) return false;
     if (ME.Type != CaMouseEventT::CM_BUTTON0) return false;
     if (ME.Amount == 0) return false;
 
@@ -343,11 +343,11 @@ bool ComponentListBoxT::OnInputEvent(const CaMouseEventT& ME, float PosX, float 
     switch (m_TextComp->m_AlignVer.Get())
     {
         case ComponentTextT::VarTextAlignVerT::TOP:    LineOffsetY = y1 + PaddingY; break;
-        case ComponentTextT::VarTextAlignVerT::MIDDLE: LineOffsetY = y1 + (y2 - y1 - m_Items.Get().Size()*LineSpacing) / 2.0f; break;
-        case ComponentTextT::VarTextAlignVerT::BOTTOM: LineOffsetY = y2 - PaddingY - m_Items.Get().Size()*LineSpacing; break;
+        case ComponentTextT::VarTextAlignVerT::MIDDLE: LineOffsetY = y1 + (y2 - y1 - m_Items.Size()*LineSpacing) / 2.0f; break;
+        case ComponentTextT::VarTextAlignVerT::BOTTOM: LineOffsetY = y2 - PaddingY - m_Items.Size()*LineSpacing; break;
     }
 
-    for (unsigned int ItemNr = 0; ItemNr < m_Items.Get().Size(); ItemNr++)
+    for (unsigned int ItemNr = 0; ItemNr < m_Items.Size(); ItemNr++)
     {
         // Note that the range of m_Selection is 1 ... Size, not 0 ... Size-1.
         if (ItemNr+1 != m_Selection.Get() && PosX >= x1 && PosX < x2 && PosY >= LineOffsetY && PosY < LineOffsetY + LineSpacing)
@@ -377,10 +377,10 @@ int ComponentListBoxT::GetSelItem(lua_State* LuaState)
     ScriptBinderT Binder(LuaState);
     IntrusivePtrT<ComponentListBoxT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentListBoxT> >(1);
 
-    if (Comp->m_Selection.Get() < 1 || Comp->m_Selection.Get() > Comp->m_Items.Get().Size())
+    if (Comp->m_Selection.Get() < 1 || Comp->m_Selection.Get() > Comp->m_Items.Size())
         lua_pushnil(LuaState);
     else
-        lua_pushstring(LuaState, Comp->m_Items.Get()[Comp->m_Selection.Get() - 1].c_str());
+        lua_pushstring(LuaState, Comp->m_Items[Comp->m_Selection.Get() - 1].c_str());
 
     return 1;
 }

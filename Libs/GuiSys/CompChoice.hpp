@@ -77,9 +77,9 @@ namespace cf
 
             void Sync();    ///< Sets the text component to the currently selected choice.
 
-            IntrusivePtrT<ComponentTextT>        m_TextComp;    ///< The sibling text component whose value we're updating.
-            TypeSys::VarT< ArrayT<std::string> > m_Choices;     ///< The list of available choices.
-            TypeSys::VarT<unsigned int>          m_Selection;   ///< The index number of the currently selected choice, where 1 corresponds to the first choice (as per Lua convention). Use 0 for "no selection".
+            IntrusivePtrT<ComponentTextT>   m_TextComp;     ///< The sibling text component whose value we're updating.
+            TypeSys::VarArrayT<std::string> m_Choices;      ///< The list of available choices.
+            TypeSys::VarT<unsigned int>     m_Selection;    ///< The index number of the currently selected choice, where 1 corresponds to the first choice (as per Lua convention). Use 0 for "no selection".
         };
     }
 }

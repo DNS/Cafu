@@ -75,17 +75,17 @@ namespace cf
 
             private:
 
-            IntrusivePtrT<ComponentTextT>        m_TextComp;    ///< The sibling text component from which we take the text settings.
-            TypeSys::VarT< ArrayT<std::string> > m_Items;       ///< The list of available items.
-            TypeSys::VarT<unsigned int>          m_Selection;   ///< The index number of the currently selected item, where 1 corresponds to the first item (as per Lua convention). Use 0 for "no selection".
-            TypeSys::VarT<Vector3fT>             m_BgColorOdd;  ///< The background color for odd rows.
-            TypeSys::VarT<float>                 m_BgAlphaOdd;  ///< The background alpha for odd rows.
-            TypeSys::VarT<Vector3fT>             m_BgColorEven; ///< The background color for even rows.
-            TypeSys::VarT<float>                 m_BgAlphaEven; ///< The background alpha for even rows.
-            TypeSys::VarT<Vector3fT>             m_BgColorSel;  ///< The background color for selected rows.
-            TypeSys::VarT<float>                 m_BgAlphaSel;  ///< The background alpha for selected rows.
-            TypeSys::VarT<Vector3fT>             m_TextColorSel;///< The foreground color for selected rows.
-            TypeSys::VarT<float>                 m_TextAlphaSel;///< The foreground alpha for selected rows.
+            IntrusivePtrT<ComponentTextT>   m_TextComp;     ///< The sibling text component from which we take the text settings.
+            TypeSys::VarArrayT<std::string> m_Items;        ///< The list of available items.
+            TypeSys::VarT<unsigned int>     m_Selection;    ///< The index number of the currently selected item, where 1 corresponds to the first item (as per Lua convention). Use 0 for "no selection".
+            TypeSys::VarT<Vector3fT>        m_BgColorOdd;   ///< The background color for odd rows.
+            TypeSys::VarT<float>            m_BgAlphaOdd;   ///< The background alpha for odd rows.
+            TypeSys::VarT<Vector3fT>        m_BgColorEven;  ///< The background color for even rows.
+            TypeSys::VarT<float>            m_BgAlphaEven;  ///< The background alpha for even rows.
+            TypeSys::VarT<Vector3fT>        m_BgColorSel;   ///< The background color for selected rows.
+            TypeSys::VarT<float>            m_BgAlphaSel;   ///< The background alpha for selected rows.
+            TypeSys::VarT<Vector3fT>        m_TextColorSel; ///< The foreground color for selected rows.
+            TypeSys::VarT<float>            m_TextAlphaSel; ///< The foreground alpha for selected rows.
         };
     }
 }

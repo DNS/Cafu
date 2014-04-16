@@ -351,10 +351,10 @@ namespace
         void visit(const cf::TypeSys::VarT<Vector3fT>& Var);
         void visit(const cf::TypeSys::VarT<Vector3dT>& Var);
         void visit(const cf::TypeSys::VarT<BoundingBox3dT>& Var);
-        void visit(const cf::TypeSys::VarT< ArrayT<uint32_t> >& Var);
-        void visit(const cf::TypeSys::VarT< ArrayT<uint16_t> >& Var);
-        void visit(const cf::TypeSys::VarT< ArrayT<uint8_t> >& Var);
-        void visit(const cf::TypeSys::VarT< ArrayT<std::string> >& Var);
+        void visit(const cf::TypeSys::VarArrayT<uint32_t>& Var);
+        void visit(const cf::TypeSys::VarArrayT<uint16_t>& Var);
+        void visit(const cf::TypeSys::VarArrayT<uint8_t>& Var);
+        void visit(const cf::TypeSys::VarArrayT<std::string>& Var);
 
 
         private:
@@ -396,54 +396,22 @@ namespace
     }
 
 
-    template<> std::string VarVisitorGetLuaTypeStringT::GetChoicesString(const cf::TypeSys::VarT< ArrayT<uint32_t> >& Var)
-    {
-        // We have no operator << that could take entire ArrayT<uint32_t> as input,
-        // so just specialize in order to ignore this case at this time.
-        return "";
-    }
-
-
-    template<> std::string VarVisitorGetLuaTypeStringT::GetChoicesString(const cf::TypeSys::VarT< ArrayT<uint16_t> >& Var)
-    {
-        // We have no operator << that could take entire ArrayT<uint16_t> as input,
-        // so just specialize in order to ignore this case at this time.
-        return "";
-    }
-
-
-    template<> std::string VarVisitorGetLuaTypeStringT::GetChoicesString(const cf::TypeSys::VarT< ArrayT<uint8_t> >& Var)
-    {
-        // We have no operator << that could take entire ArrayT<uint8_t> as input,
-        // so just specialize in order to ignore this case at this time.
-        return "";
-    }
-
-
-    template<> std::string VarVisitorGetLuaTypeStringT::GetChoicesString(const cf::TypeSys::VarT< ArrayT<std::string> >& Var)
-    {
-        // We have no operator << that could take entire ArrayT<std::string> as input,
-        // so just specialize in order to ignore this case at this time.
-        return "";
-    }
-
-
-    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<float>& Var)                 { m_CppType = "float";               m_LuaType = "number";  m_Choices = GetChoicesString(Var); }
-    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<double>& Var)                { m_CppType = "double";              m_LuaType = "number";  m_Choices = GetChoicesString(Var); }
-    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<int>& Var)                   { m_CppType = "int";                 m_LuaType = "number";  m_Choices = GetChoicesString(Var); }
-    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<unsigned int>& Var)          { m_CppType = "unsigned int";        m_LuaType = "number";  m_Choices = GetChoicesString(Var); }
-    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<uint16_t>& Var)              { m_CppType = "uint16_t";            m_LuaType = "number";  m_Choices = GetChoicesString(Var); }
-    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<uint8_t>& Var)               { m_CppType = "uint8_t";             m_LuaType = "number";  m_Choices = GetChoicesString(Var); }
-    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<bool>& Var)                  { m_CppType = "bool";                m_LuaType = "boolean"; m_Choices = GetChoicesString(Var); }
-    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<std::string>& Var)           { m_CppType = "std::string";         m_LuaType = "string";  m_Choices = GetChoicesString(Var); }
-    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<Vector2fT>& Var)             { m_CppType = "Vector2fT";           m_LuaType = "tuple";   m_Choices = GetChoicesString(Var); }
-    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<Vector3fT>& Var)             { m_CppType = "Vector3fT";           m_LuaType = "tuple";   m_Choices = GetChoicesString(Var); }
-    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<Vector3dT>& Var)             { m_CppType = "Vector3dT";           m_LuaType = "tuple";   m_Choices = GetChoicesString(Var); }
-    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<BoundingBox3dT>& Var)        { m_CppType = "BoundingBox3dT";      m_LuaType = "tuple";   m_Choices = GetChoicesString(Var); }
-    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT< ArrayT<uint32_t> >& Var)    { m_CppType = "ArrayT<uint32_t>";    m_LuaType = "table";   m_Choices = GetChoicesString(Var); }
-    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT< ArrayT<uint16_t> >& Var)    { m_CppType = "ArrayT<uint16_t>";    m_LuaType = "table";   m_Choices = GetChoicesString(Var); }
-    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT< ArrayT<uint8_t> >& Var)     { m_CppType = "ArrayT<uint8_t>";     m_LuaType = "table";   m_Choices = GetChoicesString(Var); }
-    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT< ArrayT<std::string> >& Var) { m_CppType = "ArrayT<std::string>"; m_LuaType = "table";   m_Choices = GetChoicesString(Var); }
+    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<float>& Var)            { m_CppType = "float";               m_LuaType = "number";  m_Choices = GetChoicesString(Var); }
+    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<double>& Var)           { m_CppType = "double";              m_LuaType = "number";  m_Choices = GetChoicesString(Var); }
+    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<int>& Var)              { m_CppType = "int";                 m_LuaType = "number";  m_Choices = GetChoicesString(Var); }
+    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<unsigned int>& Var)     { m_CppType = "unsigned int";        m_LuaType = "number";  m_Choices = GetChoicesString(Var); }
+    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<uint16_t>& Var)         { m_CppType = "uint16_t";            m_LuaType = "number";  m_Choices = GetChoicesString(Var); }
+    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<uint8_t>& Var)          { m_CppType = "uint8_t";             m_LuaType = "number";  m_Choices = GetChoicesString(Var); }
+    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<bool>& Var)             { m_CppType = "bool";                m_LuaType = "boolean"; m_Choices = GetChoicesString(Var); }
+    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<std::string>& Var)      { m_CppType = "std::string";         m_LuaType = "string";  m_Choices = GetChoicesString(Var); }
+    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<Vector2fT>& Var)        { m_CppType = "Vector2fT";           m_LuaType = "tuple";   m_Choices = GetChoicesString(Var); }
+    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<Vector3fT>& Var)        { m_CppType = "Vector3fT";           m_LuaType = "tuple";   m_Choices = GetChoicesString(Var); }
+    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<Vector3dT>& Var)        { m_CppType = "Vector3dT";           m_LuaType = "tuple";   m_Choices = GetChoicesString(Var); }
+    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarT<BoundingBox3dT>& Var)   { m_CppType = "BoundingBox3dT";      m_LuaType = "tuple";   m_Choices = GetChoicesString(Var); }
+    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarArrayT<uint32_t>& Var)    { m_CppType = "ArrayT<uint32_t>";    m_LuaType = "table";   m_Choices = ""; }
+    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarArrayT<uint16_t>& Var)    { m_CppType = "ArrayT<uint16_t>";    m_LuaType = "table";   m_Choices = ""; }
+    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarArrayT<uint8_t>& Var)     { m_CppType = "ArrayT<uint8_t>";     m_LuaType = "table";   m_Choices = ""; }
+    void VarVisitorGetLuaTypeStringT::visit(const cf::TypeSys::VarArrayT<std::string>& Var) { m_CppType = "ArrayT<std::string>"; m_LuaType = "table";   m_Choices = ""; }
 
 
     wxString FormatDoxyComment(const char* s, const char* Indent)
