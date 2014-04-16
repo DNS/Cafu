@@ -27,6 +27,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/Vector3.hpp"
 #include "Math3D/BoundingBox.hpp"
 
+#if defined(_WIN32) && _MSC_VER<1600
+#include "pstdint.h"            // Paul Hsieh's portable implementation of the stdint.h header.
+#else
+#include <stdint.h>
+#endif
+
 #include <cstring>
 #include <map>
 
@@ -234,12 +240,17 @@ namespace cf
             virtual void visit(VarT<double>& Var) = 0;
             virtual void visit(VarT<int>& Var) = 0;
             virtual void visit(VarT<unsigned int>& Var) = 0;
+            virtual void visit(VarT<uint16_t>& Var) = 0;
+            virtual void visit(VarT<uint8_t>& Var) = 0;
             virtual void visit(VarT<bool>& Var) = 0;
             virtual void visit(VarT<std::string>& Var) = 0;
             virtual void visit(VarT<Vector2fT>& Var) = 0;
             virtual void visit(VarT<Vector3fT>& Var) = 0;
             virtual void visit(VarT<Vector3dT>& Var) = 0;
             virtual void visit(VarT<BoundingBox3dT>& Var) = 0;
+            virtual void visit(VarT< ArrayT<uint32_t> >& Var) = 0;
+            virtual void visit(VarT< ArrayT<uint16_t> >& Var) = 0;
+            virtual void visit(VarT< ArrayT<uint8_t> >& Var) = 0;
             virtual void visit(VarT< ArrayT<std::string> >& Var) = 0;
         };
 
@@ -257,12 +268,17 @@ namespace cf
             virtual void visit(const VarT<double>& Var) = 0;
             virtual void visit(const VarT<int>& Var) = 0;
             virtual void visit(const VarT<unsigned int>& Var) = 0;
+            virtual void visit(const VarT<uint16_t>& Var) = 0;
+            virtual void visit(const VarT<uint8_t>& Var) = 0;
             virtual void visit(const VarT<bool>& Var) = 0;
             virtual void visit(const VarT<std::string>& Var) = 0;
             virtual void visit(const VarT<Vector2fT>& Var) = 0;
             virtual void visit(const VarT<Vector3fT>& Var) = 0;
             virtual void visit(const VarT<Vector3dT>& Var) = 0;
             virtual void visit(const VarT<BoundingBox3dT>& Var) = 0;
+            virtual void visit(const VarT< ArrayT<uint32_t> >& Var) = 0;
+            virtual void visit(const VarT< ArrayT<uint16_t> >& Var) = 0;
+            virtual void visit(const VarT< ArrayT<uint8_t> >& Var) = 0;
             virtual void visit(const VarT< ArrayT<std::string> >& Var) = 0;
         };
 

@@ -269,7 +269,63 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT<unsigned int>& Var)
         wxPGChoices Choices;
 
         for (unsigned int i = 0; i < Strings.Size(); i++)
-            Choices.Add(wxString::Format("%s (%i)", Strings[i], Values[i]), Values[i]);
+            Choices.Add(wxString::Format("%s (%u)", Strings[i], Values[i]), Values[i]);
+
+        Prop = new wxEnumProperty(Var.GetName(), wxString::Format("%p", &Var), Choices, Var.Get());
+    }
+    else
+    {
+        Prop = new wxUIntProperty(Var.GetName(), wxString::Format("%p", &Var), Var.Get());
+    }
+
+    SetHelpString(Prop);
+    m_PropMan.Append(Prop)->SetClientData(&Var);
+}
+
+
+void VarVisitorAddPropT::visit(cf::TypeSys::VarT<uint16_t>& Var)
+{
+    wxPGProperty*       Prop = NULL;
+    ArrayT<std::string> Strings;
+    ArrayT<uint16_t>    Values;
+
+    Var.GetChoices(Strings, Values);
+    wxASSERT(Strings.Size() == Values.Size());
+
+    if (Strings.Size() > 0)
+    {
+        wxPGChoices Choices;
+
+        for (unsigned int i = 0; i < Strings.Size(); i++)
+            Choices.Add(wxString::Format("%s (%u)", Strings[i], Values[i]), Values[i]);
+
+        Prop = new wxEnumProperty(Var.GetName(), wxString::Format("%p", &Var), Choices, Var.Get());
+    }
+    else
+    {
+        Prop = new wxUIntProperty(Var.GetName(), wxString::Format("%p", &Var), Var.Get());
+    }
+
+    SetHelpString(Prop);
+    m_PropMan.Append(Prop)->SetClientData(&Var);
+}
+
+
+void VarVisitorAddPropT::visit(cf::TypeSys::VarT<uint8_t>& Var)
+{
+    wxPGProperty*       Prop = NULL;
+    ArrayT<std::string> Strings;
+    ArrayT<uint8_t>     Values;
+
+    Var.GetChoices(Strings, Values);
+    wxASSERT(Strings.Size() == Values.Size());
+
+    if (Strings.Size() > 0)
+    {
+        wxPGChoices Choices;
+
+        for (unsigned int i = 0; i < Strings.Size(); i++)
+            Choices.Add(wxString::Format("%s (%u)", Strings[i], Values[i]), Values[i]);
 
         Prop = new wxEnumProperty(Var.GetName(), wxString::Format("%p", &Var), Choices, Var.Get());
     }
@@ -485,6 +541,72 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT<BoundingBox3dT>& Var)
 }
 
 
+void VarVisitorAddPropT::visit(cf::TypeSys::VarT< ArrayT<uint32_t> >& Var)
+{
+    wxString Lines;
+
+    for (unsigned int i = 0; i < Var.Get().Size(); i++)
+        Lines += wxString::Format("%u\n", Var.Get()[i]);
+
+    // We use a wxLongStringProperty instead of a wxArrayStringProperty, because the latter seems to be
+    // very buggy in wx-2.9.2, and its edit dialog is cumbersome to use compared to a simple multi-line string.
+    wxPGProperty* Prop = new wxLongStringProperty(Var.GetName(), wxString::Format("%p", &Var), Lines);
+
+    // Have to disable the escaping of newlines, or otherwise our event handlers receive strings like "a\\nb" instead
+    // of "a\nb", which is clearly not what we want. With the wxPG_PROP_NO_ESCAPE flag set, we receive the desired
+    // "a\nb" form, but the value that is shown to the user in the property cell is "ab", so this clearly isn't ideal
+    // either. TODO!
+    Prop->ChangeFlag(wxPG_PROP_NO_ESCAPE, true);
+
+    SetHelpString(Prop);
+    m_PropMan.Append(Prop)->SetClientData(&Var);
+}
+
+
+void VarVisitorAddPropT::visit(cf::TypeSys::VarT< ArrayT<uint16_t> >& Var)
+{
+    wxString Lines;
+
+    for (unsigned int i = 0; i < Var.Get().Size(); i++)
+        Lines += wxString::Format("%u\n", Var.Get()[i]);
+
+    // We use a wxLongStringProperty instead of a wxArrayStringProperty, because the latter seems to be
+    // very buggy in wx-2.9.2, and its edit dialog is cumbersome to use compared to a simple multi-line string.
+    wxPGProperty* Prop = new wxLongStringProperty(Var.GetName(), wxString::Format("%p", &Var), Lines);
+
+    // Have to disable the escaping of newlines, or otherwise our event handlers receive strings like "a\\nb" instead
+    // of "a\nb", which is clearly not what we want. With the wxPG_PROP_NO_ESCAPE flag set, we receive the desired
+    // "a\nb" form, but the value that is shown to the user in the property cell is "ab", so this clearly isn't ideal
+    // either. TODO!
+    Prop->ChangeFlag(wxPG_PROP_NO_ESCAPE, true);
+
+    SetHelpString(Prop);
+    m_PropMan.Append(Prop)->SetClientData(&Var);
+}
+
+
+void VarVisitorAddPropT::visit(cf::TypeSys::VarT< ArrayT<uint8_t> >& Var)
+{
+    wxString Lines;
+
+    for (unsigned int i = 0; i < Var.Get().Size(); i++)
+        Lines += wxString::Format("%u\n", Var.Get()[i]);
+
+    // We use a wxLongStringProperty instead of a wxArrayStringProperty, because the latter seems to be
+    // very buggy in wx-2.9.2, and its edit dialog is cumbersome to use compared to a simple multi-line string.
+    wxPGProperty* Prop = new wxLongStringProperty(Var.GetName(), wxString::Format("%p", &Var), Lines);
+
+    // Have to disable the escaping of newlines, or otherwise our event handlers receive strings like "a\\nb" instead
+    // of "a\nb", which is clearly not what we want. With the wxPG_PROP_NO_ESCAPE flag set, we receive the desired
+    // "a\nb" form, but the value that is shown to the user in the property cell is "ab", so this clearly isn't ideal
+    // either. TODO!
+    Prop->ChangeFlag(wxPG_PROP_NO_ESCAPE, true);
+
+    SetHelpString(Prop);
+    m_PropMan.Append(Prop)->SetClientData(&Var);
+}
+
+
 void VarVisitorAddPropT::visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var)
 {
     wxString Lines;
@@ -558,7 +680,45 @@ void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT<unsigned int>& Var)
     wxASSERT(Strings.Size() == Values.Size());
 
     for (unsigned int i = 0; i < Strings.Size(); i++)
-        Choices.Add(wxString::Format("%s (%i)", Strings[i], Values[i]), Values[i]);
+        Choices.Add(wxString::Format("%s (%u)", Strings[i], Values[i]), Values[i]);
+
+    if (Choices.GetCount() > 0)
+        m_Prop.SetChoices(Choices);
+
+    m_Prop.SetValue(int(Var.Get()));    // Uh! Cannot convert to wxVariant from unsigned int.
+}
+
+
+void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT<uint16_t>& Var)
+{
+    ArrayT<std::string> Strings;
+    ArrayT<uint16_t>    Values;
+    wxPGChoices         Choices;
+
+    Var.GetChoices(Strings, Values);
+    wxASSERT(Strings.Size() == Values.Size());
+
+    for (unsigned int i = 0; i < Strings.Size(); i++)
+        Choices.Add(wxString::Format("%s (%u)", Strings[i], Values[i]), Values[i]);
+
+    if (Choices.GetCount() > 0)
+        m_Prop.SetChoices(Choices);
+
+    m_Prop.SetValue(int(Var.Get()));    // Uh! Cannot convert to wxVariant from unsigned int.
+}
+
+
+void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT<uint8_t>& Var)
+{
+    ArrayT<std::string> Strings;
+    ArrayT<uint8_t>     Values;
+    wxPGChoices         Choices;
+
+    Var.GetChoices(Strings, Values);
+    wxASSERT(Strings.Size() == Values.Size());
+
+    for (unsigned int i = 0; i < Strings.Size(); i++)
+        Choices.Add(wxString::Format("%s (%u)", Strings[i], Values[i]), Values[i]);
 
     if (Choices.GetCount() > 0)
         m_Prop.SetChoices(Choices);
@@ -629,6 +789,39 @@ void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT<BoundingBox3dT>& Var)
 
     for (unsigned int i = 0; i < CountMax; i++)
         m_Prop.Item(1)->Item(i)->SetValue(Var.Get().Max[i]);
+}
+
+
+void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT< ArrayT<uint32_t> >& Var)
+{
+    wxString Lines;
+
+    for (unsigned int i = 0; i < Var.Get().Size(); i++)
+        Lines += wxString::Format("%u\n", Var.Get()[i]);
+
+    m_Prop.SetValue(Lines);
+}
+
+
+void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT< ArrayT<uint16_t> >& Var)
+{
+    wxString Lines;
+
+    for (unsigned int i = 0; i < Var.Get().Size(); i++)
+        Lines += wxString::Format("%u\n", Var.Get()[i]);
+
+    m_Prop.SetValue(Lines);
+}
+
+
+void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT< ArrayT<uint8_t> >& Var)
+{
+    wxString Lines;
+
+    for (unsigned int i = 0; i < Var.Get().Size(); i++)
+        Lines += wxString::Format("%u\n", Var.Get()[i]);
+
+    m_Prop.SetValue(Lines);
 }
 
 
@@ -706,6 +899,24 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<unsigned int>& 
 
     wxASSERT(m_Command == NULL);
     m_Command = new CommandSetCompVarT<unsigned int>(m_DocAdapter, Var, ui);
+}
+
+
+void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<uint16_t>& Var)
+{
+    const uint16_t ui = m_Event.GetValue().GetLong();   // Uh! There is no GetULong() method.
+
+    wxASSERT(m_Command == NULL);
+    m_Command = new CommandSetCompVarT<uint16_t>(m_DocAdapter, Var, ui);
+}
+
+
+void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<uint8_t>& Var)
+{
+    const uint8_t ui = m_Event.GetValue().GetLong();    // Uh! There is no GetULong() method.
+
+    wxASSERT(m_Command == NULL);
+    m_Command = new CommandSetCompVarT<uint8_t>(m_DocAdapter, Var, ui);
 }
 
 
@@ -838,6 +1049,48 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<BoundingBox3dT>
 }
 
 
+void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT< ArrayT<uint32_t> >& Var)
+{
+    ArrayT<uint32_t>  A;
+    unsigned long     ul = 0;
+    wxStringTokenizer Tokenizer(m_Event.GetValue().GetString());
+
+    while (Tokenizer.HasMoreTokens())
+        A.PushBack(Tokenizer.GetNextToken().ToCULong(&ul) ? ul : 0);
+
+    wxASSERT(m_Command == NULL);
+    m_Command = new CommandSetCompVarT< ArrayT<uint32_t> >(m_DocAdapter, Var, A);
+}
+
+
+void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT< ArrayT<uint16_t> >& Var)
+{
+    ArrayT<uint16_t>  A;
+    unsigned long     ul = 0;
+    wxStringTokenizer Tokenizer(m_Event.GetValue().GetString());
+
+    while (Tokenizer.HasMoreTokens())
+        A.PushBack(Tokenizer.GetNextToken().ToCULong(&ul) ? ul : 0);
+
+    wxASSERT(m_Command == NULL);
+    m_Command = new CommandSetCompVarT< ArrayT<uint16_t> >(m_DocAdapter, Var, A);
+}
+
+
+void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT< ArrayT<uint8_t> >& Var)
+{
+    ArrayT<uint8_t>   A;
+    unsigned long     ul = 0;
+    wxStringTokenizer Tokenizer(m_Event.GetValue().GetString());
+
+    while (Tokenizer.HasMoreTokens())
+        A.PushBack(Tokenizer.GetNextToken().ToCULong(&ul) ? ul : 0);
+
+    wxASSERT(m_Command == NULL);
+    m_Command = new CommandSetCompVarT< ArrayT<uint8_t> >(m_DocAdapter, Var, A);
+}
+
+
 void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var)
 {
     ArrayT<std::string> A;
@@ -886,6 +1139,8 @@ void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<float>& Var) { w
 void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<double>& Var) { wxASSERT(false); }
 void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<int>& Var) { wxASSERT(false); }
 void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<unsigned int>& Var) { wxASSERT(false); }
+void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<uint16_t>& Var) { wxASSERT(false); }
+void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<uint8_t>& Var) { wxASSERT(false); }
 void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<bool>& Var) { wxASSERT(false); }
 void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<std::string>& Var) { wxASSERT(false); }
 
@@ -958,4 +1213,7 @@ void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT<BoundingBox3dT>&
 }
 
 
+void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT< ArrayT<uint32_t> >& Var) { wxASSERT(false); }
+void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT< ArrayT<uint16_t> >& Var) { wxASSERT(false); }
+void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT< ArrayT<uint8_t> >& Var) { wxASSERT(false); }
 void VarVisitorHandleSubChangingEventT::visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var) { wxASSERT(false); }

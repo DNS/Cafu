@@ -72,6 +72,20 @@ void VarVisitorGetToLuaT::visit(const cf::TypeSys::VarT<unsigned int>& Var)
 }
 
 
+void VarVisitorGetToLuaT::visit(const cf::TypeSys::VarT<uint16_t>& Var)
+{
+    lua_pushinteger(m_LuaState, Var.Get());
+    m_NumResults++;
+}
+
+
+void VarVisitorGetToLuaT::visit(const cf::TypeSys::VarT<uint8_t>& Var)
+{
+    lua_pushinteger(m_LuaState, Var.Get());
+    m_NumResults++;
+}
+
+
 void VarVisitorGetToLuaT::visit(const cf::TypeSys::VarT<bool>& Var)
 {
     lua_pushboolean(m_LuaState, Var.Get());
@@ -121,6 +135,45 @@ void VarVisitorGetToLuaT::visit(const cf::TypeSys::VarT<BoundingBox3dT>& Var)
 }
 
 
+void VarVisitorGetToLuaT::visit(const cf::TypeSys::VarT< ArrayT<uint32_t> >& Var)
+{
+    lua_newtable(m_LuaState);
+    m_NumResults++;
+
+    for (unsigned int i = 0; i < Var.Get().Size(); i++)
+    {
+        lua_pushinteger(m_LuaState, Var.Get()[i]);
+        lua_rawseti(m_LuaState, -2, i + 1);   // Lua array numbering starts per convention at 1.
+    }
+}
+
+
+void VarVisitorGetToLuaT::visit(const cf::TypeSys::VarT< ArrayT<uint16_t> >& Var)
+{
+    lua_newtable(m_LuaState);
+    m_NumResults++;
+
+    for (unsigned int i = 0; i < Var.Get().Size(); i++)
+    {
+        lua_pushinteger(m_LuaState, Var.Get()[i]);
+        lua_rawseti(m_LuaState, -2, i + 1);   // Lua array numbering starts per convention at 1.
+    }
+}
+
+
+void VarVisitorGetToLuaT::visit(const cf::TypeSys::VarT< ArrayT<uint8_t> >& Var)
+{
+    lua_newtable(m_LuaState);
+    m_NumResults++;
+
+    for (unsigned int i = 0; i < Var.Get().Size(); i++)
+    {
+        lua_pushinteger(m_LuaState, Var.Get()[i]);
+        lua_rawseti(m_LuaState, -2, i + 1);   // Lua array numbering starts per convention at 1.
+    }
+}
+
+
 void VarVisitorGetToLuaT::visit(const cf::TypeSys::VarT< ArrayT<std::string> >& Var)
 {
     lua_newtable(m_LuaState);
@@ -163,6 +216,18 @@ void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT<int>& Var)
 
 
 void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT<unsigned int>& Var)
+{
+    Var.Set(luaL_checkint(m_LuaState, -1));
+}
+
+
+void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT<uint16_t>& Var)
+{
+    Var.Set(luaL_checkint(m_LuaState, -1));
+}
+
+
+void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT<uint8_t>& Var)
 {
     Var.Set(luaL_checkint(m_LuaState, -1));
 }
@@ -261,6 +326,87 @@ void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT<BoundingBox3dT>& Var)
 }
 
 
+void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT< ArrayT<uint32_t> >& Var)
+{
+    ArrayT<uint32_t> A;
+
+    if (lua_istable(m_LuaState, -1))
+    {
+        const int Num = lua_rawlen(m_LuaState, -1);
+
+        for (int i = 1; i <= Num; i++)
+        {
+            lua_rawgeti(m_LuaState, -1, i);
+            A.PushBack(lua_tointeger(m_LuaState, -1));
+            lua_pop(m_LuaState, 1);
+        }
+    }
+    else
+    {
+        // Stack index 1 has the "this" object,
+        // stack index 2 has the variable name.
+        for (int i = 3; i <= lua_gettop(m_LuaState); i++)
+            A.PushBack(lua_tointeger(m_LuaState, i));
+    }
+
+    Var.Set(A);
+}
+
+
+void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT< ArrayT<uint16_t> >& Var)
+{
+    ArrayT<uint16_t> A;
+
+    if (lua_istable(m_LuaState, -1))
+    {
+        const int Num = lua_rawlen(m_LuaState, -1);
+
+        for (int i = 1; i <= Num; i++)
+        {
+            lua_rawgeti(m_LuaState, -1, i);
+            A.PushBack(lua_tointeger(m_LuaState, -1));
+            lua_pop(m_LuaState, 1);
+        }
+    }
+    else
+    {
+        // Stack index 1 has the "this" object,
+        // stack index 2 has the variable name.
+        for (int i = 3; i <= lua_gettop(m_LuaState); i++)
+            A.PushBack(lua_tointeger(m_LuaState, i));
+    }
+
+    Var.Set(A);
+}
+
+
+void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT< ArrayT<uint8_t> >& Var)
+{
+    ArrayT<uint8_t> A;
+
+    if (lua_istable(m_LuaState, -1))
+    {
+        const int Num = lua_rawlen(m_LuaState, -1);
+
+        for (int i = 1; i <= Num; i++)
+        {
+            lua_rawgeti(m_LuaState, -1, i);
+            A.PushBack(lua_tointeger(m_LuaState, -1));
+            lua_pop(m_LuaState, 1);
+        }
+    }
+    else
+    {
+        // Stack index 1 has the "this" object,
+        // stack index 2 has the variable name.
+        for (int i = 3; i <= lua_gettop(m_LuaState); i++)
+            A.PushBack(lua_tointeger(m_LuaState, i));
+    }
+
+    Var.Set(A);
+}
+
+
 void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var)
 {
     ArrayT<std::string> A;
@@ -332,10 +478,15 @@ void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<Vector3fT>& Var)
 void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<double>& Var) { }
 void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<int>& Var) { }
 void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<unsigned int>& Var) { }
+void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<uint16_t>& Var) { }
+void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<uint8_t>& Var) { }
 void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<bool>& Var) { }
 void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<std::string>& Var) { }
 void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<Vector3dT>& Var) { }
 void VarVisitorSetFloatT::visit(cf::TypeSys::VarT<BoundingBox3dT>& Var) { }
+void VarVisitorSetFloatT::visit(cf::TypeSys::VarT< ArrayT<uint32_t> >& Var) { }
+void VarVisitorSetFloatT::visit(cf::TypeSys::VarT< ArrayT<uint16_t> >& Var) { }
+void VarVisitorSetFloatT::visit(cf::TypeSys::VarT< ArrayT<uint8_t> >& Var) { }
 void VarVisitorSetFloatT::visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var) { }
 
 
@@ -373,6 +524,18 @@ void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<unsigned int>& Var)
 }
 
 
+void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<uint16_t>& Var)
+{
+    m_Out << Var.Get();
+}
+
+
+void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<uint8_t>& Var)
+{
+    m_Out << uint16_t(Var.Get());   // Write numbers, not characters.
+}
+
+
 void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<bool>& Var)
 {
     m_Out << (Var.Get() ? "true" : "false");
@@ -407,6 +570,48 @@ void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<BoundingBox3dT>& Var)
 {
     m_Out << Var.Get().Min.x << ", " << Var.Get().Min.y << ", " << Var.Get().Min.z << ", ";
     m_Out << Var.Get().Max.x << ", " << Var.Get().Max.y << ", " << Var.Get().Max.z;
+}
+
+
+void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT< ArrayT<uint32_t> >& Var)
+{
+    m_Out << "{ ";
+
+    for (unsigned int i = 0; i < Var.Get().Size(); i++)
+    {
+        m_Out << Var.Get()[i];
+        if (i+1 < Var.Get().Size()) m_Out << ", ";
+    }
+
+    m_Out << " }";
+}
+
+
+void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT< ArrayT<uint16_t> >& Var)
+{
+    m_Out << "{ ";
+
+    for (unsigned int i = 0; i < Var.Get().Size(); i++)
+    {
+        m_Out << Var.Get()[i];
+        if (i+1 < Var.Get().Size()) m_Out << ", ";
+    }
+
+    m_Out << " }";
+}
+
+
+void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT< ArrayT<uint8_t> >& Var)
+{
+    m_Out << "{ ";
+
+    for (unsigned int i = 0; i < Var.Get().Size(); i++)
+    {
+        m_Out << uint16_t(Var.Get()[i]);    // Write numbers, not characters.
+        if (i+1 < Var.Get().Size()) m_Out << ", ";
+    }
+
+    m_Out << " }";
 }
 
 

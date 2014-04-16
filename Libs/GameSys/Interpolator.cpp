@@ -87,7 +87,12 @@ void VarVisitorGetApproxT::visit(cf::TypeSys::VarT<Vector3dT>& Var)
 // Non-float variables cannot be interpolated.
 void VarVisitorGetApproxT::visit(cf::TypeSys::VarT<int>& Var) { }
 void VarVisitorGetApproxT::visit(cf::TypeSys::VarT<unsigned int>& Var) { }
+void VarVisitorGetApproxT::visit(cf::TypeSys::VarT<uint16_t>& Var) { }
+void VarVisitorGetApproxT::visit(cf::TypeSys::VarT<uint8_t>& Var) { }
 void VarVisitorGetApproxT::visit(cf::TypeSys::VarT<bool>& Var) { }
 void VarVisitorGetApproxT::visit(cf::TypeSys::VarT<std::string>& Var) { }
 void VarVisitorGetApproxT::visit(cf::TypeSys::VarT<BoundingBox3dT>& Var) { }
+void VarVisitorGetApproxT::visit(cf::TypeSys::VarT< ArrayT<uint32_t> >& Var) { }
+void VarVisitorGetApproxT::visit(cf::TypeSys::VarT< ArrayT<uint16_t> >& Var) { }
+void VarVisitorGetApproxT::visit(cf::TypeSys::VarT< ArrayT<uint8_t> >& Var) { }
 void VarVisitorGetApproxT::visit(cf::TypeSys::VarT< ArrayT<std::string> >& Var) { }
