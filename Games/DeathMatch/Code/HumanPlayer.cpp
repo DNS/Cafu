@@ -104,7 +104,6 @@ EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
                   BoundingBox3dT(Vector3dT( 16.0,  16.0,   4.0),    // A total of 32*32*72 inches, eye height at 68 inches.
                                  Vector3dT(-16.0, -16.0, -68.0)),
                   NUM_EVENT_TYPES),
-      State(),
       GuiHUD(NULL)
 {
     // TODO: This must be reconsidered when finally switching to the Component System!
@@ -167,23 +166,9 @@ void EntHumanPlayerT::NotifyLeaveMap()
 
 void EntHumanPlayerT::AddFrag(int NumFrags)
 {
-    State.HaveAmmo[AMMO_SLOT_FRAGS] += NumFrags;
-}
+    IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(m_Entity->GetComponent("HumanPlayer"));
 
-
-void EntHumanPlayerT::DoSerialize(cf::Network::OutStreamT& Stream) const
-{
-    for (unsigned int Nr=0; Nr<16; Nr++) Stream << State.HaveAmmo[Nr];
-    for (unsigned int Nr=0; Nr<32; Nr++) Stream << uint32_t(State.HaveAmmoInWeapons[Nr]);
-}
-
-
-void EntHumanPlayerT::DoDeserialize(cf::Network::InStreamT& Stream)
-{
-    uint32_t ui=0;
-
-    for (unsigned int Nr=0; Nr<16; Nr++) Stream >> State.HaveAmmo[Nr];
-    for (unsigned int Nr=0; Nr<32; Nr++) { Stream >> ui; State.HaveAmmoInWeapons[Nr]=(unsigned char)ui; }
+    CompHP->GetHaveAmmo()[AMMO_SLOT_FRAGS] += NumFrags;
 }
 
 
@@ -526,23 +511,23 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                             if (CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_HORNETGUN   )) SelectableWeapons.PushBack(WEAPON_SLOT_HORNETGUN   );
                             break;
 
-                    case 2: if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_PISTOL)) && (State.HaveAmmoInWeapons[WEAPON_SLOT_PISTOL] || State.HaveAmmo[AMMO_SLOT_9MM])) SelectableWeapons.PushBack(WEAPON_SLOT_PISTOL);
-                            if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_357   )) && (State.HaveAmmoInWeapons[WEAPON_SLOT_357   ] || State.HaveAmmo[AMMO_SLOT_357])) SelectableWeapons.PushBack(WEAPON_SLOT_357   );
+                    case 2: if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_PISTOL)) && (CompHP->GetHaveAmmoInWeapons()[WEAPON_SLOT_PISTOL] || CompHP->GetHaveAmmo()[AMMO_SLOT_9MM])) SelectableWeapons.PushBack(WEAPON_SLOT_PISTOL);
+                            if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_357   )) && (CompHP->GetHaveAmmoInWeapons()[WEAPON_SLOT_357   ] || CompHP->GetHaveAmmo()[AMMO_SLOT_357])) SelectableWeapons.PushBack(WEAPON_SLOT_357   );
                             break;
 
-                    case 3: if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_SHOTGUN )) && (State.HaveAmmoInWeapons[WEAPON_SLOT_SHOTGUN ] || State.HaveAmmo[AMMO_SLOT_SHELLS]                                    )) SelectableWeapons.PushBack(WEAPON_SLOT_SHOTGUN );
-                            if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_9MMAR   )) && (State.HaveAmmoInWeapons[WEAPON_SLOT_9MMAR   ] || State.HaveAmmo[AMMO_SLOT_9MM   ] || State.HaveAmmo[AMMO_SLOT_ARGREN])) SelectableWeapons.PushBack(WEAPON_SLOT_9MMAR   );
-                            if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_CROSSBOW)) && (State.HaveAmmoInWeapons[WEAPON_SLOT_CROSSBOW] || State.HaveAmmo[AMMO_SLOT_ARROWS]                                    )) SelectableWeapons.PushBack(WEAPON_SLOT_CROSSBOW);
+                    case 3: if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_SHOTGUN )) && (CompHP->GetHaveAmmoInWeapons()[WEAPON_SLOT_SHOTGUN ] || CompHP->GetHaveAmmo()[AMMO_SLOT_SHELLS]                                    )) SelectableWeapons.PushBack(WEAPON_SLOT_SHOTGUN );
+                            if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_9MMAR   )) && (CompHP->GetHaveAmmoInWeapons()[WEAPON_SLOT_9MMAR   ] || CompHP->GetHaveAmmo()[AMMO_SLOT_9MM   ] || CompHP->GetHaveAmmo()[AMMO_SLOT_ARGREN])) SelectableWeapons.PushBack(WEAPON_SLOT_9MMAR   );
+                            if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_CROSSBOW)) && (CompHP->GetHaveAmmoInWeapons()[WEAPON_SLOT_CROSSBOW] || CompHP->GetHaveAmmo()[AMMO_SLOT_ARROWS]                                    )) SelectableWeapons.PushBack(WEAPON_SLOT_CROSSBOW);
                             break;
 
-                    case 4: if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_RPG  )) && (State.HaveAmmoInWeapons[WEAPON_SLOT_RPG  ] || State.HaveAmmo[AMMO_SLOT_ROCKETS])) SelectableWeapons.PushBack(WEAPON_SLOT_RPG  );
-                            if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_GAUSS)) && (State.HaveAmmoInWeapons[WEAPON_SLOT_GAUSS] || State.HaveAmmo[AMMO_SLOT_CELLS  ])) SelectableWeapons.PushBack(WEAPON_SLOT_GAUSS);
-                            if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_EGON )) && (State.HaveAmmoInWeapons[WEAPON_SLOT_EGON ] || State.HaveAmmo[AMMO_SLOT_CELLS  ])) SelectableWeapons.PushBack(WEAPON_SLOT_EGON );
+                    case 4: if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_RPG  )) && (CompHP->GetHaveAmmoInWeapons()[WEAPON_SLOT_RPG  ] || CompHP->GetHaveAmmo()[AMMO_SLOT_ROCKETS])) SelectableWeapons.PushBack(WEAPON_SLOT_RPG  );
+                            if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_GAUSS)) && (CompHP->GetHaveAmmoInWeapons()[WEAPON_SLOT_GAUSS] || CompHP->GetHaveAmmo()[AMMO_SLOT_CELLS  ])) SelectableWeapons.PushBack(WEAPON_SLOT_GAUSS);
+                            if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_EGON )) && (CompHP->GetHaveAmmoInWeapons()[WEAPON_SLOT_EGON ] || CompHP->GetHaveAmmo()[AMMO_SLOT_CELLS  ])) SelectableWeapons.PushBack(WEAPON_SLOT_EGON );
                             break;
 
-                    case 5: if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_GRENADE   )) && State.HaveAmmoInWeapons[WEAPON_SLOT_GRENADE   ]) SelectableWeapons.PushBack(WEAPON_SLOT_GRENADE   );
-                            if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_TRIPMINE  )) && State.HaveAmmoInWeapons[WEAPON_SLOT_TRIPMINE  ]) SelectableWeapons.PushBack(WEAPON_SLOT_TRIPMINE  );
-                            if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_FACEHUGGER)) && State.HaveAmmoInWeapons[WEAPON_SLOT_FACEHUGGER]) SelectableWeapons.PushBack(WEAPON_SLOT_FACEHUGGER);
+                    case 5: if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_GRENADE   )) && CompHP->GetHaveAmmoInWeapons()[WEAPON_SLOT_GRENADE   ]) SelectableWeapons.PushBack(WEAPON_SLOT_GRENADE   );
+                            if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_TRIPMINE  )) && CompHP->GetHaveAmmoInWeapons()[WEAPON_SLOT_TRIPMINE  ]) SelectableWeapons.PushBack(WEAPON_SLOT_TRIPMINE  );
+                            if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_FACEHUGGER)) && CompHP->GetHaveAmmoInWeapons()[WEAPON_SLOT_FACEHUGGER]) SelectableWeapons.PushBack(WEAPON_SLOT_FACEHUGGER);
                             break;
 
                     // case 6..15: break;
@@ -807,9 +792,9 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                         else if (WeaponName == "Tripmine"    ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_TRIPMINE    )->ServerSide_PickedUpByEntity(this, CompHP);
                         else if (WeaponName == "FaceHugger"  ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_FACEHUGGER  )->ServerSide_PickedUpByEntity(this, CompHP);
 
-                        else if (WeaponName == "Ammo_DartGun"    ) State.HaveAmmo[AMMO_SLOT_ARROWS] = std::min(State.HaveAmmo[AMMO_SLOT_ARROWS] +  5,  30);
-                        else if (WeaponName == "Ammo_DesertEagle") State.HaveAmmo[AMMO_SLOT_357   ] = std::min(State.HaveAmmo[AMMO_SLOT_357   ] +  6,  36);
-                        else if (WeaponName == "Ammo_Gauss"      ) State.HaveAmmo[AMMO_SLOT_CELLS ] = std::min(State.HaveAmmo[AMMO_SLOT_CELLS ] + 40, 200);
+                        else if (WeaponName == "Ammo_DartGun"    ) CompHP->GetHaveAmmo()[AMMO_SLOT_ARROWS] = std::min(CompHP->GetHaveAmmo()[AMMO_SLOT_ARROWS] +  5,  30);
+                        else if (WeaponName == "Ammo_DesertEagle") CompHP->GetHaveAmmo()[AMMO_SLOT_357   ] = std::min(CompHP->GetHaveAmmo()[AMMO_SLOT_357   ] +  6,  36);
+                        else if (WeaponName == "Ammo_Gauss"      ) CompHP->GetHaveAmmo()[AMMO_SLOT_CELLS ] = std::min(CompHP->GetHaveAmmo()[AMMO_SLOT_CELLS ] + 40, 200);
 #endif
                     }
                 }
@@ -983,8 +968,8 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 if (CompCollMdl != NULL)
                     CompCollMdl->SetBoundingBox(m_Dimensions, "Textures/meta/collisionmodel");
 
-                for (char Nr=0; Nr<15; Nr++) State.HaveAmmo         [Nr]=0;   // IMPORTANT: Do not clear the frags value in 'HaveAmmo[AMMO_SLOT_FRAGS]'!
-                for (char Nr=0; Nr<32; Nr++) State.HaveAmmoInWeapons[Nr]=0;
+                for (char Nr=0; Nr<15; Nr++) CompHP->GetHaveAmmo()[Nr]=0;   // IMPORTANT: Do not clear the frags value in 'HaveAmmo[AMMO_SLOT_FRAGS]'!
+                for (char Nr=0; Nr<32; Nr++) CompHP->GetHaveAmmoInWeapons()[Nr]=0;
                 break;
             }
 
@@ -1124,7 +1109,7 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
 
             // HUD_Font1.Print(10+ 0*CharWidth, SingleOpenGLWindow->GetHeight()-16, 0x00FFFFFF, "Health %3u", State.Health);
             // HUD_Font1.Print(10+16*CharWidth, SingleOpenGLWindow->GetHeight()-16, 0x00FFFFFF, "Armor %3u", State.Armor);
-            // HUD_Font1.Print(10+31*CharWidth, SingleOpenGLWindow->GetHeight()-16, 0x00FFFFFF, "Frags%3i", (signed short)(State.HaveAmmo[AMMO_SLOT_FRAGS]));
+            // HUD_Font1.Print(10+31*CharWidth, SingleOpenGLWindow->GetHeight()-16, 0x00FFFFFF, "Frags%3i", (signed short)(CompHP->GetHaveAmmo()[AMMO_SLOT_FRAGS]));
         }
 
 
@@ -1235,8 +1220,9 @@ int EntHumanPlayerT::GetFrags(lua_State* LuaState)
 {
     cf::ScriptBinderT Binder(LuaState);
     IntrusivePtrT<EntHumanPlayerT> Ent = Binder.GetCheckedObjectParam< IntrusivePtrT<EntHumanPlayerT> >(1);
+    IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(Ent->m_Entity->GetComponent("HumanPlayer"));
 
-    lua_pushnumber(LuaState, (signed short)(Ent->State.HaveAmmo[AMMO_SLOT_FRAGS]));
+    lua_pushnumber(LuaState, (signed short)(CompHP->GetHaveAmmo()[AMMO_SLOT_FRAGS]));
     return 1;
 }
 
@@ -1255,7 +1241,6 @@ int EntHumanPlayerT::GetAmmoString(lua_State* LuaState)
     cf::ScriptBinderT Binder(LuaState);
     IntrusivePtrT<EntHumanPlayerT> Ent = Binder.GetCheckedObjectParam< IntrusivePtrT<EntHumanPlayerT> >(1);
     IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(Ent->m_Entity->GetComponent("HumanPlayer"));
-    const EntityStateT&            State = Ent->State;
 
     // Return an ammo string for the players HUD.
     if (CompHP->GetHaveWeapons() & (1 << CompHP->GetActiveWeaponSlot()))
@@ -1290,9 +1275,9 @@ int EntHumanPlayerT::GetAmmoString(lua_State* LuaState)
 
             case WEAPON_SLOT_9MMAR:
                 sprintf(PrintBuffer, "Ammo %2u (%2u) | %u Grenades",
-                        State.HaveAmmoInWeapons[WEAPON_SLOT_9MMAR],
-                        State.HaveAmmo[GetAmmoSlotForPrimaryFireByWeaponSlot[WEAPON_SLOT_9MMAR]],
-                        State.HaveAmmo[AMMO_SLOT_ARGREN]);
+                        CompHP->GetHaveAmmoInWeapons()[WEAPON_SLOT_9MMAR],
+                        CompHP->GetHaveAmmo()[GetAmmoSlotForPrimaryFireByWeaponSlot[WEAPON_SLOT_9MMAR]],
+                        CompHP->GetHaveAmmo()[AMMO_SLOT_ARGREN]);
                 lua_pushstring(LuaState, PrintBuffer);
                 break;
 
@@ -1301,7 +1286,7 @@ int EntHumanPlayerT::GetAmmoString(lua_State* LuaState)
             case WEAPON_SLOT_RPG:
             case WEAPON_SLOT_TRIPMINE:
                 sprintf(PrintBuffer, "Ammo %2u",
-                        State.HaveAmmoInWeapons[CompHP->GetActiveWeaponSlot()]);
+                        CompHP->GetHaveAmmoInWeapons()[CompHP->GetActiveWeaponSlot()]);
                 lua_pushstring(LuaState, PrintBuffer);
                 break;
 
@@ -1312,8 +1297,8 @@ int EntHumanPlayerT::GetAmmoString(lua_State* LuaState)
             case WEAPON_SLOT_PISTOL:
             case WEAPON_SLOT_SHOTGUN:
                 sprintf(PrintBuffer, "Ammo %2u (%2u)",
-                        State.HaveAmmoInWeapons[CompHP->GetActiveWeaponSlot()],
-                        State.HaveAmmo[GetAmmoSlotForPrimaryFireByWeaponSlot[CompHP->GetActiveWeaponSlot()]]);
+                        CompHP->GetHaveAmmoInWeapons()[CompHP->GetActiveWeaponSlot()],
+                        CompHP->GetHaveAmmo()[GetAmmoSlotForPrimaryFireByWeaponSlot[CompHP->GetActiveWeaponSlot()]]);
                 lua_pushstring(LuaState, PrintBuffer);
                 break;
         }

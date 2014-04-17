@@ -81,6 +81,8 @@ namespace cf
             void SetActiveWeaponSequNr(uint8_t ws) { m_ActiveWeaponSequNr.Set(ws); }
             float GetActiveWeaponFrameNr() const { return m_ActiveWeaponFrameNr.Get(); }
             void SetActiveWeaponFrameNr(float f) { m_ActiveWeaponFrameNr.Set(f); }
+            TypeSys::VarArrayT<uint16_t>& GetHaveAmmo() { return m_HaveAmmo; }
+            TypeSys::VarArrayT<uint8_t>& GetHaveAmmoInWeapons() { return m_HaveAmmoInWeapons; }
 
 
             // Base class overrides.

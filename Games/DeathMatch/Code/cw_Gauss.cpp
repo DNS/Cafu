@@ -39,16 +39,14 @@ CarriedWeaponGaussT::CarriedWeaponGaussT(ModelManagerT& ModelMan)
 
 bool CarriedWeaponGaussT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
 {
-    EntityStateT& State=Player->GetState();
-
     // Consider if the entity already has this weapon.
     if (HumanPlayer->GetHaveWeapons() & (1 << WEAPON_SLOT_GAUSS))
     {
         // If it also has the max. amount of ammo of this type, ignore the touch.
-        if (State.HaveAmmo[AMMO_SLOT_CELLS]==200) return false;
+        if (HumanPlayer->GetHaveAmmo()[AMMO_SLOT_CELLS]==200) return false;
 
         // Otherwise pick the weapon up and let it have the ammo.
-        State.HaveAmmo[AMMO_SLOT_CELLS]+=40;
+        HumanPlayer->GetHaveAmmo()[AMMO_SLOT_CELLS]+=40;
     }
     else
     {
@@ -58,12 +56,12 @@ bool CarriedWeaponGaussT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, I
         HumanPlayer->SetActiveWeaponSequNr(8);    // Draw
         HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
-        State.HaveAmmoInWeapons[WEAPON_SLOT_GAUSS] =20;
-        State.HaveAmmo         [AMMO_SLOT_CELLS  ]+=20;
+        HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_GAUSS] =20;
+        HumanPlayer->GetHaveAmmo()         [AMMO_SLOT_CELLS  ]+=20;
     }
 
     // Limit the amount of carryable ammo.
-    if (State.HaveAmmo[AMMO_SLOT_CELLS]>200) State.HaveAmmo[AMMO_SLOT_CELLS]=200;
+    if (HumanPlayer->GetHaveAmmo()[AMMO_SLOT_CELLS]>200) HumanPlayer->GetHaveAmmo()[AMMO_SLOT_CELLS]=200;
 
     return true;
 }
@@ -71,8 +69,6 @@ bool CarriedWeaponGaussT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, I
 
 void CarriedWeaponGaussT::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool /*ThinkingOnServerSide*/, unsigned long /*ServerFrameNr*/, bool AnimSequenceWrap) const
 {
-    EntityStateT& State=Player->GetState();
-
     enum SequenceNames
     {
         Idle1,

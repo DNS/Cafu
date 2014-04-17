@@ -37,16 +37,14 @@ CarriedWeaponPistolT::CarriedWeaponPistolT(ModelManagerT& ModelMan)
 
 bool CarriedWeaponPistolT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
 {
-    EntityStateT& State=Player->GetState();
-
     // Consider if the entity already has this weapon.
     if (HumanPlayer->GetHaveWeapons() & (1 << WEAPON_SLOT_PISTOL))
     {
         // If it also has the max. amount of ammo of this type, ignore the touch.
-        if (State.HaveAmmo[AMMO_SLOT_9MM]==250) return false;
+        if (HumanPlayer->GetHaveAmmo()[AMMO_SLOT_9MM]==250) return false;
 
         // Otherwise pick the weapon up and let it have the ammo.
-        State.HaveAmmo[AMMO_SLOT_9MM]+=34;
+        HumanPlayer->GetHaveAmmo()[AMMO_SLOT_9MM]+=34;
     }
     else
     {
@@ -56,12 +54,12 @@ bool CarriedWeaponPistolT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, 
         HumanPlayer->SetActiveWeaponSequNr(7);    // Draw
         HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
-        State.HaveAmmoInWeapons[WEAPON_SLOT_PISTOL] =17;
-        State.HaveAmmo         [AMMO_SLOT_9MM     ]+=17;
+        HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_PISTOL] =17;
+        HumanPlayer->GetHaveAmmo()         [AMMO_SLOT_9MM     ]+=17;
     }
 
     // Limit the amount of carryable ammo.
-    if (State.HaveAmmo[AMMO_SLOT_9MM]>250) State.HaveAmmo[AMMO_SLOT_9MM]=250;
+    if (HumanPlayer->GetHaveAmmo()[AMMO_SLOT_9MM]>250) HumanPlayer->GetHaveAmmo()[AMMO_SLOT_9MM]=250;
 
     return true;
 }

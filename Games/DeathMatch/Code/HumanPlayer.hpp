@@ -42,9 +42,6 @@ namespace GAME_NAME
         EntHumanPlayerT(const EntityCreateParamsT& Params);
         ~EntHumanPlayerT();
 
-        EntityStateT& GetState() { return State; }
-        const EntityStateT& GetState() const { return State; }
-
         /// Increases the frag count of this entity by the given number.
         void AddFrag(int NumFrags=1);
 
@@ -66,8 +63,6 @@ namespace GAME_NAME
 
         // Override the base class methods.
         void NotifyLeaveMap();
-        void DoSerialize(cf::Network::OutStreamT& Stream) const;
-        void DoDeserialize(cf::Network::InStreamT& Stream);
 
         /// A helper function for Think().
         bool CheckGUI(IntrusivePtrT<cf::GameSys::ComponentModelT> CompModel, Vector3fT& MousePos) const;
@@ -82,7 +77,6 @@ namespace GAME_NAME
         static const luaL_Reg MethodsList[];
 
 
-        EntityStateT      State;                    ///< The current state of this entity.
         mutable VectorT   LastSeenAmbientColor;     // This is a client-side variable, unrelated to prediction, and thus allowed.
         IntrusivePtrT<cf::GuiSys::GuiImplT> GuiHUD; ///< The HUD GUI for this local human player entity.
     };

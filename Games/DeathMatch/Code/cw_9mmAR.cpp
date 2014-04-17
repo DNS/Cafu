@@ -64,17 +64,15 @@ CarriedWeapon9mmART::~CarriedWeapon9mmART()
 
 bool CarriedWeapon9mmART::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
 {
-    EntityStateT& State=Player->GetState();
-
     // Consider if the entity already has this weapon.
     if (HumanPlayer->GetHaveWeapons() & (1 << WEAPON_SLOT_9MMAR))
     {
         // If it also has the max. amount of ammo of this type, ignore the touch.
-        if (State.HaveAmmo[AMMO_SLOT_9MM]==250) return false;
+        if (HumanPlayer->GetHaveAmmo()[AMMO_SLOT_9MM]==250) return false;
 
         // Otherwise pick the weapon up and let it have the ammo.
-        State.HaveAmmo[AMMO_SLOT_9MM   ]+=50;
-        State.HaveAmmo[AMMO_SLOT_ARGREN]+= 2;               // Temp. solution until we have "ItemAmmoARGrenades" working.
+        HumanPlayer->GetHaveAmmo()[AMMO_SLOT_9MM   ]+=50;
+        HumanPlayer->GetHaveAmmo()[AMMO_SLOT_ARGREN]+= 2;               // Temp. solution until we have "ItemAmmoARGrenades" working.
     }
     else
     {
@@ -84,14 +82,14 @@ bool CarriedWeapon9mmART::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, I
         HumanPlayer->SetActiveWeaponSequNr(4);    // Draw
         HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
-        State.HaveAmmoInWeapons[WEAPON_SLOT_9MMAR] =25;
-        State.HaveAmmo         [AMMO_SLOT_9MM    ]+=25;
-        State.HaveAmmo         [AMMO_SLOT_ARGREN ]+= 2;     // Temp. solution until we have "ItemAmmoARGrenades" working.
+        HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_9MMAR] =25;
+        HumanPlayer->GetHaveAmmo()         [AMMO_SLOT_9MM    ]+=25;
+        HumanPlayer->GetHaveAmmo()         [AMMO_SLOT_ARGREN ]+= 2;     // Temp. solution until we have "ItemAmmoARGrenades" working.
     }
 
     // Limit the amount of carryable ammo.
-    if (State.HaveAmmo[AMMO_SLOT_9MM   ]>250) State.HaveAmmo[AMMO_SLOT_9MM   ]=250;
-    if (State.HaveAmmo[AMMO_SLOT_ARGREN]>  4) State.HaveAmmo[AMMO_SLOT_ARGREN]=  4;
+    if (HumanPlayer->GetHaveAmmo()[AMMO_SLOT_9MM   ]>250) HumanPlayer->GetHaveAmmo()[AMMO_SLOT_9MM   ]=250;
+    if (HumanPlayer->GetHaveAmmo()[AMMO_SLOT_ARGREN]>  4) HumanPlayer->GetHaveAmmo()[AMMO_SLOT_ARGREN]=  4;
 
     return true;
 }
@@ -99,8 +97,6 @@ bool CarriedWeapon9mmART::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, I
 
 void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const
 {
-    EntityStateT& State=Player->GetState();
-
     switch (HumanPlayer->GetActiveWeaponSequNr())
     {
         case 3: // Reload
@@ -109,10 +105,10 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtr
                 HumanPlayer->SetActiveWeaponSequNr(0);
                 HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
-                const char Amount=State.HaveAmmo[AMMO_SLOT_9MM]>25 ? 25 : State.HaveAmmo[AMMO_SLOT_9MM];
+                const char Amount=HumanPlayer->GetHaveAmmo()[AMMO_SLOT_9MM]>25 ? 25 : HumanPlayer->GetHaveAmmo()[AMMO_SLOT_9MM];
 
-                State.HaveAmmoInWeapons[WEAPON_SLOT_9MMAR]+=Amount;
-                State.HaveAmmo         [AMMO_SLOT_9MM    ]-=Amount;
+                HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_9MMAR]+=Amount;
+                HumanPlayer->GetHaveAmmo()         [AMMO_SLOT_9MM    ]-=Amount;
             }
             break;
 
@@ -134,7 +130,7 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtr
         case 5: // Shoot 1
         case 6: // Shoot 2
         case 7: // Shoot 3
-            if ((State.HaveAmmoInWeapons[WEAPON_SLOT_9MMAR] && (PlayerCommand.Keys & PCK_Fire1) && HumanPlayer->GetActiveWeaponFrameNr() >= 1.0) || AnimSequenceWrap)
+            if ((HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_9MMAR] && (PlayerCommand.Keys & PCK_Fire1) && HumanPlayer->GetActiveWeaponFrameNr() >= 1.0) || AnimSequenceWrap)
             {
                 // At 10 FPS (sequences 5, 6, 7), 0.1 seconds correspond to exactly 1 frame.
                 // End of this shoot sequence - go back to "idle" and recover from there (decide anew).
@@ -147,9 +143,9 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtr
         case 0: // Long Idle
         case 1: // Idle1
             // 1. First see if the magazine is empty and special action is required.
-            if (!State.HaveAmmoInWeapons[WEAPON_SLOT_9MMAR])
+            if (!HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_9MMAR])
             {
-                if (State.HaveAmmo[AMMO_SLOT_9MM])
+                if (HumanPlayer->GetHaveAmmo()[AMMO_SLOT_9MM])
                 {
                     HumanPlayer->SetActiveWeaponSequNr(3);    // Reload
                     HumanPlayer->SetActiveWeaponFrameNr(0.0f);
@@ -163,7 +159,7 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtr
                 }
             }
 
-            if (!State.HaveAmmo[AMMO_SLOT_ARGREN] && (PlayerCommand.Keys & PCK_Fire2))
+            if (!HumanPlayer->GetHaveAmmo()[AMMO_SLOT_ARGREN] && (PlayerCommand.Keys & PCK_Fire2))
             {
                 // TODO: Player->PostEvent(EVENT_TYPE_SECONDARY_FIRE_EMPTY);     // BUT LIMIT THE "FREQUENCY" OF THIS EVENT!
                 break;
@@ -173,7 +169,7 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtr
             {
                 HumanPlayer->SetActiveWeaponSequNr(5 + (LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF] % 3));
                 HumanPlayer->SetActiveWeaponFrameNr(0.0f);
-                State.HaveAmmoInWeapons[WEAPON_SLOT_9MMAR]--;
+                HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_9MMAR]--;
 
                 if (ThinkingOnServerSide)
                 {
@@ -191,7 +187,7 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtr
             {
                 HumanPlayer->SetActiveWeaponSequNr(2);    // Grenade
                 HumanPlayer->SetActiveWeaponFrameNr(0.0f);
-                State.HaveAmmo[AMMO_SLOT_ARGREN]--;
+                HumanPlayer->GetHaveAmmo()[AMMO_SLOT_ARGREN]--;
 
                 Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_SECONDARY_FIRE);
 
@@ -328,8 +324,6 @@ void CarriedWeapon9mmART::ClientSide_HandleSecondaryFireEvent(const EntHumanPlay
 
 void CarriedWeapon9mmART::ClientSide_HandleStateDrivenEffects(const EntHumanPlayerT* Player, IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
 {
-    const EntityStateT& State=Player->GetState();
-
     if (HumanPlayer->GetActiveWeaponSequNr() == 5 || HumanPlayer->GetActiveWeaponSequNr() == 6 || HumanPlayer->GetActiveWeaponSequNr() == 7)
     {
         if (HumanPlayer->GetActiveWeaponFrameNr() == 0.0f)

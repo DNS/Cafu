@@ -55,16 +55,14 @@ CarriedWeaponFaceHuggerT::~CarriedWeaponFaceHuggerT()
 
 bool CarriedWeaponFaceHuggerT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
 {
-    EntityStateT& State=Player->GetState();
-
     // Consider if the entity already has this weapon.
     if (HumanPlayer->GetHaveWeapons() & (1 << WEAPON_SLOT_FACEHUGGER))
     {
         // If it also has the max. amount of ammo of this type, ignore the touch.
-        if (State.HaveAmmoInWeapons[WEAPON_SLOT_FACEHUGGER]>=35) return false;
+        if (HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_FACEHUGGER]>=35) return false;
 
         // Otherwise pick the weapon up and let it have the ammo.
-        State.HaveAmmoInWeapons[WEAPON_SLOT_FACEHUGGER]+=5;
+        HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_FACEHUGGER]+=5;
     }
     else
     {
@@ -74,7 +72,7 @@ bool CarriedWeaponFaceHuggerT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Play
         HumanPlayer->SetActiveWeaponSequNr(4);    // Draw
         HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
-        State.HaveAmmoInWeapons[WEAPON_SLOT_FACEHUGGER]=5;
+        HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_FACEHUGGER]=5;
     }
 
     return true;
@@ -83,8 +81,6 @@ bool CarriedWeaponFaceHuggerT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Play
 
 void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const
 {
-    EntityStateT& State=Player->GetState();
-
     switch (HumanPlayer->GetActiveWeaponSequNr())
     {
         case 0: // Idle1

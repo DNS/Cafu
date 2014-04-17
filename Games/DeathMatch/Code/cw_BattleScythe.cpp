@@ -49,8 +49,6 @@ CarriedWeaponBattleScytheT::~CarriedWeaponBattleScytheT()
 
 bool CarriedWeaponBattleScytheT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
 {
-    EntityStateT& State=Player->GetState();
-
     // If the touching entity already has a BattleScythe, ignore the touch.
     if (HumanPlayer->GetHaveWeapons() & (1 << WEAPON_SLOT_BATTLESCYTHE)) return false;
 
@@ -66,8 +64,6 @@ bool CarriedWeaponBattleScytheT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Pl
 
 void CarriedWeaponBattleScytheT::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool /*ThinkingOnServerSide*/, unsigned long /*ServerFrameNr*/, bool AnimSequenceWrap) const
 {
-    EntityStateT& State=Player->GetState();
-
     switch (HumanPlayer->GetActiveWeaponSequNr())
     {
         case 1: // Draw

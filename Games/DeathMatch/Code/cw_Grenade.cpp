@@ -57,16 +57,14 @@ CarriedWeaponGrenadeT::~CarriedWeaponGrenadeT()
 
 bool CarriedWeaponGrenadeT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
 {
-    EntityStateT& State=Player->GetState();
-
     // Consider if the entity already has this weapon.
     if (HumanPlayer->GetHaveWeapons() & (1 << WEAPON_SLOT_GRENADE))
     {
         // If it also has the max. amount of ammo of this type, ignore the touch.
-        if (State.HaveAmmoInWeapons[WEAPON_SLOT_GRENADE]==7) return false;
+        if (HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_GRENADE]==7) return false;
 
         // Otherwise pick the weapon up and let it have the ammo.
-        State.HaveAmmoInWeapons[WEAPON_SLOT_GRENADE]+=1;
+        HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_GRENADE]+=1;
     }
     else
     {
@@ -76,7 +74,7 @@ bool CarriedWeaponGrenadeT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player,
         HumanPlayer->SetActiveWeaponSequNr(7);    // Draw
         HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
-        State.HaveAmmoInWeapons[WEAPON_SLOT_GRENADE]=1;
+        HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_GRENADE]=1;
     }
 
     return true;
@@ -85,8 +83,6 @@ bool CarriedWeaponGrenadeT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player,
 
 void CarriedWeaponGrenadeT::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const
 {
-    EntityStateT& State=Player->GetState();
-
     switch (HumanPlayer->GetActiveWeaponSequNr())
     {
         case 0: // Idle

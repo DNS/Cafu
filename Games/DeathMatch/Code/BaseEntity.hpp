@@ -52,16 +52,6 @@ namespace GAME_NAME
     cf::TypeSys::TypeInfoManT& GetBaseEntTIM();
 
 
-    // This structure describes each entitys state and is transmitted from the server to the clients over the network.
-    struct EntityStateT
-    {
-        unsigned short HaveAmmo[16];            // Entity can carry 16 different types of ammo (weapon independent). This is the amount of each.
-        unsigned char  HaveAmmoInWeapons[32];   // Entity can carry ammo in each of the 32 weapons. This is the amount of each.
-
-        EntityStateT();
-    };
-
-
     // This class describes "base entities", the most central component in game<-->engine communication.
     class BaseEntityT : public GameEntityI
     {

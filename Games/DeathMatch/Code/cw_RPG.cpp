@@ -46,16 +46,14 @@ CarriedWeaponRPGT::CarriedWeaponRPGT(ModelManagerT& ModelMan)
 
 bool CarriedWeaponRPGT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
 {
-    EntityStateT& State=Player->GetState();
-
     // Consider if the entity already has this weapon.
     if (HumanPlayer->GetHaveWeapons() & (1 << WEAPON_SLOT_RPG))
     {
         // If it also has the max. amount of ammo of this type, ignore the touch.
-        if (State.HaveAmmo[AMMO_SLOT_ROCKETS]==5) return false;
+        if (HumanPlayer->GetHaveAmmo()[AMMO_SLOT_ROCKETS]==5) return false;
 
         // Otherwise pick the weapon up and let it have the ammo.
-        State.HaveAmmo[AMMO_SLOT_ROCKETS]+=1;
+        HumanPlayer->GetHaveAmmo()[AMMO_SLOT_ROCKETS]+=1;
     }
     else
     {
@@ -65,12 +63,12 @@ bool CarriedWeaponRPGT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, Int
         HumanPlayer->SetActiveWeaponSequNr(5);    // Draw
         HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
-        State.HaveAmmoInWeapons[WEAPON_SLOT_RPG  ] =1;
-        State.HaveAmmo         [AMMO_SLOT_ROCKETS]+=0;
+        HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_RPG  ] =1;
+        HumanPlayer->GetHaveAmmo()         [AMMO_SLOT_ROCKETS]+=0;
     }
 
     // Limit the amount of carryable ammo.
-    if (State.HaveAmmo[AMMO_SLOT_ROCKETS]>5) State.HaveAmmo[AMMO_SLOT_ROCKETS]=5;
+    if (HumanPlayer->GetHaveAmmo()[AMMO_SLOT_ROCKETS]>5) HumanPlayer->GetHaveAmmo()[AMMO_SLOT_ROCKETS]=5;
 
     return true;
 }
@@ -78,8 +76,6 @@ bool CarriedWeaponRPGT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, Int
 
 void CarriedWeaponRPGT::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const
 {
-    EntityStateT& State=Player->GetState();
-
     switch (HumanPlayer->GetActiveWeaponSequNr())
     {
         case 0: // Idle1 (rocket inserted)

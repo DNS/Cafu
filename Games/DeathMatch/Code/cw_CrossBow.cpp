@@ -42,16 +42,14 @@ CarriedWeaponCrossBowT::CarriedWeaponCrossBowT(ModelManagerT& ModelMan)
 
 bool CarriedWeaponCrossBowT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
 {
-    EntityStateT& State=Player->GetState();
-
     // Consider if the entity already has this weapon.
     if (HumanPlayer->GetHaveWeapons() & (1 << WEAPON_SLOT_CROSSBOW))
     {
         // If it also has the max. amount of ammo of this type, ignore the touch.
-        if (State.HaveAmmo[AMMO_SLOT_ARROWS]==30) return false;
+        if (HumanPlayer->GetHaveAmmo()[AMMO_SLOT_ARROWS]==30) return false;
 
         // Otherwise pick the weapon up and let it have the ammo.
-        State.HaveAmmo[AMMO_SLOT_ARROWS]+=10;
+        HumanPlayer->GetHaveAmmo()[AMMO_SLOT_ARROWS]+=10;
     }
     else
     {
@@ -61,12 +59,12 @@ bool CarriedWeaponCrossBowT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player
         HumanPlayer->SetActiveWeaponSequNr(5);    // Draw
         HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
-        State.HaveAmmoInWeapons[WEAPON_SLOT_CROSSBOW] =5;
-        State.HaveAmmo         [AMMO_SLOT_ARROWS    ]+=5;
+        HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_CROSSBOW] =5;
+        HumanPlayer->GetHaveAmmo()         [AMMO_SLOT_ARROWS    ]+=5;
     }
 
     // Limit the amount of carryable ammo.
-    if (State.HaveAmmo[AMMO_SLOT_ARROWS]>30) State.HaveAmmo[AMMO_SLOT_ARROWS]=30;
+    if (HumanPlayer->GetHaveAmmo()[AMMO_SLOT_ARROWS]>30) HumanPlayer->GetHaveAmmo()[AMMO_SLOT_ARROWS]=30;
 
     return true;
 }
@@ -74,8 +72,6 @@ bool CarriedWeaponCrossBowT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player
 
 void CarriedWeaponCrossBowT::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long /*ServerFrameNr*/, bool AnimSequenceWrap) const
 {
-    EntityStateT& State=Player->GetState();
-
     switch (HumanPlayer->GetActiveWeaponSequNr())
     {
         case 0: // Idle1

@@ -55,16 +55,14 @@ CarriedWeapon357T::~CarriedWeapon357T()
 
 bool CarriedWeapon357T::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
 {
-    EntityStateT& State=Player->GetState();
-
     // Consider if the entity already has this weapon.
     if (HumanPlayer->GetHaveWeapons() & (1 << WEAPON_SLOT_357))
     {
         // If it also has the max. amount of ammo of this type, ignore the touch.
-        if (State.HaveAmmo[AMMO_SLOT_357]==36) return false;
+        if (HumanPlayer->GetHaveAmmo()[AMMO_SLOT_357]==36) return false;
 
         // Otherwise pick the weapon up and let it have the ammo.
-        State.HaveAmmo[AMMO_SLOT_357]+=12;
+        HumanPlayer->GetHaveAmmo()[AMMO_SLOT_357]+=12;
     }
     else
     {
@@ -74,12 +72,12 @@ bool CarriedWeapon357T::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, Int
         HumanPlayer->SetActiveWeaponSequNr(5);    // Draw
         HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
-        State.HaveAmmoInWeapons[WEAPON_SLOT_357] =6;
-        State.HaveAmmo         [AMMO_SLOT_357  ]+=6;
+        HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_357] =6;
+        HumanPlayer->GetHaveAmmo()         [AMMO_SLOT_357  ]+=6;
     }
 
     // Limit the amount of carryable ammo.
-    if (State.HaveAmmo[AMMO_SLOT_357]>36) State.HaveAmmo[AMMO_SLOT_357]=36;
+    if (HumanPlayer->GetHaveAmmo()[AMMO_SLOT_357]>36) HumanPlayer->GetHaveAmmo()[AMMO_SLOT_357]=36;
 
     return true;
 }
@@ -87,8 +85,6 @@ bool CarriedWeapon357T::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, Int
 
 void CarriedWeapon357T::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long /*ServerFrameNr*/, bool AnimSequenceWrap) const
 {
-    EntityStateT& State=Player->GetState();
-
     switch (HumanPlayer->GetActiveWeaponSequNr())
     {
         case 3: // Reload
@@ -97,10 +93,10 @@ void CarriedWeapon357T::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<
                 HumanPlayer->SetActiveWeaponSequNr(0);
                 HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
-                const char Amount=State.HaveAmmo[AMMO_SLOT_357]>6 ? 6 : State.HaveAmmo[AMMO_SLOT_357];
+                const char Amount=HumanPlayer->GetHaveAmmo()[AMMO_SLOT_357]>6 ? 6 : HumanPlayer->GetHaveAmmo()[AMMO_SLOT_357];
 
-                State.HaveAmmoInWeapons[WEAPON_SLOT_357]+=Amount;
-                State.HaveAmmo         [  AMMO_SLOT_357]-=Amount;
+                HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_357]+=Amount;
+                HumanPlayer->GetHaveAmmo()         [  AMMO_SLOT_357]-=Amount;
             }
             break;
 
@@ -130,9 +126,9 @@ void CarriedWeapon357T::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<
         case 1: // Fidget 1
         {
             // 1. First see if the magazine is empty and special action is required.
-            if (!State.HaveAmmoInWeapons[WEAPON_SLOT_357])
+            if (!HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_357])
             {
-                if (State.HaveAmmo[AMMO_SLOT_357])
+                if (HumanPlayer->GetHaveAmmo()[AMMO_SLOT_357])
                 {
                     HumanPlayer->SetActiveWeaponSequNr(3);    // Reload
                     HumanPlayer->SetActiveWeaponFrameNr(0.0f);
@@ -151,7 +147,7 @@ void CarriedWeapon357T::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<
             {
                 HumanPlayer->SetActiveWeaponSequNr(2);                // Fire
                 HumanPlayer->SetActiveWeaponFrameNr(0.0f);
-                State.HaveAmmoInWeapons[WEAPON_SLOT_357]--;
+                HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_357]--;
 
                 Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
 

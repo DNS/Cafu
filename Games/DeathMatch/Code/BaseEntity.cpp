@@ -58,16 +58,6 @@ cf::TypeSys::TypeInfoManT& GAME_NAME::GetBaseEntTIM()
 }
 
 
-// Entity State
-// ************
-
-EntityStateT::EntityStateT()
-{
-    for (int Nr=0; Nr<16; Nr++) HaveAmmo         [Nr]=0;
-    for (int Nr=0; Nr<32; Nr++) HaveAmmoInWeapons[Nr]=0;
-}
-
-
 // Base Entity
 // ***********
 
