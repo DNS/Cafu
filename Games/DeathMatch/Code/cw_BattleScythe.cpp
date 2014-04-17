@@ -52,10 +52,10 @@ bool CarriedWeaponBattleScytheT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Pl
     EntityStateT& State=Player->GetState();
 
     // If the touching entity already has a BattleScythe, ignore the touch.
-    if (State.HaveWeapons & (1 << WEAPON_SLOT_BATTLESCYTHE)) return false;
+    if (HumanPlayer->GetHaveWeapons() & (1 << WEAPON_SLOT_BATTLESCYTHE)) return false;
 
     // Otherwise, give the touching entity this weapon.
-    State.HaveWeapons|=1 << WEAPON_SLOT_BATTLESCYTHE;
+    HumanPlayer->SetHaveWeapons(HumanPlayer->GetHaveWeapons() | 1 << WEAPON_SLOT_BATTLESCYTHE);
     State.ActiveWeaponSlot   =WEAPON_SLOT_BATTLESCYTHE;
     State.ActiveWeaponSequNr =1;    // Draw
     State.ActiveWeaponFrameNr=0.0;

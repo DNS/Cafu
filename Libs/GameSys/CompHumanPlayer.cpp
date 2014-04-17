@@ -64,7 +64,7 @@ const cf::TypeSys::VarsDocT ComponentHumanPlayerT::DocVars[] =
 ComponentHumanPlayerT::ComponentHumanPlayerT()
     : ComponentBaseT(),
       m_PlayerName("PlayerName", "Player"),
-      m_StateOfExistance("State", 2 /*StateOfExistance_FrozenSpectator*/),
+      m_StateOfExistence("State", 2 /*StateOfExistence_FrozenSpectator*/),
       m_Health("Health", 100),
       m_Armor("Armor", 0),
       m_HaveItems("HaveItems", 0),
@@ -83,7 +83,7 @@ ComponentHumanPlayerT::ComponentHumanPlayerT()
 ComponentHumanPlayerT::ComponentHumanPlayerT(const ComponentHumanPlayerT& Comp)
     : ComponentBaseT(Comp),
       m_PlayerName(Comp.m_PlayerName),
-      m_StateOfExistance(Comp.m_StateOfExistance),
+      m_StateOfExistence(Comp.m_StateOfExistence),
       m_Health(Comp.m_Health),
       m_Armor(Comp.m_Armor),
       m_HaveItems(Comp.m_HaveItems),
@@ -102,7 +102,7 @@ ComponentHumanPlayerT::ComponentHumanPlayerT(const ComponentHumanPlayerT& Comp)
 void ComponentHumanPlayerT::FillMemberVars()
 {
     GetMemberVars().Add(&m_PlayerName);
-    GetMemberVars().Add(&m_StateOfExistance);
+    GetMemberVars().Add(&m_StateOfExistence);
     GetMemberVars().Add(&m_Health);
     GetMemberVars().Add(&m_Armor);
     GetMemberVars().Add(&m_HaveItems);

@@ -45,7 +45,7 @@ bool CarriedWeaponCrossBowT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player
     EntityStateT& State=Player->GetState();
 
     // Consider if the entity already has this weapon.
-    if (State.HaveWeapons & (1 << WEAPON_SLOT_CROSSBOW))
+    if (HumanPlayer->GetHaveWeapons() & (1 << WEAPON_SLOT_CROSSBOW))
     {
         // If it also has the max. amount of ammo of this type, ignore the touch.
         if (State.HaveAmmo[AMMO_SLOT_ARROWS]==30) return false;
@@ -56,7 +56,7 @@ bool CarriedWeaponCrossBowT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player
     else
     {
         // This weapon is picked up for the first time.
-        State.HaveWeapons|=1 << WEAPON_SLOT_CROSSBOW;
+        HumanPlayer->SetHaveWeapons(HumanPlayer->GetHaveWeapons() | 1 << WEAPON_SLOT_CROSSBOW);
         State.ActiveWeaponSlot   =WEAPON_SLOT_CROSSBOW;
         State.ActiveWeaponSequNr =5;    // Draw
         State.ActiveWeaponFrameNr=0.0;

@@ -58,7 +58,7 @@ bool CarriedWeaponFaceHuggerT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Play
     EntityStateT& State=Player->GetState();
 
     // Consider if the entity already has this weapon.
-    if (State.HaveWeapons & (1 << WEAPON_SLOT_FACEHUGGER))
+    if (HumanPlayer->GetHaveWeapons() & (1 << WEAPON_SLOT_FACEHUGGER))
     {
         // If it also has the max. amount of ammo of this type, ignore the touch.
         if (State.HaveAmmoInWeapons[WEAPON_SLOT_FACEHUGGER]>=35) return false;
@@ -69,7 +69,7 @@ bool CarriedWeaponFaceHuggerT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Play
     else
     {
         // This weapon is picked up for the first time.
-        State.HaveWeapons|=1 << WEAPON_SLOT_FACEHUGGER;
+        HumanPlayer->SetHaveWeapons(HumanPlayer->GetHaveWeapons() | 1 << WEAPON_SLOT_FACEHUGGER);
         State.ActiveWeaponSlot   =WEAPON_SLOT_FACEHUGGER;
         State.ActiveWeaponSequNr =4;    // Draw
         State.ActiveWeaponFrameNr=0.0;

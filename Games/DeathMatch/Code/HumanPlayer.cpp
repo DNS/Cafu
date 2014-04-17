@@ -67,11 +67,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace GAME_NAME;
 
 
-// Constants for State.StateOfExistance.
-const char StateOfExistance_Alive          =0;
-const char StateOfExistance_Dead           =1;
-const char StateOfExistance_FrozenSpectator=2;
-const char StateOfExistance_FreeSpectator  =3;
+// Constants for State.StateOfExistence.
+const char StateOfExistence_Alive          =0;
+const char StateOfExistence_Dead           =1;
+const char StateOfExistence_FrozenSpectator=2;
+const char StateOfExistence_FreeSpectator  =3;
 
 
 // Implement the type info related code.
@@ -104,10 +104,7 @@ EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
                   BoundingBox3dT(Vector3dT( 16.0,  16.0,   4.0),    // A total of 32*32*72 inches, eye height at 68 inches.
                                  Vector3dT(-16.0, -16.0, -68.0)),
                   NUM_EVENT_TYPES),
-      State(StateOfExistance_FrozenSpectator,
-            0,      // HaveItems
-            0,      // HaveWeapons
-            0,      // ActiveWeaponSlot
+      State(0,      // ActiveWeaponSlot
             0,      // ActiveWeaponSequNr
             0.0),   // ActiveWeaponFrameNr
       GuiHUD(NULL)
@@ -119,7 +116,7 @@ EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
 
     // We can only hope that 'Origin' is a nice place for a "Frozen Spectator"...
 
-    // Because 'StateOfExistance==StateOfExistance_FrozenSpectator', we mis-use the 'Velocity' member variable a little
+    // Because 'StateOfExistence==StateOfExistence_FrozenSpectator', we mis-use the 'Velocity' member variable a little
     // for slightly turning/swaying the head in this state. See the 'Think()' code below!
     // TODO: HEAD SWAY: State.Velocity.y=m_Heading;
     // TODO: HEAD SWAY: State.Velocity.z=m_Bank;
@@ -145,7 +142,7 @@ EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
     m_RigidBody->setCollisionFlags(m_RigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
     m_RigidBody->setActivationState(DISABLE_DEACTIVATION);
 
-    // GameWorld->GetPhysicsWorld().AddRigidBody(m_RigidBody);     // Don't add to the world here - adding/removing is done when State.StateOfExistance changes.
+    // GameWorld->GetPhysicsWorld().AddRigidBody(m_RigidBody);     // Don't add to the world here - adding/removing is done when State.StateOfExistence changes.
 #endif
 }
 
@@ -178,9 +175,6 @@ void EntHumanPlayerT::AddFrag(int NumFrags)
 
 void EntHumanPlayerT::DoSerialize(cf::Network::OutStreamT& Stream) const
 {
-    Stream << State.StateOfExistance;
-    Stream << uint32_t(State.HaveItems);
-    Stream << uint32_t(State.HaveWeapons);
     Stream << State.ActiveWeaponSlot;
     Stream << State.ActiveWeaponSequNr;
     Stream << State.ActiveWeaponFrameNr;
@@ -194,9 +188,6 @@ void EntHumanPlayerT::DoDeserialize(cf::Network::InStreamT& Stream)
 {
     uint32_t ui=0;
 
-    Stream >> State.StateOfExistance;
-    Stream >> ui; State.HaveItems=ui;
-    Stream >> ui; State.HaveWeapons=ui;
     Stream >> State.ActiveWeaponSlot;
     Stream >> State.ActiveWeaponSequNr;
     Stream >> State.ActiveWeaponFrameNr;
@@ -209,18 +200,18 @@ void EntHumanPlayerT::DoDeserialize(cf::Network::InStreamT& Stream)
 // TODO: This is not longer called from anywhere, and should be ported to script! (HumanPlayer.lua) !!
 void EntHumanPlayerT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT& ImpactDir)
 {
-    // Only human players that are still alive can take damage.
-    if (State.StateOfExistance != StateOfExistance_Alive) return;
-
     IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT>   CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(m_Entity->GetComponent("HumanPlayer"));
     IntrusivePtrT<cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(m_Entity->GetComponent("PlayerPhysics"));
+
+    // Only human players that are still alive can take damage.
+    if (CompHP->GetStateOfExistence() != StateOfExistence_Alive) return;
 
     CompPlayerPhysics->SetMember("Velocity",
         CompPlayerPhysics->GetVelocity() + VectorT(ImpactDir.x, ImpactDir.y, 0.0) * (20.0 * Amount));
 
     if (CompHP->GetHealth() <= Amount)
     {
-        State.StateOfExistance=StateOfExistance_Dead;
+        CompHP->SetStateOfExistence(StateOfExistence_Dead);
         CompHP->SetHealth(0);
 
         // Now that the player is dead, clear the collision model.
@@ -410,9 +401,9 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
     for (unsigned long PCNr=0; PCNr<PlayerCommands.Size(); PCNr++)
     {
-        switch (State.StateOfExistance)
+        switch (CompHP->GetStateOfExistence())
         {
-            case StateOfExistance_Alive:
+            case StateOfExistence_Alive:
             {
                 // Update Heading
                 {
@@ -513,7 +504,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
 
                 // Handle the state machine of the "_v" (view) model of the current weapon.
-                if (State.HaveWeapons & (1 << State.ActiveWeaponSlot))
+                if (CompHP->GetHaveWeapons() & (1 << State.ActiveWeaponSlot))
                 {
                     const CarriedWeaponT* CarriedWeapon=GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot);
 
@@ -541,27 +532,27 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 {
                     case 0: break;  // No weapon slot was selected for changing the weapon.
 
-                    case 1: if (State.HaveWeapons & (1 << WEAPON_SLOT_BATTLESCYTHE)) SelectableWeapons.PushBack(WEAPON_SLOT_BATTLESCYTHE);
-                            if (State.HaveWeapons & (1 << WEAPON_SLOT_HORNETGUN   )) SelectableWeapons.PushBack(WEAPON_SLOT_HORNETGUN   );
+                    case 1: if (CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_BATTLESCYTHE)) SelectableWeapons.PushBack(WEAPON_SLOT_BATTLESCYTHE);
+                            if (CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_HORNETGUN   )) SelectableWeapons.PushBack(WEAPON_SLOT_HORNETGUN   );
                             break;
 
-                    case 2: if ((State.HaveWeapons & (1 << WEAPON_SLOT_PISTOL)) && (State.HaveAmmoInWeapons[WEAPON_SLOT_PISTOL] || State.HaveAmmo[AMMO_SLOT_9MM])) SelectableWeapons.PushBack(WEAPON_SLOT_PISTOL);
-                            if ((State.HaveWeapons & (1 << WEAPON_SLOT_357   )) && (State.HaveAmmoInWeapons[WEAPON_SLOT_357   ] || State.HaveAmmo[AMMO_SLOT_357])) SelectableWeapons.PushBack(WEAPON_SLOT_357   );
+                    case 2: if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_PISTOL)) && (State.HaveAmmoInWeapons[WEAPON_SLOT_PISTOL] || State.HaveAmmo[AMMO_SLOT_9MM])) SelectableWeapons.PushBack(WEAPON_SLOT_PISTOL);
+                            if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_357   )) && (State.HaveAmmoInWeapons[WEAPON_SLOT_357   ] || State.HaveAmmo[AMMO_SLOT_357])) SelectableWeapons.PushBack(WEAPON_SLOT_357   );
                             break;
 
-                    case 3: if ((State.HaveWeapons & (1 << WEAPON_SLOT_SHOTGUN )) && (State.HaveAmmoInWeapons[WEAPON_SLOT_SHOTGUN ] || State.HaveAmmo[AMMO_SLOT_SHELLS]                                    )) SelectableWeapons.PushBack(WEAPON_SLOT_SHOTGUN );
-                            if ((State.HaveWeapons & (1 << WEAPON_SLOT_9MMAR   )) && (State.HaveAmmoInWeapons[WEAPON_SLOT_9MMAR   ] || State.HaveAmmo[AMMO_SLOT_9MM   ] || State.HaveAmmo[AMMO_SLOT_ARGREN])) SelectableWeapons.PushBack(WEAPON_SLOT_9MMAR   );
-                            if ((State.HaveWeapons & (1 << WEAPON_SLOT_CROSSBOW)) && (State.HaveAmmoInWeapons[WEAPON_SLOT_CROSSBOW] || State.HaveAmmo[AMMO_SLOT_ARROWS]                                    )) SelectableWeapons.PushBack(WEAPON_SLOT_CROSSBOW);
+                    case 3: if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_SHOTGUN )) && (State.HaveAmmoInWeapons[WEAPON_SLOT_SHOTGUN ] || State.HaveAmmo[AMMO_SLOT_SHELLS]                                    )) SelectableWeapons.PushBack(WEAPON_SLOT_SHOTGUN );
+                            if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_9MMAR   )) && (State.HaveAmmoInWeapons[WEAPON_SLOT_9MMAR   ] || State.HaveAmmo[AMMO_SLOT_9MM   ] || State.HaveAmmo[AMMO_SLOT_ARGREN])) SelectableWeapons.PushBack(WEAPON_SLOT_9MMAR   );
+                            if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_CROSSBOW)) && (State.HaveAmmoInWeapons[WEAPON_SLOT_CROSSBOW] || State.HaveAmmo[AMMO_SLOT_ARROWS]                                    )) SelectableWeapons.PushBack(WEAPON_SLOT_CROSSBOW);
                             break;
 
-                    case 4: if ((State.HaveWeapons & (1 << WEAPON_SLOT_RPG  )) && (State.HaveAmmoInWeapons[WEAPON_SLOT_RPG  ] || State.HaveAmmo[AMMO_SLOT_ROCKETS])) SelectableWeapons.PushBack(WEAPON_SLOT_RPG  );
-                            if ((State.HaveWeapons & (1 << WEAPON_SLOT_GAUSS)) && (State.HaveAmmoInWeapons[WEAPON_SLOT_GAUSS] || State.HaveAmmo[AMMO_SLOT_CELLS  ])) SelectableWeapons.PushBack(WEAPON_SLOT_GAUSS);
-                            if ((State.HaveWeapons & (1 << WEAPON_SLOT_EGON )) && (State.HaveAmmoInWeapons[WEAPON_SLOT_EGON ] || State.HaveAmmo[AMMO_SLOT_CELLS  ])) SelectableWeapons.PushBack(WEAPON_SLOT_EGON );
+                    case 4: if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_RPG  )) && (State.HaveAmmoInWeapons[WEAPON_SLOT_RPG  ] || State.HaveAmmo[AMMO_SLOT_ROCKETS])) SelectableWeapons.PushBack(WEAPON_SLOT_RPG  );
+                            if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_GAUSS)) && (State.HaveAmmoInWeapons[WEAPON_SLOT_GAUSS] || State.HaveAmmo[AMMO_SLOT_CELLS  ])) SelectableWeapons.PushBack(WEAPON_SLOT_GAUSS);
+                            if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_EGON )) && (State.HaveAmmoInWeapons[WEAPON_SLOT_EGON ] || State.HaveAmmo[AMMO_SLOT_CELLS  ])) SelectableWeapons.PushBack(WEAPON_SLOT_EGON );
                             break;
 
-                    case 5: if ((State.HaveWeapons & (1 << WEAPON_SLOT_GRENADE   )) && State.HaveAmmoInWeapons[WEAPON_SLOT_GRENADE   ]) SelectableWeapons.PushBack(WEAPON_SLOT_GRENADE   );
-                            if ((State.HaveWeapons & (1 << WEAPON_SLOT_TRIPMINE  )) && State.HaveAmmoInWeapons[WEAPON_SLOT_TRIPMINE  ]) SelectableWeapons.PushBack(WEAPON_SLOT_TRIPMINE  );
-                            if ((State.HaveWeapons & (1 << WEAPON_SLOT_FACEHUGGER)) && State.HaveAmmoInWeapons[WEAPON_SLOT_FACEHUGGER]) SelectableWeapons.PushBack(WEAPON_SLOT_FACEHUGGER);
+                    case 5: if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_GRENADE   )) && State.HaveAmmoInWeapons[WEAPON_SLOT_GRENADE   ]) SelectableWeapons.PushBack(WEAPON_SLOT_GRENADE   );
+                            if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_TRIPMINE  )) && State.HaveAmmoInWeapons[WEAPON_SLOT_TRIPMINE  ]) SelectableWeapons.PushBack(WEAPON_SLOT_TRIPMINE  );
+                            if ((CompHP->GetHaveWeapons() & (1 << WEAPON_SLOT_FACEHUGGER)) && State.HaveAmmoInWeapons[WEAPON_SLOT_FACEHUGGER]) SelectableWeapons.PushBack(WEAPON_SLOT_FACEHUGGER);
                             break;
 
                     // case 6..15: break;
@@ -836,7 +827,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 break;
             }
 
-            case StateOfExistance_Dead:
+            case StateOfExistence_Dead:
             {
                 const Vector3fT OldOrigin = m_Entity->GetTransform()->GetOriginWS();
 
@@ -846,7 +837,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 // We want to lower the view of the local client after it has been killed (in order to indicate the body collapse).
                 // Unfortunately, the problem is much harder than just decreasing the 'm_Origin.z' in some way, because
                 // a) other clients still need the original height for properly drawing the death sequence (from 3rd person view), and
-                // b) the corpse that we create on leaving this StateOfExistance must have the proper height, too.
+                // b) the corpse that we create on leaving this StateOfExistence must have the proper height, too.
                 // Therefore, we decrease the 'm_Origin.z', but "compensate" the 'm_Dimensions', such that the *absolute*
                 // coordinates of our bounding box (obtained by "m_Origin plus m_Dimensions") remain constant.
                 // This way, we can re-derive the proper height in both cases a) and b).
@@ -898,20 +889,20 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     // TODO: HEAD SWAY: State.Velocity.y=m_Heading;
                     // TODO: HEAD SWAY: State.Velocity.z=m_Bank;
                     m_Dimensions=BoundingBox3dT(Vector3dT(16.0, 16.0, 4.0), Vector3dT(-16.0, -16.0, -68.0));
-                    State.StateOfExistance=StateOfExistance_FrozenSpectator;
+                    CompHP->SetStateOfExistence(StateOfExistence_FrozenSpectator);
                 }
 
                 break;
             }
 
-            case StateOfExistance_FrozenSpectator:
+            case StateOfExistence_FrozenSpectator:
             {
 #if 0   // TODO: HEAD SWAY
                 const float Pi          =3.14159265359f;
                 const float SecPerSwing =15.0f;
                 float       PC_FrameTime=PlayerCommands[PCNr].FrameTime;
 
-                // In this 'StateOfExistance' is the 'State.Velocity' unused - thus mis-use it for other purposes!
+                // In this 'StateOfExistence' is the 'State.Velocity' unused - thus mis-use it for other purposes!
                 if (PC_FrameTime>0.05) PC_FrameTime=0.05f;  // Avoid jumpiness with very low FPS.
                 State.Velocity.x+=PC_FrameTime*2.0*Pi/SecPerSwing;
                 if (State.Velocity.x>6.3) State.Velocity.x-=2.0*Pi;
@@ -987,12 +978,12 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 m_Entity->GetTransform()->SetQuatWS(IPSEntity->m_Entity->GetTransform()->GetQuatWS());  // TODO: Can we make sure that the z-axis points straight up, i.e. bank and pitch are 0?
                 m_Entity->GetChildren()[0]->GetTransform()->SetQuatPS(cf::math::QuaternionfT());
                 m_Dimensions             =BoundingBox3dT(Vector3dT(16.0, 16.0, 4.0), Vector3dT(-16.0, -16.0, -68.0));
-                State.StateOfExistance   =StateOfExistance_Alive;
+                CompHP->SetStateOfExistence(StateOfExistence_Alive);
                 Model3rdPerson->SetMember("Animation", 0);
                 CompHP->SetHealth(100);
                 CompHP->SetArmor(0);
-                State.HaveItems          =0;
-                State.HaveWeapons        =0;
+                CompHP->SetHaveItems(0);
+                CompHP->SetHaveWeapons(0);
                 State.ActiveWeaponSlot   =0;
                 State.ActiveWeaponSequNr =0;
                 State.ActiveWeaponFrameNr=0.0;
@@ -1007,7 +998,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 break;
             }
 
-            case StateOfExistance_FreeSpectator:
+            case StateOfExistence_FreeSpectator:
                 break;
         }
     }
@@ -1031,6 +1022,8 @@ void EntHumanPlayerT::ProcessEvent(unsigned int EventType, unsigned int /*NumEve
 
 void EntHumanPlayerT::Draw(bool FirstPersonView, float LodDist) const
 {
+    IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(m_Entity->GetComponent("HumanPlayer"));
+
     if (MatSys::Renderer->GetCurrentRenderAction()==MatSys::RendererI::AMBIENT)
     {
         const float* ALC=MatSys::Renderer->GetCurrentAmbientLightColor();
@@ -1046,7 +1039,7 @@ void EntHumanPlayerT::Draw(bool FirstPersonView, float LodDist) const
     if (FirstPersonView)
     {
         // Draw "view" model of the weapon
-        if (State.HaveWeapons & (1 << State.ActiveWeaponSlot))     // Only draw the active weapon if we actually "have" it
+        if (CompHP->GetHaveWeapons() & (1 << State.ActiveWeaponSlot))     // Only draw the active weapon if we actually "have" it
         {
 #if 0     // TODO!
             Vector3fT LgtPos(MatSys::Renderer->GetCurrentLightSourcePosition());
@@ -1077,9 +1070,9 @@ void EntHumanPlayerT::Draw(bool FirstPersonView, float LodDist) const
     }
     else
     {
-        if (State.StateOfExistance!=StateOfExistance_Alive && State.StateOfExistance!=StateOfExistance_Dead) return;
+        if (CompHP->GetStateOfExistence() != StateOfExistence_Alive && CompHP->GetStateOfExistence() != StateOfExistence_Dead) return;
 
-        const float OffsetZ=(State.StateOfExistance!=StateOfExistance_Dead) ? -32.0f : -32.0f+float(m_Dimensions.Min.z+68.0);
+        const float OffsetZ = (CompHP->GetStateOfExistence() != StateOfExistence_Dead) ? -32.0f : -32.0f+float(m_Dimensions.Min.z+68.0);
 
         MatSys::Renderer->GetCurrentLightSourcePosition()[2]-=OffsetZ;
         MatSys::Renderer->GetCurrentEyePosition        ()[2]-=OffsetZ;
@@ -1088,7 +1081,7 @@ void EntHumanPlayerT::Draw(bool FirstPersonView, float LodDist) const
 
         // The own player body model is drawn autonomously by the respective Model component.
         // Here, also draw the "_p" (player) model of the active weapon as sub-model of the body.
-        if (State.HaveWeapons & (1 << State.ActiveWeaponSlot))
+        if (CompHP->GetHaveWeapons() & (1 << State.ActiveWeaponSlot))
         {
             IntrusivePtrT<cf::GameSys::ComponentModelT> Model3rdPerson = dynamic_pointer_cast<cf::GameSys::ComponentModelT>(m_Entity->GetComponent("Model"));
             const CafuModelT* WeaponModel = GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->GetPlayerWeaponModel();
@@ -1107,8 +1100,10 @@ void EntHumanPlayerT::Draw(bool FirstPersonView, float LodDist) const
 
 void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
 {
+    IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(m_Entity->GetComponent("HumanPlayer"));
+
     // Code for state driven effects.
-    if (State.HaveWeapons & (1 << State.ActiveWeaponSlot))
+    if (CompHP->GetHaveWeapons() & (1 << State.ActiveWeaponSlot))
     {
         IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(m_Entity->GetComponent("HumanPlayer"));
 
@@ -1124,13 +1119,13 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
         {
             static FontT HUD_Font1("Fonts/FixedWidth");
 
-            switch (State.StateOfExistance)
+            switch (CompHP->GetStateOfExistence())
             {
-                case StateOfExistance_Dead:
+                case StateOfExistence_Dead:
                     HUD_Font1.Print(50, 1024/2-4, 800.0f, 600.0f, 0x00FF0000, "You're dead.");
                     break;
 
-                case StateOfExistance_FrozenSpectator:
+                case StateOfExistence_FrozenSpectator:
                     HUD_Font1.Print(50, 1024/2+16, 800.0f, 600.0f, 0x00FF0000, "Press FIRE (left mouse button) to respawn!");
                     break;
             }
@@ -1172,7 +1167,7 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
         {
             const bool WasActive = GuiHUD->GetIsActive();
 
-            GuiHUD->Activate(State.StateOfExistance==StateOfExistance_Alive || State.StateOfExistance==StateOfExistance_Dead);
+            GuiHUD->Activate(CompHP->GetStateOfExistence() == StateOfExistence_Alive || CompHP->GetStateOfExistence() == StateOfExistence_Dead);
 
             if (!WasActive && GuiHUD->GetIsActive())
             {
@@ -1191,7 +1186,7 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
                 // method in the script that in turn calls back using some Player:GetCrosshairInfo() function.
                 // The point is that calls are possible in both directions: from here/C++ to there/script, as
                 // well as from there/script to here/C++.
-                if (State.StateOfExistance==StateOfExistance_Alive)
+                if (CompHP->GetStateOfExistence() == StateOfExistence_Alive)
                 {
                     switch (State.ActiveWeaponSlot)
                     {
@@ -1268,11 +1263,12 @@ int EntHumanPlayerT::GetCrosshair(lua_State* LuaState)
 int EntHumanPlayerT::GetAmmoString(lua_State* LuaState)
 {
     cf::ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<EntHumanPlayerT> Ent   = Binder.GetCheckedObjectParam< IntrusivePtrT<EntHumanPlayerT> >(1);
+    IntrusivePtrT<EntHumanPlayerT> Ent = Binder.GetCheckedObjectParam< IntrusivePtrT<EntHumanPlayerT> >(1);
+    IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(Ent->m_Entity->GetComponent("HumanPlayer"));
     const EntityStateT&            State = Ent->State;
 
     // Return an ammo string for the players HUD.
-    if (State.HaveWeapons & (1 << State.ActiveWeaponSlot))
+    if (CompHP->GetHaveWeapons() & (1 << State.ActiveWeaponSlot))
     {
         char PrintBuffer[64];
 

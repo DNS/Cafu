@@ -61,13 +61,8 @@ cf::TypeSys::TypeInfoManT& GAME_NAME::GetBaseEntTIM()
 // Entity State
 // ************
 
-EntityStateT::EntityStateT(char StateOfExistance_,
-                           unsigned long HaveItems_, unsigned long HaveWeapons_,
-                           char ActiveWeaponSlot_, char ActiveWeaponSequNr_, float ActiveWeaponFrameNr_)
-    : StateOfExistance(StateOfExistance_),
-      HaveItems(HaveItems_),
-      HaveWeapons(HaveWeapons_),
-      ActiveWeaponSlot(ActiveWeaponSlot_),
+EntityStateT::EntityStateT(char ActiveWeaponSlot_, char ActiveWeaponSequNr_, float ActiveWeaponFrameNr_)
+    : ActiveWeaponSlot(ActiveWeaponSlot_),
       ActiveWeaponSequNr(ActiveWeaponSequNr_),
       ActiveWeaponFrameNr(ActiveWeaponFrameNr_)
    // HaveAmmo[]

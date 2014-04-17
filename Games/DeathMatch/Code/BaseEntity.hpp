@@ -55,18 +55,13 @@ namespace GAME_NAME
     // This structure describes each entitys state and is transmitted from the server to the clients over the network.
     struct EntityStateT
     {
-        char           StateOfExistance;        // For entity defined state machines, e.g. "specator, dead, alive, ...".
-        unsigned long  HaveItems;               // Bit field, entity can carry 32 different items.
-        unsigned long  HaveWeapons;             // Bit field, entity can carry 32 different weapons.
         char           ActiveWeaponSlot;        // Index into HaveWeapons, HaveAmmoInWeapons, and for determining the weapon model index.
         char           ActiveWeaponSequNr;      // The weapon sequ. that WE see (the LOCAL clients VIEW weapon model). Could (and should in the future) also be used for other clients PLAYER weapon model, but currently is not.
         float          ActiveWeaponFrameNr;     // Respectively, this is the frame number of the current weapon sequence.
         unsigned short HaveAmmo[16];            // Entity can carry 16 different types of ammo (weapon independent). This is the amount of each.
         unsigned char  HaveAmmoInWeapons[32];   // Entity can carry ammo in each of the 32 weapons. This is the amount of each.
 
-        EntityStateT(char StateOfExistance_,
-                     unsigned long HaveItems_, unsigned long HaveWeapons_,
-                     char ActiveWeaponSlot_, char ActiveWeaponSequNr_, float ActiveWeaponFrameNr_);
+        EntityStateT(char ActiveWeaponSlot_, char ActiveWeaponSequNr_, float ActiveWeaponFrameNr_);
     };
 
 

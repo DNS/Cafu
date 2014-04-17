@@ -42,7 +42,7 @@ bool CarriedWeaponEgonT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, In
     EntityStateT& State=Player->GetState();
 
     // Consider if the entity already has this weapon.
-    if (State.HaveWeapons & (1 << WEAPON_SLOT_EGON))
+    if (HumanPlayer->GetHaveWeapons() & (1 << WEAPON_SLOT_EGON))
     {
         // If it also has the max. amount of ammo of this type, ignore the touch.
         if (State.HaveAmmo[AMMO_SLOT_CELLS]==200) return false;
@@ -53,7 +53,7 @@ bool CarriedWeaponEgonT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, In
     else
     {
         // This weapon is picked up for the first time.
-        State.HaveWeapons|=1 << WEAPON_SLOT_EGON;
+        HumanPlayer->SetHaveWeapons(HumanPlayer->GetHaveWeapons() | 1 << WEAPON_SLOT_EGON);
         State.ActiveWeaponSlot   =WEAPON_SLOT_EGON;
         State.ActiveWeaponSequNr =9;    // Draw
         State.ActiveWeaponFrameNr=0.0;

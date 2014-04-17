@@ -65,10 +65,16 @@ namespace cf
             void InflictDamage(EntityT* OtherEnt, float Amount, const Vector3dT& Dir) const;
 
             // Temporary methods, so that obsolete DeathMatch code can access our data.
+            uint8_t GetStateOfExistence() const { return m_StateOfExistence.Get(); }
+            void SetStateOfExistence(uint8_t s) { m_StateOfExistence.Set(s); }
             uint8_t GetHealth() const { return m_Health.Get(); }
             void SetHealth(uint8_t h) { m_Health.Set(h); }
             uint8_t GetArmor() const { return m_Armor.Get(); }
             void SetArmor(uint8_t a) { m_Armor.Set(a); }
+            unsigned int GetHaveItems() const { return m_HaveItems.Get(); }
+            void SetHaveItems(unsigned int i) { m_HaveItems.Set(i); }
+            unsigned int GetHaveWeapons() const { return m_HaveWeapons.Get(); }
+            void SetHaveWeapons(unsigned int w) { m_HaveWeapons.Set(w); }
 
 
             // Base class overrides.
@@ -98,7 +104,7 @@ namespace cf
             void FillMemberVars();      ///< A helper method for the constructors.
 
             TypeSys::VarT<std::string>   m_PlayerName;          ///< The name that the player chose for himself.
-            TypeSys::VarT<uint8_t>       m_StateOfExistance;    ///< For the player's main state machine, e.g. "spectator, dead, alive, ...".
+            TypeSys::VarT<uint8_t>       m_StateOfExistence;    ///< For the player's main state machine, e.g. "spectator, dead, alive, ...".
             TypeSys::VarT<uint8_t>       m_Health;              ///< Health.
             TypeSys::VarT<uint8_t>       m_Armor;               ///< Armor.
             TypeSys::VarT<unsigned int>  m_HaveItems;           ///< Bit field, entity can carry 32 different items.
