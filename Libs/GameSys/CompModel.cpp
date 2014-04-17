@@ -444,7 +444,7 @@ IntrusivePtrT<cf::GuiSys::GuiImplT> ComponentModelT::GetGui() const
                     "Set the 'Gui' property\nof the Model component\nto assign the real GUI."),
                 cf::GuiSys::GuiImplT::InitFlag_InlineCode);
         }
-        if (cf::String::EndsWith(m_GuiName.Get(), "_init.cgui"))
+        else if (cf::String::EndsWith(m_GuiName.Get(), "_init.cgui"))
         {
             m_Gui->LoadScript(
                 cf::String::Replace(FallbackGUI, "%s", "Please use filename\n" +
