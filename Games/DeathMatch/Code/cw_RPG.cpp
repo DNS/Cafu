@@ -61,9 +61,9 @@ bool CarriedWeaponRPGT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, Int
     {
         // This weapon is picked up for the first time.
         HumanPlayer->SetHaveWeapons(HumanPlayer->GetHaveWeapons() | 1 << WEAPON_SLOT_RPG);
-        State.ActiveWeaponSlot   =WEAPON_SLOT_RPG;
-        State.ActiveWeaponSequNr =5;    // Draw
-        State.ActiveWeaponFrameNr=0.0;
+        HumanPlayer->SetActiveWeaponSlot(WEAPON_SLOT_RPG);
+        HumanPlayer->SetActiveWeaponSequNr(5);    // Draw
+        HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
         State.HaveAmmoInWeapons[WEAPON_SLOT_RPG  ] =1;
         State.HaveAmmo         [AMMO_SLOT_ROCKETS]+=0;
@@ -80,14 +80,14 @@ void CarriedWeaponRPGT::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<
 {
     EntityStateT& State=Player->GetState();
 
-    switch (State.ActiveWeaponSequNr)
+    switch (HumanPlayer->GetActiveWeaponSequNr())
     {
         case 0: // Idle1 (rocket inserted)
         case 1: // Fidget1 (rocket inserted)
             if (PlayerCommand.Keys & (PCK_Fire1 | PCK_Fire2))
             {
-                State.ActiveWeaponSequNr =3;    // Fire
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(3);    // Fire
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
                 // Important: ONLY create (throw) a new rocket IF we are on the server side!
                 if (ThinkingOnServerSide)
@@ -167,29 +167,29 @@ void CarriedWeaponRPGT::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<
 
             if (AnimSequenceWrap)
             {
-                if (State.ActiveWeaponSequNr==0)
+                if (HumanPlayer->GetActiveWeaponSequNr() == 0)
                 {
-                    State.ActiveWeaponSequNr=LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF] & 1;
+                    HumanPlayer->SetActiveWeaponSequNr(LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF] & 1);
                 }
-                else State.ActiveWeaponSequNr=0;     // Don't play the "Fidget" sequence repeatedly.
+                else HumanPlayer->SetActiveWeaponSequNr(0);     // Don't play the "Fidget" sequence repeatedly.
 
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;
 
         case 2: // Reload
             if (AnimSequenceWrap)
             {
-                State.ActiveWeaponSequNr =0;
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(0);
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;
 
         case 3: // Fire
             if (AnimSequenceWrap)
             {
-                State.ActiveWeaponSequNr =2;
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(2);
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;
 
@@ -199,8 +199,8 @@ void CarriedWeaponRPGT::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<
         case 5: // Draw1 (rocket inserted)
             if (AnimSequenceWrap)
             {
-                State.ActiveWeaponSequNr =0;
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(0);
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;
 
@@ -210,8 +210,8 @@ void CarriedWeaponRPGT::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<
         case 7: // Draw2 (empty)
             if (AnimSequenceWrap)
             {
-                State.ActiveWeaponSequNr =8;
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(8);
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;
 

@@ -75,6 +75,12 @@ namespace cf
             void SetHaveItems(unsigned int i) { m_HaveItems.Set(i); }
             unsigned int GetHaveWeapons() const { return m_HaveWeapons.Get(); }
             void SetHaveWeapons(unsigned int w) { m_HaveWeapons.Set(w); }
+            uint8_t GetActiveWeaponSlot() const { return m_ActiveWeaponSlot.Get(); }
+            void SetActiveWeaponSlot(uint8_t ws) { m_ActiveWeaponSlot.Set(ws); }
+            uint8_t GetActiveWeaponSequNr() const { return m_ActiveWeaponSequNr.Get(); }
+            void SetActiveWeaponSequNr(uint8_t ws) { m_ActiveWeaponSequNr.Set(ws); }
+            float GetActiveWeaponFrameNr() const { return m_ActiveWeaponFrameNr.Get(); }
+            void SetActiveWeaponFrameNr(float f) { m_ActiveWeaponFrameNr.Set(f); }
 
 
             // Base class overrides.

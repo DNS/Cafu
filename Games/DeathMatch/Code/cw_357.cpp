@@ -70,9 +70,9 @@ bool CarriedWeapon357T::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, Int
     {
         // This weapon is picked up for the first time.
         HumanPlayer->SetHaveWeapons(HumanPlayer->GetHaveWeapons() | 1 << WEAPON_SLOT_357);
-        State.ActiveWeaponSlot   =WEAPON_SLOT_357;
-        State.ActiveWeaponSequNr =5;    // Draw
-        State.ActiveWeaponFrameNr=0.0;
+        HumanPlayer->SetActiveWeaponSlot(WEAPON_SLOT_357);
+        HumanPlayer->SetActiveWeaponSequNr(5);    // Draw
+        HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
         State.HaveAmmoInWeapons[WEAPON_SLOT_357] =6;
         State.HaveAmmo         [AMMO_SLOT_357  ]+=6;
@@ -89,13 +89,13 @@ void CarriedWeapon357T::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<
 {
     EntityStateT& State=Player->GetState();
 
-    switch (State.ActiveWeaponSequNr)
+    switch (HumanPlayer->GetActiveWeaponSequNr())
     {
         case 3: // Reload
             if (AnimSequenceWrap)
             {
-                State.ActiveWeaponSequNr =0;
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(0);
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
                 const char Amount=State.HaveAmmo[AMMO_SLOT_357]>6 ? 6 : State.HaveAmmo[AMMO_SLOT_357];
 
@@ -111,8 +111,8 @@ void CarriedWeapon357T::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<
             if (AnimSequenceWrap)
             {
                 // Back to idle.
-                State.ActiveWeaponSequNr =0;
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(0);
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;
 
@@ -120,8 +120,8 @@ void CarriedWeapon357T::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<
             if (!AnimSequenceWrap) break;
 
             // Back to idle.
-            State.ActiveWeaponSequNr =0;
-            State.ActiveWeaponFrameNr=0.0;
+            HumanPlayer->SetActiveWeaponSequNr(0);
+            HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             // Intentional fall-through.
 
         case 0: // Idle 1
@@ -134,8 +134,8 @@ void CarriedWeapon357T::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<
             {
                 if (State.HaveAmmo[AMMO_SLOT_357])
                 {
-                    State.ActiveWeaponSequNr =3;    // Reload
-                    State.ActiveWeaponFrameNr=0.0;
+                    HumanPlayer->SetActiveWeaponSequNr(3);    // Reload
+                    HumanPlayer->SetActiveWeaponFrameNr(0.0f);
                     break;
                 }
 
@@ -149,8 +149,8 @@ void CarriedWeapon357T::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<
             // 2. Are we to fire a bullet (we have at least one)?
             if (PlayerCommand.Keys & PCK_Fire1)
             {
-                State.ActiveWeaponSequNr =2;                // Fire
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(2);                // Fire
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
                 State.HaveAmmoInWeapons[WEAPON_SLOT_357]--;
 
                 Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
@@ -172,12 +172,12 @@ void CarriedWeapon357T::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<
             {
                 const char RandomNumber=char(LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF]);
 
-                     if (RandomNumber< 96) State.ActiveWeaponSequNr=0;  // Idle 1
-                else if (RandomNumber<192) State.ActiveWeaponSequNr=6;  // Idle 2
-                else if (RandomNumber<224) State.ActiveWeaponSequNr=7;  // Idle 3
-                else                       State.ActiveWeaponSequNr=1;  // Fidget 1
+                     if (RandomNumber< 96) HumanPlayer->SetActiveWeaponSequNr(0);  // Idle 1
+                else if (RandomNumber<192) HumanPlayer->SetActiveWeaponSequNr(6);  // Idle 2
+                else if (RandomNumber<224) HumanPlayer->SetActiveWeaponSequNr(7);  // Idle 3
+                else                       HumanPlayer->SetActiveWeaponSequNr(1);  // Fidget 1
 
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;
         }

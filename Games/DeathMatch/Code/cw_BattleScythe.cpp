@@ -56,9 +56,9 @@ bool CarriedWeaponBattleScytheT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Pl
 
     // Otherwise, give the touching entity this weapon.
     HumanPlayer->SetHaveWeapons(HumanPlayer->GetHaveWeapons() | 1 << WEAPON_SLOT_BATTLESCYTHE);
-    State.ActiveWeaponSlot   =WEAPON_SLOT_BATTLESCYTHE;
-    State.ActiveWeaponSequNr =1;    // Draw
-    State.ActiveWeaponFrameNr=0.0;
+    HumanPlayer->SetActiveWeaponSlot(WEAPON_SLOT_BATTLESCYTHE);
+    HumanPlayer->SetActiveWeaponSequNr(1);    // Draw
+    HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
     return true;
 }
@@ -68,14 +68,14 @@ void CarriedWeaponBattleScytheT::ServerSide_Think(EntHumanPlayerT* Player, Intru
 {
     EntityStateT& State=Player->GetState();
 
-    switch (State.ActiveWeaponSequNr)
+    switch (HumanPlayer->GetActiveWeaponSequNr())
     {
         case 1: // Draw
             if (AnimSequenceWrap)
             {
                 // Back to idle.
-                State.ActiveWeaponSequNr =0;
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(0);
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;
 
@@ -95,8 +95,8 @@ void CarriedWeaponBattleScytheT::ServerSide_Think(EntHumanPlayerT* Player, Intru
                 }
                 else
                 {
-                    State.ActiveWeaponSequNr =0;
-                 // State.ActiveWeaponFrameNr=0.0;
+                    HumanPlayer->SetActiveWeaponSequNr(0);
+                 // HumanPlayer->SetActiveWeaponFrameNr(0.0f);
                 }
             }
             break;
@@ -111,8 +111,8 @@ void CarriedWeaponBattleScytheT::ServerSide_Think(EntHumanPlayerT* Player, Intru
                 }
                 else
                 {
-                    State.ActiveWeaponSequNr =0;
-                 // State.ActiveWeaponFrameNr=0.0;
+                    HumanPlayer->SetActiveWeaponSequNr(0);
+                 // HumanPlayer->SetActiveWeaponFrameNr(0.0f);
                 }
             }
             break;
@@ -134,8 +134,8 @@ void CarriedWeaponBattleScytheT::ServerSide_Think(EntHumanPlayerT* Player, Intru
             {
                 // TODO: Determine if this attack was a hit or miss.
                 // TODO: Alternate randomly with Attack 3.
-                State.ActiveWeaponSequNr =4;    // Attack 1 (miss)
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(4);    // Attack 1 (miss)
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
                 Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
                 break;
             }
@@ -143,8 +143,8 @@ void CarriedWeaponBattleScytheT::ServerSide_Think(EntHumanPlayerT* Player, Intru
             if (PlayerCommand.Keys & PCK_Fire2)
             {
                 // TODO: Determine if this attack was a hit or miss.
-                State.ActiveWeaponSequNr =5;    // Attack 2 (miss)
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(5);    // Attack 2 (miss)
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
                 Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_SECONDARY_FIRE);
                 break;
             }

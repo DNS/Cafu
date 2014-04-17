@@ -54,9 +54,9 @@ bool CarriedWeaponGaussT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, I
     {
         // This weapon is picked up for the first time.
         HumanPlayer->SetHaveWeapons(HumanPlayer->GetHaveWeapons() | 1 << WEAPON_SLOT_GAUSS);
-        State.ActiveWeaponSlot   =WEAPON_SLOT_GAUSS;
-        State.ActiveWeaponSequNr =8;    // Draw
-        State.ActiveWeaponFrameNr=0.0;
+        HumanPlayer->SetActiveWeaponSlot(WEAPON_SLOT_GAUSS);
+        HumanPlayer->SetActiveWeaponSequNr(8);    // Draw
+        HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
         State.HaveAmmoInWeapons[WEAPON_SLOT_GAUSS] =20;
         State.HaveAmmo         [AMMO_SLOT_CELLS  ]+=20;
@@ -86,13 +86,13 @@ void CarriedWeaponGaussT::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtr
         Draw
     };
 
-    switch (State.ActiveWeaponSequNr)
+    switch (HumanPlayer->GetActiveWeaponSequNr())
     {
         case Draw:
             if (AnimSequenceWrap)
             {
-                State.ActiveWeaponSequNr =Idle1;
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(Idle1);
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;
 
@@ -103,12 +103,12 @@ void CarriedWeaponGaussT::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtr
             {
                 switch (LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF] & 3)
                 {
-                    case  0: State.ActiveWeaponSequNr=Idle2;
-                    case  1: State.ActiveWeaponSequNr=Fidget;
-                    default: State.ActiveWeaponSequNr=Idle1;
+                    case  0: HumanPlayer->SetActiveWeaponSequNr(Idle2);
+                    case  1: HumanPlayer->SetActiveWeaponSequNr(Fidget);
+                    default: HumanPlayer->SetActiveWeaponSequNr(Idle1);
                 }
 
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;
     }

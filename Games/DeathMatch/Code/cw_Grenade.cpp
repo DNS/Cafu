@@ -72,9 +72,9 @@ bool CarriedWeaponGrenadeT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player,
     {
         // This weapon is picked up for the first time.
         HumanPlayer->SetHaveWeapons(HumanPlayer->GetHaveWeapons() | 1 << WEAPON_SLOT_GRENADE);
-        State.ActiveWeaponSlot   =WEAPON_SLOT_GRENADE;
-        State.ActiveWeaponSequNr =7;    // Draw
-        State.ActiveWeaponFrameNr=0.0;
+        HumanPlayer->SetActiveWeaponSlot(WEAPON_SLOT_GRENADE);
+        HumanPlayer->SetActiveWeaponSequNr(7);    // Draw
+        HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
         State.HaveAmmoInWeapons[WEAPON_SLOT_GRENADE]=1;
     }
@@ -87,34 +87,34 @@ void CarriedWeaponGrenadeT::ServerSide_Think(EntHumanPlayerT* Player, IntrusiveP
 {
     EntityStateT& State=Player->GetState();
 
-    switch (State.ActiveWeaponSequNr)
+    switch (HumanPlayer->GetActiveWeaponSequNr())
     {
         case 0: // Idle
         case 1: // Fidget
             if (PlayerCommand.Keys & (PCK_Fire1 | PCK_Fire2))
             {
-                State.ActiveWeaponSequNr =2;    // PinPull
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(2);    // PinPull
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
                 break;
             }
 
             if (AnimSequenceWrap)
             {
-                if (State.ActiveWeaponSequNr==0)
+                if (HumanPlayer->GetActiveWeaponSequNr() == 0)
                 {
-                    State.ActiveWeaponSequNr=LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF] & 1;
+                    HumanPlayer->SetActiveWeaponSequNr(LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF] & 1);
                 }
-                else State.ActiveWeaponSequNr=0;     // Don't play the "Fidget" sequence repeatedly.
+                else HumanPlayer->SetActiveWeaponSequNr(0);     // Don't play the "Fidget" sequence repeatedly.
 
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;
 
         case 2: // PinPull
             if (AnimSequenceWrap)
             {
-                State.ActiveWeaponSequNr =3;
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(3);
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
                 Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
 
@@ -190,8 +190,8 @@ void CarriedWeaponGrenadeT::ServerSide_Think(EntHumanPlayerT* Player, IntrusiveP
         case 5: // Throw3
             if (AnimSequenceWrap)
             {
-                State.ActiveWeaponSequNr =7;
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(7);
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;
 
@@ -201,8 +201,8 @@ void CarriedWeaponGrenadeT::ServerSide_Think(EntHumanPlayerT* Player, IntrusiveP
         case 7: // Draw
             if (AnimSequenceWrap)
             {
-                State.ActiveWeaponSequNr =0;
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(0);
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;
     }

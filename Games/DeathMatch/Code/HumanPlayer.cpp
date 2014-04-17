@@ -104,9 +104,7 @@ EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
                   BoundingBox3dT(Vector3dT( 16.0,  16.0,   4.0),    // A total of 32*32*72 inches, eye height at 68 inches.
                                  Vector3dT(-16.0, -16.0, -68.0)),
                   NUM_EVENT_TYPES),
-      State(0,      // ActiveWeaponSlot
-            0,      // ActiveWeaponSequNr
-            0.0),   // ActiveWeaponFrameNr
+      State(),
       GuiHUD(NULL)
 {
     // TODO: This must be reconsidered when finally switching to the Component System!
@@ -175,10 +173,6 @@ void EntHumanPlayerT::AddFrag(int NumFrags)
 
 void EntHumanPlayerT::DoSerialize(cf::Network::OutStreamT& Stream) const
 {
-    Stream << State.ActiveWeaponSlot;
-    Stream << State.ActiveWeaponSequNr;
-    Stream << State.ActiveWeaponFrameNr;
-
     for (unsigned int Nr=0; Nr<16; Nr++) Stream << State.HaveAmmo[Nr];
     for (unsigned int Nr=0; Nr<32; Nr++) Stream << uint32_t(State.HaveAmmoInWeapons[Nr]);
 }
@@ -187,10 +181,6 @@ void EntHumanPlayerT::DoSerialize(cf::Network::OutStreamT& Stream) const
 void EntHumanPlayerT::DoDeserialize(cf::Network::InStreamT& Stream)
 {
     uint32_t ui=0;
-
-    Stream >> State.ActiveWeaponSlot;
-    Stream >> State.ActiveWeaponSequNr;
-    Stream >> State.ActiveWeaponFrameNr;
 
     for (unsigned int Nr=0; Nr<16; Nr++) Stream >> State.HaveAmmo[Nr];
     for (unsigned int Nr=0; Nr<32; Nr++) { Stream >> ui; State.HaveAmmoInWeapons[Nr]=(unsigned char)ui; }
@@ -504,22 +494,22 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
 
                 // Handle the state machine of the "_v" (view) model of the current weapon.
-                if (CompHP->GetHaveWeapons() & (1 << State.ActiveWeaponSlot))
+                if (CompHP->GetHaveWeapons() & (1 << CompHP->GetActiveWeaponSlot()))
                 {
-                    const CarriedWeaponT* CarriedWeapon=GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot);
+                    const CarriedWeaponT* CarriedWeapon=GameImplT::GetInstance().GetCarriedWeapon(CompHP->GetActiveWeaponSlot());
 
                     // Advance the frame time of the weapon.
                     const CafuModelT* WeaponModel=CarriedWeapon->GetViewWeaponModel();
 
-                    IntrusivePtrT<AnimExprStandardT> StdAE=WeaponModel->GetAnimExprPool().GetStandard(State.ActiveWeaponSequNr, State.ActiveWeaponFrameNr);
+                    IntrusivePtrT<AnimExprStandardT> StdAE = WeaponModel->GetAnimExprPool().GetStandard(CompHP->GetActiveWeaponSequNr(), CompHP->GetActiveWeaponFrameNr());
 
                     StdAE->SetForceLoop(true);
                     StdAE->AdvanceTime(PlayerCommands[PCNr].FrameTime);
 
-                    const float NewFrameNr=StdAE->GetFrameNr();
-                    const bool  AnimSequenceWrap=NewFrameNr < State.ActiveWeaponFrameNr || NewFrameNr > WeaponModel->GetAnims()[State.ActiveWeaponSequNr].Frames.Size()-1;
+                    const float NewFrameNr = StdAE->GetFrameNr();
+                    const bool  AnimSequenceWrap = NewFrameNr < CompHP->GetActiveWeaponFrameNr() || NewFrameNr > WeaponModel->GetAnims()[CompHP->GetActiveWeaponSequNr()].Frames.Size()-1;
 
-                    State.ActiveWeaponFrameNr=NewFrameNr;
+                    CompHP->SetActiveWeaponFrameNr(NewFrameNr);
 
                     CarriedWeapon->ServerSide_Think(this, CompHP, PlayerCommands[PCNr], ThinkingOnServerSide, ServerFrameNr, AnimSequenceWrap);
                 }
@@ -561,7 +551,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 unsigned long SWNr;
 
                 for (SWNr=0; SWNr<SelectableWeapons.Size(); SWNr++)
-                    if (SelectableWeapons[SWNr]==State.ActiveWeaponSlot) break;
+                    if (SelectableWeapons[SWNr] == CompHP->GetActiveWeaponSlot()) break;
 
                 if (SWNr>=SelectableWeapons.Size())
                 {
@@ -571,9 +561,9 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     {
                         char DrawSequNr=0;
 
-                        State.ActiveWeaponSlot=SelectableWeapons[0];
+                        CompHP->SetActiveWeaponSlot(SelectableWeapons[0]);
 
-                        switch (State.ActiveWeaponSlot)
+                        switch (CompHP->GetActiveWeaponSlot())
                         {
                             case WEAPON_SLOT_BATTLESCYTHE: DrawSequNr=1; break;
                             case WEAPON_SLOT_HORNETGUN   : DrawSequNr=0; break;
@@ -590,8 +580,8 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                             case WEAPON_SLOT_FACEHUGGER  : DrawSequNr=4; break;
                         }
 
-                        State.ActiveWeaponSequNr =DrawSequNr;
-                        State.ActiveWeaponFrameNr=0.0;
+                        CompHP->SetActiveWeaponSequNr(DrawSequNr);
+                        CompHP->SetActiveWeaponFrameNr(0.0f);
                     }
                 }
                 else
@@ -601,9 +591,9 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     {
                         char DrawSequNr=0;
 
-                        State.ActiveWeaponSlot=SelectableWeapons[(SWNr+1) % SelectableWeapons.Size()];
+                        CompHP->SetActiveWeaponSlot(SelectableWeapons[(SWNr+1) % SelectableWeapons.Size()]);
 
-                        switch (State.ActiveWeaponSlot)
+                        switch (CompHP->GetActiveWeaponSlot())
                         {
                             case WEAPON_SLOT_BATTLESCYTHE: DrawSequNr=1; break;
                             case WEAPON_SLOT_HORNETGUN   : DrawSequNr=0; break;
@@ -620,8 +610,8 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                             case WEAPON_SLOT_FACEHUGGER  : DrawSequNr=4; break;
                         }
 
-                        State.ActiveWeaponSequNr =DrawSequNr;
-                        State.ActiveWeaponFrameNr=0.0;
+                        CompHP->SetActiveWeaponSequNr(DrawSequNr);
+                        CompHP->SetActiveWeaponFrameNr(0.0f);
                     }
                 }
 
@@ -984,9 +974,9 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 CompHP->SetArmor(0);
                 CompHP->SetHaveItems(0);
                 CompHP->SetHaveWeapons(0);
-                State.ActiveWeaponSlot   =0;
-                State.ActiveWeaponSequNr =0;
-                State.ActiveWeaponFrameNr=0.0;
+                CompHP->SetActiveWeaponSlot(0);
+                CompHP->SetActiveWeaponSequNr(0);
+                CompHP->SetActiveWeaponFrameNr(0.0f);
 
                 IntrusivePtrT<cf::GameSys::ComponentCollisionModelT> CompCollMdl = dynamic_pointer_cast<cf::GameSys::ComponentCollisionModelT>(m_Entity->GetComponent("CollisionModel"));
 
@@ -1014,8 +1004,8 @@ void EntHumanPlayerT::ProcessEvent(unsigned int EventType, unsigned int /*NumEve
 
     switch (EventType)
     {
-        case EVENT_TYPE_PRIMARY_FIRE  : GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->ClientSide_HandlePrimaryFireEvent  (this, CompHP, LastSeenAmbientColor); break;
-        case EVENT_TYPE_SECONDARY_FIRE: GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->ClientSide_HandleSecondaryFireEvent(this, CompHP, LastSeenAmbientColor); break;
+        case EVENT_TYPE_PRIMARY_FIRE  : GameImplT::GetInstance().GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->ClientSide_HandlePrimaryFireEvent  (this, CompHP, LastSeenAmbientColor); break;
+        case EVENT_TYPE_SECONDARY_FIRE: GameImplT::GetInstance().GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->ClientSide_HandleSecondaryFireEvent(this, CompHP, LastSeenAmbientColor); break;
     }
 }
 
@@ -1039,7 +1029,7 @@ void EntHumanPlayerT::Draw(bool FirstPersonView, float LodDist) const
     if (FirstPersonView)
     {
         // Draw "view" model of the weapon
-        if (CompHP->GetHaveWeapons() & (1 << State.ActiveWeaponSlot))     // Only draw the active weapon if we actually "have" it
+        if (CompHP->GetHaveWeapons() & (1 << CompHP->GetActiveWeaponSlot()))     // Only draw the active weapon if we actually "have" it
         {
 #if 0     // TODO!
             Vector3fT LgtPos(MatSys::Renderer->GetCurrentLightSourcePosition());
@@ -1062,8 +1052,8 @@ void EntHumanPlayerT::Draw(bool FirstPersonView, float LodDist) const
 #endif
 
 
-            const CafuModelT* WeaponModel=GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->GetViewWeaponModel();
-            AnimPoseT*        Pose       =WeaponModel->GetSharedPose(WeaponModel->GetAnimExprPool().GetStandard(State.ActiveWeaponSequNr, State.ActiveWeaponFrameNr));
+            const CafuModelT* WeaponModel=GameImplT::GetInstance().GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->GetViewWeaponModel();
+            AnimPoseT*        Pose       =WeaponModel->GetSharedPose(WeaponModel->GetAnimExprPool().GetStandard(CompHP->GetActiveWeaponSequNr(), CompHP->GetActiveWeaponFrameNr()));
 
             Pose->Draw(-1 /*default skin*/, LodDist);
         }
@@ -1081,10 +1071,10 @@ void EntHumanPlayerT::Draw(bool FirstPersonView, float LodDist) const
 
         // The own player body model is drawn autonomously by the respective Model component.
         // Here, also draw the "_p" (player) model of the active weapon as sub-model of the body.
-        if (CompHP->GetHaveWeapons() & (1 << State.ActiveWeaponSlot))
+        if (CompHP->GetHaveWeapons() & (1 << CompHP->GetActiveWeaponSlot()))
         {
             IntrusivePtrT<cf::GameSys::ComponentModelT> Model3rdPerson = dynamic_pointer_cast<cf::GameSys::ComponentModelT>(m_Entity->GetComponent("Model"));
-            const CafuModelT* WeaponModel = GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->GetPlayerWeaponModel();
+            const CafuModelT* WeaponModel = GameImplT::GetInstance().GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->GetPlayerWeaponModel();
             AnimPoseT*        WeaponPose  = WeaponModel->GetSharedPose(WeaponModel->GetAnimExprPool().GetStandard(0, 0.0f));
 
             if (Model3rdPerson != NULL)
@@ -1103,11 +1093,11 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
     IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(m_Entity->GetComponent("HumanPlayer"));
 
     // Code for state driven effects.
-    if (CompHP->GetHaveWeapons() & (1 << State.ActiveWeaponSlot))
+    if (CompHP->GetHaveWeapons() & (1 << CompHP->GetActiveWeaponSlot()))
     {
         IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(m_Entity->GetComponent("HumanPlayer"));
 
-        GameImplT::GetInstance().GetCarriedWeapon(State.ActiveWeaponSlot)->ClientSide_HandleStateDrivenEffects(this, CompHP);
+        GameImplT::GetInstance().GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->ClientSide_HandleStateDrivenEffects(this, CompHP);
     }
 
 
@@ -1188,7 +1178,7 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
                 // well as from there/script to here/C++.
                 if (CompHP->GetStateOfExistence() == StateOfExistence_Alive)
                 {
-                    switch (State.ActiveWeaponSlot)
+                    switch (CompHP->GetActiveWeaponSlot())
                     {
                         case WEAPON_SLOT_HORNETGUN:
                         case WEAPON_SLOT_PISTOL:
@@ -1268,7 +1258,7 @@ int EntHumanPlayerT::GetAmmoString(lua_State* LuaState)
     const EntityStateT&            State = Ent->State;
 
     // Return an ammo string for the players HUD.
-    if (CompHP->GetHaveWeapons() & (1 << State.ActiveWeaponSlot))
+    if (CompHP->GetHaveWeapons() & (1 << CompHP->GetActiveWeaponSlot()))
     {
         char PrintBuffer[64];
 
@@ -1291,7 +1281,7 @@ int EntHumanPlayerT::GetAmmoString(lua_State* LuaState)
             AMMO_SLOT_NONE
         };
 
-        switch (State.ActiveWeaponSlot)
+        switch (CompHP->GetActiveWeaponSlot())
         {
             case WEAPON_SLOT_BATTLESCYTHE:
             case WEAPON_SLOT_HORNETGUN:
@@ -1311,7 +1301,7 @@ int EntHumanPlayerT::GetAmmoString(lua_State* LuaState)
             case WEAPON_SLOT_RPG:
             case WEAPON_SLOT_TRIPMINE:
                 sprintf(PrintBuffer, "Ammo %2u",
-                        State.HaveAmmoInWeapons[State.ActiveWeaponSlot]);
+                        State.HaveAmmoInWeapons[CompHP->GetActiveWeaponSlot()]);
                 lua_pushstring(LuaState, PrintBuffer);
                 break;
 
@@ -1322,8 +1312,8 @@ int EntHumanPlayerT::GetAmmoString(lua_State* LuaState)
             case WEAPON_SLOT_PISTOL:
             case WEAPON_SLOT_SHOTGUN:
                 sprintf(PrintBuffer, "Ammo %2u (%2u)",
-                        State.HaveAmmoInWeapons[State.ActiveWeaponSlot],
-                        State.HaveAmmo[GetAmmoSlotForPrimaryFireByWeaponSlot[State.ActiveWeaponSlot]]);
+                        State.HaveAmmoInWeapons[CompHP->GetActiveWeaponSlot()],
+                        State.HaveAmmo[GetAmmoSlotForPrimaryFireByWeaponSlot[CompHP->GetActiveWeaponSlot()]]);
                 lua_pushstring(LuaState, PrintBuffer);
                 break;
         }

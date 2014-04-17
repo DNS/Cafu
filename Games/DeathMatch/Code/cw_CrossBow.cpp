@@ -57,9 +57,9 @@ bool CarriedWeaponCrossBowT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player
     {
         // This weapon is picked up for the first time.
         HumanPlayer->SetHaveWeapons(HumanPlayer->GetHaveWeapons() | 1 << WEAPON_SLOT_CROSSBOW);
-        State.ActiveWeaponSlot   =WEAPON_SLOT_CROSSBOW;
-        State.ActiveWeaponSequNr =5;    // Draw
-        State.ActiveWeaponFrameNr=0.0;
+        HumanPlayer->SetActiveWeaponSlot(WEAPON_SLOT_CROSSBOW);
+        HumanPlayer->SetActiveWeaponSequNr(5);    // Draw
+        HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
         State.HaveAmmoInWeapons[WEAPON_SLOT_CROSSBOW] =5;
         State.HaveAmmo         [AMMO_SLOT_ARROWS    ]+=5;
@@ -76,15 +76,15 @@ void CarriedWeaponCrossBowT::ServerSide_Think(EntHumanPlayerT* Player, Intrusive
 {
     EntityStateT& State=Player->GetState();
 
-    switch (State.ActiveWeaponSequNr)
+    switch (HumanPlayer->GetActiveWeaponSequNr())
     {
         case 0: // Idle1
         case 1: // Idle2
         case 2: // Idle3
             if (PlayerCommand.Keys & PCK_Fire1)
             {
-                State.ActiveWeaponSequNr =3;    // Fire
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(3);    // Fire
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
                 if (ThinkingOnServerSide)
                 {
@@ -100,37 +100,37 @@ void CarriedWeaponCrossBowT::ServerSide_Think(EntHumanPlayerT* Player, Intrusive
 
             if (AnimSequenceWrap)
             {
-                if (State.ActiveWeaponSequNr==2)
+                if (HumanPlayer->GetActiveWeaponSequNr() == 2)
                 {
-                    State.ActiveWeaponSequNr=LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF] % 3;
+                    HumanPlayer->SetActiveWeaponSequNr(LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF] % 3);
                 }
-                else State.ActiveWeaponSequNr=2;    // Idle3 is the "best-looking" sequence.
+                else HumanPlayer->SetActiveWeaponSequNr(2);    // Idle3 is the "best-looking" sequence.
 
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;
 
         case 3: // Fire
             if (AnimSequenceWrap)
             {
-                State.ActiveWeaponSequNr =4;
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(4);
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;
 
         case 4: // Reload
             if (AnimSequenceWrap)
             {
-                State.ActiveWeaponSequNr =2;
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(2);
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;
 
         case 5: // Draw (TakeOut)
             if (AnimSequenceWrap)
             {
-                State.ActiveWeaponSequNr =0;
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(0);
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;
 

@@ -72,9 +72,9 @@ bool CarriedWeaponShotgunT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player,
     {
         // This weapon is picked up for the first time.
         HumanPlayer->SetHaveWeapons(HumanPlayer->GetHaveWeapons() | 1 << WEAPON_SLOT_SHOTGUN);
-        State.ActiveWeaponSlot   =WEAPON_SLOT_SHOTGUN;
-        State.ActiveWeaponSequNr =6;    // Draw
-        State.ActiveWeaponFrameNr=0.0;
+        HumanPlayer->SetActiveWeaponSlot(WEAPON_SLOT_SHOTGUN);
+        HumanPlayer->SetActiveWeaponSequNr(6);    // Draw
+        HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
         State.HaveAmmoInWeapons[WEAPON_SLOT_SHOTGUN] =8;
         State.HaveAmmo         [AMMO_SLOT_SHELLS   ]+=8;
@@ -91,7 +91,7 @@ void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, IntrusiveP
 {
     EntityStateT& State=Player->GetState();
 
-    switch (State.ActiveWeaponSequNr)
+    switch (HumanPlayer->GetActiveWeaponSequNr())
     {
         case 3: // Reload / Insert shells
             if (AnimSequenceWrap)
@@ -101,8 +101,8 @@ void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, IntrusiveP
 
                 if (State.HaveAmmoInWeapons[WEAPON_SLOT_SHOTGUN]>=8 || State.HaveAmmo[AMMO_SLOT_SHELLS]==0)
                 {
-                    State.ActiveWeaponSequNr =4;
-                    State.ActiveWeaponFrameNr=0.0;
+                    HumanPlayer->SetActiveWeaponSequNr(4);
+                    HumanPlayer->SetActiveWeaponFrameNr(0.0f);
                 }
             }
             break;
@@ -110,16 +110,16 @@ void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, IntrusiveP
         case 4: // Pump / After reload
             if (AnimSequenceWrap)
             {
-                State.ActiveWeaponSequNr =0;
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(0);
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;
 
         case 5: // Start reload
             if (AnimSequenceWrap)
             {
-                State.ActiveWeaponSequNr =3;
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(3);
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;
 
@@ -127,8 +127,8 @@ void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, IntrusiveP
             if (AnimSequenceWrap)
             {
                 // Back to idle.
-                State.ActiveWeaponSequNr =0;
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(0);
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;
 
@@ -138,15 +138,15 @@ void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, IntrusiveP
         case 1: // Shoot 1
             if (!AnimSequenceWrap) break;
 
-            State.ActiveWeaponSequNr =0;
-            State.ActiveWeaponFrameNr=0.0;
+            HumanPlayer->SetActiveWeaponSequNr(0);
+            HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             // Intentional fall-through.
 
         case 2: // Shoot 2
             if (!AnimSequenceWrap) break;
 
-            State.ActiveWeaponSequNr =0;
-            State.ActiveWeaponFrameNr=0.0;
+            HumanPlayer->SetActiveWeaponSequNr(0);
+            HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             // Intentional fall-through.
 
         case 0: // Idle
@@ -158,8 +158,8 @@ void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, IntrusiveP
             {
                 if (State.HaveAmmo[AMMO_SLOT_SHELLS])
                 {
-                    State.ActiveWeaponSequNr =5;    // StartReload
-                    State.ActiveWeaponFrameNr=0.0;
+                    HumanPlayer->SetActiveWeaponSequNr(5);    // StartReload
+                    HumanPlayer->SetActiveWeaponFrameNr(0.0f);
                     break;
                 }
 
@@ -179,8 +179,8 @@ void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, IntrusiveP
             // 2. Are we to fire single barreled (we have at least one shell)?
             if (PlayerCommand.Keys & PCK_Fire1)
             {
-                State.ActiveWeaponSequNr =1;                // Shoot 1
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(1);                // Shoot 1
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
                 State.HaveAmmoInWeapons[WEAPON_SLOT_SHOTGUN]--;
 
                 Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
@@ -203,8 +203,8 @@ void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, IntrusiveP
             // 3. Are we to fire double barreled (we have at least two shells)?
             if (PlayerCommand.Keys & PCK_Fire2)
             {
-                State.ActiveWeaponSequNr =2;            // Shoot 2
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(2);            // Shoot 2
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
                 State.HaveAmmoInWeapons[WEAPON_SLOT_SHOTGUN]-=2;
 
                 Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_SECONDARY_FIRE);

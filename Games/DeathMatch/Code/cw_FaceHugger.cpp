@@ -70,9 +70,9 @@ bool CarriedWeaponFaceHuggerT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Play
     {
         // This weapon is picked up for the first time.
         HumanPlayer->SetHaveWeapons(HumanPlayer->GetHaveWeapons() | 1 << WEAPON_SLOT_FACEHUGGER);
-        State.ActiveWeaponSlot   =WEAPON_SLOT_FACEHUGGER;
-        State.ActiveWeaponSequNr =4;    // Draw
-        State.ActiveWeaponFrameNr=0.0;
+        HumanPlayer->SetActiveWeaponSlot(WEAPON_SLOT_FACEHUGGER);
+        HumanPlayer->SetActiveWeaponSequNr(4);    // Draw
+        HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
         State.HaveAmmoInWeapons[WEAPON_SLOT_FACEHUGGER]=5;
     }
@@ -85,15 +85,15 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, Intrusi
 {
     EntityStateT& State=Player->GetState();
 
-    switch (State.ActiveWeaponSequNr)
+    switch (HumanPlayer->GetActiveWeaponSequNr())
     {
         case 0: // Idle1
         case 1: // Idle2 (fidget fit)
         case 2: // Idle3 (fidget nip)
             if (PlayerCommand.Keys & (PCK_Fire1 | PCK_Fire2))
             {
-                State.ActiveWeaponSequNr =5;
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(5);
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
                 Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
 
@@ -148,16 +148,16 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, Intrusi
 
             if (AnimSequenceWrap)
             {
-                if (State.ActiveWeaponSequNr==0)
+                if (HumanPlayer->GetActiveWeaponSequNr() == 0)
                 {
                     const char RandomNumber=char(LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF]);
 
-                         if (RandomNumber<32) State.ActiveWeaponSequNr=1;
-                    else if (RandomNumber<64) State.ActiveWeaponSequNr=2;
+                         if (RandomNumber<32) HumanPlayer->SetActiveWeaponSequNr(1);
+                    else if (RandomNumber<64) HumanPlayer->SetActiveWeaponSequNr(2);
                 }
-                else State.ActiveWeaponSequNr=0;    // Always play "Idle1" after "Idle2" or "Idle3"!
+                else HumanPlayer->SetActiveWeaponSequNr(0);    // Always play "Idle1" after "Idle2" or "Idle3"!
 
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;
 
@@ -167,8 +167,8 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, Intrusi
         case 4: // Up (Draw)
             if (AnimSequenceWrap)
             {
-                State.ActiveWeaponSequNr =0;
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(0);
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;
 
@@ -181,8 +181,8 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, Intrusi
                 }
                 else
                 {
-                    State.ActiveWeaponSequNr =0;
-                    State.ActiveWeaponFrameNr=0.0;
+                    HumanPlayer->SetActiveWeaponSequNr(0);
+                    HumanPlayer->SetActiveWeaponFrameNr(0.0f);
                 }
             }
             break;

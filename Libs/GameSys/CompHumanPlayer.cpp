@@ -71,7 +71,7 @@ ComponentHumanPlayerT::ComponentHumanPlayerT()
       m_HaveWeapons("HaveWeapons", 0),
       m_ActiveWeaponSlot("ActiveWeaponSlot", 0),
       m_ActiveWeaponSequNr("ActiveWeaponSequNr", 0),
-      m_ActiveWeaponFrameNr("ActiveWeaponFrameNr", 0),
+      m_ActiveWeaponFrameNr("ActiveWeaponFrameNr", 0.0f),
       m_HaveAmmo("HaveAmmo", 16, 0),
       m_HaveAmmoInWeapons("HaveAmmoInWeapons", 32, 0),
       m_PlayerCommands()

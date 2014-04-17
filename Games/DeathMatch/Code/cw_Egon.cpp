@@ -54,9 +54,9 @@ bool CarriedWeaponEgonT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, In
     {
         // This weapon is picked up for the first time.
         HumanPlayer->SetHaveWeapons(HumanPlayer->GetHaveWeapons() | 1 << WEAPON_SLOT_EGON);
-        State.ActiveWeaponSlot   =WEAPON_SLOT_EGON;
-        State.ActiveWeaponSequNr =9;    // Draw
-        State.ActiveWeaponFrameNr=0.0;
+        HumanPlayer->SetActiveWeaponSlot(WEAPON_SLOT_EGON);
+        HumanPlayer->SetActiveWeaponSequNr(9);    // Draw
+        HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
         State.HaveAmmoInWeapons[WEAPON_SLOT_EGON] =20;
         State.HaveAmmo         [AMMO_SLOT_CELLS ]+=20;
@@ -88,13 +88,13 @@ void CarriedWeaponEgonT::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT
         Holster
     };
 
-    switch (State.ActiveWeaponSequNr)
+    switch (HumanPlayer->GetActiveWeaponSequNr())
     {
         case Draw:
             if (AnimSequenceWrap)
             {
-                State.ActiveWeaponSequNr =Idle;
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(Idle);
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;
 
@@ -102,8 +102,8 @@ void CarriedWeaponEgonT::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT
         case Fidget:
             if (AnimSequenceWrap)
             {
-                State.ActiveWeaponSequNr =LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF] & 1;
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF] & 1);
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;
     }

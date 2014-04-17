@@ -80,9 +80,9 @@ bool CarriedWeapon9mmART::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, I
     {
         // This weapon is picked up for the first time.
         HumanPlayer->SetHaveWeapons(HumanPlayer->GetHaveWeapons() | 1 << WEAPON_SLOT_9MMAR);
-        State.ActiveWeaponSlot   =WEAPON_SLOT_9MMAR;
-        State.ActiveWeaponSequNr =4;    // Draw
-        State.ActiveWeaponFrameNr=0.0;
+        HumanPlayer->SetActiveWeaponSlot(WEAPON_SLOT_9MMAR);
+        HumanPlayer->SetActiveWeaponSequNr(4);    // Draw
+        HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
         State.HaveAmmoInWeapons[WEAPON_SLOT_9MMAR] =25;
         State.HaveAmmo         [AMMO_SLOT_9MM    ]+=25;
@@ -101,13 +101,13 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtr
 {
     EntityStateT& State=Player->GetState();
 
-    switch (State.ActiveWeaponSequNr)
+    switch (HumanPlayer->GetActiveWeaponSequNr())
     {
         case 3: // Reload
             if (AnimSequenceWrap)
             {
-                State.ActiveWeaponSequNr =0;
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(0);
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
                 const char Amount=State.HaveAmmo[AMMO_SLOT_9MM]>25 ? 25 : State.HaveAmmo[AMMO_SLOT_9MM];
 
@@ -119,27 +119,27 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtr
         case 4: // Deploy (Draw)
             if (AnimSequenceWrap)
             {
-                State.ActiveWeaponSequNr =0;
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(0);
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;
 
         case 2: // Grenade
             if (!AnimSequenceWrap) break;
 
-            State.ActiveWeaponSequNr =0;
-            State.ActiveWeaponFrameNr=0.0;
+            HumanPlayer->SetActiveWeaponSequNr(0);
+            HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             // Intentional fall-through.
 
         case 5: // Shoot 1
         case 6: // Shoot 2
         case 7: // Shoot 3
-            if ((State.HaveAmmoInWeapons[WEAPON_SLOT_9MMAR] && (PlayerCommand.Keys & PCK_Fire1) && State.ActiveWeaponFrameNr>=1.0) || AnimSequenceWrap)
+            if ((State.HaveAmmoInWeapons[WEAPON_SLOT_9MMAR] && (PlayerCommand.Keys & PCK_Fire1) && HumanPlayer->GetActiveWeaponFrameNr() >= 1.0) || AnimSequenceWrap)
             {
                 // At 10 FPS (sequences 5, 6, 7), 0.1 seconds correspond to exactly 1 frame.
                 // End of this shoot sequence - go back to "idle" and recover from there (decide anew).
-                State.ActiveWeaponSequNr =0;
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(0);
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
                 // Intentional fall-through!
             }
             else break;
@@ -151,8 +151,8 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtr
             {
                 if (State.HaveAmmo[AMMO_SLOT_9MM])
                 {
-                    State.ActiveWeaponSequNr =3;    // Reload
-                    State.ActiveWeaponFrameNr=0.0;
+                    HumanPlayer->SetActiveWeaponSequNr(3);    // Reload
+                    HumanPlayer->SetActiveWeaponFrameNr(0.0f);
                     break;
                 }
 
@@ -171,8 +171,8 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtr
 
             if (PlayerCommand.Keys & PCK_Fire1)
             {
-                State.ActiveWeaponSequNr =5+(LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF] % 3);
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(5 + (LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF] % 3));
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
                 State.HaveAmmoInWeapons[WEAPON_SLOT_9MMAR]--;
 
                 if (ThinkingOnServerSide)
@@ -189,8 +189,8 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtr
 
             if (PlayerCommand.Keys & PCK_Fire2)
             {
-                State.ActiveWeaponSequNr =2;    // Grenade
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponSequNr(2);    // Grenade
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
                 State.HaveAmmo[AMMO_SLOT_ARGREN]--;
 
                 Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_SECONDARY_FIRE);
@@ -264,13 +264,13 @@ void CarriedWeapon9mmART::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtr
 
             if (AnimSequenceWrap)
             {
-                if (State.ActiveWeaponSequNr==0)
+                if (HumanPlayer->GetActiveWeaponSequNr() == 0)
                 {
-                    State.ActiveWeaponSequNr=LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF] & 1;
+                    HumanPlayer->SetActiveWeaponSequNr(LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF] & 1);
                 }
-                else State.ActiveWeaponSequNr=0;     // Don't play the "Idle1" sequence repeatedly.
+                else HumanPlayer->SetActiveWeaponSequNr(0);     // Don't play the "Idle1" sequence repeatedly.
 
-                State.ActiveWeaponFrameNr=0.0;
+                HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;
     }
@@ -330,9 +330,9 @@ void CarriedWeapon9mmART::ClientSide_HandleStateDrivenEffects(const EntHumanPlay
 {
     const EntityStateT& State=Player->GetState();
 
-    if (State.ActiveWeaponSequNr==5 || State.ActiveWeaponSequNr==6 || State.ActiveWeaponSequNr==7)
+    if (HumanPlayer->GetActiveWeaponSequNr() == 5 || HumanPlayer->GetActiveWeaponSequNr() == 6 || HumanPlayer->GetActiveWeaponSequNr() == 7)
     {
-        if (State.ActiveWeaponFrameNr==0.0)
+        if (HumanPlayer->GetActiveWeaponFrameNr() == 0.0f)
         {
             const Vector3dT  ViewDir = HumanPlayer->GetViewDirWS(0.03492);  // ca. 2°
             const RayResultT RayResult(HumanPlayer->TracePlayerRay(ViewDir));

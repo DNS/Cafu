@@ -52,9 +52,9 @@ bool CarriedWeaponPistolT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, 
     {
         // This weapon is picked up for the first time.
         HumanPlayer->SetHaveWeapons(HumanPlayer->GetHaveWeapons() | 1 << WEAPON_SLOT_PISTOL);
-        State.ActiveWeaponSlot   =WEAPON_SLOT_PISTOL;
-        State.ActiveWeaponSequNr =7;    // Draw
-        State.ActiveWeaponFrameNr=0.0;
+        HumanPlayer->SetActiveWeaponSlot(WEAPON_SLOT_PISTOL);
+        HumanPlayer->SetActiveWeaponSequNr(7);    // Draw
+        HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
         State.HaveAmmoInWeapons[WEAPON_SLOT_PISTOL] =17;
         State.HaveAmmo         [AMMO_SLOT_9MM     ]+=17;
