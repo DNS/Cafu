@@ -89,7 +89,20 @@ namespace cf
 
             private:
 
+            void FillMemberVars();      ///< A helper method for the constructors.
+
             TypeSys::VarT<std::string> m_PlayerName;        ///< The name that the player chose for himself.
+            TypeSys::VarT<uint8_t>       m_StateOfExistance;    ///< For the player's main state machine, e.g. "spectator, dead, alive, ...".
+            TypeSys::VarT<uint8_t>       m_Health;              ///< Health.
+            TypeSys::VarT<uint8_t>       m_Armor;               ///< Armor.
+            TypeSys::VarT<unsigned int>  m_HaveItems;           ///< Bit field, entity can carry 32 different items.
+            TypeSys::VarT<unsigned int>  m_HaveWeapons;         ///< Bit field, entity can carry 32 different weapons.
+            TypeSys::VarT<uint8_t>       m_ActiveWeaponSlot;    ///< Index into m_HaveWeapons, m_HaveAmmoInWeapons, and for determining the weapon model index.
+            TypeSys::VarT<uint8_t>       m_ActiveWeaponSequNr;  ///< The weapon anim sequence that we see (the local clients 1st person ("view") weapon model).
+            TypeSys::VarT<float>         m_ActiveWeaponFrameNr; ///< Respectively, this is the frame number of the current weapon sequence.
+            TypeSys::VarArrayT<uint16_t> m_HaveAmmo;            ///< Entity can carry 16 different types of ammo (weapon independent). This is the amount of each.
+            TypeSys::VarArrayT<uint8_t>  m_HaveAmmoInWeapons;   ///< Entity can carry ammo in each of the 32 weapons. This is the amount of each.
+
             ArrayT<PlayerCommandT>     m_PlayerCommands;    ///< The commands to be processed in the next Think() step.
         };
     }

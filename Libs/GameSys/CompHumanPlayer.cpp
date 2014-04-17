@@ -46,7 +46,17 @@ const char* ComponentHumanPlayerT::DocClass =
 
 const cf::TypeSys::VarsDocT ComponentHumanPlayerT::DocVars[] =
 {
-    { "PlayerName", "The name that the player chose for himself." },
+    { "PlayerName",          "The name that the player chose for himself." },
+    { "State",               "For the player's main state machine, e.g. spectator, dead, alive, ..." },
+    { "Health",              "Health." },
+    { "Armor",               "Armor." },
+    { "HaveItems",           "Bit field, entity can carry 32 different items." },
+    { "HaveWeapons",         "Bit field, entity can carry 32 different weapons." },
+    { "ActiveWeaponSlot",    "Index into m_HaveWeapons, m_HaveAmmoInWeapons, and for determining the weapon model index." },
+    { "ActiveWeaponSequNr",  "The weapon anim sequence that we see (the local clients 1st person ('view') weapon model)." },
+    { "ActiveWeaponFrameNr", "Respectively, this is the frame number of the current weapon sequence." },
+    { "HaveAmmo",            "Entity can carry 16 different types of ammo (weapon independent). This is the amount of each." },
+    { "HaveAmmoInWeapons",   "Entity can carry ammo in each of the 32 weapons. This is the amount of each." },
     { NULL, NULL }
 };
 
@@ -54,18 +64,54 @@ const cf::TypeSys::VarsDocT ComponentHumanPlayerT::DocVars[] =
 ComponentHumanPlayerT::ComponentHumanPlayerT()
     : ComponentBaseT(),
       m_PlayerName("PlayerName", "Player"),
+      m_StateOfExistance("State", 2 /*StateOfExistance_FrozenSpectator*/),
+      m_Health("Health", 100),
+      m_Armor("Armor", 0),
+      m_HaveItems("HaveItems", 0),
+      m_HaveWeapons("HaveWeapons", 0),
+      m_ActiveWeaponSlot("ActiveWeaponSlot", 0),
+      m_ActiveWeaponSequNr("ActiveWeaponSequNr", 0),
+      m_ActiveWeaponFrameNr("ActiveWeaponFrameNr", 0),
+      m_HaveAmmo("HaveAmmo", 16, 0),
+      m_HaveAmmoInWeapons("HaveAmmoInWeapons", 32, 0),
       m_PlayerCommands()
 {
-    GetMemberVars().Add(&m_PlayerName);
+    FillMemberVars();
 }
 
 
 ComponentHumanPlayerT::ComponentHumanPlayerT(const ComponentHumanPlayerT& Comp)
     : ComponentBaseT(Comp),
       m_PlayerName(Comp.m_PlayerName),
+      m_StateOfExistance(Comp.m_StateOfExistance),
+      m_Health(Comp.m_Health),
+      m_Armor(Comp.m_Armor),
+      m_HaveItems(Comp.m_HaveItems),
+      m_HaveWeapons(Comp.m_HaveWeapons),
+      m_ActiveWeaponSlot(Comp.m_ActiveWeaponSlot),
+      m_ActiveWeaponSequNr(Comp.m_ActiveWeaponSequNr),
+      m_ActiveWeaponFrameNr(Comp.m_ActiveWeaponFrameNr),
+      m_HaveAmmo(Comp.m_HaveAmmo),
+      m_HaveAmmoInWeapons(Comp.m_HaveAmmoInWeapons),
       m_PlayerCommands()
 {
+    FillMemberVars();
+}
+
+
+void ComponentHumanPlayerT::FillMemberVars()
+{
     GetMemberVars().Add(&m_PlayerName);
+    GetMemberVars().Add(&m_StateOfExistance);
+    GetMemberVars().Add(&m_Health);
+    GetMemberVars().Add(&m_Armor);
+    GetMemberVars().Add(&m_HaveItems);
+    GetMemberVars().Add(&m_HaveWeapons);
+    GetMemberVars().Add(&m_ActiveWeaponSlot);
+    GetMemberVars().Add(&m_ActiveWeaponSequNr);
+    GetMemberVars().Add(&m_ActiveWeaponFrameNr);
+    GetMemberVars().Add(&m_HaveAmmo);
+    GetMemberVars().Add(&m_HaveAmmoInWeapons);
 }
 
 
