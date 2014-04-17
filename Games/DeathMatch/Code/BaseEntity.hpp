@@ -56,8 +56,6 @@ namespace GAME_NAME
     struct EntityStateT
     {
         char           StateOfExistance;        // For entity defined state machines, e.g. "specator, dead, alive, ...".
-        char           Health;                  // Health.
-        char           Armor;                   // Armor.
         unsigned long  HaveItems;               // Bit field, entity can carry 32 different items.
         unsigned long  HaveWeapons;             // Bit field, entity can carry 32 different weapons.
         char           ActiveWeaponSlot;        // Index into HaveWeapons, HaveAmmoInWeapons, and for determining the weapon model index.
@@ -67,7 +65,7 @@ namespace GAME_NAME
         unsigned char  HaveAmmoInWeapons[32];   // Entity can carry ammo in each of the 32 weapons. This is the amount of each.
 
         EntityStateT(char StateOfExistance_,
-                     char Health_, char Armor_, unsigned long HaveItems_, unsigned long HaveWeapons_,
+                     unsigned long HaveItems_, unsigned long HaveWeapons_,
                      char ActiveWeaponSlot_, char ActiveWeaponSequNr_, float ActiveWeaponFrameNr_);
     };
 

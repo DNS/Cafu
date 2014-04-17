@@ -64,6 +64,12 @@ namespace cf
             /// Another convenience method for use by the `CarriedWeaponT` method implementations.
             void InflictDamage(EntityT* OtherEnt, float Amount, const Vector3dT& Dir) const;
 
+            // Temporary methods, so that obsolete DeathMatch code can access our data.
+            uint8_t GetHealth() const { return m_Health.Get(); }
+            void SetHealth(uint8_t h) { m_Health.Set(h); }
+            uint8_t GetArmor() const { return m_Armor.Get(); }
+            void SetArmor(uint8_t a) { m_Armor.Set(a); }
+
 
             // Base class overrides.
             ComponentHumanPlayerT* Clone() const;
@@ -91,7 +97,7 @@ namespace cf
 
             void FillMemberVars();      ///< A helper method for the constructors.
 
-            TypeSys::VarT<std::string> m_PlayerName;        ///< The name that the player chose for himself.
+            TypeSys::VarT<std::string>   m_PlayerName;          ///< The name that the player chose for himself.
             TypeSys::VarT<uint8_t>       m_StateOfExistance;    ///< For the player's main state machine, e.g. "spectator, dead, alive, ...".
             TypeSys::VarT<uint8_t>       m_Health;              ///< Health.
             TypeSys::VarT<uint8_t>       m_Armor;               ///< Armor.
@@ -103,7 +109,7 @@ namespace cf
             TypeSys::VarArrayT<uint16_t> m_HaveAmmo;            ///< Entity can carry 16 different types of ammo (weapon independent). This is the amount of each.
             TypeSys::VarArrayT<uint8_t>  m_HaveAmmoInWeapons;   ///< Entity can carry ammo in each of the 32 weapons. This is the amount of each.
 
-            ArrayT<PlayerCommandT>     m_PlayerCommands;    ///< The commands to be processed in the next Think() step.
+            ArrayT<PlayerCommandT>       m_PlayerCommands;      ///< The commands to be processed in the next Think() step.
         };
     }
 }

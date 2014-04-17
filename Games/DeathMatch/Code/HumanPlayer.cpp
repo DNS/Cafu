@@ -105,8 +105,6 @@ EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
                                  Vector3dT(-16.0, -16.0, -68.0)),
                   NUM_EVENT_TYPES),
       State(StateOfExistance_FrozenSpectator,
-            100,    // Health
-            0,      // Armor
             0,      // HaveItems
             0,      // HaveWeapons
             0,      // ActiveWeaponSlot
@@ -181,8 +179,6 @@ void EntHumanPlayerT::AddFrag(int NumFrags)
 void EntHumanPlayerT::DoSerialize(cf::Network::OutStreamT& Stream) const
 {
     Stream << State.StateOfExistance;
-    Stream << State.Health;
-    Stream << State.Armor;
     Stream << uint32_t(State.HaveItems);
     Stream << uint32_t(State.HaveWeapons);
     Stream << State.ActiveWeaponSlot;
@@ -199,8 +195,6 @@ void EntHumanPlayerT::DoDeserialize(cf::Network::InStreamT& Stream)
     uint32_t ui=0;
 
     Stream >> State.StateOfExistance;
-    Stream >> State.Health;
-    Stream >> State.Armor;
     Stream >> ui; State.HaveItems=ui;
     Stream >> ui; State.HaveWeapons=ui;
     Stream >> State.ActiveWeaponSlot;
@@ -218,15 +212,16 @@ void EntHumanPlayerT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT
     // Only human players that are still alive can take damage.
     if (State.StateOfExistance != StateOfExistance_Alive) return;
 
+    IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT>   CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(m_Entity->GetComponent("HumanPlayer"));
     IntrusivePtrT<cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(m_Entity->GetComponent("PlayerPhysics"));
 
     CompPlayerPhysics->SetMember("Velocity",
         CompPlayerPhysics->GetVelocity() + VectorT(ImpactDir.x, ImpactDir.y, 0.0) * (20.0 * Amount));
 
-    if (State.Health<=Amount)
+    if (CompHP->GetHealth() <= Amount)
     {
         State.StateOfExistance=StateOfExistance_Dead;
-        State.Health=0;
+        CompHP->SetHealth(0);
 
         // Now that the player is dead, clear the collision model.
         IntrusivePtrT<cf::GameSys::ComponentCollisionModelT> CompCollMdl = dynamic_pointer_cast<cf::GameSys::ComponentCollisionModelT>(m_Entity->GetComponent("CollisionModel"));
@@ -280,7 +275,7 @@ void EntHumanPlayerT::TakeDamage(BaseEntityT* Entity, char Amount, const VectorT
     }
     else
     {
-        State.Health-=Amount;
+        CompHP->SetHealth(CompHP->GetHealth() - Amount);
     }
 }
 
@@ -994,8 +989,8 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 m_Dimensions             =BoundingBox3dT(Vector3dT(16.0, 16.0, 4.0), Vector3dT(-16.0, -16.0, -68.0));
                 State.StateOfExistance   =StateOfExistance_Alive;
                 Model3rdPerson->SetMember("Animation", 0);
-                State.Health             =100;
-                State.Armor              =0;
+                CompHP->SetHealth(100);
+                CompHP->SetArmor(0);
                 State.HaveItems          =0;
                 State.HaveWeapons        =0;
                 State.ActiveWeaponSlot   =0;
@@ -1233,8 +1228,9 @@ int EntHumanPlayerT::GetHealth(lua_State* LuaState)
 {
     cf::ScriptBinderT Binder(LuaState);
     IntrusivePtrT<EntHumanPlayerT> Ent = Binder.GetCheckedObjectParam< IntrusivePtrT<EntHumanPlayerT> >(1);
+    IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(Ent->m_Entity->GetComponent("HumanPlayer"));
 
-    lua_pushnumber(LuaState, Ent->State.Health);
+    lua_pushnumber(LuaState, CompHP->GetHealth());
     return 1;
 }
 
@@ -1243,8 +1239,9 @@ int EntHumanPlayerT::GetArmor(lua_State* LuaState)
 {
     cf::ScriptBinderT Binder(LuaState);
     IntrusivePtrT<EntHumanPlayerT> Ent = Binder.GetCheckedObjectParam< IntrusivePtrT<EntHumanPlayerT> >(1);
+    IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(Ent->m_Entity->GetComponent("HumanPlayer"));
 
-    lua_pushnumber(LuaState, Ent->State.Armor);
+    lua_pushnumber(LuaState, CompHP->GetArmor());
     return 1;
 }
 

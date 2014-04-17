@@ -62,11 +62,9 @@ cf::TypeSys::TypeInfoManT& GAME_NAME::GetBaseEntTIM()
 // ************
 
 EntityStateT::EntityStateT(char StateOfExistance_,
-                           char Health_, char Armor_, unsigned long HaveItems_, unsigned long HaveWeapons_,
+                           unsigned long HaveItems_, unsigned long HaveWeapons_,
                            char ActiveWeaponSlot_, char ActiveWeaponSequNr_, float ActiveWeaponFrameNr_)
     : StateOfExistance(StateOfExistance_),
-      Health(Health_),
-      Armor(Armor_),
       HaveItems(HaveItems_),
       HaveWeapons(HaveWeapons_),
       ActiveWeaponSlot(ActiveWeaponSlot_),
