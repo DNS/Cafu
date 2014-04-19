@@ -27,6 +27,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "PhysicsWorld.hpp"
 
 
+namespace cf { namespace GuiSys { class GuiImplT; } }
+
+
 namespace cf
 {
     namespace GameSys
@@ -88,6 +91,8 @@ namespace cf
             // Base class overrides.
             ComponentHumanPlayerT* Clone() const;
             const char* GetName() const { return "HumanPlayer"; }
+            void DoServerFrame(float t);
+            void DoClientFrame(float t);
 
 
             // The TypeSys related declarations for this class.
@@ -99,6 +104,8 @@ namespace cf
             protected:
 
             // The Lua API methods of this class.
+            static int GetCrosshairInfo(lua_State* LuaState);
+            static int GetAmmoString(lua_State* LuaState);
             static int toString(lua_State* LuaState);
 
             static const luaL_Reg               MethodsList[];  ///< The list of Lua methods for this class.
@@ -109,7 +116,8 @@ namespace cf
 
             private:
 
-            void FillMemberVars();      ///< A helper method for the constructors.
+            void FillMemberVars();                              ///< A helper method for the constructors.
+            IntrusivePtrT<cf::GuiSys::GuiImplT> GetGuiHUD();    ///< Returns the GUI instance for the player's Head-Up Display.
 
             TypeSys::VarT<std::string>   m_PlayerName;          ///< The name that the player chose for himself.
             TypeSys::VarT<uint8_t>       m_StateOfExistence;    ///< For the player's main state machine, e.g. "spectator, dead, alive, ...".
@@ -123,7 +131,8 @@ namespace cf
             TypeSys::VarArrayT<uint16_t> m_HaveAmmo;            ///< Entity can carry 16 different types of ammo (weapon independent). This is the amount of each.
             TypeSys::VarArrayT<uint8_t>  m_HaveAmmoInWeapons;   ///< Entity can carry ammo in each of the 32 weapons. This is the amount of each.
 
-            ArrayT<PlayerCommandT>       m_PlayerCommands;      ///< The commands to be processed in the next Think() step.
+            ArrayT<PlayerCommandT>          m_PlayerCommands;   ///< The commands to be processed in the next Think() step.
+            IntrusivePtrT<GuiSys::GuiImplT> m_GuiHUD;           ///< The GUI instance for the player's Head-Up Display.
         };
     }
 }

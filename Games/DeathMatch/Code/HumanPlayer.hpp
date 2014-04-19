@@ -40,7 +40,6 @@ namespace GAME_NAME
         enum EventTypesT { EVENT_TYPE_PRIMARY_FIRE, EVENT_TYPE_SECONDARY_FIRE, NUM_EVENT_TYPES };
 
         EntHumanPlayerT(const EntityCreateParamsT& Params);
-        ~EntHumanPlayerT();
 
         /// Increases the frag count of this entity by the given number.
         void AddFrag(int NumFrags=1);
@@ -61,24 +60,11 @@ namespace GAME_NAME
 
         private:
 
-        // Override the base class methods.
-        void NotifyLeaveMap();
-
         /// A helper function for Think().
         bool CheckGUI(IntrusivePtrT<cf::GameSys::ComponentModelT> CompModel, Vector3fT& MousePos) const;
 
-        // Script methods.
-        static int GetHealth(lua_State* LuaState);
-        static int GetArmor(lua_State* LuaState);
-        static int GetFrags(lua_State* LuaState);
-        static int GetCrosshair(lua_State* LuaState);
-        static int GetAmmoString(lua_State* LuaState);
 
-        static const luaL_Reg MethodsList[];
-
-
-        mutable VectorT   LastSeenAmbientColor;     // This is a client-side variable, unrelated to prediction, and thus allowed.
-        IntrusivePtrT<cf::GuiSys::GuiImplT> GuiHUD; ///< The HUD GUI for this local human player entity.
+        mutable VectorT LastSeenAmbientColor;   // This is a client-side variable, unrelated to prediction, and thus allowed.
     };
 }
 

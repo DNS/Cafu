@@ -3,36 +3,63 @@ local gui = ...
 assert(loadfile("Games/DeathMatch/GUIs/HUD_init.cgui"))(gui)
 
 local Background = gui:GetRootWindow()
-local InfoHealth = Background.InfoHealth
-local InfoArmor  = Background.InfoArmor
-local InfoFrags  = Background.InfoFrags
-local InfoAmmo   = Background.InfoAmmo
-local FPS        = Background.FPS
-local CrossHair  = Background.CrossHair
+local Message    = Background.Message
+local InfoHealth = Background.InGameDials.InfoHealth
+local InfoArmor  = Background.InGameDials.InfoArmor
+local InfoFrags  = Background.InGameDials.InfoFrags
+local InfoAmmo   = Background.InGameDials.InfoAmmo
+local FPS        = Background.InGameDials.FPS
+local CrossHair  = Background.InGameDials.CrossHair
 
 --[[
- This "head-up display" GUI is instantiated by the EntHumanPlayerT entity,
- which in turn binds itself to the global script variable "Player".
+This "head-up display" GUI is instantiated by a Human Player component
+which in turn is part of an entity which represents a human player.
 
- That means that we can call Player methods (as defined in the EntHumanPlayerT
- C++ code) whenever we want to communicate with "our" human player entity,
- e.g.  h = Player:GetHealth()
-
- Note that the inverse is also possible: The C++ code can directly call our
- scripting functions defined here (there is an example below).
+The Human Player component binds itself to the script variable `gui.Player`
+and the related entity to the script variable `gui.Entity`.
+The code below demonstrates how these variables can be used to access data
+and functions from the component and its entity.
 --]]
 
-InfoFrags.NumFrags = 0
-FPS.oldTime = FPS:GetTime()
-CrossHair.RotateCrosshair = false
 
+Message.OldState = -1
+
+function Message:OnFrame()
+    -- The possible values of State are:
+    --   0 -- alive
+    --   1 -- dead
+    --   2 -- froze spectator
+    --   3 -- free spectator
+    -- (Some alternative to this table would clearly be helpful...)
+    local State = gui.Player:get("State")
+
+    if State == self.OldState then return end
+
+    -- Update the text of the message.
+    if State == 1 then      -- "dead"
+        self:GetComponent("Text"):set("Text", "You're dead.")
+    elseif State == 2 then  -- "frozen spectator"
+        self:GetComponent("Text"):set("Text", "Press FIRE (left mouse button) to respawn!")
+    end
+
+    -- Update the "Show" property for the Message window and the in-game dials.
+    local InGame = State <= 1   -- "alive" or "dead"
+
+    self:GetBasics():set("Show", not InGame)
+    Background.InGameDials:GetBasics():set("Show", InGame)
+
+    self.OldState = State
+end
+
+
+FPS.oldTime = FPS:GetTime()
 
 function FPS:OnFrame()
     local newTime   = FPS:GetTime()
     local deltaTime = newTime - self.oldTime
     local TextComp  = self:GetComponent("Text")
 
-    if (deltaTime<0.000001) then
+    if (deltaTime < 0.000001) then
         TextComp:set("Text", "FPS  +inf")
     else
         TextComp:set("Text", string.format("FPS  %.2f", 1/deltaTime))
@@ -42,27 +69,15 @@ function FPS:OnFrame()
 end
 
 
--- This function is directly called from the EntHumanPlayerT code (once per frame).
--- We could integrate it into CrossHair:OnFrame() below, using another method like
--- Player:GetCrosshairInfo(), but keep it for demonstration of direct calls from
--- the entity code to here.
-function UpdateCrosshairMaterial(MaterialName, Rotate)
-    -- Note that this function is currently called *every* frame by the human player entity code.
-    -- However, setting the backMaterial is implemented to be inexpensive when the material name
-    -- doesn't change, or else we had to have some code like "if (MaterialName != OldName) ..."
-    -- either here or in the entity code.
-    CrossHair:GetBasics():set("Show", #MaterialName > 0)
-    CrossHair:GetComponent("Image"):set("Material", MaterialName)
-    CrossHair.RotateCrosshair=Rotate;
-end
-
-
 -- The OnFrame() methods are called automatically by the Gui System once per frame.
--- While the CrossHair:OnFrame() method splits work with UpdateCrosshairMaterial(),
--- the other OnFrame() methods below are entirely self-contained, using Player methods
--- in order to update themselves.
 function CrossHair:OnFrame()
-    if (self.RotateCrosshair) then
+    local MatName, Rotate = gui.Player:GetCrosshairInfo()
+
+    -- The value of MatName is `nil` for "none".
+    self:GetBasics():set("Show", MatName)
+    self:GetComponent("Image"):set("Material", MatName or "")
+
+    if Rotate then
         self:GetTransform():set("Rotation", self:GetTime() * 50.0)
     else
         self:GetTransform():set("Rotation", 0)
@@ -71,25 +86,27 @@ end
 
 
 function InfoHealth:OnFrame()
-    local Health = Player:GetHealth()
+    local Health = gui.Player:get("Health")
 
     InfoHealth:GetComponent("Text"):set("Text", "Health  " .. Health)
 
     -- Set the text color of the Health counter linear to its value.
-    if (Health>100) then Health=100; end;
-    if (Health<  0) then Health=  0; end;
+    if (Health > 100) then Health = 100 end
+    if (Health <   0) then Health =   0 end
 
     InfoHealth:GetComponent("Text"):set("Color", 1.0, Health/100, Health/100)
 end
 
 
 function InfoArmor:OnFrame()
-    InfoArmor:GetComponent("Text"):set("Text", "Armor  " .. Player:GetArmor())
+    InfoArmor:GetComponent("Text"):set("Text", "Armor  " .. gui.Player:get("Armor"))
 end
 
 
+InfoFrags.NumFrags = 0
+
 function InfoFrags:OnFrame()
-    local Frags = Player:GetFrags()
+    local Frags = gui.Player:get("HaveAmmo")[16]    -- This is where the frags count is stored...
 
     InfoFrags:GetComponent("Text"):set("Text", "Frags  " .. Frags)
 
@@ -103,7 +120,7 @@ end
 
 
 function InfoAmmo:OnFrame()
-    local AmmoString = Player:GetAmmoString()
+    local AmmoString = gui.Player:GetAmmoString()
 
     if (#AmmoString == 0) then
         InfoAmmo:GetBasics():set("Show", false)

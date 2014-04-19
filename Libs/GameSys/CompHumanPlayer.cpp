@@ -26,8 +26,15 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CompScript.hpp"
 #include "Entity.hpp"
 #include "World.hpp"
+#include "GuiSys/GuiImpl.hpp"
+#include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix3x3.hpp"
+#include "String.hpp"
 #include "UniScriptState.hpp"
+
+#define GAME_NAME
+#include "../Games/DeathMatch/Code/Constants_AmmoSlots.hpp"
+#include "../Games/DeathMatch/Code/Constants_WeaponSlots.hpp"
 
 extern "C"
 {
@@ -37,6 +44,13 @@ extern "C"
 }
 
 using namespace cf::GameSys;
+
+
+// Constants for m_StateOfExistence.
+static const uint8_t StateOfExistence_Alive           = 0;
+static const uint8_t StateOfExistence_Dead            = 1;
+static const uint8_t StateOfExistence_FrozenSpectator = 2;
+static const uint8_t StateOfExistence_FreeSpectator   = 3;
 
 
 const char* ComponentHumanPlayerT::DocClass =
@@ -74,7 +88,8 @@ ComponentHumanPlayerT::ComponentHumanPlayerT()
       m_ActiveWeaponFrameNr("ActiveWeaponFrameNr", 0.0f),
       m_HaveAmmo("HaveAmmo", 16, 0),
       m_HaveAmmoInWeapons("HaveAmmoInWeapons", 32, 0),
-      m_PlayerCommands()
+      m_PlayerCommands(),
+      m_GuiHUD(NULL)
 {
     FillMemberVars();
 }
@@ -93,7 +108,8 @@ ComponentHumanPlayerT::ComponentHumanPlayerT(const ComponentHumanPlayerT& Comp)
       m_ActiveWeaponFrameNr(Comp.m_ActiveWeaponFrameNr),
       m_HaveAmmo(Comp.m_HaveAmmo),
       m_HaveAmmoInWeapons(Comp.m_HaveAmmoInWeapons),
-      m_PlayerCommands()
+      m_PlayerCommands(),
+      m_GuiHUD(NULL)
 {
     FillMemberVars();
 }
@@ -112,6 +128,100 @@ void ComponentHumanPlayerT::FillMemberVars()
     GetMemberVars().Add(&m_ActiveWeaponFrameNr);
     GetMemberVars().Add(&m_HaveAmmo);
     GetMemberVars().Add(&m_HaveAmmoInWeapons);
+}
+
+
+// The HUD GUI is intentionally not initialized in the constructors above, but only lazily
+// when the GetGui() method is called, because in the constructors it is impossile to know
+// or to learn if this ComponentHumanPlayerT instance is created on the server or the client,
+// and if it is the local, first-person human player, or somebody else.
+IntrusivePtrT<cf::GuiSys::GuiImplT> ComponentHumanPlayerT::GetGuiHUD()
+{
+    if (m_GuiHUD != NULL) return m_GuiHUD;
+
+    // TODO:
+    // if (on server) return NULL;
+    // if (this human player is not first person instance) return NULL;
+
+    static const char* FallbackGUI =
+        "local gui = ...\n"
+        "local Root = gui:new('WindowT', 'Root')\n"
+        "gui:SetRootWindow(Root)\n"
+        "\n"
+        "function Root:OnInit()\n"
+        "    self:GetTransform():set('Pos', 0, 0)\n"
+        "    self:GetTransform():set('Size', 640, 480)\n"
+        "\n"
+        "    local c1 = gui:new('ComponentTextT')\n"
+        "    c1:set('Text', [=====[%s]=====])\n"    // This is intended for use with e.g. wxString::Format().
+        " -- c1:set('Font', 'Fonts/Impact')\n"
+        "    c1:set('Scale', 0.3)\n"
+        "    c1:set('Padding', 0, 0)\n"
+        "    c1:set('Color', 15/255, 49/255, 106/255)\n"
+        " -- c1:set('Alpha', 0.5)\n"
+        "    c1:set('hor. Align', 0)\n"
+        "    c1:set('ver. Align', 0)\n"
+        "\n"
+        "    local c2 = gui:new('ComponentImageT')\n"
+        "    c2:set('Material', '')\n"
+        "    c2:set('Color', 150/255, 170/255, 204/255)\n"
+        "    c2:set('Alpha', 0.7)\n"
+        "\n"
+        "    self:AddComponent(c1, c2)\n"
+        "\n"
+        "    gui:activate      (true)\n"
+        "    gui:setInteractive(false)\n"
+        "    gui:showMouse     (false)\n"
+        "    gui:setFocus      (Root)\n"
+        "end\n";
+
+    WorldT& World = GetEntity()->GetWorld();
+    static const std::string GuiName = "Games/DeathMatch/GUIs/HUD_main.cgui";
+
+    try
+    {
+        m_GuiHUD = new cf::GuiSys::GuiImplT(
+            World.GetScriptState(),
+            World.GetGuiResources());
+
+        // Set the GUI object's "Player" field to the related component instance (`this`),
+        // and the GUI object's "Entity" field to the related entity instance.
+        // Expressed as pseudo code:
+        //     gui.Player = this
+        //     gui.Entity = this->GetEntity()
+        {
+            lua_State*    LuaState = World.GetScriptState().GetLuaState();
+            StackCheckerT StackChecker(LuaState);
+            ScriptBinderT Binder(LuaState);
+
+            Binder.Push(m_GuiHUD);
+            Binder.Push(IntrusivePtrT<ComponentHumanPlayerT>(this));
+            lua_setfield(LuaState, -2, "Player");
+            Binder.Push(IntrusivePtrT<EntityT>(GetEntity()));
+            lua_setfield(LuaState, -2, "Entity");
+            lua_pop(LuaState, 1);
+        }
+
+        m_GuiHUD->LoadScript(GuiName);
+
+        // Active status is not really relevant for our Gui that is not managed by the GuiMan,
+        // but still make sure that clock tick events are properly propagated to all windows.
+        m_GuiHUD->Activate();
+    }
+    catch (const cf::GuiSys::GuiImplT::InitErrorT& IE)
+    {
+        // Need a new GuiImplT instance here, as the one allocated above is in unknown state.
+        m_GuiHUD = new cf::GuiSys::GuiImplT(
+            World.GetScriptState(),
+            World.GetGuiResources());
+
+        // This one must not throw again...
+        m_GuiHUD->LoadScript(
+            cf::String::Replace(FallbackGUI, "%s", "Could not load GUI\n" + GuiName + "\n\n" + IE.what()),
+            cf::GuiSys::GuiImplT::InitFlag_InlineCode);
+    }
+
+    return m_GuiHUD;
 }
 
 
@@ -208,6 +318,171 @@ ComponentHumanPlayerT* ComponentHumanPlayerT::Clone() const
 }
 
 
+void ComponentHumanPlayerT::DoServerFrame(float t)
+{
+    // It is important that we advance the time on the server-side GUI, too, so that it can
+    // for example work off the "pending interpolations" that the GUI scripts can create.
+    //
+    // TODO: Check if this is true, especially in the light of client prediction.
+    //       Maybe we should move all HUD GUI code into its own component, thereby
+    //       isolating it from all other Human Player concerns, especially prediction?!
+    //
+    if (GetGuiHUD() != NULL)
+        GetGuiHUD()->DistributeClockTickEvents(t);
+}
+
+
+void ComponentHumanPlayerT::DoClientFrame(float t)
+{
+    if (GetGuiHUD() != NULL)
+        GetGuiHUD()->DistributeClockTickEvents(t);
+
+    // TODO: Rendering the HUD GUI should probably be moved into some PostRender() method...
+    if (GetGuiHUD() == NULL) return;
+
+    MatSys::Renderer->PushMatrix(MatSys::RendererI::PROJECTION);
+    MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
+    MatSys::Renderer->PushMatrix(MatSys::RendererI::WORLD_TO_VIEW);
+
+    const float zNear = 0.0f;
+    const float zFar  = 1.0f;
+    MatSys::Renderer->SetMatrix(MatSys::RendererI::PROJECTION,     MatrixT::GetProjOrthoMatrix(0.0f, cf::GuiSys::VIRTUAL_SCREEN_SIZE_X, cf::GuiSys::VIRTUAL_SCREEN_SIZE_Y, 0.0f, zNear, zFar));
+    MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());
+    MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW,  MatrixT());
+
+    GetGuiHUD()->Render();
+
+    MatSys::Renderer->PopMatrix(MatSys::RendererI::PROJECTION);
+    MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
+    MatSys::Renderer->PopMatrix(MatSys::RendererI::WORLD_TO_VIEW);
+}
+
+
+static const cf::TypeSys::MethsDocT META_GetCrosshairInfo =
+{
+    "GetCrosshairInfo",
+    "This method is called by the HUD GUI in order to learn which cross-hair should currently be shown.",
+    "string", "()"
+};
+
+int ComponentHumanPlayerT::GetCrosshairInfo(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<ComponentHumanPlayerT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentHumanPlayerT> >(1);
+
+    if (Comp->m_StateOfExistence.Get() != StateOfExistence_Alive)
+        return 0;
+
+    switch (Comp->m_ActiveWeaponSlot.Get())
+    {
+        case WEAPON_SLOT_HORNETGUN:
+        case WEAPON_SLOT_PISTOL:
+        case WEAPON_SLOT_CROSSBOW:
+        case WEAPON_SLOT_357:
+        case WEAPON_SLOT_9MMAR:
+            lua_pushstring(LuaState, "Gui/CrossHair1");
+            return 1;
+
+        case WEAPON_SLOT_SHOTGUN:
+        case WEAPON_SLOT_RPG:
+        case WEAPON_SLOT_GAUSS:
+        case WEAPON_SLOT_EGON:
+            lua_pushstring(LuaState, "Gui/CrossHair2");
+            lua_pushboolean(LuaState, 1);   // Push "true" to have the GUI apply a continuous rotation to the crosshair image.
+            return 2;
+
+        default:
+            // Some weapons just don't have a crosshair.
+            break;
+    }
+
+    return 0;
+}
+
+
+static const cf::TypeSys::MethsDocT META_GetAmmoString =
+{
+    "GetAmmoString",
+    "This method is called by the HUD GUI in order to learn which info should currently be shown in the \"ammo\" field.",
+    "string", "()"
+};
+
+int ComponentHumanPlayerT::GetAmmoString(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<ComponentHumanPlayerT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentHumanPlayerT> >(1);
+
+    // Return an ammo string for the players HUD.
+    if (Comp->m_HaveWeapons.Get() & (1 << Comp->m_ActiveWeaponSlot.Get()))
+    {
+        char PrintBuffer[64];
+
+        // Assignment table to determine which ammo is consumed by each weapon for primary fire (given a weapon slot, determine the ammo slot).
+        // TODO: This is not optimal, ought to be static member function of each weapon???
+        const char GetAmmoSlotForPrimaryFireByWeaponSlot[13] =
+        {
+            AMMO_SLOT_NONE,
+            AMMO_SLOT_NONE,
+            AMMO_SLOT_9MM,
+            AMMO_SLOT_357,
+            AMMO_SLOT_SHELLS,
+            AMMO_SLOT_9MM,
+            AMMO_SLOT_ARROWS,
+            AMMO_SLOT_ROCKETS,
+            AMMO_SLOT_CELLS,
+            AMMO_SLOT_CELLS,
+            AMMO_SLOT_NONE,
+            AMMO_SLOT_NONE,
+            AMMO_SLOT_NONE
+        };
+
+        switch (Comp->m_ActiveWeaponSlot.Get())
+        {
+            case WEAPON_SLOT_BATTLESCYTHE:
+            case WEAPON_SLOT_HORNETGUN:
+                lua_pushstring(LuaState, "");
+                break;
+
+            case WEAPON_SLOT_9MMAR:
+                sprintf(PrintBuffer, "Ammo %2u (%2u) | %u Grenades",
+                        Comp->m_HaveAmmoInWeapons[WEAPON_SLOT_9MMAR],
+                        Comp->m_HaveAmmo[GetAmmoSlotForPrimaryFireByWeaponSlot[WEAPON_SLOT_9MMAR]],
+                        Comp->m_HaveAmmo[AMMO_SLOT_ARGREN]);
+                lua_pushstring(LuaState, PrintBuffer);
+                break;
+
+            case WEAPON_SLOT_FACEHUGGER:
+            case WEAPON_SLOT_GRENADE:
+            case WEAPON_SLOT_RPG:
+            case WEAPON_SLOT_TRIPMINE:
+                sprintf(PrintBuffer, "Ammo %2u",
+                        Comp->m_HaveAmmoInWeapons[Comp->GetActiveWeaponSlot()]);
+                lua_pushstring(LuaState, PrintBuffer);
+                break;
+
+            case WEAPON_SLOT_357:
+            case WEAPON_SLOT_CROSSBOW:
+            case WEAPON_SLOT_EGON:
+            case WEAPON_SLOT_GAUSS:
+            case WEAPON_SLOT_PISTOL:
+            case WEAPON_SLOT_SHOTGUN:
+                sprintf(PrintBuffer, "Ammo %2u (%2u)",
+                        Comp->m_HaveAmmoInWeapons[Comp->GetActiveWeaponSlot()],
+                        Comp->m_HaveAmmo[GetAmmoSlotForPrimaryFireByWeaponSlot[Comp->GetActiveWeaponSlot()]]);
+                lua_pushstring(LuaState, PrintBuffer);
+                break;
+        }
+    }
+    else
+    {
+        // Let the HUD know that we have no weapon.
+        lua_pushstring(LuaState, "");
+    }
+
+    return 1;
+}
+
+
 static const cf::TypeSys::MethsDocT META_toString =
 {
     "__tostring",
@@ -236,12 +511,16 @@ void* ComponentHumanPlayerT::CreateInstance(const cf::TypeSys::CreateParamsT& Pa
 
 const luaL_Reg ComponentHumanPlayerT::MethodsList[] =
 {
-    { "__tostring", toString },
+    { "GetCrosshairInfo", GetCrosshairInfo },
+    { "GetAmmoString",    GetAmmoString },
+    { "__tostring",       toString },
     { NULL, NULL }
 };
 
 const cf::TypeSys::MethsDocT ComponentHumanPlayerT::DocMethods[] =
 {
+    META_GetCrosshairInfo,
+    META_GetAmmoString,
     META_toString,
     { NULL, NULL, NULL, NULL }
 };

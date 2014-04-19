@@ -27,14 +27,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameImpl.hpp"
 #include "Interpolator.hpp"
 #include "PhysicsWorld.hpp"
-#include "Libs/LookupTables.hpp"
 
 #include "../../GameWorld.hpp"
 #include "../../PlayerCommand.hpp"
 #include "ClipSys/ClipWorld.hpp"
 #include "ClipSys/CollisionModelMan.hpp"
 #include "ClipSys/TraceResult.hpp"
-#include "Fonts/Font.hpp"
 #include "GameSys/CompCollisionModel.hpp"
 #include "GameSys/CompHumanPlayer.hpp"
 #include "GameSys/CompModel.hpp"
@@ -86,25 +84,14 @@ void* EntHumanPlayerT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
     return new EntHumanPlayerT(*static_cast<const EntityCreateParamsT*>(&Params));
 }
 
-const luaL_Reg EntHumanPlayerT::MethodsList[]=
-{
-    { "GetHealth",     EntHumanPlayerT::GetHealth },
-    { "GetArmor",      EntHumanPlayerT::GetArmor },
-    { "GetFrags",      EntHumanPlayerT::GetFrags },
-    { "GetCrosshair",  EntHumanPlayerT::GetCrosshair },
-    { "GetAmmoString", EntHumanPlayerT::GetAmmoString },
-    { NULL, NULL }
-};
-
-const cf::TypeSys::TypeInfoT EntHumanPlayerT::TypeInfo(GetBaseEntTIM(), "EntHumanPlayerT", "BaseEntityT", EntHumanPlayerT::CreateInstance, MethodsList);
+const cf::TypeSys::TypeInfoT EntHumanPlayerT::TypeInfo(GetBaseEntTIM(), "EntHumanPlayerT", "BaseEntityT", EntHumanPlayerT::CreateInstance, NULL);
 
 
 EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
                   BoundingBox3dT(Vector3dT( 16.0,  16.0,   4.0),    // A total of 32*32*72 inches, eye height at 68 inches.
                                  Vector3dT(-16.0, -16.0, -68.0)),
-                  NUM_EVENT_TYPES),
-      GuiHUD(NULL)
+                  NUM_EVENT_TYPES)
 {
     // TODO: This must be reconsidered when finally switching to the Component System!
     // // Interpolation is only required for client entities that are not "our" local entity (which is predicted).
@@ -141,26 +128,6 @@ EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
 
     // GameWorld->GetPhysicsWorld().AddRigidBody(m_RigidBody);     // Don't add to the world here - adding/removing is done when State.StateOfExistence changes.
 #endif
-}
-
-
-EntHumanPlayerT::~EntHumanPlayerT()
-{
-    cf::GuiSys::GuiMan->Free(GuiHUD);
-}
-
-
-void EntHumanPlayerT::NotifyLeaveMap()
-{
-    if (GuiHUD != NULL)
-    {
-        cf::GuiSys::GuiMan->Free(GuiHUD);
-
-        GuiHUD->ObsoleteForceKill();
-        assert(GuiHUD->GetRefCount() == 1);
-
-        GuiHUD = NULL;
-    }
 }
 
 
@@ -1084,230 +1051,4 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
 
         GameImplT::GetInstance().GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->ClientSide_HandleStateDrivenEffects(this, CompHP);
     }
-
-
-    if (FirstPersonView)
-    {
-        // Inside the next { ... } block is some leftover of the HUD code as it was *before* it was implemented by means of the GuiSys.
-        // It would be easy to implement this with the below GuiHUD code, too, but I intentionally leave it in for now,
-        // as it demonstrates both the old was well as an alternative (to the GuiSys) way of text output (or "custom rendering").
-        {
-            static FontT HUD_Font1("Fonts/FixedWidth");
-
-            switch (CompHP->GetStateOfExistence())
-            {
-                case StateOfExistence_Dead:
-                    HUD_Font1.Print(50, 1024/2-4, 800.0f, 600.0f, 0x00FF0000, "You're dead.");
-                    break;
-
-                case StateOfExistence_FrozenSpectator:
-                    HUD_Font1.Print(50, 1024/2+16, 800.0f, 600.0f, 0x00FF0000, "Press FIRE (left mouse button) to respawn!");
-                    break;
-            }
-
-            // const int CharWidth=10;
-
-            // HUD_Font1.Print(10+ 0*CharWidth, SingleOpenGLWindow->GetHeight()-16, 0x00FFFFFF, "Health %3u", State.Health);
-            // HUD_Font1.Print(10+16*CharWidth, SingleOpenGLWindow->GetHeight()-16, 0x00FFFFFF, "Armor %3u", State.Armor);
-            // HUD_Font1.Print(10+31*CharWidth, SingleOpenGLWindow->GetHeight()-16, 0x00FFFFFF, "Frags%3i", (signed short)(CompHP->GetHaveAmmo()[AMMO_SLOT_FRAGS]));
-        }
-
-
-        // This is a compromise for the not-so-great code in the constructor:
-        // Obtain a pointer to our GUI if we haven't one already (so this is a one-time issue).
-        if (GuiHUD == NULL)
-        {
-            GuiHUD = cf::GuiSys::GuiMan->Find("Games/DeathMatch/GUIs/HUD_main.cgui", true);
-
-            if (GuiHUD != NULL)
-            {
-                // Bind "this" player entity instance to the global variable "Player" in the GuiHUD script.
-                cf::UniScriptStateT& ScriptState = GuiHUD->GetScriptState();
-                lua_State*           LuaState    = ScriptState.GetLuaState();
-                cf::ScriptBinderT    Binder(LuaState);
-
-                Binder.Init(GetBaseEntTIM());
-
-                // Note that the next line creates a cycle (this -> GuiHUD -> ScriptState -> this) that we must
-                // explicitly break in NotifyLeaveMap(). Without this, the cycle would prevent the destruction
-                // of this entity: its dtor would not run and thus the EntHumanPlayerT would not unregister itself
-                // from the physics world, triggering an assertion.
-                Binder.Push(IntrusivePtrT<EntHumanPlayerT>(this));
-                lua_setglobal(LuaState, "Player");
-            }
-        }
-
-        // GuiHUD could still be NULL, e.g. if the HUD.cgui file could not be found, or if there was a parse error.
-        if (GuiHUD != NULL)
-        {
-            const bool WasActive = GuiHUD->GetIsActive();
-
-            GuiHUD->Activate(CompHP->GetStateOfExistence() == StateOfExistence_Alive || CompHP->GetStateOfExistence() == StateOfExistence_Dead);
-
-            if (!WasActive && GuiHUD->GetIsActive())
-            {
-                // The GuiHUD was just activated for the first time, or re-activated.
-                // As this happened at this particular location (PostDraw()), it didn't receive any calls to
-                // DistributeClockTickEvents() before, and thus its OnFrame() script methods weren't run.
-                // Make up for this now, because the OnFrame() methods possibly set important state that would
-                // otherwise be wrong for the first frame until the normal DistributeClockTickEvents() set in.
-                GuiHUD->DistributeClockTickEvents(0.0f);
-            }
-
-            if (GuiHUD->GetIsActive())
-            {
-                // Update the GuiHUD by a direct call to one of its script functions.
-                // This is mostly for demonstration, and could as well be turned into the CrossHair:OnFrame()
-                // method in the script that in turn calls back using some Player:GetCrosshairInfo() function.
-                // The point is that calls are possible in both directions: from here/C++ to there/script, as
-                // well as from there/script to here/C++.
-                if (CompHP->GetStateOfExistence() == StateOfExistence_Alive)
-                {
-                    switch (CompHP->GetActiveWeaponSlot())
-                    {
-                        case WEAPON_SLOT_HORNETGUN:
-                        case WEAPON_SLOT_PISTOL:
-                        case WEAPON_SLOT_CROSSBOW:
-                        case WEAPON_SLOT_357:
-                        case WEAPON_SLOT_9MMAR:
-                            GuiHUD->GetScriptState().Call("UpdateCrosshairMaterial", "s", "Gui/CrossHair1");
-                            break;
-
-                        case WEAPON_SLOT_SHOTGUN:
-                        case WEAPON_SLOT_RPG:
-                        case WEAPON_SLOT_GAUSS:
-                        case WEAPON_SLOT_EGON:
-                            // The "true" is to have the GUI apply a continuous rotation to the crosshair image.
-                            GuiHUD->GetScriptState().Call("UpdateCrosshairMaterial", "sb", "Gui/CrossHair2", true);
-                            break;
-
-                        default:
-                            // Some weapons just don't have a crosshair.
-                            GuiHUD->GetScriptState().Call("UpdateCrosshairMaterial", "s", "");
-                            break;
-                    }
-                }
-                else GuiHUD->GetScriptState().Call("UpdateCrosshairMaterial", "s", "");
-            }
-        }
-    }
-}
-
-
-int EntHumanPlayerT::GetHealth(lua_State* LuaState)
-{
-    cf::ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<EntHumanPlayerT> Ent = Binder.GetCheckedObjectParam< IntrusivePtrT<EntHumanPlayerT> >(1);
-    IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(Ent->m_Entity->GetComponent("HumanPlayer"));
-
-    lua_pushnumber(LuaState, CompHP->GetHealth());
-    return 1;
-}
-
-
-int EntHumanPlayerT::GetArmor(lua_State* LuaState)
-{
-    cf::ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<EntHumanPlayerT> Ent = Binder.GetCheckedObjectParam< IntrusivePtrT<EntHumanPlayerT> >(1);
-    IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(Ent->m_Entity->GetComponent("HumanPlayer"));
-
-    lua_pushnumber(LuaState, CompHP->GetArmor());
-    return 1;
-}
-
-
-int EntHumanPlayerT::GetFrags(lua_State* LuaState)
-{
-    cf::ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<EntHumanPlayerT> Ent = Binder.GetCheckedObjectParam< IntrusivePtrT<EntHumanPlayerT> >(1);
-    IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(Ent->m_Entity->GetComponent("HumanPlayer"));
-
-    lua_pushnumber(LuaState, (signed short)(CompHP->GetHaveAmmo()[AMMO_SLOT_FRAGS]));
-    return 1;
-}
-
-
-int EntHumanPlayerT::GetCrosshair(lua_State* LuaState)
-{
-    cf::ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<EntHumanPlayerT> Ent = Binder.GetCheckedObjectParam< IntrusivePtrT<EntHumanPlayerT> >(1);
-
-    return 0;
-}
-
-
-int EntHumanPlayerT::GetAmmoString(lua_State* LuaState)
-{
-    cf::ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<EntHumanPlayerT> Ent = Binder.GetCheckedObjectParam< IntrusivePtrT<EntHumanPlayerT> >(1);
-    IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(Ent->m_Entity->GetComponent("HumanPlayer"));
-
-    // Return an ammo string for the players HUD.
-    if (CompHP->GetHaveWeapons() & (1 << CompHP->GetActiveWeaponSlot()))
-    {
-        char PrintBuffer[64];
-
-        // Assignment table to determine which ammo is consumed by each weapon for primary fire (given a weapon slot, determine the ammo slot).
-        // TODO: This is not optimal, ought to be static member function of each weapon???
-        const char GetAmmoSlotForPrimaryFireByWeaponSlot[13] =
-        {
-            AMMO_SLOT_NONE,
-            AMMO_SLOT_NONE,
-            AMMO_SLOT_9MM,
-            AMMO_SLOT_357,
-            AMMO_SLOT_SHELLS,
-            AMMO_SLOT_9MM,
-            AMMO_SLOT_ARROWS,
-            AMMO_SLOT_ROCKETS,
-            AMMO_SLOT_CELLS,
-            AMMO_SLOT_CELLS,
-            AMMO_SLOT_NONE,
-            AMMO_SLOT_NONE,
-            AMMO_SLOT_NONE
-        };
-
-        switch (CompHP->GetActiveWeaponSlot())
-        {
-            case WEAPON_SLOT_BATTLESCYTHE:
-            case WEAPON_SLOT_HORNETGUN:
-                lua_pushstring(LuaState, "");
-                break;
-
-            case WEAPON_SLOT_9MMAR:
-                sprintf(PrintBuffer, "Ammo %2u (%2u) | %u Grenades",
-                        CompHP->GetHaveAmmoInWeapons()[WEAPON_SLOT_9MMAR],
-                        CompHP->GetHaveAmmo()[GetAmmoSlotForPrimaryFireByWeaponSlot[WEAPON_SLOT_9MMAR]],
-                        CompHP->GetHaveAmmo()[AMMO_SLOT_ARGREN]);
-                lua_pushstring(LuaState, PrintBuffer);
-                break;
-
-            case WEAPON_SLOT_FACEHUGGER:
-            case WEAPON_SLOT_GRENADE:
-            case WEAPON_SLOT_RPG:
-            case WEAPON_SLOT_TRIPMINE:
-                sprintf(PrintBuffer, "Ammo %2u",
-                        CompHP->GetHaveAmmoInWeapons()[CompHP->GetActiveWeaponSlot()]);
-                lua_pushstring(LuaState, PrintBuffer);
-                break;
-
-            case WEAPON_SLOT_357:
-            case WEAPON_SLOT_CROSSBOW:
-            case WEAPON_SLOT_EGON:
-            case WEAPON_SLOT_GAUSS:
-            case WEAPON_SLOT_PISTOL:
-            case WEAPON_SLOT_SHOTGUN:
-                sprintf(PrintBuffer, "Ammo %2u (%2u)",
-                        CompHP->GetHaveAmmoInWeapons()[CompHP->GetActiveWeaponSlot()],
-                        CompHP->GetHaveAmmo()[GetAmmoSlotForPrimaryFireByWeaponSlot[CompHP->GetActiveWeaponSlot()]]);
-                lua_pushstring(LuaState, PrintBuffer);
-                break;
-        }
-    }
-    else
-    {
-        // Let the HUD know that we have no weapon.
-        lua_pushstring(LuaState, "");
-    }
-
-    return 1;
 }

@@ -9,12 +9,14 @@
 
 local gui = ...
 local Background = gui:new("WindowT", "Background")
-Background.InfoHealth = gui:new("WindowT", "InfoHealth")
-Background.InfoArmor = gui:new("WindowT", "InfoArmor")
-Background.InfoFrags = gui:new("WindowT", "InfoFrags")
-Background.InfoAmmo = gui:new("WindowT", "InfoAmmo")
-Background.FPS = gui:new("WindowT", "FPS")
-Background.CrossHair = gui:new("WindowT", "CrossHair")
+Background.Message = gui:new("WindowT", "Message")
+Background.InGameDials = gui:new("WindowT", "InGameDials")
+Background.InGameDials.InfoHealth = gui:new("WindowT", "InfoHealth")
+Background.InGameDials.InfoArmor = gui:new("WindowT", "InfoArmor")
+Background.InGameDials.InfoFrags = gui:new("WindowT", "InfoFrags")
+Background.InGameDials.InfoAmmo = gui:new("WindowT", "InfoAmmo")
+Background.InGameDials.FPS = gui:new("WindowT", "FPS")
+Background.InGameDials.CrossHair = gui:new("WindowT", "CrossHair")
 
 
 -- Set the GUIs root window.
@@ -29,12 +31,14 @@ gui:showMouse(false)
 -- Setup the window hierarchy.
 -- ***************************
 
-Background:AddChild(Background.InfoHealth)
-Background:AddChild(Background.InfoArmor)
-Background:AddChild(Background.InfoFrags)
-Background:AddChild(Background.InfoAmmo)
-Background:AddChild(Background.FPS)
-Background:AddChild(Background.CrossHair)
+Background:AddChild(Background.Message)
+Background:AddChild(Background.InGameDials)
+Background.InGameDials:AddChild(Background.InGameDials.InfoHealth)
+Background.InGameDials:AddChild(Background.InGameDials.InfoArmor)
+Background.InGameDials:AddChild(Background.InGameDials.InfoFrags)
+Background.InGameDials:AddChild(Background.InGameDials.InfoAmmo)
+Background.InGameDials:AddChild(Background.InGameDials.FPS)
+Background.InGameDials:AddChild(Background.InGameDials.CrossHair)
 
 
 -- Initialization of the window contents ("constructors").
@@ -52,7 +56,34 @@ function Background:OnInit()
     self:AddComponent(c1)
 end
 
-function Background.InfoHealth:OnInit()
+function Background.Message:OnInit()
+    self:GetTransform():set("Pos", 0, 335)
+    self:GetTransform():set("Size", 640, 36)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Press FIRE (left mouse button) to respawn!")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.25)
+    c1:set("Padding", 40, 0)
+    c1:set("Color", 1, 0, 0)
+    c1:set("Alpha", 1)
+    c1:set("hor. Align", -1)
+    c1:set("ver. Align", 0)
+
+    local c2 = gui:new("ComponentImageT")
+    c2:set("Material", "")
+    c2:set("Color", 0.0627451, 0.0627451, 0.0627451)
+    c2:set("Alpha", 0.7)
+
+    self:AddComponent(c1, c2)
+end
+
+function Background.InGameDials:OnInit()
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 0, 0)
+end
+
+function Background.InGameDials.InfoHealth:OnInit()
     self:GetTransform():set("Pos", 5, 430)
     self:GetTransform():set("Size", 70, 20)
 
@@ -79,7 +110,7 @@ function Background.InfoHealth:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function Background.InfoArmor:OnInit()
+function Background.InGameDials.InfoArmor:OnInit()
     self:GetTransform():set("Pos", 5, 455)
     self:GetTransform():set("Size", 70, 20)
 
@@ -106,7 +137,7 @@ function Background.InfoArmor:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function Background.InfoFrags:OnInit()
+function Background.InGameDials.InfoFrags:OnInit()
     self:GetTransform():set("Pos", 95, 455)
     self:GetTransform():set("Size", 80, 20)
 
@@ -133,7 +164,7 @@ function Background.InfoFrags:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function Background.InfoAmmo:OnInit()
+function Background.InGameDials.InfoAmmo:OnInit()
     self:GetTransform():set("Pos", 465, 455)
     self:GetTransform():set("Size", 170, 20)
 
@@ -160,7 +191,7 @@ function Background.InfoAmmo:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function Background.FPS:OnInit()
+function Background.InGameDials.FPS:OnInit()
     self:GetTransform():set("Pos", 580, 5)
     self:GetTransform():set("Size", 55, 20)
 
@@ -187,7 +218,7 @@ function Background.FPS:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
-function Background.CrossHair:OnInit()
+function Background.InGameDials.CrossHair:OnInit()
     self:GetTransform():set("Pos", 310, 230)
     self:GetTransform():set("Size", 20, 20)
 
