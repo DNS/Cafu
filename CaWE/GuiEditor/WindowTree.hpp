@@ -26,20 +26,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "wx/treectrl.h"
 
-// The following 5 lines force the usage of wxGenericTreeCtrl even on
-// windows where a native treectrl is available.
-// The reason for this is the buggy behavior of the native treectrl
-// when it comes to wxTR_MULTIPLE style.
-// All bugs regarding this are reported and will probably be fixed in
-// the next major wxWidgets version (3.0).
-// See trac entry #4448 and posting "Bug in wxMSW2-8.2 in src/msw/treectrl.cpp"
-// on the mailing list.
-#include "wx/generic/treectlg.h"
-#ifndef wxTreeCtrl
-#define wxTreeCtrl wxGenericTreeCtrl
-#define sm_classwxTreeCtrl sm_classwxGenericTreeCtrl
-#endif
-
 
 namespace cf { namespace GuiSys { class GuiImplT; } }
 namespace cf { namespace GuiSys { class WindowT; } }
