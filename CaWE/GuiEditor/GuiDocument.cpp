@@ -114,6 +114,18 @@ void GuiDocumentT::SetSelection(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT>
 }
 
 
+namespace
+{
+    const char* StripNamespace(const char* ClassName)
+    {
+        if (strncmp(ClassName, "GuiSys::", 8) == 0)
+            return ClassName + 8;
+
+        return ClassName;
+    }
+}
+
+
 // Recursively saves the window instantiation of the passed window and all of its children.
 static void SaveWindowInstantiation(std::ostream& OutFile, IntrusivePtrT<cf::GuiSys::WindowT> Window, const wxString& ParentName)
 {
@@ -123,7 +135,7 @@ static void SaveWindowInstantiation(std::ostream& OutFile, IntrusivePtrT<cf::Gui
         OutFile << "local ";
     }
 
-    OutFile << ParentName << Window->GetBasics()->GetWindowName() << " = gui:new(\"" << Window->GetType()->ClassName << "\", \"" << Window->GetBasics()->GetWindowName() << "\")\n";
+    OutFile << ParentName << Window->GetBasics()->GetWindowName() << " = gui:new(\"" << StripNamespace(Window->GetType()->ClassName) << "\", \"" << Window->GetBasics()->GetWindowName() << "\")\n";
 
     const wxString NewParentName = ParentName + Window->GetBasics()->GetWindowName() + ".";
 
@@ -169,7 +181,7 @@ static void SaveComponents(std::ostream& OutFile, IntrusivePtrT<cf::GuiSys::Wind
         IntrusivePtrT<cf::GuiSys::ComponentBaseT> Comp = Window->GetComponents()[CompNr - 1];
         const ArrayT<cf::TypeSys::VarBaseT*>&     Vars = Comp->GetMemberVars().GetArray();
 
-        OutFile << "    local c" << CompNr << " = gui:new(\"" << Comp->GetType()->ClassName << "\")\n";
+        OutFile << "    local c" << CompNr << " = gui:new(\"" << StripNamespace(Comp->GetType()->ClassName) << "\")\n";
 
         for (unsigned int VarNr = 0; VarNr < Vars.Size(); VarNr++)
         {
