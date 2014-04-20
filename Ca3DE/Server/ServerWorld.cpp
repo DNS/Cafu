@@ -146,6 +146,10 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
 
     m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
 
+    // As we're inserting a new entity into a live map, post-load stuff must be run here.
+    ScriptComp->OnPostLoad(false);
+    ScriptComp->CallLuaMethod("OnInit", 0);
+
     GameEnt->GetStaticEntityData()->m_Properties["classname"] = "HumanPlayer";
     GameEnt->GetStaticEntityData()->m_Properties["name"]      = cf::va("Player%lu", ClientInfoNr+1);     // Setting the name is needed so that player entities can have a corresponding script instance.
  // GameEnt->GetStaticEntityData()->m_Properties["angles"]    = cf::va("0 %lu 0", (unsigned long)(m_World->InfoPlayerStarts[0].Heading/8192.0*45.0));
