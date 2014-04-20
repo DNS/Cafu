@@ -41,11 +41,7 @@ namespace GAME_NAME
 
         EntHumanPlayerT(const EntityCreateParamsT& Params);
 
-        /// Increases the frag count of this entity by the given number.
-        void AddFrag(int NumFrags=1);
-
         // Implement the BaseEntityT interface.
-        void TakeDamage(BaseEntityT* Entity, char Amount, const VectorT& ImpactDir);
         void Think(float FrameTime, unsigned long ServerFrameNr);
 
         void ProcessEvent(unsigned int EventType, unsigned int NumEvents);
