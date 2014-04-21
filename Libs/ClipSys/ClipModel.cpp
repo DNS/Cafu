@@ -46,7 +46,6 @@ ClipModelT::ClipModelT(const ClipWorldT& ClipWorld_, const CollisionModelT* Coll
       CollisionModel(CollisionModel_),
       Origin(),
       Orientation(),
-      UserData(NULL),
       m_Owner(NULL),
       ListOfSectors(NULL),
       IsEnabled(true),
@@ -350,10 +349,4 @@ void ClipModelT::SetOrientation(const cf::math::Matrix3x3T<double>& NewOrientati
     if (ListOfSectors!=NULL) Unregister();
 
     Orientation=NewOrientation;
-}
-
-
-void ClipModelT::SetUserData(void* UD)
-{
-    UserData=UD;
 }

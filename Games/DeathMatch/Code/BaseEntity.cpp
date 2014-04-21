@@ -64,10 +64,7 @@ cf::TypeSys::TypeInfoManT& GAME_NAME::GetBaseEntTIM()
 BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT& Dimensions, const unsigned int NUM_EVENT_TYPES)
     : ID(Params.ID),
       Properties(Params.Properties),
-      ParentID(0xFFFFFFFF),
       m_Entity(Params.Entity),
-      CollisionModel(NULL),
-      ClipModel(Params.GameWorld->GetClipWorld()),  // Creates a clip model in the given clip world with a NULL collision model.
 
       m_Dimensions(Dimensions),
       m_EventsCount(),
@@ -82,9 +79,6 @@ BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT
         m_EventsCount[i] = 0;
         m_EventsRef  [i] = 0;
     }
-
-    ClipModel.SetCollisionModel(CollisionModel);
-    ClipModel.SetUserData(this);    // As user data of the clip model, set to pointer back to us, the owner of the clip model (the clip model is the member of "this" entity).
 }
 
 
@@ -92,10 +86,6 @@ BaseEntityT::~BaseEntityT()
 {
     for (unsigned int i = 0; i < m_Interpolators.Size(); i++)
         delete m_Interpolators[i];
-
-    ClipModel.SetCollisionModel(NULL);
-    ClipModel.SetUserData(NULL);
-    cf::ClipSys::CollModelMan->FreeCM(CollisionModel);
 }
 
 

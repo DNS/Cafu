@@ -607,36 +607,8 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                         if (ClipModels[ClipModelNr]->GetContents(Test1, Radius, MaterialT::Clip_Trigger) == 0 &&
                             ClipModels[ClipModelNr]->GetContents(Test2, Radius, MaterialT::Clip_Trigger) == 0) continue;
 
-                        BaseEntityT* TriggerEntity=static_cast<BaseEntityT*>(ClipModels[ClipModelNr]->GetUserData());
-
-                        // TODO: if (another clip model already triggered TriggerEntity) continue;
-                        //       *or* pass ClipModels[ClipModelNr] as another parameter to TriggerEntity->OnTrigger().
-
-                        // Ok, we're inside this trigger.
-                        // static unsigned long TriggCount=0;
-                        // printf("You're inside the trigger. %lu, %i\n", TriggCount++, ThinkingOnServerSide);
-
-                        // Don't call   ScriptState->CallEntityMethod(TriggerEntity, "OnTrigger", "E", this);
-                        // directly, but rather leave that to   TriggerEntity->OnTrigger(this);   so that the C++
-                        // code has a chance to override.
-                        if (TriggerEntity)
-                        {
-                            // Still needed for FuncDoor entities...
-                            TriggerEntity->OnTrigger(this);
-
-                            // Still needed for ClipModels in old-style entities, especially those with brushwork from map files...
-                            IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = dynamic_pointer_cast<cf::GameSys::ComponentScriptT>(TriggerEntity->m_Entity->GetComponent("Script"));
-                            if (ScriptComp == NULL) continue;
-
-                            cf::UniScriptStateT& ScriptState = TriggerEntity->m_Entity->GetWorld().GetScriptState();
-                            lua_State*           LuaState    = ScriptState.GetLuaState();
-                            cf::ScriptBinderT    Binder(LuaState);
-
-                            Binder.Push(this->m_Entity);
-                            ScriptComp->CallLuaMethod("OnTrigger", 1);
-                        }
-
-
+                        // TODO: if (another clip model already triggered Owner's entity) continue;
+                        //       *or* pass ClipModels[ClipModelNr] as another parameter to ScriptComp:OnTrigger().
                         cf::GameSys::ComponentBaseT* Owner = ClipModels[ClipModelNr]->GetOwner();
                         if (Owner == NULL) continue;
 
@@ -790,14 +762,16 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     // First, create a BB of dimensions (-300.0, -300.0, -100.0) - (300.0, 300.0, 100.0).
                     const BoundingBox3T<double> ClearingBB(VectorT(m_Dimensions.Min.x, m_Dimensions.Min.y, -m_Dimensions.Max.z), m_Dimensions.Max);
 
+                    cf::ClipSys::ClipModelT* IgnorePlayerClipModel = NULL;  // TODO!
+
                     // Move ClearingBB up to a reasonable height (if possible!), such that the *full* BB (that is, m_Dimensions) is clear of (not stuck in) solid.
                     cf::ClipSys::TraceResultT Result(1.0);
-                    m_Entity->GetWorld().GetClipWorld()->TraceBoundingBox(ClearingBB, OurNewOrigin, VectorT(0.0, 0.0, 120.0), MaterialT::Clip_Players, &ClipModel, Result);
+                    m_Entity->GetWorld().GetClipWorld()->TraceBoundingBox(ClearingBB, OurNewOrigin, VectorT(0.0, 0.0, 120.0), MaterialT::Clip_Players, IgnorePlayerClipModel, Result);
                     const double AddHeight=120.0*Result.Fraction;
 
                     // Move ClearingBB down as far as possible.
                     Result=cf::ClipSys::TraceResultT(1.0);
-                    m_Entity->GetWorld().GetClipWorld()->TraceBoundingBox(ClearingBB, OurNewOrigin+VectorT(0.0, 0.0, AddHeight), VectorT(0.0, 0.0, -1000.0), MaterialT::Clip_Players, &ClipModel, Result);
+                    m_Entity->GetWorld().GetClipWorld()->TraceBoundingBox(ClearingBB, OurNewOrigin+VectorT(0.0, 0.0, AddHeight), VectorT(0.0, 0.0, -1000.0), MaterialT::Clip_Players, IgnorePlayerClipModel, Result);
                     const double SubHeight=1000.0*Result.Fraction;
 
                     // Beachte: Hier für Epsilon 1.0 (statt z.B. 1.23456789) zu wählen hebt u.U. GENAU den (0 0 -1) Test in
