@@ -29,6 +29,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameSys/CompParticleSystemOld.hpp"
 #include "GameSys/CompPlayerPhysics.hpp"
 #include "GameSys/CompScript.hpp"
+#include "GameSys/EntityCreateParams.hpp"
+#include "GameSys/World.hpp"
 #include "Math3D/Angles.hpp"
 #include "Models/ModelManager.hpp"
 #include "SoundSystem/SoundSys.hpp"
@@ -103,41 +105,31 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, Intrusi
                     // Especially does a heading and pitch of 45° NOT correspond to the view vector (1, 1, 1), and vice versa!
                     // Think carefully about this before changing the number 41.0 below (which actually is 2.0*(16.0+4.0) (+1.0 for "safety")).
                     const VectorT FaceHuggerOrigin(HumanPlayer->GetOriginWS() + scale(ViewDir, 41.0)+scale(HumanPlayer->GetPlayerVelocity(), double(PlayerCommand.FrameTime)));
-                    std::map<std::string, std::string> Props;
 
-                    Props["classname"]="monster_facehugger";
+                    IntrusivePtrT<cf::GameSys::EntityT> Ent = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(HumanPlayer->GetEntity()->GetWorld()));
+                    HumanPlayer->GetEntity()->GetWorld().GetRootEntity()->AddChild(Ent);
 
-                    unsigned long FaceHuggerID=Player->GameWorld->CreateNewEntity(Props, ServerFrameNr, FaceHuggerOrigin);
+                    Ent->GetBasics()->SetEntityName("FaceHugger");
+                    Ent->GetTransform()->SetOriginWS(FaceHuggerOrigin.AsVectorOfFloat());
+                    Ent->GetTransform()->SetQuatWS(Player->m_Entity->GetTransform()->GetQuatWS());
 
-                    if (FaceHuggerID!=0xFFFFFFFF)
-                    {
-                        IntrusivePtrT<BaseEntityT> FaceHugger = dynamic_pointer_cast<BaseEntityT>(Player->GameWorld->GetGameEntityByID(FaceHuggerID));
-                        IntrusivePtrT<cf::GameSys::EntityT> Ent = FaceHugger->m_Entity;
+                    IntrusivePtrT<cf::GameSys::ComponentModelT> ModelComp = new cf::GameSys::ComponentModelT();
+                    ModelComp->SetMember("Name", std::string("Games/DeathMatch/Models/LifeForms/FaceHugger/FaceHugger.cmdl"));
+                    Ent->AddComponent(ModelComp);
 
-                        Ent->GetTransform()->SetOriginWS(FaceHuggerOrigin.AsVectorOfFloat());
-                        Ent->GetTransform()->SetQuatWS(Player->m_Entity->GetTransform()->GetQuatWS());
+                    IntrusivePtrT<cf::GameSys::ComponentPlayerPhysicsT> PlayerPhysicsComp = new cf::GameSys::ComponentPlayerPhysicsT();
+                    PlayerPhysicsComp->SetMember("Velocity", HumanPlayer->GetPlayerVelocity() + scale(ViewDir, 280.0));
+                    PlayerPhysicsComp->SetMember("Dimensions", BoundingBox3dT(Vector3dT( 4.0,  4.0, 4.0), Vector3dT(-4.0, -4.0, 0.0)));
+                    Ent->AddComponent(PlayerPhysicsComp);
 
-                        IntrusivePtrT<cf::GameSys::ComponentModelT> ModelComp = new cf::GameSys::ComponentModelT();
-                        ModelComp->SetMember("Name", std::string("Games/DeathMatch/Models/LifeForms/FaceHugger/FaceHugger.cmdl"));
-                        Ent->AddComponent(ModelComp);
+                    IntrusivePtrT<cf::GameSys::ComponentParticleSystemOldT> PaSysComp = new cf::GameSys::ComponentParticleSystemOldT();
+                    PaSysComp->SetMember("Type", std::string("FaceHugger"));
+                    Ent->AddComponent(PaSysComp);
 
-                        IntrusivePtrT<cf::GameSys::ComponentPlayerPhysicsT> PlayerPhysicsComp = new cf::GameSys::ComponentPlayerPhysicsT();
-                        PlayerPhysicsComp->SetMember("Velocity", HumanPlayer->GetPlayerVelocity() + scale(ViewDir, 280.0));
-                        PlayerPhysicsComp->SetMember("Dimensions", BoundingBox3dT(Vector3dT( 4.0,  4.0, 4.0), Vector3dT(-4.0, -4.0, 0.0)));
-                        Ent->AddComponent(PlayerPhysicsComp);
-
-                        IntrusivePtrT<cf::GameSys::ComponentParticleSystemOldT> PaSysComp = new cf::GameSys::ComponentParticleSystemOldT();
-                        PaSysComp->SetMember("Type", std::string("FaceHugger"));
-                        Ent->AddComponent(PaSysComp);
-
-                        IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
-                        ScriptComp->SetMember("Name", std::string("Games/DeathMatch/Scripts/FaceHugger.lua"));
-                        Ent->AddComponent(ScriptComp);
-
-                        // As we're inserting a new entity into a live map, post-load stuff must be run here.
-                        ScriptComp->OnPostLoad(false);
-                        ScriptComp->CallLuaMethod("OnInit", 0);
-                    }
+                    // Note that any post-load stuff is automatically run by the `CaServerWorldT` implementation.
+                    IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
+                    ScriptComp->SetMember("Name", std::string("Games/DeathMatch/Scripts/FaceHugger.lua"));
+                    Ent->AddComponent(ScriptComp);
                 }
                 break;
             }

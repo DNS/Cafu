@@ -28,7 +28,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Interpolator.hpp"
 #include "PhysicsWorld.hpp"
 
-#include "../../GameWorld.hpp"
 #include "../../PlayerCommand.hpp"
 #include "ClipSys/ClipWorld.hpp"
 #include "ClipSys/CollisionModelMan.hpp"
@@ -38,6 +37,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameSys/CompModel.hpp"
 #include "GameSys/CompPlayerPhysics.hpp"
 #include "GameSys/CompScript.hpp"
+#include "GameSys/EntityCreateParams.hpp"
 #include "GameSys/World.hpp"
 #include "GuiSys/GuiImpl.hpp"
 #include "GuiSys/GuiManImpl.hpp"
@@ -487,18 +487,16 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
 
                 // Check if we touched another entity.
-                const ArrayT<unsigned long>& AllEntityIDs=GameWorld->GetAllEntityIDs();
+                ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
 
-                for (unsigned long EntityIDNr=0; EntityIDNr<AllEntityIDs.Size(); EntityIDNr++)
+                m_Entity->GetWorld().GetRootEntity()->GetAll(AllEnts);
+
+                for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
                 {
-                    IntrusivePtrT<BaseEntityT> OtherEntity=static_pointer_cast<BaseEntityT>(GameWorld->GetGameEntityByID(AllEntityIDs[EntityIDNr]));
-
-                    if (OtherEntity    ==NULL) continue;
-                    if (OtherEntity->ID==  ID) continue;    // We don't touch us ourselves.
-
+                    if (AllEnts[EntNr] == m_Entity) continue;   // We don't touch us ourselves.
 
                     // Test if maybe we're near a static detail model with an interactive GUI.
-                    const ArrayT< IntrusivePtrT<cf::GameSys::ComponentBaseT> >& Components = OtherEntity->m_Entity->GetComponents();
+                    const ArrayT< IntrusivePtrT<cf::GameSys::ComponentBaseT> >& Components = AllEnts[EntNr]->GetComponents();
 
                     // TODO: We iterate over each component of each entity here... can this somehow be reduced?
                     for (unsigned int CompNr = 0; CompNr < Components.Size(); CompNr++)
@@ -596,7 +594,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     AbsBB.Min += m_Entity->GetTransform()->GetOriginWS().AsVectorOfDouble();
                     AbsBB.Max += m_Entity->GetTransform()->GetOriginWS().AsVectorOfDouble();
 
-                    GameWorld->GetClipWorld().GetClipModelsFromBB(ClipModels, MaterialT::Clip_Trigger, AbsBB);
+                    m_Entity->GetWorld().GetClipWorld()->GetClipModelsFromBB(ClipModels, MaterialT::Clip_Trigger, AbsBB);
                     // printf("%lu clip models in AbsBB.\n", ClipModels.Size());
 
                     const double    Radius     = (m_Dimensions.Max.x - m_Dimensions.Min.x) / 2.0;
@@ -724,16 +722,13 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     if (ThinkingOnServerSide)
                     {
                         const Vector3fT Origin = m_Entity->GetTransform()->GetOriginWS();
-                        std::map<std::string, std::string> Props; Props["classname"]="corpse";
-
-                        // Create a new "corpse" entity in the place where we died, or else the model disappears.
-                        unsigned long CorpseID = GameWorld->CreateNewEntity(Props, ServerFrameNr, Origin.AsVectorOfDouble());
                         IntrusivePtrT<cf::GameSys::ComponentModelT> PlayerModelComp = dynamic_pointer_cast<cf::GameSys::ComponentModelT>(m_Entity->GetComponent("Model"));
 
-                        if (CorpseID != 0xFFFFFFFF && PlayerModelComp != NULL)
+                        // Create a new "corpse" entity in the place where we died, or else the model disappears.
+                        if (PlayerModelComp != NULL)
                         {
-                            IntrusivePtrT<BaseEntityT> Corpse = dynamic_pointer_cast<BaseEntityT>(GameWorld->GetGameEntityByID(CorpseID));
-                            IntrusivePtrT<cf::GameSys::EntityT> Ent = Corpse->m_Entity;
+                            IntrusivePtrT<cf::GameSys::EntityT> Ent = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(m_Entity->GetWorld()));
+                            m_Entity->GetWorld().GetRootEntity()->AddChild(Ent);
 
                             Ent->GetTransform()->SetOriginWS(Origin);
                             Ent->GetTransform()->SetQuatWS(m_Entity->GetTransform()->GetQuatWS());
@@ -778,34 +773,31 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 //       These are the same technics that also apply to the "jump"-button.
                 if ((PlayerCommands[PCNr].Keys & PCK_Fire1)==0) break;  // "Fire" button not pressed.
 
-                const ArrayT<unsigned long>& AllEntityIDs=GameWorld->GetAllEntityIDs();
-                IntrusivePtrT<BaseEntityT>   IPSEntity;
-                VectorT                      OurNewOrigin;
-                unsigned long                EntityIDNr;
+                ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
+                m_Entity->GetWorld().GetRootEntity()->GetAll(AllEnts);
 
                 // The "Fire"-button was pressed. Now try to determine a free "InfoPlayerStart" entity for respawning there.
-                for (EntityIDNr=0; EntityIDNr<AllEntityIDs.Size(); EntityIDNr++)
+                for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
                 {
-                    IPSEntity=static_pointer_cast<BaseEntityT>(GameWorld->GetGameEntityByID(AllEntityIDs[EntityIDNr]));
-                    if (IPSEntity==NULL) continue;
+                    IntrusivePtrT<cf::GameSys::EntityT> IPSEntity = AllEnts[EntNr];
 
-                    if (IPSEntity->m_Entity->GetComponent("PlayerStart") == NULL) continue;
+                    if (IPSEntity->GetComponent("PlayerStart") == NULL) continue;
 
                     // This is actually an "InfoPlayerStart" entity. Now try to put our own bounding box at the origin of 'IPSEntity',
                     // but try to correct/choose the height such that we are on ground (instead of hovering above it).
-                    OurNewOrigin = IPSEntity->m_Entity->GetTransform()->GetOriginWS().AsVectorOfDouble();
+                    Vector3dT OurNewOrigin = IPSEntity->GetTransform()->GetOriginWS().AsVectorOfDouble();
 
                     // First, create a BB of dimensions (-300.0, -300.0, -100.0) - (300.0, 300.0, 100.0).
                     const BoundingBox3T<double> ClearingBB(VectorT(m_Dimensions.Min.x, m_Dimensions.Min.y, -m_Dimensions.Max.z), m_Dimensions.Max);
 
                     // Move ClearingBB up to a reasonable height (if possible!), such that the *full* BB (that is, m_Dimensions) is clear of (not stuck in) solid.
                     cf::ClipSys::TraceResultT Result(1.0);
-                    GameWorld->GetClipWorld().TraceBoundingBox(ClearingBB, OurNewOrigin, VectorT(0.0, 0.0, 120.0), MaterialT::Clip_Players, &ClipModel, Result);
+                    m_Entity->GetWorld().GetClipWorld()->TraceBoundingBox(ClearingBB, OurNewOrigin, VectorT(0.0, 0.0, 120.0), MaterialT::Clip_Players, &ClipModel, Result);
                     const double AddHeight=120.0*Result.Fraction;
 
                     // Move ClearingBB down as far as possible.
                     Result=cf::ClipSys::TraceResultT(1.0);
-                    GameWorld->GetClipWorld().TraceBoundingBox(ClearingBB, OurNewOrigin+VectorT(0.0, 0.0, AddHeight), VectorT(0.0, 0.0, -1000.0), MaterialT::Clip_Players, &ClipModel, Result);
+                    m_Entity->GetWorld().GetClipWorld()->TraceBoundingBox(ClearingBB, OurNewOrigin+VectorT(0.0, 0.0, AddHeight), VectorT(0.0, 0.0, -1000.0), MaterialT::Clip_Players, &ClipModel, Result);
                     const double SubHeight=1000.0*Result.Fraction;
 
                     // Beachte: Hier für Epsilon 1.0 (statt z.B. 1.23456789) zu wählen hebt u.U. GENAU den (0 0 -1) Test in
@@ -826,35 +818,37 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     OurBB.Max+=OurNewOrigin;
 
                     ArrayT<cf::ClipSys::ClipModelT*> ClipModels;
-                    GameWorld->GetClipWorld().GetClipModelsFromBB(ClipModels, MaterialT::Clip_Players, OurBB);
+                    m_Entity->GetWorld().GetClipWorld()->GetClipModelsFromBB(ClipModels, MaterialT::Clip_Players, OurBB);
 
-                    if (ClipModels.Size()==0) break;
+                    if (ClipModels.Size() == 0)
+                    {
+                        // A suitable "InfoPlayerStart" entity was found -- respawn!
+                        m_Entity->GetTransform()->SetOriginWS(OurNewOrigin.AsVectorOfFloat());
+                        m_Entity->GetTransform()->SetQuatWS(IPSEntity->GetTransform()->GetQuatWS());  // TODO: Can we make sure that the z-axis points straight up, i.e. bank and pitch are 0?
+                        m_Entity->GetChildren()[0]->GetTransform()->SetQuatPS(cf::math::QuaternionfT());
+                        m_Dimensions             =BoundingBox3dT(Vector3dT(16.0, 16.0, 4.0), Vector3dT(-16.0, -16.0, -68.0));
+                        CompHP->SetStateOfExistence(StateOfExistence_Alive);
+                        Model3rdPerson->SetMember("Animation", 0);
+                        CompHP->SetHealth(100);
+                        CompHP->SetArmor(0);
+                        CompHP->SetHaveItems(0);
+                        CompHP->SetHaveWeapons(0);
+                        CompHP->SetActiveWeaponSlot(0);
+                        CompHP->SetActiveWeaponSequNr(0);
+                        CompHP->SetActiveWeaponFrameNr(0.0f);
+
+                        IntrusivePtrT<cf::GameSys::ComponentCollisionModelT> CompCollMdl = dynamic_pointer_cast<cf::GameSys::ComponentCollisionModelT>(m_Entity->GetComponent("CollisionModel"));
+
+                        if (CompCollMdl != NULL)
+                            CompCollMdl->SetBoundingBox(m_Dimensions, "Textures/meta/collisionmodel");
+
+                        for (char Nr=0; Nr<15; Nr++) CompHP->GetHaveAmmo()[Nr]=0;   // IMPORTANT: Do not clear the frags value in 'HaveAmmo[AMMO_SLOT_FRAGS]'!
+                        for (char Nr=0; Nr<32; Nr++) CompHP->GetHaveAmmoInWeapons()[Nr]=0;
+
+                        break;
+                    }
                 }
 
-                if (EntityIDNr>=AllEntityIDs.Size()) break;     // No suitable "InfoPlayerStart" entity found!
-
-                // Respawn!
-                m_Entity->GetTransform()->SetOriginWS(OurNewOrigin.AsVectorOfFloat());
-                m_Entity->GetTransform()->SetQuatWS(IPSEntity->m_Entity->GetTransform()->GetQuatWS());  // TODO: Can we make sure that the z-axis points straight up, i.e. bank and pitch are 0?
-                m_Entity->GetChildren()[0]->GetTransform()->SetQuatPS(cf::math::QuaternionfT());
-                m_Dimensions             =BoundingBox3dT(Vector3dT(16.0, 16.0, 4.0), Vector3dT(-16.0, -16.0, -68.0));
-                CompHP->SetStateOfExistence(StateOfExistence_Alive);
-                Model3rdPerson->SetMember("Animation", 0);
-                CompHP->SetHealth(100);
-                CompHP->SetArmor(0);
-                CompHP->SetHaveItems(0);
-                CompHP->SetHaveWeapons(0);
-                CompHP->SetActiveWeaponSlot(0);
-                CompHP->SetActiveWeaponSequNr(0);
-                CompHP->SetActiveWeaponFrameNr(0.0f);
-
-                IntrusivePtrT<cf::GameSys::ComponentCollisionModelT> CompCollMdl = dynamic_pointer_cast<cf::GameSys::ComponentCollisionModelT>(m_Entity->GetComponent("CollisionModel"));
-
-                if (CompCollMdl != NULL)
-                    CompCollMdl->SetBoundingBox(m_Dimensions, "Textures/meta/collisionmodel");
-
-                for (char Nr=0; Nr<15; Nr++) CompHP->GetHaveAmmo()[Nr]=0;   // IMPORTANT: Do not clear the frags value in 'HaveAmmo[AMMO_SLOT_FRAGS]'!
-                for (char Nr=0; Nr<32; Nr++) CompHP->GetHaveAmmoInWeapons()[Nr]=0;
                 break;
             }
 
@@ -869,7 +863,6 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
 void EntHumanPlayerT::ProcessEvent(unsigned int EventType, unsigned int /*NumEvents*/)
 {
-    // GameWorld->PrintDebug("Entity %3u: ProcessEvent(%u)", TypeID, EventID);
     IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(m_Entity->GetComponent("HumanPlayer"));
 
     switch (EventType)

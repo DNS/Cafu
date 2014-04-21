@@ -31,6 +31,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameSys/CompPlayerPhysics.hpp"
 #include "GameSys/CompScript.hpp"
 #include "GameSys/CompSound.hpp"
+#include "GameSys/EntityCreateParams.hpp"
+#include "GameSys/World.hpp"
 #include "Math3D/Angles.hpp"
 #include "Models/ModelManager.hpp"
 #include "SoundSystem/SoundSys.hpp"
@@ -124,59 +126,48 @@ void CarriedWeaponGrenadeT::ServerSide_Think(EntHumanPlayerT* Player, IntrusiveP
                     // Especially does a heading and pitch of 45° NOT correspond to the view vector (1, 1, 1), and vice versa!
                     // Think carefully about this before changing the number 42.0 below (which actually is 2.0*(16.0+4.5) (+1.0 for "safety")).
                     const VectorT HandGrenadeOrigin(HumanPlayer->GetOriginWS() + VectorT(0.0, 0.0, 10.0)+scale(ViewDir, 42.0)+scale(HumanPlayer->GetPlayerVelocity(), double(PlayerCommand.FrameTime)));
-                    std::map<std::string, std::string> Props;
 
-                    Props["classname"]="monster_handgrenade";
+                    IntrusivePtrT<cf::GameSys::EntityT> Ent = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(HumanPlayer->GetEntity()->GetWorld()));
+                    HumanPlayer->GetEntity()->GetWorld().GetRootEntity()->AddChild(Ent);
 
-                    unsigned long HandGrenadeID=Player->GameWorld->CreateNewEntity(Props, ServerFrameNr, HandGrenadeOrigin);
+                    Ent->GetBasics()->SetEntityName("HandGrenade");
+                    Ent->GetTransform()->SetOriginWS(HandGrenadeOrigin.AsVectorOfFloat());
+                    Ent->GetTransform()->SetQuatWS(Player->m_Entity->GetTransform()->GetQuatWS());
 
-                    if (HandGrenadeID!=0xFFFFFFFF)
-                    {
-                        IntrusivePtrT<BaseEntityT> HandGrenade = dynamic_pointer_cast<BaseEntityT>(Player->GameWorld->GetGameEntityByID(HandGrenadeID));
-                        IntrusivePtrT<cf::GameSys::EntityT> Ent = HandGrenade->m_Entity;
+                    IntrusivePtrT<cf::GameSys::ComponentModelT> ModelComp = new cf::GameSys::ComponentModelT();
+                    ModelComp->SetMember("Name", std::string("Games/DeathMatch/Models/Weapons/Grenade/Grenade_w.cmdl"));
+                    Ent->AddComponent(ModelComp);
 
-                        Ent->GetBasics()->SetEntityName("HandGrenade");
-                        Ent->GetTransform()->SetOriginWS(HandGrenadeOrigin.AsVectorOfFloat());
-                        Ent->GetTransform()->SetQuatWS(Player->m_Entity->GetTransform()->GetQuatWS());
+                    IntrusivePtrT<cf::GameSys::ComponentPlayerPhysicsT> PlayerPhysicsComp = new cf::GameSys::ComponentPlayerPhysicsT();
+                    PlayerPhysicsComp->SetMember("Velocity", HumanPlayer->GetPlayerVelocity() + scale(ViewDir, 400.0));
+                    PlayerPhysicsComp->SetMember("Dimensions", BoundingBox3dT(Vector3dT(3.0, 3.0, 6.0), Vector3dT(-3.0, -3.0, 0.0)));
+                    Ent->AddComponent(PlayerPhysicsComp);
 
-                        IntrusivePtrT<cf::GameSys::ComponentModelT> ModelComp = new cf::GameSys::ComponentModelT();
-                        ModelComp->SetMember("Name", std::string("Games/DeathMatch/Models/Weapons/Grenade/Grenade_w.cmdl"));
-                        Ent->AddComponent(ModelComp);
+                    IntrusivePtrT<cf::GameSys::ComponentParticleSystemOldT> PaSysComp1 = new cf::GameSys::ComponentParticleSystemOldT();
+                    PaSysComp1->SetMember("Type", std::string("HandGrenade_Expl_main"));
+                    Ent->AddComponent(PaSysComp1);
 
-                        IntrusivePtrT<cf::GameSys::ComponentPlayerPhysicsT> PlayerPhysicsComp = new cf::GameSys::ComponentPlayerPhysicsT();
-                        PlayerPhysicsComp->SetMember("Velocity", HumanPlayer->GetPlayerVelocity() + scale(ViewDir, 400.0));
-                        PlayerPhysicsComp->SetMember("Dimensions", BoundingBox3dT(Vector3dT(3.0, 3.0, 6.0), Vector3dT(-3.0, -3.0, 0.0)));
-                        Ent->AddComponent(PlayerPhysicsComp);
+                    IntrusivePtrT<cf::GameSys::ComponentParticleSystemOldT> PaSysComp2 = new cf::GameSys::ComponentParticleSystemOldT();
+                    PaSysComp2->SetMember("Type", std::string("HandGrenade_Expl_sparkle"));
+                    Ent->AddComponent(PaSysComp2);
 
-                        IntrusivePtrT<cf::GameSys::ComponentParticleSystemOldT> PaSysComp1 = new cf::GameSys::ComponentParticleSystemOldT();
-                        PaSysComp1->SetMember("Type", std::string("HandGrenade_Expl_main"));
-                        Ent->AddComponent(PaSysComp1);
+                    IntrusivePtrT<cf::GameSys::ComponentPointLightT> LightComp = new cf::GameSys::ComponentPointLightT();
+                    LightComp->SetMember("On", false);
+                    LightComp->SetMember("Color", Vector3fT(1.0f, 1.0f, 1.0f));
+                    LightComp->SetMember("Radius", 400.0f);
+                    LightComp->SetMember("ShadowType", int(cf::GameSys::ComponentPointLightT::VarShadowTypeT::STENCIL));
+                    Ent->AddComponent(LightComp);
 
-                        IntrusivePtrT<cf::GameSys::ComponentParticleSystemOldT> PaSysComp2 = new cf::GameSys::ComponentParticleSystemOldT();
-                        PaSysComp2->SetMember("Type", std::string("HandGrenade_Expl_sparkle"));
-                        Ent->AddComponent(PaSysComp2);
+                    IntrusivePtrT<cf::GameSys::ComponentSoundT> SoundComp = new cf::GameSys::ComponentSoundT();
+                    SoundComp->SetMember("Name", std::string("Weapon/Shotgun_dBarrel"));
+                    SoundComp->SetMember("AutoPlay", false);
+                    Ent->AddComponent(SoundComp);
 
-                        IntrusivePtrT<cf::GameSys::ComponentPointLightT> LightComp = new cf::GameSys::ComponentPointLightT();
-                        LightComp->SetMember("On", false);
-                        LightComp->SetMember("Color", Vector3fT(1.0f, 1.0f, 1.0f));
-                        LightComp->SetMember("Radius", 400.0f);
-                        LightComp->SetMember("ShadowType", int(cf::GameSys::ComponentPointLightT::VarShadowTypeT::STENCIL));
-                        Ent->AddComponent(LightComp);
-
-                        IntrusivePtrT<cf::GameSys::ComponentSoundT> SoundComp = new cf::GameSys::ComponentSoundT();
-                        SoundComp->SetMember("Name", std::string("Weapon/Shotgun_dBarrel"));
-                        SoundComp->SetMember("AutoPlay", false);
-                        Ent->AddComponent(SoundComp);
-
-                        IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
-                        ScriptComp->SetMember("Name", std::string("Games/DeathMatch/Scripts/Grenade.lua"));
-                        ScriptComp->SetMember("ScriptCode", std::string("local Grenade = ...\nGrenade.LightDuration = 0.5\n"));
-                        Ent->AddComponent(ScriptComp);
-
-                        // As we're inserting a new entity into a live map, post-load stuff must be run here.
-                        ScriptComp->OnPostLoad(false);
-                        ScriptComp->CallLuaMethod("OnInit", 0);
-                    }
+                    // Note that any post-load stuff is automatically run by the `CaServerWorldT` implementation.
+                    IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
+                    ScriptComp->SetMember("Name", std::string("Games/DeathMatch/Scripts/Grenade.lua"));
+                    ScriptComp->SetMember("ScriptCode", std::string("local Grenade = ...\nGrenade.LightDuration = 0.5\n"));
+                    Ent->AddComponent(ScriptComp);
                 }
             }
             break;
