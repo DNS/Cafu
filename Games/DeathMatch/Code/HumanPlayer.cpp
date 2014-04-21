@@ -158,7 +158,7 @@ bool EntHumanPlayerT::CheckGUI(IntrusivePtrT<cf::GameSys::ComponentModelT> CompM
 
 
     // 3. Are we looking roughly into the screen normal?
-    IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(CompModel->GetEntity()->GetComponent("HumanPlayer"));
+    IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(m_Entity->GetComponent("HumanPlayer"));
 
     const Vector3fT GuiNormal = normalize(cross(GuiAxisY, GuiAxisX), 0.0f);
     const Plane3fT  GuiPlane  = Plane3fT(GuiNormal, dot(GuiOrigin, GuiNormal));
