@@ -355,7 +355,7 @@ void EngineEntityT::Draw(bool FirstPersonView, const VectorT& ViewerPos) const
 
     // Set the ambient light color for this entity.
     // Paradoxically, this is not a global, but rather a per-entity value that is derived from the lightmaps that are close to that entity.
-    const Vector3fT AmbientEntityLight=Entity->GetGameWorld()->GetAmbientLightColorFromBB(Entity->GetDimensions(), EntOrigin);
+    const Vector3fT AmbientEntityLight(1.0f, 0.0f, 1.0f);   //  = Entity->GetGameWorld()->GetAmbientLightColorFromBB(Entity->GetDimensions(), EntOrigin);
     MatSys::Renderer->SetCurrentAmbientLightColor(AmbientEntityLight.x, AmbientEntityLight.y, AmbientEntityLight.z);
 
 

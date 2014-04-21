@@ -55,9 +55,6 @@ class GameEntityI : public RefCountedT
     /// Returns the (map unique) ID of this entity.
     virtual unsigned long GetID() const=0;
 
-    /// Returns the game world that this entity is in.
-    virtual cf::GameSys::GameWorldI* GetGameWorld() const=0;
-
     /// Returns the dimensions of this entity.
     virtual const BoundingBox3dT& GetDimensions() const=0;
 

@@ -63,7 +63,6 @@ namespace GAME_NAME
      // ID[]                ChildrenIDs;    // The entities that we have created (e.g. the rockets that a human player fired).
 
         IntrusivePtrT<cf::GameSys::EntityT> m_Entity;       ///< The associated entity in the cf::GameSys::WorldT.
-        cf::GameSys::GameWorldI*            GameWorld;      ///< Pointer to the game world implementation.
         const cf::ClipSys::CollisionModelT* CollisionModel; ///< The collision model of this entity, NULL for none.
         cf::ClipSys::ClipModelT             ClipModel;      ///< The clip model of this entity. Note that clip models can take NULL collision model pointers, so that the ClipModel instance is always non-NULL and available.
 
@@ -81,7 +80,6 @@ namespace GAME_NAME
         // Implement GameEntityI base class methods.
         virtual void NotifyLeaveMap() { }
         virtual unsigned long GetID() const { return ID; }
-        virtual cf::GameSys::GameWorldI* GetGameWorld() const { return GameWorld; }
         virtual const BoundingBox3dT& GetDimensions() const { return m_Dimensions; }
         virtual void GetBodyOrientation(unsigned short& h, unsigned short& p, unsigned short& b) const { h=0; p=0; b=0; /*TODO: this method is called from obsolete methods only...*/ }
 
