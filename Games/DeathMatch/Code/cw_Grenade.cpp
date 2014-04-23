@@ -21,8 +21,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "cw_Grenade.hpp"
 #include "../../PlayerCommand.hpp"
-#include "../../GameWorld.hpp"
-#include "HumanPlayer.hpp"
 #include "Constants_WeaponSlots.hpp"
 #include "GameSys/CompLightPoint.hpp"
 #include "GameSys/CompModel.hpp"
@@ -30,6 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameSys/CompPlayerPhysics.hpp"
 #include "GameSys/CompScript.hpp"
 #include "GameSys/CompSound.hpp"
+#include "GameSys/Entity.hpp"
 #include "GameSys/EntityCreateParams.hpp"
 #include "GameSys/World.hpp"
 #include "Math3D/Angles.hpp"

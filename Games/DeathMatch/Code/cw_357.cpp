@@ -20,10 +20,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "cw_357.hpp"
-#include "../../GameWorld.hpp"
 #include "../../PlayerCommand.hpp"
 #include "_ResourceManager.hpp"
-#include "HumanPlayer.hpp"
 #include "Constants_AmmoSlots.hpp"
 #include "Constants_WeaponSlots.hpp"
 #include "PhysicsWorld.hpp"
