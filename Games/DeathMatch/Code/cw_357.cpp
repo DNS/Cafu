@@ -53,7 +53,7 @@ CarriedWeapon357T::~CarriedWeapon357T()
 }
 
 
-bool CarriedWeapon357T::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
+bool CarriedWeapon357T::ServerSide_PickedUpByEntity(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
 {
     // Consider if the entity already has this weapon.
     if (HumanPlayer->GetHaveWeapons() & (1 << WEAPON_SLOT_357))
@@ -83,7 +83,7 @@ bool CarriedWeapon357T::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, Int
 }
 
 
-void CarriedWeapon357T::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long /*ServerFrameNr*/, bool AnimSequenceWrap) const
+void CarriedWeapon357T::ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long /*ServerFrameNr*/, bool AnimSequenceWrap) const
 {
     switch (HumanPlayer->GetActiveWeaponSequNr())
     {
@@ -149,7 +149,7 @@ void CarriedWeapon357T::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<
                 HumanPlayer->SetActiveWeaponFrameNr(0.0f);
                 HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_357]--;
 
-                Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
+                HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
 
                 if (ThinkingOnServerSide)
                 {
@@ -215,7 +215,7 @@ static bool ParticleFunction_HitEntity(ParticleMST* Particle, float Time)
 }
 
 
-void CarriedWeapon357T::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT* Player, IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& /*LastSeenAmbientColor*/) const
+void CarriedWeapon357T::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& /*LastSeenAmbientColor*/) const
 {
     const Vector3dT  ViewDir = HumanPlayer->GetViewDirWS();
     const RayResultT RayResult(HumanPlayer->TracePlayerRay(ViewDir));

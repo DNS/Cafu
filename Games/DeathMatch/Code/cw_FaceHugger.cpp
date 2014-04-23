@@ -55,7 +55,7 @@ CarriedWeaponFaceHuggerT::~CarriedWeaponFaceHuggerT()
 }
 
 
-bool CarriedWeaponFaceHuggerT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
+bool CarriedWeaponFaceHuggerT::ServerSide_PickedUpByEntity(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
 {
     // Consider if the entity already has this weapon.
     if (HumanPlayer->GetHaveWeapons() & (1 << WEAPON_SLOT_FACEHUGGER))
@@ -81,7 +81,7 @@ bool CarriedWeaponFaceHuggerT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Play
 }
 
 
-void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const
+void CarriedWeaponFaceHuggerT::ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const
 {
     switch (HumanPlayer->GetActiveWeaponSequNr())
     {
@@ -93,7 +93,7 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, Intrusi
                 HumanPlayer->SetActiveWeaponSequNr(5);
                 HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
-                Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
+                HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
 
                 // Important: ONLY create (throw) a new face-hugger IF we are on the server side!
                 if (ThinkingOnServerSide)
@@ -111,7 +111,7 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, Intrusi
 
                     Ent->GetBasics()->SetEntityName("FaceHugger");
                     Ent->GetTransform()->SetOriginWS(FaceHuggerOrigin.AsVectorOfFloat());
-                    Ent->GetTransform()->SetQuatWS(Player->m_Entity->GetTransform()->GetQuatWS());
+                    Ent->GetTransform()->SetQuatWS(HumanPlayer->GetEntity()->GetTransform()->GetQuatWS());
 
                     IntrusivePtrT<cf::GameSys::ComponentModelT> ModelComp = new cf::GameSys::ComponentModelT();
                     ModelComp->SetMember("Name", std::string("Games/DeathMatch/Models/LifeForms/FaceHugger/FaceHugger.cmdl"));
@@ -165,7 +165,7 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, Intrusi
             {
                 if (PlayerCommand.Keys & (PCK_Fire1 | PCK_Fire2))
                 {
-                    Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
+                    HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
                 }
                 else
                 {
@@ -178,15 +178,13 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(EntHumanPlayerT* Player, Intrusi
 }
 
 
-void CarriedWeaponFaceHuggerT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT* Player, IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& /*LastSeenAmbientColor*/) const
+void CarriedWeaponFaceHuggerT::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& /*LastSeenAmbientColor*/) const
 {
     const Vector3dT ViewDir = HumanPlayer->GetViewDirWS();
 
     // Update sound position and velocity.
-    IntrusivePtrT<const cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(Player->m_Entity->GetComponent("PlayerPhysics"));
-
     FireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 8.0));
-    FireSound->SetVelocity(CompPlayerPhysics->GetVelocity());
+    FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
     // Play the fire sound.
     FireSound->Play();

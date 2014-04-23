@@ -55,7 +55,7 @@ CarriedWeaponShotgunT::~CarriedWeaponShotgunT()
 }
 
 
-bool CarriedWeaponShotgunT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
+bool CarriedWeaponShotgunT::ServerSide_PickedUpByEntity(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
 {
     // Consider if the entity already has this weapon.
     if (HumanPlayer->GetHaveWeapons() & (1 << WEAPON_SLOT_SHOTGUN))
@@ -85,7 +85,7 @@ bool CarriedWeaponShotgunT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player,
 }
 
 
-void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long /*ServerFrameNr*/, bool AnimSequenceWrap) const
+void CarriedWeaponShotgunT::ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long /*ServerFrameNr*/, bool AnimSequenceWrap) const
 {
     switch (HumanPlayer->GetActiveWeaponSequNr())
     {
@@ -179,7 +179,7 @@ void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, IntrusiveP
                 HumanPlayer->SetActiveWeaponFrameNr(0.0f);
                 HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_SHOTGUN]--;
 
-                Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
+                HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
 
                 if (ThinkingOnServerSide)
                 {
@@ -203,7 +203,7 @@ void CarriedWeaponShotgunT::ServerSide_Think(EntHumanPlayerT* Player, IntrusiveP
                 HumanPlayer->SetActiveWeaponFrameNr(0.0f);
                 HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_SHOTGUN]-=2;
 
-                Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_SECONDARY_FIRE);
+                HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_SECONDARY_FIRE);
 
                 if (ThinkingOnServerSide)
                 {
@@ -284,7 +284,7 @@ static bool ParticleFunction_ShotgunWhiteSmoke(ParticleMST* Particle, float Time
 }
 
 
-void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT* Player, IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& LastSeenAmbientColor) const
+void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& LastSeenAmbientColor) const
 {
     for (char i=0; i<8; i++)
     {
@@ -351,7 +351,7 @@ void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlay
 }
 
 
-void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(const EntHumanPlayerT* Player, IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& LastSeenAmbientColor) const
+void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& LastSeenAmbientColor) const
 {
     for (char i=0; i<16; i++)
     {

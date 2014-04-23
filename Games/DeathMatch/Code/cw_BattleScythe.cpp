@@ -47,7 +47,7 @@ CarriedWeaponBattleScytheT::~CarriedWeaponBattleScytheT()
 }
 
 
-bool CarriedWeaponBattleScytheT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
+bool CarriedWeaponBattleScytheT::ServerSide_PickedUpByEntity(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
 {
     // If the touching entity already has a BattleScythe, ignore the touch.
     if (HumanPlayer->GetHaveWeapons() & (1 << WEAPON_SLOT_BATTLESCYTHE)) return false;
@@ -62,7 +62,7 @@ bool CarriedWeaponBattleScytheT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Pl
 }
 
 
-void CarriedWeaponBattleScytheT::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool /*ThinkingOnServerSide*/, unsigned long /*ServerFrameNr*/, bool AnimSequenceWrap) const
+void CarriedWeaponBattleScytheT::ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool /*ThinkingOnServerSide*/, unsigned long /*ServerFrameNr*/, bool AnimSequenceWrap) const
 {
     switch (HumanPlayer->GetActiveWeaponSequNr())
     {
@@ -87,7 +87,7 @@ void CarriedWeaponBattleScytheT::ServerSide_Think(EntHumanPlayerT* Player, Intru
             {
                 if (PlayerCommand.Keys & PCK_Fire1)
                 {
-                    Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
+                    HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
                 }
                 else
                 {
@@ -103,7 +103,7 @@ void CarriedWeaponBattleScytheT::ServerSide_Think(EntHumanPlayerT* Player, Intru
             {
                 if (PlayerCommand.Keys & PCK_Fire2)
                 {
-                    Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_SECONDARY_FIRE);
+                    HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_SECONDARY_FIRE);
                 }
                 else
                 {
@@ -132,7 +132,7 @@ void CarriedWeaponBattleScytheT::ServerSide_Think(EntHumanPlayerT* Player, Intru
                 // TODO: Alternate randomly with Attack 3.
                 HumanPlayer->SetActiveWeaponSequNr(4);    // Attack 1 (miss)
                 HumanPlayer->SetActiveWeaponFrameNr(0.0f);
-                Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
+                HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
                 break;
             }
 
@@ -141,7 +141,7 @@ void CarriedWeaponBattleScytheT::ServerSide_Think(EntHumanPlayerT* Player, Intru
                 // TODO: Determine if this attack was a hit or miss.
                 HumanPlayer->SetActiveWeaponSequNr(5);    // Attack 2 (miss)
                 HumanPlayer->SetActiveWeaponFrameNr(0.0f);
-                Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_SECONDARY_FIRE);
+                HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_SECONDARY_FIRE);
                 break;
             }
 
@@ -155,7 +155,7 @@ void CarriedWeaponBattleScytheT::ServerSide_Think(EntHumanPlayerT* Player, Intru
 }
 
 
-void CarriedWeaponBattleScytheT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT* Player, IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& /*LastSeenAmbientColor*/) const
+void CarriedWeaponBattleScytheT::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& /*LastSeenAmbientColor*/) const
 {
     const Vector3dT ViewDir = HumanPlayer->GetViewDirWS();
 
@@ -168,7 +168,7 @@ void CarriedWeaponBattleScytheT::ClientSide_HandlePrimaryFireEvent(const EntHuma
 }
 
 
-void CarriedWeaponBattleScytheT::ClientSide_HandleSecondaryFireEvent(const EntHumanPlayerT* Player, IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& /*LastSeenAmbientColor*/) const
+void CarriedWeaponBattleScytheT::ClientSide_HandleSecondaryFireEvent(IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& /*LastSeenAmbientColor*/) const
 {
     const Vector3dT ViewDir = HumanPlayer->GetViewDirWS();
 

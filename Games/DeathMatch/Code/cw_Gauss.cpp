@@ -37,7 +37,7 @@ CarriedWeaponGaussT::CarriedWeaponGaussT(ModelManagerT& ModelMan)
 }
 
 
-bool CarriedWeaponGaussT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
+bool CarriedWeaponGaussT::ServerSide_PickedUpByEntity(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
 {
     // Consider if the entity already has this weapon.
     if (HumanPlayer->GetHaveWeapons() & (1 << WEAPON_SLOT_GAUSS))
@@ -67,7 +67,7 @@ bool CarriedWeaponGaussT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, I
 }
 
 
-void CarriedWeaponGaussT::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool /*ThinkingOnServerSide*/, unsigned long /*ServerFrameNr*/, bool AnimSequenceWrap) const
+void CarriedWeaponGaussT::ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool /*ThinkingOnServerSide*/, unsigned long /*ServerFrameNr*/, bool AnimSequenceWrap) const
 {
     enum SequenceNames
     {

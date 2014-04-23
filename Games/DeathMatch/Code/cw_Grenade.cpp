@@ -57,7 +57,7 @@ CarriedWeaponGrenadeT::~CarriedWeaponGrenadeT()
 }
 
 
-bool CarriedWeaponGrenadeT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
+bool CarriedWeaponGrenadeT::ServerSide_PickedUpByEntity(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
 {
     // Consider if the entity already has this weapon.
     if (HumanPlayer->GetHaveWeapons() & (1 << WEAPON_SLOT_GRENADE))
@@ -83,7 +83,7 @@ bool CarriedWeaponGrenadeT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player,
 }
 
 
-void CarriedWeaponGrenadeT::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const
+void CarriedWeaponGrenadeT::ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const
 {
     switch (HumanPlayer->GetActiveWeaponSequNr())
     {
@@ -114,7 +114,7 @@ void CarriedWeaponGrenadeT::ServerSide_Think(EntHumanPlayerT* Player, IntrusiveP
                 HumanPlayer->SetActiveWeaponSequNr(3);
                 HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
-                Player->PostEvent(EntHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
+                HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
 
                 // Important: ONLY create (throw) a new hand grenade IF we are on the server side!
                 if (ThinkingOnServerSide)
@@ -132,7 +132,7 @@ void CarriedWeaponGrenadeT::ServerSide_Think(EntHumanPlayerT* Player, IntrusiveP
 
                     Ent->GetBasics()->SetEntityName("HandGrenade");
                     Ent->GetTransform()->SetOriginWS(HandGrenadeOrigin.AsVectorOfFloat());
-                    Ent->GetTransform()->SetQuatWS(Player->m_Entity->GetTransform()->GetQuatWS());
+                    Ent->GetTransform()->SetQuatWS(HumanPlayer->GetEntity()->GetTransform()->GetQuatWS());
 
                     IntrusivePtrT<cf::GameSys::ComponentModelT> ModelComp = new cf::GameSys::ComponentModelT();
                     ModelComp->SetMember("Name", std::string("Games/DeathMatch/Models/Weapons/Grenade/Grenade_w.cmdl"));
@@ -196,15 +196,13 @@ void CarriedWeaponGrenadeT::ServerSide_Think(EntHumanPlayerT* Player, IntrusiveP
 }
 
 
-void CarriedWeaponGrenadeT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT* Player, IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& /*LastSeenAmbientColor*/) const
+void CarriedWeaponGrenadeT::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& /*LastSeenAmbientColor*/) const
 {
     const Vector3dT ViewDir = HumanPlayer->GetViewDirWS();
 
     // Update sound position and velocity.
-    IntrusivePtrT<const cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(Player->m_Entity->GetComponent("PlayerPhysics"));
-
     FireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 8.0));
-    FireSound->SetVelocity(CompPlayerPhysics->GetVelocity());
+    FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
     // Play the fire sound.
     FireSound->Play();

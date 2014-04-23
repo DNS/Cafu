@@ -381,7 +381,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
                     CompHP->SetActiveWeaponFrameNr(NewFrameNr);
 
-                    CarriedWeapon->ServerSide_Think(this, CompHP, PlayerCommands[PCNr], ThinkingOnServerSide, ServerFrameNr, AnimSequenceWrap);
+                    CarriedWeapon->ServerSide_Think(CompHP, PlayerCommands[PCNr], ThinkingOnServerSide, ServerFrameNr, AnimSequenceWrap);
                 }
 
 
@@ -633,19 +633,19 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                         ScriptComp->CallLuaMethod("OnTrigger", 1, ">S", &WeaponName);
 
                         // What's about the Glock17 model? It seems we have a model, but no code for it?
-                             if (WeaponName == "BattleScythe") GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_BATTLESCYTHE)->ServerSide_PickedUpByEntity(this, CompHP);
-                        else if (WeaponName == "HornetGun"   ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_HORNETGUN   )->ServerSide_PickedUpByEntity(this, CompHP);
-                        else if (WeaponName == "Beretta"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_PISTOL      )->ServerSide_PickedUpByEntity(this, CompHP);
-                        else if (WeaponName == "DesertEagle" ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_357         )->ServerSide_PickedUpByEntity(this, CompHP);
-                        else if (WeaponName == "Shotgun"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_SHOTGUN     )->ServerSide_PickedUpByEntity(this, CompHP);
-                        else if (WeaponName == "9mmAR"       ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_9MMAR       )->ServerSide_PickedUpByEntity(this, CompHP);
-                        else if (WeaponName == "DartGun"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_CROSSBOW    )->ServerSide_PickedUpByEntity(this, CompHP);
-                        else if (WeaponName == "Bazooka"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_RPG         )->ServerSide_PickedUpByEntity(this, CompHP);
-                        else if (WeaponName == "Gauss"       ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_GAUSS       )->ServerSide_PickedUpByEntity(this, CompHP);
-                        else if (WeaponName == "Egon"        ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_EGON        )->ServerSide_PickedUpByEntity(this, CompHP);
-                        else if (WeaponName == "Grenade"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_GRENADE     )->ServerSide_PickedUpByEntity(this, CompHP);
-                        else if (WeaponName == "Tripmine"    ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_TRIPMINE    )->ServerSide_PickedUpByEntity(this, CompHP);
-                        else if (WeaponName == "FaceHugger"  ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_FACEHUGGER  )->ServerSide_PickedUpByEntity(this, CompHP);
+                             if (WeaponName == "BattleScythe") GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_BATTLESCYTHE)->ServerSide_PickedUpByEntity(CompHP);
+                        else if (WeaponName == "HornetGun"   ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_HORNETGUN   )->ServerSide_PickedUpByEntity(CompHP);
+                        else if (WeaponName == "Beretta"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_PISTOL      )->ServerSide_PickedUpByEntity(CompHP);
+                        else if (WeaponName == "DesertEagle" ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_357         )->ServerSide_PickedUpByEntity(CompHP);
+                        else if (WeaponName == "Shotgun"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_SHOTGUN     )->ServerSide_PickedUpByEntity(CompHP);
+                        else if (WeaponName == "9mmAR"       ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_9MMAR       )->ServerSide_PickedUpByEntity(CompHP);
+                        else if (WeaponName == "DartGun"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_CROSSBOW    )->ServerSide_PickedUpByEntity(CompHP);
+                        else if (WeaponName == "Bazooka"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_RPG         )->ServerSide_PickedUpByEntity(CompHP);
+                        else if (WeaponName == "Gauss"       ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_GAUSS       )->ServerSide_PickedUpByEntity(CompHP);
+                        else if (WeaponName == "Egon"        ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_EGON        )->ServerSide_PickedUpByEntity(CompHP);
+                        else if (WeaponName == "Grenade"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_GRENADE     )->ServerSide_PickedUpByEntity(CompHP);
+                        else if (WeaponName == "Tripmine"    ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_TRIPMINE    )->ServerSide_PickedUpByEntity(CompHP);
+                        else if (WeaponName == "FaceHugger"  ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_FACEHUGGER  )->ServerSide_PickedUpByEntity(CompHP);
 
                         else if (WeaponName == "Ammo_DartGun"    ) CompHP->GetHaveAmmo()[AMMO_SLOT_ARROWS] = std::min(CompHP->GetHaveAmmo()[AMMO_SLOT_ARROWS] +  5,  30);
                         else if (WeaponName == "Ammo_DesertEagle") CompHP->GetHaveAmmo()[AMMO_SLOT_357   ] = std::min(CompHP->GetHaveAmmo()[AMMO_SLOT_357   ] +  6,  36);
@@ -841,8 +841,8 @@ void EntHumanPlayerT::ProcessEvent(unsigned int EventType, unsigned int /*NumEve
 
     switch (EventType)
     {
-        case EVENT_TYPE_PRIMARY_FIRE  : GameImplT::GetInstance().GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->ClientSide_HandlePrimaryFireEvent  (this, CompHP, LastSeenAmbientColor); break;
-        case EVENT_TYPE_SECONDARY_FIRE: GameImplT::GetInstance().GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->ClientSide_HandleSecondaryFireEvent(this, CompHP, LastSeenAmbientColor); break;
+        case EVENT_TYPE_PRIMARY_FIRE  : GameImplT::GetInstance().GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->ClientSide_HandlePrimaryFireEvent  (CompHP, LastSeenAmbientColor); break;
+        case EVENT_TYPE_SECONDARY_FIRE: GameImplT::GetInstance().GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->ClientSide_HandleSecondaryFireEvent(CompHP, LastSeenAmbientColor); break;
     }
 }
 
@@ -934,6 +934,6 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
     {
         IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(m_Entity->GetComponent("HumanPlayer"));
 
-        GameImplT::GetInstance().GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->ClientSide_HandleStateDrivenEffects(this, CompHP);
+        GameImplT::GetInstance().GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->ClientSide_HandleStateDrivenEffects(CompHP);
     }
 }

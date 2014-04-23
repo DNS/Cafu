@@ -36,8 +36,8 @@ CarriedWeaponT::~CarriedWeaponT()
 }
 
 
-bool CarriedWeaponT::ServerSide_PickedUpByEntity(EntHumanPlayerT* /*Player*/, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> /*HumanPlayer*/) const { return false; }
-void CarriedWeaponT::ServerSide_Think(EntHumanPlayerT* /*Player*/, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> /*HumanPlayer*/, const PlayerCommandT& /*PlayerCommand*/, bool /*ThinkingOnServerSide*/, unsigned long /*ServerFrameNr*/, bool /*AnimSequenceWrap*/) const { }
-void CarriedWeaponT::ClientSide_HandlePrimaryFireEvent(const EntHumanPlayerT* /*Player*/, IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> /*HumanPlayer*/, const VectorT& /*LastSeenAmbientColor*/) const { }
-void CarriedWeaponT::ClientSide_HandleSecondaryFireEvent(const EntHumanPlayerT* /*Player*/, IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> /*HumanPlayer*/, const VectorT& /*LastSeenAmbientColor*/) const { }
-void CarriedWeaponT::ClientSide_HandleStateDrivenEffects(const EntHumanPlayerT* /*Player*/, IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> /*HumanPlayer*/) const { }
+bool CarriedWeaponT::ServerSide_PickedUpByEntity(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> /*HumanPlayer*/) const { return false; }
+void CarriedWeaponT::ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> /*HumanPlayer*/, const PlayerCommandT& /*PlayerCommand*/, bool /*ThinkingOnServerSide*/, unsigned long /*ServerFrameNr*/, bool /*AnimSequenceWrap*/) const { }
+void CarriedWeaponT::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> /*HumanPlayer*/, const VectorT& /*LastSeenAmbientColor*/) const { }
+void CarriedWeaponT::ClientSide_HandleSecondaryFireEvent(IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> /*HumanPlayer*/, const VectorT& /*LastSeenAmbientColor*/) const { }
+void CarriedWeaponT::ClientSide_HandleStateDrivenEffects(IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> /*HumanPlayer*/) const { }

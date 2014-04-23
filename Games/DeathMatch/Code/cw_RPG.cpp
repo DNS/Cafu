@@ -46,7 +46,7 @@ CarriedWeaponRPGT::CarriedWeaponRPGT(ModelManagerT& ModelMan)
 }
 
 
-bool CarriedWeaponRPGT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
+bool CarriedWeaponRPGT::ServerSide_PickedUpByEntity(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
 {
     // Consider if the entity already has this weapon.
     if (HumanPlayer->GetHaveWeapons() & (1 << WEAPON_SLOT_RPG))
@@ -76,7 +76,7 @@ bool CarriedWeaponRPGT::ServerSide_PickedUpByEntity(EntHumanPlayerT* Player, Int
 }
 
 
-void CarriedWeaponRPGT::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const
+void CarriedWeaponRPGT::ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const
 {
     switch (HumanPlayer->GetActiveWeaponSequNr())
     {
@@ -103,7 +103,7 @@ void CarriedWeaponRPGT::ServerSide_Think(EntHumanPlayerT* Player, IntrusivePtrT<
 
                     Ent->GetBasics()->SetEntityName("Rocket");
                     Ent->GetTransform()->SetOriginWS(RocketOrigin.AsVectorOfFloat());
-                    Ent->GetTransform()->SetQuatWS(Player->m_Entity->GetChildren()[0]->GetTransform()->GetQuatWS());
+                    Ent->GetTransform()->SetQuatWS(HumanPlayer->GetEntity()->GetChildren()[0]->GetTransform()->GetQuatWS());
 
                     IntrusivePtrT<cf::GameSys::ComponentModelT> ModelComp = new cf::GameSys::ComponentModelT();
                     ModelComp->SetMember("Name", std::string("Games/DeathMatch/Models/Weapons/Grenade/Grenade_w.cmdl"));
