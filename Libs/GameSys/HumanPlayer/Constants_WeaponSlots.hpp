@@ -19,23 +19,29 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef CAFU_CW_CROSSBOW_HPP_INCLUDED
-#define CAFU_CW_CROSSBOW_HPP_INCLUDED
-
-#include "cw.hpp"
+#ifndef CAFU_GAMESYS_WEAPONSLOTS_HPP_INCLUDED
+#define CAFU_GAMESYS_WEAPONSLOTS_HPP_INCLUDED
 
 
-namespace GAME_NAME
+namespace cf
 {
-    class CarriedWeaponCrossBowT : public CarriedWeaponT
+    namespace GameSys
     {
-        public:
-
-        CarriedWeaponCrossBowT(ModelManagerT& ModelMan);
-
-        bool ServerSide_PickedUpByEntity(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const;
-        void ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;
-    };
+        // Bit numbers in State.HaveWeapons, indices into State.HaveAmmoInWeapons[], and for State.ActiveWeaponSlot.
+        const char WEAPON_SLOT_BATTLESCYTHE =  0;
+        const char WEAPON_SLOT_HORNETGUN    =  1;
+        const char WEAPON_SLOT_PISTOL       =  2;
+        const char WEAPON_SLOT_357          =  3;
+        const char WEAPON_SLOT_SHOTGUN      =  4;
+        const char WEAPON_SLOT_9MMAR        =  5;
+        const char WEAPON_SLOT_CROSSBOW     =  6;
+        const char WEAPON_SLOT_RPG          =  7;
+        const char WEAPON_SLOT_GAUSS        =  8;
+        const char WEAPON_SLOT_EGON         =  9;
+        const char WEAPON_SLOT_GRENADE      = 10;
+        const char WEAPON_SLOT_TRIPMINE     = 11;
+        const char WEAPON_SLOT_FACEHUGGER   = 12;
+    }
 }
 
 #endif

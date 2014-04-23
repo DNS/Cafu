@@ -37,9 +37,6 @@ class SoundI;
 
 namespace GAME_NAME
 {
-    class CarriedWeaponT;
-
-
     /// This class provides the "DeathMatch" implementation of the GameI interface.
     class GameImplT : public cf::GameSys::GameI
     {
@@ -53,13 +50,6 @@ namespace GAME_NAME
         IntrusivePtrT<GameEntityI> CreateGameEntity(const cf::TypeSys::TypeInfoT* TI, IntrusivePtrT<cf::GameSys::EntityT> Entity, const std::map<std::string, std::string>& Properties, const cf::SceneGraph::GenericNodeT* RootNode, unsigned long ID, cf::GameSys::GameWorldI* GameWorld);
 
 
-        // Additional methods.
-
-        /// This function returns a pointer to the CarriedWeaponT instance for the desired ActiveWeaponSlot.
-        /// When no such class exists, it returns a pointer to an empty dummy implementation
-        /// (but for the convenience of the caller, it never returns NULL or an invalid pointer).
-        const CarriedWeaponT* GetCarriedWeapon(unsigned int ActiveWeaponSlot) const;
-
         /// Returns the singleton instance of this class.
         static GameImplT& GetInstance();
 
@@ -72,7 +62,6 @@ namespace GAME_NAME
         bool                      RunningAsClient;
         bool                      RunningAsServer;
 
-        ArrayT<CarriedWeaponT*>   m_CarriedWeapons; ///< The set of carry-able weapons in this game.
         ArrayT<SoundI*>           m_PreCacheSounds; ///< Array of all precached sounds.
     };
 }

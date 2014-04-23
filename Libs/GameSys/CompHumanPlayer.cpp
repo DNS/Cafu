@@ -328,6 +328,12 @@ void ComponentHumanPlayerT::PostEvent(unsigned int EventType) const
 }
 
 
+const CarriedWeaponT* ComponentHumanPlayerT::GetCarriedWeapon(unsigned int ActiveWeaponSlot) const
+{
+    return GetEntity()->GetWorld().GetCarriedWeapon(ActiveWeaponSlot);
+}
+
+
 ComponentHumanPlayerT* ComponentHumanPlayerT::Clone() const
 {
     return new ComponentHumanPlayerT(*this);

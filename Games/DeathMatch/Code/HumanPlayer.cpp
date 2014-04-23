@@ -20,7 +20,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "HumanPlayer.hpp"
-#include "cw.hpp"
 #include "Constants_AmmoSlots.hpp"
 #include "Constants_WeaponSlots.hpp"
 #include "EntityCreateParams.hpp"
@@ -31,6 +30,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClipSys/ClipWorld.hpp"
 #include "ClipSys/CollisionModelMan.hpp"
 #include "ClipSys/TraceResult.hpp"
+#include "GameSys/HumanPlayer/cw.hpp"
 #include "GameSys/CompCollisionModel.hpp"
 #include "GameSys/CompHumanPlayer.hpp"
 #include "GameSys/CompModel.hpp"
@@ -365,7 +365,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                 // Handle the state machine of the "_v" (view) model of the current weapon.
                 if (CompHP->GetHaveWeapons() & (1 << CompHP->GetActiveWeaponSlot()))
                 {
-                    const CarriedWeaponT* CarriedWeapon=GameImplT::GetInstance().GetCarriedWeapon(CompHP->GetActiveWeaponSlot());
+                    const cf::GameSys::CarriedWeaponT* CarriedWeapon=CompHP->GetCarriedWeapon(CompHP->GetActiveWeaponSlot());
 
                     // Advance the frame time of the weapon.
                     const CafuModelT* WeaponModel=CarriedWeapon->GetViewWeaponModel();
@@ -632,19 +632,19 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                         ScriptComp->CallLuaMethod("OnTrigger", 1, ">S", &WeaponName);
 
                         // What's about the Glock17 model? It seems we have a model, but no code for it?
-                             if (WeaponName == "BattleScythe") GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_BATTLESCYTHE)->ServerSide_PickedUpByEntity(CompHP);
-                        else if (WeaponName == "HornetGun"   ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_HORNETGUN   )->ServerSide_PickedUpByEntity(CompHP);
-                        else if (WeaponName == "Beretta"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_PISTOL      )->ServerSide_PickedUpByEntity(CompHP);
-                        else if (WeaponName == "DesertEagle" ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_357         )->ServerSide_PickedUpByEntity(CompHP);
-                        else if (WeaponName == "Shotgun"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_SHOTGUN     )->ServerSide_PickedUpByEntity(CompHP);
-                        else if (WeaponName == "9mmAR"       ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_9MMAR       )->ServerSide_PickedUpByEntity(CompHP);
-                        else if (WeaponName == "DartGun"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_CROSSBOW    )->ServerSide_PickedUpByEntity(CompHP);
-                        else if (WeaponName == "Bazooka"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_RPG         )->ServerSide_PickedUpByEntity(CompHP);
-                        else if (WeaponName == "Gauss"       ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_GAUSS       )->ServerSide_PickedUpByEntity(CompHP);
-                        else if (WeaponName == "Egon"        ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_EGON        )->ServerSide_PickedUpByEntity(CompHP);
-                        else if (WeaponName == "Grenade"     ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_GRENADE     )->ServerSide_PickedUpByEntity(CompHP);
-                        else if (WeaponName == "Tripmine"    ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_TRIPMINE    )->ServerSide_PickedUpByEntity(CompHP);
-                        else if (WeaponName == "FaceHugger"  ) GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_FACEHUGGER  )->ServerSide_PickedUpByEntity(CompHP);
+                             if (WeaponName == "BattleScythe") CompHP->GetCarriedWeapon(WEAPON_SLOT_BATTLESCYTHE)->ServerSide_PickedUpByEntity(CompHP);
+                        else if (WeaponName == "HornetGun"   ) CompHP->GetCarriedWeapon(WEAPON_SLOT_HORNETGUN   )->ServerSide_PickedUpByEntity(CompHP);
+                        else if (WeaponName == "Beretta"     ) CompHP->GetCarriedWeapon(WEAPON_SLOT_PISTOL      )->ServerSide_PickedUpByEntity(CompHP);
+                        else if (WeaponName == "DesertEagle" ) CompHP->GetCarriedWeapon(WEAPON_SLOT_357         )->ServerSide_PickedUpByEntity(CompHP);
+                        else if (WeaponName == "Shotgun"     ) CompHP->GetCarriedWeapon(WEAPON_SLOT_SHOTGUN     )->ServerSide_PickedUpByEntity(CompHP);
+                        else if (WeaponName == "9mmAR"       ) CompHP->GetCarriedWeapon(WEAPON_SLOT_9MMAR       )->ServerSide_PickedUpByEntity(CompHP);
+                        else if (WeaponName == "DartGun"     ) CompHP->GetCarriedWeapon(WEAPON_SLOT_CROSSBOW    )->ServerSide_PickedUpByEntity(CompHP);
+                        else if (WeaponName == "Bazooka"     ) CompHP->GetCarriedWeapon(WEAPON_SLOT_RPG         )->ServerSide_PickedUpByEntity(CompHP);
+                        else if (WeaponName == "Gauss"       ) CompHP->GetCarriedWeapon(WEAPON_SLOT_GAUSS       )->ServerSide_PickedUpByEntity(CompHP);
+                        else if (WeaponName == "Egon"        ) CompHP->GetCarriedWeapon(WEAPON_SLOT_EGON        )->ServerSide_PickedUpByEntity(CompHP);
+                        else if (WeaponName == "Grenade"     ) CompHP->GetCarriedWeapon(WEAPON_SLOT_GRENADE     )->ServerSide_PickedUpByEntity(CompHP);
+                        else if (WeaponName == "Tripmine"    ) CompHP->GetCarriedWeapon(WEAPON_SLOT_TRIPMINE    )->ServerSide_PickedUpByEntity(CompHP);
+                        else if (WeaponName == "FaceHugger"  ) CompHP->GetCarriedWeapon(WEAPON_SLOT_FACEHUGGER  )->ServerSide_PickedUpByEntity(CompHP);
 
                         else if (WeaponName == "Ammo_DartGun"    ) CompHP->GetHaveAmmo()[AMMO_SLOT_ARROWS] = std::min(CompHP->GetHaveAmmo()[AMMO_SLOT_ARROWS] +  5,  30);
                         else if (WeaponName == "Ammo_DesertEagle") CompHP->GetHaveAmmo()[AMMO_SLOT_357   ] = std::min(CompHP->GetHaveAmmo()[AMMO_SLOT_357   ] +  6,  36);
@@ -840,8 +840,8 @@ void EntHumanPlayerT::ProcessEvent(unsigned int EventType, unsigned int /*NumEve
 
     switch (EventType)
     {
-        case EVENT_TYPE_PRIMARY_FIRE  : GameImplT::GetInstance().GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->ClientSide_HandlePrimaryFireEvent  (CompHP, LastSeenAmbientColor); break;
-        case EVENT_TYPE_SECONDARY_FIRE: GameImplT::GetInstance().GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->ClientSide_HandleSecondaryFireEvent(CompHP, LastSeenAmbientColor); break;
+        case EVENT_TYPE_PRIMARY_FIRE  : CompHP->GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->ClientSide_HandlePrimaryFireEvent  (CompHP, LastSeenAmbientColor); break;
+        case EVENT_TYPE_SECONDARY_FIRE: CompHP->GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->ClientSide_HandleSecondaryFireEvent(CompHP, LastSeenAmbientColor); break;
     }
 }
 
@@ -888,7 +888,7 @@ void EntHumanPlayerT::Draw(bool FirstPersonView, float LodDist) const
 #endif
 
 
-            const CafuModelT* WeaponModel=GameImplT::GetInstance().GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->GetViewWeaponModel();
+            const CafuModelT* WeaponModel=CompHP->GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->GetViewWeaponModel();
             AnimPoseT*        Pose       =WeaponModel->GetSharedPose(WeaponModel->GetAnimExprPool().GetStandard(CompHP->GetActiveWeaponSequNr(), CompHP->GetActiveWeaponFrameNr()));
 
             Pose->Draw(-1 /*default skin*/, LodDist);
@@ -910,7 +910,7 @@ void EntHumanPlayerT::Draw(bool FirstPersonView, float LodDist) const
         if (CompHP->GetHaveWeapons() & (1 << CompHP->GetActiveWeaponSlot()))
         {
             IntrusivePtrT<cf::GameSys::ComponentModelT> Model3rdPerson = dynamic_pointer_cast<cf::GameSys::ComponentModelT>(m_Entity->GetComponent("Model"));
-            const CafuModelT* WeaponModel = GameImplT::GetInstance().GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->GetPlayerWeaponModel();
+            const CafuModelT* WeaponModel = CompHP->GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->GetPlayerWeaponModel();
             AnimPoseT*        WeaponPose  = WeaponModel->GetSharedPose(WeaponModel->GetAnimExprPool().GetStandard(0, 0.0f));
 
             if (Model3rdPerson != NULL)
@@ -933,6 +933,6 @@ void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
     {
         IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(m_Entity->GetComponent("HumanPlayer"));
 
-        GameImplT::GetInstance().GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->ClientSide_HandleStateDrivenEffects(CompHP);
+        CompHP->GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->ClientSide_HandleStateDrivenEffects(CompHP);
     }
 }

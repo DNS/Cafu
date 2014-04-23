@@ -20,13 +20,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "cw_CrossBow.hpp"
-#include "../../PlayerCommand.hpp"
+#include "../../../Games/PlayerCommand.hpp"      // TODO: This file must be moved (and/or its contents completely redesigned).
 #include "Constants_AmmoSlots.hpp"
 #include "Constants_WeaponSlots.hpp"
 #include "GameSys/CompPhysics.hpp"
 #include "Models/ModelManager.hpp"
 
-using namespace GAME_NAME;
+using namespace cf::GameSys;
 
 
 CarriedWeaponCrossBowT::CarriedWeaponCrossBowT(ModelManagerT& ModelMan)

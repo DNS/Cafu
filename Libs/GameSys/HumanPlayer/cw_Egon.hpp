@@ -19,34 +19,26 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef CAFU_CW_357_HPP_INCLUDED
-#define CAFU_CW_357_HPP_INCLUDED
+#ifndef CAFU_CW_EGON_HPP_INCLUDED
+#define CAFU_CW_EGON_HPP_INCLUDED
 
 #include "cw.hpp"
 
-class ParticleMaterialSetT;
 
-
-namespace GAME_NAME
+namespace cf
 {
-    class CarriedWeapon357T : public CarriedWeaponT
+    namespace GameSys
     {
-        public:
+        class CarriedWeaponEgonT : public CarriedWeaponT
+        {
+            public:
 
-        CarriedWeapon357T(ModelManagerT& ModelMan);
-        ~CarriedWeapon357T();
+            CarriedWeaponEgonT(ModelManagerT& ModelMan);
 
-        bool ServerSide_PickedUpByEntity(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const;
-        void ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;
-
-        void ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& LastSeenAmbientColor) const;
-
-
-        private:
-
-        SoundI* FireSound;
-        ParticleMaterialSetT* m_GenericMatSet;
-    };
+            bool ServerSide_PickedUpByEntity(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const;
+            void ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;
+        };
+    }
 }
 
 #endif

@@ -19,26 +19,26 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "cw_Gauss.hpp"
-#include "../../PlayerCommand.hpp"
+#include "cw_Egon.hpp"
+#include "../../../Games/PlayerCommand.hpp"      // TODO: This file must be moved (and/or its contents completely redesigned).
 #include "Constants_AmmoSlots.hpp"
 #include "Constants_WeaponSlots.hpp"
 #include "Models/ModelManager.hpp"
 
-using namespace GAME_NAME;
+using namespace cf::GameSys;
 
 
-CarriedWeaponGaussT::CarriedWeaponGaussT(ModelManagerT& ModelMan)
-    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Gauss/Gauss_v.cmdl"),
-                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Gauss/Gauss_p.cmdl"))
+CarriedWeaponEgonT::CarriedWeaponEgonT(ModelManagerT& ModelMan)
+    : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Egon/Egon_v.cmdl"),
+                     ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Egon/Egon_p.cmdl"))
 {
 }
 
 
-bool CarriedWeaponGaussT::ServerSide_PickedUpByEntity(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
+bool CarriedWeaponEgonT::ServerSide_PickedUpByEntity(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const
 {
     // Consider if the entity already has this weapon.
-    if (HumanPlayer->GetHaveWeapons() & (1 << WEAPON_SLOT_GAUSS))
+    if (HumanPlayer->GetHaveWeapons() & (1 << WEAPON_SLOT_EGON))
     {
         // If it also has the max. amount of ammo of this type, ignore the touch.
         if (HumanPlayer->GetHaveAmmo()[AMMO_SLOT_CELLS]==200) return false;
@@ -49,13 +49,13 @@ bool CarriedWeaponGaussT::ServerSide_PickedUpByEntity(IntrusivePtrT<cf::GameSys:
     else
     {
         // This weapon is picked up for the first time.
-        HumanPlayer->SetHaveWeapons(HumanPlayer->GetHaveWeapons() | 1 << WEAPON_SLOT_GAUSS);
-        HumanPlayer->SetActiveWeaponSlot(WEAPON_SLOT_GAUSS);
-        HumanPlayer->SetActiveWeaponSequNr(8);    // Draw
+        HumanPlayer->SetHaveWeapons(HumanPlayer->GetHaveWeapons() | 1 << WEAPON_SLOT_EGON);
+        HumanPlayer->SetActiveWeaponSlot(WEAPON_SLOT_EGON);
+        HumanPlayer->SetActiveWeaponSequNr(9);    // Draw
         HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
-        HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_GAUSS] =20;
-        HumanPlayer->GetHaveAmmo()         [AMMO_SLOT_CELLS  ]+=20;
+        HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_EGON] =20;
+        HumanPlayer->GetHaveAmmo()         [AMMO_SLOT_CELLS ]+=20;
     }
 
     // Limit the amount of carryable ammo.
@@ -65,19 +65,21 @@ bool CarriedWeaponGaussT::ServerSide_PickedUpByEntity(IntrusivePtrT<cf::GameSys:
 }
 
 
-void CarriedWeaponGaussT::ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool /*ThinkingOnServerSide*/, unsigned long /*ServerFrameNr*/, bool AnimSequenceWrap) const
+void CarriedWeaponEgonT::ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool /*ThinkingOnServerSide*/, unsigned long /*ServerFrameNr*/, bool AnimSequenceWrap) const
 {
     enum SequenceNames
     {
-        Idle1,
-        Idle2,
+        Idle,
         Fidget,
-        SpinUp,
-        Spin,
+        AltFireOn,
+        AltFireCycle,
+        AltFireOff,
         Fire1,
         Fire2,
-        Holster,
-        Draw
+        Fire3,
+        Fire4,
+        Draw,
+        Holster
     };
 
     switch (HumanPlayer->GetActiveWeaponSequNr())
@@ -85,23 +87,16 @@ void CarriedWeaponGaussT::ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentH
         case Draw:
             if (AnimSequenceWrap)
             {
-                HumanPlayer->SetActiveWeaponSequNr(Idle1);
+                HumanPlayer->SetActiveWeaponSequNr(Idle);
                 HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;
 
-        case Idle1:
-        case Idle2:
+        case Idle:
         case Fidget:
             if (AnimSequenceWrap)
             {
-                switch (rand() & 3)
-                {
-                    case  0: HumanPlayer->SetActiveWeaponSequNr(Idle2);
-                    case  1: HumanPlayer->SetActiveWeaponSequNr(Fidget);
-                    default: HumanPlayer->SetActiveWeaponSequNr(Idle1);
-                }
-
+                HumanPlayer->SetActiveWeaponSequNr(rand() & 1);
                 HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;

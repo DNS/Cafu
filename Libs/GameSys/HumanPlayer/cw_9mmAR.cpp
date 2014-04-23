@@ -20,7 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "cw_9mmAR.hpp"
-#include "../../PlayerCommand.hpp"
+#include "../../../Games/PlayerCommand.hpp"      // TODO: This file must be moved (and/or its contents completely redesigned).
 #include "Constants_AmmoSlots.hpp"
 #include "Constants_WeaponSlots.hpp"
 #include "GameSys/CompLightPoint.hpp"
@@ -40,7 +40,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SoundSystem/SoundShaderManager.hpp"
 #include "SoundSystem/Sound.hpp"
 
-using namespace GAME_NAME;
+using namespace cf::GameSys;
 
 
 CarriedWeapon9mmART::CarriedWeapon9mmART(ModelManagerT& ModelMan)

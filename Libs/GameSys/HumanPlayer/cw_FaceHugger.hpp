@@ -19,22 +19,34 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef CAFU_CW_PISTOL_HPP_INCLUDED
-#define CAFU_CW_PISTOL_HPP_INCLUDED
+#ifndef CAFU_CW_FACEHUGGER_HPP_INCLUDED
+#define CAFU_CW_FACEHUGGER_HPP_INCLUDED
 
 #include "cw.hpp"
 
 
-namespace GAME_NAME
+namespace cf
 {
-    class CarriedWeaponPistolT : public CarriedWeaponT
+    namespace GameSys
     {
-        public:
+        class CarriedWeaponFaceHuggerT : public CarriedWeaponT
+        {
+            public:
 
-        CarriedWeaponPistolT(ModelManagerT& ModelMan);
+            CarriedWeaponFaceHuggerT(ModelManagerT& ModelMan);
+            ~CarriedWeaponFaceHuggerT();
 
-        bool ServerSide_PickedUpByEntity(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const;
-    };
+            bool ServerSide_PickedUpByEntity(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const;
+            void ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;
+
+            void ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& LastSeenAmbientColor) const;
+
+
+            private:
+
+            SoundI* FireSound;
+        };
+    }
 }
 
 #endif

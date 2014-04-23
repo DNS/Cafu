@@ -19,23 +19,26 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef CAFU_CW_EGON_HPP_INCLUDED
-#define CAFU_CW_EGON_HPP_INCLUDED
+#ifndef CAFU_CW_GAUSS_HPP_INCLUDED
+#define CAFU_CW_GAUSS_HPP_INCLUDED
 
 #include "cw.hpp"
 
 
-namespace GAME_NAME
+namespace cf
 {
-    class CarriedWeaponEgonT : public CarriedWeaponT
+    namespace GameSys
     {
-        public:
+        class CarriedWeaponGaussT : public CarriedWeaponT
+        {
+            public:
 
-        CarriedWeaponEgonT(ModelManagerT& ModelMan);
+            CarriedWeaponGaussT(ModelManagerT& ModelMan);
 
-        bool ServerSide_PickedUpByEntity(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const;
-        void ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;
-    };
+            bool ServerSide_PickedUpByEntity(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const;
+            void ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;
+        };
+    }
 }
 
 #endif

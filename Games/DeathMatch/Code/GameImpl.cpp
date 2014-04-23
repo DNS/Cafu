@@ -21,18 +21,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "GameImpl.hpp"
 
-#include "cw.hpp"
-#include "cw_357.hpp"
-#include "cw_9mmAR.hpp"
-#include "cw_BattleScythe.hpp"
-#include "cw_CrossBow.hpp"
-#include "cw_Egon.hpp"
-#include "cw_FaceHugger.hpp"
-#include "cw_Gauss.hpp"
-#include "cw_Grenade.hpp"
-#include "cw_Pistol.hpp"
-#include "cw_RPG.hpp"
-#include "cw_Shotgun.hpp"
 #include "EntityCreateParams.hpp"
 
 #include "HumanPlayer.hpp"
@@ -118,20 +106,6 @@ GameImplT::GameImplT()
 
 void GameImplT::Initialize(bool AsClient, bool AsServer, ModelManagerT& ModelMan)
 {
-    m_CarriedWeapons.PushBack(new CarriedWeaponBattleScytheT(ModelMan));
-    m_CarriedWeapons.PushBack(new CarriedWeapon357T(ModelMan));     // The .357 acts as "dummy" implementation.
-    m_CarriedWeapons.PushBack(new CarriedWeaponPistolT(ModelMan));
-    m_CarriedWeapons.PushBack(new CarriedWeapon357T(ModelMan));
-    m_CarriedWeapons.PushBack(new CarriedWeaponShotgunT(ModelMan));
-    m_CarriedWeapons.PushBack(new CarriedWeapon9mmART(ModelMan));
-    m_CarriedWeapons.PushBack(new CarriedWeaponCrossBowT(ModelMan));
-    m_CarriedWeapons.PushBack(new CarriedWeaponRPGT(ModelMan));
-    m_CarriedWeapons.PushBack(new CarriedWeaponGaussT(ModelMan));
-    m_CarriedWeapons.PushBack(new CarriedWeaponEgonT(ModelMan));
-    m_CarriedWeapons.PushBack(new CarriedWeaponGrenadeT(ModelMan));
-    m_CarriedWeapons.PushBack(new CarriedWeapon357T(ModelMan));     // The .357 acts as "dummy" implementation.
-    m_CarriedWeapons.PushBack(new CarriedWeaponFaceHuggerT(ModelMan));
-
     RunningAsClient=AsClient;
     RunningAsServer=AsServer;
 
@@ -206,9 +180,6 @@ void GameImplT::Release()
     {
     }
 
-    for (unsigned int cwNr=0; cwNr<m_CarriedWeapons.Size(); cwNr++)
-        delete m_CarriedWeapons[cwNr];
-
     // for (unsigned int ModelNr=0; ModelNr<m_PlayerModels.Size(); ModelNr++)
     //     delete m_PlayerModels[ModelNr];  // No, don't delete them: they're from the ModelManager!
 }
@@ -242,10 +213,4 @@ IntrusivePtrT<GameEntityI> GameImplT::CreateGameEntity(const cf::TypeSys::TypeIn
     }
 
     return NewEnt;
-}
-
-
-const CarriedWeaponT* GameImplT::GetCarriedWeapon(unsigned int ActiveWeaponSlot) const
-{
-    return m_CarriedWeapons[ActiveWeaponSlot<m_CarriedWeapons.Size() ? ActiveWeaponSlot : 3];
 }

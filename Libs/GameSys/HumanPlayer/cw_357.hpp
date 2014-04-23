@@ -19,37 +19,37 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef CAFU_CW_SHOTGUN_HPP_INCLUDED
-#define CAFU_CW_SHOTGUN_HPP_INCLUDED
+#ifndef CAFU_CW_357_HPP_INCLUDED
+#define CAFU_CW_357_HPP_INCLUDED
 
 #include "cw.hpp"
 
 class ParticleMaterialSetT;
 
 
-namespace GAME_NAME
+namespace cf
 {
-    class CarriedWeaponShotgunT : public CarriedWeaponT
+    namespace GameSys
     {
-        public:
+        class CarriedWeapon357T : public CarriedWeaponT
+        {
+            public:
 
-        CarriedWeaponShotgunT(ModelManagerT& ModelMan);
-        ~CarriedWeaponShotgunT();
+            CarriedWeapon357T(ModelManagerT& ModelMan);
+            ~CarriedWeapon357T();
 
-        bool ServerSide_PickedUpByEntity(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const;
-        void ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;
+            bool ServerSide_PickedUpByEntity(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const;
+            void ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;
 
-        void ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& LastSeenAmbientColor) const;
-        void ClientSide_HandleSecondaryFireEvent(IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& LastSeenAmbientColor) const;
+            void ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& LastSeenAmbientColor) const;
 
 
-        private:
+            private:
 
-        SoundI* FireSound;
-        SoundI* AltFireSound;
-        ParticleMaterialSetT* m_GenericMatSet;
-        ParticleMaterialSetT* m_WhiteSmokeMatSet;
-    };
+            SoundI* FireSound;
+            ParticleMaterialSetT* m_GenericMatSet;
+        };
+    }
 }
 
 #endif

@@ -19,32 +19,25 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef CAFU_CW_BATTLESCYTHE_HPP_INCLUDED
-#define CAFU_CW_BATTLESCYTHE_HPP_INCLUDED
-
-#include "cw.hpp"
+#ifndef CAFU_GAMESYS_AMMOSLOTS_HPP_INCLUDED
+#define CAFU_GAMESYS_AMMOSLOTS_HPP_INCLUDED
 
 
-namespace GAME_NAME
+namespace cf
 {
-    class CarriedWeaponBattleScytheT : public CarriedWeaponT
+    namespace GameSys
     {
-        public:
-
-        CarriedWeaponBattleScytheT(ModelManagerT& ModelMan);
-        ~CarriedWeaponBattleScytheT();
-
-        bool ServerSide_PickedUpByEntity(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer) const;
-        void ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;
-
-        void ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& LastSeenAmbientColor) const;
-        void ClientSide_HandleSecondaryFireEvent(IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& LastSeenAmbientColor) const;
-
-
-        private:
-
-        SoundI* FireSound;
-    };
+        // Indices into State.HaveAmmo[].
+        const char AMMO_SLOT_9MM     = 0;
+        const char AMMO_SLOT_357     = 1;
+        const char AMMO_SLOT_SHELLS  = 2;
+        const char AMMO_SLOT_ARGREN  = 3;
+        const char AMMO_SLOT_ARROWS  = 4;
+        const char AMMO_SLOT_ROCKETS = 5;
+        const char AMMO_SLOT_CELLS   = 6;
+        const char AMMO_SLOT_FRAGS   = 15;
+        const char AMMO_SLOT_NONE    = 255;
+    }
 }
 
 #endif
