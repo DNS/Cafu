@@ -36,15 +36,11 @@ namespace GAME_NAME
     {
         public:
 
-        // Publicly defined enum for access from the "carried weapons".
-        enum EventTypesT { EVENT_TYPE_PRIMARY_FIRE, EVENT_TYPE_SECONDARY_FIRE, NUM_EVENT_TYPES };
-
         EntHumanPlayerT(const EntityCreateParamsT& Params);
 
         // Implement the BaseEntityT interface.
         void Think(float FrameTime, unsigned long ServerFrameNr);
 
-        void ProcessEvent(unsigned int EventType, unsigned int NumEvents);
         void Draw(bool FirstPersonView, float LodDist) const;
         void PostDraw(float FrameTime, bool FirstPersonView);
 

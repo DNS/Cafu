@@ -26,15 +26,16 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CompScript.hpp"
 #include "Entity.hpp"
 #include "World.hpp"
+
+#include "HumanPlayer/Constants_AmmoSlots.hpp"
+#include "HumanPlayer/Constants_WeaponSlots.hpp"
+#include "HumanPlayer/cw_357.hpp"
+
 #include "GuiSys/GuiImpl.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix3x3.hpp"
 #include "String.hpp"
 #include "UniScriptState.hpp"
-
-#define GAME_NAME
-#include "../Games/DeathMatch/Code/Constants_AmmoSlots.hpp"
-#include "../Games/DeathMatch/Code/Constants_WeaponSlots.hpp"
 
 extern "C"
 {
@@ -518,13 +519,15 @@ int ComponentHumanPlayerT::ProcessEvent(lua_State* LuaState)
     IntrusivePtrT<ComponentHumanPlayerT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentHumanPlayerT> >(1);
 
     const unsigned int EventType = unsigned(luaL_checkint(LuaState, 2));
-    const unsigned int NumEvents = unsigned(luaL_checkint(LuaState, 3));
+ // const unsigned int NumEvents = unsigned(luaL_checkint(LuaState, 3));
 
-    //switch (EventType)
-    //{
-    //    case EVENT_TYPE_PRIMARY_FIRE  : GameImplT::GetInstance().GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->ClientSide_HandlePrimaryFireEvent  (this, CompHP, LastSeenAmbientColor); break;
-    //    case EVENT_TYPE_SECONDARY_FIRE: GameImplT::GetInstance().GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->ClientSide_HandleSecondaryFireEvent(this, CompHP, LastSeenAmbientColor); break;
-    //}
+    const Vector3dT LastSeenAmbientColor(0, 1, 0);      // TODO...
+
+    switch (EventType)
+    {
+        case EVENT_TYPE_PRIMARY_FIRE:   Comp->GetCarriedWeapon(Comp->GetActiveWeaponSlot())->ClientSide_HandlePrimaryFireEvent  (Comp, LastSeenAmbientColor); break;
+        case EVENT_TYPE_SECONDARY_FIRE: Comp->GetCarriedWeapon(Comp->GetActiveWeaponSlot())->ClientSide_HandleSecondaryFireEvent(Comp, LastSeenAmbientColor); break;
+    }
 
     return 0;
 }

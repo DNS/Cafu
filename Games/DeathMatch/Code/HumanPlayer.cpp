@@ -90,7 +90,7 @@ EntHumanPlayerT::EntHumanPlayerT(const EntityCreateParamsT& Params)
     : BaseEntityT(Params,
                   BoundingBox3dT(Vector3dT( 16.0,  16.0,   4.0),    // A total of 32*32*72 inches, eye height at 68 inches.
                                  Vector3dT(-16.0, -16.0, -68.0)),
-                  NUM_EVENT_TYPES)
+                  0)
 {
     // TODO: This must be reconsidered when finally switching to the Component System!
     // // Interpolation is only required for client entities that are not "our" local entity (which is predicted).
@@ -831,18 +831,6 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
     }
 
     PlayerCommands.Overwrite();
-}
-
-
-void EntHumanPlayerT::ProcessEvent(unsigned int EventType, unsigned int /*NumEvents*/)
-{
-    IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(m_Entity->GetComponent("HumanPlayer"));
-
-    switch (EventType)
-    {
-        case EVENT_TYPE_PRIMARY_FIRE  : CompHP->GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->ClientSide_HandlePrimaryFireEvent  (CompHP, LastSeenAmbientColor); break;
-        case EVENT_TYPE_SECONDARY_FIRE: CompHP->GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->ClientSide_HandleSecondaryFireEvent(CompHP, LastSeenAmbientColor); break;
-    }
 }
 
 
