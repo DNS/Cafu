@@ -49,6 +49,16 @@ namespace cf
             /// @param Comp   The component to create a copy of.
             ComponentScriptT(const ComponentScriptT& Comp);
 
+            /// This function is used for posting an event of the given type.
+            /// It's the twin of `PostEvent(lua_State* LuaState)` below, but allows also C++ code to post events.
+            /// It is assumed that in the script (e.g. "HumanPlayer.lua"), script method InitEventTypes() has been called.
+            ///
+            /// The event is automatically sent from the entity instance on the server to the entity instances
+            /// on the clients, and causes a matching call to the ProcessEvent() callback there.
+            /// The meaning of the event type is up to the script code that implements ProcessEvent().
+            /// Note that events are fully predictable: they work well even in the presence of client prediction.
+            void PostEvent(unsigned int EventType);
+
 
             // Base class overrides.
             ComponentScriptT* Clone() const;

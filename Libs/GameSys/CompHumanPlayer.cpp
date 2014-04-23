@@ -53,6 +53,10 @@ static const uint8_t StateOfExistence_FrozenSpectator = 2;
 static const uint8_t StateOfExistence_FreeSpectator   = 3;
 
 
+const unsigned int ComponentHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE   = 1;
+const unsigned int ComponentHumanPlayerT::EVENT_TYPE_SECONDARY_FIRE = 2;
+
+
 const char* ComponentHumanPlayerT::DocClass =
     "Entities with this component are associated with a client connection\n"
     "at whose end is a human player who provides input to control the entity.";
@@ -312,6 +316,18 @@ void ComponentHumanPlayerT::InflictDamage(EntityT* OtherEnt, float Amount, const
 }
 
 
+void ComponentHumanPlayerT::PostEvent(unsigned int EventType) const
+{
+    IntrusivePtrT<ComponentScriptT> Script =
+        dynamic_pointer_cast<ComponentScriptT>(GetEntity()->GetComponent("Script"));
+
+    // This assumes that in the Script component's script ("HumanPlayer.lua"),
+    // script method InitEventTypes() has been called.
+    if (Script != NULL)
+        Script->PostEvent(EventType);
+}
+
+
 ComponentHumanPlayerT* ComponentHumanPlayerT::Clone() const
 {
     return new ComponentHumanPlayerT(*this);
@@ -483,6 +499,31 @@ int ComponentHumanPlayerT::GetAmmoString(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_ProcessEvent =
+{
+    "ProcessEvent",
+    "This method is used by the HumanPlayer.lua script in order to redirect events to the HumanPlayer component.",
+    "string", "()"
+};
+
+int ComponentHumanPlayerT::ProcessEvent(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<ComponentHumanPlayerT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentHumanPlayerT> >(1);
+
+    const unsigned int EventType = unsigned(luaL_checkint(LuaState, 2));
+    const unsigned int NumEvents = unsigned(luaL_checkint(LuaState, 3));
+
+    //switch (EventType)
+    //{
+    //    case EVENT_TYPE_PRIMARY_FIRE  : GameImplT::GetInstance().GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->ClientSide_HandlePrimaryFireEvent  (this, CompHP, LastSeenAmbientColor); break;
+    //    case EVENT_TYPE_SECONDARY_FIRE: GameImplT::GetInstance().GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->ClientSide_HandleSecondaryFireEvent(this, CompHP, LastSeenAmbientColor); break;
+    //}
+
+    return 0;
+}
+
+
 static const cf::TypeSys::MethsDocT META_toString =
 {
     "__tostring",
@@ -513,6 +554,7 @@ const luaL_Reg ComponentHumanPlayerT::MethodsList[] =
 {
     { "GetCrosshairInfo", GetCrosshairInfo },
     { "GetAmmoString",    GetAmmoString },
+    { "ProcessEvent",     ProcessEvent },
     { "__tostring",       toString },
     { NULL, NULL }
 };
@@ -521,6 +563,7 @@ const cf::TypeSys::MethsDocT ComponentHumanPlayerT::DocMethods[] =
 {
     META_GetCrosshairInfo,
     META_GetAmmoString,
+    META_ProcessEvent,
     META_toString,
     { NULL, NULL, NULL, NULL }
 };

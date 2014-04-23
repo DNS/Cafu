@@ -40,6 +40,10 @@ namespace cf
         {
             public:
 
+            static const unsigned int EVENT_TYPE_PRIMARY_FIRE;
+            static const unsigned int EVENT_TYPE_SECONDARY_FIRE;
+
+
             /// The constructor.
             ComponentHumanPlayerT();
 
@@ -66,6 +70,10 @@ namespace cf
 
             /// Another convenience method for use by the `CarriedWeaponT` method implementations.
             void InflictDamage(EntityT* OtherEnt, float Amount, const Vector3dT& Dir) const;
+
+            /// Another convenience method for use by the `CarriedWeaponT` method implementations.
+            /// It calls the PostEvent() method of the players Script component.
+            void PostEvent(unsigned int EventType) const;
 
             // Temporary methods, so that obsolete DeathMatch code can access our data.
             uint8_t GetStateOfExistence() const { return m_StateOfExistence.Get(); }
@@ -106,6 +114,7 @@ namespace cf
             // The Lua API methods of this class.
             static int GetCrosshairInfo(lua_State* LuaState);
             static int GetAmmoString(lua_State* LuaState);
+            static int ProcessEvent(lua_State* LuaState);
             static int toString(lua_State* LuaState);
 
             static const luaL_Reg               MethodsList[];  ///< The list of Lua methods for this class.

@@ -5,12 +5,16 @@ local Trafo          = Entity:GetTransform()
 local Model3rdPerson = Entity:GetComponent("Model")
 local PlPhysics      = Entity:GetComponent("PlayerPhysics")
 
-
 -- These constants for PlayerData:get("State") mirror those defined in CompHumanPlayer.cpp.
 local STATE_ALIVE            = 0
 local STATE_DEAD             = 1
 local STATE_FROZEN_SPECTATOR = 2
 local STATE_FREE_SPECTATOR   = 3
+
+PlayerScript.EVENT_TYPE_PRIMARY_FIRE   = 1
+PlayerScript.EVENT_TYPE_SECONDARY_FIRE = 2
+
+PlayerScript:InitEventTypes(2)
 
 
 function PlayerScript:AddFrag(NumFrags)
@@ -83,6 +87,14 @@ function PlayerScript:TakeDamage(OtherEnt, Amount, ImpDirX, ImpDirY, ImpDirZ)
     if OtherScript and OtherScript.AddFrag then
         OtherScript:AddFrag(OtherEnt:GetID() == Entity:GetID() and -1 or 1)
     end
+end
+
+
+-- This method is called automatically on the client whenever an event arrives.
+function PlayerScript:ProcessEvent(EventType, NumEvents)
+    -- The handling of player events is implemented in the "HumanPlayer"
+    -- component at this time, so forward all events there.
+    PlayerData:ProcessEvent(EventType, NumEvents)
 end
 
 

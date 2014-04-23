@@ -88,6 +88,15 @@ ComponentScriptT::ComponentScriptT(const ComponentScriptT& Comp)
 }
 
 
+void ComponentScriptT::PostEvent(unsigned int EventType)
+{
+    // It is assumed that in the script (e.g. "HumanPlayer.lua"),
+    // script method InitEventTypes() has been called.
+    // See `PostEvent(lua_State* LuaState)` below for further details.
+    m_EventsCount[EventType - 1]++;
+}
+
+
 ComponentScriptT* ComponentScriptT::Clone() const
 {
     return new ComponentScriptT(*this);
