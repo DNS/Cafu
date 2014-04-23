@@ -24,7 +24,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../../GameWorld.hpp"
 #include "HumanPlayer.hpp"
 #include "Constants_WeaponSlots.hpp"
-#include "Libs/LookupTables.hpp"
 #include "GameSys/CompModel.hpp"
 #include "GameSys/CompParticleSystemOld.hpp"
 #include "GameSys/CompPlayerPhysics.hpp"
@@ -138,7 +137,7 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(IntrusivePtrT<cf::GameSys::Compo
             {
                 if (HumanPlayer->GetActiveWeaponSequNr() == 0)
                 {
-                    const char RandomNumber=char(LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF]);
+                    const char RandomNumber = rand();
 
                          if (RandomNumber<32) HumanPlayer->SetActiveWeaponSequNr(1);
                     else if (RandomNumber<64) HumanPlayer->SetActiveWeaponSequNr(2);

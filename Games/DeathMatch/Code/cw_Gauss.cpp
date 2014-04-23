@@ -24,7 +24,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "HumanPlayer.hpp"
 #include "Constants_AmmoSlots.hpp"
 #include "Constants_WeaponSlots.hpp"
-#include "Libs/LookupTables.hpp"
 #include "Models/ModelManager.hpp"
 
 using namespace GAME_NAME;
@@ -97,7 +96,7 @@ void CarriedWeaponGaussT::ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentH
         case Fidget:
             if (AnimSequenceWrap)
             {
-                switch (LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF] & 3)
+                switch (rand() & 3)
                 {
                     case  0: HumanPlayer->SetActiveWeaponSequNr(Idle2);
                     case  1: HumanPlayer->SetActiveWeaponSequNr(Fidget);

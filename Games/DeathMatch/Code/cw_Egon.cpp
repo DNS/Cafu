@@ -24,7 +24,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "HumanPlayer.hpp"
 #include "Constants_AmmoSlots.hpp"
 #include "Constants_WeaponSlots.hpp"
-#include "Libs/LookupTables.hpp"
 #include "Models/ModelManager.hpp"
 
 using namespace GAME_NAME;
@@ -98,7 +97,7 @@ void CarriedWeaponEgonT::ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHu
         case Fidget:
             if (AnimSequenceWrap)
             {
-                HumanPlayer->SetActiveWeaponSequNr(LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF] & 1);
+                HumanPlayer->SetActiveWeaponSequNr(rand() & 1);
                 HumanPlayer->SetActiveWeaponFrameNr(0.0f);
             }
             break;

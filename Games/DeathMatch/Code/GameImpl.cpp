@@ -45,7 +45,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SoundSystem/SoundShaderManager.hpp"
 #include "SoundSystem/Sound.hpp"
 #include "_ResourceManager.hpp"
-#include "Libs/LookupTables.hpp"
 
 #include "ConsoleCommands/Console.hpp"
 
@@ -114,8 +113,6 @@ GameImplT::GameImplT()
     : RunningAsClient(false),
       RunningAsServer(false)
 {
-    LookupTables::Initialize();
-
     GetBaseEntTIM().Init();
 }
 

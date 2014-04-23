@@ -27,7 +27,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Constants_AmmoSlots.hpp"
 #include "Constants_WeaponSlots.hpp"
 #include "PhysicsWorld.hpp"
-#include "Libs/LookupTables.hpp"
 #include "GameSys/CompLightPoint.hpp"
 #include "GameSys/CompModel.hpp"
 #include "GameSys/CompParticleSystemOld.hpp"
@@ -169,7 +168,7 @@ void CarriedWeapon9mmART::ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentH
 
             if (PlayerCommand.Keys & PCK_Fire1)
             {
-                HumanPlayer->SetActiveWeaponSequNr(5 + (LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF] % 3));
+                HumanPlayer->SetActiveWeaponSequNr(5 + (rand() % 3));
                 HumanPlayer->SetActiveWeaponFrameNr(0.0f);
                 HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_9MMAR]--;
 
@@ -253,7 +252,7 @@ void CarriedWeapon9mmART::ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentH
             {
                 if (HumanPlayer->GetActiveWeaponSequNr() == 0)
                 {
-                    HumanPlayer->SetActiveWeaponSequNr(LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF] & 1);
+                    HumanPlayer->SetActiveWeaponSequNr(rand() & 1);
                 }
                 else HumanPlayer->SetActiveWeaponSequNr(0);     // Don't play the "Idle1" sequence repeatedly.
 

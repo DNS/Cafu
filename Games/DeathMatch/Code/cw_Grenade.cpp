@@ -24,7 +24,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../../GameWorld.hpp"
 #include "HumanPlayer.hpp"
 #include "Constants_WeaponSlots.hpp"
-#include "Libs/LookupTables.hpp"
 #include "GameSys/CompLightPoint.hpp"
 #include "GameSys/CompModel.hpp"
 #include "GameSys/CompParticleSystemOld.hpp"
@@ -100,7 +99,7 @@ void CarriedWeaponGrenadeT::ServerSide_Think(IntrusivePtrT<cf::GameSys::Componen
             {
                 if (HumanPlayer->GetActiveWeaponSequNr() == 0)
                 {
-                    HumanPlayer->SetActiveWeaponSequNr(LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF] & 1);
+                    HumanPlayer->SetActiveWeaponSequNr(rand() & 1);
                 }
                 else HumanPlayer->SetActiveWeaponSequNr(0);     // Don't play the "Fidget" sequence repeatedly.
 

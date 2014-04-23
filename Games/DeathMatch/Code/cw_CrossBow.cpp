@@ -26,7 +26,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Constants_AmmoSlots.hpp"
 #include "Constants_WeaponSlots.hpp"
 #include "PhysicsWorld.hpp"
-#include "Libs/LookupTables.hpp"
 #include "GameSys/CompPhysics.hpp"
 #include "Models/ModelManager.hpp"
 
@@ -98,7 +97,7 @@ void CarriedWeaponCrossBowT::ServerSide_Think(IntrusivePtrT<cf::GameSys::Compone
             {
                 if (HumanPlayer->GetActiveWeaponSequNr() == 2)
                 {
-                    HumanPlayer->SetActiveWeaponSequNr(LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF] % 3);
+                    HumanPlayer->SetActiveWeaponSequNr(rand() % 3);
                 }
                 else HumanPlayer->SetActiveWeaponSequNr(2);    // Idle3 is the "best-looking" sequence.
 

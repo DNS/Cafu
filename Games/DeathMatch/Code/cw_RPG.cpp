@@ -33,7 +33,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameSys/EntityCreateParams.hpp"
 #include "GameSys/World.hpp"
 #include "Math3D/Angles.hpp"
-#include "Libs/LookupTables.hpp"
 #include "Models/ModelManager.hpp"
 
 using namespace GAME_NAME;
@@ -156,7 +155,7 @@ void CarriedWeaponRPGT::ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHum
             {
                 if (HumanPlayer->GetActiveWeaponSequNr() == 0)
                 {
-                    HumanPlayer->SetActiveWeaponSequNr(LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF] & 1);
+                    HumanPlayer->SetActiveWeaponSequNr(rand() & 1);
                 }
                 else HumanPlayer->SetActiveWeaponSequNr(0);     // Don't play the "Fidget" sequence repeatedly.
 

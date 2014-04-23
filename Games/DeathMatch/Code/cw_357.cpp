@@ -27,7 +27,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Constants_AmmoSlots.hpp"
 #include "Constants_WeaponSlots.hpp"
 #include "PhysicsWorld.hpp"
-#include "Libs/LookupTables.hpp"
 #include "GameSys/CompPhysics.hpp"
 #include "Models/ModelManager.hpp"
 #include "ParticleEngine/ParticleEngineMS.hpp"
@@ -166,7 +165,7 @@ void CarriedWeapon357T::ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHum
             // 3. If nothing else has happened, just choose another sequence number on sequence wrap.
             if (AnimSequenceWrap)
             {
-                const char RandomNumber=char(LookupTables::RandomUShort[PlayerCommand.Nr & 0xFFF]);
+                const char RandomNumber = rand();
 
                      if (RandomNumber< 96) HumanPlayer->SetActiveWeaponSequNr(0);  // Idle 1
                 else if (RandomNumber<192) HumanPlayer->SetActiveWeaponSequNr(6);  // Idle 2
