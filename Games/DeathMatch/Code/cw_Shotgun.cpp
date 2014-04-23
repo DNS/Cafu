@@ -21,10 +21,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "cw_Shotgun.hpp"
 #include "../../PlayerCommand.hpp"
-#include "_ResourceManager.hpp"
 #include "Constants_AmmoSlots.hpp"
 #include "Constants_WeaponSlots.hpp"
-#include "PhysicsWorld.hpp"
 #include "GameSys/CompPhysics.hpp"
 #include "Models/ModelManager.hpp"
 #include "ParticleEngine/ParticleEngineMS.hpp"
@@ -39,13 +37,24 @@ CarriedWeaponShotgunT::CarriedWeaponShotgunT(ModelManagerT& ModelMan)
     : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Shotgun/Shotgun_v.cmdl"),
                      ModelMan.GetModel("Games/DeathMatch/Models/Weapons/Shotgun/Shotgun_p.cmdl")),
       FireSound   (SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/Shotgun_sBarrel"))),
-      AltFireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/Shotgun_dBarrel")))
+      AltFireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/Shotgun_dBarrel"))),
+      m_GenericMatSet(NULL),
+      m_WhiteSmokeMatSet(NULL)
 {
+    // TODO: Should rather store ParticleMaterialSetTs where their lifetime cannot be shorter than that of all particles...
+    m_GenericMatSet = new ParticleMaterialSetT("generic", "Sprites/Generic1");
+    m_WhiteSmokeMatSet = new ParticleMaterialSetT("white-smoke", "Sprites/smoke1/smoke_%02u");
 }
 
 
 CarriedWeaponShotgunT::~CarriedWeaponShotgunT()
 {
+    delete m_WhiteSmokeMatSet;
+    m_WhiteSmokeMatSet = NULL;
+
+    delete m_GenericMatSet;
+    m_GenericMatSet = NULL;
+
     // Release Sound.
     SoundSystem->DeleteSound(FireSound);
     SoundSystem->DeleteSound(AltFireSound);
@@ -272,7 +281,10 @@ static bool ParticleFunction_ShotgunWhiteSmoke(ParticleMST* Particle, float Time
     Particle->Origin[2]+=Particle->Velocity[2]*Time;
 
     Particle->Radius+=Time*40.0f;
-    Particle->RenderMat=ResMan.RenderMats[ResMan.PARTICLE_WHITESMOKE_FRAME1+(unsigned long)(Particle->Age*FPS)];
+
+    const unsigned long MatNr = (unsigned long)(Particle->Age * FPS);
+    assert(MatNr < Particle->AllRMs->Size());
+    Particle->RenderMat = (*Particle->AllRMs)[MatNr];
 
     Particle->Age+=Time;
     if (Particle->Age>=MaxAge) return false;
@@ -306,7 +318,8 @@ void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<cons
 
         NewParticle.Radius=12.0;
         NewParticle.StretchY=1.0;
-        NewParticle.RenderMat=ResMan.RenderMats[ResMan.PARTICLE_GENERIC1];
+        NewParticle.AllRMs = NULL;
+        NewParticle.RenderMat = m_GenericMatSet->GetRenderMats()[0];
         NewParticle.MoveFunction=RayResult.GetHitPhysicsComp()==NULL ? ParticleFunction_ShotgunHitWall : ParticleFunction_HitEntity;
 
         ParticleEngineMS::RegisterNewParticle(NewParticle);
@@ -334,7 +347,8 @@ void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<cons
     NewParticle.Radius=3.2f;
     NewParticle.Rotation=char(rand());
     NewParticle.StretchY=1.0;
-    NewParticle.RenderMat=ResMan.RenderMats[ResMan.PARTICLE_WHITESMOKE_FRAME1];
+    NewParticle.AllRMs = &m_WhiteSmokeMatSet->GetRenderMats();
+    NewParticle.RenderMat = m_WhiteSmokeMatSet->GetRenderMats()[0];
     NewParticle.MoveFunction=ParticleFunction_ShotgunWhiteSmoke;
 
     ParticleEngineMS::RegisterNewParticle(NewParticle);
@@ -373,7 +387,8 @@ void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(IntrusivePtrT<co
 
         NewParticle.Radius=12.0;
         NewParticle.StretchY=1.0;
-        NewParticle.RenderMat=ResMan.RenderMats[ResMan.PARTICLE_GENERIC1];
+        NewParticle.AllRMs = NULL;
+        NewParticle.RenderMat = m_GenericMatSet->GetRenderMats()[0];
         NewParticle.MoveFunction=RayResult.GetHitPhysicsComp()==NULL ? ParticleFunction_ShotgunHitWall : ParticleFunction_HitEntity;
 
         ParticleEngineMS::RegisterNewParticle(NewParticle);
@@ -401,7 +416,8 @@ void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(IntrusivePtrT<co
     NewParticle.Radius=8.0;
     NewParticle.Rotation=char(rand());
     NewParticle.StretchY=1.0;
-    NewParticle.RenderMat=ResMan.RenderMats[ResMan.PARTICLE_WHITESMOKE_FRAME1];
+    NewParticle.AllRMs = &m_WhiteSmokeMatSet->GetRenderMats();
+    NewParticle.RenderMat = m_WhiteSmokeMatSet->GetRenderMats()[0];
     NewParticle.MoveFunction=ParticleFunction_ShotgunWhiteSmoke;
 
     ParticleEngineMS::RegisterNewParticle(NewParticle);

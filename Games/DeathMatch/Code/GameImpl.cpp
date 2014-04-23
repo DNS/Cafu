@@ -44,7 +44,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SoundSystem/SoundSys.hpp"
 #include "SoundSystem/SoundShaderManager.hpp"
 #include "SoundSystem/Sound.hpp"
-#include "_ResourceManager.hpp"
 
 #include "ConsoleCommands/Console.hpp"
 
@@ -138,13 +137,6 @@ void GameImplT::Initialize(bool AsClient, bool AsServer, ModelManagerT& ModelMan
 
     if (RunningAsClient)
     {
-        // We can initialize most MatSys-related resources only AFTER the global pointers have been set:
-        // MatSys::Renderer, MatSys::TextureMapManager, and MaterialSystem.
-        // These point to the implementations that are provided by the engine main exe module,
-        // and are accessed e.g. by the models and particles constructors.
-        ResMan.Init();
-
-
         // Materials that should be pre-cached (as many as possible) must be registered with the MatSys *before* the engine triggers the MatSys's pre-caching.
         // On the other hand, registering materials can only be done *after* GetGame() was called.
         // So a good place for registering materials that we need within this DLL is for example at the end of GetGame(), or right here.
@@ -205,8 +197,6 @@ void GameImplT::Release()
 {
     if (RunningAsClient)
     {
-        ResMan.ShutDown();
-
         // Remove reference to precached sounds here.
         for (unsigned long i=0; i<m_PreCacheSounds.Size(); i++)
             delete m_PreCacheSounds[i];

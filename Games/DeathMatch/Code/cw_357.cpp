@@ -21,10 +21,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "cw_357.hpp"
 #include "../../PlayerCommand.hpp"
-#include "_ResourceManager.hpp"
 #include "Constants_AmmoSlots.hpp"
 #include "Constants_WeaponSlots.hpp"
-#include "PhysicsWorld.hpp"
 #include "GameSys/CompPhysics.hpp"
 #include "Models/ModelManager.hpp"
 #include "ParticleEngine/ParticleEngineMS.hpp"
@@ -38,13 +36,19 @@ using namespace GAME_NAME;
 CarriedWeapon357T::CarriedWeapon357T(ModelManagerT& ModelMan)
     : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/DesertEagle/DesertEagle_v.cmdl"),
                      ModelMan.GetModel("Games/DeathMatch/Models/Weapons/DesertEagle/DesertEagle_p.cmdl")),
-      FireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/DesertEagle_Shot1")))
+      FireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/DesertEagle_Shot1"))),
+      m_GenericMatSet(NULL)
 {
+    // TODO: Should rather store ParticleMaterialSetTs where their lifetime cannot be shorter than that of all particles...
+    m_GenericMatSet = new ParticleMaterialSetT("generic", "Sprites/Generic1");
 }
 
 
 CarriedWeapon357T::~CarriedWeapon357T()
 {
+    delete m_GenericMatSet;
+    m_GenericMatSet = NULL;
+
     // Release Sound.
     SoundSystem->DeleteSound(FireSound);
 }
@@ -236,7 +240,9 @@ void CarriedWeapon357T::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<const cf
 
     NewParticle.Radius=12.0;
     NewParticle.StretchY=1.0;
-    NewParticle.RenderMat=ResMan.RenderMats[ResMan.PARTICLE_GENERIC1];
+
+    NewParticle.AllRMs = NULL;
+    NewParticle.RenderMat = m_GenericMatSet->GetRenderMats()[0];
     NewParticle.MoveFunction=RayResult.GetHitPhysicsComp()==NULL ? ParticleFunction_HitWall : ParticleFunction_HitEntity;
 
     ParticleEngineMS::RegisterNewParticle(NewParticle);

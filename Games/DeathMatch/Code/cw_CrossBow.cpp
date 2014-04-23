@@ -23,7 +23,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../../PlayerCommand.hpp"
 #include "Constants_AmmoSlots.hpp"
 #include "Constants_WeaponSlots.hpp"
-#include "PhysicsWorld.hpp"
 #include "GameSys/CompPhysics.hpp"
 #include "Models/ModelManager.hpp"
 

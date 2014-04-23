@@ -21,10 +21,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "cw_9mmAR.hpp"
 #include "../../PlayerCommand.hpp"
-#include "_ResourceManager.hpp"
 #include "Constants_AmmoSlots.hpp"
 #include "Constants_WeaponSlots.hpp"
-#include "PhysicsWorld.hpp"
 #include "GameSys/CompLightPoint.hpp"
 #include "GameSys/CompModel.hpp"
 #include "GameSys/CompParticleSystemOld.hpp"
@@ -49,13 +47,19 @@ CarriedWeapon9mmART::CarriedWeapon9mmART(ModelManagerT& ModelMan)
     : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/9mmAR/9mmAR_v.cmdl"),
                      ModelMan.GetModel("Games/DeathMatch/Models/Weapons/9mmAR/9mmAR_p.cmdl")),
       FireSound   (SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/9mmAR_Shot1"))),
-      AltFireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/9mmAR_GLauncher")))
+      AltFireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/9mmAR_GLauncher"))),
+      m_GenericMatSet(NULL)
 {
+    // TODO: Should rather store ParticleMaterialSetTs where their lifetime cannot be shorter than that of all particles...
+    m_GenericMatSet = new ParticleMaterialSetT("generic", "Sprites/Generic1");
 }
 
 
 CarriedWeapon9mmART::~CarriedWeapon9mmART()
 {
+    delete m_GenericMatSet;
+    m_GenericMatSet = NULL;
+
     // Release Sound.
     SoundSystem->DeleteSound(FireSound);
     SoundSystem->DeleteSound(AltFireSound);
@@ -336,7 +340,8 @@ void CarriedWeapon9mmART::ClientSide_HandleStateDrivenEffects(IntrusivePtrT<cons
 
             NewParticle.Radius=12.0;
             NewParticle.StretchY=1.0;
-            NewParticle.RenderMat=ResMan.RenderMats[ResMan.PARTICLE_GENERIC1];
+            NewParticle.AllRMs = NULL;
+            NewParticle.RenderMat = m_GenericMatSet->GetRenderMats()[0];
             NewParticle.MoveFunction=RayResult.GetHitPhysicsComp()==NULL ? ParticleFunction_HitWall : ParticleFunction_HitEntity;
 
             ParticleEngineMS::RegisterNewParticle(NewParticle);

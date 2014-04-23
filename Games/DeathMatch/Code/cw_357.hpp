@@ -24,6 +24,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "cw.hpp"
 
+class ParticleMaterialSetT;
+
 
 namespace GAME_NAME
 {
@@ -43,6 +45,7 @@ namespace GAME_NAME
         private:
 
         SoundI* FireSound;
+        ParticleMaterialSetT* m_GenericMatSet;
     };
 }
 

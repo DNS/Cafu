@@ -28,6 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_PARTICLE_ENGINE_MATSYS_HPP_INCLUDED
 
 #include "Templates/Array.hpp"
+#include <string>
 
 
 namespace MatSys { class RenderMaterialT; }
@@ -71,5 +72,25 @@ namespace ParticleEngineMS
     /// Draws all currently known (alive) particles.
     void DrawParticles();
 }
+
+
+/// This class represents a set of (render-)materials.
+/// The materials in one such set are typically used for implementing an animated particle, e.g. an explosion.
+class ParticleMaterialSetT
+{
+    public:
+
+    ParticleMaterialSetT(const char* SetName, const char* MatNamePattern);
+
+    ~ParticleMaterialSetT();
+
+    ArrayT<MatSys::RenderMaterialT*>& GetRenderMats() { return m_RenderMats; }
+
+
+    private:
+
+    const std::string                m_SetName;
+    ArrayT<MatSys::RenderMaterialT*> m_RenderMats;
+};
 
 #endif

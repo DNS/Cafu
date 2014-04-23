@@ -26,7 +26,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "EntityCreateParams.hpp"
 #include "GameImpl.hpp"
 #include "Interpolator.hpp"
-#include "PhysicsWorld.hpp"
 
 #include "../../PlayerCommand.hpp"
 #include "ClipSys/ClipWorld.hpp"

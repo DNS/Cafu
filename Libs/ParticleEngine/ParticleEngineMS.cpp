@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <math.h>
 
 #include "ParticleEngineMS.hpp"
+#include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/Mesh.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix.hpp"
@@ -246,4 +247,36 @@ void ParticleEngineMS::DrawParticles()
             MatSys::Renderer->RenderMesh(ParticleGroupMesh);
         }
     }
+}
+
+
+ParticleMaterialSetT::ParticleMaterialSetT(const char* SetName, const char* MatNamePattern)
+    : m_SetName(SetName)
+{
+    std::string PrevName = "";
+
+    for (unsigned int FrameNr = 1; true; FrameNr++)
+    {
+        char ParticleName[256];
+
+        sprintf(ParticleName, MatNamePattern, FrameNr);
+
+        if (ParticleName == PrevName) break;
+        PrevName = ParticleName;
+
+        MaterialT* Mat = MaterialManager->GetMaterial(ParticleName);
+
+        if (!Mat) break;
+
+        m_RenderMats.PushBack(MatSys::Renderer->RegisterMaterial(Mat));
+    }
+}
+
+
+ParticleMaterialSetT::~ParticleMaterialSetT()
+{
+    for (unsigned int RMNr = 0; RMNr < m_RenderMats.Size(); RMNr++)
+        MatSys::Renderer->FreeMaterial(m_RenderMats[RMNr]);
+
+    m_RenderMats.Clear();
 }
