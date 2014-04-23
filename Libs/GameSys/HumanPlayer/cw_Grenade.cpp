@@ -81,7 +81,7 @@ bool CarriedWeaponGrenadeT::ServerSide_PickedUpByEntity(IntrusivePtrT<cf::GameSy
 }
 
 
-void CarriedWeaponGrenadeT::ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const
+void CarriedWeaponGrenadeT::ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, bool AnimSequenceWrap) const
 {
     switch (HumanPlayer->GetActiveWeaponSequNr())
     {

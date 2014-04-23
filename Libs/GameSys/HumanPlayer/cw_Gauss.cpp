@@ -65,7 +65,7 @@ bool CarriedWeaponGaussT::ServerSide_PickedUpByEntity(IntrusivePtrT<cf::GameSys:
 }
 
 
-void CarriedWeaponGaussT::ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool /*ThinkingOnServerSide*/, unsigned long /*ServerFrameNr*/, bool AnimSequenceWrap) const
+void CarriedWeaponGaussT::ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool /*ThinkingOnServerSide*/, bool AnimSequenceWrap) const
 {
     enum SequenceNames
     {

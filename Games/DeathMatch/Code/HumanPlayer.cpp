@@ -380,7 +380,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
                     CompHP->SetActiveWeaponFrameNr(NewFrameNr);
 
-                    CarriedWeapon->ServerSide_Think(CompHP, PlayerCommands[PCNr], ThinkingOnServerSide, ServerFrameNr, AnimSequenceWrap);
+                    CarriedWeapon->ServerSide_Think(CompHP, PlayerCommands[PCNr], ThinkingOnServerSide, AnimSequenceWrap);
                 }
 
 

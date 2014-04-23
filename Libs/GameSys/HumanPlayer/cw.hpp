@@ -75,7 +75,7 @@ namespace cf
 
             /// This functions handles the thinking for this carried weapon.
             /// Typically called from within EntHumanPlayerT::Think().
-            virtual void ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, unsigned long ServerFrameNr, bool AnimSequenceWrap) const;
+            virtual void ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide, bool AnimSequenceWrap) const;
 
 
             /// This function handles the occurance of a "primary fire" event that was received by Entity.
