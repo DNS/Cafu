@@ -623,33 +623,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
                         Binder.Push(this->m_Entity);
 
-#if 0
                         ScriptComp->CallLuaMethod("OnTrigger", 1);
-#else
-                        // The string return value is a work-around for the inability of OnTrigger()'s
-                        // implementation to call into the old entity code here.
-                        std::string WeaponName;
-                        ScriptComp->CallLuaMethod("OnTrigger", 1, ">S", &WeaponName);
-
-                        // What's about the Glock17 model? It seems we have a model, but no code for it?
-                             if (WeaponName == "BattleScythe") CompHP->GetCarriedWeapon(WEAPON_SLOT_BATTLESCYTHE)->ServerSide_PickedUpByEntity(CompHP);
-                        else if (WeaponName == "HornetGun"   ) CompHP->GetCarriedWeapon(WEAPON_SLOT_HORNETGUN   )->ServerSide_PickedUpByEntity(CompHP);
-                        else if (WeaponName == "Beretta"     ) CompHP->GetCarriedWeapon(WEAPON_SLOT_PISTOL      )->ServerSide_PickedUpByEntity(CompHP);
-                        else if (WeaponName == "DesertEagle" ) CompHP->GetCarriedWeapon(WEAPON_SLOT_357         )->ServerSide_PickedUpByEntity(CompHP);
-                        else if (WeaponName == "Shotgun"     ) CompHP->GetCarriedWeapon(WEAPON_SLOT_SHOTGUN     )->ServerSide_PickedUpByEntity(CompHP);
-                        else if (WeaponName == "9mmAR"       ) CompHP->GetCarriedWeapon(WEAPON_SLOT_9MMAR       )->ServerSide_PickedUpByEntity(CompHP);
-                        else if (WeaponName == "DartGun"     ) CompHP->GetCarriedWeapon(WEAPON_SLOT_CROSSBOW    )->ServerSide_PickedUpByEntity(CompHP);
-                        else if (WeaponName == "Bazooka"     ) CompHP->GetCarriedWeapon(WEAPON_SLOT_RPG         )->ServerSide_PickedUpByEntity(CompHP);
-                        else if (WeaponName == "Gauss"       ) CompHP->GetCarriedWeapon(WEAPON_SLOT_GAUSS       )->ServerSide_PickedUpByEntity(CompHP);
-                        else if (WeaponName == "Egon"        ) CompHP->GetCarriedWeapon(WEAPON_SLOT_EGON        )->ServerSide_PickedUpByEntity(CompHP);
-                        else if (WeaponName == "Grenade"     ) CompHP->GetCarriedWeapon(WEAPON_SLOT_GRENADE     )->ServerSide_PickedUpByEntity(CompHP);
-                        else if (WeaponName == "Tripmine"    ) CompHP->GetCarriedWeapon(WEAPON_SLOT_TRIPMINE    )->ServerSide_PickedUpByEntity(CompHP);
-                        else if (WeaponName == "FaceHugger"  ) CompHP->GetCarriedWeapon(WEAPON_SLOT_FACEHUGGER  )->ServerSide_PickedUpByEntity(CompHP);
-
-                        else if (WeaponName == "Ammo_DartGun"    ) CompHP->GetHaveAmmo()[AMMO_SLOT_ARROWS] = std::min(CompHP->GetHaveAmmo()[AMMO_SLOT_ARROWS] +  5,  30);
-                        else if (WeaponName == "Ammo_DesertEagle") CompHP->GetHaveAmmo()[AMMO_SLOT_357   ] = std::min(CompHP->GetHaveAmmo()[AMMO_SLOT_357   ] +  6,  36);
-                        else if (WeaponName == "Ammo_Gauss"      ) CompHP->GetHaveAmmo()[AMMO_SLOT_CELLS ] = std::min(CompHP->GetHaveAmmo()[AMMO_SLOT_CELLS ] + 40, 200);
-#endif
                     }
                 }
 

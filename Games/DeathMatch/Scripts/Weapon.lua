@@ -54,6 +54,7 @@ function Weapon:Think(FrameTime)
 end
 
 
+-- This method is called automatically whenever `Ent` finds itself in this weapon's trigger volume.
 function Weapon:OnTrigger(Ent)
     -- print("This weapon (", self, ") is touched by", Ent)
     -- print("Weapon entity:", self:GetEntity())
@@ -61,34 +62,26 @@ function Weapon:OnTrigger(Ent)
     -- If we are touched when not being "active", ignore the touch.
     if not self:IsActive() then return end
 
-    -- If we are touched by anything else than a human player, ignore the touch.
-    -- Would be interesting to also allow touchs by bots, though.
-    -- TODO: if (Entity->GetType()!=&EntHumanPlayerT::TypeInfo) return;
+    local EntScript = Ent:GetComponent("Script")
 
-    -- Give this weapon to the entity.
-    -- TODO: if (!GameImplT::GetInstance().GetCarriedWeapon(WEAPON_SLOT_357)->ServerSide_PickedUpByEntity(dynamic_cast<EntHumanPlayerT*>(Entity))) return;
+    -- If the entity that triggered us does not have a Script component,
+    -- or the entity's Script does not have the PickUpItem() callback defined,
+    -- it is not ready to pick up an item or weapon.
+    if not EntScript then return end
+    if not EntScript.PickUpItem then return end
+
+    local s = self.Model:get("Name")
+    s = string.gsub(s, ".*/", "")
+    s = string.gsub(s, "_w%.cmdl$", "")
+    s = string.gsub(s, "%.cmdl$", "")
+
+    EntScript:PickUpItem(self, s)
 
     -- And finally retire for a while, that is, deactivate this weapon for a few seconds.
     -- While the weapon is deactivated, it is invisible and cannot be picked up.
     self.TimeLeftNotActive = 5.0
     self.Model:set("Show", false)
     self:PostEvent(self.EVENT_TYPE_PICKED_UP)
-
-    -- The following is a work-around for something like:
-    --[[
-    local Inv = Ent:GetComponent("Inventory")
-    if Inv then
-        local s = .......
-        Inv:AddWeapon(s)
-    end
-    ]]--
-    local s = self.Model:get("Name")
-    s = string.gsub(s, ".*/", "")
-    s = string.gsub(s, "_w%.cmdl$", "")
-    s = string.gsub(s, "%.cmdl$", "")
-
-    print("Picked up item:", s)
-    return s
 end
 
 

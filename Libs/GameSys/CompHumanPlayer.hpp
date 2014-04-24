@@ -119,6 +119,7 @@ namespace cf
             static int GetCrosshairInfo(lua_State* LuaState);
             static int GetAmmoString(lua_State* LuaState);
             static int ProcessEvent(lua_State* LuaState);
+            static int PickUpItem(lua_State* LuaState);
             static int toString(lua_State* LuaState);
 
             static const luaL_Reg               MethodsList[];  ///< The list of Lua methods for this class.

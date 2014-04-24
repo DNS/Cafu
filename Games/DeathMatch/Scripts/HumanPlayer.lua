@@ -98,6 +98,16 @@ function PlayerScript:ProcessEvent(EventType, NumEvents)
 end
 
 
+-- This method is called automatically when some other entity wants us to pick up some item.
+function PlayerScript:PickUpItem(ItemEnt, ItemType)
+    print("Player picked up item:", ItemType)
+
+    -- The details of picking up items are implemented in the "HumanPlayer"
+    -- component at this time, so forward all calls there.
+    PlayerData:PickUpItem(ItemType)
+end
+
+
 function Model3rdPerson:OnAnimationChange(AnimNr)
     if (AnimNr < 18) or (AnimNr > 24) then
         -- The player is "alive", so blend animation sequences in 0.3 seconds,
