@@ -24,10 +24,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "CompBase.hpp"
 #include "../../Games/PlayerCommand.hpp"      // TODO: This file must be moved (and/or its contents completely redesigned).
+#include "GuiSys/GuiImpl.hpp"
 #include "PhysicsWorld.hpp"
-
-
-namespace cf { namespace GuiSys { class GuiImplT; } }
 
 
 namespace cf

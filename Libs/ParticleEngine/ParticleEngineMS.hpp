@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/********************************/
-/*** Particle Engine (Header) ***/
-/********************************/
-
 // TODO: REMOVE ALL THE "MATSYS" and "MS" SUFFIXES!
 #ifndef CAFU_PARTICLE_ENGINE_MATSYS_HPP_INCLUDED
 #define CAFU_PARTICLE_ENGINE_MATSYS_HPP_INCLUDED

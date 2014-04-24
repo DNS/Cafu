@@ -19,11 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/******************************/
-/*** Particle Engine (Code) ***/
-/******************************/
-
 #include <math.h>
+#include <stdio.h>
 
 #include "ParticleEngineMS.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
