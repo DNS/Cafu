@@ -33,15 +33,16 @@ using namespace cf::GameSys;
 CarriedWeaponBattleScytheT::CarriedWeaponBattleScytheT(ModelManagerT& ModelMan)
     : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/BattleScythe/BattleScythe_v.cmdl"),
                      ModelMan.GetModel("Games/DeathMatch/Models/Weapons/BattleScythe/BattleScythe_p.cmdl")),
-      FireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/BattleScythe")))
+      FireSound(SoundSystem ? SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/BattleScythe")) : NULL)
 {
+    // At this time, in CaWE, the map compile tools, and the server(?), we operate with SoundSystem == NULL.
 }
 
 
 CarriedWeaponBattleScytheT::~CarriedWeaponBattleScytheT()
 {
     // Release Sound.
-    SoundSystem->DeleteSound(FireSound);
+    if (FireSound) SoundSystem->DeleteSound(FireSound);
 }
 
 
@@ -157,12 +158,15 @@ void CarriedWeaponBattleScytheT::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT
 {
     const Vector3dT ViewDir = HumanPlayer->GetViewDirWS();
 
-    // Update sound position and velocity.
-    FireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 12.0));
-    FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
+    if (FireSound)
+    {
+        // Update sound position and velocity.
+        FireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 12.0));
+        FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
-    // Play the fire sound.
-    FireSound->Play();
+        // Play the fire sound.
+        FireSound->Play();
+    }
 }
 
 
@@ -170,10 +174,13 @@ void CarriedWeaponBattleScytheT::ClientSide_HandleSecondaryFireEvent(IntrusivePt
 {
     const Vector3dT ViewDir = HumanPlayer->GetViewDirWS();
 
-    // Update sound position and velocity.
-    FireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 12.0));
-    FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
+    if (FireSound)
+    {
+        // Update sound position and velocity.
+        FireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 12.0));
+        FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
-    // Play the fire sound.
-    FireSound->Play();
+        // Play the fire sound.
+        FireSound->Play();
+    }
 }

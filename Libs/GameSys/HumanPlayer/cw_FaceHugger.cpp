@@ -41,15 +41,16 @@ using namespace cf::GameSys;
 CarriedWeaponFaceHuggerT::CarriedWeaponFaceHuggerT(ModelManagerT& ModelMan)
     : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/FaceHugger/FaceHugger_v.cmdl"),
                      ModelMan.GetModel("Games/DeathMatch/Models/Weapons/FaceHugger/FaceHugger_p.cmdl")),
-      FireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/FaceHugger_Throw")))
+      FireSound(SoundSystem ? SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/FaceHugger_Throw")) : NULL)
 {
+    // At this time, in CaWE, the map compile tools, and the server(?), we operate with SoundSystem == NULL.
 }
 
 
 CarriedWeaponFaceHuggerT::~CarriedWeaponFaceHuggerT()
 {
     // Release Sound.
-    SoundSystem->DeleteSound(FireSound);
+    if (FireSound) SoundSystem->DeleteSound(FireSound);
 }
 
 
@@ -180,10 +181,13 @@ void CarriedWeaponFaceHuggerT::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<c
 {
     const Vector3dT ViewDir = HumanPlayer->GetViewDirWS();
 
-    // Update sound position and velocity.
-    FireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 8.0));
-    FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
+    if (FireSound)
+    {
+        // Update sound position and velocity.
+        FireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 8.0));
+        FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
-    // Play the fire sound.
-    FireSound->Play();
+        // Play the fire sound.
+        FireSound->Play();
+    }
 }

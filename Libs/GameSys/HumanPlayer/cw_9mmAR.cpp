@@ -46,10 +46,12 @@ using namespace cf::GameSys;
 CarriedWeapon9mmART::CarriedWeapon9mmART(ModelManagerT& ModelMan)
     : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/9mmAR/9mmAR_v.cmdl"),
                      ModelMan.GetModel("Games/DeathMatch/Models/Weapons/9mmAR/9mmAR_p.cmdl")),
-      FireSound   (SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/9mmAR_Shot1"))),
-      AltFireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/9mmAR_GLauncher"))),
+      FireSound   (SoundSystem ? SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/9mmAR_Shot1")) : NULL),
+      AltFireSound(SoundSystem ? SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/9mmAR_GLauncher")) : NULL),
       m_GenericMatSet(NULL)
 {
+    // At this time, in CaWE, the map compile tools, and the server(?), we operate with SoundSystem == NULL.
+
     // TODO: Should rather store ParticleMaterialSetTs where their lifetime cannot be shorter than that of all particles...
     m_GenericMatSet = new ParticleMaterialSetT("generic", "Sprites/Generic1");
 }
@@ -61,8 +63,8 @@ CarriedWeapon9mmART::~CarriedWeapon9mmART()
     m_GenericMatSet = NULL;
 
     // Release Sound.
-    SoundSystem->DeleteSound(FireSound);
-    SoundSystem->DeleteSound(AltFireSound);
+    if (FireSound) SoundSystem->DeleteSound(FireSound);
+    if (AltFireSound) SoundSystem->DeleteSound(AltFireSound);
 }
 
 
@@ -305,11 +307,14 @@ void CarriedWeapon9mmART::ClientSide_HandleSecondaryFireEvent(IntrusivePtrT<cons
     const Vector3dT ViewDir = HumanPlayer->GetViewDirWS();
 
     // Update sound position and velocity.
-    AltFireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 16.0));
-    AltFireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
+    if (AltFireSound)
+    {
+        AltFireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 16.0));
+        AltFireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
-    // Play the fire sound.
-    AltFireSound->Play();
+        // Play the fire sound.
+        AltFireSound->Play();
+    }
 }
 
 
@@ -346,12 +351,15 @@ void CarriedWeapon9mmART::ClientSide_HandleStateDrivenEffects(IntrusivePtrT<cons
 
             ParticleEngineMS::RegisterNewParticle(NewParticle);
 
-            // Update sound position and velocity.
-            FireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 16.0));
-            FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
+            if (FireSound)
+            {
+                // Update sound position and velocity.
+                FireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 16.0));
+                FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
-            // Play the fire sound.
-            FireSound->Play();
+                // Play the fire sound.
+                FireSound->Play();
+            }
         }
     }
 }

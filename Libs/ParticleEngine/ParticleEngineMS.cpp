@@ -267,15 +267,18 @@ ParticleMaterialSetT::ParticleMaterialSetT(const char* SetName, const char* MatN
 
         if (!Mat) break;
 
-        m_RenderMats.PushBack(MatSys::Renderer->RegisterMaterial(Mat));
+        // At this time, in the map compile tools (and the server?), we operate with MatSys::Renderer == NULL.
+        if (MatSys::Renderer)
+            m_RenderMats.PushBack(MatSys::Renderer->RegisterMaterial(Mat));
     }
 }
 
 
 ParticleMaterialSetT::~ParticleMaterialSetT()
 {
-    for (unsigned int RMNr = 0; RMNr < m_RenderMats.Size(); RMNr++)
-        MatSys::Renderer->FreeMaterial(m_RenderMats[RMNr]);
+    if (MatSys::Renderer)
+        for (unsigned int RMNr = 0; RMNr < m_RenderMats.Size(); RMNr++)
+            MatSys::Renderer->FreeMaterial(m_RenderMats[RMNr]);
 
     m_RenderMats.Clear();
 }

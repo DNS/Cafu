@@ -36,9 +36,11 @@ using namespace cf::GameSys;
 CarriedWeapon357T::CarriedWeapon357T(ModelManagerT& ModelMan)
     : CarriedWeaponT(ModelMan.GetModel("Games/DeathMatch/Models/Weapons/DesertEagle/DesertEagle_v.cmdl"),
                      ModelMan.GetModel("Games/DeathMatch/Models/Weapons/DesertEagle/DesertEagle_p.cmdl")),
-      FireSound(SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/DesertEagle_Shot1"))),
+      FireSound(SoundSystem ? SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader("Weapon/DesertEagle_Shot1")) : NULL),
       m_GenericMatSet(NULL)
 {
+    // At this time, in CaWE, the map compile tools, and the server(?), we operate with SoundSystem == NULL.
+
     // TODO: Should rather store ParticleMaterialSetTs where their lifetime cannot be shorter than that of all particles...
     m_GenericMatSet = new ParticleMaterialSetT("generic", "Sprites/Generic1");
 }
@@ -50,7 +52,7 @@ CarriedWeapon357T::~CarriedWeapon357T()
     m_GenericMatSet = NULL;
 
     // Release Sound.
-    SoundSystem->DeleteSound(FireSound);
+    if (FireSound) SoundSystem->DeleteSound(FireSound);
 }
 
 
@@ -248,9 +250,12 @@ void CarriedWeapon357T::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<const cf
     ParticleEngineMS::RegisterNewParticle(NewParticle);
 
     // Update sound position and velocity.
-    FireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 16.0));
-    FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
+    if (FireSound)
+    {
+        FireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 16.0));
+        FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
-    // Play the fire sound.
-    FireSound->Play();
+        // Play the fire sound.
+        FireSound->Play();
+    }
 }
