@@ -286,6 +286,11 @@ bool EngineEntityT::Repredict(const ArrayT<PlayerCommandT>& PlayerCommands, unsi
     for (unsigned long SequenceNr=RemoteLastIncomingSequenceNr+1; SequenceNr<=LastOutgoingSequenceNr; SequenceNr++)
         CompHP->GetPlayerCommands().PushBack(PlayerCommands[SequenceNr & (PlayerCommands.Size()-1)]);
 
+    // Once `Entity` is gone:
+    //   right: CompHP->DoServerFrame(-2.0);
+    //   wrong: m_Entity->DoServerFrame(-2.0);
+    // because components other than CompHP should *not* Think/Repredict,
+    // e.g. the CollisionModel component must not cause OnTrigger() callbacks!
     Entity->Think(-2.0, 0);
     return true;
 }
@@ -306,6 +311,12 @@ void EngineEntityT::Predict(const PlayerCommandT& PlayerCommand, unsigned long O
     }
 
     CompHP->GetPlayerCommands().PushBack(PlayerCommand);
+
+    // Once `Entity` is gone:
+    //   right: CompHP->DoServerFrame(-2.0);
+    //   wrong: m_Entity->DoServerFrame(-2.0);
+    // because components other than CompHP should *not* Think/Repredict,
+    // e.g. the CollisionModel component must not cause OnTrigger() callbacks!
     Entity->Think(-1.0, 0);
 }
 

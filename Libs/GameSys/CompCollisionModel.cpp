@@ -21,12 +21,15 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "CompCollisionModel.hpp"
 #include "AllComponents.hpp"
+#include "CompScript.hpp"
 #include "Entity.hpp"
 #include "World.hpp"
 
 #include "ClipSys/ClipModel.hpp"
+#include "ClipSys/ClipWorld.hpp"
 #include "ClipSys/CollisionModelMan.hpp"
 #include "ClipSys/CollisionModel_static.hpp"    // Only needed for ScaleDown254()
+#include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 
 extern "C"
@@ -156,6 +159,62 @@ void ComponentCollisionModelT::DoServerFrame(float t)
     // have already been run when we update the clip model.
     // (Same is true for the clip model in the CompGameEntityT class.)
     UpdateClipModel();
+
+
+    // See if we walked into the trigger volume of any entity.
+    //
+    // For the user (mapper), it looks as if trigger entities call script methods whenever something walks into their
+    // (trigger) brushes, but in truth, the roles are reversed, and it is this code that checks if the entity walked
+    // itself into a trigger volume, and then calls the `OnTrigger()` script callback. Trigger entities are therefore
+    // really quite passive, but thinking of them the other way round (triggers are actively checking their volumes
+    // and activate the calls) is probably more suggestive to users (script and map designers).
+    //
+    // Note that the mapper is free to put trigger brushes into *any* entity -- the functionality is only dependent on
+    // the presence of a trigger volume in the clip world (contributed directly via brushwork in the map, or via a
+    // ComponentCollisionModelT with appropriate materials), and an associated ComponentScriptT to implement the
+    // OnTrigger() callback.
+    //
+    // Note that this code could easily be elsewhere, e.g. in a different component or even in its own component.
+    // It is here only because it too "uses" the clip world, and because we can conveniently obtain the required
+    // `AbsBB` from the readily available `m_ClipModel`.
+    if (m_ClipModel)
+    {
+        const BoundingBox3dT AbsBB(m_ClipModel->GetAbsoluteBB());
+        const double         Radius     = (AbsBB.Max.x - AbsBB.Min.x) / 2.0;
+        const double         HalfHeight = (AbsBB.Max.z - AbsBB.Min.z) / 2.0;
+        const Vector3dT      Test1      = AbsBB.GetCenter() + Vector3dT(0, 0, HalfHeight - Radius);
+        const Vector3dT      Test2      = AbsBB.GetCenter() - Vector3dT(0, 0, HalfHeight - Radius);
+
+        ArrayT<cf::ClipSys::ClipModelT*> ClipModels;
+        GetEntity()->GetWorld().GetClipWorld()->GetClipModelsFromBB(ClipModels, MaterialT::Clip_Trigger, AbsBB);
+
+        for (unsigned long ClipModelNr = 0; ClipModelNr < ClipModels.Size(); ClipModelNr++)
+        {
+            if (ClipModels[ClipModelNr]->GetContents(Test1, Radius, MaterialT::Clip_Trigger) == 0 &&
+                ClipModels[ClipModelNr]->GetContents(Test2, Radius, MaterialT::Clip_Trigger) == 0) continue;
+
+            // TODO: if (another clip model already triggered Owner's entity) continue;
+            //       *or* pass ClipModels[ClipModelNr] as another parameter to ScriptComp:OnTrigger().
+
+            ComponentBaseT* Owner = ClipModels[ClipModelNr]->GetOwner();
+            if (Owner == NULL) continue;
+            if (Owner == this) continue;
+
+            EntityT* Ent = Owner->GetEntity();
+            if (Ent == NULL) continue;
+
+            IntrusivePtrT<ComponentScriptT> ScriptComp = dynamic_pointer_cast<ComponentScriptT>(Ent->GetComponent("Script"));
+            if (ScriptComp == NULL) continue;
+
+            UniScriptStateT& ScriptState = Ent->GetWorld().GetScriptState();
+            lua_State*       LuaState    = ScriptState.GetLuaState();
+            ScriptBinderT    Binder(LuaState);
+
+            Binder.Push(IntrusivePtrT<EntityT>(GetEntity()));   // Don't pass the raw `EntityT*` pointer!
+
+            ScriptComp->CallLuaMethod("OnTrigger", 1);
+        }
+    }
 }
 
 

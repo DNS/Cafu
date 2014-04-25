@@ -574,59 +574,6 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 #endif
                 }
 
-
-                // See if we walked into the trigger volume of any entity.
-                //
-                // For the user (mapper), it looks as if trigger entities call script methods whenever something walks into their (trigger) brushes,
-                // but in truth, the roles are reversed, and it is the player movement code that checks if it walked itself into a trigger volume,
-                // and then initiates the script function call. Trigger entities are therefore really quite passive, but thinking of them the other
-                // way round (triggers are actively checking their volumes and activate the calls) is probably more suggestive to the users (mappers).
-                //
-                // Note that the mapper is free to put trigger brushes into *any* entity -- the functionality is only dependent on the presence
-                // of a trigger volume in the clip world (contributed directly via brushwork in the map, or via a ComponentCollisionModelT with
-                // appropriate materials), and an associated ComponentScriptT to implement the OnTrigger() callback.
-                if (ThinkingOnServerSide)
-                {
-                    ArrayT<cf::ClipSys::ClipModelT*> ClipModels;
-                    BoundingBox3dT                   AbsBB(m_Dimensions);
-
-                    AbsBB.Min += m_Entity->GetTransform()->GetOriginWS().AsVectorOfDouble();
-                    AbsBB.Max += m_Entity->GetTransform()->GetOriginWS().AsVectorOfDouble();
-
-                    m_Entity->GetWorld().GetClipWorld()->GetClipModelsFromBB(ClipModels, MaterialT::Clip_Trigger, AbsBB);
-                    // printf("%lu clip models in AbsBB.\n", ClipModels.Size());
-
-                    const double    Radius     = (m_Dimensions.Max.x - m_Dimensions.Min.x) / 2.0;
-                    const double    HalfHeight = (m_Dimensions.Max.z - m_Dimensions.Min.z) / 2.0;
-                    const Vector3dT Test1      = AbsBB.GetCenter() + Vector3dT(0, 0, HalfHeight - Radius);
-                    const Vector3dT Test2      = AbsBB.GetCenter() - Vector3dT(0, 0, HalfHeight - Radius);
-
-                    for (unsigned long ClipModelNr=0; ClipModelNr<ClipModels.Size(); ClipModelNr++)
-                    {
-                        if (ClipModels[ClipModelNr]->GetContents(Test1, Radius, MaterialT::Clip_Trigger) == 0 &&
-                            ClipModels[ClipModelNr]->GetContents(Test2, Radius, MaterialT::Clip_Trigger) == 0) continue;
-
-                        // TODO: if (another clip model already triggered Owner's entity) continue;
-                        //       *or* pass ClipModels[ClipModelNr] as another parameter to ScriptComp:OnTrigger().
-                        cf::GameSys::ComponentBaseT* Owner = ClipModels[ClipModelNr]->GetOwner();
-                        if (Owner == NULL) continue;
-
-                        cf::GameSys::EntityT* Ent = Owner->GetEntity();
-                        if (Ent == NULL) continue;
-
-                        IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = dynamic_pointer_cast<cf::GameSys::ComponentScriptT>(Ent->GetComponent("Script"));
-                        if (ScriptComp == NULL) continue;
-
-                        cf::UniScriptStateT& ScriptState = Ent->GetWorld().GetScriptState();
-                        lua_State*           LuaState    = ScriptState.GetLuaState();
-                        cf::ScriptBinderT    Binder(LuaState);
-
-                        Binder.Push(this->m_Entity);
-
-                        ScriptComp->CallLuaMethod("OnTrigger", 1);
-                    }
-                }
-
                 break;
             }
 
