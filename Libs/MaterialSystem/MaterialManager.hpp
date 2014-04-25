@@ -65,6 +65,11 @@ class MaterialManagerI
     /// Returns all the materials registered so far.
     virtual const std::map<std::string, MaterialT*>& GetAllMaterials() const=0;
 
+    /// Returns whether the material with the given name is registered with the material manager,
+    /// i.e.\ if a call to <code>GetMaterial(MaterialName)</code> will return successfully.
+    /// Use this to avoid warning messages to the console if the material is not registered.
+    virtual bool HasMaterial(const std::string& MaterialName) const=0;
+
     /// Returns a material by its name.
     /// If the material is not found in the previously registered scripts, NULL is returned.
     virtual MaterialT* GetMaterial(const std::string& MaterialName) const=0;

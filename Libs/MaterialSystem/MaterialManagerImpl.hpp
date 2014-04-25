@@ -51,15 +51,12 @@ class MaterialManagerImplT : public MaterialManagerI
     /// @returns A pointer to the registered material instance (or a previously existing instance with the same name).
     MaterialT* RegisterMaterial(const MaterialT& Mat);
 
-    /// Returns whether the material with the given name is registered with the material manager,
-    /// i.e.\ if a call to <code>GetMaterial(MaterialName)</code> will return successfully.
-    /// Use this to avoid warning messages to the console if the material is not registered.
-    bool HasMaterial(const std::string& MaterialName) const;
 
     // The MaterialManagerI interface.
     ArrayT<MaterialT*> RegisterMaterialScript(const std::string& FileName, const std::string& BaseDir);
     ArrayT<MaterialT*> RegisterMaterialScriptsInDir(const std::string& DirName, const std::string& BaseDir, const bool Recurse=true);
     const std::map<std::string, MaterialT*>& GetAllMaterials() const { return Materials; }
+    bool HasMaterial(const std::string& MaterialName) const;
     MaterialT* GetMaterial(const std::string& MaterialName) const;
  // void ClearAllMaterials();
 
