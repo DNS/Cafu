@@ -52,10 +52,6 @@ namespace GAME_NAME
 
         private:
 
-        /// A helper function for Think().
-        bool CheckGUI(IntrusivePtrT<cf::GameSys::ComponentModelT> CompModel, Vector3fT& MousePos) const;
-
-
         mutable VectorT LastSeenAmbientColor;   // This is a client-side variable, unrelated to prediction, and thus allowed.
     };
 }

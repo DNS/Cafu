@@ -21,6 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "CompHumanPlayer.hpp"
 #include "AllComponents.hpp"
+#include "CompModel.hpp"                // for implementing CheckGUIs()
 #include "CompPhysics.hpp"
 #include "CompPlayerPhysics.hpp"
 #include "CompScript.hpp"
@@ -34,6 +35,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GuiSys/GuiImpl.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix3x3.hpp"
+#include "Models/AnimPose.hpp"          // for implementing CheckGUIs()
+#include "OpenGL/OpenGLWindow.hpp"      // for implementing CheckGUIs()
 #include "String.hpp"
 #include "UniScriptState.hpp"
 
@@ -338,6 +341,140 @@ const CarriedWeaponT* ComponentHumanPlayerT::GetCarriedWeapon(unsigned int Activ
 ComponentHumanPlayerT* ComponentHumanPlayerT::Clone() const
 {
     return new ComponentHumanPlayerT(*this);
+}
+
+
+void ComponentHumanPlayerT::CheckGUIs(bool ThinkingOnServerSide, bool HaveButtonClick) const
+{
+    ArrayT< IntrusivePtrT<EntityT> > AllEnts;
+
+    GetEntity()->GetWorld().GetRootEntity()->GetAll(AllEnts);
+
+    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
+    {
+        if (AllEnts[EntNr] == GetEntity()) continue;    // We don't touch us ourselves.
+
+        // Test if maybe we're near a static detail model with an interactive GUI.
+        const ArrayT< IntrusivePtrT<ComponentBaseT> >& Components = AllEnts[EntNr]->GetComponents();
+
+        // TODO: We iterate over each component of each entity here... can this somehow be reduced?
+        //       For example hy having the world keep a list that is updated only once during init?
+        for (unsigned int CompNr = 0; CompNr < Components.Size(); CompNr++)
+        {
+            if (Components[CompNr]->GetType() != &ComponentModelT::TypeInfo) continue;
+
+            IntrusivePtrT<ComponentModelT> CompModel = static_pointer_cast<ComponentModelT>(Components[CompNr]);
+
+            // TODO: Also deal with the GUI when this is a REPREDICTION run???
+            //
+            // Answer: Normally not, because what is done during prediction is only for eye candy,
+            // and repeating it in REprediction would e.g. trigger/schedule interpolations *twice* (or in fact even more often).
+            //
+            // On the other hand, compare this to what happens when the player e.g. enters his name into a text field.
+            // The string with the name would be part of the "relevant GUI state" (state that is sync'ed over the network).
+            // As such, the string would ONLY be handled correctly when REprediction runs are applies to GUIs as they are applied
+            // to HumanPlayerTs (assuming the string is also handled in normal initial prediction).
+            // Example: The player enters "abc" on the client and prediction updates the string, but the server then sends a message
+            // that the player was force-moved by an explosion and the "abc" string was actually typed into the wall next to the GUI.
+            //
+            // ==> Either we have to run prediction AND REpredection with the GUIs,
+            //     OR we treat them like any other entity and ONLY update them on the server-side.
+            //
+            // ==> Conflict of interests: Only if the GUIs interpolation timers were a part of the "GUI state" would they work properly,
+            //     (which doesn't make much sense), or if we ran GUIs in prediction (but not REprediction) only (no good in the above example).
+            //
+            // ==> Solution: Update the relevant GUI state only ever on the server-side, and run GUI updates in prediction only
+            //               (but never in REprediction).
+            //
+            // ==> How do we separate the two???
+            //     ...
+
+            // 1. Has this component an interactive GUI at all?
+            IntrusivePtrT<cf::GuiSys::GuiImplT> Gui = CompModel->GetGui();
+
+            if (Gui.IsNull()) continue;
+            if (!Gui->GetIsInteractive()) continue;
+
+
+            // 2. Can we retrieve the plane of its screen panel?
+            Vector3fT GuiOrigin;
+            Vector3fT GuiAxisX;
+            Vector3fT GuiAxisY;
+
+            AnimPoseT* Pose = CompModel->GetPose();
+
+            if (!Pose) continue;
+            if (!Pose->GetGuiPlane(0, GuiOrigin, GuiAxisX, GuiAxisY)) continue;
+
+            const MatrixT M2W = CompModel->GetEntity()->GetTransform()->GetEntityToWorld();
+
+            GuiOrigin = M2W.Mul1(GuiOrigin);
+            GuiAxisX  = M2W.Mul0(GuiAxisX);
+            GuiAxisY  = M2W.Mul0(GuiAxisY);
+
+
+            // 3. Are we looking roughly into the screen normal?
+            const Vector3fT GuiNormal = normalize(cross(GuiAxisY, GuiAxisX), 0.0f);
+            const Plane3fT  GuiPlane  = Plane3fT(GuiNormal, dot(GuiOrigin, GuiNormal));
+            const Vector3fT ViewDir   = GetViewDirWS().AsVectorOfFloat();
+
+            if (-dot(ViewDir, GuiPlane.Normal) < 0.001f) continue;
+
+
+            // 4. Does our view ray hit the screen panel?
+            // (I've obtained the equation for r by rolling the corresponding Plane3T<T>::GetIntersection() method out.)
+            const Vector3fT OurOrigin = GetEntity()->GetTransform()->GetOriginWS();
+            const float     r         = (GuiPlane.Dist - dot(GuiPlane.Normal, OurOrigin)) / dot(GuiPlane.Normal, ViewDir);
+
+            if (r < 0.0f || r > 160.0f) continue;
+
+            const Vector3fT HitPos = OurOrigin + ViewDir * r;
+
+            // Project HitPos into the GUI plane, in order to obtain the 2D coordinate in the GuiSys' virtual pixel space (640x480).
+            float px = dot(HitPos - GuiOrigin, GuiAxisX) / GuiAxisX.GetLengthSqr();
+            float py = dot(HitPos - GuiOrigin, GuiAxisY) / GuiAxisY.GetLengthSqr();
+
+            if (px < -0.5f || px > 1.5f) continue;
+            if (py < -0.5f || py > 1.5f) continue;
+
+            if (px < 0.0f) px = 0.0f; if (px > 0.99f) px = 0.99f;
+            if (py < 0.0f) py = 0.0f; if (py > 0.98f) py = 0.98f;
+
+
+            // TODO: Trace against walls!
+            // TODO: Is somebody else using this GUI, too? It is useful to check this in order to avoid "race conditions"
+            //       on the server, with two entities competing for the mouse pointer, causing frequent pointer "jumps"
+            //       and thus possibly building up an ever growing set of interpolations in each frame.
+            Gui->SetMousePos(px * 640.0f, py * 480.0f);
+
+            CaMouseEventT ME;
+
+            ME.Type  =CaMouseEventT::CM_MOVE_X;
+            ME.Amount=0;
+
+            Gui->ProcessDeviceEvent(ME);
+
+            // Process mouse button events only on the server side.
+            // Note that this is a somewhat *arbitrary* compromise to the question "Where do we stop / how far do we go in"
+            // client prediction.
+            // Drawing the line here means that GUIs should be programmed in a way such that mouse movements do *not* affect
+            // world state -- only mouse clicks can do that. (In fact, we should probably also keep mouse movement events from
+            // the GUI when this is a *reprediction* run, as detailed in the (much older) comment above.)
+            if (ThinkingOnServerSide)
+            {
+                if (HaveButtonClick)
+                {
+                    ME.Type = CaMouseEventT::CM_BUTTON0;
+
+                    ME.Amount = 1;  // Button down.
+                    Gui->ProcessDeviceEvent(ME);
+
+                    ME.Amount = 0;  // Button up.
+                    Gui->ProcessDeviceEvent(ME);
+                }
+            }
+        }
+    }
 }
 
 

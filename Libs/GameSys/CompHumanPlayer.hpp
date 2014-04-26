@@ -99,6 +99,9 @@ namespace cf
             TypeSys::VarArrayT<uint16_t>& GetHaveAmmo() { return m_HaveAmmo; }
             TypeSys::VarArrayT<uint8_t>& GetHaveAmmoInWeapons() { return m_HaveAmmoInWeapons; }
 
+            /// A helper function for Think().
+            void CheckGUIs(bool ThinkingOnServerSide, bool HaveButtonClick) const;
+
 
             // Base class overrides.
             ComponentHumanPlayerT* Clone() const;
