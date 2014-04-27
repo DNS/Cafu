@@ -424,51 +424,43 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
             case StateOfExistence_Dead:
             {
-                const Vector3fT OldOrigin = m_Entity->GetTransform()->GetOriginWS();
+                const float MIN_CAMERA_HEIGHT = -20.0f;
 
                 CompPlayerPhysics->SetMember("StepHeight", 4.0);
                 CompPlayerPhysics->MoveHuman(PlayerCommands[PCNr].FrameTime, Vector3fT(), Vector3fT(), false);
 
-                // We want to lower the view of the local client after it has been killed (in order to indicate the body collapse).
-                // Unfortunately, the problem is much harder than just decreasing the 'm_Origin.z' in some way, because
-                // a) other clients still need the original height for properly drawing the death sequence (from 3rd person view), and
-                // b) the corpse that we create on leaving this StateOfExistence must have the proper height, too.
-                // Therefore, we decrease the 'm_Origin.z', but "compensate" the 'm_Dimensions', such that the *absolute*
-                // coordinates of our bounding box (obtained by "m_Origin plus m_Dimensions") remain constant.
-                // This way, we can re-derive the proper height in both cases a) and b).
-                const double Collapse=80.0*PlayerCommands[PCNr].FrameTime;
+                IntrusivePtrT<cf::GameSys::ComponentTransformT> CameraTrafo = m_Entity->GetChildren()[0]->GetTransform();
 
-                if (m_Dimensions.Min.z + Collapse < -100.0)
+                if (CameraTrafo->GetOriginPS().z > MIN_CAMERA_HEIGHT)
                 {
-                    const Vector3dT O = m_Entity->GetTransform()->GetOriginWS().AsVectorOfDouble();
+                    // We only update the camera, not the entity.
+                    Vector3fT          Origin(CameraTrafo->GetOriginPS());
+                    cf::math::AnglesfT Angles(CameraTrafo->GetQuatPS());
 
-                    m_Entity->GetTransform()->SetOriginWS(Vector3dT(O.x, O.y, O.z - Collapse).AsVectorOfFloat());
-
-                    m_Dimensions.Min.z+=Collapse;
-                    m_Dimensions.Max.z+=Collapse;
-
-                    cf::math::AnglesfT Angles(m_Entity->GetChildren()[0]->GetTransform()->GetQuatPS());     // We update the camera, not the entity.
+                    Origin.z -= 80.0f * PlayerCommands[PCNr].FrameTime;
                     Angles.roll() += PlayerCommands[PCNr].FrameTime * 200.0f;
-                    m_Entity->GetChildren()[0]->GetTransform()->SetQuatPS(cf::math::QuaternionfT(Angles));
+
+                    CameraTrafo->SetOriginPS(Origin);
+                    CameraTrafo->SetQuatPS(cf::math::QuaternionfT(Angles));
                 }
 
-                // We entered this state after we died.
-                // Now leave it only after we have come to a complete halt, and the death sequence is over.
-                if (OldOrigin.z >= m_Entity->GetTransform()->GetOriginWS().z && length(CompPlayerPhysics->GetVelocity()) < 0.1 /* && TODO: Is death anim sequence over?? */)
+                // We entered this state after we died. Leave it after we have come
+                // to a complete halt, and the death sequence is over.
+                if (CameraTrafo->GetOriginPS().z <= MIN_CAMERA_HEIGHT && length(CompPlayerPhysics->GetVelocity()) < 0.1 /* && TODO: Is death anim sequence over?? */)
                 {
+                    // On the server, create a new "corpse" entity in the place where we died,
+                    // or else it seems to other players like the model disappears when we respawn.
                     if (ThinkingOnServerSide)
                     {
-                        const Vector3fT Origin = m_Entity->GetTransform()->GetOriginWS();
                         IntrusivePtrT<cf::GameSys::ComponentModelT> PlayerModelComp = dynamic_pointer_cast<cf::GameSys::ComponentModelT>(m_Entity->GetComponent("Model"));
 
-                        // Create a new "corpse" entity in the place where we died, or else the model disappears.
                         if (PlayerModelComp != NULL)
                         {
                             IntrusivePtrT<cf::GameSys::EntityT> Ent = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(m_Entity->GetWorld()));
-                            m_Entity->GetWorld().GetRootEntity()->AddChild(Ent);
+                            m_Entity->GetParent()->AddChild(Ent);
 
-                            Ent->GetTransform()->SetOriginWS(Origin);
-                            Ent->GetTransform()->SetQuatWS(m_Entity->GetTransform()->GetQuatWS());
+                            Ent->GetTransform()->SetOriginPS(m_Entity->GetTransform()->GetOriginPS());
+                            Ent->GetTransform()->SetQuatPS(m_Entity->GetTransform()->GetQuatPS());
 
                             IntrusivePtrT<cf::GameSys::ComponentModelT> ModelComp = new cf::GameSys::ComponentModelT(*PlayerModelComp);
                             Ent->AddComponent(ModelComp);
@@ -480,7 +472,6 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
                     // TODO: HEAD SWAY: State.Velocity.y=m_Heading;
                     // TODO: HEAD SWAY: State.Velocity.z=m_Bank;
-                    m_Dimensions=BoundingBox3dT(Vector3dT(16.0, 16.0, 4.0), Vector3dT(-16.0, -16.0, -68.0));
                     CompHP->SetStateOfExistence(StateOfExistence_FrozenSpectator);
                 }
 
@@ -520,16 +511,18 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
 
                     if (IPSEntity->GetComponent("PlayerStart") == NULL) continue;
 
+                    const BoundingBox3dT Dimensions(Vector3dT(16.0, 16.0, 4.0), Vector3dT(-16.0, -16.0, -68.0));
+
                     // This is actually an "InfoPlayerStart" entity. Now try to put our own bounding box at the origin of 'IPSEntity',
                     // but try to correct/choose the height such that we are on ground (instead of hovering above it).
                     Vector3dT OurNewOrigin = IPSEntity->GetTransform()->GetOriginWS().AsVectorOfDouble();
 
-                    // First, create a BB of dimensions (-300.0, -300.0, -100.0) - (300.0, 300.0, 100.0).
-                    const BoundingBox3T<double> ClearingBB(VectorT(m_Dimensions.Min.x, m_Dimensions.Min.y, -m_Dimensions.Max.z), m_Dimensions.Max);
+                    // First, create a BB of dimensions (-16.0, -16.0, -4.0) - (16.0, 16.0, 4.0).
+                    const BoundingBox3T<double> ClearingBB(VectorT(Dimensions.Min.x, Dimensions.Min.y, -Dimensions.Max.z), Dimensions.Max);
 
                     cf::ClipSys::ClipModelT* IgnorePlayerClipModel = NULL;  // TODO!
 
-                    // Move ClearingBB up to a reasonable height (if possible!), such that the *full* BB (that is, m_Dimensions) is clear of (not stuck in) solid.
+                    // Move ClearingBB up to a reasonable height (if possible!), such that the *full* BB (that is, Dimensions) is clear of (not stuck in) solid.
                     cf::ClipSys::TraceResultT Result(1.0);
                     m_Entity->GetWorld().GetClipWorld()->TraceBoundingBox(ClearingBB, OurNewOrigin, VectorT(0.0, 0.0, 120.0), MaterialT::Clip_Players, IgnorePlayerClipModel, Result);
                     const double AddHeight=120.0*Result.Fraction;
@@ -544,14 +537,14 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                     // vorhanden sind (es werden floats übertragen, nicht doubles!), kommt CategorizePosition() u.U. auf Client- und
                     // Server-Seite zu verschiedenen Ergebnissen! Der Effekt spielt sich zwar in einem Intervall der Größe 1.0 ab,
                     // kann mit OpenGL aber zu deutlichem Pixel-Flimmern führen!
-                    OurNewOrigin.z=OurNewOrigin.z+AddHeight-SubHeight+(ClearingBB.Min.z-m_Dimensions.Min.z/*1628.8*/)+0.123456789/*Epsilon (sonst Ruckeln am Anfang!)*/;
+                    OurNewOrigin.z = OurNewOrigin.z + AddHeight - SubHeight + (ClearingBB.Min.z - Dimensions.Min.z/*1628.8*/) + 0.123456789/*Epsilon (sonst Ruckeln am Anfang!)*/;
 
                     // Old, deprecated code (can get us stuck in non-level ground).
                     // const double HeightAboveGround=GameWorld->MapClipLine(OurNewOrigin, VectorT(0, 0, -1.0), 0, 999999.9);
-                    // OurNewOrigin.z=OurNewOrigin.z-HeightAboveGround-m_Dimensions.Min.z+1.23456789/*Epsilon (needed to avoid ruggy initial movement!)*/;
+                    // OurNewOrigin.z = OurNewOrigin.z - HeightAboveGround - Dimensions.Min.z + 1.23456789/*Epsilon (needed to avoid ruggy initial movement!)*/;
 
 
-                    BoundingBox3T<double> OurBB(m_Dimensions);
+                    BoundingBox3dT OurBB(Dimensions);
 
                     OurBB.Min+=OurNewOrigin;
                     OurBB.Max+=OurNewOrigin;
@@ -564,8 +557,8 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                         // A suitable "InfoPlayerStart" entity was found -- respawn!
                         m_Entity->GetTransform()->SetOriginWS(OurNewOrigin.AsVectorOfFloat());
                         m_Entity->GetTransform()->SetQuatWS(IPSEntity->GetTransform()->GetQuatWS());  // TODO: Can we make sure that the z-axis points straight up, i.e. bank and pitch are 0?
+                        m_Entity->GetChildren()[0]->GetTransform()->SetOriginPS(Vector3fT(-24.0f, 0.0f, 20.0f));    // TODO: Hardcoded values here and in the server code that creates the entity...
                         m_Entity->GetChildren()[0]->GetTransform()->SetQuatPS(cf::math::QuaternionfT());
-                        m_Dimensions             =BoundingBox3dT(Vector3dT(16.0, 16.0, 4.0), Vector3dT(-16.0, -16.0, -68.0));
                         CompHP->SetStateOfExistence(StateOfExistence_Alive);
                         Model3rdPerson->SetMember("Animation", 0);
                         CompHP->SetHealth(100);
@@ -579,7 +572,7 @@ void EntHumanPlayerT::Think(float FrameTime_BAD_DONT_USE, unsigned long ServerFr
                         IntrusivePtrT<cf::GameSys::ComponentCollisionModelT> CompCollMdl = dynamic_pointer_cast<cf::GameSys::ComponentCollisionModelT>(m_Entity->GetComponent("CollisionModel"));
 
                         if (CompCollMdl != NULL)
-                            CompCollMdl->SetBoundingBox(m_Dimensions, "Textures/meta/collisionmodel");
+                            CompCollMdl->SetBoundingBox(Dimensions, "Textures/meta/collisionmodel");
 
                         for (char Nr=0; Nr<15; Nr++) CompHP->GetHaveAmmo()[Nr]=0;   // IMPORTANT: Do not clear the frags value in 'HaveAmmo[AMMO_SLOT_FRAGS]'!
                         for (char Nr=0; Nr<32; Nr++) CompHP->GetHaveAmmoInWeapons()[Nr]=0;
@@ -652,8 +645,8 @@ void EntHumanPlayerT::Draw(bool FirstPersonView, float LodDist) const
     {
         if (CompHP->GetStateOfExistence() != StateOfExistence_Alive && CompHP->GetStateOfExistence() != StateOfExistence_Dead) return;
 
-        const float OffsetZ = (CompHP->GetStateOfExistence() != StateOfExistence_Dead) ? -32.0f : -32.0f+float(m_Dimensions.Min.z+68.0);
-
+        // TODO / FIXME: Are these four lines still needed?
+        const float OffsetZ = -32.0f;
         MatSys::Renderer->GetCurrentLightSourcePosition()[2]-=OffsetZ;
         MatSys::Renderer->GetCurrentEyePosition        ()[2]-=OffsetZ;
         MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, 0.0f, 0.0f, OffsetZ);
