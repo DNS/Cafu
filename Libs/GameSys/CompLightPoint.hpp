@@ -64,6 +64,7 @@ namespace cf
             // Base class overrides.
             ComponentPointLightT* Clone() const;
             const char* GetName() const { return "PointLight"; }
+            BoundingBox3fT GetVisualBB() const;
             void DoClientFrame(float t);
 
 

@@ -160,10 +160,11 @@ namespace cf
             /// @param Entity   The parent entity that contains this component, or `NULL` to indicate that this component is removed from the entity that it used to be a part of.
             virtual void UpdateDependencies(EntityT* Entity);
 
-            /// This method returns the component's bounding-box (with coordinates in the entity's local system).
-            /// It is intended to cover the visual representation of the entity in the Map Editor.
-            /// Note that the returned bounding-box can be uninitialized, i.e. `GetEditorBB().IsInited() == false` is possible.
-            virtual BoundingBox3fT GetEditorBB() const { return BoundingBox3fT(); }
+            /// This method returns a bounding-box that encloses the visual representation of this component.
+            /// The returned bounding-box is in local space, i.e. typically centered around the origin (0, 0, 0).
+            /// If the component doesn't have a visual representation, the returned bounding-box may be uninitialized
+            /// (`!IsInited()`). Also see EntityT::GetVisualBB() for additional details.
+            virtual BoundingBox3fT GetVisualBB() const { return BoundingBox3fT(); }
 
             /// This method inserts the dimensions of the collision model of this component into the given
             /// bounding-box `BB`.

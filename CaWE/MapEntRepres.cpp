@@ -356,7 +356,7 @@ BoundingBox3fT MapEntRepresT::GetComponentsBB() const
 
     for (unsigned long CompNr = 0; CompNr < Ent->GetComponents().Size(); CompNr++)
     {
-        const BoundingBox3fT CompBB = Ent->GetComponents()[CompNr]->GetEditorBB();
+        const BoundingBox3fT CompBB = Ent->GetComponents()[CompNr]->GetVisualBB();
 
         if (CompBB.IsInited())
             BB += CompBB;

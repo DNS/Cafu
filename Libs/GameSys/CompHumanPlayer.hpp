@@ -106,6 +106,7 @@ namespace cf
             // Base class overrides.
             ComponentHumanPlayerT* Clone() const;
             const char* GetName() const { return "HumanPlayer"; }
+            BoundingBox3fT GetVisualBB() const;
             void DoServerFrame(float t);
             void DoClientFrame(float t);
 

@@ -113,6 +113,15 @@ ComponentPointLightT* ComponentPointLightT::Clone() const
 }
 
 
+BoundingBox3fT ComponentPointLightT::GetVisualBB() const
+{
+    const float r = m_Radius.Get();
+
+    // A light source is typically not seen by itself, but its "effects" are.
+    return BoundingBox3fT(Vector3fT(-r, -r, -r), Vector3fT(r, r, r));
+}
+
+
 void ComponentPointLightT::DoClientFrame(float t)
 {
     bool Result = false;

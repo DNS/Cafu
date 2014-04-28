@@ -190,6 +190,26 @@ namespace cf
             /// @returns The pointer to the desired entity, or `NULL` if no entity with this name exists.
             IntrusivePtrT<EntityT> Find(const std::string& WantedName);   // Method cannot be const because return type is not const -- see implementation.
 
+            /// Returns a bounding-box that encloses the visual representation of this entity.
+            /// It is used to determine if the entity is in the view-frustum of a camera or in the potentially-
+            /// visibility-set (PVS) of another entity, and similar purposes.
+            ///
+            /// This method does *not* recurse: The returned bounding-box covers this entity, but not its children.
+            ///
+            /// Note that many details are up to the entity's components, whose GetVisualBB() method this method's
+            /// implementation calls. For example, it is up to the Map Editor's "App" component to decide whether
+            /// it includes selection gizmo handles and/or the map primitives in the returned bounding-box.
+            ///
+            /// @param WorldSpace   If `true`, the bounding-box is returned in world-space coordinates.
+            ///                     If `false`, the bounding-box is returned in local entity-space.
+            ///                     Note that due to the transformation, the volume of the bounding-box in world-space
+            ///                     may be larger than the volume of the bounding-box in entity-space.
+            ///
+            /// @return The bounding-box that encloses the visual representation of this entity. The returned
+            ///     bounding-box is always valid, but possibly not inited (`!IsInited()`), indicating that the entity
+            ///     doesn't have a visual representation.
+            BoundingBox3fT GetVisualBB(bool WorldSpace) const;
+
             /// Writes the current state of this entity into the given stream.
             /// This method is called to send the state of the entity over the network, to save it to disk,
             /// or to store it in the clipboard.

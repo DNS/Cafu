@@ -478,6 +478,17 @@ void ComponentHumanPlayerT::CheckGUIs(bool ThinkingOnServerSide, bool HaveButton
 }
 
 
+BoundingBox3fT ComponentHumanPlayerT::GetVisualBB() const
+{
+    const float r = 1.0f;
+
+    // Make sure that the EntityT::GetVisualBB() method always returns *some* bounding-box if the entity is a
+    // human player, even if for whatever reason there is no other component (e.g. a Model) that adds one.
+    // This makes (doubly) sure that in the `CaServerWorldT`, a client is always found in its own PVS.
+    return BoundingBox3fT(Vector3fT(-r, -r, -r), Vector3fT(r, r, r));
+}
+
+
 void ComponentHumanPlayerT::DoServerFrame(float t)
 {
     // It is important that we advance the time on the server-side GUI, too, so that it can

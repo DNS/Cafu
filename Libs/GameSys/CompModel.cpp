@@ -553,7 +553,7 @@ void ComponentModelT::UpdateDependencies(EntityT* Entity)
 }
 
 
-BoundingBox3fT ComponentModelT::GetEditorBB() const
+BoundingBox3fT ComponentModelT::GetVisualBB() const
 {
     return GetPose() ? GetPose()->GetBB() : BoundingBox3fT();
 }

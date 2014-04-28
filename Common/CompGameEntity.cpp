@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClipSys/ClipModel.hpp"
 #include "ClipSys/CollisionModel_static.hpp"
 #include "GameSys/World.hpp"
+#include "SceneGraph/BspTreeNode.hpp"
 
 
 /*
@@ -87,6 +88,15 @@ void CompGameEntityT::UpdateDependencies(cf::GameSys::EntityT* Entity)
     ComponentBaseT::UpdateDependencies(Entity);
 
     UpdateClipModel();
+}
+
+
+BoundingBox3fT CompGameEntityT::GetVisualBB() const
+{
+    if (m_StaticEntityData->m_BspTree)
+        return m_StaticEntityData->m_BspTree->GetBoundingBox().AsBoxOfFloat();
+
+    return BoundingBox3fT();
 }
 
 
