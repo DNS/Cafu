@@ -311,11 +311,16 @@ void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID
     for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
         if (m_EngineEntities[EntityNr]!=NULL)
         {
-            const Vector3dT       EntityOrigin = m_EngineEntities[EntityNr]->GetEntity()->GetTransform()->GetOriginWS().AsVectorOfDouble();
-            BoundingBox3T<double> EntityBB     = m_EngineEntities[EntityNr]->GetGameEntity()->GetDimensions();
+            BoundingBox3dT EntityBB = m_EngineEntities[EntityNr]->GetEntity()->GetVisualBB(true /*WorldSpace*/).AsBoxOfDouble();
 
-            EntityBB.Min += EntityOrigin;
-            EntityBB.Max += EntityOrigin;
+            if (!EntityBB.IsInited())
+            {
+                // If the entity has no visual representation, add its origin point in order to "compensate" this.
+                // At this time, accounting for such "invisible" entities is useful, because e.g. we have no explicit
+                // "potentially audible set" for sound sources. This will also cover entities that the client *really*
+                // cannot see, e.g. player starting points and other purely informational entities, but that's ok for now.
+                EntityBB += m_EngineEntities[EntityNr]->GetEntity()->GetTransform()->GetOriginWS().AsVectorOfDouble();
+            }
 
             if (BspTree->IsInPVS(EntityBB, ClientLeafNr)) NewStatePVSEntityIDs->PushBack(EntityNr);
         }

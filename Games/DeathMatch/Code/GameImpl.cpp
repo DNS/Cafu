@@ -25,7 +25,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "HumanPlayer.hpp"
 #include "InfoGeneric.hpp"
-#include "Worldspawn.hpp"
 
 #include "TypeSys.hpp"
 #include "Models/ModelManager.hpp"
@@ -79,7 +78,6 @@ namespace GAME_NAME
     const cf::TypeSys::TypeInfoT* AllTypeInfos[] = {
         &EntHumanPlayerT::TypeInfo,
         &EntInfoGenericT::TypeInfo,
-        &EntWorldspawnT::TypeInfo,
     };
 }
 
