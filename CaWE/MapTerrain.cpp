@@ -599,7 +599,6 @@ void MapTerrainT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::Anglesf
 
     const BoundingBox3fT NewBB(Min, Max);
 
-    if (!NewBB.IsValid()) return;
     if (!NewBB.IsInited()) return;
     if (NewBB.Max.x-NewBB.Min.x < 4.0f) return;
     if (NewBB.Max.y-NewBB.Min.y < 4.0f) return;
@@ -607,6 +606,7 @@ void MapTerrainT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::Anglesf
     MapPrimitiveT::TrafoRotate(RefPoint, Angles);
 
     // TODO: Restrict this to steps of 90 degrees around the z-axis, then also rotate the m_HeightData!!!
+    // And/or: Terrains cannot be arbitrarily rotated. The user must rotate the terrain's entity instead.
 
     m_TerrainBounds=NewBB;
     m_NeedsUpdate=true;
@@ -618,7 +618,6 @@ void MapTerrainT::TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale)
     const BoundingBox3fT NewBB(RefPoint + (m_TerrainBounds.Min-RefPoint).GetScaled(Scale),
                                RefPoint + (m_TerrainBounds.Max-RefPoint).GetScaled(Scale));
 
-    if (!NewBB.IsValid()) return;
     if (!NewBB.IsInited()) return;
     if (NewBB.Max.x-NewBB.Min.x < 4.0f) return;
     if (NewBB.Max.y-NewBB.Min.y < 4.0f) return;
@@ -640,7 +639,6 @@ void MapTerrainT::TrafoMirror(unsigned int NormalAxis, float Dist)
 
     const BoundingBox3fT NewBB(Min, Max);
 
-    if (!NewBB.IsValid()) return;
     if (!NewBB.IsInited()) return;
     if (NewBB.Max.x-NewBB.Min.x < 4.0f) return;
     if (NewBB.Max.y-NewBB.Min.y < 4.0f) return;
@@ -659,7 +657,7 @@ void MapTerrainT::Transform(const MatrixT& Matrix)
     const BoundingBox3fT NewBB(Matrix.Mul1(m_TerrainBounds.Min),
                                Matrix.Mul1(m_TerrainBounds.Max));
 
-    if (!NewBB.IsValid()) return;
+    // TODO: Terrains cannot be arbitrarily transformed. The user must transform the terrain's entity instead.
     if (!NewBB.IsInited()) return;
     if (NewBB.Max.x-NewBB.Min.x < 4.0f) return;
     if (NewBB.Max.y-NewBB.Min.y < 4.0f) return;

@@ -311,12 +311,18 @@ void cf::SceneGraph::BspTreeNodeT::ScaleDown254()
                 Poly.Vertices[VertexNr] /= 25.4;
         }
 
-        L.BB.Min /= 25.4;
-        L.BB.Max /= 25.4;
+        if (L.BB.IsInited())
+        {
+            L.BB.Min /= 25.4;
+            L.BB.Max /= 25.4;
+        }
     }
 
-    BB.Min /= 25.4;
-    BB.Max /= 25.4;
+    if (BB.IsInited())
+    {
+        BB.Min /= 25.4;
+        BB.Max /= 25.4;
+    }
 
     for (unsigned long ChildNr = 0; ChildNr < FaceChildren.Size(); ChildNr++)
         FaceChildren[ChildNr]->ScaleDown254();

@@ -72,8 +72,11 @@ class BoundingBox3T
     {
         BoundingBox3T<float> BB;
 
-        BB.Min=Min.AsVectorOfFloat();
-        BB.Max=Max.AsVectorOfFloat();
+        if (IsInited())
+        {
+            BB.Min = Min.AsVectorOfFloat();
+            BB.Max = Max.AsVectorOfFloat();
+        }
 
         return BB;
     }
@@ -83,8 +86,11 @@ class BoundingBox3T
     {
         BoundingBox3T<double> BB;
 
-        BB.Min=Min.AsVectorOfDouble();
-        BB.Max=Max.AsVectorOfDouble();
+        if (IsInited())
+        {
+            BB.Min = Min.AsVectorOfDouble();
+            BB.Max = Max.AsVectorOfDouble();
+        }
 
         return BB;
     }

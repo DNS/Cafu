@@ -971,7 +971,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             Ent->AddComponent(SubmodelComp);
 
             IntrusivePtrT<cf::GameSys::ComponentPlayerPhysicsT> PlayerPhysicsComp = new cf::GameSys::ComponentPlayerPhysicsT();
-            PlayerPhysicsComp->SetMember("Dimensions", BoundingBox3dT(Vector3dT( 12.0,  12.0, 4.0), Vector3dT(-12.0, -12.0, -68.0)));
+            PlayerPhysicsComp->SetMember("Dimensions", BoundingBox3dT(Vector3dT( 12.0,  12.0, 4.0), Vector3dT(-12.0, -12.0, -68.0)));   // Isn't -36 ... 36 the proper heights?
             PlayerPhysicsComp->SetMember("StepHeight", 24.0);
             Ent->AddComponent(PlayerPhysicsComp);
 
