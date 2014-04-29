@@ -39,8 +39,6 @@ namespace GAME_NAME
         EntHumanPlayerT(const EntityCreateParamsT& Params);
 
         // Implement the BaseEntityT interface.
-        void Think(float FrameTime, unsigned long ServerFrameNr);
-
         void Draw(bool FirstPersonView, float LodDist) const;
         void PostDraw(float FrameTime, bool FirstPersonView);
 

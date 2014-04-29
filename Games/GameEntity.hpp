@@ -90,14 +90,14 @@ class GameEntityI : public RefCountedT
     virtual void Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)=0;
 
 
-    /// This SERVER-SIDE function is called by the server in order to advance the world one clock-tick.
-    /// That is, basing on the present (old) state, it is called for computing the next (new) state.
-    /// 'FrameTime' is the time of the clock-tick, in seconds.
-    /// 'ServerFrameNr' is the number of the current server frame.
-    /// >>> IMPORTANT NOTE: In truth, also the CLIENT-SIDE calls this function for the purpose of predicting the local human player entity! <<<
-    /// >>> As a consequence, special rules apply when this function is called for predicted entities (that is, human player entities).     <<<
-    /// >>> For further details and examples, please refer to the EntHumanPlayerT::Think() function in HumanPlayer.cpp.                     <<<
-    virtual void Think(float FrameTime, unsigned long ServerFrameNr)=0;
+    // /// This SERVER-SIDE function is called by the server in order to advance the world one clock-tick.
+    // /// That is, basing on the present (old) state, it is called for computing the next (new) state.
+    // /// 'FrameTime' is the time of the clock-tick, in seconds.
+    // /// 'ServerFrameNr' is the number of the current server frame.
+    // /// >>> IMPORTANT NOTE: In truth, also the CLIENT-SIDE calls this function for the purpose of predicting the local human player entity! <<<
+    // /// >>> As a consequence, special rules apply when this function is called for predicted entities (that is, human player entities).     <<<
+    // /// >>> For further details and examples, please refer to the EntHumanPlayerT::Think() function in HumanPlayer.cpp.                     <<<
+    // virtual void Think(float FrameTime, unsigned long ServerFrameNr)=0;
 
 
     /// This CLIENT-SIDE function is called in order to retrieve light source information about this entity.

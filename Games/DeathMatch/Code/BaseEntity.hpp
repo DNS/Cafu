@@ -114,9 +114,6 @@ namespace GAME_NAME
         /// Note that events are fully predictable: they work well even in the presence of client prediction.
         void PostEvent(unsigned int EventType) { m_EventsCount[EventType]++; }
 
-        // Implement SERVER-SIDE GameEntityI base class methods.
-        virtual void Think(float FrameTime, unsigned long ServerFrameNr) /*override*/;
-
 
         /// This CLIENT-SIDE function is called to process events on the client.
         /// Events that have been posted via PostEvent() on the server (or in client prediction) are eventually

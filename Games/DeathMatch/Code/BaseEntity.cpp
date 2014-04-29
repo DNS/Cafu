@@ -166,11 +166,6 @@ void BaseEntityT::TakeDamage(BaseEntityT* /*Entity*/, char /*Amount*/, const Vec
 }
 
 
-void BaseEntityT::Think(float /*FrameTime*/, unsigned long /*ServerFrameNr*/)
-{
-}
-
-
 void BaseEntityT::ProcessEvent(unsigned int /*EventType*/, unsigned int /*NumEvents*/)
 {
 }

@@ -114,7 +114,7 @@ void EngineEntityT::Think(float FrameTime, unsigned long ServerFrameNr)
     if (m_BaseLineFrameNr >= ServerFrameNr) return;
 
     // 3. Jetzt neuen 'Entity->State' ausdenken.
-    Entity->Think(FrameTime, ServerFrameNr);
+ // Entity->Think(FrameTime, ServerFrameNr);
     m_Entity->OnServerFrame(FrameTime);
 
     EntityStateFrameNr=ServerFrameNr;
@@ -283,15 +283,13 @@ bool EngineEntityT::Repredict(const ArrayT<PlayerCommandT>& PlayerCommands, unsi
     // werden die Netzwerk-Nachrichten in Nullzeit (im Idealfall über Memory-Buffer) versandt.
     // Falls dann auch noch der Server mit full-speed läuft, sollte daher immer RemoteLastIncomingSequenceNr==LastOutgoingSequenceNr sein,
     // was impliziert, daß dann keine Prediction stattfindet (da nicht notwendig!).
-    for (unsigned long SequenceNr=RemoteLastIncomingSequenceNr+1; SequenceNr<=LastOutgoingSequenceNr; SequenceNr++)
-        CompHP->GetPlayerCommands().PushBack(PlayerCommands[SequenceNr & (PlayerCommands.Size()-1)]);
+    for (unsigned long SequenceNr = RemoteLastIncomingSequenceNr+1; SequenceNr <= LastOutgoingSequenceNr; SequenceNr++)
+    {
+        // Note that components other than CompHP should *not* Think/Repredict,
+        // e.g. the player's CollisionModel component must not cause OnTrigger() callbacks!
+        CompHP->Think(PlayerCommands[SequenceNr & (PlayerCommands.Size()-1)], false /*ThinkingOnServerSide*/);
+    }
 
-    // Once `Entity` is gone:
-    //   right: CompHP->DoServerFrame(-2.0);
-    //   wrong: m_Entity->DoServerFrame(-2.0);
-    // because components other than CompHP should *not* Think/Repredict,
-    // e.g. the CollisionModel component must not cause OnTrigger() callbacks!
-    Entity->Think(-2.0, 0);
     return true;
 }
 
@@ -310,14 +308,9 @@ void EngineEntityT::Predict(const PlayerCommandT& PlayerCommand, unsigned long O
         return;
     }
 
-    CompHP->GetPlayerCommands().PushBack(PlayerCommand);
-
-    // Once `Entity` is gone:
-    //   right: CompHP->DoServerFrame(-2.0);
-    //   wrong: m_Entity->DoServerFrame(-2.0);
-    // because components other than CompHP should *not* Think/Repredict,
-    // e.g. the CollisionModel component must not cause OnTrigger() callbacks!
-    Entity->Think(-1.0, 0);
+    // Note that components other than CompHP should *not* Think/Repredict,
+    // e.g. the player's CollisionModel component must not cause OnTrigger() callbacks!
+    CompHP->Think(PlayerCommand, false /*ThinkingOnServerSide*/);
 }
 
 
