@@ -124,9 +124,6 @@ class EngineEntityT
     // The 'OutgoingSequenceNr' is the sequence number of the packet in which the caller sends the 'PlayerCommand' to the server.
     void Predict(const PlayerCommandT& PlayerCommand, unsigned long OutgoingSequenceNr);
 
-    /// Returns the light source info for this entity.
-    bool GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const;
-
     /// Draws this entity.
     void Draw(bool FirstPersonView, const VectorT& ViewerPos) const;
 

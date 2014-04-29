@@ -314,12 +314,6 @@ void EngineEntityT::Predict(const PlayerCommandT& PlayerCommand, unsigned long O
 }
 
 
-bool EngineEntityT::GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const
-{
-    return Entity->GetLightSourceInfo(DiffuseColor, SpecularColor, Position, Radius, CastsShadows);
-}
-
-
 void EngineEntityT::Draw(bool FirstPersonView, const VectorT& ViewerPos) const
 {
     MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);

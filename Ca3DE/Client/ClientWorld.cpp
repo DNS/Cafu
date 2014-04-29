@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClipSys/CollisionModel_static.hpp"
 #include "ClipSys/CollisionModelMan.hpp"
 #include "ConsoleCommands/ConVar.hpp"
+#include "GameSys/CompLightPoint.hpp"
 #include "GameSys/CompPlayerPhysics.hpp"
 #include "GameSys/Entity.hpp"
 #include "GameSys/EntityCreateParams.hpp"
@@ -605,7 +606,23 @@ bool CaClientWorldT::GetLightSourceInfo(unsigned long EntityID, unsigned long& D
 {
     if (EntityID<m_EngineEntities.Size())
         if (m_EngineEntities[EntityID]!=NULL)
-            return m_EngineEntities[EntityID]->GetLightSourceInfo(DiffuseColor, SpecularColor, Position, Radius, CastsShadows);
+        {
+            IntrusivePtrT<cf::GameSys::EntityT> Entity = m_EngineEntities[EntityID]->GetEntity();
+            IntrusivePtrT<cf::GameSys::ComponentPointLightT> L = dynamic_pointer_cast<cf::GameSys::ComponentPointLightT>(Entity->GetComponent("PointLight"));
+
+            if (L == NULL) return false;
+            if (!L->IsOn()) return false;
+
+            const Vector3fT Col = L->GetColor() * 255.0f;
+
+            DiffuseColor  = (unsigned long)(Col.x) + ((unsigned long)(Col.y) << 8) + ((unsigned long)(Col.z) << 16);
+            SpecularColor = DiffuseColor;
+            Position      = Entity->GetTransform()->GetOriginWS().AsVectorOfDouble();
+            Radius        = L->GetRadius();
+            CastsShadows  = L->CastsShadows();
+
+            return true;
+        }
 
     return false;
 }

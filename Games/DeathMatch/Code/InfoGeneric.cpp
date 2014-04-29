@@ -50,21 +50,3 @@ EntInfoGenericT::EntInfoGenericT(const EntityCreateParamsT& Params)
                   0)
 {
 }
-
-
-bool EntInfoGenericT::GetLightSourceInfo(unsigned long& DiffuseColor, unsigned long& SpecularColor, VectorT& Position, float& Radius, bool& CastsShadows) const
-{
-    IntrusivePtrT<cf::GameSys::ComponentPointLightT> L = dynamic_pointer_cast<cf::GameSys::ComponentPointLightT>(m_Entity->GetComponent("PointLight"));
-    if (L == NULL) return false;
-    if (!L->IsOn()) return false;
-
-    const Vector3fT Col = L->GetColor() * 255.0f;
-
-    DiffuseColor  = (unsigned long)(Col.x) + ((unsigned long)(Col.y) << 8) + ((unsigned long)(Col.z) << 16);
-    SpecularColor = DiffuseColor;
-    Position      = m_Entity->GetTransform()->GetOriginWS().AsVectorOfDouble();
-    Radius        = L->GetRadius();
-    CastsShadows  = L->CastsShadows();
-
-    return true;
-}
