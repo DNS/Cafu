@@ -21,21 +21,28 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "CompHumanPlayer.hpp"
 #include "AllComponents.hpp"
+#include "CompCollisionModel.hpp"
 #include "CompModel.hpp"                // for implementing CheckGUIs()
 #include "CompPhysics.hpp"
 #include "CompPlayerPhysics.hpp"
 #include "CompScript.hpp"
 #include "Entity.hpp"
+#include "EntityCreateParams.hpp"
 #include "World.hpp"
 
 #include "HumanPlayer/Constants_AmmoSlots.hpp"
 #include "HumanPlayer/Constants_WeaponSlots.hpp"
 #include "HumanPlayer/cw_357.hpp"
 
+#include "ClipSys/ClipWorld.hpp"
+#include "ClipSys/TraceResult.hpp"
 #include "GuiSys/GuiImpl.hpp"
+#include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/Renderer.hpp"
+#include "Math3D/Angles.hpp"
 #include "Math3D/Matrix3x3.hpp"
 #include "Models/AnimPose.hpp"          // for implementing CheckGUIs()
+#include "Models/Model_cmdl.hpp"
 #include "OpenGL/OpenGLWindow.hpp"      // for implementing CheckGUIs()
 #include "String.hpp"
 #include "UniScriptState.hpp"
@@ -474,6 +481,412 @@ void ComponentHumanPlayerT::CheckGUIs(bool ThinkingOnServerSide, bool HaveButton
                 }
             }
         }
+    }
+}
+
+
+void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide)
+{
+    IntrusivePtrT<cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(GetEntity()->GetComponent("PlayerPhysics"));
+    IntrusivePtrT<cf::GameSys::ComponentModelT> Model3rdPerson = dynamic_pointer_cast<cf::GameSys::ComponentModelT>(GetEntity()->GetComponent("Model"));
+
+    if (CompPlayerPhysics == NULL) return;      // The presence of CompPlayerPhysics is mandatory...
+    if (Model3rdPerson == NULL) return;         // The presence of CompPlayerPhysics is mandatory...
+
+    switch (GetStateOfExistence())
+    {
+        case StateOfExistence_Alive:
+        {
+            // Update Heading
+            {
+                cf::math::AnglesfT Angles(GetEntity()->GetTransform()->GetQuatPS());       // We actually rotate the entity.
+
+                Angles.yaw() -= PlayerCommand.DeltaHeading / 8192.0f * 45.0f;
+
+                if (PlayerCommand.Keys & PCK_TurnLeft ) Angles.yaw() += 120.0f * PlayerCommand.FrameTime;
+                if (PlayerCommand.Keys & PCK_TurnRight) Angles.yaw() -= 120.0f * PlayerCommand.FrameTime;
+
+                Angles.pitch() = 0.0f;
+                Angles.roll()  = 0.0f;
+
+                GetEntity()->GetTransform()->SetQuatPS(cf::math::QuaternionfT(Angles));
+            }
+
+            // Update Pitch and Bank
+            {
+                cf::math::AnglesfT Angles(GetEntity()->GetChildren()[0]->GetTransform()->GetQuatPS());     // We update the camera, not the entity.
+
+                const int dp = PlayerCommand.DeltaPitch;
+                Angles.pitch() += (dp < 32768 ? dp : dp - 65536) / 8192.0f * 45.0f;
+
+                if (PlayerCommand.Keys & PCK_LookUp  ) Angles.pitch() -= 120.0f * PlayerCommand.FrameTime;
+                if (PlayerCommand.Keys & PCK_LookDown) Angles.pitch() += 120.0f * PlayerCommand.FrameTime;
+
+                if (Angles.pitch() >  90.0f) Angles.pitch() =  90.0f;
+                if (Angles.pitch() < -90.0f) Angles.pitch() = -90.0f;
+
+                const int db = PlayerCommand.DeltaBank;
+                Angles.roll() += (db < 32768 ? db : db - 65536) / 8192.0f * 45.0f;
+
+                if (PlayerCommand.Keys & PCK_CenterView)
+                {
+                    Angles.yaw()   = 0.0f;
+                    Angles.pitch() = 0.0f;
+                    Angles.roll()  = 0.0f;
+                }
+
+                GetEntity()->GetChildren()[0]->GetTransform()->SetQuatPS(cf::math::QuaternionfT(Angles));
+            }
+
+
+            VectorT             WishVelocity;
+            bool                WishJump=false;
+            const Vector3dT     Vel     = cf::math::Matrix3x3fT(GetEntity()->GetTransform()->GetQuatWS()).GetAxis(0).AsVectorOfDouble() * 240.0;
+            const unsigned long Keys    =PlayerCommand.Keys;
+
+            if (Keys & PCK_MoveForward ) WishVelocity=             VectorT( Vel.x,  Vel.y, 0);
+            if (Keys & PCK_MoveBackward) WishVelocity=WishVelocity+VectorT(-Vel.x, -Vel.y, 0);
+            if (Keys & PCK_StrafeLeft  ) WishVelocity=WishVelocity+VectorT(-Vel.y,  Vel.x, 0);
+            if (Keys & PCK_StrafeRight ) WishVelocity=WishVelocity+VectorT( Vel.y, -Vel.x, 0);
+
+            if (Keys & PCK_Jump        ) WishJump=true;
+         // if (Keys & PCK_Duck        ) ;
+            if (Keys & PCK_Walk        ) WishVelocity=scale(WishVelocity, 0.5);
+
+            VectorT       WishVelLadder;
+            const VectorT ViewLadder = GetViewDirWS() * 150.0;
+
+            // TODO: Also take LATERAL movement into account.
+            // TODO: All this needs a HUGE clean-up! Can probably put a lot of this stuff into Physics::MoveHuman.
+            if (Keys & PCK_MoveForward ) WishVelLadder=WishVelLadder+ViewLadder;
+            if (Keys & PCK_MoveBackward) WishVelLadder=WishVelLadder-ViewLadder;
+            if (Keys & PCK_Walk        ) WishVelLadder=scale(WishVelLadder, 0.5);
+
+            /*if (Clients[ClientNr].move_noclip)
+            {
+                // This code was simply changed and rewritten until it "worked".
+                // May still be buggy anyway.
+                double RadPitch=double(m_Pitch)/32768.0*3.141592654;
+                double Fak     =VectorDot(WishVelocity, VectorT(LookupTables::Angle16ToSin[m_Heading], LookupTables::Angle16ToCos[m_Heading], 0));
+
+                WishVelocity.x*=cos(RadPitch);
+                WishVelocity.y*=cos(RadPitch);
+                WishVelocity.z=-sin(RadPitch)*Fak;
+
+                m_Origin=m_Origin+scale(WishVelocity, PlayerCommand.FrameTime);
+
+                // TODO: If not already done on state change (--> "noclip"), set the model sequence to "swim".  ;-)
+            }
+            else */
+            {
+                VectorT XYVel    = CompPlayerPhysics->GetVelocity(); XYVel.z = 0;
+                double  OldSpeed = length(XYVel);
+
+                CompPlayerPhysics->SetMember("StepHeight", 18.5);
+                CompPlayerPhysics->MoveHuman(PlayerCommand.FrameTime, WishVelocity.AsVectorOfFloat(), WishVelLadder.AsVectorOfFloat(), WishJump);
+
+                XYVel = CompPlayerPhysics->GetVelocity(); XYVel.z = 0;
+                double NewSpeed = length(XYVel);
+
+                if (OldSpeed <= 40.0 && NewSpeed > 40.0) Model3rdPerson->SetMember("Animation", 3);
+                if (OldSpeed >= 40.0 && NewSpeed < 40.0) Model3rdPerson->SetMember("Animation", 1);
+            }
+
+            // GameWorld->ModelAdvanceFrameTime() is called on client side in Draw().
+
+
+            // Handle the state machine of the "_v" (view) model of the current weapon.
+            if (GetHaveWeapons() & (1 << GetActiveWeaponSlot()))
+            {
+                const cf::GameSys::CarriedWeaponT* CarriedWeapon = GetCarriedWeapon(GetActiveWeaponSlot());
+
+                // Advance the frame time of the weapon.
+                const CafuModelT* WeaponModel=CarriedWeapon->GetViewWeaponModel();
+
+                IntrusivePtrT<AnimExprStandardT> StdAE = WeaponModel->GetAnimExprPool().GetStandard(GetActiveWeaponSequNr(), GetActiveWeaponFrameNr());
+
+                StdAE->SetForceLoop(true);
+                StdAE->AdvanceTime(PlayerCommand.FrameTime);
+
+                const float NewFrameNr = StdAE->GetFrameNr();
+                const bool  AnimSequenceWrap = NewFrameNr < GetActiveWeaponFrameNr() || NewFrameNr > WeaponModel->GetAnims()[GetActiveWeaponSequNr()].Frames.Size()-1;
+
+                SetActiveWeaponFrameNr(NewFrameNr);
+
+                CarriedWeapon->ServerSide_Think(this, PlayerCommand, ThinkingOnServerSide, AnimSequenceWrap);
+            }
+
+
+            // Check if any key for changing the current weapon was pressed.
+            ArrayT<char> SelectableWeapons;
+
+            switch (Keys >> 28)
+            {
+                case 0: break;  // No weapon slot was selected for changing the weapon.
+
+                case 1: if (GetHaveWeapons() & (1 << WEAPON_SLOT_BATTLESCYTHE)) SelectableWeapons.PushBack(WEAPON_SLOT_BATTLESCYTHE);
+                        if (GetHaveWeapons() & (1 << WEAPON_SLOT_HORNETGUN   )) SelectableWeapons.PushBack(WEAPON_SLOT_HORNETGUN   );
+                        break;
+
+                case 2: if ((GetHaveWeapons() & (1 << WEAPON_SLOT_PISTOL)) && (GetHaveAmmoInWeapons()[WEAPON_SLOT_PISTOL] || GetHaveAmmo()[AMMO_SLOT_9MM])) SelectableWeapons.PushBack(WEAPON_SLOT_PISTOL);
+                        if ((GetHaveWeapons() & (1 << WEAPON_SLOT_357   )) && (GetHaveAmmoInWeapons()[WEAPON_SLOT_357   ] || GetHaveAmmo()[AMMO_SLOT_357])) SelectableWeapons.PushBack(WEAPON_SLOT_357   );
+                        break;
+
+                case 3: if ((GetHaveWeapons() & (1 << WEAPON_SLOT_SHOTGUN )) && (GetHaveAmmoInWeapons()[WEAPON_SLOT_SHOTGUN ] || GetHaveAmmo()[AMMO_SLOT_SHELLS]                                    )) SelectableWeapons.PushBack(WEAPON_SLOT_SHOTGUN );
+                        if ((GetHaveWeapons() & (1 << WEAPON_SLOT_9MMAR   )) && (GetHaveAmmoInWeapons()[WEAPON_SLOT_9MMAR   ] || GetHaveAmmo()[AMMO_SLOT_9MM   ] || GetHaveAmmo()[AMMO_SLOT_ARGREN])) SelectableWeapons.PushBack(WEAPON_SLOT_9MMAR   );
+                        if ((GetHaveWeapons() & (1 << WEAPON_SLOT_CROSSBOW)) && (GetHaveAmmoInWeapons()[WEAPON_SLOT_CROSSBOW] || GetHaveAmmo()[AMMO_SLOT_ARROWS]                                    )) SelectableWeapons.PushBack(WEAPON_SLOT_CROSSBOW);
+                        break;
+
+                case 4: if ((GetHaveWeapons() & (1 << WEAPON_SLOT_RPG  )) && (GetHaveAmmoInWeapons()[WEAPON_SLOT_RPG  ] || GetHaveAmmo()[AMMO_SLOT_ROCKETS])) SelectableWeapons.PushBack(WEAPON_SLOT_RPG  );
+                        if ((GetHaveWeapons() & (1 << WEAPON_SLOT_GAUSS)) && (GetHaveAmmoInWeapons()[WEAPON_SLOT_GAUSS] || GetHaveAmmo()[AMMO_SLOT_CELLS  ])) SelectableWeapons.PushBack(WEAPON_SLOT_GAUSS);
+                        if ((GetHaveWeapons() & (1 << WEAPON_SLOT_EGON )) && (GetHaveAmmoInWeapons()[WEAPON_SLOT_EGON ] || GetHaveAmmo()[AMMO_SLOT_CELLS  ])) SelectableWeapons.PushBack(WEAPON_SLOT_EGON );
+                        break;
+
+                case 5: if ((GetHaveWeapons() & (1 << WEAPON_SLOT_GRENADE   )) && GetHaveAmmoInWeapons()[WEAPON_SLOT_GRENADE   ]) SelectableWeapons.PushBack(WEAPON_SLOT_GRENADE   );
+                        if ((GetHaveWeapons() & (1 << WEAPON_SLOT_TRIPMINE  )) && GetHaveAmmoInWeapons()[WEAPON_SLOT_TRIPMINE  ]) SelectableWeapons.PushBack(WEAPON_SLOT_TRIPMINE  );
+                        if ((GetHaveWeapons() & (1 << WEAPON_SLOT_FACEHUGGER)) && GetHaveAmmoInWeapons()[WEAPON_SLOT_FACEHUGGER]) SelectableWeapons.PushBack(WEAPON_SLOT_FACEHUGGER);
+                        break;
+
+                // case 6..15: break;
+            }
+
+            unsigned long SWNr;
+
+            for (SWNr=0; SWNr<SelectableWeapons.Size(); SWNr++)
+                if (SelectableWeapons[SWNr] == GetActiveWeaponSlot()) break;
+
+            if (SWNr>=SelectableWeapons.Size())
+            {
+                // If the currently active weapon is NOT among the SelectableWeapons
+                // (that means another weapon category was chosen), choose SelectableWeapons[0] as the active weapon.
+                if (SelectableWeapons.Size()>0)
+                {
+                    char DrawSequNr=0;
+
+                    SetActiveWeaponSlot(SelectableWeapons[0]);
+
+                    switch (GetActiveWeaponSlot())
+                    {
+                        case WEAPON_SLOT_BATTLESCYTHE: DrawSequNr=1; break;
+                        case WEAPON_SLOT_HORNETGUN   : DrawSequNr=0; break;
+                        case WEAPON_SLOT_PISTOL      : DrawSequNr=7; break;
+                        case WEAPON_SLOT_357         : DrawSequNr=5; break;
+                        case WEAPON_SLOT_SHOTGUN     : DrawSequNr=6; break;
+                        case WEAPON_SLOT_9MMAR       : DrawSequNr=4; break;
+                        case WEAPON_SLOT_CROSSBOW    : DrawSequNr=5; break;
+                        case WEAPON_SLOT_RPG         : DrawSequNr=5; break;
+                        case WEAPON_SLOT_GAUSS       : DrawSequNr=8; break;
+                        case WEAPON_SLOT_EGON        : DrawSequNr=9; break;
+                        case WEAPON_SLOT_GRENADE     : DrawSequNr=7; break;
+                        case WEAPON_SLOT_TRIPMINE    : DrawSequNr=0; break;
+                        case WEAPON_SLOT_FACEHUGGER  : DrawSequNr=4; break;
+                    }
+
+                    SetActiveWeaponSequNr(DrawSequNr);
+                    SetActiveWeaponFrameNr(0.0f);
+                }
+            }
+            else
+            {
+                // Otherwise check if there are further selectable weapons (SelectableWeapons.Size()>1), and cycle to the next one.
+                if (SelectableWeapons.Size()>1)
+                {
+                    char DrawSequNr=0;
+
+                    SetActiveWeaponSlot(SelectableWeapons[(SWNr+1) % SelectableWeapons.Size()]);
+
+                    switch (GetActiveWeaponSlot())
+                    {
+                        case WEAPON_SLOT_BATTLESCYTHE: DrawSequNr=1; break;
+                        case WEAPON_SLOT_HORNETGUN   : DrawSequNr=0; break;
+                        case WEAPON_SLOT_PISTOL      : DrawSequNr=7; break;
+                        case WEAPON_SLOT_357         : DrawSequNr=5; break;
+                        case WEAPON_SLOT_SHOTGUN     : DrawSequNr=6; break;
+                        case WEAPON_SLOT_9MMAR       : DrawSequNr=4; break;
+                        case WEAPON_SLOT_CROSSBOW    : DrawSequNr=5; break;
+                        case WEAPON_SLOT_RPG         : DrawSequNr=5; break;
+                        case WEAPON_SLOT_GAUSS       : DrawSequNr=8; break;
+                        case WEAPON_SLOT_EGON        : DrawSequNr=9; break;
+                        case WEAPON_SLOT_GRENADE     : DrawSequNr=7; break;
+                        case WEAPON_SLOT_TRIPMINE    : DrawSequNr=0; break;
+                        case WEAPON_SLOT_FACEHUGGER  : DrawSequNr=4; break;
+                    }
+
+                    SetActiveWeaponSequNr(DrawSequNr);
+                    SetActiveWeaponFrameNr(0.0f);
+                }
+            }
+
+
+            // Check if any GUIs must be updated.
+            CheckGUIs(ThinkingOnServerSide, (Keys >> 28) == 10);
+            break;
+        }
+
+        case StateOfExistence_Dead:
+        {
+            const float MIN_CAMERA_HEIGHT = -20.0f;
+
+            CompPlayerPhysics->SetMember("StepHeight", 4.0);
+            CompPlayerPhysics->MoveHuman(PlayerCommand.FrameTime, Vector3fT(), Vector3fT(), false);
+
+            IntrusivePtrT<cf::GameSys::ComponentTransformT> CameraTrafo = GetEntity()->GetChildren()[0]->GetTransform();
+
+            if (CameraTrafo->GetOriginPS().z > MIN_CAMERA_HEIGHT)
+            {
+                // We only update the camera, not the entity.
+                Vector3fT          Origin(CameraTrafo->GetOriginPS());
+                cf::math::AnglesfT Angles(CameraTrafo->GetQuatPS());
+
+                Origin.z -= 80.0f * PlayerCommand.FrameTime;
+                Angles.roll() += PlayerCommand.FrameTime * 200.0f;
+
+                CameraTrafo->SetOriginPS(Origin);
+                CameraTrafo->SetQuatPS(cf::math::QuaternionfT(Angles));
+            }
+
+            // We entered this state after we died. Leave it after we have come
+            // to a complete halt, and the death sequence is over.
+            if (CameraTrafo->GetOriginPS().z <= MIN_CAMERA_HEIGHT && length(CompPlayerPhysics->GetVelocity()) < 0.1 /* && TODO: Is death anim sequence over?? */)
+            {
+                // On the server, create a new "corpse" entity in the place where we died,
+                // or else it seems to other players like the model disappears when we respawn.
+                if (ThinkingOnServerSide)
+                {
+                    IntrusivePtrT<cf::GameSys::ComponentModelT> PlayerModelComp = dynamic_pointer_cast<cf::GameSys::ComponentModelT>(GetEntity()->GetComponent("Model"));
+
+                    if (PlayerModelComp != NULL)
+                    {
+                        IntrusivePtrT<cf::GameSys::EntityT> Ent = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(GetEntity()->GetWorld()));
+                        GetEntity()->GetParent()->AddChild(Ent);
+
+                        Ent->GetTransform()->SetOriginPS(GetEntity()->GetTransform()->GetOriginPS());
+                        Ent->GetTransform()->SetQuatPS(GetEntity()->GetTransform()->GetQuatPS());
+
+                        IntrusivePtrT<cf::GameSys::ComponentModelT> ModelComp = new cf::GameSys::ComponentModelT(*PlayerModelComp);
+                        Ent->AddComponent(ModelComp);
+
+                        // TODO: Disappear when some condition is met (timeout, not in anyones PVS, alpha fade-out, too many corpses, ...)
+                        // TODO: Decompose to gibs when hit by a rocket.
+                    }
+                }
+
+                // TODO: HEAD SWAY: State.Velocity.y=m_Heading;
+                // TODO: HEAD SWAY: State.Velocity.z=m_Bank;
+                SetStateOfExistence(StateOfExistence_FrozenSpectator);
+            }
+
+            break;
+        }
+
+        case StateOfExistence_FrozenSpectator:
+        {
+#if 0   // TODO: HEAD SWAY
+            const float Pi          =3.14159265359f;
+            const float SecPerSwing =15.0f;
+            float       PC_FrameTime=PlayerCommand.FrameTime;
+
+            // In this 'StateOfExistence' is the 'State.Velocity' unused - thus mis-use it for other purposes!
+            if (PC_FrameTime>0.05) PC_FrameTime=0.05f;  // Avoid jumpiness with very low FPS.
+            State.Velocity.x+=PC_FrameTime*2.0*Pi/SecPerSwing;
+            if (State.Velocity.x>6.3) State.Velocity.x-=2.0*Pi;
+
+            const float SwingAngle=float(sin(State.Velocity.x)*200.0);
+
+            m_Heading=(unsigned short)(State.Velocity.y+SwingAngle);
+            m_Bank   =(unsigned short)(State.Velocity.z-SwingAngle);
+#endif
+
+            // TODO: We want the player to release the button between respawns in order to avoid permanent "respawn-flickering"
+            //       that otherwise may occur if the player keeps the button continuously pressed down.
+            //       These are the same technics that also apply to the "jump"-button.
+            if ((PlayerCommand.Keys & PCK_Fire1)==0) break;  // "Fire" button not pressed.
+
+            ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
+            GetEntity()->GetWorld().GetRootEntity()->GetAll(AllEnts);
+
+            // The "Fire"-button was pressed. Now try to determine a free "InfoPlayerStart" entity for respawning there.
+            for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
+            {
+                IntrusivePtrT<cf::GameSys::EntityT> IPSEntity = AllEnts[EntNr];
+
+                if (IPSEntity->GetComponent("PlayerStart") == NULL) continue;
+
+                const BoundingBox3dT Dimensions(Vector3dT(16.0, 16.0, 4.0), Vector3dT(-16.0, -16.0, -68.0));
+
+                // This is actually an "InfoPlayerStart" entity. Now try to put our own bounding box at the origin of 'IPSEntity',
+                // but try to correct/choose the height such that we are on ground (instead of hovering above it).
+                Vector3dT OurNewOrigin = IPSEntity->GetTransform()->GetOriginWS().AsVectorOfDouble();
+
+                // First, create a BB of dimensions (-16.0, -16.0, -4.0) - (16.0, 16.0, 4.0).
+                const BoundingBox3T<double> ClearingBB(VectorT(Dimensions.Min.x, Dimensions.Min.y, -Dimensions.Max.z), Dimensions.Max);
+
+                cf::ClipSys::ClipModelT* IgnorePlayerClipModel = NULL;  // TODO!
+
+                // Move ClearingBB up to a reasonable height (if possible!), such that the *full* BB (that is, Dimensions) is clear of (not stuck in) solid.
+                cf::ClipSys::TraceResultT Result(1.0);
+                GetEntity()->GetWorld().GetClipWorld()->TraceBoundingBox(ClearingBB, OurNewOrigin, VectorT(0.0, 0.0, 120.0), MaterialT::Clip_Players, IgnorePlayerClipModel, Result);
+                const double AddHeight=120.0*Result.Fraction;
+
+                // Move ClearingBB down as far as possible.
+                Result=cf::ClipSys::TraceResultT(1.0);
+                GetEntity()->GetWorld().GetClipWorld()->TraceBoundingBox(ClearingBB, OurNewOrigin+VectorT(0.0, 0.0, AddHeight), VectorT(0.0, 0.0, -1000.0), MaterialT::Clip_Players, IgnorePlayerClipModel, Result);
+                const double SubHeight=1000.0*Result.Fraction;
+
+                // Beachte: Hier für Epsilon 1.0 (statt z.B. 1.23456789) zu wählen hebt u.U. GENAU den (0 0 -1) Test in
+                // Physics::CategorizePosition() auf! Nicht schlimm, wenn aber auf Client-Seite übers Netz kleine Rundungsfehler
+                // vorhanden sind (es werden floats übertragen, nicht doubles!), kommt CategorizePosition() u.U. auf Client- und
+                // Server-Seite zu verschiedenen Ergebnissen! Der Effekt spielt sich zwar in einem Intervall der Größe 1.0 ab,
+                // kann mit OpenGL aber zu deutlichem Pixel-Flimmern führen!
+                OurNewOrigin.z = OurNewOrigin.z + AddHeight - SubHeight + (ClearingBB.Min.z - Dimensions.Min.z/*1628.8*/) + 0.123456789/*Epsilon (sonst Ruckeln am Anfang!)*/;
+
+                // Old, deprecated code (can get us stuck in non-level ground).
+                // const double HeightAboveGround=GameWorld->MapClipLine(OurNewOrigin, VectorT(0, 0, -1.0), 0, 999999.9);
+                // OurNewOrigin.z = OurNewOrigin.z - HeightAboveGround - Dimensions.Min.z + 1.23456789/*Epsilon (needed to avoid ruggy initial movement!)*/;
+
+
+                BoundingBox3dT OurBB(Dimensions);
+
+                OurBB.Min+=OurNewOrigin;
+                OurBB.Max+=OurNewOrigin;
+
+                ArrayT<cf::ClipSys::ClipModelT*> ClipModels;
+                GetEntity()->GetWorld().GetClipWorld()->GetClipModelsFromBB(ClipModels, MaterialT::Clip_Players, OurBB);
+
+                if (ClipModels.Size() == 0)
+                {
+                    // A suitable "InfoPlayerStart" entity was found -- respawn!
+                    GetEntity()->GetTransform()->SetOriginWS(OurNewOrigin.AsVectorOfFloat());
+                    GetEntity()->GetTransform()->SetQuatWS(IPSEntity->GetTransform()->GetQuatWS());  // TODO: Can we make sure that the z-axis points straight up, i.e. bank and pitch are 0?
+                    GetEntity()->GetChildren()[0]->GetTransform()->SetOriginPS(Vector3fT(-24.0f, 0.0f, 20.0f));    // TODO: Hardcoded values here and in the server code that creates the entity...
+                    GetEntity()->GetChildren()[0]->GetTransform()->SetQuatPS(cf::math::QuaternionfT());
+                    SetStateOfExistence(StateOfExistence_Alive);
+                    Model3rdPerson->SetMember("Animation", 0);
+                    SetHealth(100);
+                    SetArmor(0);
+                    SetHaveItems(0);
+                    SetHaveWeapons(0);
+                    SetActiveWeaponSlot(0);
+                    SetActiveWeaponSequNr(0);
+                    SetActiveWeaponFrameNr(0.0f);
+
+                    IntrusivePtrT<cf::GameSys::ComponentCollisionModelT> CompCollMdl = dynamic_pointer_cast<cf::GameSys::ComponentCollisionModelT>(GetEntity()->GetComponent("CollisionModel"));
+
+                    if (CompCollMdl != NULL)
+                        CompCollMdl->SetBoundingBox(Dimensions, "Textures/meta/collisionmodel");
+
+                    for (char Nr=0; Nr<15; Nr++) GetHaveAmmo()[Nr]=0;   // IMPORTANT: Do not clear the frags value in 'HaveAmmo[AMMO_SLOT_FRAGS]'!
+                    for (char Nr=0; Nr<32; Nr++) GetHaveAmmoInWeapons()[Nr]=0;
+
+                    break;
+                }
+            }
+
+            break;
+        }
+
+        case StateOfExistence_FreeSpectator:
+            break;
     }
 }
 

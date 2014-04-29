@@ -102,6 +102,9 @@ namespace cf
             /// A helper function for Think().
             void CheckGUIs(bool ThinkingOnServerSide, bool HaveButtonClick) const;
 
+            /// A helper method (that does the actual work) for DoServerFrame() *and* the (re-)prediction in the client.
+            void Think(const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide);
+
 
             // Base class overrides.
             ComponentHumanPlayerT* Clone() const;
