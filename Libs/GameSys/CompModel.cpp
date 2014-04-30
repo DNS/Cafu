@@ -559,7 +559,7 @@ BoundingBox3fT ComponentModelT::GetVisualBB() const
 }
 
 
-void ComponentModelT::Render(float LodDist) const
+void ComponentModelT::Render(bool /*FirstPersonView*/, float LodDist) const
 {
     if (!m_ModelShow.Get()) return;
     if (!GetPose()) return;

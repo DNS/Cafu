@@ -697,7 +697,8 @@ void CaClientWorldT::DrawEntities(unsigned long OurEntityID, bool SkipOurEntity,
                         }
                     }
 
-                    Ent->RenderComponents(length(ViewerPos.AsVectorOfFloat() - m_EngineEntities[EntityID]->GetEntity()->GetTransform()->GetOriginWS()));
+                    Ent->RenderComponents(FirstPersonView,
+                        length(ViewerPos.AsVectorOfFloat() - Ent->GetTransform()->GetOriginWS()));
                 }
                 MatSys::Renderer->PopLightingParameters();
                 MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);

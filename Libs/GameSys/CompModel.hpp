@@ -64,7 +64,7 @@ namespace cf
             const char* GetName() const { return "Model"; }
             void UpdateDependencies(EntityT* Entity);
             BoundingBox3fT GetVisualBB() const;
-            void Render(float LodDist) const;
+            void Render(bool FirstPersonView, float LodDist) const;
             void DoServerFrame(float t);
             void DoClientFrame(float t);
 

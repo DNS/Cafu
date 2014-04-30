@@ -195,7 +195,7 @@ void MapEntRepresT::Render3D(Renderer3DT& Renderer) const
         MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
         MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, Ent->GetTransform()->GetEntityToWorld());
 
-        Ent->RenderComponents(EntDist);
+        Ent->RenderComponents(false /*FirstPersonView*/, EntDist);
 
         MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
 

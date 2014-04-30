@@ -173,8 +173,9 @@ namespace cf
             virtual void GetCollisionBB(BoundingBox3fT& BB) const { }
 
             /// This method implements the graphical output of this component.
-            /// @param LodDist   The distance of the viewer entity to this component's entity.
-            virtual void Render(float LodDist) const { }
+            /// @param FirstPersonView   If the world is rendered from the perspective of this component's entity.
+            /// @param LodDist           The distance of the viewer entity to this component's entity.
+            virtual void Render(bool FirstPersonView, float LodDist) const { }
 
             /// This method is called after all entities and their components have been loaded.
             ///
