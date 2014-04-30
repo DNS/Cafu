@@ -487,8 +487,8 @@ void ComponentHumanPlayerT::CheckGUIs(bool ThinkingOnServerSide, bool HaveButton
 
 void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide)
 {
-    IntrusivePtrT<cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(GetEntity()->GetComponent("PlayerPhysics"));
-    IntrusivePtrT<cf::GameSys::ComponentModelT> Model3rdPerson = dynamic_pointer_cast<cf::GameSys::ComponentModelT>(GetEntity()->GetComponent("Model"));
+    IntrusivePtrT<ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<ComponentPlayerPhysicsT>(GetEntity()->GetComponent("PlayerPhysics"));
+    IntrusivePtrT<ComponentModelT> Model3rdPerson = dynamic_pointer_cast<ComponentModelT>(GetEntity()->GetComponent("Model"));
 
     if (CompPlayerPhysics == NULL) return;      // The presence of CompPlayerPhysics is mandatory...
     if (Model3rdPerson == NULL) return;         // The presence of CompPlayerPhysics is mandatory...
@@ -598,7 +598,7 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
             // Handle the state machine of the "_v" (view) model of the current weapon.
             if (GetHaveWeapons() & (1 << GetActiveWeaponSlot()))
             {
-                const cf::GameSys::CarriedWeaponT* CarriedWeapon = GetCarriedWeapon(GetActiveWeaponSlot());
+                const CarriedWeaponT* CarriedWeapon = GetCarriedWeapon(GetActiveWeaponSlot());
 
                 // Advance the frame time of the weapon.
                 const CafuModelT* WeaponModel=CarriedWeapon->GetViewWeaponModel();
@@ -730,7 +730,7 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
             CompPlayerPhysics->SetMember("StepHeight", 4.0);
             CompPlayerPhysics->MoveHuman(PlayerCommand.FrameTime, Vector3fT(), Vector3fT(), false);
 
-            IntrusivePtrT<cf::GameSys::ComponentTransformT> CameraTrafo = GetEntity()->GetChildren()[0]->GetTransform();
+            IntrusivePtrT<ComponentTransformT> CameraTrafo = GetEntity()->GetChildren()[0]->GetTransform();
 
             if (CameraTrafo->GetOriginPS().z > MIN_CAMERA_HEIGHT)
             {
@@ -753,17 +753,17 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                 // or else it seems to other players like the model disappears when we respawn.
                 if (ThinkingOnServerSide)
                 {
-                    IntrusivePtrT<cf::GameSys::ComponentModelT> PlayerModelComp = dynamic_pointer_cast<cf::GameSys::ComponentModelT>(GetEntity()->GetComponent("Model"));
+                    IntrusivePtrT<ComponentModelT> PlayerModelComp = dynamic_pointer_cast<ComponentModelT>(GetEntity()->GetComponent("Model"));
 
                     if (PlayerModelComp != NULL)
                     {
-                        IntrusivePtrT<cf::GameSys::EntityT> Ent = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(GetEntity()->GetWorld()));
+                        IntrusivePtrT<EntityT> Ent = new EntityT(EntityCreateParamsT(GetEntity()->GetWorld()));
                         GetEntity()->GetParent()->AddChild(Ent);
 
                         Ent->GetTransform()->SetOriginPS(GetEntity()->GetTransform()->GetOriginPS());
                         Ent->GetTransform()->SetQuatPS(GetEntity()->GetTransform()->GetQuatPS());
 
-                        IntrusivePtrT<cf::GameSys::ComponentModelT> ModelComp = new cf::GameSys::ComponentModelT(*PlayerModelComp);
+                        IntrusivePtrT<ComponentModelT> ModelComp = new ComponentModelT(*PlayerModelComp);
                         Ent->AddComponent(ModelComp);
 
                         // TODO: Disappear when some condition is met (timeout, not in anyones PVS, alpha fade-out, too many corpses, ...)
@@ -802,13 +802,13 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
             //       These are the same technics that also apply to the "jump"-button.
             if ((PlayerCommand.Keys & PCK_Fire1)==0) break;  // "Fire" button not pressed.
 
-            ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
+            ArrayT< IntrusivePtrT<EntityT> > AllEnts;
             GetEntity()->GetWorld().GetRootEntity()->GetAll(AllEnts);
 
             // The "Fire"-button was pressed. Now try to determine a free "InfoPlayerStart" entity for respawning there.
             for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
             {
-                IntrusivePtrT<cf::GameSys::EntityT> IPSEntity = AllEnts[EntNr];
+                IntrusivePtrT<EntityT> IPSEntity = AllEnts[EntNr];
 
                 if (IPSEntity->GetComponent("PlayerStart") == NULL) continue;
 
@@ -870,7 +870,7 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                     SetActiveWeaponSequNr(0);
                     SetActiveWeaponFrameNr(0.0f);
 
-                    IntrusivePtrT<cf::GameSys::ComponentCollisionModelT> CompCollMdl = dynamic_pointer_cast<cf::GameSys::ComponentCollisionModelT>(GetEntity()->GetComponent("CollisionModel"));
+                    IntrusivePtrT<ComponentCollisionModelT> CompCollMdl = dynamic_pointer_cast<ComponentCollisionModelT>(GetEntity()->GetComponent("CollisionModel"));
 
                     if (CompCollMdl != NULL)
                         CompCollMdl->SetBoundingBox(Dimensions, "Textures/meta/collisionmodel");
@@ -899,6 +899,74 @@ BoundingBox3fT ComponentHumanPlayerT::GetVisualBB() const
     // human player, even if for whatever reason there is no other component (e.g. a Model) that adds one.
     // This makes (doubly) sure that in the `CaServerWorldT`, a client is always found in its own PVS.
     return BoundingBox3fT(Vector3fT(-r, -r, -r), Vector3fT(r, r, r));
+}
+
+
+void ComponentHumanPlayerT::Render(bool FirstPersonView, float LodDist) const
+{
+    // Keep in mind that when 'FirstPersonView==true', this is usually the human player entity
+    // of the local client, which gets *predicted*. Thus, there is no point in modifying the 'State' member variable.
+    // Otherwise however, when 'FirstPersonView==false', this is usually a human player entity
+    // of another client, which is *NOT* predicted. Thus, we may modify the 'State' member variable up to a certain extend.
+    if (FirstPersonView)
+    {
+        // Draw "view" model of the weapon
+        if (GetHaveWeapons() & (1 << GetActiveWeaponSlot()))     // Only draw the active weapon if we actually "have" it
+        {
+#if 0     // TODO!
+            Vector3fT LgtPos(MatSys::Renderer->GetCurrentLightSourcePosition());
+            Vector3fT EyePos(MatSys::Renderer->GetCurrentEyePosition());
+
+            // The translation is not actually required, but gives the weapon a very nice 'shifting' effect when the player looks up/down.
+            // If there ever is a problem with view model distortion, this may be a cause.
+            LgtPos.z+=0.5f;
+            EyePos.z+=0.5f;
+            MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, 0.0f, 0.0f, -0.5f);
+
+            const float DegPitch=float(m_Pitch)/8192.0f*45.0f;
+
+            LgtPos=LgtPos.GetRotY(-DegPitch);
+            EyePos=EyePos.GetRotY(-DegPitch);
+            MatSys::Renderer->RotateY(MatSys::RendererI::MODEL_TO_WORLD, DegPitch);
+
+            MatSys::Renderer->SetCurrentLightSourcePosition(LgtPos.x, LgtPos.y, LgtPos.z);
+            MatSys::Renderer->SetCurrentEyePosition(EyePos.x, EyePos.y, EyePos.z);
+#endif
+
+
+            const CafuModelT* WeaponModel=GetCarriedWeapon(GetActiveWeaponSlot())->GetViewWeaponModel();
+            AnimPoseT*        Pose       =WeaponModel->GetSharedPose(WeaponModel->GetAnimExprPool().GetStandard(GetActiveWeaponSequNr(), GetActiveWeaponFrameNr()));
+
+            Pose->Draw(-1 /*default skin*/, LodDist);
+        }
+    }
+    else
+    {
+        if (GetStateOfExistence() != StateOfExistence_Alive && GetStateOfExistence() != StateOfExistence_Dead) return;
+
+        // TODO / FIXME: Are these four lines still needed?
+        const float OffsetZ = -32.0f;
+        MatSys::Renderer->GetCurrentLightSourcePosition()[2]-=OffsetZ;
+        MatSys::Renderer->GetCurrentEyePosition        ()[2]-=OffsetZ;
+        MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, 0.0f, 0.0f, OffsetZ);
+
+
+        // The own player body model is drawn autonomously by the respective Model component.
+        // Here, also draw the "_p" (player) model of the active weapon as sub-model of the body.
+        if (GetHaveWeapons() & (1 << GetActiveWeaponSlot()))
+        {
+            IntrusivePtrT<ComponentModelT> Model3rdPerson = dynamic_pointer_cast<ComponentModelT>(GetEntity()->GetComponent("Model"));
+            const CafuModelT* WeaponModel = GetCarriedWeapon(GetActiveWeaponSlot())->GetPlayerWeaponModel();
+            AnimPoseT*        WeaponPose  = WeaponModel->GetSharedPose(WeaponModel->GetAnimExprPool().GetStandard(0, 0.0f));
+
+            if (Model3rdPerson != NULL)
+            {
+                WeaponPose->SetSuperPose(Model3rdPerson->GetPose());
+                WeaponPose->Draw(-1 /*default skin*/, LodDist);
+                WeaponPose->SetSuperPose(NULL);
+            }
+        }
+    }
 }
 
 

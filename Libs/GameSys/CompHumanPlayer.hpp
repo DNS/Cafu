@@ -110,6 +110,7 @@ namespace cf
             ComponentHumanPlayerT* Clone() const;
             const char* GetName() const { return "HumanPlayer"; }
             BoundingBox3fT GetVisualBB() const;
+            void Render(bool FirstPersonView, float LodDist) const;
             void DoServerFrame(float t);
             void DoClientFrame(float t);
 
