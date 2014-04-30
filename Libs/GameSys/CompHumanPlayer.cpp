@@ -993,6 +993,12 @@ void ComponentHumanPlayerT::DoClientFrame(float t)
     MatSys::Renderer->PopMatrix(MatSys::RendererI::PROJECTION);
     MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
     MatSys::Renderer->PopMatrix(MatSys::RendererI::WORLD_TO_VIEW);
+
+    // Handle any state driven effects of the currently carried weapon.
+    if (GetHaveWeapons() & (1 << GetActiveWeaponSlot()))
+    {
+        GetCarriedWeapon(GetActiveWeaponSlot())->ClientSide_HandleStateDrivenEffects(this);
+    }
 }
 
 

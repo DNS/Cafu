@@ -204,17 +204,3 @@ void EntHumanPlayerT::Draw(bool FirstPersonView, float LodDist) const
         }
     }
 }
-
-
-void EntHumanPlayerT::PostDraw(float FrameTime, bool FirstPersonView)
-{
-    IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(m_Entity->GetComponent("HumanPlayer"));
-
-    // Code for state driven effects.
-    if (CompHP->GetHaveWeapons() & (1 << CompHP->GetActiveWeaponSlot()))
-    {
-        IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP = dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(m_Entity->GetComponent("HumanPlayer"));
-
-        CompHP->GetCarriedWeapon(CompHP->GetActiveWeaponSlot())->ClientSide_HandleStateDrivenEffects(CompHP);
-    }
-}

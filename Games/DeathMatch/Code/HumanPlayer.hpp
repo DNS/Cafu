@@ -40,7 +40,6 @@ namespace GAME_NAME
 
         // Implement the BaseEntityT interface.
         void Draw(bool FirstPersonView, float LodDist) const;
-        void PostDraw(float FrameTime, bool FirstPersonView);
 
 
         const cf::TypeSys::TypeInfoT* GetType() const;
