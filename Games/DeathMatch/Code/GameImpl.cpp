@@ -22,8 +22,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameImpl.hpp"
 
 #include "EntityCreateParams.hpp"
-
-#include "HumanPlayer.hpp"
 #include "InfoGeneric.hpp"
 
 #include "TypeSys.hpp"
@@ -76,7 +74,6 @@ namespace GAME_NAME
      *     http://blog.copton.net/articles/linker/index.html#linker-dependencies
      */
     const cf::TypeSys::TypeInfoT* AllTypeInfos[] = {
-        &EntHumanPlayerT::TypeInfo,
         &EntInfoGenericT::TypeInfo,
     };
 }
