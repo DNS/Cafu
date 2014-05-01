@@ -62,7 +62,6 @@ class CaClientWorldT : public Ca3DEWorldT
 
     // The virtual methods inherited from the base class GameWorldI.
     // Their implementations return error codes and do in fact nothing -- entities cannot be created to or removed from client worlds.
-    unsigned long CreateNewEntity(const std::map<std::string, std::string>& Properties, unsigned long CreationFrameNr, const VectorT& Origin);
     void          RemoveEntity(unsigned long EntityID);
 
     unsigned long GetOurEntityID() const { return OurEntityID; }  // AUFLÖSEN!?

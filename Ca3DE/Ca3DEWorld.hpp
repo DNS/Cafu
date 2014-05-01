@@ -50,7 +50,6 @@ class Ca3DEWorldT : public cf::GameSys::GameWorldI
     Vector3fT                    GetAmbientLightColorFromBB(const BoundingBox3T<double>& Dimensions, const VectorT& Origin) const;
     const ArrayT<unsigned long>& GetAllEntityIDs() const;
     IntrusivePtrT<GameEntityI>   GetGameEntityByID(unsigned long EntityID) const;
-    // unsigned long             CreateNewEntity(const std::map<std::string, std::string>& Properties, unsigned long CreationFrameNr, const VectorT& Origin);
     // void                      RemoveEntity(unsigned long EntityID);
     const CafuModelT*            GetModel(const std::string& FileName) const;
     cf::GuiSys::GuiResourcesT&   GetGuiResources() const;
@@ -62,8 +61,7 @@ class Ca3DEWorldT : public cf::GameSys::GameWorldI
     ///
     ///   - This is called in the constructor (and thus both on the client *and* the server, whenever a new world has
     ///     been loaded) with the parameters from the `.cw` world file.
-    ///   - On the server, this method is also called from the `GameWorldI::CreateNewEntity()` implementation,
-    ///     when an entity wants to create a new entity.
+    ///   - On the server, this method is also called if the Think() code auto-detects that an entity was newly created.
     ///   - Third, this is called by `ServerWorldT::InsertHumanPlayerEntity()` for creating human player entities for
     ///     newly joined clients or after a world-change for the existing clients.
     ///

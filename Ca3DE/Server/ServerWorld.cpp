@@ -54,21 +54,6 @@ CaServerWorldT::CaServerWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::Ga
 }
 
 
-unsigned long CaServerWorldT::CreateNewEntity(const std::map<std::string, std::string>& Properties, unsigned long CreationFrameNr, const VectorT& Origin)
-{
-    IntrusivePtrT<cf::GameSys::EntityT> NewEnt  = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
-    IntrusivePtrT<CompGameEntityT>      GameEnt = new CompGameEntityT();
-
-    NewEnt->GetTransform()->SetOriginWS(Origin.AsVectorOfFloat());
-    NewEnt->SetApp(GameEnt);
-    m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
-
-    GameEnt->GetStaticEntityData()->m_Properties = Properties;
-
-    return CreateNewEntityFromBasicInfo(GameEnt, CreationFrameNr);
-}
-
-
 // Die Clients bekommen unabhängig hiervon in einer SC1_DropClient Message explizit mitgeteilt, wenn ein Client (warum auch immer) den Server verläßt.
 // Den dazugehörigen Entity muß der Client deswegen aber nicht unbedingt sofort und komplett aus seiner World entfernen,
 // dies sollte vielmehr durch Wiederverwendung von EntityIDs durch den Server geschehen!

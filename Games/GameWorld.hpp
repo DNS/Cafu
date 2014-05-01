@@ -74,11 +74,6 @@ namespace cf
             /// NULL is returned if that entity does not exist.
             virtual IntrusivePtrT<GameEntityI> GetGameEntityByID(unsigned long EntityID) const=0;
 
-            /// Creates a new entity from the given parameters.
-            /// The parameters are essentially what is also present in an editor map file.
-            /// Returns the ID of the new entity on success, 0xFFFFFFFF on failure.
-            virtual unsigned long CreateNewEntity(const std::map<std::string, std::string>& Properties, unsigned long CreationFrameNr, const VectorT& Origin)=0;
-
             /// Removes the entity identified by 'EntityID' from the (server) world.
             virtual void RemoveEntity(unsigned long EntityID)=0;
 

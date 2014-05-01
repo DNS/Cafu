@@ -68,12 +68,6 @@ CaClientWorldT::CaClientWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::Ga
 }
 
 
-unsigned long CaClientWorldT::CreateNewEntity(const std::map<std::string, std::string>& Properties, unsigned long CreationFrameNr, const VectorT& Origin)
-{
-    return 0xFFFFFFFF;
-}
-
-
 void CaClientWorldT::RemoveEntity(unsigned long EntityID)
 {
 }
