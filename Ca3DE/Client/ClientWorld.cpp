@@ -67,11 +67,6 @@ CaClientWorldT::CaClientWorldT(const char* FileName, ModelManagerT& ModelMan, cf
 }
 
 
-void CaClientWorldT::RemoveEntity(unsigned long EntityID)
-{
-}
-
-
 bool CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
 {
     const unsigned int EntID    = InData.ReadLong();

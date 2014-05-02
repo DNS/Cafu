@@ -60,10 +60,6 @@ class CaClientWorldT : public Ca3DEWorldT
     // Constructor
     CaClientWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, WorldT::ProgressFunctionT ProgressFunction, unsigned long OurEntityID_) /*throw (WorldT::LoadErrorT)*/;
 
-    // The virtual methods inherited from the base class GameWorldI.
-    // Their implementations return error codes and do in fact nothing -- entities cannot be created to or removed from client worlds.
-    void          RemoveEntity(unsigned long EntityID);
-
     unsigned long GetOurEntityID() const { return OurEntityID; }  // AUFLÖSEN!?
 
     // Erzeugt einen neuen Entity durch das zu Ende Lesen einer SC1_EntityBaseLine Message. Gibt 'true' zurück bei Erfolg, sonst 'false'.

@@ -383,7 +383,7 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
 
 
         // 1. Copy the properties.
-        GameEnt->m_Properties = E.MFProperties;
+        // GameEnt->m_Properties = E.MFProperties;      // Properties are obsolete and not needed no more.
 
         // Move all map primitives in this entity from world space into the local entity space.
         //

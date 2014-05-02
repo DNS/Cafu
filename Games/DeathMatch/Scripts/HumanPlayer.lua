@@ -112,12 +112,12 @@ function Model3rdPerson:OnAnimationChange(AnimNr)
     if (AnimNr < 18) or (AnimNr > 24) then
         -- The player is "alive", so blend animation sequences in 0.3 seconds,
         -- and force their playback in a loop.
-        Console.Print("[alive] OnAnimationChange " .. AnimNr .. "\n")
+        -- Console.Print("[alive] OnAnimationChange " .. AnimNr .. "\n")
         return 0.3, true
     end
 
     -- TODO: It would be nice if we also had the number of frame and FPS of the animation sequence,
     -- and could then use   math.min(0.2, (NumFrames - 1) * FPS * 0.5)   as blend time.
-    Console.Print("[dead] OnAnimationChange " .. AnimNr .. "\n")
+    -- Console.Print("[dead] OnAnimationChange " .. AnimNr .. "\n")
     return 0.2, false
 end

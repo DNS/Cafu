@@ -37,8 +37,8 @@ class CaServerWorldT : public Ca3DEWorldT
     // Erstellt eine neue ServerWorld anhand des World-Files 'FileName', wobei 'FileName' den kompletten (wenn auch relativen) Pfad und Namen enthält.
     CaServerWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes);
 
-    // The virtual methods inherited from the base class GameWorldI.
-    void          RemoveEntity(unsigned long EntityID);
+    /// Removes the entity identified by 'EntityID' from the (server) world.
+    void RemoveEntity(unsigned long EntityID);
 
     // Fügt einen neuen HumanPlayer-Entity zum NÄCHSTEN Frame in die World ein (idR nach Client-Join oder World-Change),
     // NICHT ins aktuelle (bzgl. der BaseLineFrameNr). Ziel: Erreiche gleiches Verhalten wie z.B. das des MonsterMakers.

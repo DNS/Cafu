@@ -56,9 +56,7 @@ Ca3DEWorldT::Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiS
       m_PhysicsWorld(m_World->m_StaticEntityData[0]->m_CollModel),
       m_ScriptState_NEW(new cf::UniScriptStateT),   // Need a pointer because the dtor order is important.
       m_ScriptWorld(NULL),
-      m_EngineEntities(),
-      m_ModelMan(ModelMan),
-      m_GuiRes(GuiRes)
+      m_EngineEntities()
 {
     cf::GameSys::WorldT::InitScriptState(*m_ScriptState_NEW);
 
@@ -162,18 +160,6 @@ Ca3DEWorldT::~Ca3DEWorldT()
 }
 
 
-cf::ClipSys::ClipWorldT& Ca3DEWorldT::GetClipWorld()
-{
-    return *m_ClipWorld;
-}
-
-
-PhysicsWorldT& Ca3DEWorldT::GetPhysicsWorld()
-{
-    return m_PhysicsWorld;
-}
-
-
 Vector3fT Ca3DEWorldT::GetAmbientLightColorFromBB(const BoundingBox3T<double>& Dimensions, const VectorT& Origin) const
 {
     const Vector3dT BBCenter = scale(Dimensions.Min+Dimensions.Max, 0.5) + Origin;
@@ -238,32 +224,6 @@ Vector3fT Ca3DEWorldT::GetAmbientLightColorFromBB(const BoundingBox3T<double>& D
     }
 
     return Vector3fT(1.0f, 1.0f, 1.0f);
-}
-
-
-const ArrayT<unsigned long>& Ca3DEWorldT::GetAllEntityIDs() const
-{
-    static ArrayT<unsigned long> AllEntityIDs;
-
-    AllEntityIDs.Overwrite();
-
-    for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
-        if (m_EngineEntities[EntityNr]!=NULL)
-            AllEntityIDs.PushBack(EntityNr);
-
-    return AllEntityIDs;
-}
-
-
-const CafuModelT* Ca3DEWorldT::GetModel(const std::string& FileName) const
-{
-    return m_ModelMan.GetModel(FileName);
-}
-
-
-cf::GuiSys::GuiResourcesT& Ca3DEWorldT::GetGuiResources() const
-{
-    return m_GuiRes;
 }
 
 

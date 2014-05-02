@@ -37,7 +37,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Plants/PlantDescrMan.hpp"
 
 #include <string>
-#include <map>
 
 
 namespace cf { namespace SceneGraph { class BspTreeNodeT; } }
@@ -89,7 +88,6 @@ class StaticEntityDataT
     ArrayT<SharedTerrainT*>             m_Terrains;   ///< Terrains are shared among the BspTree (graphics world) and the CollModel (physics world).
     cf::SceneGraph::BspTreeNodeT*       m_BspTree;
     cf::ClipSys::CollisionModelStaticT* m_CollModel;
-    std::map<std::string, std::string>  m_Properties;
 
 
     private:

@@ -148,15 +148,6 @@ StaticEntityDataT::StaticEntityDataT(std::istream& InFile, cf::SceneGraph::aux::
     InFile.read((char*)&HasCollisionModel, sizeof(HasCollisionModel));
 
     m_CollModel = HasCollisionModel ? new cf::ClipSys::CollisionModelStaticT(InFile, Pool, ShTe_CollDet) : NULL;
-
-    // Read the property pairs.
-    for (unsigned long NrOfPropertyPairs = cf::SceneGraph::aux::ReadUInt32(InFile); NrOfPropertyPairs > 0; NrOfPropertyPairs--)
-    {
-        const std::string Key   = cf::SceneGraph::aux::ReadString(InFile);
-        const std::string Value = cf::SceneGraph::aux::ReadString(InFile);
-
-        m_Properties[Key] = Value;
-    }
 }
 
 
@@ -189,15 +180,6 @@ void StaticEntityDataT::WriteTo(std::ostream& OutFile, cf::SceneGraph::aux::Pool
     OutFile.write((char*)&HasCollisionModel, sizeof(HasCollisionModel));
     if (m_CollModel)
         m_CollModel->SaveToFile(OutFile, Pool);
-
-    // Write the property pairs.
-    cf::SceneGraph::aux::Write(OutFile, cf::SceneGraph::aux::cnc_ui32(m_Properties.size()));
-
-    for (std::map<std::string, std::string>::const_iterator It = m_Properties.begin(); It != m_Properties.end(); ++It)
-    {
-        cf::SceneGraph::aux::Write(OutFile, It->first );
-        cf::SceneGraph::aux::Write(OutFile, It->second);
-    }
 }
 
 
@@ -251,11 +233,11 @@ WorldT::WorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiRes
 
     char FileHeader[32];
     InFile.read(FileHeader, 32);
-    if (strcmp(FileHeader, "CARSTEN WORLD BSP FILE.")) throw LoadErrorT("Invalid file header. Not a Cafu world file.");
+    if (strcmp(FileHeader, "CAFU WORLD BSP FILE.")) throw LoadErrorT("Invalid file header. Not a Cafu world file.");
 
     unsigned short FileVersion;
     InFile.read((char*)&FileVersion, sizeof(FileVersion));
-    if (FileVersion != 29) throw LoadErrorT("Invalid file version. Current version is 29.");
+    if (FileVersion != 30) throw LoadErrorT("Invalid file version. Current version is 30.");
 
     cf::SceneGraph::aux::PoolT Pool;
 
@@ -319,8 +301,8 @@ void WorldT::SaveToDisk(const char* FileName) const /*throw (SaveErrorT)*/
 
     cf::SceneGraph::aux::PoolT Pool;
 
-    char           FileHeader[32]="CARSTEN WORLD BSP FILE."; OutFile.write(FileHeader, 32);
-    unsigned short FileVersion   =29;                        OutFile.write((char*)&FileVersion, sizeof(FileVersion));
+    char           FileHeader[32] = "CAFU WORLD BSP FILE."; OutFile.write(FileHeader, 32);
+    unsigned short FileVersion    = 30;                     OutFile.write((char*)&FileVersion, sizeof(FileVersion));
 
 
     // 1.3. Write global SHL map data.

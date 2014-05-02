@@ -69,12 +69,20 @@ void CaServerWorldT::RemoveEntity(unsigned long EntityID)
     else
     {
         // Currently not thinking, so it should be safe to remove the entity immediately.
-        if (EntityID < m_EngineEntities.Size())
-        {
-            Console->Print(cf::va("Entity %lu removed (\"%s\") in CaServerWorldT::RemoveEntity().\n", EntityID, m_EngineEntities[EntityID]->GetEntity()->GetBasics()->GetEntityName().c_str()));
-            delete m_EngineEntities[EntityID];
-            m_EngineEntities[EntityID]=NULL;
-        }
+        if (EntityID >= m_EngineEntities.Size()) return;
+        if (m_EngineEntities[EntityID] == NULL) return;
+
+        IntrusivePtrT<cf::GameSys::EntityT> Ent = m_EngineEntities[EntityID]->GetEntity();
+
+        if (Ent == m_ScriptWorld->GetRootEntity()) return;
+
+        if (Ent->GetParent() != NULL)
+            Ent->GetParent()->RemoveChild(Ent);
+
+        Console->Print(cf::va("Entity %lu removed (\"%s\") in CaServerWorldT::RemoveEntity().\n", EntityID, m_EngineEntities[EntityID]->GetEntity()->GetBasics()->GetEntityName().c_str()));
+
+        delete m_EngineEntities[EntityID];
+        m_EngineEntities[EntityID]=NULL;
     }
 }
 
@@ -134,10 +142,6 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
     // As we're inserting a new entity into a live map, post-load stuff must be run here.
     ScriptComp->OnPostLoad(false);
     ScriptComp->CallLuaMethod("OnInit", 0);
-
-    GameEnt->GetStaticEntityData()->m_Properties["classname"] = "HumanPlayer";
-    GameEnt->GetStaticEntityData()->m_Properties["name"]      = cf::va("Player%lu", ClientInfoNr+1);     // Setting the name is needed so that player entities can have a corresponding script instance.
- // GameEnt->GetStaticEntityData()->m_Properties["angles"]    = cf::va("0 %lu 0", (unsigned long)(m_World->InfoPlayerStarts[0].Heading/8192.0*45.0));
 
     return CreateNewEntityFromBasicInfo(GameEnt, m_ServerFrameNr + 1);
 }

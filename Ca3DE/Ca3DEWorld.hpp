@@ -22,18 +22,19 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_CA3DECOMMONWORLD_HPP_INCLUDED
 #define CAFU_CA3DECOMMONWORLD_HPP_INCLUDED
 
+#include "Templates/Pointer.hpp"
 #include "PhysicsWorld.hpp"
 #include "../Common/World.hpp"
-#include "../Games/GameWorld.hpp"
 
 
 namespace cf { namespace ClipSys { class ClipWorldT; } }
+namespace cf { class UniScriptStateT; }
 class CompGameEntityT;
 class EngineEntityT;
 
 
 // Ca3DEWorldT implementiert die Eigenschaften, die eine CaServerWorld und eine CaClientWorld gemeinsam haben.
-class Ca3DEWorldT : public cf::GameSys::GameWorldI
+class Ca3DEWorldT
 {
     public:
 
@@ -42,14 +43,9 @@ class Ca3DEWorldT : public cf::GameSys::GameWorldI
 
     const WorldT& GetWorld() const { return *m_World; }
 
-    // The virtual methods inherited from the base class GameWorldI.
-    cf::ClipSys::ClipWorldT&     GetClipWorld();
-    PhysicsWorldT&               GetPhysicsWorld();
-    Vector3fT                    GetAmbientLightColorFromBB(const BoundingBox3T<double>& Dimensions, const VectorT& Origin) const;
-    const ArrayT<unsigned long>& GetAllEntityIDs() const;
-    // void                      RemoveEntity(unsigned long EntityID);
-    const CafuModelT*            GetModel(const std::string& FileName) const;
-    cf::GuiSys::GuiResourcesT&   GetGuiResources() const;
+    /// Returns a "good" ambient light color for an arbitrary object (i.e. a model) of size Dimensions at Origin.
+    /// The return value is derived from the worlds lightmap information "close" to the Dimensions at Origin.
+    Vector3fT GetAmbientLightColorFromBB(const BoundingBox3T<double>& Dimensions, const VectorT& Origin) const;
 
 
     protected:
@@ -73,8 +69,6 @@ class Ca3DEWorldT : public cf::GameSys::GameWorldI
     cf::UniScriptStateT*               m_ScriptState_NEW;
     IntrusivePtrT<cf::GameSys::WorldT> m_ScriptWorld;   ///< The "script world" contains the entity hierarchy and their components.
     ArrayT<EngineEntityT*>             m_EngineEntities;
-    ModelManagerT&                     m_ModelMan;
-    cf::GuiSys::GuiResourcesT&         m_GuiRes;
 
 
     private:
