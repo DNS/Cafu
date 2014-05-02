@@ -88,6 +88,12 @@ class WorldT
     /// Employs m_ClipWorld->TraceRay() to trace a ray through the (clip) world.
     table TraceRay(table Start, table Ray);
 
+    /// Employs m_PhysicsWorld->TraceBoundingBox() to trace a bounding-box through the (physics) world.
+    /// Note that this method is only useful with entities that do *not* have a collision model of their own,
+    /// because it currently is not capable to ignore specific collision models (the entity's) for the trace,
+    /// which was a necessity in this case.
+    table Phys_TraceBB(table BB, table Start, table Ray);
+
 
     public:
 

@@ -185,8 +185,10 @@ class ComponentCollisionModelT : public ComponentBaseT
 {
     public:
 
-    // WARNING: Mismatching method documentation strings encountered!
-    SetBoundingBox();
+    /// Sets the given bounding-box as the collision model.
+    /// Instead of loading a collision model from a file, a script can call this method
+    /// to set a bounding-box with the given dimensions as the collision model.
+    SetBoundingBox(number min_x, number min_y, number min_z, number max_x, number max_y, number max_z, string MatName);
 
 
     public:
@@ -206,6 +208,108 @@ class ComponentCollisionModelT : public ComponentBaseT
     /// The file name of the collision model.
     /// @cppType{std::string}
     string Name;
+};
+
+
+/// Entities with this component are associated with a client connection
+/// at whose end is a human player who provides input to control the entity.
+///
+/// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
+/// must be used with the get() and set() methods at this time -- see get() and set() for details.
+///
+/// If you would like to create a new component of this type explicitly (those defined in the CaWE Map Editor are instantiated automatically), use WorldT::new():
+/// \code{.lua}
+///     local comp = world:new("ComponentHumanPlayerT")
+/// \endcode
+///
+/// @nosubgrouping
+/// @cppName{cf,GameSys,ComponentHumanPlayerT}
+class ComponentHumanPlayerT : public ComponentBaseT
+{
+    public:
+
+    /// This method is called by the HUD GUI in order to learn which cross-hair should currently be shown.
+    string GetCrosshairInfo();
+
+    /// This method is called by the HUD GUI in order to learn which info should currently be shown in the "ammo" field.
+    string GetAmmoString();
+
+    /// This method is used by the HumanPlayer.lua script in order to redirect events to the HumanPlayer component.
+    string ProcessEvent();
+
+    /// This method is used by the HumanPlayer.lua script in order to redirect weapon or item pick-ups to the HumanPlayer component.
+    ///
+    /// As a technical detail, here is a typical call-chain that can cause calls to this method:
+    ///
+    ///   - An entity (a CollisionModel component) finds itself in another entity's trigger volume.
+    ///
+    ///   - The other entity's `OnTrigger()` script callback is called.
+    ///
+    ///   - If the other entity is a weapon, its `OnTrigger()` implementation in `Weapon.lua`
+    ///     calls the original entity's `PickUpItem()` script method.
+    ///
+    ///   - If the original entity is a human player, its `PickUpItem()` implementation in
+    ///     `HumanPlayer.lua` calls the `PickUpItem()` method of the HumanPlayer component.
+    PickUpItem(string ItemType);
+
+
+    public:
+
+    /** @name Event Handlers (Callbacks)
+     *
+     * See the \ref eventhandlers overview page for additional information about the methods in this group.
+     *
+     * @{
+     */
+
+    /** @} */
+
+
+    public:
+
+    /// The name that the player chose for himself.
+    /// @cppType{std::string}
+    string PlayerName;
+
+    /// For the player's main state machine, e.g. spectator, dead, alive, ...
+    /// @cppType{uint8_t}
+    number State;
+
+    /// Health.
+    /// @cppType{uint8_t}
+    number Health;
+
+    /// Armor.
+    /// @cppType{uint8_t}
+    number Armor;
+
+    /// Bit field, entity can carry 32 different items.
+    /// @cppType{unsigned int}
+    number HaveItems;
+
+    /// Bit field, entity can carry 32 different weapons.
+    /// @cppType{unsigned int}
+    number HaveWeapons;
+
+    /// Index into m_HaveWeapons, m_HaveAmmoInWeapons, and for determining the weapon model index.
+    /// @cppType{uint8_t}
+    number ActiveWeaponSlot;
+
+    /// The weapon anim sequence that we see (the local clients 1st person ('view') weapon model).
+    /// @cppType{uint8_t}
+    number ActiveWeaponSequNr;
+
+    /// Respectively, this is the frame number of the current weapon sequence.
+    /// @cppType{float}
+    number ActiveWeaponFrameNr;
+
+    /// Entity can carry 16 different types of ammo (weapon independent). This is the amount of each.
+    /// @cppType{ArrayT<uint16_t>}
+    table HaveAmmo;
+
+    /// Entity can carry ammo in each of the 32 weapons. This is the amount of each.
+    /// @cppType{ArrayT<uint8_t>}
+    table HaveAmmoInWeapons;
 };
 
 
@@ -301,6 +405,10 @@ class ComponentModelT : public ComponentBaseT
     /// The file name of the GUI to be used with the models GUI fixtures (if there are any).
     /// @cppType{std::string}
     string Gui;
+
+    /// Is this model a submodel of another model? If set, the pose of this model is aligned with the first "non-submodel" in the entity.
+    /// @cppType{bool}
+    boolean IsSubmodel;
 };
 
 
@@ -347,7 +455,69 @@ class ComponentParticleSystemOldT : public ComponentBaseT
 };
 
 
+/// This component includes the body of this entity in the dynamic simulation of physics.
+///
+/// Without this component, the entity is either *static* (it doesn't move at all), *kinematic*
+/// (it is moved by script or program code), or it doesn't participate in physics computations
+/// at all.
+///
+/// With this component, the entity's body is subject to gravity, impulses, and generally to
+/// the dynamic simulation of physics effects in the game world.
+///
+/// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
+/// must be used with the get() and set() methods at this time -- see get() and set() for details.
+///
+/// If you would like to create a new component of this type explicitly (those defined in the CaWE Map Editor are instantiated automatically), use WorldT::new():
+/// \code{.lua}
+///     local comp = world:new("ComponentPhysicsT")
+/// \endcode
+///
+/// @nosubgrouping
+/// @cppName{cf,GameSys,ComponentPhysicsT}
+class ComponentPhysicsT : public ComponentBaseT
+{
+    public:
+
+    /// This method applies an impulse at the center of the entity's body.
+    /// The impulse is applied at the center of the body, so that it changes the body's
+    /// linear velocity, but not its torque.
+    ApplyImpulse(Vector3T Impulse);
+
+    /// This method applies an off-center impulse to the entity's body.
+    /// The impulse is applied at the center of the body, offset by `rel_pos`,
+    /// changing the linear velocity and the body's torque appropriately.
+    ApplyImpulse(Vector3T Impulse, Vector3T rel_pos);
+
+    /// This method sets the gravity vector for this object, in m/s^2.
+    /// The default gravity vector is `(0, 0, -9.81)`.
+    SetGravity(number gx, number gy, number gz);
+
+
+    public:
+
+    /** @name Event Handlers (Callbacks)
+     *
+     * See the \ref eventhandlers overview page for additional information about the methods in this group.
+     *
+     * @{
+     */
+
+    /** @} */
+
+
+    public:
+
+    /// The mass of the entity's body, in kilograms [kg].
+    /// @cppType{float}
+    number Mass;
+};
+
+
 /// This component implements human player physics for its entity.
+/// It updates the entity's origin according to the laws of simple physics
+/// that are appropriate for player movement.
+/// The component does not act on its own in a server's Think() step, but is
+/// only a helper to other C++ or script code that must drive it explicitly.
 ///
 /// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
 /// must be used with the get() and set() methods at this time -- see get() and set() for details.
@@ -360,6 +530,66 @@ class ComponentParticleSystemOldT : public ComponentBaseT
 /// @nosubgrouping
 /// @cppName{cf,GameSys,ComponentPlayerPhysicsT}
 class ComponentPlayerPhysicsT : public ComponentBaseT
+{
+    public:
+
+    /// This is the main method of this component: It advances the entity's origin
+    /// according to the laws of simple physics and the given state and parameters.
+    /// Other C++ or script code of the entity typically calls this method on each
+    /// clock-tick (frame) of the server.
+    /// @param FrameTime       The time across which the entity is to be advanced.
+    /// @param WishVelocity    The desired velocity of the entity as per user input.
+    /// @param WishVelLadder   The desired velocity on a ladder as per user input.
+    /// @param WishJump        Does the user want the entity to jump?
+    MoveHuman(number FrameTime, Vector3T WishVelocity, Vector3T WishVelLadder, bool WishJump);
+
+
+    public:
+
+    /** @name Event Handlers (Callbacks)
+     *
+     * See the \ref eventhandlers overview page for additional information about the methods in this group.
+     *
+     * @{
+     */
+
+    /** @} */
+
+
+    public:
+
+    /// The current velocity of the entity.
+    /// @cppType{Vector3dT}
+    tuple Velocity;
+
+    /// The bounding box of the entity (relative to the origin).
+    /// @cppType{BoundingBox3dT}
+    tuple Dimensions;
+
+    /// The maximum height that the entity can climb in one step.
+    /// @cppType{double}
+    number StepHeight;
+
+    /// Only jump if the jump key was *not* pressed in the previous frame.
+    /// @cppType{bool}
+    boolean OldWishJump;
+};
+
+
+/// This component marks its entity as possible spawn point for human players
+/// that begin a single-player level or join a multi-player game.
+///
+/// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
+/// must be used with the get() and set() methods at this time -- see get() and set() for details.
+///
+/// If you would like to create a new component of this type explicitly (those defined in the CaWE Map Editor are instantiated automatically), use WorldT::new():
+/// \code{.lua}
+///     local comp = world:new("ComponentPlayerStartT")
+/// \endcode
+///
+/// @nosubgrouping
+/// @cppName{cf,GameSys,ComponentPlayerStartT}
+class ComponentPlayerStartT : public ComponentBaseT
 {
     public:
 
@@ -378,13 +608,13 @@ class ComponentPlayerPhysicsT : public ComponentBaseT
 
     public:
 
-    /// The velocity of the entity.
-    /// @cppType{Vector3dT}
-    tuple Velocity;
+    /// If checked, players can be spawned here in single-player games.
+    /// @cppType{bool}
+    boolean SinglePlayer;
 
-    /// The bounding box of the entity (relative to the origin).
-    /// @cppType{BoundingBox3dT}
-    tuple Dimensions;
+    /// If checked, players can be spawned here in multi-player games.
+    /// @cppType{bool}
+    boolean MultiPlayer;
 };
 
 
@@ -584,7 +814,7 @@ class ComponentSoundT : public ComponentBaseT
 {
     public:
 
-    // WARNING: Mismatching method documentation strings encountered!
+    /// This method plays the sound once.
     Play();
 
 
@@ -617,7 +847,23 @@ class ComponentSoundT : public ComponentBaseT
 };
 
 
-/// This component adds information about the position and orientation of the entity.
+/// This component adds information about the position and orientation of its entity.
+/// Positions and orientations can be measured relative to several distinct spaces:
+///
+/// world-space
+///   : The global and "absolute" coordinate space that also exists when nothing else does.
+///
+/// entity-space
+///   : The local coordinate system of the entity. It is defined by the entity's transform component relative
+///     to the entity's parent-space. The term "model-space" can be used synonymously with "entity-space".
+///
+/// parent-space
+///   : The entity-space of an entity's parent.
+///     If an entity has no parent entity, this is the same as world-space.
+///
+/// Although transform components can theoretically and technically exist without being attached to an entity,
+/// in practice this distinction is not made. Every entity has exactly one built-in transform component, and
+/// terms like "the origin of the transform" and "the origin of the entity" are used synonymously.
 ///
 /// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
 /// must be used with the get() and set() methods at this time -- see get() and set() for details.
@@ -637,12 +883,14 @@ class ComponentTransformT : public ComponentBaseT
     ///   - heading (yaw),
     ///   - pitch,
     ///   - bank (roll).
+    /// The angles are relative to the coordinate system of the parent entity.
     tuple GetAngles();
 
     /// Sets the orientation of this entity from a set of three angles, measured in degrees:
     ///   - heading (yaw),
     ///   - pitch,
     ///   - bank (roll).
+    /// The angles are relative to the coordinate system of the parent entity.
     SetAngles(number heading, number pitch=0.0, number bank=0.0);
 
     /// Returns the x-axis of the local coordinate system of this entity.
@@ -659,6 +907,17 @@ class ComponentTransformT : public ComponentBaseT
     /// The local coordinate system expresses the orientation of the entity.
     /// It is relative to the entity's parent.
     tuple GetAxisZ();
+
+    /// Sets the orientation of the transform so that it "looks at" the given position.
+    /// The new orientation is chosen such that the bank angle is always 0 relative to the xy-plane.
+    /// @param PosX      The target position to look at (x-component).
+    /// @param PosY      The target position to look at (y-component).
+    /// @param PosZ      The target position to look at (z-component).
+    /// @param AxisNr    The "look axis", i.e. the number of the axis to orient towards `Pos`:
+    ///                  0 for the x-axis, 1 for the y-axis.
+    /// @param NoPitch   If `true`, the pitch angle is kept at 0, and the given axis points towards `Pos`
+    ///                  only in the XY-Plane and the z-axis points straight up (0, 0, 1).
+    LookAt(number PosX, number PosY, number PosZ, integer AxisNr = 0, boolean NoPitch = false);
 
 
     public:

@@ -36,8 +36,25 @@ class EntityT
     /// This method returns the parent of this entity (or `nil` if there is no parent).
     EntityT GetParent();
 
+    /// Returns the top-most parent of this entity, that is, the root of the hierarchy that this entity is in.
+    EntityT GetRoot();
+
     /// This method returns an array of the children of this entity.
     table GetChildren();
+
+    /// Finds the entity with the given ID in the hierachy tree of this entity.
+    /// Use `GetRoot():Find(xy)` in order to search the entire world for the entity with ID `xy`.
+    /// @param ID   The ID of the entity that is to be found.
+    /// @returns The entity with the desired ID, or `nil` if no entity with this ID exists.
+    ///
+    EntityT FindByID(number ID);
+
+    /// Finds the entity with the given name in the hierachy tree of this entity.
+    /// Use `GetRoot()->Find("xy")` in order to search the entire world for the entity with name `xy`.
+    /// @param Name   The name of the entity that is to be found.
+    /// @returns The entity with the desired name, or `nil` if no entity with this name exists.
+    ///
+    EntityT FindByName(string Name);
 
     /// This method returns the "Basics" component of this entity.
     ComponentBasicsT GetBasics();
