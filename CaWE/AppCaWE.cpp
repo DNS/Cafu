@@ -132,6 +132,8 @@ bool AppCaWE::OnInit()
     m_CmdLineParser.SetCmdLine(argc, argv);
     OnInitCmdLine(m_CmdLineParser);
     m_CmdLineParser.AddParam("filename", wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL | wxCMD_LINE_PARAM_MULTIPLE);
+    m_CmdLineParser.AddSwitch("d", "update-doxygen", "Update the scripting documentation templates, then quit.");
+    m_CmdLineParser.SetSwitchChars("-");
 
     if (m_CmdLineParser.Parse() != 0)
     {
@@ -141,11 +143,13 @@ bool AppCaWE::OnInit()
 
     OnCmdLineParsed(m_CmdLineParser);   // Just for setting wxLog to verbose when "--verbose" is given.
 
-    #ifndef NDEBUG
+    if (m_CmdLineParser.Found("update-doxygen"))
     {
         WriteLuaDoxygenHeaders();
+
+        OnExit();
+        return false;
     }
-    #endif
 
     const std::string AppDir="./CaWE";
 

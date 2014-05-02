@@ -1,5 +1,6 @@
-When a DEBUG build of the CaWE application is started, it automatically
-generates "template" header files in this -initially empty- directory.
+When the CaWE application is started with the `--update-doxygen` switch,
+it automatically generates "template" header files in this -initially empty-
+directory.
 
 These header files contain as much documentation for our scripting classes
 as can automatically be generated.
