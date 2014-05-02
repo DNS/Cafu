@@ -56,7 +56,6 @@ Ca3DEWorldT::Ca3DEWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* G
       m_World(WorldMan.LoadWorld(FileName, ModelMan, GuiRes, InitForGraphics, ProgressFunction)),
       m_ClipWorld(new cf::ClipSys::ClipWorldT(m_World->m_StaticEntityData[0]->m_CollModel)),
       m_PhysicsWorld(m_World->m_StaticEntityData[0]->m_CollModel),
-      m_ScriptState_OLD(GameInfo, m_Game),
       m_ScriptState_NEW(new cf::UniScriptStateT),   // Need a pointer because the dtor order is important.
       m_ScriptWorld(NULL),
       m_EngineEntities(),
@@ -264,16 +263,6 @@ const ArrayT<unsigned long>& Ca3DEWorldT::GetAllEntityIDs() const
 }
 
 
-IntrusivePtrT<GameEntityI> Ca3DEWorldT::GetGameEntityByID(unsigned long EntityID) const
-{
-    if (EntityID<m_EngineEntities.Size())
-        if (m_EngineEntities[EntityID]!=NULL)
-            return m_EngineEntities[EntityID]->GetGameEntity();
-
-    return NULL;
-}
-
-
 const CafuModelT* Ca3DEWorldT::GetModel(const std::string& FileName) const
 {
     return m_ModelMan.GetModel(FileName);
@@ -289,70 +278,18 @@ cf::GuiSys::GuiResourcesT& Ca3DEWorldT::GetGuiResources() const
 unsigned long Ca3DEWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<const CompGameEntityT> CompGameEnt,
     unsigned long CreationFrameNr)
 {
-    try
-    {
-        // 1. Determine from the entity class name (e.g. "monster_argrenade") the C++ class name (e.g. "EntARGrenadeT").
-        std::map<std::string, std::string>::const_iterator EntClassNamePair = CompGameEnt->GetStaticEntityData()->m_Properties.find("classname");
+    const unsigned long NewEntityID = CompGameEnt->GetEntity()->GetID();
 
-        const std::string EntClassName =
-            (EntClassNamePair == CompGameEnt->GetStaticEntityData()->m_Properties.end()) ? std::string("unknown") : EntClassNamePair->second;
+    while (m_EngineEntities.Size() <= NewEntityID)
+        m_EngineEntities.PushBack(NULL);
 
-        std::string CppClassName = m_ScriptState_OLD.GetCppClassNameFromEntityClassName(EntClassName);
+    // Well... quite clearly, EngineEntityT should be merged into the App component...!
+    // However, note that there is one very important requirement:
+    // Iterating over the m_EngineEntities array iterates the entities in the order of increasing ID.
+    // The CaServerWorldT::WriteClientDeltaUpdateMessages() and the related client code *rely* on this order!
+    assert(m_EngineEntities[NewEntityID] == NULL);
+    delete m_EngineEntities[NewEntityID];
+    m_EngineEntities[NewEntityID] = new EngineEntityT(CompGameEnt->GetEntity(), CreationFrameNr);
 
-        if (CppClassName == "")
-        {
-            // This can happen for EntClassName's for which we never had an entry in EntityClassDefs.lua,
-            // (e.g. for "ammo_buckshot"), or for EntClassName's for which we have an entry, but CppClass="",
-            // (e.g. for "ammo_9mmclip"). As entity classes are obsolete anyway, the transitional fix is simple:
-            CppClassName = "EntInfoGenericT";
-
-            // throw std::runtime_error("C++ class name for entity class name \""+EntClassName+"\" not found.\n");
-        }
-
-
-        // 2. Find the related type info.
-        const cf::TypeSys::TypeInfoT* TI = m_Game->GetEntityTIM().FindTypeInfoByName(CppClassName.c_str());
-
-        if (TI==NULL)
-        {
-            // These days, this can happen for entity classes such as "EntButterflyT" that have already been fully
-            // ported to the new component system, and whose old C++ class has already been removed.
-            // Therefore, replace the old C++ class with one that deliberately does nothing:
-            TI = m_Game->GetEntityTIM().FindTypeInfoByName("EntInfoGenericT");
-
-            if (TI==NULL)
-                throw std::runtime_error("No type info found for entity class \""+EntClassName+"\" with C++ class name \""+CppClassName+"\".\n");
-        }
-
-
-        // 3. Create an instance of the desired entity type.
-        const unsigned long NewEntityID = CompGameEnt->GetEntity()->GetID();
-
-        IntrusivePtrT<GameEntityI> NewEntity = m_Game->CreateGameEntity(
-            TI, CompGameEnt->GetEntity(), CompGameEnt->GetStaticEntityData()->m_Properties,
-            CompGameEnt->GetStaticEntityData()->m_BspTree, NewEntityID, this);
-
-        if (NewEntity.IsNull())
-            throw std::runtime_error("Could not create entity of class \""+EntClassName+"\" with C++ class name \""+CppClassName+"\".\n");
-
-        while (m_EngineEntities.Size() <= NewEntityID)
-            m_EngineEntities.PushBack(NULL);
-
-        // Well... quite clearly, EngineEntityT should be merged into the App component...!
-        // However, note that there is one very important requirement:
-        // Iterating over the m_EngineEntities array iterates the entities in the order of increasing ID.
-        // The CaServerWorldT::WriteClientDeltaUpdateMessages() and the related client code *rely* on this order!
-        assert(m_EngineEntities[NewEntityID] == NULL);
-        delete m_EngineEntities[NewEntityID];
-        m_EngineEntities[NewEntityID] = new EngineEntityT(NewEntity, CompGameEnt->GetEntity(), CreationFrameNr);
-
-        return NewEntityID;
-    }
-    catch (const std::runtime_error& RE)
-    {
-        Console->Warning(RE.what());
-    }
-
-    // Return error code.
-    return 0xFFFFFFFF;
+    return NewEntityID;
 }

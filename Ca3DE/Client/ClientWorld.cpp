@@ -42,7 +42,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Win32/Win32PrintHelp.hpp"
 #include "DebugLog.hpp"
 #include "../Common/CompGameEntity.hpp"
-#include "../../Games/Game.hpp"
 
 #include <cassert>
 
@@ -101,33 +100,11 @@ bool CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
         Parent->AddChild(NewEnt);
     }
 
-
-    const std::map<std::string, std::string>  EmptyMap;
-    const std::map<std::string, std::string>& Props    = EntID < m_World->m_StaticEntityData.Size() ? m_World->m_StaticEntityData[EntID]->m_Properties : EmptyMap;
-    const cf::SceneGraph::GenericNodeT*       RootNode = EntID < m_World->m_StaticEntityData.Size() ? m_World->m_StaticEntityData[EntID]->m_BspTree    : NULL;
-
     // Now that we load all the map entities both on the server *and* on the client (rather than transferring
     // them from the server to the client), shouldn't the following assert() always hold??!?
     // This in turn should remove (??, or at least relax?) the co-use of the entity ID as index into
     // m_World->m_StaticEntityData. See the comments in the `Ca3DEWorldT` and `cf::GameSys::WorldT` ctors for details!
-    assert(EntID >= m_World->m_StaticEntityData.Size() && !RootNode);
-
-    // Es ist nicht sinnvoll, CreateGameEntity() in Parametern die geparsten InData-Inhalte zu übergeben (Origin, Velocity, ...),
-    // denn spätestens bei der SequenceNr und FrameNr kommt es zu Problemen. Deshalb lieber erstmal ein GameEntityI mit "falschem" State erzeugen.
-    const cf::TypeSys::TypeInfoT* TI = m_Game->GetEntityTIM().FindTypeInfoByName("EntInfoGenericT");
-
-    IntrusivePtrT<GameEntityI> NewEntity = m_Game->CreateGameEntity(TI, NewEnt, Props, RootNode, EntID, this);
-
-    // // Dies kann nur passieren, wenn EntityTypeID ein unbekannter Typ ist! Ein solcher Fehler ist also fatal.
-    // // Andererseits sollte ein Disconnect dennoch nicht notwendig sein, der Fehler sollte ohnehin niemals auftreten.
-    // if (NewEntity.IsNull())
-    // {
-    //     // Finish reading InData, so that we can gracefully continue despite the error.
-    //     InData.ReadDMsg();
-    //     EnqueueString("CLIENT ERROR: %s, L %u: Cannot create entity %u from SC1_EntityBaseLine msg: unknown type ID '%u' (EntID %lu)!\n", __FILE__, __LINE__, EntityID, EntityTypeID, EntID);
-    //     return false;
-    // }
-
+    assert(EntID >= m_World->m_StaticEntityData.Size());
 
     // Falls notwendig, Platz für die neue EntID schaffen.
     while (m_EngineEntities.Size() <= EntID) m_EngineEntities.PushBack(NULL);
@@ -136,7 +113,7 @@ bool CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
     delete m_EngineEntities[EntID];
 
     // Neuen Entity tatsächlich erschaffen.
-    m_EngineEntities[EntID] = new EngineEntityT(NewEntity, NewEnt, InData);
+    m_EngineEntities[EntID] = new EngineEntityT(NewEnt, InData);
     return true;
 }
 

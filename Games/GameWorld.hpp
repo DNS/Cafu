@@ -70,10 +70,6 @@ namespace cf
             /// Returns (a reference to) an array that contains the IDs of all entities that currently exist in the world.
             virtual const ArrayT<unsigned long>& GetAllEntityIDs() const=0;
 
-            /// Returns a pointer to the entity with ID 'EntityID'.
-            /// NULL is returned if that entity does not exist.
-            virtual IntrusivePtrT<GameEntityI> GetGameEntityByID(unsigned long EntityID) const=0;
-
             /// Removes the entity identified by 'EntityID' from the (server) world.
             virtual void RemoveEntity(unsigned long EntityID)=0;
 

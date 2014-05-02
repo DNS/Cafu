@@ -49,7 +49,6 @@ class Ca3DEWorldT : public cf::GameSys::GameWorldI
     PhysicsWorldT&               GetPhysicsWorld();
     Vector3fT                    GetAmbientLightColorFromBB(const BoundingBox3T<double>& Dimensions, const VectorT& Origin) const;
     const ArrayT<unsigned long>& GetAllEntityIDs() const;
-    IntrusivePtrT<GameEntityI>   GetGameEntityByID(unsigned long EntityID) const;
     // void                      RemoveEntity(unsigned long EntityID);
     const CafuModelT*            GetModel(const std::string& FileName) const;
     cf::GuiSys::GuiResourcesT&   GetGuiResources() const;
@@ -74,7 +73,6 @@ class Ca3DEWorldT : public cf::GameSys::GameWorldI
     const WorldT*                      m_World;
     cf::ClipSys::ClipWorldT*           m_ClipWorld;
     PhysicsWorldT                      m_PhysicsWorld;
-    ScriptStateT                       m_ScriptState_OLD;
     cf::UniScriptStateT*               m_ScriptState_NEW;
     IntrusivePtrT<cf::GameSys::WorldT> m_ScriptWorld;   ///< The "script world" contains the entity hierarchy and their components.
     ArrayT<EngineEntityT*>             m_EngineEntities;

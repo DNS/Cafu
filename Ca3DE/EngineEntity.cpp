@@ -42,24 +42,11 @@ namespace
 /******************/
 
 
-EngineEntityT::~EngineEntityT()
-{
-    Entity->NotifyLeaveMap();
-}
-
-
-IntrusivePtrT<GameEntityI> EngineEntityT::GetGameEntity() const
-{
-    return Entity;
-}
-
-
 cf::Network::StateT EngineEntityT::GetState() const
 {
     cf::Network::StateT     State;
     cf::Network::OutStreamT Stream(State);
 
-    Entity->Serialize(Stream);
     m_Entity->Serialize(Stream);
 
     return State;
@@ -70,7 +57,6 @@ void EngineEntityT::SetState(const cf::Network::StateT& State, bool IsIniting) c
 {
     cf::Network::InStreamT Stream(State);
 
-    Entity->Deserialize(Stream, IsIniting);
     m_Entity->Deserialize(Stream, IsIniting);
 }
 
@@ -80,9 +66,8 @@ void EngineEntityT::SetState(const cf::Network::StateT& State, bool IsIniting) c
 /*******************/
 
 
-EngineEntityT::EngineEntityT(IntrusivePtrT<GameEntityI> Entity_, IntrusivePtrT<cf::GameSys::EntityT> Ent, unsigned long CreationFrameNr)
-    : Entity(Entity_),
-      m_Entity(Ent),
+EngineEntityT::EngineEntityT(IntrusivePtrT<cf::GameSys::EntityT> Ent, unsigned long CreationFrameNr)
+    : m_Entity(Ent),
       EntityStateFrameNr(CreationFrameNr),
       m_BaseLine(),
       m_BaseLineFrameNr(CreationFrameNr),
@@ -172,9 +157,8 @@ bool EngineEntityT::WriteDeltaEntity(bool SendFromBaseLine, unsigned long Client
 /*******************/
 
 
-EngineEntityT::EngineEntityT(IntrusivePtrT<GameEntityI> Entity_, IntrusivePtrT<cf::GameSys::EntityT> Ent, NetDataT& InData)
-    : Entity(Entity_),
-      m_Entity(Ent),
+EngineEntityT::EngineEntityT(IntrusivePtrT<cf::GameSys::EntityT> Ent, NetDataT& InData)
+    : m_Entity(Ent),
       EntityStateFrameNr(0),
       m_BaseLine(),
       m_BaseLineFrameNr(1234),    // The m_BaseLineFrameNr is unused on the client.
@@ -316,11 +300,11 @@ void EngineEntityT::Draw(bool FirstPersonView, const VectorT& ViewerPos) const
     MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
     MatSys::Renderer->PushLightingParameters();
 
-    unsigned short Ent_Heading;
-    unsigned short Ent_Pitch;
-    unsigned short Ent_Bank;
+    unsigned short Ent_Heading = 0;
+    //unsigned short Ent_Pitch;
+    //unsigned short Ent_Bank;
 
-    Entity->GetBodyOrientation(Ent_Heading, Ent_Pitch, Ent_Bank);
+    //Entity->GetBodyOrientation(Ent_Heading, Ent_Pitch, Ent_Bank);
 
     // Get the currently set lighting parameters.
     const float* PosL=MatSys::Renderer->GetCurrentLightSourcePosition();
@@ -357,7 +341,7 @@ void EngineEntityT::Draw(bool FirstPersonView, const VectorT& ViewerPos) const
     MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, float(EntOrigin.x), float(EntOrigin.y), float(EntOrigin.z));
     MatSys::Renderer->RotateZ  (MatSys::RendererI::MODEL_TO_WORLD, 90.0f-float(Ent_Heading)/8192.0f*45.0f);
 
-    Entity->Draw(FirstPersonView, (float)length(ViewerPos-EntOrigin));
+    //Entity->Draw(FirstPersonView, (float)length(ViewerPos-EntOrigin));
 
 
     MatSys::Renderer->PopLightingParameters();
@@ -371,10 +355,10 @@ void EngineEntityT::PostDraw(float FrameTime, bool FirstPersonView)
     {
         // Using !FirstPersonView is a hack to exclude "our" entity, which is predicted already,
         // from being interpolated (whereas other player entities should be interpolated normally).
-        Entity->Interpolate(FrameTime);
+//        Entity->Interpolate(FrameTime);
     }
 
-    Entity->PostDraw(FrameTime, FirstPersonView);
+//    Entity->PostDraw(FrameTime, FirstPersonView);
 }
 
 #endif   /* !DEDICATED */
