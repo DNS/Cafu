@@ -771,7 +771,7 @@ static const cf::TypeSys::MethsDocT META_FindByID =
     "Use `GetRoot():Find(xy)` in order to search the entire world for the entity with ID `xy`.\n"
     "@param ID   The ID of the entity that is to be found.\n"
     "@returns The entity with the desired ID, or `nil` if no entity with this ID exists.\n",
-    "EntityT", "(ID)"
+    "EntityT", "(number ID)"
 };
 
 int EntityT::FindByID(lua_State* LuaState)
@@ -800,7 +800,7 @@ static const cf::TypeSys::MethsDocT META_FindByName =
     "Use `GetRoot()->Find(\"xy\")` in order to search the entire world for the entity with name `xy`.\n"
     "@param Name   The name of the entity that is to be found.\n"
     "@returns The entity with the desired name, or `nil` if no entity with this name exists.\n",
-    "EntityT", "(Name)"
+    "EntityT", "(string Name)"
 };
 
 int EntityT::FindByName(lua_State* LuaState)

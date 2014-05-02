@@ -87,7 +87,7 @@ namespace cf
             cf::GameSys::ComponentBaseT* GetOwner() const { return m_Owner; }
 
             /// Sets the user data associated with this clip model.
-            /// @param UD   The new user data to be associated with this clip model.
+            /// @param Owner   The component that created and is responsible for this clip model.
             /// @see GetOwner()
             void SetOwner(GameSys::ComponentBaseT* Owner) { m_Owner = Owner; }
 
