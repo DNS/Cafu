@@ -130,8 +130,6 @@ void EngineEntityT::WriteNewBaseLine(unsigned long SentClientBaseLineFrameNr, Ar
     NetDataT NewBaseLineMsg;
 
     NewBaseLineMsg.WriteByte(SC1_EntityBaseLine);
-    NewBaseLineMsg.WriteLong(Entity->GetID());
-    NewBaseLineMsg.WriteLong(Entity->GetType()->TypeNr);
     NewBaseLineMsg.WriteLong(m_Entity->GetID());
     NewBaseLineMsg.WriteLong(m_Entity->GetParent().IsNull() ? UINT_MAX : m_Entity->GetParent()->GetID());
     NewBaseLineMsg.WriteDMsg(m_BaseLine.GetDeltaMessage(cf::Network::StateT() /*::ALL_ZEROS*/));
@@ -160,8 +158,7 @@ bool EngineEntityT::WriteDeltaEntity(bool SendFromBaseLine, unsigned long Client
 
     // Write the SC1_EntityUpdate message
     OutData.WriteByte(SC1_EntityUpdate);
-    OutData.WriteLong(Entity->GetID());
- // OutData.WriteLong(m_Entity->GetID());   // This is not needed at this time -- the client can find everything by the Entity->GetID() alone.
+    OutData.WriteLong(m_Entity->GetID());
     OutData.WriteDMsg(DeltaMsg);
 
     return true;

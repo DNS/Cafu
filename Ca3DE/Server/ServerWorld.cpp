@@ -310,6 +310,12 @@ void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID
             if (BspTree->IsInPVS(EntityBB, ClientLeafNr)) NewStatePVSEntityIDs->PushBack(EntityNr);
         }
 
+    // Make sure that NewStatePVSEntityIDs is in sorted order. At the time of this writing, this is trivially the
+    // case, but it is also easy to foresee changes to the above loop that unintentionally break this rule, which is
+    // an important requirement for the code below and whose violations may cause hard to diagnose problems.
+    for (unsigned int i = 1; i < NewStatePVSEntityIDs->Size(); i++)
+        assert((*NewStatePVSEntityIDs)[i-1] < (*NewStatePVSEntityIDs)[i]);
+
 
     unsigned long DeltaFrameNr;     // Kann dies entfernen, indem der Packet-Header direkt im if-else-Teil geschrieben wird!
 

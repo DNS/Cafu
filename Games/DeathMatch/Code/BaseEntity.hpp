@@ -57,7 +57,6 @@ namespace GAME_NAME
     {
         public:
 
-        const unsigned long ID;             // The unique ID of this entity.
         const std::map<std::string, std::string> Properties;    ///< The properties of this entities from the map file.
 
         IntrusivePtrT<cf::GameSys::EntityT> m_Entity;       ///< The associated entity in the cf::GameSys::WorldT.
@@ -75,7 +74,6 @@ namespace GAME_NAME
 
         // Implement GameEntityI base class methods.
         virtual void NotifyLeaveMap() { }
-        virtual unsigned long GetID() const { return ID; }
         virtual const BoundingBox3dT& GetDimensions() const { return m_Dimensions; }
         virtual void GetBodyOrientation(unsigned short& h, unsigned short& p, unsigned short& b) const { h=0; p=0; b=0; /*TODO: this method is called from obsolete methods only...*/ }
 

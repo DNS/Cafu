@@ -62,8 +62,7 @@ cf::TypeSys::TypeInfoManT& GAME_NAME::GetBaseEntTIM()
 // ***********
 
 BaseEntityT::BaseEntityT(const EntityCreateParamsT& Params, const BoundingBox3dT& Dimensions, const unsigned int NUM_EVENT_TYPES)
-    : ID(Params.ID),
-      Properties(Params.Properties),
+    : Properties(Params.Properties),
       m_Entity(Params.Entity),
 
       m_Dimensions(Dimensions),

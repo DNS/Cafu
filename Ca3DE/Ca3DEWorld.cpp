@@ -326,7 +326,7 @@ unsigned long Ca3DEWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<const Comp
 
 
         // 3. Create an instance of the desired entity type.
-        const unsigned long NewEntityID = m_EngineEntities.Size();
+        const unsigned long NewEntityID = CompGameEnt->GetEntity()->GetID();
 
         IntrusivePtrT<GameEntityI> NewEntity = m_Game->CreateGameEntity(
             TI, CompGameEnt->GetEntity(), CompGameEnt->GetStaticEntityData()->m_Properties,
@@ -335,7 +335,16 @@ unsigned long Ca3DEWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<const Comp
         if (NewEntity.IsNull())
             throw std::runtime_error("Could not create entity of class \""+EntClassName+"\" with C++ class name \""+CppClassName+"\".\n");
 
-        m_EngineEntities.PushBack(new EngineEntityT(NewEntity, CompGameEnt->GetEntity(), CreationFrameNr));
+        while (m_EngineEntities.Size() <= NewEntityID)
+            m_EngineEntities.PushBack(NULL);
+
+        // Well... quite clearly, EngineEntityT should be merged into the App component...!
+        // However, note that there is one very important requirement:
+        // Iterating over the m_EngineEntities array iterates the entities in the order of increasing ID.
+        // The CaServerWorldT::WriteClientDeltaUpdateMessages() and the related client code *rely* on this order!
+        assert(m_EngineEntities[NewEntityID] == NULL);
+        delete m_EngineEntities[NewEntityID];
+        m_EngineEntities[NewEntityID] = new EngineEntityT(NewEntity, CompGameEnt->GetEntity(), CreationFrameNr);
 
         return NewEntityID;
     }

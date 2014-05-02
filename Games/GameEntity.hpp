@@ -52,9 +52,6 @@ class GameEntityI : public RefCountedT
     /// of IntrusivePtrT<> to itself that would otherwise prevent it from being destructed.
     virtual void NotifyLeaveMap()=0;
 
-    /// Returns the (map unique) ID of this entity.
-    virtual unsigned long GetID() const=0;
-
     /// Returns the dimensions of this entity.
     virtual const BoundingBox3dT& GetDimensions() const=0;
 

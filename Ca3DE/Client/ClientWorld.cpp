@@ -75,8 +75,6 @@ void CaClientWorldT::RemoveEntity(unsigned long EntityID)
 
 bool CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
 {
-    const unsigned long EntityID     = InData.ReadLong();
-    const unsigned long EntityTypeID = InData.ReadLong();
     const unsigned int EntID    = InData.ReadLong();
     const unsigned int ParentID = InData.ReadLong();
 
@@ -116,29 +114,29 @@ bool CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
 
     // Es ist nicht sinnvoll, CreateGameEntity() in Parametern die geparsten InData-Inhalte zu übergeben (Origin, Velocity, ...),
     // denn spätestens bei der SequenceNr und FrameNr kommt es zu Problemen. Deshalb lieber erstmal ein GameEntityI mit "falschem" State erzeugen.
-    const cf::TypeSys::TypeInfoT* TI = m_Game->GetEntityTIM().FindTypeInfoByNr(EntityTypeID);
+    const cf::TypeSys::TypeInfoT* TI = m_Game->GetEntityTIM().FindTypeInfoByName("EntInfoGenericT");
 
-    IntrusivePtrT<GameEntityI> NewEntity = m_Game->CreateGameEntity(TI, NewEnt, Props, RootNode, EntityID, this);
+    IntrusivePtrT<GameEntityI> NewEntity = m_Game->CreateGameEntity(TI, NewEnt, Props, RootNode, EntID, this);
 
-    // Dies kann nur passieren, wenn EntityTypeID ein unbekannter Typ ist! Ein solcher Fehler ist also fatal.
-    // Andererseits sollte ein Disconnect dennoch nicht notwendig sein, der Fehler sollte ohnehin niemals auftreten.
-    if (NewEntity.IsNull())
-    {
-        // Finish reading InData, so that we can gracefully continue despite the error.
-        InData.ReadDMsg();
-        EnqueueString("CLIENT ERROR: %s, L %u: Cannot create entity %u from SC1_EntityBaseLine msg: unknown type ID '%u' (EntID %lu)!\n", __FILE__, __LINE__, EntityID, EntityTypeID, EntID);
-        return false;
-    }
+    // // Dies kann nur passieren, wenn EntityTypeID ein unbekannter Typ ist! Ein solcher Fehler ist also fatal.
+    // // Andererseits sollte ein Disconnect dennoch nicht notwendig sein, der Fehler sollte ohnehin niemals auftreten.
+    // if (NewEntity.IsNull())
+    // {
+    //     // Finish reading InData, so that we can gracefully continue despite the error.
+    //     InData.ReadDMsg();
+    //     EnqueueString("CLIENT ERROR: %s, L %u: Cannot create entity %u from SC1_EntityBaseLine msg: unknown type ID '%u' (EntID %lu)!\n", __FILE__, __LINE__, EntityID, EntityTypeID, EntID);
+    //     return false;
+    // }
 
 
-    // Falls notwendig, Platz für die neue EntityID schaffen.
-    while (m_EngineEntities.Size()<=EntityID) m_EngineEntities.PushBack(NULL);
+    // Falls notwendig, Platz für die neue EntID schaffen.
+    while (m_EngineEntities.Size() <= EntID) m_EngineEntities.PushBack(NULL);
 
-    // Die EntityID könnte durchaus wiederverwendet werden - was immer der Server wünscht.
-    delete m_EngineEntities[EntityID];
+    // Die EntID könnte durchaus wiederverwendet werden - was immer der Server wünscht.
+    delete m_EngineEntities[EntID];
 
     // Neuen Entity tatsächlich erschaffen.
-    m_EngineEntities[EntityID]=new EngineEntityT(NewEntity, NewEnt, InData);
+    m_EngineEntities[EntID] = new EngineEntityT(NewEntity, NewEnt, InData);
     return true;
 }
 
@@ -478,19 +476,14 @@ void CaClientWorldT::Draw(float FrameTime, IntrusivePtrT<const cf::GameSys::Comp
 
     for (unsigned long EntityIDNr=0; EntityIDNr<CurrentFrame.EntityIDsInPVS.Size(); EntityIDNr++)
     {
-        unsigned long      LightColorDiffuse=0;
-        unsigned long      LightColorSpecular=0;
-        VectorT            LightPosition;
-        float              LightRadius;
-        bool               LightCastsShadows;
-        const IntrusivePtrT<GameEntityI> BaseEntity=GetGameEntityByID(CurrentFrame.EntityIDsInPVS[EntityIDNr]);
+        unsigned long LightColorDiffuse=0;
+        unsigned long LightColorSpecular=0;
+        VectorT       LightPosition;
+        float         LightRadius;
+        bool          LightCastsShadows;
+        unsigned long LightEntID = CurrentFrame.EntityIDsInPVS[EntityIDNr];
 
-        // The light source info is not taken from the BaseEntity directly because it yields the unpredicted light source position.
-        // If once human player entities have no light source any more, we might get rid of the CaClientWorldT::GetLightSourceInfo()
-        // function chain again altogether.
-        if (BaseEntity.IsNull()) continue;
-        // if (!BaseEntity->GetLightSourceInfo(LightColorDiffuse, LightColorSpecular, LightPosition, LightRadius)) continue;
-        if (!GetLightSourceInfo(BaseEntity->GetID(), LightColorDiffuse, LightColorSpecular, LightPosition, LightRadius, LightCastsShadows)) continue;
+        if (!GetLightSourceInfo(LightEntID, LightColorDiffuse, LightColorSpecular, LightPosition, LightRadius, LightCastsShadows)) continue;
         if (!LightColorDiffuse && !LightColorSpecular) continue;
 
         // THIS IS *TEMPORARY* ONLY!
@@ -520,8 +513,8 @@ void CaClientWorldT::Draw(float FrameTime, IntrusivePtrT<const cf::GameSys::Comp
          // if (LocalPlayerStencilShadows.GetValueBool())
          // {
                 // Our entity casts shadows, except when the light source is he himself.
-                DrawEntities(OurEntityID==BaseEntity->GetID() ? OurEntityID : 0xFFFFFFFF /* an ugly, dirty, kaum nachvollziehbarer hack */,
-                             OurEntityID==BaseEntity->GetID(),
+                DrawEntities(OurEntityID == LightEntID ? OurEntityID : 0xFFFFFFFF /* an ugly, dirty, kaum nachvollziehbarer hack */,
+                             OurEntityID == LightEntID,
                              DrawOrigin,
                              CurrentFrame.EntityIDsInPVS);
          // }
