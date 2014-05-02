@@ -26,7 +26,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Templates/Pointer.hpp"
 
 
-namespace cf { namespace GameSys { class GameI; } }
 namespace cf { namespace GameSys { class GameInfoI; } }
 namespace cf { namespace GuiSys { class GuiImplT; } }
 namespace cf { namespace GuiSys { class GuiResourcesT; } }
@@ -41,7 +40,7 @@ class ClientT
 {
     public:
 
-    ClientT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* Game, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes);
+    ClientT(cf::GameSys::GameInfoI* GameInfo, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes);
     ~ClientT();
 
     void SetMainMenuGui(IntrusivePtrT<cf::GuiSys::GuiImplT> MainMenuGui_);
@@ -86,7 +85,6 @@ class ClientT
 
     // Private data that is used in all (or at least multiple) states.
     cf::GameSys::GameInfoI*             m_GameInfo;         ///< The info for the game that we're running.
-    cf::GameSys::GameI*                 m_Game;             ///< The game that we are a client for.
     SOCKET                              Socket;             ///< The socket that we're using for the connection to the server. This is a native socket that is managed by this class.
     NetAddressT                         ServerAddress;      ///< The server address we're using for the connection. Copied from the related ConVar whenever a new connection is established.
     unsigned long                       PacketIDConnLess;   ///< The ever increasing (and thus unique) PacketID for outgoing connection-less packets (e.g. connection requests, rcon commands, etc.).

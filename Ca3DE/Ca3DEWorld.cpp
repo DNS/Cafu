@@ -39,7 +39,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../Common/WorldMan.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
 #include "String.hpp"
-#include "../Games/Game.hpp"
 
 
 #if defined(_WIN32) && defined(_MSC_VER)
@@ -51,9 +50,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 static WorldManT WorldMan;
 
 
-Ca3DEWorldT::Ca3DEWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* Game, const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction) /*throw (WorldT::LoadErrorT)*/
-    : m_Game(Game),
-      m_World(WorldMan.LoadWorld(FileName, ModelMan, GuiRes, InitForGraphics, ProgressFunction)),
+Ca3DEWorldT::Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction) /*throw (WorldT::LoadErrorT)*/
+    : m_World(WorldMan.LoadWorld(FileName, ModelMan, GuiRes, InitForGraphics, ProgressFunction)),
       m_ClipWorld(new cf::ClipSys::ClipWorldT(m_World->m_StaticEntityData[0]->m_CollModel)),
       m_PhysicsWorld(m_World->m_StaticEntityData[0]->m_CollModel),
       m_ScriptState_NEW(new cf::UniScriptStateT),   // Need a pointer because the dtor order is important.
@@ -161,12 +159,6 @@ Ca3DEWorldT::~Ca3DEWorldT()
         WorldMan.FreeWorld(m_World);
         m_World = NULL;
     }
-}
-
-
-cf::GameSys::GameI* Ca3DEWorldT::GetGame()
-{
-    return m_Game;
 }
 
 

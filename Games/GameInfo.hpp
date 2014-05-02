@@ -29,9 +29,6 @@ namespace cf
 {
     namespace GameSys
     {
-        class GameI;
-
-
         /// This interface provides early information about a game.
         ///
         /// The Cafu Engine can be linked to an arbitrary number of games (MODs), that are independent of each other.
@@ -47,9 +44,6 @@ namespace cf
             /// paths to game resource files. Consequently, the returned name should only consist of a subset of
             /// characters that are valid for use in directory and file names.
             virtual std::string GetName() const=0;
-
-            /// Creates and returns an instance of this game.
-            virtual GameI* CreateGame() const=0;
 
             /// The virtual destructor, so that derived classes can safely be deleted via a GameInfoI (base class) pointer.
             virtual ~GameInfoI() { }

@@ -20,7 +20,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "GameInfo.hpp"
-#include "GameImpl.hpp"
 
 #define QUOTE(str) QUOTE_HELPER(str)
 #define QUOTE_HELPER(str) #str
@@ -31,10 +30,4 @@ using namespace GAME_NAME;
 std::string GameInfoT::GetName() const
 {
     return QUOTE(GAME_NAME);
-}
-
-
-cf::GameSys::GameI* GameInfoT::CreateGame() const
-{
-    return &GameImplT::GetInstance();
 }

@@ -45,7 +45,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "OpenGL/OpenGLWindow.hpp"  // For CaMouseEventT and CaKeyboardEventT.
 #include "SoundSystem/SoundShaderManager.hpp"
 #include "SoundSystem/SoundSys.hpp"
-#include "../Games/Game.hpp"
 #include "../Games/GameInfo.hpp"
 #include "PlatformAux.hpp"
 #include "UniScriptState.hpp"
@@ -120,7 +119,6 @@ MainCanvasT::MainCanvasT(MainFrameT* Parent, cf::GameSys::GameInfoI* GameInfo)
       m_ModelManager(NULL),
       m_GuiResources(NULL),
       m_SoundSysDLL(NULL),
-      m_Game(NULL),
       m_Client(NULL),
       m_Server(NULL),
       m_SvGuiCallback(NULL),
@@ -151,14 +149,6 @@ MainCanvasT::~MainCanvasT()
     {
         m_SvGuiCallback->MainMenuGui=NULL;
         delete m_SvGuiCallback; m_SvGuiCallback=NULL;
-    }
-
-
-    // Release the Game.
-    if (m_Game)
-    {
-        m_Game->Release();
-        m_Game=NULL;
     }
 
 
@@ -334,18 +324,10 @@ void MainCanvasT::Initialize()
         cf::GuiSys::GuiMan=new cf::GuiSys::GuiManImplT(*m_GuiResources);
 
 
-        // Provide a definition for m_Game, a pointer to a cf::GameSys::GameI implementation.
-        m_Game=m_GameInfo->CreateGame();
-
-        m_Game->Initialize(true /*(Options_RunMode.GetValueInt() & CLIENT_RUNMODE)>0*/,
-                           true /*(Options_RunMode.GetValueInt() & SERVER_RUNMODE)>0*/,
-                           *m_ModelManager);
-
-
         // Create the client and server instances.
         m_SvGuiCallback=new SvGuiCallbT();
-        m_Server=new ServerT(m_GameInfo, m_Game, *m_SvGuiCallback, *m_ModelManager, *m_GuiResources);
-        m_Client=new ClientT(m_GameInfo, m_Game, *m_ModelManager, *m_GuiResources);   // The client initializes in IDLE state.
+        m_Server=new ServerT(m_GameInfo, *m_SvGuiCallback, *m_ModelManager, *m_GuiResources);
+        m_Client=new ClientT(m_GameInfo, *m_ModelManager, *m_GuiResources);   // The client initializes in IDLE state.
 
 
         // Finish the initialization of the GuiSys.

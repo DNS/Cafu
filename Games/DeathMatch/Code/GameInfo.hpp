@@ -43,7 +43,6 @@ namespace GAME_NAME
 
         // Implement the methods of the GameInfoI interface.
         std::string GetName() const;
-        cf::GameSys::GameI* CreateGame() const;
     };
 }
 

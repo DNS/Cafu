@@ -40,8 +40,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../Common/CompGameEntity.hpp"
 
 
-CaServerWorldT::CaServerWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* Game, const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes)
-    : Ca3DEWorldT(GameInfo, Game, FileName, ModelMan, GuiRes, false, NULL),
+CaServerWorldT::CaServerWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes)
+    : Ca3DEWorldT(FileName, ModelMan, GuiRes, false, NULL),
       // Note that 0 is reserved for referring to the "baseline" (the state in which entities were created),
       // as opposed to the entity state at a specific server frame.
       // (The `ClientInfoT::LastKnownFrameReceived` start at 0, see ClientInfoT::InitForNewWorld() for details.)

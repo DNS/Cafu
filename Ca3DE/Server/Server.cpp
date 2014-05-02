@@ -110,7 +110,7 @@ int ServerT::ConFunc_changeLevel_Callback(lua_State* LuaState)
 
     try
     {
-        NewWorld=new CaServerWorldT(ServerPtr->m_GameInfo, ServerPtr->m_Game, PathName.c_str(), ServerPtr->m_ModelMan, ServerPtr->m_GuiRes);
+        NewWorld=new CaServerWorldT(PathName.c_str(), ServerPtr->m_ModelMan, ServerPtr->m_GuiRes);
     }
     catch (const WorldT::LoadErrorT& E) { return luaL_error(LuaState, E.Msg); }
 
@@ -167,10 +167,9 @@ static ConFuncT ConFunc_runMapCmd("runMapCmd", ServerT::ConFunc_runMapCmd_Callba
     "Runs the given command string in the context of the current map/entity script.");
 
 
-ServerT::ServerT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* Game, const GuiCallbackI& GuiCallback_, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes)
+ServerT::ServerT(cf::GameSys::GameInfoI* GameInfo, const GuiCallbackI& GuiCallback_, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes)
     : ServerSocket(g_WinSock->GetUDPSocket(Options_ServerPortNr.GetValueInt())),
       m_GameInfo(GameInfo),
-      m_Game(Game),
       WorldName(""),
       World(NULL),
       GuiCallback(GuiCallback_),

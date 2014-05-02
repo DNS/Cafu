@@ -23,7 +23,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_CA3DECOMMONWORLD_HPP_INCLUDED
 
 #include "PhysicsWorld.hpp"
-#include "ScriptState.hpp"
 #include "../Common/World.hpp"
 #include "../Games/GameWorld.hpp"
 
@@ -38,13 +37,12 @@ class Ca3DEWorldT : public cf::GameSys::GameWorldI
 {
     public:
 
-    Ca3DEWorldT(cf::GameSys::GameInfoI* GameInfo, cf::GameSys::GameI* Game, const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction) /*throw (WorldT::LoadErrorT)*/;
+    Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, bool InitForGraphics, WorldT::ProgressFunctionT ProgressFunction) /*throw (WorldT::LoadErrorT)*/;
     ~Ca3DEWorldT();
 
     const WorldT& GetWorld() const { return *m_World; }
 
     // The virtual methods inherited from the base class GameWorldI.
-    cf::GameSys::GameI*          GetGame();
     cf::ClipSys::ClipWorldT&     GetClipWorld();
     PhysicsWorldT&               GetPhysicsWorld();
     Vector3fT                    GetAmbientLightColorFromBB(const BoundingBox3T<double>& Dimensions, const VectorT& Origin) const;
@@ -65,11 +63,10 @@ class Ca3DEWorldT : public cf::GameSys::GameWorldI
     ///     newly joined clients or after a world-change for the existing clients.
     ///
     /// @returns The ID of the newly created entity, so that the server can let the client know which entity the
-    ///     client itself is. If it was not possible to create the entity, 0xFFFFFFFF is returned.
+    ///     client itself is.
     unsigned long CreateNewEntityFromBasicInfo(IntrusivePtrT<const CompGameEntityT> CompGameEnt,
         unsigned long CreationFrameNr);
 
-    cf::GameSys::GameI*                m_Game;
     const WorldT*                      m_World;
     cf::ClipSys::ClipWorldT*           m_ClipWorld;
     PhysicsWorldT                      m_PhysicsWorld;
