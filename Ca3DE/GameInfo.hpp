@@ -19,15 +19,25 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "GameInfo.hpp"
+#ifndef CAFU_GAMEINFO_HPP_INCLUDED
+#define CAFU_GAMEINFO_HPP_INCLUDED
 
-#define QUOTE(str) QUOTE_HELPER(str)
-#define QUOTE_HELPER(str) #str
-
-using namespace GAME_NAME;
+#include <string>
 
 
-std::string GameInfoT::GetName() const
+/// This class ...
+class GameInfoT
 {
-    return QUOTE(GAME_NAME);
-}
+    public:
+
+    GameInfoT(const std::string& GameName="");
+
+    const std::string& GetName() const;
+
+
+    private:
+
+    std::string m_GameName;
+};
+
+#endif

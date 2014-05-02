@@ -1,4 +1,0 @@
-CFDLL {
-    global: GetGame*;
-    local: *;
-};

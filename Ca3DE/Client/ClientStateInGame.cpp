@@ -23,7 +23,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../MainCanvas.hpp"
 #include "../MainFrame.hpp"
 #include "../NetConst.hpp"
-#include "../../Games/GameInfo.hpp"
 
 #include "ClientStateInGame.hpp"
 #include "Client.hpp"
@@ -227,7 +226,7 @@ bool ClientStateInGameT::ProcessInputEvent(const CaKeyboardEventT& KE)
         case CaKeyboardEventT::CK_T:          // talk to other clients
         case CaKeyboardEventT::CK_Y:
         {
-            IntrusivePtrT<cf::GuiSys::GuiImplT> ChatInputGui = cf::GuiSys::GuiMan->Find(std::string("Games/") + Client.m_GameInfo->GetName() + "/GUIs/ChatInput_main.cgui", true);
+            IntrusivePtrT<cf::GuiSys::GuiImplT> ChatInputGui = cf::GuiSys::GuiMan->Find(std::string("Games/") + Client.m_GameInfo.GetName() + "/GUIs/ChatInput_main.cgui", true);
 
             // Could be NULL on file not found, parse error, etc.
             if (ChatInputGui!=NULL)
@@ -630,9 +629,9 @@ void ClientStateInGameT::ParseServerPacket(NetDataT& InData)
                 cf::LogDebug(net, "SC1_WorldInfo: %s %s %lu", SvGameName.c_str(), WorldName, OurEntityID);
                 // printf("    Client: Got MapInfo");
 
-                if (SvGameName != Client.m_GameInfo->GetName())
+                if (SvGameName != Client.m_GameInfo.GetName())
                 {
-                    const std::string msg = "Client is running game '" + Client.m_GameInfo->GetName() + "', but server sent SC1_WorldInfo message for game '" + SvGameName + "' -- ignored.";
+                    const std::string msg = "Client is running game '" + Client.m_GameInfo.GetName() + "', but server sent SC1_WorldInfo message for game '" + SvGameName + "' -- ignored.";
 
                     cf::LogDebug(net, msg);
                     Console->Print(msg + "\n");
@@ -664,11 +663,11 @@ void ClientStateInGameT::ParseServerPacket(NetDataT& InData)
                 LoadingFont   =&Font_v;
 
                 // BEGIN Load Map
-                cf::GuiSys::GuiMan->Find("Games/" + Client.m_GameInfo->GetName() + "/GUIs/Console_main.cgui", true)->Activate(false);    // Close console on map change.
+                cf::GuiSys::GuiMan->Find("Games/" + Client.m_GameInfo.GetName() + "/GUIs/Console_main.cgui", true)->Activate(false);    // Close console on map change.
                 Console->Print(std::string("Load World \"")+WorldName+"\".\n");
 
                 char PathName[512];
-                sprintf(PathName, "Games/%.200s/Worlds/%.200s.cw", Client.m_GameInfo->GetName().c_str(), WorldName);
+                sprintf(PathName, "Games/%.200s/Worlds/%.200s.cw", Client.m_GameInfo.GetName().c_str(), WorldName);
 
                 try
                 {

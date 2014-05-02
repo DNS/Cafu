@@ -43,7 +43,7 @@ static const char* StateNames[]={ "idle", "connecting", "ingame" };
 static ClientT*    ClientPtr   =NULL;
 
 
-ClientT::ClientT(cf::GameSys::GameInfoI* GameInfo, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes)
+ClientT::ClientT(const GameInfoT& GameInfo, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes)
     : CurrentState(NULL),
       NextState(IDLE),
       m_GameInfo(GameInfo),

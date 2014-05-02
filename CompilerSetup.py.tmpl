@@ -53,20 +53,3 @@ envCommon = Environment()
 # This setting can be temporarily overridden at the SCons command line via
 # the "bv" parameter, for example:  scons -Q bv=dpr
 buildVariants = "dr"
-
-
-# The GameLibs list identifies all game/MOD libraries that are to be accounted
-# for in the build process and linked to the main Cafu executable.
-# For convenience, we normally generate the list automatically:
-GameLibs = sorted([g for g in os.listdir("Games/") if os.path.exists("Games/" + g + "/Code/SConscript")])
-#
-# If you're working with an original, unmodified copy of Cafu, the above
-# automatism produces the equivalent of the example below.
-# Note that the Cafu Engine normally runs the first game in the list.
-# You can use the -svGame command-line option to use a different game.
-#GameLibs = ["DeathMatch", "VSWM"]
-#
-# When you're developing your own game, you might want to keep game DeathMatch
-# for reference. Cafu should run your game by default (first in list), whereas
-# DeathMatch would be readily available via the -svGame command-line option:
-#GameLibs = ["MyGame", "DeathMatch"]

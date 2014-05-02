@@ -17,18 +17,6 @@ except ImportError:
     shutil.copy("CompilerSetup.py.tmpl", "CompilerSetup.py")
     import CompilerSetup
 
-if not hasattr(CompilerSetup, "GameLibs"):
-    # Added in October 2012, this notice can be entirely removed again once everyone has seen it.  ;-)
-    print 'Upgrade notice'
-    print '==============\n'
-    print 'Variable "GameLibs" is not defined in file CompilerSetup.py.\n'
-    print 'Please copy the definition of "GameLibs" from CompilerSetup.py.tmpl'
-    print 'to CompilerSetup.py, then try again.\n'
-    print 'If you experience a linker error like "undefined reference to `vtable for VSWM::GameInfoT`",'
-    print 'it is probably caused by leftover files from previous builds.'
-    print 'To fix this, delete directory "build" in "Games/VSWM/Code", then re-run SCons.\n'
-    Exit(1)
-
 # Import the (user-configured) base environment from the setup file.
 # The base environment is evaluated and further refined (e.g. with compiler-specific settings) below.
 envCommon = CompilerSetup.envCommon
@@ -404,11 +392,6 @@ envDebug_Cafu  .Append(LIBPATH=["#/ExtLibs/"+lib_name+"/"+my_build_dir_dbg for l
 envRelease_Cafu.Append(LIBPATH=["#/ExtLibs/"+lib_name+"/"+my_build_dir_rel for lib_name in ExtLibsList] + ["#/Libs/"+my_build_dir_rel]);
 envProfile_Cafu.Append(LIBPATH=["#/ExtLibs/"+lib_name+"/"+my_build_dir_prf for lib_name in ExtLibsList] + ["#/Libs/"+my_build_dir_prf]);
 
-for GameLib in CompilerSetup.GameLibs:
-    envDebug_Cafu  .Append(LIBPATH=["#/Games/" + GameLib + "/Code/" + my_build_dir_dbg]);
-    envRelease_Cafu.Append(LIBPATH=["#/Games/" + GameLib + "/Code/" + my_build_dir_rel]);
-    envProfile_Cafu.Append(LIBPATH=["#/Games/" + GameLib + "/Code/" + my_build_dir_prf]);
-
 if compiler in ["vc8", "vc9", "vc10"]:
     envDebug_Cafu  .Append(CCFLAGS=Split("/J /W3 /WX"));
     envRelease_Cafu.Append(CCFLAGS=Split("/J /W3 /WX"));
@@ -443,11 +426,3 @@ if os.path.exists("SConscript"):
     if "d" in BVs: buildMode = "dbg"; SConscript('SConscript', exports=[{'env':envDebug_Cafu},   'buildMode', 'compiler'], variant_dir=""+my_build_dir_dbg, duplicate=0)
     if "r" in BVs: buildMode = "rel"; SConscript('SConscript', exports=[{'env':envRelease_Cafu}, 'buildMode', 'compiler'], variant_dir=""+my_build_dir_rel, duplicate=0)
     if "p" in BVs: buildMode = "prf"; SConscript('SConscript', exports=[{'env':envProfile_Cafu}, 'buildMode', 'compiler'], variant_dir=""+my_build_dir_prf, duplicate=0)
-
-# Build the game libraries.
-for GameLib in CompilerSetup.GameLibs:
-    CodeDir = "Games/" + GameLib + "/Code/"
-
-    if "d" in BVs: buildMode = "dbg"; SConscript(CodeDir + "SConscript", exports=[{'env':envDebug_Cafu},   'buildMode', 'GameLib'], variant_dir=CodeDir + my_build_dir_dbg, duplicate=0)
-    if "r" in BVs: buildMode = "rel"; SConscript(CodeDir + "SConscript", exports=[{'env':envRelease_Cafu}, 'buildMode', 'GameLib'], variant_dir=CodeDir + my_build_dir_rel, duplicate=0)
-    if "p" in BVs: buildMode = "prf"; SConscript(CodeDir + "SConscript", exports=[{'env':envProfile_Cafu}, 'buildMode', 'GameLib'], variant_dir=CodeDir + my_build_dir_prf, duplicate=0)

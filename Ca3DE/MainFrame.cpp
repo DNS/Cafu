@@ -29,7 +29,7 @@ BEGIN_EVENT_TABLE(MainFrameT, wxFrame)
 END_EVENT_TABLE()
 
 
-MainFrameT::MainFrameT(cf::GameSys::GameInfoI* GameInfo)
+MainFrameT::MainFrameT(const GameInfoT& GameInfo)
     : wxFrame(NULL /*parent*/, wxID_ANY, wxString("Cafu Engine - ") + __DATE__),
       m_MainCanvas(NULL)
 {

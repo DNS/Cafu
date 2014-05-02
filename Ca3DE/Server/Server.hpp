@@ -32,8 +32,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 struct lua_State;
 struct ClientInfoT;
 class  CaServerWorldT;
+class  GameInfoT;
 class  ModelManagerT;
-namespace cf { namespace GameSys { class GameInfoI; } }
 namespace cf { namespace GuiSys { class GuiResourcesT; } }
 
 
@@ -62,7 +62,7 @@ class ServerT
 
     /// The constructor.
     /// @throws InitErrorT if the server could not be initialized (e.g. a socket for the desired port could not be aquired).
-    ServerT(cf::GameSys::GameInfoI* GameInfo, const GuiCallbackI& GuiCallback_, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes);
+    ServerT(const GameInfoT& GameInfo, const GuiCallbackI& GuiCallback_, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes);
 
     ~ServerT();
 
@@ -90,7 +90,7 @@ class ServerT
     TimerT                     Timer;
     SOCKET                     ServerSocket;
     ArrayT<ClientInfoT*>       ClientInfos;
-    cf::GameSys::GameInfoI*    m_GameInfo;
+    const GameInfoT&           m_GameInfo;
     std::string                WorldName;
     CaServerWorldT*            World;
     const GuiCallbackI&        GuiCallback;

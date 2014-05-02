@@ -21,11 +21,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ClientStateConnecting.hpp"
 #include "Client.hpp"
+#include "../GameInfo.hpp"
 #include "../NetConst.hpp"
 #include "ConsoleCommands/Console.hpp"
 #include "ConsoleCommands/ConVar.hpp"
 #include "Network/Network.hpp"
-#include "../../Games/GameInfo.hpp"
 
 #ifdef _WIN32
     // #define WIN32_LEAN_AND_MEAN
@@ -146,9 +146,9 @@ void ClientStateConnectingT::ProcessConnectionLessPacket(NetDataT& InData, const
         {
             const std::string SvGameName = InData.ReadString();   // SC0_ACK is followed by the game name.
 
-            if (SvGameName != Client.m_GameInfo->GetName())
+            if (SvGameName != Client.m_GameInfo.GetName())
             {
-                Console->Warning("Client is running game '" + Client.m_GameInfo->GetName() + "', server is running game '" + SvGameName + "' -- connection ignored.\n");
+                Console->Warning("Client is running game '" + Client.m_GameInfo.GetName() + "', server is running game '" + SvGameName + "' -- connection ignored.\n");
                 break;
             }
 

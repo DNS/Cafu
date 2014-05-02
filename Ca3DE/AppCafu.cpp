@@ -43,9 +43,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "SoundSystem/SoundShaderManagerImpl.hpp"
 #include "SoundSystem/SoundSys.hpp"
 #include "TypeSys.hpp"
-#include "../Games/GameInfo.hpp"
 
 #include "wx/cmdline.h"
+#include "wx/dir.h"
 #include "wx/filename.h"
 #include "wx/msgdlg.h"
 #include "wx/stdpaths.h"
@@ -172,7 +172,7 @@ AppCafuT::AppCafuT()
       m_ConBuffer(new cf::ConsoleStringBufferT()),
       m_ConFile(NULL),
       m_AllGameInfos(),
-      m_GameInfo(NULL),
+      m_GameInfo(),
       m_IsCustomVideoMode(false),
       m_MainFrame(NULL)
 {
@@ -198,9 +198,6 @@ AppCafuT::AppCafuT()
     cf::GuiSys::GetWindowTIM().Init();          // The one-time init of the GuiSys window type info manager.
     cf::GuiSys::GetGuiTIM().Init();             // The one-time init of the GuiSys GUI type info manager.
 
-    // Gather infos about all available games.
-    InitGameInfos();
-
     SetAppName("Cafu");
     SetAppDisplayName("Cafu Engine");
     SetVendorName("Carsten Fuchs Software");
@@ -212,9 +209,6 @@ AppCafuT::AppCafuT()
 
 AppCafuT::~AppCafuT()
 {
-    for (unsigned int i = 0; i < m_AllGameInfos.Size(); i++)
-        delete m_AllGameInfos[i];
-
     s_CompositeConsole.Detach(m_ConFile);
     delete m_ConFile;
 
@@ -258,6 +252,15 @@ bool AppCafuT::OnInit()
         wxLogDebug("Program locale set to \"C\".");
     }
 
+    // Iterate through the "Games" subdirectory in order to find all available games.
+    wxDir    GamesDir("Games");
+    wxString GameName;
+
+    for (bool more = GamesDir.GetFirst(&GameName, "", wxDIR_DIRS); more; more = GamesDir.GetNext(&GameName))
+    {
+        m_AllGameInfos.PushBack(GameInfoT(std::string(GameName)));
+    }
+
     if (m_AllGameInfos.Size() == 0)
     {
         wxMessageBox("List \"GameLibs\" in file CompilerSetup.py is empty.", "Improperly configured");
@@ -268,7 +271,11 @@ bool AppCafuT::OnInit()
     ConsoleInterpreter->RunCommand("dofile('config.lua');");
 
     // Parse the command line.
-    if (!wxApp::OnInit()) { OnExit(); return false; }
+    if (!wxApp::OnInit())
+    {
+        OnExit();
+        return false;
+    }
 
     try
     {
@@ -278,15 +285,13 @@ bool AppCafuT::OnInit()
     catch (const WinSockT::BadVersion&  /*E*/) { wxMessageBox("WinSock version 2.0 not supported."); OnExit(); return false; }
 
 
-    assert(m_GameInfo);
-
     cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_LOCAL_PATH, "./", "");
- // cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_LOCAL_PATH, "Games/" + m_GameInfo->GetName() + "/", "");
-    cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_ZIP_ARCHIVE, "Games/" + m_GameInfo->GetName() + "/Textures/TechDemo.zip", "Games/" + m_GameInfo->GetName() + "/Textures/TechDemo/", "Ca3DE");
-    cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_ZIP_ARCHIVE, "Games/" + m_GameInfo->GetName() + "/Textures/SkyDomes.zip", "Games/" + m_GameInfo->GetName() + "/Textures/SkyDomes/", "Ca3DE");
+ // cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_LOCAL_PATH, "Games/" + m_GameInfo.GetName() + "/", "");
+    cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_ZIP_ARCHIVE, "Games/" + m_GameInfo.GetName() + "/Textures/TechDemo.zip", "Games/" + m_GameInfo.GetName() + "/Textures/TechDemo/", "Ca3DE");
+    cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_ZIP_ARCHIVE, "Games/" + m_GameInfo.GetName() + "/Textures/SkyDomes.zip", "Games/" + m_GameInfo.GetName() + "/Textures/SkyDomes/", "Ca3DE");
 
-    MaterialManager->RegisterMaterialScriptsInDir("Games/" + m_GameInfo->GetName() + "/Materials", "Games/" + m_GameInfo->GetName() + "/");
-    SoundShaderManager->RegisterSoundShaderScriptsInDir("Games/" + m_GameInfo->GetName() + "/SoundShader", "Games/" + m_GameInfo->GetName() + "/");
+    MaterialManager->RegisterMaterialScriptsInDir("Games/" + m_GameInfo.GetName() + "/Materials", "Games/" + m_GameInfo.GetName() + "/");
+    SoundShaderManager->RegisterSoundShaderScriptsInDir("Games/" + m_GameInfo.GetName() + "/SoundShader", "Games/" + m_GameInfo.GetName() + "/");
 
 
     // The console variable VideoModes is initialized here, because under wxGTK, using wxDisplay requires
@@ -429,11 +434,11 @@ void AppCafuT::OnInitCmdLine(wxCmdLineParser& Parser)
     for (unsigned int i = 0; i < m_AllGameInfos.Size(); i++)
     {
         if (i > 0) GamesList += ", ";
-        GamesList += m_AllGameInfos[i]->GetName();
+        GamesList += m_AllGameInfos[i].GetName();
     }
 
     Parser.AddOption("con",            "", "Runs the given commands in the console, as if appended to the config.lua file.", wxCMD_LINE_VAL_STRING);
-    Parser.AddOption("svGame",         "", "Name of the game (MOD) that the server should run [" + m_AllGameInfos[0]->GetName() + "]. Available: " + GamesList + ".", wxCMD_LINE_VAL_STRING);
+    Parser.AddOption("svGame",         "", "Name of the game (MOD) that the server should run [" + m_AllGameInfos[0].GetName() + "]. Available: " + GamesList + ".", wxCMD_LINE_VAL_STRING);
     Parser.AddOption("svWorld",        "", "Name of the world that the server should run ["+Options_ServerWorldName.GetValueString()+"]. Case sensitive!", wxCMD_LINE_VAL_STRING);
     Parser.AddOption("svPort",         "", wxString::Format("Server port number [%i].", Options_ServerPortNr.GetValueInt()), wxCMD_LINE_VAL_NUMBER);
     Parser.AddSwitch("noFS", "clNoFullscreen", "Don't run full-screen, but rather in a window.");
@@ -484,7 +489,7 @@ bool AppCafuT::OnCmdLineParsed(wxCmdLineParser& Parser)
         unsigned int i = 0;
 
         for (i = 0; i < m_AllGameInfos.Size(); i++)
-            if (s == m_AllGameInfos[i]->GetName())
+            if (s == m_AllGameInfos[i].GetName())
             {
                 m_GameInfo = m_AllGameInfos[i];
                 break;

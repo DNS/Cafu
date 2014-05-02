@@ -45,7 +45,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "OpenGL/OpenGLWindow.hpp"  // For CaMouseEventT and CaKeyboardEventT.
 #include "SoundSystem/SoundShaderManager.hpp"
 #include "SoundSystem/SoundSys.hpp"
-#include "../Games/GameInfo.hpp"
 #include "PlatformAux.hpp"
 #include "UniScriptState.hpp"
 
@@ -109,7 +108,7 @@ static int OpenGLAttributeList[]=
 };
 
 
-MainCanvasT::MainCanvasT(MainFrameT* Parent, cf::GameSys::GameInfoI* GameInfo)
+MainCanvasT::MainCanvasT(MainFrameT* Parent, const GameInfoT& GameInfo)
     : wxGLCanvas(Parent, wxID_ANY, OpenGLAttributeList, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS, "CafuMainCanvas"),
       m_Parent(Parent),
       m_GameInfo(GameInfo),
@@ -358,7 +357,7 @@ void MainCanvasT::Initialize()
         cf::GuiSys::GuiMan->Register(ClientGui);
 
 
-        IntrusivePtrT<cf::GuiSys::GuiImplT> MainMenuGui = cf::GuiSys::GuiMan->Find("Games/"+m_GameInfo->GetName()+"/GUIs/MainMenu/MainMenu_main.cgui", true);
+        IntrusivePtrT<cf::GuiSys::GuiImplT> MainMenuGui = cf::GuiSys::GuiMan->Find("Games/" + m_GameInfo.GetName() + "/GUIs/MainMenu/MainMenu_main.cgui", true);
         if (MainMenuGui==NULL)
         {
             MainMenuGui = new cf::GuiSys::GuiImplT(*m_GuiResources);
@@ -387,7 +386,7 @@ void MainCanvasT::Initialize()
         m_SvGuiCallback->MainMenuGui=MainMenuGui;       // This is the callback for the server, so that it can let the MainMenuGui know about its state changes.
         m_SvGuiCallback->OnServerStateChanged("idle");  // Argh, this is a HACK for setting the initial state... can we move this / do it better?
 
-        IntrusivePtrT<cf::GuiSys::GuiImplT> ConsoleGui    = cf::GuiSys::GuiMan->Find("Games/"+m_GameInfo->GetName()+"/GUIs/Console_main.cgui", true);
+        IntrusivePtrT<cf::GuiSys::GuiImplT> ConsoleGui    = cf::GuiSys::GuiMan->Find("Games/"+ m_GameInfo.GetName() +"/GUIs/Console_main.cgui", true);
         IntrusivePtrT<cf::GuiSys::WindowT>  ConsoleWindow = ConsoleGui != NULL ? ConsoleGui->GetRootWindow()->Find("ConsoleOutput") : NULL;
 
         // Copy the previously collected console output to the new graphical console.
@@ -841,7 +840,7 @@ void MainCanvasT::OnKeyDown(wxKeyEvent& KE)
         case WXK_F1:
         {
             // Activate the in-game console GUI (it's "F1" now, not CK_GRAVE ("^", accent grave) any longer).
-            IntrusivePtrT<cf::GuiSys::GuiImplT> ConsoleGui = cf::GuiSys::GuiMan->Find("Games/"+m_GameInfo->GetName()+"/GUIs/Console_main.cgui");
+            IntrusivePtrT<cf::GuiSys::GuiImplT> ConsoleGui = cf::GuiSys::GuiMan->Find("Games/"+ m_GameInfo.GetName() +"/GUIs/Console_main.cgui");
 
             // ConsoleGui should be the same as in Initialize(), but could be NULL on file not found, parse error, etc.
             if (ConsoleGui!=NULL && !ConsoleGui->GetIsActive())

@@ -26,12 +26,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Templates/Pointer.hpp"
 
 
-namespace cf { namespace GameSys { class GameInfoI; } }
 namespace cf { namespace GuiSys { class GuiImplT; } }
 namespace cf { namespace GuiSys { class GuiResourcesT; } }
 struct CaKeyboardEventT;
 struct CaMouseEventT;
 class  ClientStateT;
+class  GameInfoT;
 class  ModelManagerT;
 struct lua_State;
 
@@ -40,7 +40,7 @@ class ClientT
 {
     public:
 
-    ClientT(cf::GameSys::GameInfoI* GameInfo, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes);
+    ClientT(const GameInfoT& GameInfo, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes);
     ~ClientT();
 
     void SetMainMenuGui(IntrusivePtrT<cf::GuiSys::GuiImplT> MainMenuGui_);
@@ -84,7 +84,7 @@ class ClientT
     StateIDT          NextState;        ///< The (ID of the) state that will become the current state before the next call to any of the methods of CurrentState.
 
     // Private data that is used in all (or at least multiple) states.
-    cf::GameSys::GameInfoI*             m_GameInfo;         ///< The info for the game that we're running.
+    const GameInfoT&                    m_GameInfo;         ///< The info for the game that we're running.
     SOCKET                              Socket;             ///< The socket that we're using for the connection to the server. This is a native socket that is managed by this class.
     NetAddressT                         ServerAddress;      ///< The server address we're using for the connection. Copied from the related ConVar whenever a new connection is established.
     unsigned long                       PacketIDConnLess;   ///< The ever increasing (and thus unique) PacketID for outgoing connection-less packets (e.g. connection requests, rcon commands, etc.).

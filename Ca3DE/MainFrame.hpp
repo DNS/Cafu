@@ -25,8 +25,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/wx.h"
 
 
+class GameInfoT;
 class MainCanvasT;
-namespace cf { namespace GameSys { class GameInfoI; } }
 
 
 /// This class represents the Cafu main frame.
@@ -35,7 +35,7 @@ class MainFrameT : public wxFrame
     public:
 
     /// The constructor.
-    MainFrameT(cf::GameSys::GameInfoI* GameInfo);
+    MainFrameT(const GameInfoT& GameInfo);
 
     /// Returns the main OpenGL 3D canvas.
     MainCanvasT* GetMainCanvas() { return m_MainCanvas; }
