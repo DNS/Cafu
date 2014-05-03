@@ -64,12 +64,19 @@ GuiDocumentT::GuiDocumentT(GameConfigT* GameConfig, const wxString& GuiInitFileN
     else
     {
         m_Gui->LoadScript(
-            "Win=gui:new('WindowT')\n"
-            "gui:SetRootWindow(Win)\n"
-            "gui:showMouse(false)\n"
-            "gui:setFocus(Win)\n"
-            "Win:SetName('Root')\n"
-            "Win:set(\"rect\", 0, 0, 640, 480)\n",
+            "local gui = ...\n"
+            "local Root = gui:new('WindowT', 'Root')\n"
+            "gui:SetRootWindow(Root)\n"
+            "\n"
+            "function Root:OnInit()\n"
+            "    self:GetTransform():set('Pos', 0, 0)\n"
+            "    self:GetTransform():set('Size', 640, 480)\n"
+            "\n"
+            "    gui:activate      (true)\n"
+            "    gui:setInteractive(true)\n"
+            "    gui:showMouse     (false)\n"
+            "    gui:setFocus      (Root)\n"
+            "end\n",
             cf::GuiSys::GuiImplT::InitFlag_InlineCode | cf::GuiSys::GuiImplT::InitFlag_InGuiEditor);
     }
 

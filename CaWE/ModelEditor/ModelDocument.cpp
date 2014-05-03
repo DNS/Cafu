@@ -91,12 +91,36 @@ ModelEditor::ModelDocumentT::ModelDocumentT(GameConfigT* GameConfig, const wxStr
         GameConfig->GetGuiResources());
 
     m_Gui->LoadScript(
-        "Win1=gui:new('WindowT'); gui:SetRootWindow(Win1); gui:activate(true); "
-        "gui:setInteractive(true); gui:showMouse(false); Win1:set('rect', 0, 0, 640, 480); "
-        "Win1:set('backColor', 150/255, 170/255, 204/255, 0.8); "
-        "Win1:set('textAlignHor', 2); Win1:set('textAlignVer', 2); "
-        "Win1:set('textColor', 15/255, 49/255, 106/255); "
-        "Win1:set('text', 'This is a\\nfull-scale sample GUI.\\n\\nUse the Map Editor\\nto place the model and\\nto assign the true GUI.');",
+        "local gui = ...\n"
+        "local Root = gui:new('WindowT', 'Root')\n"
+        "gui:SetRootWindow(Root)\n"
+        "\n"
+        "function Root:OnInit()\n"
+        "    self:GetTransform():set('Pos', 0, 0)\n"
+        "    self:GetTransform():set('Size', 640, 480)\n"
+        "\n"
+        "    local c1 = gui:new('ComponentTextT')\n"
+        "    c1:set('Text', 'This is a\\nfull-scale sample GUI.\\n\\nUse the Map Editor\\nto place the model and\\nto assign the true GUI.')\n"
+        " -- c1:set('Font', 'Fonts/Impact')\n"
+        "    c1:set('Scale', 0.6)\n"
+        "    c1:set('Padding', 0, 0)\n"
+        "    c1:set('Color', 15/255, 49/255, 106/255)\n"
+        " -- c1:set('Alpha', 0.5)\n"
+        "    c1:set('hor. Align', 0)\n"
+        "    c1:set('ver. Align', 0)\n"
+        "\n"
+        "    local c2 = gui:new('ComponentImageT')\n"
+        "    c2:set('Material', '')\n"
+        "    c2:set('Color', 150/255, 170/255, 204/255)\n"
+        "    c2:set('Alpha', 0.8)\n"
+        "\n"
+        "    self:AddComponent(c1, c2)\n"
+        "\n"
+        "    gui:activate      (true)\n"
+        "    gui:setInteractive(true)\n"
+        "    gui:showMouse     (false)\n"
+        "    gui:setFocus      (Root)\n"
+        "end\n",
         cf::GuiSys::GuiImplT::InitFlag_InlineCode);
 
     m_Cameras.PushBack(new CameraT);
