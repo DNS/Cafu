@@ -812,7 +812,7 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
 
                 if (IPSEntity->GetComponent("PlayerStart") == NULL) continue;
 
-                const BoundingBox3dT Dimensions(Vector3dT(16.0, 16.0, 4.0), Vector3dT(-16.0, -16.0, -68.0));
+                const BoundingBox3dT Dimensions(Vector3dT(-16.0, -16.0, -36.0), Vector3dT(16.0,  16.0, 36.0));
 
                 // This is actually an "InfoPlayerStart" entity. Now try to put our own bounding box at the origin of 'IPSEntity',
                 // but try to correct/choose the height such that we are on ground (instead of hovering above it).
@@ -858,7 +858,7 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                     // A suitable "InfoPlayerStart" entity was found -- respawn!
                     GetEntity()->GetTransform()->SetOriginWS(OurNewOrigin.AsVectorOfFloat());
                     GetEntity()->GetTransform()->SetQuatWS(IPSEntity->GetTransform()->GetQuatWS());  // TODO: Can we make sure that the z-axis points straight up, i.e. bank and pitch are 0?
-                    GetEntity()->GetChildren()[0]->GetTransform()->SetOriginPS(Vector3fT(-24.0f, 0.0f, 20.0f));    // TODO: Hardcoded values here and in the server code that creates the entity...
+                    GetEntity()->GetChildren()[0]->GetTransform()->SetOriginPS(Vector3fT(0.0f, 0.0f, 32.0f));    // TODO: Hardcoded values here and in the server code that creates the entity...
                     GetEntity()->GetChildren()[0]->GetTransform()->SetQuatPS(cf::math::QuaternionfT());
                     SetStateOfExistence(StateOfExistence_Alive);
                     Model3rdPerson->SetMember("Animation", 0);

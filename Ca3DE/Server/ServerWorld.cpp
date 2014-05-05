@@ -115,7 +115,7 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
     NewEnt->AddComponent(CollMdl);
 
     IntrusivePtrT<cf::GameSys::ComponentPlayerPhysicsT> PlayerPhysicsComp = new cf::GameSys::ComponentPlayerPhysicsT();
-    PlayerPhysicsComp->SetMember("Dimensions", BoundingBox3dT(Vector3dT(16.0,  16.0, 4.0), Vector3dT(-16.0, -16.0, -68.0)));   // Isn't -36 ... 36 the proper heights?
+    PlayerPhysicsComp->SetMember("Dimensions", BoundingBox3dT(Vector3dT(-16.0, -16.0, -36.0), Vector3dT(16.0,  16.0, 36.0)));
     PlayerPhysicsComp->SetMember("StepHeight", 18.5);
     NewEnt->AddComponent(PlayerPhysicsComp);
 
@@ -132,7 +132,7 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
         IntrusivePtrT<cf::GameSys::EntityT> CameraEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
 
         CameraEnt->GetBasics()->SetEntityName("Camera");
-        CameraEnt->GetTransform()->SetOriginPS(Vector3fT(-24.0f, 0.0f, 20.0f));
+        CameraEnt->GetTransform()->SetOriginPS(Vector3fT(0.0f, 0.0f, 32.0f));   // TODO: Hardcoded values here and in the CompHumanPlayer code...
 
         NewEnt->AddChild(CameraEnt);
     }
