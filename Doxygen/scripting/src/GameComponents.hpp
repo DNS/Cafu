@@ -409,6 +409,10 @@ class ComponentModelT : public ComponentBaseT
     /// Is this model a submodel of another model? If set, the pose of this model is aligned with the first "non-submodel" in the entity.
     /// @cppType{bool}
     boolean IsSubmodel;
+
+    /// Is this a 1st-person view model? If `true`, the model is rendered if the world is rendered from *this* entity's perspective. If `false`, the model is rendered when seen from the outside, i.e. in everybody else's view. The default is `false`, because `true` is normally only used with the human player's 1st-person carried weapon models.
+    /// @cppType{bool}
+    boolean Is1stPerson;
 };
 
 

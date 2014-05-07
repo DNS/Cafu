@@ -184,6 +184,7 @@ namespace cf
             VarGuiNameT                             m_GuiName;      ///< The file name of the GUI to be used with the models GUI fixtures (if there are any).
          // TypeSys::VarT<bool>                     m_CastShadows;  ///< Does this model cast shadows when lit by a dynamic light source?
             TypeSys::VarT<bool>                     m_IsSubmodel;   ///< Is this model a submodel of another model?
+            TypeSys::VarT<bool>                     m_Is1stPerson;  ///< Is this a 1st-person view model? If `true`, the model is rendered if the world is rendered from *this* entity's perspective. If `false`, the model is rendered when seen from the outside, i.e. in everybody else's view. The default is `false`, because `true` is normally only used with the human player's 1st-person carried weapon models.
 
             const CafuModelT*                       m_Model;        ///< The model instance, updated by changes to m_ModelName.
             mutable AnimPoseT*                      m_Pose;         ///< The pose of the model, updated by changes to m_ModelAnimNr.

@@ -299,13 +299,14 @@ const char* ComponentModelT::DocClass =
 
 const cf::TypeSys::VarsDocT ComponentModelT::DocVars[] =
 {
-    { "Show",       "Whether the model is currently shown (useful with scripts)." },
-    { "Name",       "The file name of the model." },
-    { "Animation",  "The animation sequence number of the model." },
-    { "Skin",       "The skin used for rendering the model." },
-    { "Scale",      "The scale factor applied to the model coordinates when converted to world space." },
-    { "Gui",        "The file name of the GUI to be used with the models GUI fixtures (if there are any)." },
-    { "IsSubmodel", "Is this model a submodel of another model? If set, the pose of this model is aligned with the first \"non-submodel\" in the entity." },
+    { "Show",        "Whether the model is currently shown (useful with scripts)." },
+    { "Name",        "The file name of the model." },
+    { "Animation",   "The animation sequence number of the model." },
+    { "Skin",        "The skin used for rendering the model." },
+    { "Scale",       "The scale factor applied to the model coordinates when converted to world space." },
+    { "Gui",         "The file name of the GUI to be used with the models GUI fixtures (if there are any)." },
+    { "IsSubmodel",  "Is this model a submodel of another model? If set, the pose of this model is aligned with the first \"non-submodel\" in the entity." },
+    { "Is1stPerson", "Is this a 1st-person view model? If `true`, the model is rendered if the world is rendered from *this* entity's perspective. If `false`, the model is rendered when seen from the outside, i.e. in everybody else's view. The default is `false`, because `true` is normally only used with the human player's 1st-person carried weapon models." },
     { NULL, NULL }
 };
 
@@ -319,6 +320,7 @@ ComponentModelT::ComponentModelT()
       m_ModelScale("Scale", 1.0f),
       m_GuiName("Gui", "", FlagsIsGuiFileName, *this),
       m_IsSubmodel("IsSubmodel", false),
+      m_Is1stPerson("Is1stPerson", false),
       m_Model(NULL),
       m_Pose(NULL),
       m_Gui(NULL)
@@ -339,6 +341,7 @@ ComponentModelT::ComponentModelT(const ComponentModelT& Comp)
       m_ModelScale(Comp.m_ModelScale),
       m_GuiName(Comp.m_GuiName, *this),
       m_IsSubmodel(Comp.m_IsSubmodel),
+      m_Is1stPerson(Comp.m_Is1stPerson),
       m_Model(NULL),
       m_Pose(NULL),
       m_Gui(NULL)
@@ -359,6 +362,7 @@ void ComponentModelT::FillMemberVars()
     GetMemberVars().Add(&m_ModelScale);
     GetMemberVars().Add(&m_GuiName);
     GetMemberVars().Add(&m_IsSubmodel);
+    GetMemberVars().Add(&m_Is1stPerson);
 }
 
 
@@ -559,9 +563,10 @@ BoundingBox3fT ComponentModelT::GetVisualBB() const
 }
 
 
-void ComponentModelT::Render(bool /*FirstPersonView*/, float LodDist) const
+void ComponentModelT::Render(bool FirstPersonView, float LodDist) const
 {
     if (!m_ModelShow.Get()) return;
+    if (m_Is1stPerson.Get() != FirstPersonView) return;
     if (!GetPose()) return;
 
     MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
