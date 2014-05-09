@@ -332,9 +332,9 @@ void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<cons
     // Register a new particle as "muzzle flash".
     ParticleMST NewParticle;
 
-    NewParticle.Origin[0]=float(HumanPlayer->GetOriginWS().x + ViewDir.x*16.0);
-    NewParticle.Origin[1]=float(HumanPlayer->GetOriginWS().y + ViewDir.y*16.0);
-    NewParticle.Origin[2]=float(HumanPlayer->GetOriginWS().z + ViewDir.z*16.0-4.0);
+    NewParticle.Origin[0]=float(HumanPlayer->GetCameraOriginWS().x + ViewDir.x*16.0);
+    NewParticle.Origin[1]=float(HumanPlayer->GetCameraOriginWS().y + ViewDir.y*16.0);
+    NewParticle.Origin[2]=float(HumanPlayer->GetCameraOriginWS().z + ViewDir.z*16.0-4.0);
 
     NewParticle.Velocity[0]=float(ViewDir.x*40.0);
     NewParticle.Velocity[1]=float(ViewDir.y*40.0);
@@ -358,7 +358,7 @@ void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<cons
     if (FireSound)
     {
         // Update sound position and velocity.
-        FireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 16.0));
+        FireSound->SetPosition(HumanPlayer->GetCameraOriginWS() + scale(ViewDir, 16.0));
         FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
         // Play the fire sound.
@@ -404,9 +404,9 @@ void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(IntrusivePtrT<co
     // Register a new particle as "muzzle flash".
     ParticleMST NewParticle;
 
-    NewParticle.Origin[0]=float(HumanPlayer->GetOriginWS().x + ViewDir.x*16.0);
-    NewParticle.Origin[1]=float(HumanPlayer->GetOriginWS().y + ViewDir.y*16.0);
-    NewParticle.Origin[2]=float(HumanPlayer->GetOriginWS().z + ViewDir.z*16.0-4.0);
+    NewParticle.Origin[0]=float(HumanPlayer->GetCameraOriginWS().x + ViewDir.x*16.0);
+    NewParticle.Origin[1]=float(HumanPlayer->GetCameraOriginWS().y + ViewDir.y*16.0);
+    NewParticle.Origin[2]=float(HumanPlayer->GetCameraOriginWS().z + ViewDir.z*16.0-4.0);
 
     NewParticle.Velocity[0]=float(ViewDir.x*60.0);
     NewParticle.Velocity[1]=float(ViewDir.y*60.0);
@@ -430,7 +430,7 @@ void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(IntrusivePtrT<co
     if (AltFireSound)
     {
         // Update sound position and velocity.
-        AltFireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 16.0));
+        AltFireSound->SetPosition(HumanPlayer->GetCameraOriginWS() + scale(ViewDir, 16.0));
         AltFireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
         // Play the fire sound.

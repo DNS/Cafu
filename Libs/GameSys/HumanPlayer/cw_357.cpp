@@ -252,7 +252,7 @@ void CarriedWeapon357T::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<const cf
     // Update sound position and velocity.
     if (FireSound)
     {
-        FireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 16.0));
+        FireSound->SetPosition(HumanPlayer->GetCameraOriginWS() + scale(ViewDir, 16.0));
         FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
         // Play the fire sound.

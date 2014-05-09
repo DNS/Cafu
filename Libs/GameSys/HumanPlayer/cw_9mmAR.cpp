@@ -206,7 +206,7 @@ void CarriedWeapon9mmART::ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentH
                     // Note: There is a non-trivial relationship between heading, pitch, and the corresponding view vector.
                     // Especially does a heading and pitch of 45° NOT correspond to the view vector (1, 1, 1), and vice versa!
                     // Think carefully about this before changing the number 42.0 below (which actually is 2.0*(16.0+4.5) (+1.0 for "safety")).
-                    const VectorT ARGrenadeOrigin(HumanPlayer->GetOriginWS() - VectorT(0.0, 0.0, 10.0) + scale(ViewDir, 42.0) + scale(HumanPlayer->GetPlayerVelocity(), double(PlayerCommand.FrameTime)));
+                    const VectorT ARGrenadeOrigin(HumanPlayer->GetCameraOriginWS() - VectorT(0.0, 0.0, 10.0) + scale(ViewDir, 42.0) + scale(HumanPlayer->GetPlayerVelocity(), double(PlayerCommand.FrameTime)));
 
                     IntrusivePtrT<cf::GameSys::EntityT> Ent = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(HumanPlayer->GetEntity()->GetWorld()));
                     HumanPlayer->GetEntity()->GetWorld().GetRootEntity()->AddChild(Ent);
@@ -309,7 +309,7 @@ void CarriedWeapon9mmART::ClientSide_HandleSecondaryFireEvent(IntrusivePtrT<cons
     // Update sound position and velocity.
     if (AltFireSound)
     {
-        AltFireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 16.0));
+        AltFireSound->SetPosition(HumanPlayer->GetCameraOriginWS() + scale(ViewDir, 16.0));
         AltFireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
         // Play the fire sound.
@@ -354,7 +354,7 @@ void CarriedWeapon9mmART::ClientSide_HandleStateDrivenEffects(IntrusivePtrT<cons
             if (FireSound)
             {
                 // Update sound position and velocity.
-                FireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 16.0));
+                FireSound->SetPosition(HumanPlayer->GetCameraOriginWS() + scale(ViewDir, 16.0));
                 FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
                 // Play the fire sound.

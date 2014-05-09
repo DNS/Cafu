@@ -59,7 +59,7 @@ namespace cf
             Vector3dT GetPlayerVelocity() const;
 
             /// Another convenience method for use by the `CarriedWeaponT` method implementations.
-            Vector3dT GetOriginWS() const;
+            Vector3dT GetCameraOriginWS() const;
 
             /// Another convenience method for use by the `CarriedWeaponT` method implementations.
             Vector3dT GetViewDirWS(double Random = 0.0) const;

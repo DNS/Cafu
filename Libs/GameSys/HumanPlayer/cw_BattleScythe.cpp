@@ -161,7 +161,7 @@ void CarriedWeaponBattleScytheT::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT
     if (FireSound)
     {
         // Update sound position and velocity.
-        FireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 12.0));
+        FireSound->SetPosition(HumanPlayer->GetCameraOriginWS() + scale(ViewDir, 12.0));
         FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
         // Play the fire sound.
@@ -177,7 +177,7 @@ void CarriedWeaponBattleScytheT::ClientSide_HandleSecondaryFireEvent(IntrusivePt
     if (FireSound)
     {
         // Update sound position and velocity.
-        FireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 12.0));
+        FireSound->SetPosition(HumanPlayer->GetCameraOriginWS() + scale(ViewDir, 12.0));
         FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
         // Play the fire sound.

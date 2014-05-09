@@ -255,11 +255,16 @@ Vector3dT ComponentHumanPlayerT::GetPlayerVelocity() const
 }
 
 
-Vector3dT ComponentHumanPlayerT::GetOriginWS() const
+Vector3dT ComponentHumanPlayerT::GetCameraOriginWS() const
 {
-    if (!GetEntity()) return Vector3dT();
+    if (!GetEntity())
+        return Vector3dT();
 
+    if (GetEntity()->GetChildren().Size() == 0)
     return GetEntity()->GetTransform()->GetOriginWS().AsVectorOfDouble();
+
+    // The normal, expected case: Use the entity's camera transform.
+    return GetEntity()->GetChildren()[0]->GetTransform()->GetOriginWS().AsVectorOfDouble();
 }
 
 

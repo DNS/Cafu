@@ -103,7 +103,7 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(IntrusivePtrT<cf::GameSys::Compo
                     // Note: There is a non-trivial relationship between heading, pitch, and the corresponding view vector.
                     // Especially does a heading and pitch of 45° NOT correspond to the view vector (1, 1, 1), and vice versa!
                     // Think carefully about this before changing the number 41.0 below (which actually is 2.0*(16.0+4.0) (+1.0 for "safety")).
-                    const VectorT FaceHuggerOrigin(HumanPlayer->GetOriginWS() + scale(ViewDir, 41.0)+scale(HumanPlayer->GetPlayerVelocity(), double(PlayerCommand.FrameTime)));
+                    const VectorT FaceHuggerOrigin(HumanPlayer->GetCameraOriginWS() + scale(ViewDir, 41.0)+scale(HumanPlayer->GetPlayerVelocity(), double(PlayerCommand.FrameTime)));
 
                     IntrusivePtrT<cf::GameSys::EntityT> Ent = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(HumanPlayer->GetEntity()->GetWorld()));
                     HumanPlayer->GetEntity()->GetWorld().GetRootEntity()->AddChild(Ent);
@@ -184,7 +184,7 @@ void CarriedWeaponFaceHuggerT::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<c
     if (FireSound)
     {
         // Update sound position and velocity.
-        FireSound->SetPosition(HumanPlayer->GetOriginWS() + scale(ViewDir, 8.0));
+        FireSound->SetPosition(HumanPlayer->GetCameraOriginWS() + scale(ViewDir, 8.0));
         FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
         // Play the fire sound.
