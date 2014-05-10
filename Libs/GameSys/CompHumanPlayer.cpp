@@ -756,7 +756,8 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
 
             // We entered this state after we died. Leave it after we have come
             // to a complete halt, and the death sequence is over.
-            if (CameraTrafo->GetOriginPS().z <= MIN_CAMERA_HEIGHT && length(CompPlayerPhysics->GetVelocity()) < 0.1 /* && TODO: Is death anim sequence over?? */)
+            // TODO: In the velocity check, `< 0.1` is sometimes never reached -- examine why.
+            if (CameraTrafo->GetOriginPS().z <= MIN_CAMERA_HEIGHT && length(CompPlayerPhysics->GetVelocity()) < 0.2 /* && TODO: Is death anim sequence over?? */)
             {
                 // On the server, create a new "corpse" entity in the place where we died,
                 // or else it seems to other players like the model disappears when we respawn.
