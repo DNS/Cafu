@@ -435,7 +435,7 @@ void ComponentHumanPlayerT::CheckGUIs(bool ThinkingOnServerSide, bool HaveButton
 
             // 4. Does our view ray hit the screen panel?
             // (I've obtained the equation for r by rolling the corresponding Plane3T<T>::GetIntersection() method out.)
-            const Vector3fT OurOrigin = GetEntity()->GetTransform()->GetOriginWS();
+            const Vector3fT OurOrigin = GetCameraOriginWS().AsVectorOfFloat();      // TODO: don't convert from float to double to float.
             const float     r         = (GuiPlane.Dist - dot(GuiPlane.Normal, OurOrigin)) / dot(GuiPlane.Normal, ViewDir);
 
             if (r < 0.0f || r > 160.0f) continue;
