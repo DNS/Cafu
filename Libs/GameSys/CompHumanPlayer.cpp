@@ -268,7 +268,7 @@ Vector3dT ComponentHumanPlayerT::GetCameraOriginWS() const
 }
 
 
-Vector3dT ComponentHumanPlayerT::GetViewDirWS(double Random) const
+Vector3dT ComponentHumanPlayerT::GetCameraViewDirWS(double Random) const
 {
     if (!GetEntity()) return Vector3dT();
 
@@ -428,7 +428,7 @@ void ComponentHumanPlayerT::CheckGUIs(bool ThinkingOnServerSide, bool HaveButton
             // 3. Are we looking roughly into the screen normal?
             const Vector3fT GuiNormal = normalize(cross(GuiAxisY, GuiAxisX), 0.0f);
             const Plane3fT  GuiPlane  = Plane3fT(GuiNormal, dot(GuiOrigin, GuiNormal));
-            const Vector3fT ViewDir   = GetViewDirWS().AsVectorOfFloat();
+            const Vector3fT ViewDir   = GetCameraViewDirWS().AsVectorOfFloat();
 
             if (-dot(ViewDir, GuiPlane.Normal) < 0.001f) continue;
 
@@ -559,7 +559,7 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
             if (Keys & PCK_Walk        ) WishVelocity=scale(WishVelocity, 0.5);
 
             VectorT       WishVelLadder;
-            const VectorT ViewLadder = GetViewDirWS() * 150.0;
+            const VectorT ViewLadder = GetCameraViewDirWS() * 150.0;
 
             // TODO: Also take LATERAL movement into account.
             // TODO: All this needs a HUGE clean-up! Can probably put a lot of this stuff into Physics::MoveHuman.

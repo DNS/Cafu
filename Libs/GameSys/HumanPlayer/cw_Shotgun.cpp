@@ -194,7 +194,7 @@ void CarriedWeaponShotgunT::ServerSide_Think(IntrusivePtrT<cf::GameSys::Componen
                     // If we are on the server-side, find out what or who we hit.
                     for (char i=0; i<8; i++)
                     {
-                        const Vector3dT  ViewDir = HumanPlayer->GetViewDirWS(0.08748866);   // ca. 5°
+                        const Vector3dT  ViewDir = HumanPlayer->GetCameraViewDirWS(0.08748866);   // ca. 5°
                         const RayResultT RayResult(HumanPlayer->TracePlayerRay(ViewDir));
 
                         if (RayResult.hasHit() && RayResult.GetHitPhysicsComp())
@@ -218,7 +218,7 @@ void CarriedWeaponShotgunT::ServerSide_Think(IntrusivePtrT<cf::GameSys::Componen
                     // If we are on the server-side, find out what or who we hit.
                     for (char i=0; i<16; i++)
                     {
-                        const Vector3dT  ViewDir = HumanPlayer->GetViewDirWS(0.08748866);   // ca. 5°
+                        const Vector3dT  ViewDir = HumanPlayer->GetCameraViewDirWS(0.08748866);   // ca. 5°
                         const RayResultT RayResult(HumanPlayer->TracePlayerRay(ViewDir));
 
                         if (RayResult.hasHit() && RayResult.GetHitPhysicsComp()!=NULL)
@@ -299,7 +299,7 @@ void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<cons
 {
     for (char i=0; i<8; i++)
     {
-        const Vector3dT  ViewDir = HumanPlayer->GetViewDirWS(0.08748866);   // ca. 5°
+        const Vector3dT  ViewDir = HumanPlayer->GetCameraViewDirWS(0.08748866);   // ca. 5°
         const RayResultT RayResult(HumanPlayer->TracePlayerRay(ViewDir));
 
         if (!RayResult.hasHit()) break;
@@ -327,7 +327,7 @@ void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<cons
         ParticleEngineMS::RegisterNewParticle(NewParticle);
     }
 
-    const Vector3dT ViewDir = HumanPlayer->GetViewDirWS();
+    const Vector3dT ViewDir = HumanPlayer->GetCameraViewDirWS();
 
     // Register a new particle as "muzzle flash".
     ParticleMST NewParticle;
@@ -371,7 +371,7 @@ void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(IntrusivePtrT<co
 {
     for (char i=0; i<16; i++)
     {
-        const Vector3dT  ViewDir = HumanPlayer->GetViewDirWS(0.08748866);   // ca. 5°
+        const Vector3dT  ViewDir = HumanPlayer->GetCameraViewDirWS(0.08748866);   // ca. 5°
         const RayResultT RayResult(HumanPlayer->TracePlayerRay(ViewDir));
 
         if (!RayResult.hasHit()) break;
@@ -399,7 +399,7 @@ void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(IntrusivePtrT<co
         ParticleEngineMS::RegisterNewParticle(NewParticle);
     }
 
-    const Vector3dT ViewDir = HumanPlayer->GetViewDirWS();
+    const Vector3dT ViewDir = HumanPlayer->GetCameraViewDirWS();
 
     // Register a new particle as "muzzle flash".
     ParticleMST NewParticle;

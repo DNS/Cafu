@@ -97,7 +97,7 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(IntrusivePtrT<cf::GameSys::Compo
                 // Important: ONLY create (throw) a new face-hugger IF we are on the server side!
                 if (ThinkingOnServerSide)
                 {
-                    const Vector3dT ViewDir = HumanPlayer->GetViewDirWS();
+                    const Vector3dT ViewDir = HumanPlayer->GetCameraViewDirWS();
                     // TODO: Clamp ViewDir.y to max. 1.0 (then renormalize) ? That is, clamp 'Pitch' values larger than 45° (==8192) to 45°.
 
                     // Note: There is a non-trivial relationship between heading, pitch, and the corresponding view vector.
@@ -179,7 +179,7 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(IntrusivePtrT<cf::GameSys::Compo
 
 void CarriedWeaponFaceHuggerT::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& /*LastSeenAmbientColor*/) const
 {
-    const Vector3dT ViewDir = HumanPlayer->GetViewDirWS();
+    const Vector3dT ViewDir = HumanPlayer->GetCameraViewDirWS();
 
     if (FireSound)
     {

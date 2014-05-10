@@ -156,7 +156,7 @@ void CarriedWeaponBattleScytheT::ServerSide_Think(IntrusivePtrT<cf::GameSys::Com
 
 void CarriedWeaponBattleScytheT::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& /*LastSeenAmbientColor*/) const
 {
-    const Vector3dT ViewDir = HumanPlayer->GetViewDirWS();
+    const Vector3dT ViewDir = HumanPlayer->GetCameraViewDirWS();
 
     if (FireSound)
     {
@@ -172,7 +172,7 @@ void CarriedWeaponBattleScytheT::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT
 
 void CarriedWeaponBattleScytheT::ClientSide_HandleSecondaryFireEvent(IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& /*LastSeenAmbientColor*/) const
 {
-    const Vector3dT ViewDir = HumanPlayer->GetViewDirWS();
+    const Vector3dT ViewDir = HumanPlayer->GetCameraViewDirWS();
 
     if (FireSound)
     {

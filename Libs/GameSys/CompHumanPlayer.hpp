@@ -62,7 +62,7 @@ namespace cf
             Vector3dT GetCameraOriginWS() const;
 
             /// Another convenience method for use by the `CarriedWeaponT` method implementations.
-            Vector3dT GetViewDirWS(double Random = 0.0) const;
+            Vector3dT GetCameraViewDirWS(double Random = 0.0) const;
 
             /// Another convenience method for use by the `CarriedWeaponT` method implementations:
             /// It traces a ray in the given direction and that originates at the player origin
