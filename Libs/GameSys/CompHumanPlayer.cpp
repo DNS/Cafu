@@ -86,6 +86,7 @@ const cf::TypeSys::VarsDocT ComponentHumanPlayerT::DocVars[] =
     { "ActiveWeaponFrameNr", "Respectively, this is the frame number of the current weapon sequence." },
     { "HaveAmmo",            "Entity can carry 16 different types of ammo (weapon independent). This is the amount of each." },
     { "HaveAmmoInWeapons",   "Entity can carry ammo in each of the 32 weapons. This is the amount of each." },
+    { "HeadSway",            "The progress of one \"head swaying\" cycle in state FrozenSpectator." },
     { NULL, NULL }
 };
 
@@ -103,6 +104,7 @@ ComponentHumanPlayerT::ComponentHumanPlayerT()
       m_ActiveWeaponFrameNr("ActiveWeaponFrameNr", 0.0f),
       m_HaveAmmo("HaveAmmo", 16, 0),
       m_HaveAmmoInWeapons("HaveAmmoInWeapons", 32, 0),
+      m_HeadSway("HeadSway", 0.0f),
       m_PlayerCommands(),
       m_GuiHUD(NULL)
 {
@@ -123,6 +125,7 @@ ComponentHumanPlayerT::ComponentHumanPlayerT(const ComponentHumanPlayerT& Comp)
       m_ActiveWeaponFrameNr(Comp.m_ActiveWeaponFrameNr),
       m_HaveAmmo(Comp.m_HaveAmmo),
       m_HaveAmmoInWeapons(Comp.m_HaveAmmoInWeapons),
+      m_HeadSway(Comp.m_HeadSway),
       m_PlayerCommands(),
       m_GuiHUD(NULL)
 {
@@ -143,6 +146,7 @@ void ComponentHumanPlayerT::FillMemberVars()
     GetMemberVars().Add(&m_ActiveWeaponFrameNr);
     GetMemberVars().Add(&m_HaveAmmo);
     GetMemberVars().Add(&m_HaveAmmoInWeapons);
+    GetMemberVars().Add(&m_HeadSway);
 }
 
 
@@ -261,7 +265,7 @@ Vector3dT ComponentHumanPlayerT::GetCameraOriginWS() const
         return Vector3dT();
 
     if (GetEntity()->GetChildren().Size() == 0)
-    return GetEntity()->GetTransform()->GetOriginWS().AsVectorOfDouble();
+        return GetEntity()->GetTransform()->GetOriginWS().AsVectorOfDouble();
 
     // The normal, expected case: Use the entity's camera transform.
     return GetEntity()->GetChildren()[0]->GetTransform()->GetOriginWS().AsVectorOfDouble();
@@ -776,8 +780,8 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                     }
                 }
 
-                // TODO: HEAD SWAY: State.Velocity.y=m_Heading;
-                // TODO: HEAD SWAY: State.Velocity.z=m_Bank;
+                // m_HeadSway must restart at 0.0 when the FrozenSpectator state is entered.
+                m_HeadSway.Set(0.0f);
                 SetStateOfExistence(StateOfExistence_FrozenSpectator);
             }
 
@@ -786,21 +790,35 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
 
         case StateOfExistence_FrozenSpectator:
         {
-#if 0   // TODO: HEAD SWAY
-            const float Pi          =3.14159265359f;
-            const float SecPerSwing =15.0f;
-            float       PC_FrameTime=PlayerCommand.FrameTime;
+            // Make it look as if our head is swaying in mild wind while we're waiting in this state.
+            // The resulting movement makes the view a lot more pleasing than standing utterly still.
+            {
+                const float Pi           = 3.14159265359f;
+                const float SecPerSwing  = 15.0f;
+                const float PC_FrameTime = std::min(PlayerCommand.FrameTime, 0.05f);    // Avoid jumpiness with very low FPS.
 
-            // In this 'StateOfExistence' is the 'State.Velocity' unused - thus mis-use it for other purposes!
-            if (PC_FrameTime>0.05) PC_FrameTime=0.05f;  // Avoid jumpiness with very low FPS.
-            State.Velocity.x+=PC_FrameTime*2.0*Pi/SecPerSwing;
-            if (State.Velocity.x>6.3) State.Velocity.x-=2.0*Pi;
+                float SwayTime   = m_HeadSway.Get();
+                float SwingAngle = sin(SwayTime) * 1.1f;    // +/- 1.1Â°
 
-            const float SwingAngle=float(sin(State.Velocity.x)*200.0);
+                cf::math::AnglesfT Angles(GetEntity()->GetChildren()[0]->GetTransform()->GetQuatPS());  // We update the camera, not the entity.
 
-            m_Heading=(unsigned short)(State.Velocity.y+SwingAngle);
-            m_Bank   =(unsigned short)(State.Velocity.z-SwingAngle);
-#endif
+                // Remove our previous addition to the camera orientation.
+                Angles.yaw()  -= SwingAngle;
+                Angles.roll() -= SwingAngle;
+
+                SwayTime += 2.0f*Pi*PC_FrameTime / SecPerSwing;
+
+                if (SwayTime > 6.3f) SwayTime -= 2.0f*Pi;
+
+                // Add our new addition to the camera orientation.
+                SwingAngle = sin(SwayTime) * 1.1f;    // +/- 1.1Â°
+
+                Angles.yaw()  += SwingAngle;
+                Angles.roll() += SwingAngle;
+
+                m_HeadSway.Set(SwayTime);
+                GetEntity()->GetChildren()[0]->GetTransform()->SetQuatPS(cf::math::QuaternionfT(Angles));
+            }
 
             // TODO: We want the player to release the button between respawns in order to avoid permanent "respawn-flickering"
             //       that otherwise may occur if the player keeps the button continuously pressed down.
@@ -838,11 +856,11 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                 GetEntity()->GetWorld().GetClipWorld()->TraceBoundingBox(ClearingBB, OurNewOrigin+VectorT(0.0, 0.0, AddHeight), VectorT(0.0, 0.0, -1000.0), MaterialT::Clip_Players, IgnorePlayerClipModel, Result);
                 const double SubHeight=1000.0*Result.Fraction;
 
-                // Beachte: Hier für Epsilon 1.0 (statt z.B. 1.23456789) zu wählen hebt u.U. GENAU den (0 0 -1) Test in
-                // Physics::CategorizePosition() auf! Nicht schlimm, wenn aber auf Client-Seite übers Netz kleine Rundungsfehler
-                // vorhanden sind (es werden floats übertragen, nicht doubles!), kommt CategorizePosition() u.U. auf Client- und
-                // Server-Seite zu verschiedenen Ergebnissen! Der Effekt spielt sich zwar in einem Intervall der Größe 1.0 ab,
-                // kann mit OpenGL aber zu deutlichem Pixel-Flimmern führen!
+                // Beachte: Hier fÃ¼r Epsilon 1.0 (statt z.B. 1.23456789) zu wÃ¤hlen hebt u.U. GENAU den (0 0 -1) Test in
+                // Physics::CategorizePosition() auf! Nicht schlimm, wenn aber auf Client-Seite Ã¼bers Netz kleine Rundungsfehler
+                // vorhanden sind (es werden floats Ã¼bertragen, nicht doubles!), kommt CategorizePosition() u.U. auf Client- und
+                // Server-Seite zu verschiedenen Ergebnissen! Der Effekt spielt sich zwar in einem Intervall der GrÃ¶ÃŸe 1.0 ab,
+                // kann mit OpenGL aber zu deutlichem Pixel-Flimmern fÃ¼hren!
                 OurNewOrigin.z = OurNewOrigin.z + AddHeight - SubHeight + (ClearingBB.Min.z - Dimensions.Min.z/*1628.8*/) + 0.123456789/*Epsilon (sonst Ruckeln am Anfang!)*/;
 
                 // Old, deprecated code (can get us stuck in non-level ground).
@@ -874,6 +892,7 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                     SetActiveWeaponSlot(0);
                     SetActiveWeaponSequNr(0);
                     SetActiveWeaponFrameNr(0.0f);
+                    m_HeadSway.Set(0.0f);
 
                     IntrusivePtrT<ComponentCollisionModelT> CompCollMdl = dynamic_pointer_cast<ComponentCollisionModelT>(GetEntity()->GetComponent("CollisionModel"));
 
