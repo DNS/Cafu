@@ -67,7 +67,7 @@ namespace cf
             /// Another convenience method for use by the `CarriedWeaponT` method implementations:
             /// It traces a ray in the given direction and that originates at the player origin
             /// through the world.
-            RayResultT TracePlayerRay(const Vector3dT& Dir) const;
+            RayResultT TraceCameraRay(const Vector3dT& Dir) const;
 
             /// Another convenience method for use by the `CarriedWeaponT` method implementations.
             void InflictDamage(EntityT* OtherEnt, float Amount, const Vector3dT& Dir) const;

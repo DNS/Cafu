@@ -195,7 +195,7 @@ void CarriedWeaponShotgunT::ServerSide_Think(IntrusivePtrT<cf::GameSys::Componen
                     for (char i=0; i<8; i++)
                     {
                         const Vector3dT  ViewDir = HumanPlayer->GetCameraViewDirWS(0.08748866);   // ca. 5°
-                        const RayResultT RayResult(HumanPlayer->TracePlayerRay(ViewDir));
+                        const RayResultT RayResult(HumanPlayer->TraceCameraRay(ViewDir));
 
                         if (RayResult.hasHit() && RayResult.GetHitPhysicsComp())
                             HumanPlayer->InflictDamage(RayResult.GetHitPhysicsComp()->GetEntity(), 3.0f, ViewDir);
@@ -219,7 +219,7 @@ void CarriedWeaponShotgunT::ServerSide_Think(IntrusivePtrT<cf::GameSys::Componen
                     for (char i=0; i<16; i++)
                     {
                         const Vector3dT  ViewDir = HumanPlayer->GetCameraViewDirWS(0.08748866);   // ca. 5°
-                        const RayResultT RayResult(HumanPlayer->TracePlayerRay(ViewDir));
+                        const RayResultT RayResult(HumanPlayer->TraceCameraRay(ViewDir));
 
                         if (RayResult.hasHit() && RayResult.GetHitPhysicsComp()!=NULL)
                             HumanPlayer->InflictDamage(RayResult.GetHitPhysicsComp()->GetEntity(), 3.0f, ViewDir);
@@ -300,7 +300,7 @@ void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<cons
     for (char i=0; i<8; i++)
     {
         const Vector3dT  ViewDir = HumanPlayer->GetCameraViewDirWS(0.08748866);   // ca. 5°
-        const RayResultT RayResult(HumanPlayer->TracePlayerRay(ViewDir));
+        const RayResultT RayResult(HumanPlayer->TraceCameraRay(ViewDir));
 
         if (!RayResult.hasHit()) break;
 
@@ -372,7 +372,7 @@ void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(IntrusivePtrT<co
     for (char i=0; i<16; i++)
     {
         const Vector3dT  ViewDir = HumanPlayer->GetCameraViewDirWS(0.08748866);   // ca. 5°
-        const RayResultT RayResult(HumanPlayer->TracePlayerRay(ViewDir));
+        const RayResultT RayResult(HumanPlayer->TraceCameraRay(ViewDir));
 
         if (!RayResult.hasHit()) break;
 

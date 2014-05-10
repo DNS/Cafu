@@ -181,7 +181,7 @@ void CarriedWeapon9mmART::ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentH
                 {
                     // If we are on server-side, fire the first single shot, and find out what or who we hit.
                     const Vector3dT  ViewDir = HumanPlayer->GetCameraViewDirWS(0.03492);  // ca. 2°
-                    const RayResultT RayResult(HumanPlayer->TracePlayerRay(ViewDir));
+                    const RayResultT RayResult(HumanPlayer->TraceCameraRay(ViewDir));
 
                     if (RayResult.hasHit() && RayResult.GetHitPhysicsComp())
                         HumanPlayer->InflictDamage(RayResult.GetHitPhysicsComp()->GetEntity(), 1.0f, ViewDir);
@@ -325,7 +325,7 @@ void CarriedWeapon9mmART::ClientSide_HandleStateDrivenEffects(IntrusivePtrT<cons
         if (HumanPlayer->GetActiveWeaponFrameNr() == 0.0f)
         {
             const Vector3dT  ViewDir = HumanPlayer->GetCameraViewDirWS(0.03492);  // ca. 2°
-            const RayResultT RayResult(HumanPlayer->TracePlayerRay(ViewDir));
+            const RayResultT RayResult(HumanPlayer->TraceCameraRay(ViewDir));
 
             if (!RayResult.hasHit()) return;
 

@@ -82,7 +82,7 @@ void CarriedWeaponCrossBowT::ServerSide_Think(IntrusivePtrT<cf::GameSys::Compone
                 {
                     // If we are on the server-side, find out what or who we hit.
                     const Vector3dT  ViewDir = HumanPlayer->GetCameraViewDirWS();
-                    const RayResultT RayResult(HumanPlayer->TracePlayerRay(ViewDir));
+                    const RayResultT RayResult(HumanPlayer->TraceCameraRay(ViewDir));
 
                     if (RayResult.hasHit() && RayResult.GetHitPhysicsComp())
                         HumanPlayer->InflictDamage(RayResult.GetHitPhysicsComp()->GetEntity(), 20.0f, ViewDir);

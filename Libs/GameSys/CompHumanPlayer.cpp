@@ -296,7 +296,7 @@ Vector3dT ComponentHumanPlayerT::GetCameraViewDirWS(double Random) const
 }
 
 
-RayResultT ComponentHumanPlayerT::TracePlayerRay(const Vector3dT& Dir) const
+RayResultT ComponentHumanPlayerT::TraceCameraRay(const Vector3dT& Dir) const
 {
     if (!GetEntity())
         return RayResultT(NULL);
@@ -307,7 +307,7 @@ RayResultT ComponentHumanPlayerT::TracePlayerRay(const Vector3dT& Dir) const
     RayResultT RayResult(Physics != NULL ? Physics->GetRigidBody() : NULL);
 
     GetEntity()->GetWorld().GetPhysicsWorld()->TraceRay(
-        UnitsToPhys(GetEntity()->GetTransform()->GetOriginWS().AsVectorOfDouble()),
+        UnitsToPhys(GetCameraOriginWS()),
         Dir * 9999.0, RayResult);
 
     return RayResult;
