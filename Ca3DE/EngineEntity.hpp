@@ -116,9 +116,6 @@ class EngineEntityT
     // The 'OutgoingSequenceNr' is the sequence number of the packet in which the caller sends the 'PlayerCommand' to the server.
     void Predict(const PlayerCommandT& PlayerCommand, unsigned long OutgoingSequenceNr);
 
-    /// Draws this entity.
-    void Draw(bool FirstPersonView, const VectorT& ViewerPos) const;
-
     /// Calls the 'PostDraw()' function of this entity.
     void PostDraw(float FrameTime, bool FirstPersonView);
 

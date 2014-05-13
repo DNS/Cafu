@@ -600,10 +600,6 @@ void CaClientWorldT::DrawEntities(unsigned long OurEntityID, bool SkipOurEntity,
 
                 if (EntityID==OurEntityID && SkipOurEntity) continue;
 
-                m_EngineEntities[EntityID]->Draw(FirstPersonView, ViewerPos);
-
-
-
                 IntrusivePtrT<cf::GameSys::EntityT> Ent     = m_EngineEntities[EntityID]->GetEntity();
                 const cf::SceneGraph::BspTreeNodeT* BspTree = GetGameEnt(Ent)->GetStaticEntityData()->m_BspTree;
 

@@ -295,60 +295,6 @@ void EngineEntityT::Predict(const PlayerCommandT& PlayerCommand, unsigned long O
 }
 
 
-void EngineEntityT::Draw(bool FirstPersonView, const VectorT& ViewerPos) const
-{
-    MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
-    MatSys::Renderer->PushLightingParameters();
-
-    unsigned short Ent_Heading = 0;
-    //unsigned short Ent_Pitch;
-    //unsigned short Ent_Bank;
-
-    //Entity->GetBodyOrientation(Ent_Heading, Ent_Pitch, Ent_Bank);
-
-    // Get the currently set lighting parameters.
-    const float* PosL=MatSys::Renderer->GetCurrentLightSourcePosition();
-    VectorT      LightSourcePos   =VectorT(PosL[0], PosL[1], PosL[2]);
-    float        LightSourceRadius=MatSys::Renderer->GetCurrentLightSourceRadius();
-
-    const float* PosE=MatSys::Renderer->GetCurrentEyePosition();
-    VectorT      EyePos=VectorT(PosE[0], PosE[1], PosE[2]);
-
-    const Vector3dT EntOrigin = GetEntity()->GetTransform()->GetOriginWS().AsVectorOfDouble();
-
-    // Starting from world space, compute the position of the light source in model space.
-    LightSourcePos=LightSourcePos-EntOrigin;         // Convert into unrotated model space.
-    LightSourcePos=LightSourcePos.GetRotZ(-90.0+float(Ent_Heading)/8192.0*45.0);
-
-
-    // Do the same for the eye: Starting from world space, compute the position of the eye in model space.
-    EyePos=EyePos-EntOrigin;         // Convert into unrotated model space.
-    EyePos=EyePos.GetRotZ(-90.0+float(Ent_Heading)/8192.0*45.0);
-
-
-    // Set the modified (now in model space) lighting parameters.
-    MatSys::Renderer->SetCurrentLightSourcePosition(float(LightSourcePos.x), float(LightSourcePos.y), float(LightSourcePos.z));
-    MatSys::Renderer->SetCurrentLightSourceRadius(LightSourceRadius);
-    MatSys::Renderer->SetCurrentEyePosition(float(EyePos.x), float(EyePos.y), float(EyePos.z));
-
-
-    // Set the ambient light color for this entity.
-    // Paradoxically, this is not a global, but rather a per-entity value that is derived from the lightmaps that are close to that entity.
-    const Vector3fT AmbientEntityLight(1.0f, 0.0f, 1.0f);   //  = Entity->GetGameWorld()->GetAmbientLightColorFromBB(Entity->GetDimensions(), EntOrigin);
-    MatSys::Renderer->SetCurrentAmbientLightColor(AmbientEntityLight.x, AmbientEntityLight.y, AmbientEntityLight.z);
-
-
-    MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, float(EntOrigin.x), float(EntOrigin.y), float(EntOrigin.z));
-    MatSys::Renderer->RotateZ  (MatSys::RendererI::MODEL_TO_WORLD, 90.0f-float(Ent_Heading)/8192.0f*45.0f);
-
-    //Entity->Draw(FirstPersonView, (float)length(ViewerPos-EntOrigin));
-
-
-    MatSys::Renderer->PopLightingParameters();
-    MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
-}
-
-
 void EngineEntityT::PostDraw(float FrameTime, bool FirstPersonView)
 {
     if (!FirstPersonView)
