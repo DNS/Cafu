@@ -589,20 +589,19 @@ bool CaClientWorldT::GetLightSourceInfo(unsigned long EntityID, unsigned long& D
 
 void CaClientWorldT::DrawEntities(unsigned long OurEntityID, bool SkipOurEntity, const VectorT& ViewerPos, const ArrayT<unsigned long>& EntityIDs) const
 {
-    for (unsigned long IDNr=0; IDNr<EntityIDs.Size(); IDNr++)
+    for (unsigned long IDNr = 0; IDNr < EntityIDs.Size(); IDNr++)
     {
-        const unsigned long EntityID=EntityIDs[IDNr];
+        const unsigned long EntityID = EntityIDs[IDNr];
 
-        if (EntityID<m_EngineEntities.Size())
-            if (m_EngineEntities[EntityID]!=NULL)
+        if (EntityID < m_EngineEntities.Size())
+            if (m_EngineEntities[EntityID] != NULL)
             {
-                const bool FirstPersonView = (EntityID==OurEntityID);
-
-                if (EntityID==OurEntityID && SkipOurEntity) continue;
+                if (EntityID == OurEntityID && SkipOurEntity) continue;
 
                 IntrusivePtrT<cf::GameSys::EntityT> Ent     = m_EngineEntities[EntityID]->GetEntity();
                 const cf::SceneGraph::BspTreeNodeT* BspTree = GetGameEnt(Ent)->GetStaticEntityData()->m_BspTree;
 
+                assert(EntityID == Ent->GetID());
                 if (Ent->GetID() == 0) continue;    // Skip the world, it is handled as a special case in the caller code.
 
                 MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
@@ -651,6 +650,9 @@ void CaClientWorldT::DrawEntities(unsigned long OurEntityID, bool SkipOurEntity,
                                 break;
                         }
                     }
+
+                    const bool FirstPersonView = (EntityID == OurEntityID) ||
+                        (Ent->GetParent() != NULL && Ent->GetParent()->GetID() == OurEntityID);
 
                     Ent->RenderComponents(FirstPersonView,
                         length(ViewerPos.AsVectorOfFloat() - Ent->GetTransform()->GetOriginWS()));
