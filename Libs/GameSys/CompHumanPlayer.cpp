@@ -913,6 +913,31 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
         case StateOfExistence_FreeSpectator:
             break;
     }
+
+
+    // Update the child entity that holds our 1st-person weapon model.
+    IntrusivePtrT<ComponentModelT> Model1stPerson = dynamic_pointer_cast<ComponentModelT>(GetEntity()->GetChildren()[1]->GetComponent("Model"));
+
+    if (Model1stPerson != NULL)
+    {
+        IntrusivePtrT<const ComponentTransformT> CameraTrafo = GetEntity()->GetChildren()[0]->GetTransform();
+
+        Model1stPerson->GetEntity()->GetTransform()->SetQuatPS(CameraTrafo->GetQuatPS());
+
+        if (GetHaveWeapons() & (1 << GetActiveWeaponSlot()))
+        {
+            const CafuModelT* WeaponModel = GetCarriedWeapon(GetActiveWeaponSlot())->GetViewWeaponModel();
+
+            Model1stPerson->SetMember("Show", true);
+            Model1stPerson->SetMember("Name", WeaponModel->GetFileName());
+            Model1stPerson->SetMember("Animation", 0);
+        }
+        else
+        {
+            Model1stPerson->SetMember("Show", false);
+            Model1stPerson->SetMember("Name", std::string(""));
+        }
+    }
 }
 
 

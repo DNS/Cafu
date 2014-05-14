@@ -137,6 +137,26 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
         NewEnt->AddChild(CameraEnt);
     }
 
+    // Add another child entity for the 1st-person weapon models.
+    // Note that the 1st-person models are *not* attached to the camera's origin.
+    {
+        IntrusivePtrT<cf::GameSys::EntityT> FirstPersonEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
+
+        FirstPersonEnt->GetBasics()->SetEntityName("FirstPersonEnt");
+
+        // The offset of -0.5 relative to the camera origin gives the weapon a nice
+        // 'shifting' effect when the player looks up/down.
+        FirstPersonEnt->GetTransform()->SetOriginPS(Vector3fT(0.0f, 0.0f, 31.5f));
+
+        IntrusivePtrT<cf::GameSys::ComponentModelT> Model1stPersonComp = new cf::GameSys::ComponentModelT();
+     // Model1stPersonComp->SetMember("Name", ...);     // Initialized and updated by the HumanPlayer code.
+        Model1stPersonComp->SetMember("Show", false);
+        Model1stPersonComp->SetMember("Is1stPerson", true);
+        FirstPersonEnt->AddComponent(Model1stPersonComp);
+
+        NewEnt->AddChild(FirstPersonEnt);
+    }
+
     m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
 
     // As we're inserting a new entity into a live map, post-load stuff must be run here.
