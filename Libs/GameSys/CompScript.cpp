@@ -141,6 +141,8 @@ void ComponentScriptT::OnPostLoad(bool InEditor)
 
 void ComponentScriptT::DoSerialize(cf::Network::OutStreamT& Stream) const
 {
+    Stream << uint8_t(m_EventsCount.Size());
+
     for (unsigned int i = 0; i < m_EventsCount.Size(); i++)
         Stream << m_EventsCount[i];
 }
@@ -148,6 +150,30 @@ void ComponentScriptT::DoSerialize(cf::Network::OutStreamT& Stream) const
 
 void ComponentScriptT::DoDeserialize(cf::Network::InStreamT& Stream, bool IsIniting)
 {
+    uint8_t NUM_EVENT_TYPES = 0;
+    Stream >> NUM_EVENT_TYPES;
+
+    if (m_EventsCount.Size() != NUM_EVENT_TYPES)
+    {
+        // If this component was created in EntityT::Deserialize(), there is a chicken-and-egg situation:
+        // Only the deserialization (in ComponentBaseT::Deserialize()) can set our m_FileName and m_ScriptCode
+        // members so that we know which script code to load and run, but then we immediately get here before
+        // that can happen. Thus, InitEventTypes() has not yet been called and thus the m_EventsCount and
+        // m_EventsRef members not yet initialized.
+        // As we still have to cope with the situation, we now have to initialize these members ourselves.
+        m_EventsCount.Overwrite();
+        m_EventsRef  .Overwrite();
+
+        m_EventsCount.PushBackEmptyExact(NUM_EVENT_TYPES);
+        m_EventsRef  .PushBackEmptyExact(NUM_EVENT_TYPES);
+
+        for (unsigned int i = 0; i < NUM_EVENT_TYPES; i++)
+        {
+            m_EventsCount[i] = 0;
+            m_EventsRef  [i] = 0;
+        }
+    }
+
     // Process events.
     // Note that events, as implemented here, are fully predictable:
     // they work well even in the presence of client prediction.
@@ -192,8 +218,16 @@ int ComponentScriptT::InitEventTypes(lua_State* LuaState)
     if (NUM_EVENT_TYPES < 1 || NUM_EVENT_TYPES > 8)    // If this is ever too less, simply increase it.
         luaL_argerror(LuaState, 2, "The number of event types must be an integer in the range from 1 to 8.");
 
+    if (Comp->m_EventsCount.Size() == NUM_EVENT_TYPES)
+        // On the client, DoDeserialize() may have had to initialize the event types in the same deserialization
+        // step that set the m_FileName and m_ScriptCode, because it had no chance to load and run the script
+        // code at this time, but still had to read the event data.
+        // Therefore, when we get here because the script code is eventually load and run, and "retroactively"
+        // attempts to do the same, just ignore the occurrence.
+        return 0;
+
     if (Comp->m_EventsCount.Size() > 0)
-        luaL_argerror(LuaState, 2, "The event counters have already been set (SetEventTypes() can only be called once).");
+        luaL_argerror(LuaState, 2, "The event counters have already been set (InitEventTypes() can only be called once).");
 
     Comp->m_EventsCount.PushBackEmptyExact(NUM_EVENT_TYPES);
     Comp->m_EventsRef  .PushBackEmptyExact(NUM_EVENT_TYPES);
