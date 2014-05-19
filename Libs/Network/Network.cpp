@@ -298,9 +298,9 @@ NetAddressT NetDataT::Receive(SOCKET Socket) /*throw (WinSockAPIError)*/
 /*** Game Network Protocol 1 ***/
 /*******************************/
 
-const unsigned long GameProtocol1T::ACK_FLAG    =1 << 31;       // 0x80000000
-const unsigned long GameProtocol1T::ACK_MASK    =~ACK_FLAG;     // 0x7FFFFFFF
-const unsigned long GameProtocol1T::MAX_MSG_SIZE=1400;          // IPv6 compliant
+const unsigned long GameProtocol1T::ACK_FLAG     = 1 << 31;     // 0x80000000
+const unsigned long GameProtocol1T::ACK_MASK     = ~ACK_FLAG;   // 0x7FFFFFFF
+const unsigned long GameProtocol1T::MAX_MSG_SIZE = 8192;        // Also see boolean SkipEntity in CaServerWorldT::WriteClientDeltaUpdateMessages() that imposes another limit on packet size.
 
 GameProtocol1T::GameProtocol1T()
 {

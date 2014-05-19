@@ -394,7 +394,8 @@ void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID
         // It seems that the only reasonable solution is to omit update messages of "other" entities:
         // Better risk not-updated fields of other entities, than getting stuck with the own entity!
         // In order to achieve this, the introduction of the 'SkipEntity' variable is the best solution I could think of.
-        const bool SkipEntity = OutData.Data.Size() > 1250 && NewEntityID != ClientEntityID;
+        // (Also see constant GameProtocol1T::MAX_MSG_SIZE that defines the maximum package size.)
+        const bool SkipEntity = OutData.Data.Size() > 4096 && NewEntityID != ClientEntityID;
 
         if (OldEntityID == NewEntityID)
         {
