@@ -100,11 +100,24 @@ end
 
 -- This method is called automatically when some other entity wants us to pick up some item.
 function PlayerScript:PickUpItem(ItemEnt, ItemType)
-    print("Player picked up item:", ItemType)
-
     -- The details of picking up items are implemented in the "HumanPlayer"
     -- component at this time, so forward all calls there.
     PlayerData:PickUpItem(ItemType)
+
+    -- Find the CarriedWeapon component that matches the picked up item,
+    -- then let it know that the item can be picked up.
+    for i = 0, 32 do
+        local cw = Entity:GetComponent("CarriedWeapon", i)
+
+        if not cw then break end
+
+        if cw:get("Label") == ItemType and cw.PickedUp then
+            print("Player picked up item:", ItemType)
+            return cw:PickedUp()
+        end
+    end
+
+    return false
 end
 
 

@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../EngineEntity.hpp"
 #include "ConsoleCommands/ConVar.hpp"
 #include "ConsoleCommands/Console.hpp"      // For cf::va().
+#include "GameSys/HumanPlayer/CompCarriedWeapon.hpp"
 #include "GameSys/CompCollisionModel.hpp"
 #include "GameSys/CompHumanPlayer.hpp"
 #include "GameSys/CompModel.hpp"
@@ -127,6 +128,168 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
     ScriptComp->SetMember("Name", std::string("Games/DeathMatch/Scripts/HumanPlayer.lua"));
     NewEnt->AddComponent(ScriptComp);
 
+    // Equip the player with components for all the weapons that he can possibly carry.
+    // (What's about the Glock17 model, btw.? It seems we have a model, but no code for it?)
+    {
+        IntrusivePtrT<cf::GameSys::ComponentCarriedWeaponT> CompCW = NULL;
+
+        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
+        CompCW->SetMember("Label",            std::string("BattleScythe"));
+        CompCW->SetMember("IsAvail",          false);
+        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_BattleScythe.lua"));
+        CompCW->SetMember("Model1stPerson",   std::string("Games/DeathMatch/Models/Weapons/BattleScythe/BattleScythe_v.cmdl"));
+        CompCW->SetMember("Model3rdPerson",   std::string("Games/DeathMatch/Models/Weapons/BattleScythe/BattleScythe_p.cmdl"));
+        CompCW->SetMember("AmmoPrimary",      uint16_t(0));
+        CompCW->SetMember("MaxAmmoPrimary",   uint16_t(0));
+        CompCW->SetMember("AmmoSecondary",    uint16_t(0));
+        CompCW->SetMember("MaxAmmoSecondary", uint16_t(0));
+        NewEnt->AddComponent(CompCW);
+
+        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
+        CompCW->SetMember("Label",            std::string("HornetGun"));
+        CompCW->SetMember("IsAvail",          false);
+        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_HornetGun.lua"));
+        CompCW->SetMember("Model1stPerson",   std::string(""));
+        CompCW->SetMember("Model3rdPerson",   std::string(""));
+        CompCW->SetMember("AmmoPrimary",      uint16_t(0));
+        CompCW->SetMember("MaxAmmoPrimary",   uint16_t(0));
+        CompCW->SetMember("AmmoSecondary",    uint16_t(0));
+        CompCW->SetMember("MaxAmmoSecondary", uint16_t(0));
+        NewEnt->AddComponent(CompCW);
+
+        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
+        CompCW->SetMember("Label",            std::string("Beretta"));
+        CompCW->SetMember("IsAvail",          false);
+        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_Beretta.lua"));
+        CompCW->SetMember("Model1stPerson",   std::string("Games/DeathMatch/Models/Weapons/Beretta/Beretta_v.cmdl"));
+        CompCW->SetMember("Model3rdPerson",   std::string("Games/DeathMatch/Models/Weapons/Beretta/Beretta_p.cmdl"));
+        CompCW->SetMember("AmmoPrimary",      uint16_t(0));
+        CompCW->SetMember("MaxAmmoPrimary",   uint16_t(17));
+        CompCW->SetMember("AmmoSecondary",    uint16_t(0));
+        CompCW->SetMember("MaxAmmoSecondary", uint16_t(0));
+        NewEnt->AddComponent(CompCW);
+
+        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
+        CompCW->SetMember("Label",            std::string("DesertEagle"));
+        CompCW->SetMember("IsAvail",          false);
+        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_DesertEagle.lua"));
+        CompCW->SetMember("Model1stPerson",   std::string("Games/DeathMatch/Models/Weapons/DesertEagle/DesertEagle_v.cmdl"));
+        CompCW->SetMember("Model3rdPerson",   std::string("Games/DeathMatch/Models/Weapons/DesertEagle/DesertEagle_p.cmdl"));
+        CompCW->SetMember("AmmoPrimary",      uint16_t(0));
+        CompCW->SetMember("MaxAmmoPrimary",   uint16_t(6));
+        CompCW->SetMember("AmmoSecondary",    uint16_t(0));
+        CompCW->SetMember("MaxAmmoSecondary", uint16_t(0));
+        NewEnt->AddComponent(CompCW);
+
+        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
+        CompCW->SetMember("Label",            std::string("Shotgun"));
+        CompCW->SetMember("IsAvail",          false);
+        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_Shotgun.lua"));
+        CompCW->SetMember("Model1stPerson",   std::string("Games/DeathMatch/Models/Weapons/Shotgun/Shotgun_v.cmdl"));
+        CompCW->SetMember("Model3rdPerson",   std::string("Games/DeathMatch/Models/Weapons/Shotgun/Shotgun_p.cmdl"));
+        CompCW->SetMember("AmmoPrimary",      uint16_t(0));
+        CompCW->SetMember("MaxAmmoPrimary",   uint16_t(8));
+        CompCW->SetMember("AmmoSecondary",    uint16_t(0));
+        CompCW->SetMember("MaxAmmoSecondary", uint16_t(0));
+        NewEnt->AddComponent(CompCW);
+
+        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
+        CompCW->SetMember("Label",            std::string("9mmAR"));
+        CompCW->SetMember("IsAvail",          false);
+        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_9mmAR.lua"));
+        CompCW->SetMember("Model1stPerson",   std::string("Games/DeathMatch/Models/Weapons/9mmAR/9mmAR_v.cmdl"));
+        CompCW->SetMember("Model3rdPerson",   std::string("Games/DeathMatch/Models/Weapons/9mmAR/9mmAR_p.cmdl"));
+        CompCW->SetMember("AmmoPrimary",      uint16_t(0));
+        CompCW->SetMember("MaxAmmoPrimary",   uint16_t(25));
+        CompCW->SetMember("AmmoSecondary",    uint16_t(0));
+        CompCW->SetMember("MaxAmmoSecondary", uint16_t(2));
+        NewEnt->AddComponent(CompCW);
+
+        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
+        CompCW->SetMember("Label",            std::string("DartGun"));
+        CompCW->SetMember("IsAvail",          false);
+        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_DartGun.lua"));
+        CompCW->SetMember("Model1stPerson",   std::string("Games/DeathMatch/Models/Weapons/DartGun/DartGun_v.cmdl"));
+        CompCW->SetMember("Model3rdPerson",   std::string("Games/DeathMatch/Models/Weapons/DartGun/DartGun_p.cmdl"));
+        CompCW->SetMember("AmmoPrimary",      uint16_t(0));
+        CompCW->SetMember("MaxAmmoPrimary",   uint16_t(5));
+        CompCW->SetMember("AmmoSecondary",    uint16_t(0));
+        CompCW->SetMember("MaxAmmoSecondary", uint16_t(0));
+        NewEnt->AddComponent(CompCW);
+
+        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
+        CompCW->SetMember("Label",            std::string("Bazooka"));
+        CompCW->SetMember("IsAvail",          false);
+        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_Bazooka.lua"));
+        CompCW->SetMember("Model1stPerson",   std::string("Games/DeathMatch/Models/Weapons/Bazooka/Bazooka_v.cmdl"));
+        CompCW->SetMember("Model3rdPerson",   std::string("Games/DeathMatch/Models/Weapons/Bazooka/Bazooka_p.cmdl"));
+        CompCW->SetMember("AmmoPrimary",      uint16_t(0));
+        CompCW->SetMember("MaxAmmoPrimary",   uint16_t(1));
+        CompCW->SetMember("AmmoSecondary",    uint16_t(0));
+        CompCW->SetMember("MaxAmmoSecondary", uint16_t(0));
+        NewEnt->AddComponent(CompCW);
+
+        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
+        CompCW->SetMember("Label",            std::string("Gauss"));
+        CompCW->SetMember("IsAvail",          false);
+        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_Gauss.lua"));
+        CompCW->SetMember("Model1stPerson",   std::string("Games/DeathMatch/Models/Weapons/Gauss/Gauss_v.cmdl"));
+        CompCW->SetMember("Model3rdPerson",   std::string("Games/DeathMatch/Models/Weapons/Gauss/Gauss_p.cmdl"));
+        CompCW->SetMember("AmmoPrimary",      uint16_t(0));
+        CompCW->SetMember("MaxAmmoPrimary",   uint16_t(20));
+        CompCW->SetMember("AmmoSecondary",    uint16_t(0));
+        CompCW->SetMember("MaxAmmoSecondary", uint16_t(0));
+        NewEnt->AddComponent(CompCW);
+
+        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
+        CompCW->SetMember("Label",            std::string("Egon"));
+        CompCW->SetMember("IsAvail",          false);
+        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_Egon.lua"));
+        CompCW->SetMember("Model1stPerson",   std::string("Games/DeathMatch/Models/Weapons/Egon/Egon_v.cmdl"));
+        CompCW->SetMember("Model3rdPerson",   std::string("Games/DeathMatch/Models/Weapons/Egon/Egon_p.cmdl"));
+        CompCW->SetMember("AmmoPrimary",      uint16_t(0));
+        CompCW->SetMember("MaxAmmoPrimary",   uint16_t(20));
+        CompCW->SetMember("AmmoSecondary",    uint16_t(0));
+        CompCW->SetMember("MaxAmmoSecondary", uint16_t(0));
+        NewEnt->AddComponent(CompCW);
+
+        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
+        CompCW->SetMember("Label",            std::string("Grenade"));
+        CompCW->SetMember("IsAvail",          false);
+        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_Grenade.lua"));
+        CompCW->SetMember("Model1stPerson",   std::string("Games/DeathMatch/Models/Weapons/Grenade/Grenade_v.cmdl"));
+        CompCW->SetMember("Model3rdPerson",   std::string("Games/DeathMatch/Models/Weapons/Grenade/Grenade_p.cmdl"));
+        CompCW->SetMember("AmmoPrimary",      uint16_t(0));
+        CompCW->SetMember("MaxAmmoPrimary",   uint16_t(1));
+        CompCW->SetMember("AmmoSecondary",    uint16_t(0));
+        CompCW->SetMember("MaxAmmoSecondary", uint16_t(0));
+        NewEnt->AddComponent(CompCW);
+
+        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
+        CompCW->SetMember("Label",            std::string("Tripmine"));
+        CompCW->SetMember("IsAvail",          false);
+        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_Tripmine.lua"));
+        CompCW->SetMember("Model1stPerson",   std::string(""));
+        CompCW->SetMember("Model3rdPerson",   std::string(""));
+        CompCW->SetMember("AmmoPrimary",      uint16_t(0));
+        CompCW->SetMember("MaxAmmoPrimary",   uint16_t(1));
+        CompCW->SetMember("AmmoSecondary",    uint16_t(0));
+        CompCW->SetMember("MaxAmmoSecondary", uint16_t(0));
+        NewEnt->AddComponent(CompCW);
+
+        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
+        CompCW->SetMember("Label",            std::string("FaceHugger"));
+        CompCW->SetMember("IsAvail",          false);
+        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_FaceHugger.lua"));
+        CompCW->SetMember("Model1stPerson",   std::string("Games/DeathMatch/Models/Weapons/FaceHugger/FaceHugger_v.cmdl"));
+        CompCW->SetMember("Model3rdPerson",   std::string("Games/DeathMatch/Models/Weapons/FaceHugger/FaceHugger_p.cmdl"));
+        CompCW->SetMember("AmmoPrimary",      uint16_t(0));
+        CompCW->SetMember("MaxAmmoPrimary",   uint16_t(1));
+        CompCW->SetMember("AmmoSecondary",    uint16_t(0));
+        CompCW->SetMember("MaxAmmoSecondary", uint16_t(0));
+        NewEnt->AddComponent(CompCW);
+    }
+
     // Add a camera as a child entity of NewEnt.
     {
         IntrusivePtrT<cf::GameSys::EntityT> CameraEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
@@ -162,6 +325,17 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
     // As we're inserting a new entity into a live map, post-load stuff must be run here.
     ScriptComp->OnPostLoad(false);
     ScriptComp->CallLuaMethod("OnInit", 0);
+
+    for (unsigned int i = 0; i < 99; i++)
+    {
+        IntrusivePtrT<cf::GameSys::ComponentCarriedWeaponT> CompCW =
+            dynamic_pointer_cast<cf::GameSys::ComponentCarriedWeaponT>(NewEnt->GetComponent("CarriedWeapon", i));
+
+        if (CompCW == NULL) break;
+
+        CompCW->OnPostLoad(false);
+        CompCW->CallLuaMethod("OnInit", 0);
+    }
 
     return CreateNewEntityFromBasicInfo(GameEnt, m_ServerFrameNr + 1);
 }

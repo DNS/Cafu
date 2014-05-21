@@ -75,13 +75,13 @@ function Weapon:OnTrigger(Ent)
     s = string.gsub(s, "_w%.cmdl$", "")
     s = string.gsub(s, "%.cmdl$", "")
 
-    EntScript:PickUpItem(self, s)
-
-    -- And finally retire for a while, that is, deactivate this weapon for a few seconds.
-    -- While the weapon is deactivated, it is invisible and cannot be picked up.
-    self.TimeLeftNotActive = 5.0
-    self.Model:set("Show", false)
-    self:PostEvent(self.EVENT_TYPE_PICKED_UP)
+    if EntScript:PickUpItem(self, s) then
+        -- Finally retire for a while, that is, deactivate this weapon for a few seconds.
+        -- While the weapon is deactivated, it is invisible and cannot be picked up.
+        self.TimeLeftNotActive = 5.0
+        self.Model:set("Show", false)
+        self:PostEvent(self.EVENT_TYPE_PICKED_UP)
+    end
 end
 
 
