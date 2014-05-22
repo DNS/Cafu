@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/ConVar.hpp"
 #include "ConsoleCommands/Console.hpp"      // For cf::va().
 #include "GameSys/HumanPlayer/CompCarriedWeapon.hpp"
+#include "GameSys/HumanPlayer/CompInventory.hpp"
 #include "GameSys/CompCollisionModel.hpp"
 #include "GameSys/CompHumanPlayer.hpp"
 #include "GameSys/CompModel.hpp"
@@ -127,6 +128,10 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
     IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
     ScriptComp->SetMember("Name", std::string("Games/DeathMatch/Scripts/HumanPlayer.lua"));
     NewEnt->AddComponent(ScriptComp);
+
+    IntrusivePtrT<cf::GameSys::ComponentInventoryT> InvComp = new cf::GameSys::ComponentInventoryT();
+    InvComp->SetMember("MaxShells", uint16_t(125));
+    NewEnt->AddComponent(InvComp);
 
     // Equip the player with components for all the weapons that he can possibly carry.
     // (What's about the Glock17 model, btw.? It seems we have a model, but no code for it?)

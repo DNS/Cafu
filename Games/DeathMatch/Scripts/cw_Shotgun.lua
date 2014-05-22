@@ -1,12 +1,11 @@
-local Shotgun = ...  -- Retrieve the ComponentCarriedWeaponT instance that is responsible for this script.
+local Shotgun   = ...   -- Retrieve the ComponentCarriedWeaponT instance that is responsible for this script.
+local Entity    = Shotgun:GetEntity()
+local Inventory = Entity:GetComponent("Inventory")
 
 Console.Print("Shotgun script loaded.\n")
 
 
 function Shotgun:PickedUp()
-    Console.Print("The shotgun was picked up!\n")
-
---[[
     local InvShells = Inventory:get("Shells")
 
     if self:get("IsAvail") then
@@ -24,6 +23,9 @@ function Shotgun:PickedUp()
         InvShells = InvShells + 8
     end
 
-    Inventory:set("Shells", math.min(InvShells, Inventory:get("MaxShells")))    --]]
+    Inventory:set("Shells", math.min(InvShells, Inventory:get("MaxShells")))
+
+    -- Console.Print("primary Ammo: " .. self:get("AmmoPrimary") .. "\n")
+    -- Console.Print("inv shells:   " .. Inventory:get("Shells") .. "\n")
     return true
 end

@@ -112,8 +112,12 @@ function PlayerScript:PickUpItem(ItemEnt, ItemType)
         if not cw then break end
 
         if cw:get("Label") == ItemType and cw.PickedUp then
-            print("Player picked up item:", ItemType)
-            return cw:PickedUp()
+            if cw:PickedUp() then
+                print("Player picked up item:", ItemType)
+                return true
+            end
+
+            return false
         end
     end
 

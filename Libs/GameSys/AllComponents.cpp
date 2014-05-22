@@ -21,6 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "AllComponents.hpp"
 #include "HumanPlayer/CompCarriedWeapon.hpp"
+#include "HumanPlayer/CompInventory.hpp"
 #include "CompBase.hpp"
 #include "CompBasics.hpp"
 #include "CompCollisionModel.hpp"
@@ -106,6 +107,7 @@ namespace cf
             &ComponentCarriedWeaponT::TypeInfo,
             &ComponentCollisionModelT::TypeInfo,
             &ComponentHumanPlayerT::TypeInfo,
+            &ComponentInventoryT::TypeInfo,
             &ComponentLightT::TypeInfo,
             &ComponentModelT::TypeInfo,
             &ComponentParticleSystemOldT::TypeInfo,
