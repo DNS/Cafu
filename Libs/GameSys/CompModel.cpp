@@ -380,7 +380,6 @@ AnimPoseT* ComponentModelT::GetPose() const
     if (m_Model && !m_Pose)
     {
         IntrusivePtrT<AnimExprStandardT> StdAE = m_Model->GetAnimExprPool().GetStandard(m_ModelAnimNr.Get(), 0.0f);
-        StdAE->SetForceLoop(true);
 
         m_Pose = new AnimPoseT(*m_Model, StdAE);
     }
