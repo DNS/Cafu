@@ -654,21 +654,11 @@ void ComponentModelT::DoClientFrame(float t)
 {
     if (GetPose())
     {
-        IntrusivePtrT<AnimExpressionT>   AnimExpr = GetPose()->GetAnimExpr();
-        IntrusivePtrT<AnimExprStandardT> StdAE = dynamic_pointer_cast<AnimExprStandardT>(AnimExpr);
+        IntrusivePtrT<AnimExpressionT> AnimExpr = GetPose()->GetAnimExpr();
 
-        if (StdAE != NULL)
+        if (AnimExpr->AdvanceTime(t))
         {
-            const float OldFrameNr = StdAE->GetFrameNr();
-
-            AnimExpr->AdvanceTime(t);
-
-            if (StdAE->GetFrameNr() < OldFrameNr)
-                CallLuaMethod("OnSequenceWrap", 0);
-        }
-        else
-        {
-            AnimExpr->AdvanceTime(t);
+            CallLuaMethod("OnSequenceWrap", 0);
         }
     }
 

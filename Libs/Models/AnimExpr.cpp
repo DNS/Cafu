@@ -109,29 +109,35 @@ void AnimExprStandardT::GetData(unsigned int JointNr, float& Weight, Vector3fT& 
 }
 
 
-void AnimExprStandardT::AdvanceTime(float Time)
+bool AnimExprStandardT::AdvanceTime(float Time)
 {
-    const ArrayT<CafuModelT::AnimT>& Anims=GetModel().GetAnims();
+    const ArrayT<CafuModelT::AnimT>& Anims = GetModel().GetAnims();
 
-    if (m_SequNr<0 || m_SequNr>=int(Anims.Size())) { SetFrameNr(0.0f); return; }
-    if (Anims[m_SequNr].Frames.Size()<=1) { SetFrameNr(0.0f); return; }
+    if (m_SequNr < 0 || m_SequNr >= int(Anims.Size())) { SetFrameNr(0.0f); return false; }
+    if (Anims[m_SequNr].Frames.Size() <= 1) { SetFrameNr(0.0f); return false; }
 
-    const float NumFrames=float(Anims[m_SequNr].Frames.Size());
-    const int   Next     =m_ForceLoop ? m_SequNr : Anims[m_SequNr].Next;
-    float       FrameNr  =m_FrameNr + Time*Anims[m_SequNr].FPS;
+    const float NumFrames = float(Anims[m_SequNr].Frames.Size());
+    const int   Next      = m_ForceLoop ? m_SequNr : Anims[m_SequNr].Next;
+    float       FrameNr   = m_FrameNr + Time*Anims[m_SequNr].FPS;
+    bool        Wrapped   = false;
 
     if (Next < 0)
     {
         // This is a play-once (non-repeating) sequence, there is no "next" sequence.
         // Thus clamp the frame number to NumFrames-1.
-        if (FrameNr > NumFrames-1.0f) FrameNr=NumFrames-1.0f;
+        if (FrameNr >= NumFrames - 1.0f)
+        {
+            FrameNr = NumFrames - 1.0f;
+            if (m_FrameNr < FrameNr) Wrapped = true;
+        }
     }
     else
     {
         // There is a "next" sequence following this.
         if (FrameNr >= NumFrames)
         {
-            FrameNr-=NumFrames;
+            FrameNr -= NumFrames;
+            Wrapped = true;
 
             /* Calling SetSequNr(Next) below would technically be the right thing to do to
              * progress to the next sequence.
@@ -144,6 +150,7 @@ void AnimExprStandardT::AdvanceTime(float Time)
     }
 
     SetFrameNr(FrameNr);
+    return Wrapped;
 }
 
 
@@ -316,10 +323,12 @@ void AnimExprCombineT::GetData(unsigned int JointNr, float& Weight, Vector3fT& P
 }
 
 
-void AnimExprCombineT::AdvanceTime(float Time)
+bool AnimExprCombineT::AdvanceTime(float Time)
 {
-    m_A->AdvanceTime(Time);
-    m_B->AdvanceTime(Time);
+    const bool WrapA = m_A->AdvanceTime(Time);
+    const bool WrapB = m_B->AdvanceTime(Time);
+
+    return WrapA || WrapB;
 }
 
 
@@ -393,7 +402,7 @@ void AnimExprBlendT::GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos
 }
 
 
-void AnimExprBlendT::AdvanceTime(float Time)
+bool AnimExprBlendT::AdvanceTime(float Time)
 {
     // Advance the blend fraction.
     if (m_Duration < 0.001f)
@@ -418,7 +427,7 @@ void AnimExprBlendT::AdvanceTime(float Time)
         m_A=NULL;   // m_A is unused now that m_Frac >= 1.0.
     }
 
-    m_B->AdvanceTime(Time);
+    return m_B->AdvanceTime(Time);
 }
 
 

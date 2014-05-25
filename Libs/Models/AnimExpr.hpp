@@ -69,9 +69,11 @@ class AnimExpressionT
     ///   - the joints position, quaternion and scale values.
     virtual void GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const=0;
 
-    /// Advances the time for this anim expression,
-    /// i.e.\ frame numbers of the referenced animation sequences, cross-fades, etc.
-    virtual void AdvanceTime(float Time) { }
+    /// Advances the time for this anim expression, that is, frame numbers of
+    /// underlying animation sequences, cross-fades, etc.
+    /// Returns `true` if the end of an underlying animation sequence was reached
+    /// (or in case of a looping sequence, if the sequence was wrapped).
+    virtual bool AdvanceTime(float Time) { return false; }
 
     /// The virtual copy constructor.
     /// Creates a new anim expression that is an exact copy of this, even when called
@@ -114,7 +116,7 @@ class AnimExprStandardT : public AnimExpressionT
 
     // Implementations and overrides for base class methods.
     virtual void GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const;
-    virtual void AdvanceTime(float Time);
+    virtual bool AdvanceTime(float Time);
     virtual AnimExpressionPtrT Clone() const;   // Unfortunately, the proper covariant return type cannot be used with smart pointers.
     virtual bool IsEqual(const AnimExpressionPtrT& AE) const;
 
@@ -160,7 +162,7 @@ class AnimExprFilterT : public AnimExpressionT
 
     // Implementations and overrides for base class methods.
     virtual void GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const;
-    virtual void AdvanceTime(float Time) { m_SubExpr->AdvanceTime(Time); }
+    virtual bool AdvanceTime(float Time) { return m_SubExpr->AdvanceTime(Time); }
     virtual AnimExpressionPtrT Clone() const;   // Unfortunately, the proper covariant return type cannot be used with smart pointers.
     virtual bool IsEqual(const AnimExpressionPtrT& AE) const;
 
@@ -183,7 +185,7 @@ class AnimExprCombineT : public AnimExpressionT
 
     // Implementations and overrides for base class methods.
     virtual void GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const;
-    virtual void AdvanceTime(float Time);
+    virtual bool AdvanceTime(float Time);
     virtual AnimExpressionPtrT Clone() const;   // Unfortunately, the proper covariant return type cannot be used with smart pointers.
     virtual bool IsEqual(const AnimExpressionPtrT& AE) const;
 
@@ -206,7 +208,7 @@ class AnimExprBlendT : public AnimExpressionT
 
     // Implementations and overrides for base class methods.
     virtual void GetData(unsigned int JointNr, float& Weight, Vector3fT& Pos, cf::math::QuaternionfT& Quat, Vector3fT& Scale) const;
-    virtual void AdvanceTime(float Time);
+    virtual bool AdvanceTime(float Time);
     virtual AnimExpressionPtrT Clone() const;   // Unfortunately, the proper covariant return type cannot be used with smart pointers.
     virtual bool IsEqual(const AnimExpressionPtrT& AE) const;
 
