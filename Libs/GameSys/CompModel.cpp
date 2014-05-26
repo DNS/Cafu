@@ -637,10 +637,22 @@ void ComponentModelT::Render(bool FirstPersonView, float LodDist) const
 
 void ComponentModelT::DoServerFrame(float t)
 {
-    // Advance the time of anim expressions on the server-side, too, so that e.g. blending
-    // expressions can complete and eventually clean-up their subexpressions that become unused.
-    if (m_Pose)
-        m_Pose->GetAnimExpr()->AdvanceTime(t);
+    // Advance the time of anim expressions on the server-side, too, so that
+    //   - we get OnSequenceWrap() callbacks in the script code, and
+    //   - blending expressions (and similar) can complete and eventually clean-up
+    //     their subexpressions that become unused.
+    // Note that in the past, we used to test the bare m_Pose rather than GetPose() in the if-condition below,
+    // in the hope to get away with not instantiating the pose here, saving resources on the server.
+    // However, as our script code relies on calls to OnSequenceWrap(), this now seems hard to avoid.
+    if (GetPose())
+    {
+        IntrusivePtrT<AnimExpressionT> AnimExpr = GetPose()->GetAnimExpr();
+
+        if (AnimExpr->AdvanceTime(t))
+        {
+            CallLuaMethod("OnSequenceWrap_Sv", 0);
+        }
+    }
 
     // It is important that we advance the time on the server-side GUI, too, so that it can
     // for example work off the "pending interpolations" that the GUI scripts can create.
