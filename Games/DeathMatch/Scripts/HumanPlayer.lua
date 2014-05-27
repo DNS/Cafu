@@ -4,6 +4,7 @@ local PlayerData     = Entity:GetComponent("HumanPlayer")
 local Trafo          = Entity:GetTransform()
 local Model3rdPerson = Entity:GetComponent("Model")
 local PlPhysics      = Entity:GetComponent("PlayerPhysics")
+local Inventory      = Entity:GetComponent("Inventory")
 
 -- These constants for PlayerData:get("State") mirror those defined in CompHumanPlayer.cpp.
 local STATE_ALIVE            = 0
@@ -15,6 +16,18 @@ PlayerScript.EVENT_TYPE_PRIMARY_FIRE   = 1
 PlayerScript.EVENT_TYPE_SECONDARY_FIRE = 2
 
 PlayerScript:InitEventTypes(2)
+
+
+Inventory:set("MaxBullets9mm",   250)
+Inventory:set("MaxBullets357",    36)
+Inventory:set("MaxShells",       125)
+Inventory:set("MaxARGrenades",     4)
+Inventory:set("MaxHandGrenades",   7)
+Inventory:set("MaxTripmines",      5)
+Inventory:set("MaxRockets",        5)
+Inventory:set("MaxArrows",        30)
+Inventory:set("MaxCells",        200)
+Inventory:set("MaxFaceHuggers",    5)
 
 
 function PlayerScript:AddFrag(NumFrags)

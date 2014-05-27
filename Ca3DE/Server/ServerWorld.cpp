@@ -125,13 +125,13 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
     Model3rdPersonComp->SetMember("Name", std::string("Games/DeathMatch/Models/Players/") + ModelName + "/" + ModelName + ".cmdl");     // TODO... don't hardcode the path!
     NewEnt->AddComponent(Model3rdPersonComp);
 
+    IntrusivePtrT<cf::GameSys::ComponentInventoryT> InvComp = new cf::GameSys::ComponentInventoryT();
+    // The inventory's maxima e.g. for bullets, shells, etc. are set in `HumanPlayer.lua`.
+    NewEnt->AddComponent(InvComp);
+
     IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
     ScriptComp->SetMember("Name", std::string("Games/DeathMatch/Scripts/HumanPlayer.lua"));
     NewEnt->AddComponent(ScriptComp);
-
-    IntrusivePtrT<cf::GameSys::ComponentInventoryT> InvComp = new cf::GameSys::ComponentInventoryT();
-    InvComp->SetMember("MaxShells", uint16_t(125));
-    NewEnt->AddComponent(InvComp);
 
     // Equip the player with components for all the weapons that he can possibly carry.
     // (What's about the Glock17 model, btw.? It seems we have a model, but no code for it?)

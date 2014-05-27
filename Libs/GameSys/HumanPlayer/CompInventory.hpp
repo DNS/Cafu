@@ -29,7 +29,11 @@ namespace cf
 {
     namespace GameSys
     {
-        /// This component represents the player's inventory.
+        /// This component keeps an inventory count for an arbitrary set of items.
+        /// An item can be anything that can be described with a string.
+        /// Contrary to other components, an inventory is flexible regarding the "kind" and number
+        /// of items that it keeps the counts for. However, it is focused on being used by script code;
+        /// it is not possible to inspect and edit the contained items in the Map Editor at this time.
         class ComponentInventoryT : public ComponentBaseT
         {
             public:
@@ -55,6 +59,10 @@ namespace cf
             protected:
 
             // The Lua API methods of this class.
+            static int Get(lua_State* LuaState);
+            static int Set(lua_State* LuaState);
+            static int Add(lua_State* LuaState);
+            static int CheckMax(lua_State* LuaState);
             static int toString(lua_State* LuaState);
 
             static const luaL_Reg               MethodsList[];  ///< The list of Lua methods for this class.
@@ -65,10 +73,10 @@ namespace cf
 
             private:
 
-            void FillMemberVars();  ///< A helper method for the constructors.
+            void DoSerialize(cf::Network::OutStreamT& Stream) const /*override*/;
+            void DoDeserialize(cf::Network::InStreamT& Stream, bool IsIniting) /*override*/;
 
-            TypeSys::VarT<uint16_t> m_Shells;           ///< The current amount of shells.
-            TypeSys::VarT<uint16_t> m_MaxShells;        ///< The maximum amount of shells.
+            std::map<std::string, uint16_t> m_Items;
         };
     }
 }
