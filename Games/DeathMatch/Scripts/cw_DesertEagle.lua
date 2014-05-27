@@ -12,15 +12,15 @@ function DesertEagle:PickedUp()
             return false
         end
 
-        Inventory:Add("Bullets357", 2 * self:get("MaxAmmoPrimary"))
+        Inventory:Add("Bullets357", 2 * self:get("MaxPrimaryAmmo"))
     else
         self:set("IsAvail", true)
-        self:set("AmmoPrimary", self:get("MaxAmmoPrimary"))
+        self:set("PrimaryAmmo", self:get("MaxPrimaryAmmo"))
 
-        Inventory:Add("Bullets357", self:get("MaxAmmoPrimary"))
+        Inventory:Add("Bullets357", self:get("MaxPrimaryAmmo"))
     end
 
-    -- Console.Print("primary Ammo: " .. self:get("AmmoPrimary") .. "\n")
+    -- Console.Print("primary Ammo: " .. self:get("PrimaryAmmo") .. "\n")
     -- Console.Print("inv Bullets357:   " .. Inventory:get("Bullets357") .. "\n")
     return true
 end

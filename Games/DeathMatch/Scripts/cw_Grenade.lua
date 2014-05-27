@@ -15,12 +15,12 @@ function Grenade:PickedUp()
         Inventory:Add("HandGrenades", 1)
     else
         self:set("IsAvail", true)
-        self:set("AmmoPrimary", self:get("MaxAmmoPrimary"))
+        self:set("PrimaryAmmo", self:get("MaxPrimaryAmmo"))
 
         -- Inventory:Add("HandGrenades", 1)
     end
 
-    -- Console.Print("primary Ammo: " .. self:get("AmmoPrimary") .. "\n")
+    -- Console.Print("primary Ammo: " .. self:get("PrimaryAmmo") .. "\n")
     -- Console.Print("inv HandGrenades:   " .. Inventory:get("HandGrenades") .. "\n")
     return true
 end

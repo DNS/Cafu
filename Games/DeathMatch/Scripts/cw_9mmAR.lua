@@ -12,19 +12,19 @@ function AR:PickedUp()
             return false
         end
 
-        Inventory:Add("Bullets9mm", 2 * self:get("MaxAmmoPrimary"))
-        Inventory:Add("ARGrenades", 2 * self:get("MaxAmmoSecondary"))
+        Inventory:Add("Bullets9mm", 2 * self:get("MaxPrimaryAmmo"))
+        Inventory:Add("ARGrenades", 2 * self:get("MaxSecondaryAmmo"))
     else
         self:set("IsAvail", true)
-        self:set("AmmoPrimary",   self:get("MaxAmmoPrimary"))
-        self:set("AmmoSecondary", self:get("MaxAmmoSecondary"))
+        self:set("PrimaryAmmo",   self:get("MaxPrimaryAmmo"))
+        self:set("SecondaryAmmo", self:get("MaxSecondaryAmmo"))
 
-        Inventory:Add("Bullets9mm", self:get("MaxAmmoPrimary"))
-        Inventory:Add("ARGrenades", self:get("MaxAmmoSecondary"))
+        Inventory:Add("Bullets9mm", self:get("MaxPrimaryAmmo"))
+        Inventory:Add("ARGrenades", self:get("MaxSecondaryAmmo"))
     end
 
-    -- Console.Print("primary   ammo: " .. self:get("AmmoPrimary") .. "\n")
-    -- Console.Print("secondary ammo: " .. self:get("AmmoSecondary") .. "\n")
+    -- Console.Print("primary   ammo: " .. self:get("PrimaryAmmo") .. "\n")
+    -- Console.Print("secondary ammo: " .. self:get("SecondaryAmmo") .. "\n")
     -- Console.Print("inv Bullets9mm:   " .. Inventory:get("Bullets9mm") .. "\n")
     -- Console.Print("inv ARGrenades:   " .. Inventory:get("ARGrenades") .. "\n")
     return true

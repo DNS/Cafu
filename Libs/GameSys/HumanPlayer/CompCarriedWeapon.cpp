@@ -58,10 +58,10 @@ const cf::TypeSys::VarsDocT ComponentCarriedWeaponT::DocVars[] =
     { "Script",           "The filename of the script that implements the behaviour of this weapon." },
     { "Model1stPerson",   "The name of the 1st-person (\"view\") model of this weapon." },
     { "Model3rdPerson",   "The name of the 3rd-person (\"player\") model of this weapon." },
-    { "AmmoPrimary",      "The current amount of ammo for the primary fire of this weapon." },
-    { "MaxAmmoPrimary",   "The maximum amount of ammo for the primary fire of this weapon." },
-    { "AmmoSecondary",    "The current amount of ammo for the secondary fire of this weapon." },
-    { "MaxAmmoSecondary", "The maximum amount of ammo for the secondary fire of this weapon." },
+    { "PrimaryAmmo",      "The current amount of ammo for the primary fire of this weapon." },
+    { "MaxPrimaryAmmo",   "The maximum amount of ammo for the primary fire of this weapon." },
+    { "SecondaryAmmo",    "The current amount of ammo for the secondary fire of this weapon." },
+    { "MaxSecondaryAmmo", "The maximum amount of ammo for the secondary fire of this weapon." },
     { NULL, NULL }
 };
 
@@ -73,10 +73,10 @@ ComponentCarriedWeaponT::ComponentCarriedWeaponT()
       m_Script("Script", "", FlagsIsLuaFileName),
       m_Model1stPerson("Model1stPerson", "", FlagsIsModelFileName),
       m_Model3rdPerson("Model3rdPerson", "", FlagsIsModelFileName),
-      m_AmmoPrimary("AmmoPrimary", 0),
-      m_MaxAmmoPrimary("MaxAmmoPrimary", 0),
-      m_AmmoSecondary("AmmoSecondary", 0),
-      m_MaxAmmoSecondary("MaxAmmoSecondary", 0)
+      m_PrimaryAmmo("PrimaryAmmo", 0),
+      m_MaxPrimaryAmmo("MaxPrimaryAmmo", 0),
+      m_SecondaryAmmo("SecondaryAmmo", 0),
+      m_MaxSecondaryAmmo("MaxSecondaryAmmo", 0)
 {
     FillMemberVars();
 }
@@ -89,10 +89,10 @@ ComponentCarriedWeaponT::ComponentCarriedWeaponT(const ComponentCarriedWeaponT& 
       m_Script(Comp.m_Script),
       m_Model1stPerson(Comp.m_Model1stPerson),
       m_Model3rdPerson(Comp.m_Model3rdPerson),
-      m_AmmoPrimary(Comp.m_AmmoPrimary),
-      m_MaxAmmoPrimary(Comp.m_MaxAmmoPrimary),
-      m_AmmoSecondary(Comp.m_AmmoSecondary),
-      m_MaxAmmoSecondary(Comp.m_MaxAmmoSecondary)
+      m_PrimaryAmmo(Comp.m_PrimaryAmmo),
+      m_MaxPrimaryAmmo(Comp.m_MaxPrimaryAmmo),
+      m_SecondaryAmmo(Comp.m_SecondaryAmmo),
+      m_MaxSecondaryAmmo(Comp.m_MaxSecondaryAmmo)
 {
     FillMemberVars();
 }
@@ -105,10 +105,10 @@ void ComponentCarriedWeaponT::FillMemberVars()
     GetMemberVars().Add(&m_Script);
     GetMemberVars().Add(&m_Model1stPerson);
     GetMemberVars().Add(&m_Model3rdPerson);
-    GetMemberVars().Add(&m_AmmoPrimary);
-    GetMemberVars().Add(&m_MaxAmmoPrimary);
-    GetMemberVars().Add(&m_AmmoSecondary);
-    GetMemberVars().Add(&m_MaxAmmoSecondary);
+    GetMemberVars().Add(&m_PrimaryAmmo);
+    GetMemberVars().Add(&m_MaxPrimaryAmmo);
+    GetMemberVars().Add(&m_SecondaryAmmo);
+    GetMemberVars().Add(&m_MaxSecondaryAmmo);
 }
 
 

@@ -15,12 +15,12 @@ function FaceHugger:PickedUp()
         Inventory:Add("FaceHuggers", 1)
     else
         self:set("IsAvail", true)
-        self:set("AmmoPrimary", self:get("MaxAmmoPrimary"))
+        self:set("PrimaryAmmo", self:get("MaxPrimaryAmmo"))
 
         -- Inventory:Add("FaceHuggers", 1)
     end
 
-    -- Console.Print("primary Ammo: " .. self:get("AmmoPrimary") .. "\n")
+    -- Console.Print("primary Ammo: " .. self:get("PrimaryAmmo") .. "\n")
     -- Console.Print("inv FaceHuggers:   " .. Inventory:get("FaceHuggers") .. "\n")
     return true
 end

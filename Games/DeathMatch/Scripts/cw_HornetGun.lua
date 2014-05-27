@@ -9,9 +9,9 @@ function HornetGun:PickedUp()
         return false
     else
         self:set("IsAvail", true)
-        self:set("AmmoPrimary", self:get("MaxAmmoPrimary"))
+        self:set("PrimaryAmmo", self:get("MaxPrimaryAmmo"))
     end
 
-    -- Console.Print("primary Ammo: " .. self:get("AmmoPrimary") .. "\n")
+    -- Console.Print("primary Ammo: " .. self:get("PrimaryAmmo") .. "\n")
     return true
 end

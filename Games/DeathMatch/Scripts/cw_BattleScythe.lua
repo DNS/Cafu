@@ -9,9 +9,9 @@ function BattleScythe:PickedUp()
         return false
     else
         self:set("IsAvail", true)
-        self:set("AmmoPrimary", self:get("MaxAmmoPrimary"))   -- This is actually 0.
+        self:set("PrimaryAmmo", self:get("MaxPrimaryAmmo"))   -- This is actually 0.
     end
 
-    -- Console.Print("primary Ammo: " .. self:get("AmmoPrimary") .. "\n")
+    -- Console.Print("primary Ammo: " .. self:get("PrimaryAmmo") .. "\n")
     return true
 end

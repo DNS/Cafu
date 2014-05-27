@@ -16,12 +16,12 @@ function Shotgun:PickedUp()
         Inventory:Add("Shells", 16)
     else
         self:set("IsAvail", true)
-        self:set("AmmoPrimary", self:get("MaxAmmoPrimary"))
+        self:set("PrimaryAmmo", self:get("MaxPrimaryAmmo"))
 
         Inventory:Add("Shells", 8)
     end
 
-    -- Console.Print("primary Ammo: " .. self:get("AmmoPrimary") .. "\n")
+    -- Console.Print("primary Ammo: " .. self:get("PrimaryAmmo") .. "\n")
     -- Console.Print("inv shells:   " .. Inventory:get("Shells") .. "\n")
     return true
 end

@@ -73,10 +73,10 @@ namespace cf
             TypeSys::VarT<std::string> m_Script;            ///< The filename of the script that implements the behaviour of this weapon.
             TypeSys::VarT<std::string> m_Model1stPerson;    ///< The name of the 1st-person ("view") model of this weapon.
             TypeSys::VarT<std::string> m_Model3rdPerson;    ///< The name of the 3rd-person ("player") model of this weapon.
-            TypeSys::VarT<uint16_t>    m_AmmoPrimary;       ///< The current amount of ammo for the primary fire of this weapon.
-            TypeSys::VarT<uint16_t>    m_MaxAmmoPrimary;    ///< The maximum amount of ammo for the primary fire of this weapon.
-            TypeSys::VarT<uint16_t>    m_AmmoSecondary;     ///< The current amount of ammo for the secondary fire of this weapon.
-            TypeSys::VarT<uint16_t>    m_MaxAmmoSecondary;  ///< The maximum amount of ammo for the secondary fire of this weapon.
+            TypeSys::VarT<uint16_t>    m_PrimaryAmmo;       ///< The current amount of ammo for the primary fire of this weapon.
+            TypeSys::VarT<uint16_t>    m_MaxPrimaryAmmo;    ///< The maximum amount of ammo for the primary fire of this weapon.
+            TypeSys::VarT<uint16_t>    m_SecondaryAmmo;     ///< The current amount of ammo for the secondary fire of this weapon.
+            TypeSys::VarT<uint16_t>    m_MaxSecondaryAmmo;  ///< The maximum amount of ammo for the secondary fire of this weapon.
         };
     }
 }

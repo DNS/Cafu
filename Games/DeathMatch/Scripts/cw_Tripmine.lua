@@ -15,12 +15,12 @@ function Tripmine:PickedUp()
         Inventory:Add("Tripmines", 1)
     else
         self:set("IsAvail", true)
-        self:set("AmmoPrimary", self:get("MaxAmmoPrimary"))
+        self:set("PrimaryAmmo", self:get("MaxPrimaryAmmo"))
 
         -- Inventory:Add("Tripmines", 1)
     end
 
-    -- Console.Print("primary Ammo: " .. self:get("AmmoPrimary") .. "\n")
+    -- Console.Print("primary Ammo: " .. self:get("PrimaryAmmo") .. "\n")
     -- Console.Print("inv Tripmines:   " .. Inventory:get("Tripmines") .. "\n")
     return true
 end

@@ -12,15 +12,15 @@ function DartGun:PickedUp()
             return false
         end
 
-        Inventory:Add("Arrows", 2 * self:get("MaxAmmoPrimary"))
+        Inventory:Add("Arrows", 2 * self:get("MaxPrimaryAmmo"))
     else
         self:set("IsAvail", true)
-        self:set("AmmoPrimary", self:get("MaxAmmoPrimary"))
+        self:set("PrimaryAmmo", self:get("MaxPrimaryAmmo"))
 
-        Inventory:Add("Arrows", self:get("MaxAmmoPrimary"))
+        Inventory:Add("Arrows", self:get("MaxPrimaryAmmo"))
     end
 
-    -- Console.Print("primary Ammo: " .. self:get("AmmoPrimary") .. "\n")
+    -- Console.Print("primary Ammo: " .. self:get("PrimaryAmmo") .. "\n")
     -- Console.Print("inv Arrows:   " .. Inventory:get("Arrows") .. "\n")
     return true
 end
