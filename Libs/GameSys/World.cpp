@@ -209,7 +209,6 @@ WorldT::WorldT(cf::UniScriptStateT& ScriptState, ModelManagerT& ModelMan, cf::Gu
       m_PhysicsWorld(PhysicsWorld)
 {
     m_CarriedWeapons.PushBack(new CarriedWeaponBattleScytheT(ModelMan));
-    m_CarriedWeapons.PushBack(new CarriedWeapon357T(ModelMan));     // The .357 acts as "dummy" implementation.
     m_CarriedWeapons.PushBack(new CarriedWeaponPistolT(ModelMan));
     m_CarriedWeapons.PushBack(new CarriedWeapon357T(ModelMan));
     m_CarriedWeapons.PushBack(new CarriedWeaponShotgunT(ModelMan));
@@ -219,7 +218,6 @@ WorldT::WorldT(cf::UniScriptStateT& ScriptState, ModelManagerT& ModelMan, cf::Gu
     m_CarriedWeapons.PushBack(new CarriedWeaponGaussT(ModelMan));
     m_CarriedWeapons.PushBack(new CarriedWeaponEgonT(ModelMan));
     m_CarriedWeapons.PushBack(new CarriedWeaponGrenadeT(ModelMan));
-    m_CarriedWeapons.PushBack(new CarriedWeapon357T(ModelMan));     // The .357 acts as "dummy" implementation.
     m_CarriedWeapons.PushBack(new CarriedWeaponFaceHuggerT(ModelMan));
 }
 

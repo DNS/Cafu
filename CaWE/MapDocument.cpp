@@ -1158,7 +1158,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             const char*    mn = "";
 
                  if (cn == "battlescythe") mn = "Games/DeathMatch/Models/Weapons/BattleScythe/BattleScythe_w.cmdl";
-            else if (cn == "hornetgun"   ) mn = "Games/DeathMatch/Models/Weapons/HornetGun/HornetGun_w.cmdl";
+            else if (cn == "hornetgun"   ) mn = "Games/DeathMatch/Models/Weapons/BattleScythe/BattleScythe_w.cmdl"; // For b-w compatibility, as our DeathMatch implementation at this time doesn't support Hornet Guns.
             else if (cn == "9mmhandgun"  ) mn = "Games/DeathMatch/Models/Weapons/Beretta/Beretta_w.cmdl";
             else if (cn == "357handgun"  ) mn = "Games/DeathMatch/Models/Weapons/DesertEagle/DesertEagle_w.cmdl";
             else if (cn == "9mmAR"       ) mn = "Games/DeathMatch/Models/Weapons/9mmAR/9mmAR_w.cmdl";
@@ -1168,7 +1168,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             else if (cn == "gauss"       ) mn = "Games/DeathMatch/Models/Weapons/Gauss/Gauss_w.cmdl";
             else if (cn == "egon"        ) mn = "Games/DeathMatch/Models/Weapons/Egon/Egon_w.cmdl";
             else if (cn == "handgrenade" ) mn = "Games/DeathMatch/Models/Weapons/Grenade/Grenade_w.cmdl";
-            else if (cn == "tripmine"    ) mn = "Games/DeathMatch/Models/Weapons/Tripmine/Tripmine_w.cmdl";
+            else if (cn == "tripmine"    ) mn = "Games/DeathMatch/Models/Weapons/Grenade/Grenade_w.cmdl";           // For b-w compatibility, as our DeathMatch implementation at this time doesn't support Tripmines.
             else if (cn == "facehugger"  ) mn = "Games/DeathMatch/Models/Weapons/FaceHugger/FaceHugger_w.cmdl";
 
             ModelComp->SetMember("Name", std::string(mn));

@@ -151,18 +151,6 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
         NewEnt->AddComponent(CompCW);
 
         CompCW = new cf::GameSys::ComponentCarriedWeaponT();
-        CompCW->SetMember("Label",            std::string("HornetGun"));
-        CompCW->SetMember("IsAvail",          false);
-        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_HornetGun.lua"));
-        CompCW->SetMember("Model1stPerson",   std::string(""));
-        CompCW->SetMember("Model3rdPerson",   std::string(""));
-        CompCW->SetMember("PrimaryAmmo",      uint16_t(0));
-        CompCW->SetMember("MaxPrimaryAmmo",   uint16_t(5));
-        CompCW->SetMember("SecondaryAmmo",    uint16_t(0));
-        CompCW->SetMember("MaxSecondaryAmmo", uint16_t(0));
-        NewEnt->AddComponent(CompCW);
-
-        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
         CompCW->SetMember("Label",            std::string("Beretta"));
         CompCW->SetMember("IsAvail",          false);
         CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_Beretta.lua"));
@@ -264,18 +252,6 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
         CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_Grenade.lua"));
         CompCW->SetMember("Model1stPerson",   std::string("Games/DeathMatch/Models/Weapons/Grenade/Grenade_v.cmdl"));
         CompCW->SetMember("Model3rdPerson",   std::string("Games/DeathMatch/Models/Weapons/Grenade/Grenade_p.cmdl"));
-        CompCW->SetMember("PrimaryAmmo",      uint16_t(0));
-        CompCW->SetMember("MaxPrimaryAmmo",   uint16_t(1));
-        CompCW->SetMember("SecondaryAmmo",    uint16_t(0));
-        CompCW->SetMember("MaxSecondaryAmmo", uint16_t(0));
-        NewEnt->AddComponent(CompCW);
-
-        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
-        CompCW->SetMember("Label",            std::string("Tripmine"));
-        CompCW->SetMember("IsAvail",          false);
-        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_Tripmine.lua"));
-        CompCW->SetMember("Model1stPerson",   std::string(""));
-        CompCW->SetMember("Model3rdPerson",   std::string(""));
         CompCW->SetMember("PrimaryAmmo",      uint16_t(0));
         CompCW->SetMember("MaxPrimaryAmmo",   uint16_t(1));
         CompCW->SetMember("SecondaryAmmo",    uint16_t(0));

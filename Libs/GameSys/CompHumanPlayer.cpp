@@ -634,7 +634,7 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                 case 0: break;  // No weapon slot was selected for changing the weapon.
 
                 case 1: if (GetHaveWeapons() & (1 << WEAPON_SLOT_BATTLESCYTHE)) SelectableWeapons.PushBack(WEAPON_SLOT_BATTLESCYTHE);
-                        if (GetHaveWeapons() & (1 << WEAPON_SLOT_HORNETGUN   )) SelectableWeapons.PushBack(WEAPON_SLOT_HORNETGUN   );
+                    //  if (GetHaveWeapons() & (1 << WEAPON_SLOT_HORNETGUN   )) SelectableWeapons.PushBack(WEAPON_SLOT_HORNETGUN   );
                         break;
 
                 case 2: if ((GetHaveWeapons() & (1 << WEAPON_SLOT_PISTOL)) && (GetHaveAmmoInWeapons()[WEAPON_SLOT_PISTOL] || GetHaveAmmo()[AMMO_SLOT_9MM])) SelectableWeapons.PushBack(WEAPON_SLOT_PISTOL);
@@ -652,7 +652,7 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                         break;
 
                 case 5: if ((GetHaveWeapons() & (1 << WEAPON_SLOT_GRENADE   )) && GetHaveAmmoInWeapons()[WEAPON_SLOT_GRENADE   ]) SelectableWeapons.PushBack(WEAPON_SLOT_GRENADE   );
-                        if ((GetHaveWeapons() & (1 << WEAPON_SLOT_TRIPMINE  )) && GetHaveAmmoInWeapons()[WEAPON_SLOT_TRIPMINE  ]) SelectableWeapons.PushBack(WEAPON_SLOT_TRIPMINE  );
+                     // if ((GetHaveWeapons() & (1 << WEAPON_SLOT_TRIPMINE  )) && GetHaveAmmoInWeapons()[WEAPON_SLOT_TRIPMINE  ]) SelectableWeapons.PushBack(WEAPON_SLOT_TRIPMINE  );
                         if ((GetHaveWeapons() & (1 << WEAPON_SLOT_FACEHUGGER)) && GetHaveAmmoInWeapons()[WEAPON_SLOT_FACEHUGGER]) SelectableWeapons.PushBack(WEAPON_SLOT_FACEHUGGER);
                         break;
 
@@ -677,7 +677,6 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                     switch (GetActiveWeaponSlot())
                     {
                         case WEAPON_SLOT_BATTLESCYTHE: DrawSequNr=1; break;
-                        case WEAPON_SLOT_HORNETGUN   : DrawSequNr=0; break;
                         case WEAPON_SLOT_PISTOL      : DrawSequNr=7; break;
                         case WEAPON_SLOT_357         : DrawSequNr=5; break;
                         case WEAPON_SLOT_SHOTGUN     : DrawSequNr=6; break;
@@ -687,7 +686,6 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                         case WEAPON_SLOT_GAUSS       : DrawSequNr=8; break;
                         case WEAPON_SLOT_EGON        : DrawSequNr=9; break;
                         case WEAPON_SLOT_GRENADE     : DrawSequNr=7; break;
-                        case WEAPON_SLOT_TRIPMINE    : DrawSequNr=0; break;
                         case WEAPON_SLOT_FACEHUGGER  : DrawSequNr=4; break;
                     }
 
@@ -707,7 +705,6 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                     switch (GetActiveWeaponSlot())
                     {
                         case WEAPON_SLOT_BATTLESCYTHE: DrawSequNr=1; break;
-                        case WEAPON_SLOT_HORNETGUN   : DrawSequNr=0; break;
                         case WEAPON_SLOT_PISTOL      : DrawSequNr=7; break;
                         case WEAPON_SLOT_357         : DrawSequNr=5; break;
                         case WEAPON_SLOT_SHOTGUN     : DrawSequNr=6; break;
@@ -717,7 +714,6 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                         case WEAPON_SLOT_GAUSS       : DrawSequNr=8; break;
                         case WEAPON_SLOT_EGON        : DrawSequNr=9; break;
                         case WEAPON_SLOT_GRENADE     : DrawSequNr=7; break;
-                        case WEAPON_SLOT_TRIPMINE    : DrawSequNr=0; break;
                         case WEAPON_SLOT_FACEHUGGER  : DrawSequNr=4; break;
                     }
 
@@ -1137,7 +1133,6 @@ int ComponentHumanPlayerT::GetCrosshairInfo(lua_State* LuaState)
 
     switch (Comp->m_ActiveWeaponSlot.Get())
     {
-        case WEAPON_SLOT_HORNETGUN:
         case WEAPON_SLOT_PISTOL:
         case WEAPON_SLOT_CROSSBOW:
         case WEAPON_SLOT_357:
@@ -1201,7 +1196,7 @@ int ComponentHumanPlayerT::GetAmmoString(lua_State* LuaState)
         switch (Comp->m_ActiveWeaponSlot.Get())
         {
             case WEAPON_SLOT_BATTLESCYTHE:
-            case WEAPON_SLOT_HORNETGUN:
+         // case WEAPON_SLOT_HORNETGUN:
                 lua_pushstring(LuaState, "");
                 break;
 
@@ -1216,7 +1211,7 @@ int ComponentHumanPlayerT::GetAmmoString(lua_State* LuaState)
             case WEAPON_SLOT_FACEHUGGER:
             case WEAPON_SLOT_GRENADE:
             case WEAPON_SLOT_RPG:
-            case WEAPON_SLOT_TRIPMINE:
+         // case WEAPON_SLOT_TRIPMINE:
                 sprintf(PrintBuffer, "Ammo %2u",
                         Comp->m_HaveAmmoInWeapons[Comp->GetActiveWeaponSlot()]);
                 lua_pushstring(LuaState, PrintBuffer);
@@ -1300,7 +1295,6 @@ int ComponentHumanPlayerT::PickUpItem(lua_State* LuaState)
 
     // What's about the Glock17 model? It seems we have a model, but no code for it?
          if (ItemName == "BattleScythe") Comp->GetCarriedWeapon(WEAPON_SLOT_BATTLESCYTHE)->ServerSide_PickedUpByEntity(Comp);
-    else if (ItemName == "HornetGun"   ) Comp->GetCarriedWeapon(WEAPON_SLOT_HORNETGUN   )->ServerSide_PickedUpByEntity(Comp);
     else if (ItemName == "Beretta"     ) Comp->GetCarriedWeapon(WEAPON_SLOT_PISTOL      )->ServerSide_PickedUpByEntity(Comp);
     else if (ItemName == "DesertEagle" ) Comp->GetCarriedWeapon(WEAPON_SLOT_357         )->ServerSide_PickedUpByEntity(Comp);
     else if (ItemName == "Shotgun"     ) Comp->GetCarriedWeapon(WEAPON_SLOT_SHOTGUN     )->ServerSide_PickedUpByEntity(Comp);
@@ -1310,7 +1304,6 @@ int ComponentHumanPlayerT::PickUpItem(lua_State* LuaState)
     else if (ItemName == "Gauss"       ) Comp->GetCarriedWeapon(WEAPON_SLOT_GAUSS       )->ServerSide_PickedUpByEntity(Comp);
     else if (ItemName == "Egon"        ) Comp->GetCarriedWeapon(WEAPON_SLOT_EGON        )->ServerSide_PickedUpByEntity(Comp);
     else if (ItemName == "Grenade"     ) Comp->GetCarriedWeapon(WEAPON_SLOT_GRENADE     )->ServerSide_PickedUpByEntity(Comp);
-    else if (ItemName == "Tripmine"    ) Comp->GetCarriedWeapon(WEAPON_SLOT_TRIPMINE    )->ServerSide_PickedUpByEntity(Comp);
     else if (ItemName == "FaceHugger"  ) Comp->GetCarriedWeapon(WEAPON_SLOT_FACEHUGGER  )->ServerSide_PickedUpByEntity(Comp);
 
     else if (ItemName == "Ammo_DartGun"    ) Comp->GetHaveAmmo()[AMMO_SLOT_ARROWS] = std::min(Comp->GetHaveAmmo()[AMMO_SLOT_ARROWS] +  5,  30);
