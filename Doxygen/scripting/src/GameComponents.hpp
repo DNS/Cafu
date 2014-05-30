@@ -169,6 +169,75 @@ class ComponentBasicsT : public ComponentBaseT
 };
 
 
+/// This component represents a weapon that a player can pick up and use.
+///
+/// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
+/// must be used with the get() and set() methods at this time -- see get() and set() for details.
+///
+/// If you would like to create a new component of this type explicitly (those defined in the CaWE Map Editor are instantiated automatically), use WorldT::new():
+/// \code{.lua}
+///     local comp = world:new("ComponentCarriedWeaponT")
+/// \endcode
+///
+/// @nosubgrouping
+/// @cppName{cf,GameSys,ComponentCarriedWeaponT}
+class ComponentCarriedWeaponT : public ComponentBaseT
+{
+    public:
+
+
+    public:
+
+    /** @name Event Handlers (Callbacks)
+     *
+     * See the \ref eventhandlers overview page for additional information about the methods in this group.
+     *
+     * @{
+     */
+
+    /** @} */
+
+
+    public:
+
+    /// A short informational name for this weapon. Used for reference e.g. in the Map Editor, in log output, or in script code (therefore, changing it for existing weapons may require a review of the related script code).
+    /// @cppType{std::string}
+    string Label;
+
+    /// Is this weapon available to the player? Normally `false` when the player spawns. Switched to `true` when the player picks up the weapon for the first time, whereupon it can be selected and drawn.
+    /// @cppType{bool}
+    boolean IsAvail;
+
+    /// The filename of the script that implements the behaviour of this weapon.
+    /// @cppType{std::string}
+    string Script;
+
+    /// The name of the 1st-person ("view") model of this weapon.
+    /// @cppType{std::string}
+    string Model1stPerson;
+
+    /// The name of the 3rd-person ("player") model of this weapon.
+    /// @cppType{std::string}
+    string Model3rdPerson;
+
+    /// The current amount of ammo for the primary fire of this weapon.
+    /// @cppType{uint16_t}
+    number PrimaryAmmo;
+
+    /// The maximum amount of ammo for the primary fire of this weapon.
+    /// @cppType{uint16_t}
+    number MaxPrimaryAmmo;
+
+    /// The current amount of ammo for the secondary fire of this weapon.
+    /// @cppType{uint16_t}
+    number SecondaryAmmo;
+
+    /// The maximum amount of ammo for the secondary fire of this weapon.
+    /// @cppType{uint16_t}
+    number MaxSecondaryAmmo;
+};
+
+
 /// This component adds a collision model to its entity.
 ///
 /// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
@@ -310,6 +379,68 @@ class ComponentHumanPlayerT : public ComponentBaseT
     /// Entity can carry ammo in each of the 32 weapons. This is the amount of each.
     /// @cppType{ArrayT<uint8_t>}
     table HaveAmmoInWeapons;
+
+    /// The progress of one "head swaying" cycle in state FrozenSpectator.
+    /// @cppType{float}
+    number HeadSway;
+};
+
+
+/// This component keeps an inventory count for an arbitrary set of items.
+/// An item can be anything that can be described with a string.
+/// Contrary to other components, an inventory is flexible regarding the "kind" and number
+/// of items that it keeps the counts for. However, it is focused on being used by script code;
+/// it is not possible to inspect and edit the contained items in the Map Editor at this time.
+///
+/// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
+/// must be used with the get() and set() methods at this time -- see get() and set() for details.
+///
+/// If you would like to create a new component of this type explicitly (those defined in the CaWE Map Editor are instantiated automatically), use WorldT::new():
+/// \code{.lua}
+///     local comp = world:new("ComponentInventoryT")
+/// \endcode
+///
+/// @nosubgrouping
+/// @cppName{cf,GameSys,ComponentInventoryT}
+class ComponentInventoryT : public ComponentBaseT
+{
+    public:
+
+    /// Returns the inventory count for the specified item.
+    /// @param item_name   The name of the item to return the count for.
+    any get(string item_name);
+
+    /// Sets the inventory count for the specified item.
+    /// @param item_name    The name of the item to set the count for.
+    /// @param item_count   The new inventory count to set.
+    set(string item_name, number item_count);
+
+    /// Changes the inventory count of the specified item by the given amount.
+    /// The amount can be positive to increase the inventory count or negative to decrease it.
+    /// The resulting inventory count is clamped to the maximum for the item, if such a maximum is set.
+    /// It is also clamped to 0 (for negative amounts).
+    /// The function returns `true` if the resulting inventory count was clamped on either boundary,
+    /// or `false` if no clamping was applied.
+    /// @param item_name   The name of the item whose count is to be changed.
+    /// @param amount      The amount by which the inventory count is changed.
+    Add(string item_name, number amount);
+
+    /// Checks if the inventory count of the specified item is at the item's maximum.
+    /// Returns `true` if the inventory count of the specified item is equal to (or even exceeds) its defined maximum.
+    /// Returns `false` if no maximum is defined or if the inventory count is below the defined value.@param item_name   The name of the item to check the count for.
+    CheckMax(string item_name);
+
+
+    public:
+
+    /** @name Event Handlers (Callbacks)
+     *
+     * See the \ref eventhandlers overview page for additional information about the methods in this group.
+     *
+     * @{
+     */
+
+    /** @} */
 };
 
 
@@ -354,12 +485,6 @@ class ComponentModelT : public ComponentBaseT
 
     /// Returns the number of animation sequences in this model.
     number GetNumAnims();
-
-    /// Sets a new animation sequence for the pose of this model.
-    /// Optionally, there is a blending from the previous sequence over a given time.
-    /// Also optionally, the "force loop" flag for the new sequence can be set.
-    /// For example: `SetAnim(8, 3.0, true)`
-    SetAnim(number anim, number blend_time=0.0, boolean force_loop=false);
 
     /// Returns the number of skins in this model.
     number GetNumSkins();
