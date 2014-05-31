@@ -105,6 +105,27 @@ namespace cf
             /// A helper method (that does the actual work) for DoServerFrame() *and* the (re-)prediction in the client.
             void Think(const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide);
 
+            /// This method initiates the holstering of the currently active weapon and the subsequent drawing
+            /// of the given weapon.
+            ///
+            /// If the current weapon is unknown or not available to the player (e.g. because it has never been picked up),
+            /// or if it turns out that the weapon does not support holstering (e.g. because there is no holstering
+            /// sequence available), the holstering is skipped and the next weapon is drawn immediately.
+            /// If the current weapon is fine but is not idle at the time that this method is called (e.g. reloading
+            /// or firing), the call is *ignored*, that is, the weapon is *not* changed.
+            ///
+            /// @param NextWeaponNr   The index number into the CarriedWeapon components of this entity, starting at 0.
+            void SelectWeapon(uint8_t NextWeaponNr);
+
+            /// This method draws the next weapon as previously prepared by SelectWeapon().
+            ///
+            /// It is intended to be called at the end of the holstering sequence of the previous weapon, either
+            /// directly from SelectWeapon() when it found that holstering can entirely be skipped, or indirectly
+            /// when SelectWeapon() calls the previous weapon's `Holster()` callback, the end of the holster
+            /// sequence is detected in the `OnSequenceWrap_Sv()` script callback, and its implementation in turn
+            /// calls this method.
+            void SelectNextWeapon();
+
 
             // Base class overrides.
             ComponentHumanPlayerT* Clone() const;
@@ -128,6 +149,8 @@ namespace cf
             static int GetAmmoString(lua_State* LuaState);
             static int ProcessEvent(lua_State* LuaState);
             static int PickUpItem(lua_State* LuaState);
+            static int SelectWeapon(lua_State* LuaState);
+            static int SelectNextWeapon(lua_State* LuaState);
             static int toString(lua_State* LuaState);
 
             static const luaL_Reg               MethodsList[];  ///< The list of Lua methods for this class.
@@ -145,6 +168,8 @@ namespace cf
             TypeSys::VarT<uint8_t>       m_StateOfExistence;    ///< For the player's main state machine, e.g. "spectator, dead, alive, ...".
             TypeSys::VarT<uint8_t>       m_Health;              ///< Health.
             TypeSys::VarT<uint8_t>       m_Armor;               ///< Armor.
+            TypeSys::VarT<uint8_t>       m_ActiveWeaponNr;      ///< The index number into the CarriedWeapon components of this entity, starting at 0, indicating the currently active weapon. (The weapon must also be available (have been picked up) before the player can use it.)
+            TypeSys::VarT<uint8_t>       m_NextWeaponNr;        ///< The next weapon to be drawn by SelectNextWeapon(). Like m_ActiveWeaponNr, this is an index number into the CarriedWeapon components of this entity, starting at 0.
             TypeSys::VarT<unsigned int>  m_HaveItems;           ///< Bit field, entity can carry 32 different items.
             TypeSys::VarT<unsigned int>  m_HaveWeapons;         ///< Bit field, entity can carry 32 different weapons.
             TypeSys::VarT<uint8_t>       m_ActiveWeaponSlot;    ///< Index into m_HaveWeapons, m_HaveAmmoInWeapons, and for determining the weapon model index.

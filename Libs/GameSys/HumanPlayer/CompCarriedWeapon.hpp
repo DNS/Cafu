@@ -41,6 +41,13 @@ namespace cf
             /// @param Comp   The component to create a copy of.
             ComponentCarriedWeaponT(const ComponentCarriedWeaponT& Comp);
 
+            /// Returns whether this weapon is available to the player.
+            /// A weapon is usually available to the player only after it has been picked up in the world.
+            /// Alternatively, it is possible to configure the player prototype to spawn the player with the
+            /// weapon readily available.
+            /// Only weapons that are available can be selected and drawn.
+            bool IsAvail() const { return m_IsAvail.Get(); }
+
             // Base class overrides.
             ComponentCarriedWeaponT* Clone() const;
             const char* GetName() const { return "CarriedWeapon"; }
@@ -69,7 +76,7 @@ namespace cf
             void FillMemberVars();  ///< A helper method for the constructors.
 
             TypeSys::VarT<std::string> m_Label;             ///< A short informational name for this weapon. Used for reference e.g. in the Map Editor, in log output, or in script code.
-            TypeSys::VarT<bool>        m_IsAvail;           ///< Is this weapon available to the player? Normally `false` when the player spawns. Switched to `true` when the player picks up the weapon for the first time, whereupon it can be selected and drawn.
+            TypeSys::VarT<bool>        m_IsAvail;           ///< Is this weapon available to the player? A weapon is usually available to the player only after it has been picked up in the world. Alternatively, it is possible to configure the player prototype to spawn the player with the weapon readily available. Only weapons that are available can be selected and drawn.
             TypeSys::VarT<std::string> m_Script;            ///< The filename of the script that implements the behaviour of this weapon.
             TypeSys::VarT<std::string> m_Model1stPerson;    ///< The name of the 1st-person ("view") model of this weapon.
             TypeSys::VarT<std::string> m_Model3rdPerson;    ///< The name of the 3rd-person ("player") model of this weapon.

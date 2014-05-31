@@ -181,6 +181,8 @@ class ComponentBasicsT : public ComponentBaseT
 ///
 /// @nosubgrouping
 /// @cppName{cf,GameSys,ComponentCarriedWeaponT}
+///
+/// @see @ref CarriedWeaponsOverview
 class ComponentCarriedWeaponT : public ComponentBaseT
 {
     public:
@@ -194,6 +196,35 @@ class ComponentCarriedWeaponT : public ComponentBaseT
      *
      * @{
      */
+
+    /// This method returns whether the weapon is currently idle.
+    /// The implementation usually determines the idle state of the weapon by the animation sequence
+    /// that the related 1st-person weapon model is currently playing.
+    ///
+    /// @see @ref CarriedWeaponsOverview
+    bool IsIdle();
+
+    /// This method is reponsible for setting up the entity's 1st-person weapon model
+    /// for drawing this weapon. This possibly includes setting up the 1st-person weapon model's
+    /// ComponentModelT::OnSequenceWrap_Sv() callback, which must be implemented to "operate"
+    /// this weapon.
+    ///
+    /// @see @ref CarriedWeaponsOverview
+    Draw();
+
+    /// This method is reponsible for setting up the entity's 1st-person weapon model
+    /// for holstering this weapon. It must return `true` if successful, or `false` to indicate
+    /// that holstering is not possible, e.g. because a holstering sequence is not available.
+    ///
+    /// @see @ref CarriedWeaponsOverview
+    bool Holster();
+
+    /// This method is called when the player walks over an instance of this weapon in the world.
+    /// Its implementation is reponsible for picking up the weapon and for re-stocking the weapon
+    /// and the player's inventory with the related ammunition.
+    ///
+    /// @see @ref CarriedWeaponsOverview
+    bool PickedUp();
 
     /** @} */
 
@@ -321,6 +352,31 @@ class ComponentHumanPlayerT : public ComponentBaseT
     ///     `HumanPlayer.lua` calls the `PickUpItem()` method of the HumanPlayer component.
     PickUpItem(string ItemType);
 
+    /// This method initiates the holstering of the currently active weapon and the subsequent drawing
+    /// of the given weapon.
+    ///
+    /// If the current weapon is unknown or not available to the player (e.g. because it has never been picked up),
+    /// or if it turns out that the weapon does not support holstering (e.g. because there is no holstering
+    /// sequence available), the holstering is skipped and the next weapon is drawn immediately.
+    /// If the current weapon is fine but is not idle at the time that this method is called (e.g. reloading
+    /// or firing), the call is *ignored*, that is, the weapon is *not* changed.
+    ///
+    /// @param NextWeaponNr   The index number into the CarriedWeapon components of this entity, starting at 0.
+    ///
+    /// @see @ref CarriedWeaponsOverview
+    SelectWeapon(number NextWeaponNr);
+
+    /// This method draws the next weapon as previously prepared by SelectWeapon().
+    ///
+    /// It is intended to be called at the end of the holstering sequence of the previous weapon, either
+    /// directly from SelectWeapon() when it found that holstering can entirely be skipped, or indirectly
+    /// when SelectWeapon() calls the previous weapon's `Holster()` callback, the end of the holster
+    /// sequence is detected in the `OnSequenceWrap_Sv()` script callback, and its implementation in turn
+    /// calls this method.
+    ///
+    /// @see @ref CarriedWeaponsOverview
+    SelectNextWeapon();
+
 
     public:
 
@@ -351,6 +407,14 @@ class ComponentHumanPlayerT : public ComponentBaseT
     /// Armor.
     /// @cppType{uint8_t}
     number Armor;
+
+    /// The index number into the CarriedWeapon components of this entity, starting at 0, indicating the currently active weapon. (The weapon must also be available (have been picked up) before the player can use it.)
+    /// @cppType{uint8_t}
+    number ActiveWeaponNr;
+
+    /// The next weapon to be drawn by SelectNextWeapon(). Like ActiveWeaponNr, this is an index number into the CarriedWeapon components of this entity, starting at 0.
+    /// @cppType{uint8_t}
+    number NextWeaponNr;
 
     /// Bit field, entity can carry 32 different items.
     /// @cppType{unsigned int}

@@ -30,6 +30,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "EntityCreateParams.hpp"
 #include "World.hpp"
 
+#include "HumanPlayer/CompCarriedWeapon.hpp"
 #include "HumanPlayer/Constants_AmmoSlots.hpp"
 #include "HumanPlayer/Constants_WeaponSlots.hpp"
 #include "HumanPlayer/cw_357.hpp"
@@ -79,6 +80,8 @@ const cf::TypeSys::VarsDocT ComponentHumanPlayerT::DocVars[] =
     { "State",               "For the player's main state machine, e.g. spectator, dead, alive, ..." },
     { "Health",              "Health." },
     { "Armor",               "Armor." },
+    { "ActiveWeaponNr",      "The index number into the CarriedWeapon components of this entity, starting at 0, indicating the currently active weapon. (The weapon must also be available (have been picked up) before the player can use it.)" },
+    { "NextWeaponNr",        "The next weapon to be drawn by SelectNextWeapon(). Like ActiveWeaponNr, this is an index number into the CarriedWeapon components of this entity, starting at 0." },
     { "HaveItems",           "Bit field, entity can carry 32 different items." },
     { "HaveWeapons",         "Bit field, entity can carry 32 different weapons." },
     { "ActiveWeaponSlot",    "Index into m_HaveWeapons, m_HaveAmmoInWeapons, and for determining the weapon model index." },
@@ -97,6 +100,8 @@ ComponentHumanPlayerT::ComponentHumanPlayerT()
       m_StateOfExistence("State", 2 /*StateOfExistence_FrozenSpectator*/),
       m_Health("Health", 100),
       m_Armor("Armor", 0),
+      m_ActiveWeaponNr("ActiveWeaponNr", 0),
+      m_NextWeaponNr("NextWeaponNr", 0),
       m_HaveItems("HaveItems", 0),
       m_HaveWeapons("HaveWeapons", 0),
       m_ActiveWeaponSlot("ActiveWeaponSlot", 0),
@@ -118,6 +123,8 @@ ComponentHumanPlayerT::ComponentHumanPlayerT(const ComponentHumanPlayerT& Comp)
       m_StateOfExistence(Comp.m_StateOfExistence),
       m_Health(Comp.m_Health),
       m_Armor(Comp.m_Armor),
+      m_ActiveWeaponNr(Comp.m_ActiveWeaponNr),
+      m_NextWeaponNr(Comp.m_NextWeaponNr),
       m_HaveItems(Comp.m_HaveItems),
       m_HaveWeapons(Comp.m_HaveWeapons),
       m_ActiveWeaponSlot(Comp.m_ActiveWeaponSlot),
@@ -139,6 +146,8 @@ void ComponentHumanPlayerT::FillMemberVars()
     GetMemberVars().Add(&m_StateOfExistence);
     GetMemberVars().Add(&m_Health);
     GetMemberVars().Add(&m_Armor);
+    GetMemberVars().Add(&m_ActiveWeaponNr);
+    GetMemberVars().Add(&m_NextWeaponNr);
     GetMemberVars().Add(&m_HaveItems);
     GetMemberVars().Add(&m_HaveWeapons);
     GetMemberVars().Add(&m_ActiveWeaponSlot);
@@ -673,6 +682,7 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                     char DrawSequNr=0;
 
                     SetActiveWeaponSlot(SelectableWeapons[0]);
+                    SelectWeapon(SelectableWeapons[0]);
 
                     switch (GetActiveWeaponSlot())
                     {
@@ -701,6 +711,7 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                     char DrawSequNr=0;
 
                     SetActiveWeaponSlot(SelectableWeapons[(SWNr+1) % SelectableWeapons.Size()]);
+                    SelectWeapon(SelectableWeapons[(SWNr+1) % SelectableWeapons.Size()]);
 
                     switch (GetActiveWeaponSlot())
                     {
@@ -884,8 +895,10 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                     Model3rdPerson->SetMember("Animation", 0);
                     SetHealth(100);
                     SetArmor(0);
+                    m_ActiveWeaponNr.Set(0);
+                    m_NextWeaponNr.Set(0);
                     SetHaveItems(0);
-                    SetHaveWeapons(0);
+                    SetHaveWeapons(0);          // TODO: Iterate over the carried weapons, and reset their `IsAvail` flag to `false`?
                     SetActiveWeaponSlot(0);
                     SetActiveWeaponSequNr(0);
                     SetActiveWeaponFrameNr(0.0f);
@@ -911,29 +924,82 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
     }
 
 
-    // Update the child entity that holds our 1st-person weapon model.
-    IntrusivePtrT<ComponentModelT> Model1stPerson = dynamic_pointer_cast<ComponentModelT>(GetEntity()->GetChildren()[1]->GetComponent("Model"));
+    // Mirror the camera's orientation to the child entity that holds our 1st-person weapon model.
+    IntrusivePtrT<const ComponentTransformT> CameraTrafo = GetEntity()->GetChildren()[0]->GetTransform();
 
-    if (Model1stPerson != NULL)
+    GetEntity()->GetChildren()[1]->GetTransform()->SetQuatPS(CameraTrafo->GetQuatPS());
+}
+
+
+void ComponentHumanPlayerT::SelectWeapon(uint8_t NextWeaponNr)
+{
+    // If the requested weapon is already active, there is nothing to do.
+    if (m_ActiveWeaponNr.Get() == NextWeaponNr) return;
+
+    // Holster the currently active weapon.
+    // The current weapon will, at the end of its holstering sequence, make sure that SelectNextWeapon() is called.
+    IntrusivePtrT<ComponentCarriedWeaponT> CarriedWeapon = dynamic_pointer_cast<ComponentCarriedWeaponT>(GetEntity()->GetComponent("CarriedWeapon", m_ActiveWeaponNr.Get()));
+
+    if (CarriedWeapon == NULL || !CarriedWeapon->IsAvail())
     {
-        IntrusivePtrT<const ComponentTransformT> CameraTrafo = GetEntity()->GetChildren()[0]->GetTransform();
+        // We get here whenever there was a problem with finding the currently carried weapon
+        // (where m_ActiveWeaponNr.Get() == NONE is a special case thereof), or if the carried
+        // weapon was technically found, but is not available to (was never picked up by) the player.
+        m_NextWeaponNr.Set(NextWeaponNr);
+        SelectNextWeapon();
+        return;
+    }
 
-        Model1stPerson->GetEntity()->GetTransform()->SetQuatPS(CameraTrafo->GetQuatPS());
+    bool IsIdle = true;
+    CarriedWeapon->CallLuaMethod("IsIdle", 0, ">b", &IsIdle);
 
-        if (GetHaveWeapons() & (1 << GetActiveWeaponSlot()))
+    if (!IsIdle)
+    {
+        // If the currently active weapon is not idle, we cannot select another weapon,
+        // and thus have to ignore the related request.
+        return;
+    }
+
+    bool IsHolstering = false;
+    CarriedWeapon->CallLuaMethod("Holster", 0, ">b", &IsHolstering);
+
+    if (!IsHolstering)
+    {
+        // The current weapon may not support holstering (e.g. not having a holstering animation).
+        // In this case, select the next weapon immediately.
+        m_NextWeaponNr.Set(NextWeaponNr);
+        SelectNextWeapon();
+        return;
+    }
+
+    // The call to Holster() above was successful, the weapon is now holstering itself.
+    // When the end of the holstering sequence is reached, the weapons's OnSequenceWrap[_Sv]()
+    // method will be called, which in turn will call SelectNextWeapon() to draw the next weapon.
+    m_NextWeaponNr.Set(NextWeaponNr);
+}
+
+
+void ComponentHumanPlayerT::SelectNextWeapon()
+{
+    m_ActiveWeaponNr.Set(m_NextWeaponNr.Get());
+
+    IntrusivePtrT<ComponentCarriedWeaponT> CarriedWeapon = dynamic_pointer_cast<ComponentCarriedWeaponT>(GetEntity()->GetComponent("CarriedWeapon", m_ActiveWeaponNr.Get()));
+
+    if (CarriedWeapon == NULL || !CarriedWeapon->IsAvail())
+    {
+        IntrusivePtrT<ComponentModelT> Model1stPerson = dynamic_pointer_cast<ComponentModelT>(GetEntity()->GetChildren()[1]->GetComponent("Model"));
+
+        if (Model1stPerson != NULL)
         {
-            const CafuModelT* WeaponModel = GetCarriedWeapon(GetActiveWeaponSlot())->GetViewWeaponModel();
-
-            Model1stPerson->SetMember("Show", true);
-            Model1stPerson->SetMember("Name", WeaponModel->GetFileName());
-            Model1stPerson->SetMember("Animation", 0);
-        }
-        else
-        {
+            // Update the 1st-person weapon model for "no weapon".
             Model1stPerson->SetMember("Show", false);
             Model1stPerson->SetMember("Name", std::string(""));
         }
+
+        return;
     }
+
+    CarriedWeapon->CallLuaMethod("Draw", 0);
 }
 
 
@@ -1314,6 +1380,75 @@ int ComponentHumanPlayerT::PickUpItem(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_SelectWeapon =
+{
+    "SelectWeapon",
+    "This method initiates the holstering of the currently active weapon and the subsequent drawing\n"
+    "of the given weapon.\n"
+    "\n"
+    "If the current weapon is unknown or not available to the player (e.g. because it has never been picked up),\n"
+    "or if it turns out that the weapon does not support holstering (e.g. because there is no holstering\n"
+    "sequence available), the holstering is skipped and the next weapon is drawn immediately.\n"
+    "If the current weapon is fine but is not idle at the time that this method is called (e.g. reloading\n"
+    "or firing), the call is *ignored*, that is, the weapon is *not* changed.\n"
+    "\n"
+    "@param NextWeaponNr   The index number into the CarriedWeapon components of this entity, starting at 0.",
+    "", "(number NextWeaponNr)"
+};
+
+int ComponentHumanPlayerT::SelectWeapon(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<ComponentHumanPlayerT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentHumanPlayerT> >(1);
+
+    if (lua_isnumber(LuaState, 2))
+    {
+        Comp->SelectWeapon(lua_tointeger(LuaState, 2));
+        return 0;
+    }
+
+    IntrusivePtrT<ComponentCarriedWeaponT> CarriedWeapon = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentCarriedWeaponT> >(2);
+    const ArrayT< IntrusivePtrT<ComponentBaseT> >& Components = Comp->GetEntity()->GetComponents();
+    uint8_t cwNr = 0;
+
+    for (unsigned int i = 0; i < Components.Size(); i++)
+    {
+        IntrusivePtrT<const ComponentCarriedWeaponT> cw = dynamic_pointer_cast<const ComponentCarriedWeaponT>(Components[i]);
+
+        if (cw == NULL) continue;
+        if (cw == CarriedWeapon) break;
+
+        cwNr++;
+    }
+
+    Comp->SelectWeapon(cwNr);
+    return 0;
+}
+
+
+static const cf::TypeSys::MethsDocT META_SelectNextWeapon =
+{
+    "SelectNextWeapon",
+    "This method draws the next weapon as previously prepared by SelectWeapon().\n"
+    "\n"
+    "It is intended to be called at the end of the holstering sequence of the previous weapon, either\n"
+    "directly from SelectWeapon() when it found that holstering can entirely be skipped, or indirectly\n"
+    "when SelectWeapon() calls the previous weapon's `Holster()` callback, the end of the holster\n"
+    "sequence is detected in the `OnSequenceWrap_Sv()` script callback, and its implementation in turn\n"
+    "calls this method.",
+    "", "()"
+};
+
+int ComponentHumanPlayerT::SelectNextWeapon(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<ComponentHumanPlayerT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentHumanPlayerT> >(1);
+
+    Comp->SelectNextWeapon();
+    return 0;
+}
+
+
 static const cf::TypeSys::MethsDocT META_toString =
 {
     "__tostring",
@@ -1346,6 +1481,8 @@ const luaL_Reg ComponentHumanPlayerT::MethodsList[] =
     { "GetAmmoString",    GetAmmoString },
     { "ProcessEvent",     ProcessEvent },
     { "PickUpItem",       PickUpItem },
+    { "SelectWeapon",     SelectWeapon },
+    { "SelectNextWeapon", SelectNextWeapon },
     { "__tostring",       toString },
     { NULL, NULL }
 };
@@ -1356,6 +1493,8 @@ const cf::TypeSys::MethsDocT ComponentHumanPlayerT::DocMethods[] =
     META_GetAmmoString,
     META_ProcessEvent,
     META_PickUpItem,
+    META_SelectWeapon,
+    META_SelectNextWeapon,
     META_toString,
     { NULL, NULL, NULL, NULL }
 };
