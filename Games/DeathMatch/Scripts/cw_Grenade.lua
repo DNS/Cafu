@@ -90,3 +90,8 @@ function Grenade:PickedUp()
     -- Console.Print("inv HandGrenades:   " .. Inventory:get("HandGrenades") .. "\n")
     return true
 end
+
+
+function Grenade:GetAmmoString()
+    return string.format("Ammo %2u (%2u)", self:get("PrimaryAmmo"), Inventory:get("HandGrenades") or 0)
+end

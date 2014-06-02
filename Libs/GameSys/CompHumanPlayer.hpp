@@ -150,8 +150,6 @@ namespace cf
             protected:
 
             // The Lua API methods of this class.
-            static int GetCrosshairInfo(lua_State* LuaState);
-            static int GetAmmoString(lua_State* LuaState);
             static int ProcessEvent(lua_State* LuaState);
             static int PickUpItem(lua_State* LuaState);
             static int GetActiveWeapon(lua_State* LuaState);

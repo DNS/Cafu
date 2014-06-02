@@ -71,7 +71,23 @@ end
 
 -- The OnFrame() methods are called automatically by the Gui System once per frame.
 function CrossHair:OnFrame()
-    local MatName, Rotate = gui.Player:GetCrosshairInfo()
+    if gui.Player:get("State") ~= 0 then
+        -- Not "alive"? Then show nothing.
+        self:GetBasics():set("Show", false)
+        self:GetComponent("Image"):set("Material", "")
+        return
+    end
+
+    local CarriedWeapon = gui.Player:GetActiveWeapon()
+
+    if not (CarriedWeapon and CarriedWeapon.GetCrosshairInfo) then
+        -- No carried weapon? Then show nothing.
+        self:GetBasics():set("Show", false)
+        self:GetComponent("Image"):set("Material", "")
+        return
+    end
+
+    local MatName, Rotate = CarriedWeapon:GetCrosshairInfo()
 
     -- The value of MatName is `nil` for "none".
     self:GetBasics():set("Show", MatName)
@@ -120,7 +136,12 @@ end
 
 
 function InfoAmmo:OnFrame()
-    local AmmoString = gui.Player:GetAmmoString()
+    local CarriedWeapon = gui.Player:GetActiveWeapon()
+    local AmmoString    = ""
+
+    if CarriedWeapon and CarriedWeapon.GetAmmoString then
+        AmmoString = CarriedWeapon:GetAmmoString()
+    end
 
     if (#AmmoString == 0) then
         InfoAmmo:GetBasics():set("Show", false)

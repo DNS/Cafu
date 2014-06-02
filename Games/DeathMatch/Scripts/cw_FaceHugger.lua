@@ -88,3 +88,8 @@ function FaceHugger:PickedUp()
     -- Console.Print("inv FaceHuggers:   " .. Inventory:get("FaceHuggers") .. "\n")
     return true
 end
+
+
+function FaceHugger:GetAmmoString()
+    return string.format("Ammo %2u (%2u)", self:get("PrimaryAmmo"), Inventory:get("FaceHuggers") or 0)
+end

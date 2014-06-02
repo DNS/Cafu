@@ -94,3 +94,15 @@ function AR:PickedUp()
     -- Console.Print("inv ARGrenades:   " .. Inventory:get("ARGrenades") .. "\n")
     return true
 end
+
+
+function AR:GetCrosshairInfo()
+    return "Gui/CrossHair1"
+end
+
+
+function AR:GetAmmoString()
+    return string.format("Ammo %2u (%2u) | %2u (%2u)",
+        self:get("PrimaryAmmo"), Inventory:get("Bullets9mm"),
+        self:get("SecondaryAmmo"), Inventory:get("ARGrenades"))
+end

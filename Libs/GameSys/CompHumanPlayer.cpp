@@ -1194,130 +1194,6 @@ void ComponentHumanPlayerT::DoClientFrame(float t)
 }
 
 
-static const cf::TypeSys::MethsDocT META_GetCrosshairInfo =
-{
-    "GetCrosshairInfo",
-    "This method is called by the HUD GUI in order to learn which cross-hair should currently be shown.",
-    "string", "()"
-};
-
-int ComponentHumanPlayerT::GetCrosshairInfo(lua_State* LuaState)
-{
-    ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<ComponentHumanPlayerT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentHumanPlayerT> >(1);
-
-    if (Comp->m_StateOfExistence.Get() != StateOfExistence_Alive)
-        return 0;
-
-    switch (Comp->m_ActiveWeaponSlot.Get())
-    {
-        case WEAPON_SLOT_PISTOL:
-        case WEAPON_SLOT_CROSSBOW:
-        case WEAPON_SLOT_357:
-        case WEAPON_SLOT_9MMAR:
-            lua_pushstring(LuaState, "Gui/CrossHair1");
-            return 1;
-
-        case WEAPON_SLOT_SHOTGUN:
-        case WEAPON_SLOT_RPG:
-        case WEAPON_SLOT_GAUSS:
-        case WEAPON_SLOT_EGON:
-            lua_pushstring(LuaState, "Gui/CrossHair2");
-            lua_pushboolean(LuaState, 1);   // Push "true" to have the GUI apply a continuous rotation to the crosshair image.
-            return 2;
-
-        default:
-            // Some weapons just don't have a crosshair.
-            break;
-    }
-
-    return 0;
-}
-
-
-static const cf::TypeSys::MethsDocT META_GetAmmoString =
-{
-    "GetAmmoString",
-    "This method is called by the HUD GUI in order to learn which info should currently be shown in the \"ammo\" field.",
-    "string", "()"
-};
-
-int ComponentHumanPlayerT::GetAmmoString(lua_State* LuaState)
-{
-    ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<ComponentHumanPlayerT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentHumanPlayerT> >(1);
-
-    // Return an ammo string for the players HUD.
-    if (Comp->m_HaveWeapons.Get() & (1 << Comp->m_ActiveWeaponSlot.Get()))
-    {
-        char PrintBuffer[64];
-
-        // Assignment table to determine which ammo is consumed by each weapon for primary fire (given a weapon slot, determine the ammo slot).
-        // TODO: This is not optimal, ought to be static member function of each weapon???
-        const char GetAmmoSlotForPrimaryFireByWeaponSlot[13] =
-        {
-            AMMO_SLOT_NONE,
-            AMMO_SLOT_NONE,
-            AMMO_SLOT_9MM,
-            AMMO_SLOT_357,
-            AMMO_SLOT_SHELLS,
-            AMMO_SLOT_9MM,
-            AMMO_SLOT_ARROWS,
-            AMMO_SLOT_ROCKETS,
-            AMMO_SLOT_CELLS,
-            AMMO_SLOT_CELLS,
-            AMMO_SLOT_NONE,
-            AMMO_SLOT_NONE,
-            AMMO_SLOT_NONE
-        };
-
-        switch (Comp->m_ActiveWeaponSlot.Get())
-        {
-            case WEAPON_SLOT_BATTLESCYTHE:
-         // case WEAPON_SLOT_HORNETGUN:
-                lua_pushstring(LuaState, "");
-                break;
-
-            case WEAPON_SLOT_9MMAR:
-                sprintf(PrintBuffer, "Ammo %2u (%2u) | %u Grenades",
-                        Comp->m_HaveAmmoInWeapons[WEAPON_SLOT_9MMAR],
-                        Comp->m_HaveAmmo[GetAmmoSlotForPrimaryFireByWeaponSlot[WEAPON_SLOT_9MMAR]],
-                        Comp->m_HaveAmmo[AMMO_SLOT_ARGREN]);
-                lua_pushstring(LuaState, PrintBuffer);
-                break;
-
-            case WEAPON_SLOT_FACEHUGGER:
-            case WEAPON_SLOT_GRENADE:
-            case WEAPON_SLOT_RPG:
-         // case WEAPON_SLOT_TRIPMINE:
-                sprintf(PrintBuffer, "Ammo %2u",
-                        Comp->m_HaveAmmoInWeapons[Comp->GetActiveWeaponSlot()]);
-                lua_pushstring(LuaState, PrintBuffer);
-                break;
-
-            case WEAPON_SLOT_357:
-            case WEAPON_SLOT_CROSSBOW:
-            case WEAPON_SLOT_EGON:
-            case WEAPON_SLOT_GAUSS:
-            case WEAPON_SLOT_PISTOL:
-            case WEAPON_SLOT_SHOTGUN:
-                sprintf(PrintBuffer, "Ammo %2u (%2u)",
-                        Comp->m_HaveAmmoInWeapons[Comp->GetActiveWeaponSlot()],
-                        Comp->m_HaveAmmo[GetAmmoSlotForPrimaryFireByWeaponSlot[Comp->GetActiveWeaponSlot()]]);
-                lua_pushstring(LuaState, PrintBuffer);
-                break;
-        }
-    }
-    else
-    {
-        // Let the HUD know that we have no weapon.
-        lua_pushstring(LuaState, "");
-    }
-
-    return 1;
-}
-
-
 static const cf::TypeSys::MethsDocT META_ProcessEvent =
 {
     "ProcessEvent",
@@ -1514,8 +1390,6 @@ void* ComponentHumanPlayerT::CreateInstance(const cf::TypeSys::CreateParamsT& Pa
 
 const luaL_Reg ComponentHumanPlayerT::MethodsList[] =
 {
-    { "GetCrosshairInfo", GetCrosshairInfo },
-    { "GetAmmoString",    GetAmmoString },
     { "ProcessEvent",     ProcessEvent },
     { "PickUpItem",       PickUpItem },
     { "GetActiveWeapon",  GetActiveWeapon },
@@ -1527,8 +1401,6 @@ const luaL_Reg ComponentHumanPlayerT::MethodsList[] =
 
 const cf::TypeSys::MethsDocT ComponentHumanPlayerT::DocMethods[] =
 {
-    META_GetCrosshairInfo,
-    META_GetAmmoString,
     META_ProcessEvent,
     META_PickUpItem,
     META_GetActiveWeapon,

@@ -226,6 +226,12 @@ class ComponentCarriedWeaponT : public ComponentBaseT
     /// @see @ref CarriedWeaponsOverview
     bool PickedUp();
 
+    /// This method is called by the HUD GUI in order to learn which cross-hair should currently be shown.
+    tuple GetCrosshairInfo();
+
+    /// This method is called by the HUD GUI in order to learn which info should currently be shown in the "ammo" field.
+    string GetAmmoString();
+
     /** @} */
 
 
@@ -327,12 +333,6 @@ class ComponentCollisionModelT : public ComponentBaseT
 class ComponentHumanPlayerT : public ComponentBaseT
 {
     public:
-
-    /// This method is called by the HUD GUI in order to learn which cross-hair should currently be shown.
-    string GetCrosshairInfo();
-
-    /// This method is called by the HUD GUI in order to learn which info should currently be shown in the "ammo" field.
-    string GetAmmoString();
 
     /// This method is used by the HumanPlayer.lua script in order to redirect events to the HumanPlayer component.
     string ProcessEvent();

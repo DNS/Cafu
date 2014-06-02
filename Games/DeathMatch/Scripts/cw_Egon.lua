@@ -93,3 +93,13 @@ function Egon:PickedUp()
     -- Console.Print("inv Cells:   " .. Inventory:get("Cells") .. "\n")
     return true
 end
+
+
+function Egon:GetCrosshairInfo()
+    return "Gui/CrossHair2", true
+end
+
+
+function Egon:GetAmmoString()
+    return string.format("Ammo %2u (%2u)", self:get("PrimaryAmmo"), Inventory:get("Cells"))
+end

@@ -89,3 +89,13 @@ function DartGun:PickedUp()
     -- Console.Print("inv Arrows:   " .. Inventory:get("Arrows") .. "\n")
     return true
 end
+
+
+function DartGun:GetCrosshairInfo()
+    return "Gui/CrossHair1"
+end
+
+
+function DartGun:GetAmmoString()
+    return string.format("Ammo %2u (%2u)", self:get("PrimaryAmmo"), Inventory:get("Arrows"))
+end

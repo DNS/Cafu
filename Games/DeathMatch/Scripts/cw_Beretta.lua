@@ -91,3 +91,13 @@ function Beretta:PickedUp()
     -- Console.Print("inv Bullets9mm:   " .. Inventory:get("Bullets9mm") .. "\n")
     return true
 end
+
+
+function Beretta:GetCrosshairInfo()
+    return "Gui/CrossHair1"
+end
+
+
+function Beretta:GetAmmoString()
+    return string.format("Ammo %2u (%2u)", self:get("PrimaryAmmo"), Inventory:get("Bullets9mm"))
+end

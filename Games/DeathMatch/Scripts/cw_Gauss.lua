@@ -91,3 +91,13 @@ function Gauss:PickedUp()
     -- Console.Print("inv Cells:   " .. Inventory:get("Cells") .. "\n")
     return true
 end
+
+
+function Gauss:GetCrosshairInfo()
+    return "Gui/CrossHair2", true
+end
+
+
+function Gauss:GetAmmoString()
+    return string.format("Ammo %2u (%2u)", self:get("PrimaryAmmo"), Inventory:get("Cells"))
+end

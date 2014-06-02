@@ -86,3 +86,13 @@ function Shotgun:PickedUp()
     -- Console.Print("inv shells:   " .. Inventory:get("Shells") .. "\n")
     return true
 end
+
+
+function Shotgun:GetCrosshairInfo()
+    return "Gui/CrossHair2", true
+end
+
+
+function Shotgun:GetAmmoString()
+    return string.format("Ammo %2u (%2u)", self:get("PrimaryAmmo"), Inventory:get("Shells"))
+end

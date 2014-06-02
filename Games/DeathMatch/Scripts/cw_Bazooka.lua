@@ -92,3 +92,13 @@ function Bazooka:PickedUp()
     -- Console.Print("inv Rockets:   " .. Inventory:get("Rockets") .. "\n")
     return true
 end
+
+
+function Bazooka:GetCrosshairInfo()
+    return "Gui/CrossHair2", true
+end
+
+
+function Bazooka:GetAmmoString()
+    return string.format("Ammo %2u (%2u)", self:get("PrimaryAmmo"), Inventory:get("Rockets") or 0)
+end

@@ -90,3 +90,13 @@ function DesertEagle:PickedUp()
     -- Console.Print("inv Bullets357:   " .. Inventory:get("Bullets357") .. "\n")
     return true
 end
+
+
+function DesertEagle:GetCrosshairInfo()
+    return "Gui/CrossHair1"
+end
+
+
+function DesertEagle:GetAmmoString()
+    return string.format("Ammo %2u (%2u)", self:get("PrimaryAmmo"), Inventory:get("Bullets357"))
+end
