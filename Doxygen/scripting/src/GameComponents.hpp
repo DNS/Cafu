@@ -352,6 +352,10 @@ class ComponentHumanPlayerT : public ComponentBaseT
     ///     `HumanPlayer.lua` calls the `PickUpItem()` method of the HumanPlayer component.
     PickUpItem(string ItemType);
 
+    /// Returns the ComponentCarriedWeaponT component of the currently active weapon,
+    /// or `nil` if currently no weapon is active.
+    GetActiveWeapon();
+
     /// This method initiates the holstering of the currently active weapon and the subsequent drawing
     /// of the given weapon.
     ///

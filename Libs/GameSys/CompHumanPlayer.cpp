@@ -931,6 +931,18 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
 }
 
 
+IntrusivePtrT<ComponentCarriedWeaponT> ComponentHumanPlayerT::GetActiveWeapon() const
+{
+    IntrusivePtrT<ComponentCarriedWeaponT> CarriedWeapon =
+        dynamic_pointer_cast<ComponentCarriedWeaponT>(GetEntity()->GetComponent("CarriedWeapon", m_ActiveWeaponNr.Get()));
+
+    if (CarriedWeapon == NULL) return NULL;
+    if (!CarriedWeapon->IsAvail()) return NULL;
+
+    return CarriedWeapon;
+}
+
+
 void ComponentHumanPlayerT::SelectWeapon(uint8_t NextWeaponNr)
 {
     // If the requested weapon is already active, there is nothing to do.
@@ -938,9 +950,9 @@ void ComponentHumanPlayerT::SelectWeapon(uint8_t NextWeaponNr)
 
     // Holster the currently active weapon.
     // The current weapon will, at the end of its holstering sequence, make sure that SelectNextWeapon() is called.
-    IntrusivePtrT<ComponentCarriedWeaponT> CarriedWeapon = dynamic_pointer_cast<ComponentCarriedWeaponT>(GetEntity()->GetComponent("CarriedWeapon", m_ActiveWeaponNr.Get()));
+    IntrusivePtrT<ComponentCarriedWeaponT> CarriedWeapon = GetActiveWeapon();
 
-    if (CarriedWeapon == NULL || !CarriedWeapon->IsAvail())
+    if (CarriedWeapon == NULL)
     {
         // We get here whenever there was a problem with finding the currently carried weapon
         // (where m_ActiveWeaponNr.Get() == NONE is a special case thereof), or if the carried
@@ -983,9 +995,9 @@ void ComponentHumanPlayerT::SelectNextWeapon()
 {
     m_ActiveWeaponNr.Set(m_NextWeaponNr.Get());
 
-    IntrusivePtrT<ComponentCarriedWeaponT> CarriedWeapon = dynamic_pointer_cast<ComponentCarriedWeaponT>(GetEntity()->GetComponent("CarriedWeapon", m_ActiveWeaponNr.Get()));
+    IntrusivePtrT<ComponentCarriedWeaponT> CarriedWeapon = GetActiveWeapon();
 
-    if (CarriedWeapon == NULL || !CarriedWeapon->IsAvail())
+    if (CarriedWeapon == NULL)
     {
         IntrusivePtrT<ComponentModelT> Model1stPerson = dynamic_pointer_cast<ComponentModelT>(GetEntity()->GetChildren()[1]->GetComponent("Model"));
 
@@ -1380,6 +1392,31 @@ int ComponentHumanPlayerT::PickUpItem(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_GetActiveWeapon =
+{
+    "GetActiveWeapon",
+    "Returns the ComponentCarriedWeaponT component of the currently active weapon,\n"
+    "or `nil` if currently no weapon is active.",
+    "", "()"
+};
+
+int ComponentHumanPlayerT::GetActiveWeapon(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<ComponentHumanPlayerT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentHumanPlayerT> >(1);
+    IntrusivePtrT<ComponentCarriedWeaponT> CarriedWeapon = Comp->GetActiveWeapon();
+
+    if (CarriedWeapon == NULL)
+    {
+        lua_pushnil(LuaState);
+        return 1;
+    }
+
+    Binder.Push(CarriedWeapon);
+    return 1;
+}
+
+
 static const cf::TypeSys::MethsDocT META_SelectWeapon =
 {
     "SelectWeapon",
@@ -1481,6 +1518,7 @@ const luaL_Reg ComponentHumanPlayerT::MethodsList[] =
     { "GetAmmoString",    GetAmmoString },
     { "ProcessEvent",     ProcessEvent },
     { "PickUpItem",       PickUpItem },
+    { "GetActiveWeapon",  GetActiveWeapon },
     { "SelectWeapon",     SelectWeapon },
     { "SelectNextWeapon", SelectNextWeapon },
     { "__tostring",       toString },
@@ -1493,6 +1531,7 @@ const cf::TypeSys::MethsDocT ComponentHumanPlayerT::DocMethods[] =
     META_GetAmmoString,
     META_ProcessEvent,
     META_PickUpItem,
+    META_GetActiveWeapon,
     META_SelectWeapon,
     META_SelectNextWeapon,
     META_toString,

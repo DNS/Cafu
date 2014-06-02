@@ -33,6 +33,7 @@ namespace cf
     namespace GameSys
     {
         class CarriedWeaponT;
+        class ComponentCarriedWeaponT;
 
 
         /// Entities with this component are associated with a client connection
@@ -105,6 +106,10 @@ namespace cf
             /// A helper method (that does the actual work) for DoServerFrame() *and* the (re-)prediction in the client.
             void Think(const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide);
 
+            /// Returns the ComponentCarriedWeaponT component of the currently active weapon,
+            /// or NULL if currently no weapon is active.
+            IntrusivePtrT<ComponentCarriedWeaponT> GetActiveWeapon() const;
+
             /// This method initiates the holstering of the currently active weapon and the subsequent drawing
             /// of the given weapon.
             ///
@@ -149,6 +154,7 @@ namespace cf
             static int GetAmmoString(lua_State* LuaState);
             static int ProcessEvent(lua_State* LuaState);
             static int PickUpItem(lua_State* LuaState);
+            static int GetActiveWeapon(lua_State* LuaState);
             static int SelectWeapon(lua_State* LuaState);
             static int SelectNextWeapon(lua_State* LuaState);
             static int toString(lua_State* LuaState);
