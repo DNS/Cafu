@@ -32,11 +32,18 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
     if SequNr == ANIM_DRAW then
         Console.Print("DesertEagle DRAW sequence wrapped, switching to idle.\n")
         Model:set("Animation", ANIM_IDLE1)
-    elseif SequNr == ANIM_IDLE1 then
-        Console.Print("DesertEagle IDLE1 sequence wrapped.\n")
-    elseif SequNr == ANIM_HOLSTER then
+        return
+    end
+
+    if SequNr == ANIM_HOLSTER then
         Console.Print("DesertEagle HOLSTER sequence wrapped, selecting next weapon.\n")
         HumanPlayer:SelectNextWeapon()
+        return
+    end
+
+    if SequNr == ANIM_IDLE1 then
+        Console.Print("DesertEagle IDLE1 sequence wrapped.\n")
+        return
     end
 end
 
