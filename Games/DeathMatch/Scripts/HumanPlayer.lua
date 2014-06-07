@@ -110,7 +110,15 @@ function PlayerScript:ProcessEvent(EventType, NumEvents)
 end
 
 
--- This method is called automatically when some other entity wants us to pick up some item.
+--[[
+This method is called automatically when some other entity wants us to pick up some item.
+As a technical detail, here is a typical call-chain that can cause calls to this method:
+
+  - An entity (a CollisionModel component) finds itself in another entity's trigger volume.
+  - The other entity's `OnTrigger()` script callback is called.
+  - If the other entity is a weapon, its `OnTrigger()` implementation in `Weapon.lua`
+    calls the original (this) entity's `PickUpItem()` script method.
+--]]
 function PlayerScript:PickUpItem(ItemEnt, ItemType)
     -- The details of picking up items are implemented in the "HumanPlayer"
     -- component at this time, so forward all calls there.
@@ -131,6 +139,23 @@ function PlayerScript:PickUpItem(ItemEnt, ItemType)
 
             return false
         end
+    end
+
+    -- No carried weapon handled the item.
+    -- Now see if we can put it into the Inventory.
+    if ItemType == "Ammo_DartGun" then
+        Inventory:Add("Arrows", 5)
+        return true
+    end
+
+    if ItemType == "Ammo_DesertEagle" then
+        Inventory:Add("Bullets357", 6)
+        return true
+    end
+
+    if ItemType == "Ammo_Gauss" then
+        Inventory:Add("Cells", 20)
+        return true
     end
 
     return false
