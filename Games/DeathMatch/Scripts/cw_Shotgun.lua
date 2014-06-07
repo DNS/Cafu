@@ -26,6 +26,7 @@ end
 
 
 local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assigned in Draw() below.
+    local self   = Shotgun
     local SequNr = Model:get("Animation")
 
     if SequNr == ANIM_DRAW then
@@ -39,6 +40,40 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
  --     HumanPlayer:SelectNextWeapon()
  --     return
  -- end
+
+    if SequNr == ANIM_BEGIN_RELOAD then
+        Console.Print("Shotgun BEGIN_RELOAD sequence wrapped, switching to INSERT.\n")
+        Model:set("Animation", ANIM_INSERT)
+        return
+    end
+
+    if SequNr == ANIM_INSERT then
+        -- assert(self:CanReload())
+        Inventory:Add("Shells", -1)
+        self:set("PrimaryAmmo", self:get("PrimaryAmmo") + 1)
+
+        if not self:CanReload() then
+            Console.Print("Shotgun done inserting, switching to END_RELOAD.\n")
+            Model:set("Animation", ANIM_END_RELOAD)
+        end
+        return
+    end
+
+    if SequNr == ANIM_END_RELOAD then
+        Console.Print("Shotgun END_RELOAD sequence wrapped, switching to idle.\n")
+        Model:set("Animation", ANIM_IDLE)
+        return
+    end
+
+    if SequNr == ANIM_SHOOT1 or SequNr == ANIM_SHOOT2 then
+        if self:get("PrimaryAmmo") < 1 and self:CanReload() then
+            Model:set("Animation", ANIM_BEGIN_RELOAD)
+        else
+            Console.Print("Shotgun SHOOT1 or SHOOT2 sequence wrapped, switching to idle.\n")
+            Model:set("Animation", ANIM_IDLE)
+        end
+        return
+    end
 
     if SequNr == ANIM_IDLE then
         -- Console.Print("Shotgun IDLE sequence wrapped.\n")
@@ -69,6 +104,47 @@ function Shotgun:Holster()
     -- Update1stPersonModel()
     -- Model1stPerson:set("Animation", ANIM_HOLSTER)
     return false
+end
+
+
+function Shotgun:CanReload()
+    return self:get("PrimaryAmmo") < self:get("MaxPrimaryAmmo") and Inventory:get("Shells") > 0
+end
+
+
+function Shotgun:FirePrimary()
+    if not self:IsIdle() then return end
+
+    if self:get("PrimaryAmmo") < 1 then
+        if self:CanReload() then
+            Model1stPerson:set("Animation", ANIM_BEGIN_RELOAD)
+        end
+    else
+        self:set("PrimaryAmmo", self:get("PrimaryAmmo") - 1)
+
+        Model1stPerson:set("Animation", ANIM_SHOOT1)
+    end
+
+    -- TODO: send primary fire event
+    -- TODO: inflict damage
+end
+
+
+function Shotgun:FireSecondary()
+    if not self:IsIdle() then return end
+
+    if self:get("PrimaryAmmo") < 2 then
+        if self:CanReload() then
+            Model1stPerson:set("Animation", ANIM_BEGIN_RELOAD)
+        end
+    else
+        self:set("PrimaryAmmo", self:get("PrimaryAmmo") - 2)
+
+        Model1stPerson:set("Animation", ANIM_SHOOT2)
+    end
+
+    -- TODO: send secondary fire event
+    -- TODO: inflict damage
 end
 
 

@@ -76,6 +76,16 @@ function Gauss:Holster()
 end
 
 
+function Gauss:FirePrimary()
+    -- No primary fire for this weapon (at this time -- TODO).
+end
+
+
+function Gauss:FireSecondary()
+    -- No secondary fire for this weapon.
+end
+
+
 function Gauss:PickedUp()
     if self:get("IsAvail") then
         -- If we have picked up the Gauss gun earlier, and our inventory already has the

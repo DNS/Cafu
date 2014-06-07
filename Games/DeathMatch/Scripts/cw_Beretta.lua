@@ -28,6 +28,7 @@ end
 
 
 local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assigned in Draw() below.
+    local self   = Beretta
     local SequNr = Model:get("Animation")
 
     if SequNr == ANIM_DRAW then
@@ -39,6 +40,28 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
     if SequNr == ANIM_HOLSTER then
         Console.Print("Beretta HOLSTER sequence wrapped, selecting next weapon.\n")
         HumanPlayer:SelectNextWeapon()
+        return
+    end
+
+    if SequNr == ANIM_RELOAD then
+        -- assert(self:CanReload())
+        local Amount = math.min(self:get("MaxPrimaryAmmo") - self:get("PrimaryAmmo"), Inventory:get("Bullets9mm"))
+
+        Inventory:Add("Bullets9mm", -Amount)
+        self:set("PrimaryAmmo", self:get("PrimaryAmmo") + Amount)
+
+        Console.Print("Beretta done reloading, switching to IDLE1.\n")
+        Model:set("Animation", ANIM_IDLE1)
+        return
+    end
+
+    if SequNr == ANIM_SHOOT or SequNr == ANIM_SHOOT_EMPTY then
+        if self:get("PrimaryAmmo") < 1 and self:CanReload() then
+            Model:set("Animation", ANIM_RELOAD)
+        else
+            Console.Print("Beretta SHOOT or SHOOT_EMPTY sequence wrapped, switching to idle.\n")
+            Model:set("Animation", ANIM_IDLE)
+        end
         return
     end
 
@@ -73,6 +96,36 @@ function Beretta:Holster()
 
     Model1stPerson:set("Animation", ANIM_HOLSTER)
     return true
+end
+
+
+function Beretta:CanReload()
+    return self:get("PrimaryAmmo") < self:get("MaxPrimaryAmmo") and Inventory:get("Bullets9mm") > 0
+end
+
+
+function Beretta:FirePrimary()
+    if not self:IsIdle() then return end
+
+    if self:get("PrimaryAmmo") < 1 then
+        if self:CanReload() then
+            Model1stPerson:set("Animation", ANIM_RELOAD)
+        else
+            Model1stPerson:set("Animation", ANIM_SHOOT_EMPTY)
+        end
+    else
+        self:set("PrimaryAmmo", self:get("PrimaryAmmo") - 1)
+
+        Model1stPerson:set("Animation", ANIM_SHOOT)
+    end
+
+    -- TODO: send primary fire event
+    -- TODO: inflict damage
+end
+
+
+function Beretta:FireSecondary()
+    -- No secondary fire for this weapon.
 end
 
 

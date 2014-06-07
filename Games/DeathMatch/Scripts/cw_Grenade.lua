@@ -27,6 +27,7 @@ end
 
 
 local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assigned in Draw() below.
+    local self   = Grenade
     local SequNr = Model:get("Animation")
 
     if SequNr == ANIM_DRAW then
@@ -38,6 +39,36 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
     if SequNr == ANIM_HOLSTER then
         Console.Print("Grenade HOLSTER sequence wrapped, selecting next weapon.\n")
         HumanPlayer:SelectNextWeapon()
+        return
+    end
+
+    if SequNr == ANIM_PINPULL then
+        self:set("PrimaryAmmo", self:get("PrimaryAmmo") - 1)
+        Console.Print("Grenade PINPULL sequence wrapped, throwing...\n")
+        Model:set("Animation", ANIM_THROW1)
+        return
+    end
+
+    if SequNr >= ANIM_THROW1 and SequNr <= ANIM_THROW3  then
+        if Inventory:get("HandGrenades") > 0 then
+            Inventory:Add("HandGrenades", -1)
+            self:set("PrimaryAmmo", self:get("PrimaryAmmo") + 1)
+
+            Console.Print("Grenade THROW sequence wrapped, switching to (re-)DRAW.\n")
+            Model:set("Animation", ANIM_DRAW)
+        else
+            -- This is really stupid, because ANIM_IDLE renders a grenade in our hand,
+            -- when we in fact have none.
+            -- However, we cannot remain in ANIM_THROW* either, because the player can
+            -- only switch weapons when in ANIM_IDLE state.
+            -- We'd need an ANIM_IDLE_BARE_HANDED in order to overcome this problem, or:
+            --   - stay in ANIM_THROW*,
+            --   - implement Holster() to return false if in ANIM_THROW*
+            --   - adjust IsIdle() ?
+            --   - call HumanPlayer:SelectWeapon(-1) here.
+            -- (or have something like HumanPlayer:ForceSelectWeapon(-1) ...)
+            Model:set("Animation", ANIM_IDLE)
+        end
         return
     end
 
@@ -75,6 +106,22 @@ function Grenade:Holster()
 end
 
 
+function Grenade:FirePrimary()
+    if not self:IsIdle() then return end
+    if self:get("PrimaryAmmo") < 1 then return end
+
+    Model1stPerson:set("Animation", ANIM_PINPULL)
+
+    -- TODO: send primary fire event
+    -- TODO: inflict damage
+end
+
+
+function Grenade:FireSecondary()
+    -- No secondary fire for this weapon.
+end
+
+
 function Grenade:PickedUp()
     if self:get("IsAvail") then
         -- If we have picked up hand grenades earlier, and our inventory already has the
@@ -88,7 +135,7 @@ function Grenade:PickedUp()
         self:set("IsAvail", true)
         self:set("PrimaryAmmo", self:get("MaxPrimaryAmmo"))
 
-        -- Inventory:Add("HandGrenades", 1)
+        Inventory:Add("HandGrenades", 0)    -- Make sure that the "HandGrenades" key is initialized.
 
         HumanPlayer:SelectWeapon(self)
     end
@@ -100,5 +147,5 @@ end
 
 
 function Grenade:GetAmmoString()
-    return string.format("Ammo %2u (%2u)", self:get("PrimaryAmmo"), Inventory:get("HandGrenades") or 0)
+    return string.format("Ammo %2u (%2u)", self:get("PrimaryAmmo"), Inventory:get("HandGrenades"))
 end

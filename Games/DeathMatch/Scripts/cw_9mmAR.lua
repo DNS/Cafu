@@ -27,11 +27,12 @@ end
 
 
 local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assigned in Draw() below.
+    local self   = AR
     local SequNr = Model:get("Animation")
 
     if SequNr == ANIM_DRAW then
         Console.Print("Assault Rifle DRAW sequence wrapped, switching to idle.\n")
-        Model:set("Animation", ANIM_IDLE1)
+        Model:set("Animation", ANIM_LONGIDLE)
         return
     end
 
@@ -41,8 +42,44 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
  --     return
  -- end
 
-    if SequNr == ANIM_IDLE1 then
-        Console.Print("Assault Rifle IDLE1 sequence wrapped.\n")
+    if SequNr == ANIM_RELOAD then
+        -- assert(self:CanReload())
+        local Amount1 = math.min(self:get("MaxPrimaryAmmo") - self:get("PrimaryAmmo"), Inventory:get("Bullets9mm"))
+
+        Inventory:Add("Bullets9mm", -Amount1)
+        self:set("PrimaryAmmo", self:get("PrimaryAmmo") + Amount1)
+
+        local Amount2 = math.min(self:get("MaxSecondaryAmmo") - self:get("SecondaryAmmo"), Inventory:get("ARGrenades"))
+
+        Inventory:Add("ARGrenades", -Amount2)
+        self:set("SecondaryAmmo", self:get("SecondaryAmmo") + Amount2)
+
+        Console.Print("Assault Rifle RELOAD sequence wrapped, switching to idle.\n")
+        Model:set("Animation", ANIM_LONGIDLE)
+        return
+    end
+
+    if SequNr == ANIM_GRENADE then
+        if self:get("SecondaryAmmo") < 1 and self:CanReload() then
+            Model:set("Animation", ANIM_RELOAD)
+        else
+            Console.Print("Assault Rifle GRENADE sequence wrapped, switching to idle.\n")
+            Model:set("Animation", ANIM_LONGIDLE)
+        end
+        return
+    end
+
+    if SequNr >= ANIM_SHOOT1 then   -- Also handles ANIM_SHOOT2 and ANIM_SHOOT3.
+        if self:get("PrimaryAmmo") < 1 and self:CanReload() then
+            Model:set("Animation", ANIM_RELOAD)
+        else
+            Model:set("Animation", ANIM_LONGIDLE)
+        end
+        return
+    end
+
+    if SequNr == ANIM_LONGIDLE then
+        Console.Print("Assault Rifle LONGIDLE sequence wrapped.\n")
         return
     end
 end
@@ -72,6 +109,48 @@ function AR:Holster()
     -- Update1stPersonModel()
     -- Model1stPerson:set("Animation", ANIM_HOLSTER)
     return false
+end
+
+
+function AR:CanReload()
+    return (self:get("PrimaryAmmo") < self:get("MaxPrimaryAmmo") and Inventory:get("Bullets9mm") > 0) or
+           (self:get("SecondaryAmmo") < self:get("MaxSecondaryAmmo") and Inventory:get("ARGrenades") > 0)
+end
+
+
+function AR:FirePrimary()
+    if not self:IsIdle() then return end
+
+    if self:get("PrimaryAmmo") < 1 then
+        if self:CanReload() then
+            Model1stPerson:set("Animation", ANIM_RELOAD)
+        end
+    else
+        self:set("PrimaryAmmo", self:get("PrimaryAmmo") - 1)
+
+        Model1stPerson:set("Animation", ANIM_SHOOT1)
+    end
+
+    -- TODO: send primary fire event
+    -- TODO: inflict damage
+end
+
+
+function AR:FireSecondary()
+    if not self:IsIdle() then return end
+
+    if self:get("SecondaryAmmo") < 1 then
+        if self:CanReload() then
+            Model1stPerson:set("Animation", ANIM_RELOAD)
+        end
+    else
+        self:set("SecondaryAmmo", self:get("SecondaryAmmo") - 1)
+
+        Model1stPerson:set("Animation", ANIM_GRENADE)
+    end
+
+    -- TODO: send secondary fire event
+    -- TODO: inflict damage
 end
 
 

@@ -26,6 +26,7 @@ end
 
 
 local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assigned in Draw() below.
+    local self   = DartGun
     local SequNr = Model:get("Animation")
 
     if SequNr == ANIM_DRAW then
@@ -37,6 +38,29 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
     if SequNr == ANIM_HOLSTER then
         Console.Print("DartGun HOLSTER sequence wrapped, selecting next weapon.\n")
         HumanPlayer:SelectNextWeapon()
+        return
+    end
+
+    if SequNr == ANIM_RELOAD then
+        -- assert(self:CanReload())
+        -- From the reload sequence, it seems as if the DartGun can only ever hold a single arrow at a time...?
+        local Amount = math.min(self:get("MaxPrimaryAmmo") - self:get("PrimaryAmmo"), Inventory:get("Arrows"))
+
+        Inventory:Add("Arrows", -Amount)
+        self:set("PrimaryAmmo", self:get("PrimaryAmmo") + Amount)
+
+        Console.Print("Dartgun done reloading, switching to IDLE1.\n")
+        Model:set("Animation", ANIM_IDLE1)
+        return
+    end
+
+    if SequNr == ANIM_FIRE then
+        if self:get("PrimaryAmmo") < 1 and self:CanReload() then
+            Model:set("Animation", ANIM_RELOAD)
+        else
+            Console.Print("Dartgun FIRE sequence wrapped, switching to idle.\n")
+            Model:set("Animation", ANIM_IDLE1)
+        end
         return
     end
 
@@ -95,6 +119,34 @@ function DartGun:PickedUp()
     -- Console.Print("primary Ammo: " .. self:get("PrimaryAmmo") .. "\n")
     -- Console.Print("inv Arrows:   " .. Inventory:get("Arrows") .. "\n")
     return true
+end
+
+
+function DartGun:CanReload()
+    return self:get("PrimaryAmmo") < self:get("MaxPrimaryAmmo") and Inventory:get("Arrows") > 0
+end
+
+
+function DartGun:FirePrimary()
+    if not self:IsIdle() then return end
+
+    if self:get("PrimaryAmmo") < 1 then
+        if self:CanReload() then
+            Model1stPerson:set("Animation", ANIM_RELOAD)
+        end
+    else
+        self:set("PrimaryAmmo", self:get("PrimaryAmmo") - 1)
+
+        Model1stPerson:set("Animation", ANIM_FIRE)
+    end
+
+    -- TODO: send primary fire event
+    -- TODO: inflict damage
+end
+
+
+function DartGun:FireSecondary()
+    -- No secondary fire for this weapon.
 end
 
 

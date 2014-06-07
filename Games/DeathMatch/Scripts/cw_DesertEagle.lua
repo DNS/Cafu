@@ -8,7 +8,7 @@ local Model1stPerson = nil
 -- Symbolic names for the animation sequences of the 1st-person weapon model.
 local ANIM_IDLE1   = 0
 local ANIM_FIDGET1 = 1
-local ANIM_FIRE1   = 2
+local ANIM_FIRE    = 2
 local ANIM_RELOAD  = 3
 local ANIM_HOLSTER = 4
 local ANIM_DRAW    = 5
@@ -27,6 +27,7 @@ end
 
 
 local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assigned in Draw() below.
+    local self   = DesertEagle
     local SequNr = Model:get("Animation")
 
     if SequNr == ANIM_DRAW then
@@ -38,6 +39,28 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
     if SequNr == ANIM_HOLSTER then
         Console.Print("DesertEagle HOLSTER sequence wrapped, selecting next weapon.\n")
         HumanPlayer:SelectNextWeapon()
+        return
+    end
+
+    if SequNr == ANIM_RELOAD then
+        -- assert(self:CanReload())
+        local Amount = math.min(self:get("MaxPrimaryAmmo") - self:get("PrimaryAmmo"), Inventory:get("Bullets357"))
+
+        Inventory:Add("Bullets357", -Amount)
+        self:set("PrimaryAmmo", self:get("PrimaryAmmo") + Amount)
+
+        Console.Print("DesertEagle done reloading, switching to IDLE1.\n")
+        Model:set("Animation", ANIM_IDLE1)
+        return
+    end
+
+    if SequNr == ANIM_FIRE then
+        if self:get("PrimaryAmmo") < 1 and self:CanReload() then
+            Model:set("Animation", ANIM_RELOAD)
+        else
+            Console.Print("DesertEagle FIRE sequence wrapped, switching to idle.\n")
+            Model:set("Animation", ANIM_IDLE1)
+        end
         return
     end
 
@@ -72,6 +95,34 @@ function DesertEagle:Holster()
 
     Model1stPerson:set("Animation", ANIM_HOLSTER)
     return true
+end
+
+
+function DesertEagle:CanReload()
+    return self:get("PrimaryAmmo") < self:get("MaxPrimaryAmmo") and Inventory:get("Bullets357") > 0
+end
+
+
+function DesertEagle:FirePrimary()
+    if not self:IsIdle() then return end
+
+    if self:get("PrimaryAmmo") < 1 then
+        if self:CanReload() then
+            Model1stPerson:set("Animation", ANIM_RELOAD)
+        end
+    else
+        self:set("PrimaryAmmo", self:get("PrimaryAmmo") - 1)
+
+        Model1stPerson:set("Animation", ANIM_FIRE)
+    end
+
+    -- TODO: send primary fire event
+    -- TODO: inflict damage
+end
+
+
+function DesertEagle:FireSecondary()
+    -- No secondary fire for this weapon.
 end
 
 

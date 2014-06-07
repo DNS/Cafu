@@ -78,6 +78,16 @@ function Egon:Holster()
 end
 
 
+function Egon:FirePrimary()
+    -- No primary fire for this weapon (at this time -- TODO).
+end
+
+
+function Egon:FireSecondary()
+    -- No secondary fire for this weapon.
+end
+
+
 function Egon:PickedUp()
     if self:get("IsAvail") then
         -- If we have picked up the Egon gun earlier, and our inventory already has the

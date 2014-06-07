@@ -14,8 +14,8 @@ local ANIM_ATTACK2     =  5
 local ANIM_ATTACK2HIT  =  6
 local ANIM_ATTACK3     =  7
 local ANIM_ATTACK3HIT  =  8
-local ANIM_IDLE2       =  9
-local ANIM_IDLE3       = 10
+local ANIM_IDLE2       =  9   -- same as ANIM_IDLE
+local ANIM_IDLE3       = 10   -- same as ANIM_IDLE
 
 
 local function Update1stPersonModel()
@@ -29,6 +29,7 @@ end
 
 
 local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assigned in Draw() below.
+    local self   = BattleScythe
     local SequNr = Model:get("Animation")
 
     if SequNr == ANIM_DRAW then
@@ -40,6 +41,12 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
     if SequNr == ANIM_HOLSTER then
         Console.Print("BattleScythe HOLSTER sequence wrapped, selecting next weapon.\n")
         HumanPlayer:SelectNextWeapon()
+        return
+    end
+
+    if SequNr >= ANIM_ATTACK1 and SequNr <= ANIM_ATTACK3HIT then
+        Console.Print("BattleScythe ATTACK* sequence wrapped, switching to idle.\n")
+        Model:set("Animation", ANIM_IDLE)
         return
     end
 
@@ -74,6 +81,26 @@ function BattleScythe:Holster()
 
     Model1stPerson:set("Animation", ANIM_HOLSTER)
     return true
+end
+
+
+function BattleScythe:FirePrimary()
+    if not self:IsIdle() then return end
+
+    Model1stPerson:set("Animation", ANIM_ATTACK1)
+
+    -- TODO: send primary fire event
+    -- TODO: inflict damage
+end
+
+
+function BattleScythe:FireSecondary()
+    if not self:IsIdle() then return end
+
+    Model1stPerson:set("Animation", ANIM_ATTACK2HIT)
+
+    -- TODO: send secondary fire event
+    -- TODO: inflict damage
 end
 
 

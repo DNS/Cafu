@@ -634,6 +634,13 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                 CarriedWeapon->ServerSide_Think(this, PlayerCommand, ThinkingOnServerSide, AnimSequenceWrap);
             }
 
+            IntrusivePtrT<ComponentCarriedWeaponT> CarriedWeapon = GetActiveWeapon();
+
+            if (CarriedWeapon != NULL)
+            {
+                if (PlayerCommand.Keys & PCK_Fire1) CarriedWeapon->CallLuaMethod("FirePrimary", 0);
+                if (PlayerCommand.Keys & PCK_Fire2) CarriedWeapon->CallLuaMethod("FireSecondary", 0);
+            }
 
             // Check if any key for changing the current weapon was pressed.
             ArrayT<char> SelectableWeapons;

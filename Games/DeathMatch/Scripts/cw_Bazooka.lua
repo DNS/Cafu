@@ -29,6 +29,7 @@ end
 
 
 local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assigned in Draw() below.
+    local self   = Bazooka
     local SequNr = Model:get("Animation")
 
     if SequNr == ANIM_DRAW then
@@ -37,14 +38,45 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
         return
     end
 
-    if SequNr == ANIM_HOLSTER then
-        Console.Print("Bazooka HOLSTER sequence wrapped, selecting next weapon.\n")
+    if SequNr == ANIM_DRAW_EMPTY then
+        Console.Print("Bazooka DRAW_EMPTY sequence wrapped, switching to idle_empty.\n")
+        Model:set("Animation", ANIM_IDLE_EMPTY)
+        return
+    end
+
+    if SequNr == ANIM_HOLSTER or SequNr == ANIM_HOLSTER_EMPTY then
+        Console.Print("Bazooka HOLSTER or HOLSTER_EMPTY sequence wrapped, selecting next weapon.\n")
         HumanPlayer:SelectNextWeapon()
         return
     end
 
-    if SequNr == ANIM_IDLE then
-        Console.Print("Bazooka IDLE sequence wrapped.\n")
+    if SequNr == ANIM_RELOAD then
+        -- assert(self:CanReload())
+        Inventory:Add("Rockets", -1)
+        self:set("PrimaryAmmo", self:get("PrimaryAmmo") + 1)
+
+        Console.Print("Bazooka RELOAD sequence wrapped, switching to idle.\n")
+        Model:set("Animation", ANIM_IDLE)
+        return
+    end
+
+    if SequNr == ANIM_FIRE then
+        if self:get("PrimaryAmmo") < 1 and self:CanReload() then
+            Model:set("Animation", ANIM_RELOAD)
+        else
+            if self:get("PrimaryAmmo") < 1 then
+                Console.Print("Bazooka FIRE sequence wrapped, switching to idle_empty.\n")
+                Model:set("Animation", ANIM_IDLE_EMPTY)
+            else
+                Console.Print("Bazooka FIRE sequence wrapped, switching to idle.\n")
+                Model:set("Animation", ANIM_IDLE)
+            end
+        end
+        return
+    end
+
+    if SequNr == ANIM_IDLE or SequNr == ANIM_IDLE_EMPTY then
+        Console.Print("Bazooka IDLE or IDLE_EMPTY sequence wrapped.\n")
         return
     end
 end
@@ -64,7 +96,13 @@ function Bazooka:Draw()
 
     Model1stPerson:set("Show", true)
     Model1stPerson:set("Name", self:get("Model1stPerson"))
-    Model1stPerson:set("Animation", ANIM_DRAW)
+
+    if self:get("PrimaryAmmo") > 0 then
+        Model1stPerson:set("Animation", ANIM_DRAW)
+    else
+        Model1stPerson:set("Animation", ANIM_DRAW_EMPTY)
+    end
+
     Model1stPerson.OnSequenceWrap_Sv = OnSequenceWrap_Sv
 end
 
@@ -72,8 +110,43 @@ end
 function Bazooka:Holster()
     Update1stPersonModel()
 
-    Model1stPerson:set("Animation", ANIM_HOLSTER)
+    local Sequ = Model1stPerson:get("Animation")
+
+    if Sequ == ANIM_IDLE_EMPTY or Sequ == ANIM_FIDGET_EMPTY then
+        Model1stPerson:set("Animation", ANIM_HOLSTER_EMPTY)
+    else
+        Model1stPerson:set("Animation", ANIM_HOLSTER)
+    end
+
     return true
+end
+
+
+function Bazooka:CanReload()
+    return self:get("PrimaryAmmo") < self:get("MaxPrimaryAmmo") and Inventory:get("Rockets") > 0
+end
+
+
+function Bazooka:FirePrimary()
+    if not self:IsIdle() then return end
+
+    if self:get("PrimaryAmmo") < 1 then
+        if self:CanReload() then
+            Model1stPerson:set("Animation", ANIM_RELOAD)
+        end
+    else
+        self:set("PrimaryAmmo", self:get("PrimaryAmmo") - 1)
+
+        Model1stPerson:set("Animation", ANIM_FIRE)
+    end
+
+    -- TODO: send primary fire event
+    -- TODO: inflict damage
+end
+
+
+function Bazooka:FireSecondary()
+    -- No secondary fire for this weapon.
 end
 
 
@@ -90,7 +163,7 @@ function Bazooka:PickedUp()
         self:set("IsAvail", true)
         self:set("PrimaryAmmo", self:get("MaxPrimaryAmmo"))
 
-        -- Inventory:Add("Rockets", 1)
+        Inventory:Add("Rockets", 0)     -- Make sure that the "Rockets" key is initialized.
 
         HumanPlayer:SelectWeapon(self)
     end
@@ -107,5 +180,5 @@ end
 
 
 function Bazooka:GetAmmoString()
-    return string.format("Ammo %2u (%2u)", self:get("PrimaryAmmo"), Inventory:get("Rockets") or 0)
+    return string.format("Ammo %2u (%2u)", self:get("PrimaryAmmo"), Inventory:get("Rockets"))
 end
