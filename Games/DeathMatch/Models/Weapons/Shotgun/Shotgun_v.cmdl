@@ -3454,7 +3454,7 @@ Animations=
 	{
 		name="idle";
 		FPS=12;
-		next="-1";
+		next="0";
 
 		AnimJoints=
 		{
@@ -3798,7 +3798,7 @@ Animations=
 	{
 		name="insert";
 		FPS=65;
-		next="-1";
+		next="3";
 
 		AnimJoints=
 		{

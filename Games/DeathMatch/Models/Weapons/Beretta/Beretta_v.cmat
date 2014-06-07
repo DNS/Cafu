@@ -11,7 +11,7 @@ Models/Weapons/Beretta/Beretta_v/arm
 
 Models/Weapons/Beretta/Beretta_v/arm1
 {
-    diffusemap Shotgun_v_arm1_diff.png
+    diffusemap Beretta_v_arm1_diff.png
 
     red   ambientLightRed
     green ambientLightGreen

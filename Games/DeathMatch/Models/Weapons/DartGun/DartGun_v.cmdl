@@ -2211,7 +2211,7 @@ Animations=
 	{
 		name="idle1";
 		FPS=14;
-		next="-1";
+		next="0";
 
 		AnimJoints=
 		{
@@ -2349,7 +2349,7 @@ Animations=
 	{
 		name="idle2";
 		FPS=14;
-		next="-1";
+		next="1";
 
 		AnimJoints=
 		{
@@ -2487,7 +2487,7 @@ Animations=
 	{
 		name="idle3";
 		FPS=14;
-		next="-1";
+		next="2";
 
 		AnimJoints=
 		{

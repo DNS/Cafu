@@ -727,7 +727,7 @@ Animations=
 	{
 		name="idle";
 		FPS=30;
-		next="-1";
+		next="0";
 
 		AnimJoints=
 		{
@@ -832,7 +832,7 @@ Animations=
 	{
 		name="fidget";
 		FPS=30;
-		next="-1";
+		next="1";
 
 		AnimJoints=
 		{

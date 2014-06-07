@@ -2247,7 +2247,7 @@ Animations=
 	{
 		name="longidle";
 		FPS=8;
-		next="-1";
+		next="0";
 
 		AnimJoints=
 		{
@@ -2388,7 +2388,7 @@ Animations=
 	{
 		name="idle1";
 		FPS=35;
-		next="-1";
+		next="1";
 
 		AnimJoints=
 		{
