@@ -52,6 +52,19 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
     end
 
     if SequNr == ANIM_IDLE then
+        local r = HumanPlayer:GetRandom(4)
+
+        if r == 0 then
+            Model:set("Animation", ANIM_FIDGETFIT)
+        elseif r == 1 then
+            Model:set("Animation", ANIM_FIDGETNIP)
+        end
+        return
+    end
+
+    if SequNr == ANIM_FIDGETFIT or SequNr == ANIM_FIDGETNIP then
+        -- Never play the "fidget" animations repeatedly.
+        Model:set("Animation", ANIM_IDLE)
         return
     end
 end

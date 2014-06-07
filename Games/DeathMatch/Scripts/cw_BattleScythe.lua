@@ -83,7 +83,11 @@ end
 function BattleScythe:FirePrimary()
     if not self:IsIdle() then return end
 
-    Model1stPerson:set("Animation", ANIM_ATTACK1)
+    if HumanPlayer:GetRandom(2) == 0 then
+        Model1stPerson:set("Animation", ANIM_ATTACK1MISS)
+    else
+        Model1stPerson:set("Animation", ANIM_ATTACK3)
+    end
 
     -- TODO: send primary fire event
     -- TODO: inflict damage
@@ -93,7 +97,7 @@ end
 function BattleScythe:FireSecondary()
     if not self:IsIdle() then return end
 
-    Model1stPerson:set("Animation", ANIM_ATTACK2HIT)
+    Model1stPerson:set("Animation", ANIM_ATTACK2)
 
     -- TODO: send secondary fire event
     -- TODO: inflict damage

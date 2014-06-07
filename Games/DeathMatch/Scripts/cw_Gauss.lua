@@ -40,7 +40,16 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
         return
     end
 
-    if SequNr == ANIM_IDLE then
+    if SequNr == ANIM_IDLE or SequNr == ANIM_IDLE2 or SequNr == ANIM_FIDGET then
+        local r = HumanPlayer:GetRandom(4)
+
+        if r == 0 then
+            Model:set("Animation", ANIM_IDLE2)
+        elseif r == 1 then
+            Model:set("Animation", ANIM_FIDGET)
+        else
+            Model:set("Animation", ANIM_IDLE)
+        end
         return
     end
 end

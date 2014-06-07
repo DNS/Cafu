@@ -32,7 +32,7 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
     local SequNr = Model:get("Animation")
 
     if SequNr == ANIM_DRAW then
-        Model:set("Animation", ANIM_IDLE1)
+        Model:set("Animation", ANIM_IDLE3)
         return
     end
 
@@ -48,7 +48,7 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
         Inventory:Add("Bullets9mm", -Amount)
         self:set("PrimaryAmmo", self:get("PrimaryAmmo") + Amount)
 
-        Model:set("Animation", ANIM_IDLE1)
+        Model:set("Animation", ANIM_IDLE3)
         return
     end
 
@@ -56,12 +56,25 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
         if self:get("PrimaryAmmo") < 1 and self:CanReload() then
             Model:set("Animation", ANIM_RELOAD)
         else
-            Model:set("Animation", ANIM_IDLE)
+            Model:set("Animation", ANIM_IDLE3)
         end
         return
     end
 
-    if SequNr == ANIM_IDLE1 then
+    if SequNr == ANIM_IDLE3 then
+        local r = HumanPlayer:GetRandom(4)
+
+        if r == 0 then
+            Model:set("Animation", ANIM_IDLE1)
+        elseif r == 1 then
+            Model:set("Animation", ANIM_IDLE2)
+        end
+        return
+    end
+
+    if SequNr == ANIM_IDLE1 or SequNr == ANIM_IDLE2 then
+        -- Never play the "nervous" idle animations repeatedly.
+        Model:set("Animation", ANIM_IDLE3)
         return
     end
 end

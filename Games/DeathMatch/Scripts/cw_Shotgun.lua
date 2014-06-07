@@ -69,9 +69,9 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
         return
     end
 
-    if SequNr == ANIM_IDLE then
-        return
-    end
+ -- if SequNr == ANIM_IDLE then
+ --     return
+ -- end
 end
 
 

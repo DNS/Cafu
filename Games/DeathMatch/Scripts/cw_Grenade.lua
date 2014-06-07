@@ -42,7 +42,7 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
 
     if SequNr == ANIM_PINPULL then
         self:set("PrimaryAmmo", self:get("PrimaryAmmo") - 1)
-        Model:set("Animation", ANIM_THROW1)
+        Model:set("Animation", ANIM_THROW1 + HumanPlayer:GetRandom(3))
         return
     end
 
@@ -69,6 +69,15 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
     end
 
     if SequNr == ANIM_IDLE then
+        if HumanPlayer:GetRandom(2) == 0 then
+            Model:set("Animation", ANIM_FIDGET)
+        end
+        return
+    end
+
+    if SequNr == ANIM_FIDGET then
+        -- Never play the "fidget" animation repeatedly.
+        Model:set("Animation", ANIM_IDLE)
         return
     end
 end

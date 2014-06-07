@@ -75,6 +75,15 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
     end
 
     if SequNr == ANIM_LONGIDLE then
+        if HumanPlayer:GetRandom(2) == 0 then
+            Model:set("Animation", ANIM_IDLE1)
+        end
+        return
+    end
+
+    if SequNr == ANIM_IDLE1 then
+        -- Never play the "IDLE1" animation repeatedly.
+        Model:set("Animation", ANIM_LONGIDLE)
         return
     end
 end

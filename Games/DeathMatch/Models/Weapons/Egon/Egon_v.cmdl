@@ -2224,7 +2224,7 @@ Animations=
 	{
 		name="fidget1";
 		FPS=30;
-		next="-1";
+		next="1";
 
 		AnimJoints=
 		{
