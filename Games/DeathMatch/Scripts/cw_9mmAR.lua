@@ -92,9 +92,9 @@ end
 function AR:IsIdle()
     Update1stPersonModel()
 
-    local Sequ = Model1stPerson:get("Animation")
+    local SequNr = Model1stPerson:get("Animation")
 
-    return Sequ == ANIM_LONGIDLE or Sequ == ANIM_IDLE1
+    return SequNr == ANIM_LONGIDLE or SequNr == ANIM_IDLE1
 end
 
 

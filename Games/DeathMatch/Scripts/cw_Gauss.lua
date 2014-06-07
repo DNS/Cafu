@@ -58,9 +58,9 @@ end
 function Gauss:IsIdle()
     Update1stPersonModel()
 
-    local Sequ = Model1stPerson:get("Animation")
+    local SequNr = Model1stPerson:get("Animation")
 
-    return Sequ == ANIM_IDLE or Sequ == ANIM_IDLE2 or Sequ == ANIM_FIDGET
+    return SequNr == ANIM_IDLE or SequNr == ANIM_IDLE2 or SequNr == ANIM_FIDGET
 end
 
 

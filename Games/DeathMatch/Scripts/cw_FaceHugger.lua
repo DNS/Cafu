@@ -73,9 +73,9 @@ end
 function FaceHugger:IsIdle()
     Update1stPersonModel()
 
-    local Sequ = Model1stPerson:get("Animation")
+    local SequNr = Model1stPerson:get("Animation")
 
-    return Sequ == ANIM_IDLE or Sequ == ANIM_FIDGETFIT or Sequ == ANIM_FIDGETNIP
+    return SequNr == ANIM_IDLE or SequNr == ANIM_FIDGETFIT or SequNr == ANIM_FIDGETNIP
 end
 
 

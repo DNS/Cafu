@@ -80,9 +80,9 @@ end
 function DesertEagle:IsIdle()
     Update1stPersonModel()
 
-    local Sequ = Model1stPerson:get("Animation")
+    local SequNr = Model1stPerson:get("Animation")
 
-    return Sequ == ANIM_IDLE1 or Sequ == ANIM_IDLE2 or Sequ == ANIM_IDLE3
+    return SequNr == ANIM_IDLE1 or SequNr == ANIM_IDLE2 or SequNr == ANIM_IDLE3 or SequNr == ANIM_FIDGET1
 end
 
 

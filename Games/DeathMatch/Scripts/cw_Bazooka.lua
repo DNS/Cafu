@@ -100,9 +100,9 @@ end
 function Bazooka:IsIdle()
     Update1stPersonModel()
 
-    local Sequ = Model1stPerson:get("Animation")
+    local SequNr = Model1stPerson:get("Animation")
 
-    return Sequ == ANIM_IDLE or Sequ == ANIM_FIDGET or Sequ == ANIM_IDLE_EMPTY or Sequ == ANIM_FIDGET_EMPTY
+    return SequNr == ANIM_IDLE or SequNr == ANIM_FIDGET or SequNr == ANIM_IDLE_EMPTY or SequNr == ANIM_FIDGET_EMPTY
 end
 
 
@@ -125,9 +125,9 @@ end
 function Bazooka:Holster()
     Update1stPersonModel()
 
-    local Sequ = Model1stPerson:get("Animation")
+    local SequNr = Model1stPerson:get("Animation")
 
-    if Sequ == ANIM_IDLE_EMPTY or Sequ == ANIM_FIDGET_EMPTY then
+    if SequNr == ANIM_IDLE_EMPTY or SequNr == ANIM_FIDGET_EMPTY then
         Model1stPerson:set("Animation", ANIM_HOLSTER_EMPTY)
     else
         Model1stPerson:set("Animation", ANIM_HOLSTER)
