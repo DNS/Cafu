@@ -48,6 +48,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "String.hpp"
 #include "UniScriptState.hpp"
 
+#include "MersenneTwister.h"
+
 extern "C"
 {
     #include <lua.h>
@@ -77,6 +79,7 @@ const char* ComponentHumanPlayerT::DocClass =
 const cf::TypeSys::VarsDocT ComponentHumanPlayerT::DocVars[] =
 {
     { "PlayerName",          "The name that the player chose for himself." },
+    { "RandomCount",         "Keeps track of the next random number that is returned by the GetRandom() method." },
     { "State",               "For the player's main state machine, e.g. spectator, dead, alive, ..." },
     { "Health",              "Health." },
     { "Armor",               "Armor." },
@@ -97,6 +100,7 @@ const cf::TypeSys::VarsDocT ComponentHumanPlayerT::DocVars[] =
 ComponentHumanPlayerT::ComponentHumanPlayerT()
     : ComponentBaseT(),
       m_PlayerName("PlayerName", "Player"),
+      m_RandomCount("RandomCount", 0),
       m_StateOfExistence("State", 2 /*StateOfExistence_FrozenSpectator*/),
       m_Health("Health", 100),
       m_Armor("Armor", 0),
@@ -120,6 +124,7 @@ ComponentHumanPlayerT::ComponentHumanPlayerT()
 ComponentHumanPlayerT::ComponentHumanPlayerT(const ComponentHumanPlayerT& Comp)
     : ComponentBaseT(Comp),
       m_PlayerName(Comp.m_PlayerName),
+      m_RandomCount(Comp.m_RandomCount),
       m_StateOfExistence(Comp.m_StateOfExistence),
       m_Health(Comp.m_Health),
       m_Armor(Comp.m_Armor),
@@ -143,6 +148,7 @@ ComponentHumanPlayerT::ComponentHumanPlayerT(const ComponentHumanPlayerT& Comp)
 void ComponentHumanPlayerT::FillMemberVars()
 {
     GetMemberVars().Add(&m_PlayerName);
+    GetMemberVars().Add(&m_RandomCount);
     GetMemberVars().Add(&m_StateOfExistence);
     GetMemberVars().Add(&m_Health);
     GetMemberVars().Add(&m_Armor);
@@ -1022,6 +1028,51 @@ void ComponentHumanPlayerT::SelectNextWeapon()
 }
 
 
+namespace
+{
+    ArrayT<unsigned int> s_RandomPool;
+
+    void InitRandomPool()
+    {
+        if (s_RandomPool.Size() == 0)
+        {
+            MTRand RNG;
+
+            s_RandomPool.PushBackEmpty(1024);
+
+            for (unsigned int i = 0; i < s_RandomPool.Size(); i++)
+                s_RandomPool[i] = RNG.randInt();
+        }
+    }
+}
+
+
+unsigned int ComponentHumanPlayerT::GetRandom(unsigned int n)
+{
+    if (n == 0) return 0;
+
+    InitRandomPool();
+
+    const unsigned int r = s_RandomPool[m_RandomCount.Get() % s_RandomPool.Size()] % n;
+
+    m_RandomCount.Set(m_RandomCount.Get() + 1);
+
+    return r;
+}
+
+
+double ComponentHumanPlayerT::GetRandom()
+{
+    InitRandomPool();
+
+    const double r = double(s_RandomPool[m_RandomCount.Get() % s_RandomPool.Size()]) * (1.0 / 4294967295.0);
+
+    m_RandomCount.Set(m_RandomCount.Get() + 1);
+
+    return r;
+}
+
+
 BoundingBox3fT ComponentHumanPlayerT::GetVisualBB() const
 {
     const float r = 1.0f;
@@ -1369,6 +1420,37 @@ int ComponentHumanPlayerT::SelectNextWeapon(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_GetRandom =
+{
+    "GetRandom",
+    "Returns a pseudo-random number.\n\n"
+    "If `n` is 0, 1, or absent (`nil`), this method returns a pseudo-random number in range `[0.0, 1.0]` (inclusive).\n"
+    "Otherwise, a pseudo-random *integer* in range `0 ... n-1` is returned.\n\n"
+    "The important aspect of this method is that it returns pseudo-random numbers that are reproducible in the\n"
+    "context of the \"client prediction\" feature of the Cafu Engine. All random numbers that are used in human\n"
+    "player code must be obtained from this method.",
+    "", "(number n)"
+};
+
+int ComponentHumanPlayerT::GetRandom(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<ComponentHumanPlayerT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentHumanPlayerT> >(1);
+    const int n = luaL_optint(LuaState, 2, 0);
+
+    if (n > 1)
+    {
+        lua_pushinteger(LuaState, Comp->GetRandom(n));
+    }
+    else
+    {
+        lua_pushnumber(LuaState, Comp->GetRandom());
+    }
+
+    return 1;
+}
+
+
 static const cf::TypeSys::MethsDocT META_toString =
 {
     "__tostring",
@@ -1402,6 +1484,7 @@ const luaL_Reg ComponentHumanPlayerT::MethodsList[] =
     { "GetActiveWeapon",  GetActiveWeapon },
     { "SelectWeapon",     SelectWeapon },
     { "SelectNextWeapon", SelectNextWeapon },
+    { "GetRandom",        GetRandom },
     { "__tostring",       toString },
     { NULL, NULL }
 };
@@ -1413,6 +1496,7 @@ const cf::TypeSys::MethsDocT ComponentHumanPlayerT::DocMethods[] =
     META_GetActiveWeapon,
     META_SelectWeapon,
     META_SelectNextWeapon,
+    META_GetRandom,
     META_toString,
     { NULL, NULL, NULL, NULL }
 };

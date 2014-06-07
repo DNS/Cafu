@@ -131,6 +131,20 @@ namespace cf
             /// calls this method.
             void SelectNextWeapon();
 
+            /// Returns a pseudo-random integer in range `0 ... n-1`.
+            ///
+            /// The important aspect of this method is that it returns pseudo-random numbers that are reproducible
+            /// in the context of the "client prediction" feature of the Cafu Engine. All random numbers that are
+            /// used in human player code must be obtained from one of the GetRandom() methods in this class.
+            unsigned int GetRandom(unsigned int n);
+
+            /// Returns a pseudo-random double in range `[0.0, 1.0]` (inclusive).
+            ///
+            /// The important aspect of this method is that it returns pseudo-random numbers that are reproducible
+            /// in the context of the "client prediction" feature of the Cafu Engine. All random numbers that are
+            /// used in human player code must be obtained from one of the GetRandom() methods in this class.
+            double GetRandom();
+
 
             // Base class overrides.
             ComponentHumanPlayerT* Clone() const;
@@ -155,6 +169,7 @@ namespace cf
             static int GetActiveWeapon(lua_State* LuaState);
             static int SelectWeapon(lua_State* LuaState);
             static int SelectNextWeapon(lua_State* LuaState);
+            static int GetRandom(lua_State* LuaState);
             static int toString(lua_State* LuaState);
 
             static const luaL_Reg               MethodsList[];  ///< The list of Lua methods for this class.
@@ -169,6 +184,7 @@ namespace cf
             IntrusivePtrT<cf::GuiSys::GuiImplT> GetGuiHUD();    ///< Returns the GUI instance for the player's Head-Up Display.
 
             TypeSys::VarT<std::string>   m_PlayerName;          ///< The name that the player chose for himself.
+            TypeSys::VarT<uint16_t>      m_RandomCount;         ///< Keeps track of the next random number that is returned by the GetRandom() methods.
             TypeSys::VarT<uint8_t>       m_StateOfExistence;    ///< For the player's main state machine, e.g. "spectator, dead, alive, ...".
             TypeSys::VarT<uint8_t>       m_Health;              ///< Health.
             TypeSys::VarT<uint8_t>       m_Armor;               ///< Armor.

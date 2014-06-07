@@ -381,6 +381,16 @@ class ComponentHumanPlayerT : public ComponentBaseT
     /// @see @ref CarriedWeaponsOverview
     SelectNextWeapon();
 
+    /// Returns a pseudo-random number.
+    ///
+    /// If `n` is 0, 1, or absent (`nil`), this method returns a pseudo-random number in range `[0.0, 1.0]` (inclusive).
+    /// Otherwise, a pseudo-random *integer* in range `0 ... n-1` is returned.
+    ///
+    /// The important aspect of this method is that it returns pseudo-random numbers that are reproducible in the
+    /// context of the "client prediction" feature of the Cafu Engine. All random numbers that are used in human
+    /// player code must be obtained from this method.
+    GetRandom(number n);
+
 
     public:
 
@@ -399,6 +409,10 @@ class ComponentHumanPlayerT : public ComponentBaseT
     /// The name that the player chose for himself.
     /// @cppType{std::string}
     string PlayerName;
+
+    /// Keeps track of the next random number that is returned by the GetRandom() method.
+    /// @cppType{uint16_t}
+    number RandomCount;
 
     /// For the player's main state machine, e.g. spectator, dead, alive, ...
     /// @cppType{uint8_t}
