@@ -33,25 +33,21 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
     local SequNr = Model:get("Animation")
 
     if SequNr == ANIM_DRAW then
-        Console.Print("BattleScythe DRAW sequence wrapped, switching to idle.\n")
         Model:set("Animation", ANIM_IDLE)
         return
     end
 
     if SequNr == ANIM_HOLSTER then
-        Console.Print("BattleScythe HOLSTER sequence wrapped, selecting next weapon.\n")
         HumanPlayer:SelectNextWeapon()
         return
     end
 
     if SequNr >= ANIM_ATTACK1 and SequNr <= ANIM_ATTACK3HIT then
-        Console.Print("BattleScythe ATTACK* sequence wrapped, switching to idle.\n")
         Model:set("Animation", ANIM_IDLE)
         return
     end
 
     if SequNr == ANIM_IDLE then
-        Console.Print("BattleScythe IDLE sequence wrapped.\n")
         return
     end
 end

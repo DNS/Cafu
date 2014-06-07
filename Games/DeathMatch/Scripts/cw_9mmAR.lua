@@ -31,13 +31,11 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
     local SequNr = Model:get("Animation")
 
     if SequNr == ANIM_DRAW then
-        Console.Print("Assault Rifle DRAW sequence wrapped, switching to idle.\n")
         Model:set("Animation", ANIM_LONGIDLE)
         return
     end
 
  -- if SequNr == ANIM_HOLSTER then
- --     Console.Print("Assault Rifle HOLSTER sequence wrapped, selecting next weapon.\n")
  --     HumanPlayer:SelectNextWeapon()
  --     return
  -- end
@@ -54,7 +52,6 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
         Inventory:Add("ARGrenades", -Amount2)
         self:set("SecondaryAmmo", self:get("SecondaryAmmo") + Amount2)
 
-        Console.Print("Assault Rifle RELOAD sequence wrapped, switching to idle.\n")
         Model:set("Animation", ANIM_LONGIDLE)
         return
     end
@@ -63,7 +60,6 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
         if self:get("SecondaryAmmo") < 1 and self:CanReload() then
             Model:set("Animation", ANIM_RELOAD)
         else
-            Console.Print("Assault Rifle GRENADE sequence wrapped, switching to idle.\n")
             Model:set("Animation", ANIM_LONGIDLE)
         end
         return
@@ -79,7 +75,6 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
     end
 
     if SequNr == ANIM_LONGIDLE then
-        Console.Print("Assault Rifle LONGIDLE sequence wrapped.\n")
         return
     end
 end

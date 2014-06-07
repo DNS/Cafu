@@ -32,13 +32,11 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
     local SequNr = Model:get("Animation")
 
     if SequNr == ANIM_DRAW then
-        Console.Print("Beretta DRAW sequence wrapped, switching to idle.\n")
         Model:set("Animation", ANIM_IDLE1)
         return
     end
 
     if SequNr == ANIM_HOLSTER then
-        Console.Print("Beretta HOLSTER sequence wrapped, selecting next weapon.\n")
         HumanPlayer:SelectNextWeapon()
         return
     end
@@ -50,7 +48,6 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
         Inventory:Add("Bullets9mm", -Amount)
         self:set("PrimaryAmmo", self:get("PrimaryAmmo") + Amount)
 
-        Console.Print("Beretta done reloading, switching to IDLE1.\n")
         Model:set("Animation", ANIM_IDLE1)
         return
     end
@@ -59,14 +56,12 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
         if self:get("PrimaryAmmo") < 1 and self:CanReload() then
             Model:set("Animation", ANIM_RELOAD)
         else
-            Console.Print("Beretta SHOOT or SHOOT_EMPTY sequence wrapped, switching to idle.\n")
             Model:set("Animation", ANIM_IDLE)
         end
         return
     end
 
     if SequNr == ANIM_IDLE1 then
-        Console.Print("Beretta IDLE1 sequence wrapped.\n")
         return
     end
 end

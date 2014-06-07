@@ -31,19 +31,16 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
     local SequNr = Model:get("Animation")
 
     if SequNr == ANIM_DRAW then
-        Console.Print("Gauss DRAW sequence wrapped, switching to idle.\n")
         Model:set("Animation", ANIM_IDLE)
         return
     end
 
     if SequNr == ANIM_HOLSTER then
-        Console.Print("Gauss HOLSTER sequence wrapped, selecting next weapon.\n")
         HumanPlayer:SelectNextWeapon()
         return
     end
 
     if SequNr == ANIM_IDLE then
-        Console.Print("Gauss IDLE sequence wrapped.\n")
         return
     end
 end

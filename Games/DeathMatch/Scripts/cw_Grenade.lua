@@ -31,20 +31,17 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
     local SequNr = Model:get("Animation")
 
     if SequNr == ANIM_DRAW then
-        Console.Print("Grenade DRAW sequence wrapped, switching to idle.\n")
         Model:set("Animation", ANIM_IDLE)
         return
     end
 
     if SequNr == ANIM_HOLSTER then
-        Console.Print("Grenade HOLSTER sequence wrapped, selecting next weapon.\n")
         HumanPlayer:SelectNextWeapon()
         return
     end
 
     if SequNr == ANIM_PINPULL then
         self:set("PrimaryAmmo", self:get("PrimaryAmmo") - 1)
-        Console.Print("Grenade PINPULL sequence wrapped, throwing...\n")
         Model:set("Animation", ANIM_THROW1)
         return
     end
@@ -54,7 +51,6 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
             Inventory:Add("HandGrenades", -1)
             self:set("PrimaryAmmo", self:get("PrimaryAmmo") + 1)
 
-            Console.Print("Grenade THROW sequence wrapped, switching to (re-)DRAW.\n")
             Model:set("Animation", ANIM_DRAW)
         else
             -- This is really stupid, because ANIM_IDLE renders a grenade in our hand,
@@ -73,7 +69,6 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
     end
 
     if SequNr == ANIM_IDLE then
-        Console.Print("Grenade IDLE sequence wrapped.\n")
         return
     end
 end

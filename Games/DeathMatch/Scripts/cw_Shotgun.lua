@@ -30,19 +30,16 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
     local SequNr = Model:get("Animation")
 
     if SequNr == ANIM_DRAW then
-        Console.Print("Shotgun DRAW sequence wrapped, switching to idle.\n")
         Model:set("Animation", ANIM_IDLE)
         return
     end
 
  -- if SequNr == ANIM_HOLSTER then
- --     Console.Print("Shotgun HOLSTER sequence wrapped, selecting next weapon.\n")
  --     HumanPlayer:SelectNextWeapon()
  --     return
  -- end
 
     if SequNr == ANIM_BEGIN_RELOAD then
-        Console.Print("Shotgun BEGIN_RELOAD sequence wrapped, switching to INSERT.\n")
         Model:set("Animation", ANIM_INSERT)
         return
     end
@@ -53,14 +50,12 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
         self:set("PrimaryAmmo", self:get("PrimaryAmmo") + 1)
 
         if not self:CanReload() then
-            Console.Print("Shotgun done inserting, switching to END_RELOAD.\n")
             Model:set("Animation", ANIM_END_RELOAD)
         end
         return
     end
 
     if SequNr == ANIM_END_RELOAD then
-        Console.Print("Shotgun END_RELOAD sequence wrapped, switching to idle.\n")
         Model:set("Animation", ANIM_IDLE)
         return
     end
@@ -69,14 +64,12 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
         if self:get("PrimaryAmmo") < 1 and self:CanReload() then
             Model:set("Animation", ANIM_BEGIN_RELOAD)
         else
-            Console.Print("Shotgun SHOOT1 or SHOOT2 sequence wrapped, switching to idle.\n")
             Model:set("Animation", ANIM_IDLE)
         end
         return
     end
 
     if SequNr == ANIM_IDLE then
-        -- Console.Print("Shotgun IDLE sequence wrapped.\n")
         return
     end
 end

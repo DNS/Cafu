@@ -33,19 +33,16 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
     local SequNr = Model:get("Animation")
 
     if SequNr == ANIM_DRAW then
-        Console.Print("Bazooka DRAW sequence wrapped, switching to idle.\n")
         Model:set("Animation", ANIM_IDLE)
         return
     end
 
     if SequNr == ANIM_DRAW_EMPTY then
-        Console.Print("Bazooka DRAW_EMPTY sequence wrapped, switching to idle_empty.\n")
         Model:set("Animation", ANIM_IDLE_EMPTY)
         return
     end
 
     if SequNr == ANIM_HOLSTER or SequNr == ANIM_HOLSTER_EMPTY then
-        Console.Print("Bazooka HOLSTER or HOLSTER_EMPTY sequence wrapped, selecting next weapon.\n")
         HumanPlayer:SelectNextWeapon()
         return
     end
@@ -55,7 +52,6 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
         Inventory:Add("Rockets", -1)
         self:set("PrimaryAmmo", self:get("PrimaryAmmo") + 1)
 
-        Console.Print("Bazooka RELOAD sequence wrapped, switching to idle.\n")
         Model:set("Animation", ANIM_IDLE)
         return
     end
@@ -65,10 +61,8 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
             Model:set("Animation", ANIM_RELOAD)
         else
             if self:get("PrimaryAmmo") < 1 then
-                Console.Print("Bazooka FIRE sequence wrapped, switching to idle_empty.\n")
                 Model:set("Animation", ANIM_IDLE_EMPTY)
             else
-                Console.Print("Bazooka FIRE sequence wrapped, switching to idle.\n")
                 Model:set("Animation", ANIM_IDLE)
             end
         end
@@ -76,7 +70,6 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
     end
 
     if SequNr == ANIM_IDLE or SequNr == ANIM_IDLE_EMPTY then
-        Console.Print("Bazooka IDLE or IDLE_EMPTY sequence wrapped.\n")
         return
     end
 end
