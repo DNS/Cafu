@@ -1,6 +1,7 @@
 local Shotgun        = ...  -- Retrieve the ComponentCarriedWeaponT instance that is responsible for this script.
 local Entity         = Shotgun:GetEntity()
 local HumanPlayer    = Entity:GetComponent("HumanPlayer")
+local PlayerScript   = Entity:GetComponent("Script")
 local Inventory      = Entity:GetComponent("Inventory")
 local Model1stPerson = nil
 
@@ -114,11 +115,11 @@ function Shotgun:FirePrimary()
         end
     else
         self:set("PrimaryAmmo", self:get("PrimaryAmmo") - 1)
+        PlayerScript:PostEvent(PlayerScript.EVENT_TYPE_PRIMARY_FIRE)
 
         Model1stPerson:set("Animation", ANIM_SHOOT1)
     end
 
-    -- TODO: send primary fire event
     -- TODO: inflict damage
 end
 
@@ -132,11 +133,11 @@ function Shotgun:FireSecondary()
         end
     else
         self:set("PrimaryAmmo", self:get("PrimaryAmmo") - 2)
+        PlayerScript:PostEvent(PlayerScript.EVENT_TYPE_SECONDARY_FIRE)
 
         Model1stPerson:set("Animation", ANIM_SHOOT2)
     end
 
-    -- TODO: send secondary fire event
     -- TODO: inflict damage
 end
 

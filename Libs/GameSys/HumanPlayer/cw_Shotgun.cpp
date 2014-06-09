@@ -187,7 +187,7 @@ void CarriedWeaponShotgunT::ServerSide_Think(IntrusivePtrT<cf::GameSys::Componen
                 HumanPlayer->SetActiveWeaponFrameNr(0.0f);
                 HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_SHOTGUN]--;
 
-                HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
+                // HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
 
                 if (ThinkingOnServerSide)
                 {
@@ -211,7 +211,7 @@ void CarriedWeaponShotgunT::ServerSide_Think(IntrusivePtrT<cf::GameSys::Componen
                 HumanPlayer->SetActiveWeaponFrameNr(0.0f);
                 HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_SHOTGUN]-=2;
 
-                HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_SECONDARY_FIRE);
+                // HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_SECONDARY_FIRE);
 
                 if (ThinkingOnServerSide)
                 {
