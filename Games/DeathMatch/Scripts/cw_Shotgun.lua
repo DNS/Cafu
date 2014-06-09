@@ -174,3 +174,8 @@ end
 function Shotgun:GetAmmoString()
     return string.format("Ammo %2u (%2u)", self:get("PrimaryAmmo"), Inventory:get("Shells"))
 end
+
+
+function Shotgun:ProcessEvent(EventType, NumEvents)
+    Console.Print("Shotgun:ProcessEvent(" .. tostring(EventType) .. ", " .. tostring(NumEvents) .. ")\n")
+end

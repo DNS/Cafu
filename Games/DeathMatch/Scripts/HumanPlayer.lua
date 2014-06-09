@@ -107,6 +107,14 @@ function PlayerScript:ProcessEvent(EventType, NumEvents)
     -- The handling of player events is implemented in the "HumanPlayer"
     -- component at this time, so forward all events there.
     PlayerData:ProcessEvent(EventType, NumEvents)
+
+    -- At this time, all our event types are of type EVENT_TYPE_PRIMARY_FIRE and
+    -- EVENT_TYPE_SECONDARY_FIRE, so forward the event "unfiltered" to the relevant weapon.
+    local CarriedWeapon = PlayerData:GetActiveWeapon()
+
+    if CarriedWeapon and CarriedWeapon.ProcessEvent then
+        CarriedWeapon:ProcessEvent(EventType, NumEvents)
+    end
 end
 
 
