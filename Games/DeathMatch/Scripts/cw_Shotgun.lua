@@ -16,12 +16,12 @@ local ANIM_BEGIN_RELOAD = 5
 local ANIM_DRAW         = 6
 
 
-local function Update1stPersonModel()
+local function UpdateChildComponents()
     -- On the client, our entity's *children* may arrive over the network only *after*
     -- this script has initially been run (and this component's OnInit() has been called).
     -- Therefore, we have to defer the Model1stPerson init until it is first used.
     if not Model1stPerson then
-        Model1stPerson = Entity:GetChildren()[2]:GetComponent("Model")
+        Model1stPerson = Entity:FindByName("FirstPersonEnt"):GetComponent("Model")
     end
 end
 
@@ -77,14 +77,14 @@ end
 
 
 function Shotgun:IsIdle()
-    Update1stPersonModel()
+    UpdateChildComponents()
 
     return Model1stPerson:get("Animation") == ANIM_IDLE
 end
 
 
 function Shotgun:Draw()
-    Update1stPersonModel()
+    UpdateChildComponents()
 
     Model1stPerson:set("Show", true)
     Model1stPerson:set("Name", self:get("Model1stPerson"))
@@ -95,7 +95,7 @@ end
 
 function Shotgun:Holster()
     -- Unfortunately, the shotgun model does not support holstering (it has no "holster" sequence).
-    -- Update1stPersonModel()
+    -- UpdateChildComponents()
     -- Model1stPerson:set("Animation", ANIM_HOLSTER)
     return false
 end

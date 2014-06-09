@@ -17,12 +17,12 @@ local ANIM_HOLSTER = 7
 local ANIM_DRAW    = 8
 
 
-local function Update1stPersonModel()
+local function UpdateChildComponents()
     -- On the client, our entity's *children* may arrive over the network only *after*
     -- this script has initially been run (and this component's OnInit() has been called).
     -- Therefore, we have to defer the Model1stPerson init until it is first used.
     if not Model1stPerson then
-        Model1stPerson = Entity:GetChildren()[2]:GetComponent("Model")
+        Model1stPerson = Entity:FindByName("FirstPersonEnt"):GetComponent("Model")
     end
 end
 
@@ -56,7 +56,7 @@ end
 
 
 function Gauss:IsIdle()
-    Update1stPersonModel()
+    UpdateChildComponents()
 
     local SequNr = Model1stPerson:get("Animation")
 
@@ -65,7 +65,7 @@ end
 
 
 function Gauss:Draw()
-    Update1stPersonModel()
+    UpdateChildComponents()
 
     Model1stPerson:set("Show", true)
     Model1stPerson:set("Name", self:get("Model1stPerson"))
@@ -75,7 +75,7 @@ end
 
 
 function Gauss:Holster()
-    Update1stPersonModel()
+    UpdateChildComponents()
 
     Model1stPerson:set("Animation", ANIM_HOLSTER)
     return true
