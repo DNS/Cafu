@@ -160,7 +160,15 @@ SoundI* ComponentSoundT::GetSound()
     m_Sound = NULL;
 
     if (m_Name.Get() != "")
+    {
         m_Sound = SoundSystem->CreateSound3D(SoundShaderManager->GetSoundShader(m_Name.Get()));
+
+        if (GetEntity())
+        {
+            m_Sound->SetPosition(GetEntity()->GetTransform()->GetOriginWS().AsVectorOfDouble());
+         // m_Sound->SetVelocity(...);
+        }
+    }
 
     m_PrevName = m_Name.Get();
     return m_Sound;
