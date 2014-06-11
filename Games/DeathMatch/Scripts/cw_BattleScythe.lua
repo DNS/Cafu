@@ -1,7 +1,9 @@
 local BattleScythe   = ...  -- Retrieve the ComponentCarriedWeaponT instance that is responsible for this script.
 local Entity         = BattleScythe:GetEntity()
 local HumanPlayer    = Entity:GetComponent("HumanPlayer")
+local PlayerScript   = Entity:GetComponent("Script")
 local Model1stPerson = nil
+local WeaponSound    = nil
 
 
 -- Symbolic names for the animation sequences of the 1st-person weapon model.
@@ -24,6 +26,10 @@ local function UpdateChildComponents()
     -- Therefore, we have to defer the Model1stPerson init until it is first used.
     if not Model1stPerson then
         Model1stPerson = Entity:FindByName("FirstPersonEnt"):GetComponent("Model")
+    end
+
+    if not WeaponSound then
+        WeaponSound = Entity:FindByName("WeaponSoundEnt"):GetComponent("Sound")
     end
 end
 
@@ -83,13 +89,15 @@ end
 function BattleScythe:FirePrimary()
     if not self:IsIdle() then return end
 
+    WeaponSound:set("Name", "Weapon/BattleScythe")
+    PlayerScript:PostEvent(PlayerScript.EVENT_TYPE_PRIMARY_FIRE)
+
     if HumanPlayer:GetRandom(2) == 0 then
         Model1stPerson:set("Animation", ANIM_ATTACK1MISS)
     else
         Model1stPerson:set("Animation", ANIM_ATTACK3)
     end
 
-    -- TODO: send primary fire event
     -- TODO: inflict damage
 end
 
@@ -97,9 +105,11 @@ end
 function BattleScythe:FireSecondary()
     if not self:IsIdle() then return end
 
+    WeaponSound:set("Name", "Weapon/BattleScythe")
+    PlayerScript:PostEvent(PlayerScript.EVENT_TYPE_SECONDARY_FIRE)
+
     Model1stPerson:set("Animation", ANIM_ATTACK2)
 
-    -- TODO: send secondary fire event
     -- TODO: inflict damage
 end
 
@@ -117,4 +127,13 @@ function BattleScythe:PickedUp()
 
     -- Console.Print("primary Ammo: " .. self:get("PrimaryAmmo") .. "\n")
     return true
+end
+
+
+function BattleScythe:ProcessEvent(EventType, NumEvents)
+    -- Note that we can *not* have code like
+    --     WeaponSound:set("Name", ...)
+    -- here, because that would only act on the client-side. The value would be "updated" in
+    -- the next client frame with the last value from the server, causing the sound to abort.
+    WeaponSound:Play()
 end

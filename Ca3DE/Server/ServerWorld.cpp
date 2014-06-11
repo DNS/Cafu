@@ -30,6 +30,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameSys/CompModel.hpp"
 #include "GameSys/CompPlayerPhysics.hpp"
 #include "GameSys/CompScript.hpp"
+#include "GameSys/CompSound.hpp"
 #include "GameSys/Entity.hpp"
 #include "GameSys/EntityCreateParams.hpp"
 #include "GameSys/World.hpp"
@@ -299,6 +300,23 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
         FirstPersonEnt->AddComponent(Model1stPersonComp);
 
         NewEnt->AddChild(FirstPersonEnt);
+
+        // Add a child entity to "FirstPersonEnt" that holds a Sound component for the weapons.
+        {
+            IntrusivePtrT<cf::GameSys::EntityT> WeaponSoundEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
+
+            WeaponSoundEnt->GetBasics()->SetEntityName("WeaponSoundEnt");
+
+            // The offset along the view direction is the relevant reason for introducing the WeaponSoundEnt.
+            WeaponSoundEnt->GetTransform()->SetOriginPS(Vector3fT(16.0f, 0.0f, 0.0f));
+
+            IntrusivePtrT<cf::GameSys::ComponentSoundT> WeaponSoundComp = new cf::GameSys::ComponentSoundT();
+         // WeaponSoundComp->SetMember("Name", ...);    // Initialized and updated by the HumanPlayer (weapon) code.
+            WeaponSoundComp->SetMember("AutoPlay", false);
+            WeaponSoundEnt->AddComponent(WeaponSoundComp);
+
+            FirstPersonEnt->AddChild(WeaponSoundEnt);
+        }
     }
 
     m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);

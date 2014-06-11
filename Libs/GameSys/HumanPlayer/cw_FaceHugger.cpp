@@ -92,7 +92,7 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(IntrusivePtrT<cf::GameSys::Compo
                 HumanPlayer->SetActiveWeaponSequNr(5);
                 HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
-                HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
+                // HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
 
                 // Important: ONLY create (throw) a new face-hugger IF we are on the server side!
                 if (ThinkingOnServerSide)
@@ -164,7 +164,7 @@ void CarriedWeaponFaceHuggerT::ServerSide_Think(IntrusivePtrT<cf::GameSys::Compo
             {
                 if (PlayerCommand.Keys & (PCK_Fire1 | PCK_Fire2))
                 {
-                    HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
+                    // HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
                 }
                 else
                 {
@@ -188,6 +188,6 @@ void CarriedWeaponFaceHuggerT::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<c
         FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
         // Play the fire sound.
-        FireSound->Play();
+        // FireSound->Play();
     }
 }

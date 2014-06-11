@@ -195,7 +195,7 @@ void CarriedWeapon9mmART::ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentH
                 HumanPlayer->SetActiveWeaponFrameNr(0.0f);
                 HumanPlayer->GetHaveAmmo()[AMMO_SLOT_ARGREN]--;
 
-                HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_SECONDARY_FIRE);
+                // HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_SECONDARY_FIRE);
 
                 // Important: ONLY create (throw) a new AR grenade IF we are on the server side!
                 if (ThinkingOnServerSide)
@@ -313,7 +313,7 @@ void CarriedWeapon9mmART::ClientSide_HandleSecondaryFireEvent(IntrusivePtrT<cons
         AltFireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
         // Play the fire sound.
-        AltFireSound->Play();
+        // AltFireSound->Play();
     }
 }
 
@@ -358,7 +358,7 @@ void CarriedWeapon9mmART::ClientSide_HandleStateDrivenEffects(IntrusivePtrT<cons
                 FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
                 // Play the fire sound.
-                FireSound->Play();
+                // FireSound->Play();
             }
         }
     }

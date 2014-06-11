@@ -152,7 +152,7 @@ void CarriedWeapon357T::ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentHum
                 HumanPlayer->SetActiveWeaponFrameNr(0.0f);
                 HumanPlayer->GetHaveAmmoInWeapons()[WEAPON_SLOT_357]--;
 
-                HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
+                // HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
 
                 if (ThinkingOnServerSide)
                 {
@@ -256,6 +256,6 @@ void CarriedWeapon357T::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<const cf
         FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
         // Play the fire sound.
-        FireSound->Play();
+        // FireSound->Play();
     }
 }

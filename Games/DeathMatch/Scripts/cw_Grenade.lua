@@ -1,8 +1,10 @@
 local Grenade        = ...  -- Retrieve the ComponentCarriedWeaponT instance that is responsible for this script.
 local Entity         = Grenade:GetEntity()
 local HumanPlayer    = Entity:GetComponent("HumanPlayer")
+local PlayerScript   = Entity:GetComponent("Script")
 local Inventory      = Entity:GetComponent("Inventory")
 local Model1stPerson = nil
+local WeaponSound    = nil
 
 
 -- Symbolic names for the animation sequences of the 1st-person weapon model.
@@ -23,6 +25,10 @@ local function UpdateChildComponents()
     if not Model1stPerson then
         Model1stPerson = Entity:FindByName("FirstPersonEnt"):GetComponent("Model")
     end
+
+    if not WeaponSound then
+        WeaponSound = Entity:FindByName("WeaponSoundEnt"):GetComponent("Sound")
+    end
 end
 
 
@@ -42,6 +48,11 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
 
     if SequNr == ANIM_PINPULL then
         self:set("PrimaryAmmo", self:get("PrimaryAmmo") - 1)
+
+        -- See the comment in Grenade:ProcessEvent() for more details about the next two lines.
+        WeaponSound:set("Name", "Weapon/FaceHugger_Throw")
+        PlayerScript:PostEvent(PlayerScript.EVENT_TYPE_PRIMARY_FIRE)
+
         Model:set("Animation", ANIM_THROW1 + HumanPlayer:GetRandom(3))
         return
     end
@@ -116,7 +127,6 @@ function Grenade:FirePrimary()
 
     Model1stPerson:set("Animation", ANIM_PINPULL)
 
-    -- TODO: send primary fire event
     -- TODO: inflict damage
 end
 
@@ -152,4 +162,24 @@ end
 
 function Grenade:GetAmmoString()
     return string.format("Ammo %2u (%2u)", self:get("PrimaryAmmo"), Inventory:get("HandGrenades"))
+end
+
+
+function Grenade:ProcessEvent(EventType, NumEvents)
+    -- If this is called for the first time, the weapon sound is empty (""), even though it seems like
+    -- everything has been properly setup in OnSequenceWrap_Sv() above (case "ANIM_PINPULL").
+    -- With later calls, everything works as expected.
+    -- Similarly to the matter explained in UpdateChildComponents() above, I suspect that this is
+    -- a result of the Script component / the event already being processed immediately after it has
+    -- been updated from the incoming network message, while the sound name, kept in the Sound component
+    -- that in turn is in a *child* entity, has not yet been updated!
+    -- Paradoxically, the same seems not to happen to the FaceHugger (or any other weapon), which all seem
+    -- to be in a comparable setup.
+    Console.Print("Grenade:ProcessEvent(), weapon sound is: \"" .. WeaponSound:get("Name") .. "\"\n")
+
+    -- Note that we can *not* have code like
+    --     WeaponSound:set("Name", ...)
+    -- here, because that would only act on the client-side. The value would be "updated" in
+    -- the next client frame with the last value from the server, causing the sound to abort.
+    WeaponSound:Play()
 end

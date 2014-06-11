@@ -113,7 +113,7 @@ void CarriedWeaponGrenadeT::ServerSide_Think(IntrusivePtrT<cf::GameSys::Componen
                 HumanPlayer->SetActiveWeaponSequNr(3);
                 HumanPlayer->SetActiveWeaponFrameNr(0.0f);
 
-                HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
+                // HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
 
                 // Important: ONLY create (throw) a new hand grenade IF we are on the server side!
                 if (ThinkingOnServerSide)
@@ -206,6 +206,6 @@ void CarriedWeaponGrenadeT::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<cons
         FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
         // Play the fire sound.
-        FireSound->Play();
+        // FireSound->Play();
     }
 }

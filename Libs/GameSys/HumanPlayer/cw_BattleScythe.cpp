@@ -86,7 +86,7 @@ void CarriedWeaponBattleScytheT::ServerSide_Think(IntrusivePtrT<cf::GameSys::Com
             {
                 if (PlayerCommand.Keys & PCK_Fire1)
                 {
-                    HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
+                    // HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
                 }
                 else
                 {
@@ -102,7 +102,7 @@ void CarriedWeaponBattleScytheT::ServerSide_Think(IntrusivePtrT<cf::GameSys::Com
             {
                 if (PlayerCommand.Keys & PCK_Fire2)
                 {
-                    HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_SECONDARY_FIRE);
+                    // HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_SECONDARY_FIRE);
                 }
                 else
                 {
@@ -131,7 +131,7 @@ void CarriedWeaponBattleScytheT::ServerSide_Think(IntrusivePtrT<cf::GameSys::Com
                 // TODO: Alternate randomly with Attack 3.
                 HumanPlayer->SetActiveWeaponSequNr(4);    // Attack 1 (miss)
                 HumanPlayer->SetActiveWeaponFrameNr(0.0f);
-                HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
+                // HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE);
                 break;
             }
 
@@ -140,7 +140,7 @@ void CarriedWeaponBattleScytheT::ServerSide_Think(IntrusivePtrT<cf::GameSys::Com
                 // TODO: Determine if this attack was a hit or miss.
                 HumanPlayer->SetActiveWeaponSequNr(5);    // Attack 2 (miss)
                 HumanPlayer->SetActiveWeaponFrameNr(0.0f);
-                HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_SECONDARY_FIRE);
+                // HumanPlayer->PostEvent(cf::GameSys::ComponentHumanPlayerT::EVENT_TYPE_SECONDARY_FIRE);
                 break;
             }
 
@@ -165,7 +165,7 @@ void CarriedWeaponBattleScytheT::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT
         FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
         // Play the fire sound.
-        FireSound->Play();
+        // FireSound->Play();
     }
 }
 
@@ -181,6 +181,6 @@ void CarriedWeaponBattleScytheT::ClientSide_HandleSecondaryFireEvent(IntrusivePt
         FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
         // Play the fire sound.
-        FireSound->Play();
+        // FireSound->Play();
     }
 }

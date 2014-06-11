@@ -362,7 +362,7 @@ void CarriedWeaponShotgunT::ClientSide_HandlePrimaryFireEvent(IntrusivePtrT<cons
         FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
         // Play the fire sound.
-        FireSound->Play();
+        // FireSound->Play();
     }
 }
 
@@ -434,6 +434,6 @@ void CarriedWeaponShotgunT::ClientSide_HandleSecondaryFireEvent(IntrusivePtrT<co
         AltFireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
         // Play the fire sound.
-        AltFireSound->Play();
+        // AltFireSound->Play();
     }
 }

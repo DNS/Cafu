@@ -1,8 +1,10 @@
 local FaceHugger     = ...  -- Retrieve the ComponentCarriedWeaponT instance that is responsible for this script.
 local Entity         = FaceHugger:GetEntity()
 local HumanPlayer    = Entity:GetComponent("HumanPlayer")
+local PlayerScript   = Entity:GetComponent("Script")
 local Inventory      = Entity:GetComponent("Inventory")
 local Model1stPerson = nil
+local WeaponSound    = nil
 
 
 -- Symbolic names for the animation sequences of the 1st-person weapon model.
@@ -20,6 +22,10 @@ local function UpdateChildComponents()
     -- Therefore, we have to defer the Model1stPerson init until it is first used.
     if not Model1stPerson then
         Model1stPerson = Entity:FindByName("FirstPersonEnt"):GetComponent("Model")
+    end
+
+    if not WeaponSound then
+        WeaponSound = Entity:FindByName("WeaponSoundEnt"):GetComponent("Sound")
     end
 end
 
@@ -103,9 +109,11 @@ function FaceHugger:FirePrimary()
 
     self:set("PrimaryAmmo", self:get("PrimaryAmmo") - 1)
 
+    WeaponSound:set("Name", "Weapon/FaceHugger_Throw")
+    PlayerScript:PostEvent(PlayerScript.EVENT_TYPE_PRIMARY_FIRE)
+
     Model1stPerson:set("Animation", ANIM_THROW)
 
-    -- TODO: send primary fire event
     -- TODO: inflict damage
 end
 
@@ -141,4 +149,13 @@ end
 
 function FaceHugger:GetAmmoString()
     return string.format("Ammo %2u (%2u)", self:get("PrimaryAmmo"), Inventory:get("FaceHuggers"))
+end
+
+
+function FaceHugger:ProcessEvent(EventType, NumEvents)
+    -- Note that we can *not* have code like
+    --     WeaponSound:set("Name", ...)
+    -- here, because that would only act on the client-side. The value would be "updated" in
+    -- the next client frame with the last value from the server, causing the sound to abort.
+    WeaponSound:Play()
 end

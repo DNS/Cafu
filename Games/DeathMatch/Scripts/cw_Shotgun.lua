@@ -4,6 +4,7 @@ local HumanPlayer    = Entity:GetComponent("HumanPlayer")
 local PlayerScript   = Entity:GetComponent("Script")
 local Inventory      = Entity:GetComponent("Inventory")
 local Model1stPerson = nil
+local WeaponSound    = nil
 
 
 -- Symbolic names for the animation sequences of the 1st-person weapon model.
@@ -22,6 +23,10 @@ local function UpdateChildComponents()
     -- Therefore, we have to defer the Model1stPerson init until it is first used.
     if not Model1stPerson then
         Model1stPerson = Entity:FindByName("FirstPersonEnt"):GetComponent("Model")
+    end
+
+    if not WeaponSound then
+        WeaponSound = Entity:FindByName("WeaponSoundEnt"):GetComponent("Sound")
     end
 end
 
@@ -115,6 +120,8 @@ function Shotgun:FirePrimary()
         end
     else
         self:set("PrimaryAmmo", self:get("PrimaryAmmo") - 1)
+
+        WeaponSound:set("Name", "Weapon/Shotgun_sBarrel")
         PlayerScript:PostEvent(PlayerScript.EVENT_TYPE_PRIMARY_FIRE)
 
         Model1stPerson:set("Animation", ANIM_SHOOT1)
@@ -133,6 +140,8 @@ function Shotgun:FireSecondary()
         end
     else
         self:set("PrimaryAmmo", self:get("PrimaryAmmo") - 2)
+
+        WeaponSound:set("Name", "Weapon/Shotgun_dBarrel")
         PlayerScript:PostEvent(PlayerScript.EVENT_TYPE_SECONDARY_FIRE)
 
         Model1stPerson:set("Animation", ANIM_SHOOT2)
@@ -177,5 +186,9 @@ end
 
 
 function Shotgun:ProcessEvent(EventType, NumEvents)
-    Console.Print("Shotgun:ProcessEvent(" .. tostring(EventType) .. ", " .. tostring(NumEvents) .. ")\n")
+    -- Note that we can *not* have code like
+    --     WeaponSound:set("Name", ...)
+    -- here, because that would only act on the client-side. The value would be "updated" in
+    -- the next client frame with the last value from the server, causing the sound to abort.
+    WeaponSound:Play()
 end
