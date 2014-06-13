@@ -43,6 +43,34 @@ static bool CompareGameConfigs(GameConfigT* const& GC1, GameConfigT* const& GC2)
 }
 
 
+static wxString FindTool(const wxString& Tool, const wxString& Fallback)
+{
+#ifdef __WXMSW__
+    const char* Compilers[] = { "vc12", "vc11", "vc10", "vc9", "vc8", NULL };
+    const char* Archs[]     = { "x64", "x86", NULL };
+
+    for (const char** Compiler = Compilers; *Compiler; Compiler++)
+        for (const char** Arch = Archs; *Arch; Arch++)
+        {
+            const wxString Path = wxString("build/win32/") + (*Compiler) + "/" + (*Arch) + "/release/" + Tool;
+
+            if (wxFileExists(Path)) return Path;
+        }
+#else
+    const char* Compilers[] = { "g++", NULL };
+
+    for (const char** Compiler = Compilers; *Compiler; Compiler++)
+    {
+        const wxString Path = wxString("build/linux2/") + (*Compiler) + "/release/" + Tool;
+
+        if (wxFileExists(Path)) return Path;
+    }
+#endif
+
+    return Fallback;
+}
+
+
 void OptionsT::Init()
 {
     time_t Ticks=wxConfigBase::Get()->Read("Configured/Installed", 0L);
@@ -64,15 +92,15 @@ void OptionsT::Init()
     wxConfigBase::Get()->Read("Locking Textures",  &general.LockingTextures,   true );
     wxConfigBase::Get()->Read("UVs Face Aligned",  &general.NewUVsFaceAligned, false);
 #ifdef __WXMSW__
-    wxConfigBase::Get()->Read("Engine Executable", &general.EngineExe, "Cafu.exe");
-    wxConfigBase::Get()->Read("BSP Executable",    &general.BSPExe,    "CaBSP.exe");
-    wxConfigBase::Get()->Read("Light Executable",  &general.LightExe,  "CaLight.exe");
-    wxConfigBase::Get()->Read("PVS Executable",    &general.PVSExe,    "CaPVS.exe");
+    wxConfigBase::Get()->Read("Engine Executable", &general.EngineExe, FindTool("Ca3DE/Cafu.exe",      "Cafu.exe"));
+    wxConfigBase::Get()->Read("BSP Executable",    &general.BSPExe,    FindTool("CaBSP/CaBSP.exe",     "CaBSP.exe"));
+    wxConfigBase::Get()->Read("Light Executable",  &general.LightExe,  FindTool("CaLight/CaLight.exe", "CaLight.exe"));
+    wxConfigBase::Get()->Read("PVS Executable",    &general.PVSExe,    FindTool("CaPVS/CaPVS.exe",     "CaPVS.exe"));
 #else
-    wxConfigBase::Get()->Read("Engine Executable", &general.EngineExe, "./Cafu");
-    wxConfigBase::Get()->Read("BSP Executable",    &general.BSPExe,    "./CaBSP");
-    wxConfigBase::Get()->Read("Light Executable",  &general.LightExe,  "./CaLight");
-    wxConfigBase::Get()->Read("PVS Executable",    &general.PVSExe,    "./CaPVS");
+    wxConfigBase::Get()->Read("Engine Executable", &general.EngineExe, FindTool("Ca3DE/Cafu",      "./Cafu"));
+    wxConfigBase::Get()->Read("BSP Executable",    &general.BSPExe,    FindTool("CaBSP/CaBSP",     "./CaBSP"));
+    wxConfigBase::Get()->Read("Light Executable",  &general.LightExe,  FindTool("CaLight/CaLight", "./CaLight"));
+    wxConfigBase::Get()->Read("PVS Executable",    &general.PVSExe,    FindTool("CaPVS/CaPVS",     "./CaPVS"));
 #endif
     wxConfigBase::Get()->SetPath("..");
 
