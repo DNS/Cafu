@@ -6,21 +6,21 @@ import os, sys
 # Note that this script *must* be run from the Cafu top-level directory,
 # not from Cafu/Games/DeathMatch/, or else the tools cannot find e.g. the Textures/*.zip files.
 
-Maps = [
-    ("Test1",            [], [], ["-StopUE", "0.01"]),
-    ("TestPatches",      [], [], ["-StopUE", "0.01"]),
-    ("TestPhysics",      [], [], ["-StopUE", "0.01"]),
-    ("AEonsCanyonTower", [], [], ["-StopUE", "0.1"]),
-    ("AEonsCube",        [], [], ["-StopUE", "0.1"]),
-    ("BPRockB",          [], [], ["-StopUE", "0.1"]),
-    ("BPWxBeta",         [], [], ["-StopUE", "0.1"]),
-    ("JrBaseHQ",         [], [], ["-StopUE", "0.1"]),
-    ("Kidney",           [], [], ["-StopUE", "0.1"]),
-    ("ReNoEcho",         [], [], ["-StopUE", "0.1"]),
-    ("ReNoElixir",       [], [], ["-StopUE", "0.1"]),
-    ("TechDemo",         [], [], ["-StopUE", "0.1"]),
-    ("Gotham",           [], [], ["-fast"])     # Gotham is, at the moment, a really bad case that can take CaLight very long to complete.
-]
+MapSettings = {
+    "Test1":            ([], [], ["-StopUE", "0.01"]),
+    "TestPatches":      ([], [], ["-StopUE", "0.01"]),
+    "TestPhysics":      ([], [], ["-StopUE", "0.01"]),
+    "AEonsCanyonTower": ([], [], ["-StopUE", "0.1"]),
+    "AEonsCube":        ([], [], ["-StopUE", "0.1"]),
+    "BPRockB":          ([], [], ["-StopUE", "0.1"]),
+    "BPWxBeta":         ([], [], ["-StopUE", "0.1"]),
+    "JrBaseHQ":         ([], [], ["-StopUE", "0.1"]),
+    "Kidney":           ([], [], ["-StopUE", "0.1"]),
+    "ReNoEcho":         ([], [], ["-StopUE", "0.1"]),
+    "ReNoElixir":       ([], [], ["-StopUE", "0.1"]),
+    "TechDemo":         ([], [], ["-StopUE", "0.1"]),
+    "Gotham":           ([], [], ["-fast"])     # Gotham is, at the moment, a really bad case that can take CaLight very long to complete.
+}
 
 
 def FindTools():
@@ -39,21 +39,28 @@ def FindTools():
 
 
 ToolPath = FindTools()
-print "Using tools in " + ToolPath
+print "Using tools in:", ToolPath
+
+MapList = sys.argv[1:] or list(MapSettings.keys())
+print "Compiling maps:", MapList
 
 
-for Map in Maps:
-    MapName = Map[0]
+for MapName in MapList:
+    if not os.path.isfile("Games/DeathMatch/Maps/{0}.cmap". format(MapName)):
+        print "ERROR: Input map file \"Games/DeathMatch/Maps/{0}.cmap\" not found!". format(MapName)
+        continue
 
-    if len(sys.argv) > 1:
-        if MapName.lower() not in [arg.lower() for arg in sys.argv[1:]]:
-            continue
+    if MapName in MapSettings:
+        Params = MapSettings[MapName]
+    else:
+        print "Default settings will be used for map \"{0}\".".format(MapName)
+        Params = ([], [], ["-StopUE", "0.1"])
 
     exeSuffix = ".exe" if sys.platform == "win32" else ""
 
-    call([ToolPath + '/CaBSP/CaBSP' + exeSuffix, 'Games/DeathMatch/Maps/%s.cmap' % MapName, 'Games/DeathMatch/Worlds/%s.cw' % MapName] + Map[1])
-    call([ToolPath + '/CaPVS/CaPVS' + exeSuffix, 'Games/DeathMatch/Worlds/%s.cw' % MapName] + Map[2])
-    call([ToolPath + '/CaLight/CaLight' + exeSuffix, 'Games/DeathMatch/Worlds/%s.cw' % MapName, '-gd=Games/DeathMatch'] + Map[3])
+    call([ToolPath + '/CaBSP/CaBSP' + exeSuffix, 'Games/DeathMatch/Maps/%s.cmap' % MapName, 'Games/DeathMatch/Worlds/%s.cw' % MapName] + Params[0])
+    call([ToolPath + '/CaPVS/CaPVS' + exeSuffix, 'Games/DeathMatch/Worlds/%s.cw' % MapName] + Params[1])
+    call([ToolPath + '/CaLight/CaLight' + exeSuffix, 'Games/DeathMatch/Worlds/%s.cw' % MapName, '-gd=Games/DeathMatch'] + Params[2])
 
 
 # Finally shutdown the computer.
