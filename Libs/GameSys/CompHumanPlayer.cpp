@@ -1420,6 +1420,39 @@ int ComponentHumanPlayerT::SelectNextWeapon(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_FireRay =
+{
+    "FireRay",
+    "Traces a ray through the world and causes damage to the hit entity (if any).\n\n"
+    "This method can be used to implement the \"fire\" action of weapons that cause instantaneous damage,\n"
+    "such as pistols, guns, rifles, etc.\n"
+    "The ray is traced from the camera's origin along the camera's view vector, which can be randomly\n"
+    "scattered (used to simulate inaccurate human aiming) by the given parameter `Random`.\n"
+    "If an entity is hit, InflictDamage() is called with the hit entity and the amount of damage as given\n"
+    "by parameter `Damage`.\n"
+    "@param Damage   The damage to inflict to a possibly hit entity.\n"
+    "@param Random   The maximum amount of random scatter to apply to the traced ray.",
+    "", "(number Damage, number Random = 0.0)"
+};
+
+int ComponentHumanPlayerT::FireRay(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<ComponentHumanPlayerT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentHumanPlayerT> >(1);
+
+    const float  Damage = float(luaL_checknumber(LuaState, 2));
+    const double Random = lua_tonumber(LuaState, 3);
+
+    const Vector3dT  ViewDir = Comp->GetCameraViewDirWS(Random);
+    const RayResultT RayResult(Comp->TraceCameraRay(ViewDir));
+
+    if (RayResult.hasHit() && RayResult.GetHitPhysicsComp())
+        Comp->InflictDamage(RayResult.GetHitPhysicsComp()->GetEntity(), Damage, ViewDir);
+
+    return 0;
+}
+
+
 static const cf::TypeSys::MethsDocT META_GetRandom =
 {
     "GetRandom",
@@ -1484,6 +1517,7 @@ const luaL_Reg ComponentHumanPlayerT::MethodsList[] =
     { "GetActiveWeapon",  GetActiveWeapon },
     { "SelectWeapon",     SelectWeapon },
     { "SelectNextWeapon", SelectNextWeapon },
+    { "FireRay",          FireRay },
     { "GetRandom",        GetRandom },
     { "__tostring",       toString },
     { NULL, NULL }
@@ -1496,6 +1530,7 @@ const cf::TypeSys::MethsDocT ComponentHumanPlayerT::DocMethods[] =
     META_GetActiveWeapon,
     META_SelectWeapon,
     META_SelectNextWeapon,
+    META_FireRay,
     META_GetRandom,
     META_toString,
     { NULL, NULL, NULL, NULL }

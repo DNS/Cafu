@@ -169,6 +169,7 @@ namespace cf
             static int GetActiveWeapon(lua_State* LuaState);
             static int SelectWeapon(lua_State* LuaState);
             static int SelectNextWeapon(lua_State* LuaState);
+            static int FireRay(lua_State* LuaState);
             static int GetRandom(lua_State* LuaState);
             static int toString(lua_State* LuaState);
 

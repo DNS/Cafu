@@ -381,6 +381,18 @@ class ComponentHumanPlayerT : public ComponentBaseT
     /// @see @ref CarriedWeaponsOverview
     SelectNextWeapon();
 
+    /// Traces a ray through the world and causes damage to the hit entity (if any).
+    ///
+    /// This method can be used to implement the "fire" action of weapons that cause instantaneous damage,
+    /// such as pistols, guns, rifles, etc.
+    /// The ray is traced from the camera's origin along the camera's view vector, which can be randomly
+    /// scattered (used to simulate inaccurate human aiming) by the given parameter `Random`.
+    /// If an entity is hit, InflictDamage() is called with the hit entity and the amount of damage as given
+    /// by parameter `Damage`.
+    /// @param Damage   The damage to inflict to a possibly hit entity.
+    /// @param Random   The maximum amount of random scatter to apply to the traced ray.
+    FireRay(number Damage, number Random = 0.0);
+
     /// Returns a pseudo-random number.
     ///
     /// If `n` is 0, 1, or absent (`nil`), this method returns a pseudo-random number in range `[0.0, 1.0]` (inclusive).
