@@ -305,7 +305,7 @@ Vector3dT ComponentHumanPlayerT::GetCameraViewDirWS(double Random) const
 
     if (Random > 0.0)
     {
-        ViewDir += Mat.GetAxis(0).AsVectorOfDouble() * ((rand() % 10000 - 5000) / 5000.0) * Random;
+        ViewDir += Mat.GetAxis(1).AsVectorOfDouble() * ((rand() % 10000 - 5000) / 5000.0) * Random;
         ViewDir += Mat.GetAxis(2).AsVectorOfDouble() * ((rand() % 10000 - 5000) / 5000.0) * Random;
 
         ViewDir = normalizeOr0(ViewDir);
