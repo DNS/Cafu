@@ -142,7 +142,7 @@ function Bazooka:CanReload()
 end
 
 
-function Bazooka:FirePrimary()
+function Bazooka:FirePrimary(ThinkingOnServerSide)
     if not self:IsIdle() then return end
 
     if self:get("PrimaryAmmo") < 1 then
@@ -152,11 +152,47 @@ function Bazooka:FirePrimary()
     else
         self:set("PrimaryAmmo", self:get("PrimaryAmmo") - 1)
 
-        Model1stPerson:set("Animation", ANIM_FIRE)
-    end
+     -- WeaponSound:set("Name", "Weapon/DesertEagle_Shot1")
+     -- PlayerScript:PostEvent(PlayerScript.EVENT_TYPE_PRIMARY_FIRE)
 
-    -- TODO: send primary fire event
-    -- TODO: inflict damage
+        Model1stPerson:set("Animation", ANIM_FIRE)
+
+        if ThinkingOnServerSide then
+            -- Spawn a new rocket (RPG)!
+            local NewEnt = HumanPlayer:SpawnWeaponChild("Rocket")
+
+            local c1 = world:new("ComponentModelT")
+            c1:set("Name", "Games/DeathMatch/Models/Weapons/Grenade/Grenade_w.cmdl")
+
+            local c2 = world:new("ComponentParticleSystemOldT")
+            c2:set("Type", "Rocket_Expl_main")
+
+            local c3 = world:new("ComponentParticleSystemOldT")
+            c3:set("Type", "Rocket_Expl_sparkle")
+
+            local c4 = world:new("ComponentPointLightT")
+            c4:set("On", true)
+            c4:set("Color", 1.0, 0.9, 0.0)
+            c4:set("Radius", 500.0)
+            -- Shadows are activated only at the time of the explosion (when the model is hidden),
+            -- because at this time, our light source origin is at the center of the model, which does not
+            -- agree well with shadow casting. Proper solution can be:
+            --   - exempt the model from casting shadows,
+            --   - offset the light source from the model center, e.g. by `-ViewDir * 16.0`.
+            -- The latter is what we did in pre-component-system versions of the code, but now it would
+            -- require the employment of a child entity.
+            c4:set("ShadowType", 0)     -- No shadows (initially).
+
+            local c5 = world:new("ComponentSoundT")
+            c5:set("Name", "Weapon/Shotgun_dBarrel")
+            c5:set("AutoPlay", false)
+
+            local c6 = world:new("ComponentScriptT")    -- Note that any post-load stuff is automatically run by the `CaServerWorldT` implementation.
+            c6:set("Name", "Games/DeathMatch/Scripts/Rocket.lua")
+
+            NewEnt:AddComponent(c1, c2, c3, c4, c5, c6)
+        end
+    end
 end
 
 

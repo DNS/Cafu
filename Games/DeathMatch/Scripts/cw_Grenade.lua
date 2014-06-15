@@ -6,6 +6,8 @@ local Inventory      = Entity:GetComponent("Inventory")
 local Model1stPerson = nil
 local WeaponSound    = nil
 
+Grenade.ThinkingOnServerSide = false
+
 
 -- Symbolic names for the animation sequences of the 1st-person weapon model.
 local ANIM_IDLE    = 0
@@ -54,6 +56,36 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
         PlayerScript:PostEvent(PlayerScript.EVENT_TYPE_PRIMARY_FIRE)
 
         Model:set("Animation", ANIM_THROW1 + HumanPlayer:GetRandom(3))
+
+        if self.ThinkingOnServerSide then
+            -- Spawn a new hand grenade!
+            local NewEnt = HumanPlayer:SpawnWeaponChild("Grenade")
+
+            local c1 = world:new("ComponentModelT")
+            c1:set("Name", "Games/DeathMatch/Models/Weapons/Grenade/Grenade_w.cmdl")
+
+            local c2 = world:new("ComponentParticleSystemOldT")
+            c2:set("Type", "HandGrenade_Expl_main")
+
+            local c3 = world:new("ComponentParticleSystemOldT")
+            c3:set("Type", "HandGrenade_Expl_sparkle")
+
+            local c4 = world:new("ComponentPointLightT")
+            c4:set("On", false)
+            c4:set("Color", 1.0, 1.0, 1.0)
+            c4:set("Radius", 400.0)
+            c4:set("ShadowType", 1)     -- STENCIL shadows
+
+            local c5 = world:new("ComponentSoundT")
+            c5:set("Name", "Weapon/Shotgun_dBarrel")
+            c5:set("AutoPlay", false)
+
+            local c6 = world:new("ComponentScriptT")    -- Note that any post-load stuff is automatically run by the `CaServerWorldT` implementation.
+            c6:set("Name", "Games/DeathMatch/Scripts/Grenade.lua")
+            c6:set("ScriptCode", "local Grenade = ...\nGrenade.LightDuration = 0.5\n")
+
+            NewEnt:AddComponent(c1, c2, c3, c4, c5, c6)
+        end
         return
     end
 
@@ -121,13 +153,15 @@ function Grenade:Holster()
 end
 
 
-function Grenade:FirePrimary()
+function Grenade:FirePrimary(ThinkingOnServerSide)
     if not self:IsIdle() then return end
     if self:get("PrimaryAmmo") < 1 then return end
 
     Model1stPerson:set("Animation", ANIM_PINPULL)
 
-    -- TODO: inflict damage
+    -- The grenade is only thrown when the ANIM_PINPULL animation is complete,
+    -- so we have to save the ThinkingOnServerSide variable until then.
+    self.ThinkingOnServerSide = ThinkingOnServerSide
 end
 
 

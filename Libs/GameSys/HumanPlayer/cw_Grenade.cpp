@@ -124,13 +124,13 @@ void CarriedWeaponGrenadeT::ServerSide_Think(IntrusivePtrT<cf::GameSys::Componen
                     // Note: There is a non-trivial relationship between heading, pitch, and the corresponding view vector.
                     // Especially does a heading and pitch of 45° NOT correspond to the view vector (1, 1, 1), and vice versa!
                     // Think carefully about this before changing the number 42.0 below (which actually is 2.0*(16.0+4.5) (+1.0 for "safety")).
-                    const VectorT HandGrenadeOrigin(HumanPlayer->GetCameraOriginWS() + VectorT(0.0, 0.0, 10.0)+scale(ViewDir, 42.0)+scale(HumanPlayer->GetPlayerVelocity(), double(PlayerCommand.FrameTime)));
+                    const VectorT NewEntOrigin(HumanPlayer->GetCameraOriginWS() + VectorT(0.0, 0.0, 10.0)+scale(ViewDir, 42.0)+scale(HumanPlayer->GetPlayerVelocity(), double(PlayerCommand.FrameTime)));
 
                     IntrusivePtrT<cf::GameSys::EntityT> Ent = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(HumanPlayer->GetEntity()->GetWorld()));
                     HumanPlayer->GetEntity()->GetWorld().GetRootEntity()->AddChild(Ent);
 
                     Ent->GetBasics()->SetEntityName("HandGrenade");
-                    Ent->GetTransform()->SetOriginWS(HandGrenadeOrigin.AsVectorOfFloat());
+                    Ent->GetTransform()->SetOriginWS(NewEntOrigin.AsVectorOfFloat());
                     Ent->GetTransform()->SetQuatWS(HumanPlayer->GetEntity()->GetTransform()->GetQuatWS());
 
                     IntrusivePtrT<cf::GameSys::ComponentModelT> ModelComp = new cf::GameSys::ComponentModelT();

@@ -103,7 +103,7 @@ function FaceHugger:Holster()
 end
 
 
-function FaceHugger:FirePrimary()
+function FaceHugger:FirePrimary(ThinkingOnServerSide)
     if not self:IsIdle() then return end
     if self:get("PrimaryAmmo") < 1 then return end
 
@@ -114,7 +114,21 @@ function FaceHugger:FirePrimary()
 
     Model1stPerson:set("Animation", ANIM_THROW)
 
-    -- TODO: inflict damage
+    if ThinkingOnServerSide then
+        -- Spawn a new face-hugger!
+        local NewEnt = HumanPlayer:SpawnWeaponChild("FaceHugger")
+
+        local c1 = world:new("ComponentModelT")
+        c1:set("Name", "Games/DeathMatch/Models/LifeForms/FaceHugger/FaceHugger.cmdl")
+
+        local c2 = world:new("ComponentParticleSystemOldT")
+        c2:set("Type", "FaceHugger")
+
+        local c3 = world:new("ComponentScriptT")    -- Note that any post-load stuff is automatically run by the `CaServerWorldT` implementation.
+        c3:set("Name", "Games/DeathMatch/Scripts/FaceHugger.lua")
+
+        NewEnt:AddComponent(c1, c2, c3)
+    end
 end
 
 
