@@ -112,7 +112,7 @@ function Beretta:CanReload()
 end
 
 
-function Beretta:FirePrimary()
+function Beretta:FirePrimary(ThinkingOnServerSide)
     if not self:IsIdle() then return end
 
     if self:get("PrimaryAmmo") < 1 then
@@ -124,11 +124,15 @@ function Beretta:FirePrimary()
     else
         self:set("PrimaryAmmo", self:get("PrimaryAmmo") - 1)
 
-        Model1stPerson:set("Animation", ANIM_SHOOT)
-    end
+     -- WeaponSound:set("Name", "Weapon/DesertEagle_Shot1")
+     -- PlayerScript:PostEvent(PlayerScript.EVENT_TYPE_PRIMARY_FIRE)
 
-    -- TODO: send primary fire event
-    -- TODO: inflict damage
+        Model1stPerson:set("Animation", ANIM_SHOOT)
+
+        if ThinkingOnServerSide then
+            HumanPlayer:FireRay(2.0)
+        end
+    end
 end
 
 

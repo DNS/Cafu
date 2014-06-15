@@ -115,7 +115,7 @@ function DesertEagle:CanReload()
 end
 
 
-function DesertEagle:FirePrimary()
+function DesertEagle:FirePrimary(ThinkingOnServerSide)
     if not self:IsIdle() then return end
 
     if self:get("PrimaryAmmo") < 1 then
@@ -129,9 +129,11 @@ function DesertEagle:FirePrimary()
         PlayerScript:PostEvent(PlayerScript.EVENT_TYPE_PRIMARY_FIRE)
 
         Model1stPerson:set("Animation", ANIM_FIRE)
-    end
 
-    -- TODO: inflict damage
+        if ThinkingOnServerSide then
+            HumanPlayer:FireRay(7.0)
+        end
+    end
 end
 
 

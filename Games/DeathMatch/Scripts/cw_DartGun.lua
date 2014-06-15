@@ -131,7 +131,7 @@ function DartGun:CanReload()
 end
 
 
-function DartGun:FirePrimary()
+function DartGun:FirePrimary(ThinkingOnServerSide)
     if not self:IsIdle() then return end
 
     if self:get("PrimaryAmmo") < 1 then
@@ -141,11 +141,15 @@ function DartGun:FirePrimary()
     else
         self:set("PrimaryAmmo", self:get("PrimaryAmmo") - 1)
 
-        Model1stPerson:set("Animation", ANIM_FIRE)
-    end
+        -- WeaponSound:set("Name", "Weapon/DesertEagle_Shot1")
+        -- PlayerScript:PostEvent(PlayerScript.EVENT_TYPE_PRIMARY_FIRE)
 
-    -- TODO: send primary fire event
-    -- TODO: inflict damage
+        Model1stPerson:set("Animation", ANIM_FIRE)
+
+        if ThinkingOnServerSide then
+            HumanPlayer:FireRay(20.0)
+        end
+    end
 end
 
 

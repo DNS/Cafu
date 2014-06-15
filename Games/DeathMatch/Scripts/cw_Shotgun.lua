@@ -111,7 +111,7 @@ function Shotgun:CanReload()
 end
 
 
-function Shotgun:FirePrimary()
+function Shotgun:FirePrimary(ThinkingOnServerSide)
     if not self:IsIdle() then return end
 
     if self:get("PrimaryAmmo") < 1 then
@@ -125,13 +125,17 @@ function Shotgun:FirePrimary()
         PlayerScript:PostEvent(PlayerScript.EVENT_TYPE_PRIMARY_FIRE)
 
         Model1stPerson:set("Animation", ANIM_SHOOT1)
-    end
 
-    -- TODO: inflict damage
+        if ThinkingOnServerSide then
+            for i = 1, 8 do
+                HumanPlayer:FireRay(3.0, 0.08748866)    -- ca. 5°
+            end
+        end
+    end
 end
 
 
-function Shotgun:FireSecondary()
+function Shotgun:FireSecondary(ThinkingOnServerSide)
     if not self:IsIdle() then return end
 
     if self:get("PrimaryAmmo") < 2 then
@@ -145,9 +149,13 @@ function Shotgun:FireSecondary()
         PlayerScript:PostEvent(PlayerScript.EVENT_TYPE_SECONDARY_FIRE)
 
         Model1stPerson:set("Animation", ANIM_SHOOT2)
-    end
 
-    -- TODO: inflict damage
+        if ThinkingOnServerSide then
+            for i = 1, 16 do
+                HumanPlayer:FireRay(3.0, 0.08748866)    -- ca. 5°
+            end
+        end
+    end
 end
 
 

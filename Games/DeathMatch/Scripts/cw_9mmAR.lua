@@ -128,7 +128,7 @@ function AR:CanReload()
 end
 
 
-function AR:FirePrimary()
+function AR:FirePrimary(ThinkingOnServerSide)
     if not self:IsIdle() then return end
 
     if self:get("PrimaryAmmo") < 1 then
@@ -142,9 +142,11 @@ function AR:FirePrimary()
         PlayerScript:PostEvent(PlayerScript.EVENT_TYPE_PRIMARY_FIRE)
 
         Model1stPerson:set("Animation", ANIM_SHOOT1)
-    end
 
-    -- TODO: inflict damage
+        if ThinkingOnServerSide then
+            HumanPlayer:FireRay(1.0, 0.03492)   -- ca. 2°
+        end
+    end
 end
 
 

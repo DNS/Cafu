@@ -637,15 +637,17 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
 
                 SetActiveWeaponFrameNr(NewFrameNr);
 
-                CarriedWeapon->ServerSide_Think(this, PlayerCommand, ThinkingOnServerSide, AnimSequenceWrap);
+                CarriedWeapon->ServerSide_Think(this, PlayerCommand,
+                    /*ThinkingOnServerSide*/ false,     // Disable the weapon's effects on other entities, as this is implemented in the weapon *scripts* now.
+                    AnimSequenceWrap);
             }
 
             IntrusivePtrT<ComponentCarriedWeaponT> CarriedWeapon = GetActiveWeapon();
 
             if (CarriedWeapon != NULL)
             {
-                if (PlayerCommand.Keys & PCK_Fire1) CarriedWeapon->CallLuaMethod("FirePrimary", 0);
-                if (PlayerCommand.Keys & PCK_Fire2) CarriedWeapon->CallLuaMethod("FireSecondary", 0);
+                if (PlayerCommand.Keys & PCK_Fire1) CarriedWeapon->CallLuaMethod("FirePrimary",   0, "b", ThinkingOnServerSide);
+                if (PlayerCommand.Keys & PCK_Fire2) CarriedWeapon->CallLuaMethod("FireSecondary", 0, "b", ThinkingOnServerSide);
             }
 
             // Check if any key for changing the current weapon was pressed.
