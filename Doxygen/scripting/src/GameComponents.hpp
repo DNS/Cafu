@@ -403,6 +403,12 @@ class ComponentHumanPlayerT : public ComponentBaseT
     /// player code must be obtained from this method.
     GetRandom(number n);
 
+    /// An auxiliary method for spawning entities for thrown hand grenades, thrown face-huggers, launched AR grenades,
+    /// or launched rockets (RPGs).
+    ///
+    /// This is only an auxiliary method -- it should in fact be removed and entirely be implemented in Lua instead!
+    SpawnWeaponChild(string EntityName);
+
 
     public:
 

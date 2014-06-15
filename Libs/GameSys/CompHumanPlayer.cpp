@@ -1486,6 +1486,85 @@ int ComponentHumanPlayerT::GetRandom(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_SpawnWeaponChild =
+{
+    "SpawnWeaponChild",
+    "An auxiliary method for spawning entities for thrown hand grenades, thrown face-huggers, launched AR grenades,\n"
+    "or launched rockets (RPGs).\n\n"
+    "This is only an auxiliary method -- it should in fact be removed and entirely be implemented in Lua instead!",
+    "", "(string EntityName)"
+};
+
+int ComponentHumanPlayerT::SpawnWeaponChild(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<ComponentHumanPlayerT> HumanPlayer = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentHumanPlayerT> >(1);
+    const std::string                    EntityName  = luaL_checkstring(LuaState, 2);
+
+    IntrusivePtrT<cf::GameSys::EntityT> Ent = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(HumanPlayer->GetEntity()->GetWorld()));
+    HumanPlayer->GetEntity()->GetWorld().GetRootEntity()->AddChild(Ent);
+
+    Ent->GetBasics()->SetEntityName(EntityName);
+
+    // The challege is to find an initial NewEntOrigin so that the HumanPlayer's bounding-box (of the PlayerPhysics component)
+    // and the new entity's bounding-box (of the PlayerPhysics component) don't intersect.
+    // The code below tries this, but in a *very* flimsy and unreliable manner. It would be much better if, for example,
+    // the new entity's PlayerPhysics components would be able to ignore not only their own collision model, but also that
+    // of the HumanPlayer instance... TODO!
+    const double    RadiusPlayerBB = 16.0;
+    const double    RadiusNewEntBB =  4.0;      // Some use 3.0, some use 4.0, so let's use the maximum...
+    const double    Safety         =  1.0;
+    const Vector3dT ViewDir        = HumanPlayer->GetCameraViewDirWS();                             // TODO: Should ViewDir's "pitch" angle be limited to +/- 45° ?
+    const Vector3dT ViewOffset     = ViewDir * (2.0 * (RadiusPlayerBB + RadiusNewEntBB) + Safety);  // == ViewDir * 41.0
+    const Vector3dT NewEntOrigin   = HumanPlayer->GetCameraOriginWS() + ViewOffset;
+
+    if (EntityName == "ARGrenade")
+    {
+        Ent->GetTransform()->SetOriginWS(NewEntOrigin.AsVectorOfFloat() - Vector3fT(0.0f, 0.0f, 10.0f));
+        Ent->GetTransform()->SetQuatWS(HumanPlayer->GetEntity()->GetTransform()->GetQuatWS());
+
+        IntrusivePtrT<cf::GameSys::ComponentPlayerPhysicsT> PlayerPhysicsComp = new cf::GameSys::ComponentPlayerPhysicsT();
+        PlayerPhysicsComp->SetMember("Velocity", HumanPlayer->GetPlayerVelocity() + scale(ViewDir, 800.0));
+        PlayerPhysicsComp->SetMember("Dimensions", BoundingBox3dT(Vector3dT(3.0, 3.0, 6.0), Vector3dT(-3.0, -3.0, 0.0)));
+        Ent->AddComponent(PlayerPhysicsComp);
+    }
+    else if (EntityName == "FaceHugger")
+    {
+        Ent->GetTransform()->SetOriginWS(NewEntOrigin.AsVectorOfFloat());
+        Ent->GetTransform()->SetQuatWS(HumanPlayer->GetEntity()->GetTransform()->GetQuatWS());
+
+        IntrusivePtrT<cf::GameSys::ComponentPlayerPhysicsT> PlayerPhysicsComp = new cf::GameSys::ComponentPlayerPhysicsT();
+        PlayerPhysicsComp->SetMember("Velocity", HumanPlayer->GetPlayerVelocity() + scale(ViewDir, 280.0));
+        PlayerPhysicsComp->SetMember("Dimensions", BoundingBox3dT(Vector3dT( 4.0,  4.0, 4.0), Vector3dT(-4.0, -4.0, 0.0)));
+        Ent->AddComponent(PlayerPhysicsComp);
+    }
+    else if (EntityName == "Grenade")
+    {
+        Ent->GetTransform()->SetOriginWS(NewEntOrigin.AsVectorOfFloat() + Vector3fT(0.0f, 0.0f, 10.0f));
+        Ent->GetTransform()->SetQuatWS(HumanPlayer->GetEntity()->GetTransform()->GetQuatWS());
+
+        IntrusivePtrT<cf::GameSys::ComponentPlayerPhysicsT> PlayerPhysicsComp = new cf::GameSys::ComponentPlayerPhysicsT();
+        PlayerPhysicsComp->SetMember("Velocity", HumanPlayer->GetPlayerVelocity() + scale(ViewDir, 400.0));
+        PlayerPhysicsComp->SetMember("Dimensions", BoundingBox3dT(Vector3dT(3.0, 3.0, 6.0), Vector3dT(-3.0, -3.0, 0.0)));
+        Ent->AddComponent(PlayerPhysicsComp);
+    }
+    else if (EntityName == "Rocket")
+    {
+        Ent->GetTransform()->SetOriginWS(NewEntOrigin.AsVectorOfFloat() - Vector3fT(0.0f, 0.0f, 8.0f));
+        Ent->GetTransform()->SetQuatWS(HumanPlayer->GetEntity()->GetChildren()[0]->GetTransform()->GetQuatWS());
+
+        // This is not needed: Rocket physics are simple, implemented in the rocket's script code.
+        // IntrusivePtrT<cf::GameSys::ComponentPlayerPhysicsT> PlayerPhysicsComp = new cf::GameSys::ComponentPlayerPhysicsT();
+        // PlayerPhysicsComp->SetMember("Velocity", HumanPlayer->GetPlayerVelocity() + scale(ViewDir, 560.0));
+        // PlayerPhysicsComp->SetMember("Dimensions", BoundingBox3dT(Vector3dT(4.0, 4.0, 4.0), Vector3dT(-4.0, -4.0, -4.0)));
+        // Ent->AddComponent(PlayerPhysicsComp);
+    }
+
+    Binder.Push(Ent);
+    return 1;
+}
+
+
 static const cf::TypeSys::MethsDocT META_toString =
 {
     "__tostring",
@@ -1521,6 +1600,7 @@ const luaL_Reg ComponentHumanPlayerT::MethodsList[] =
     { "SelectNextWeapon", SelectNextWeapon },
     { "FireRay",          FireRay },
     { "GetRandom",        GetRandom },
+    { "SpawnWeaponChild", SpawnWeaponChild },
     { "__tostring",       toString },
     { NULL, NULL }
 };
@@ -1534,6 +1614,7 @@ const cf::TypeSys::MethsDocT ComponentHumanPlayerT::DocMethods[] =
     META_SelectNextWeapon,
     META_FireRay,
     META_GetRandom,
+    META_SpawnWeaponChild,
     META_toString,
     { NULL, NULL, NULL, NULL }
 };

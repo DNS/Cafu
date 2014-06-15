@@ -171,6 +171,7 @@ namespace cf
             static int SelectNextWeapon(lua_State* LuaState);
             static int FireRay(lua_State* LuaState);
             static int GetRandom(lua_State* LuaState);
+            static int SpawnWeaponChild(lua_State* LuaState);
             static int toString(lua_State* LuaState);
 
             static const luaL_Reg               MethodsList[];  ///< The list of Lua methods for this class.
