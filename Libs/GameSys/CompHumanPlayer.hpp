@@ -113,13 +113,14 @@ namespace cf
             /// This method initiates the holstering of the currently active weapon and the subsequent drawing
             /// of the given weapon.
             ///
-            /// If the current weapon is unknown or not available to the player (e.g. because it has never been picked up),
+            /// If the current weapon is none, unknown or not available to the player (e.g. because it has never been picked up),
             /// or if it turns out that the weapon does not support holstering (e.g. because there is no holstering
             /// sequence available), the holstering is skipped and the next weapon is drawn immediately.
             /// If the current weapon is fine but is not idle at the time that this method is called (e.g. reloading
             /// or firing), the call is *ignored*, that is, the weapon is *not* changed.
             ///
-            /// @param NextWeaponNr   The index number into the CarriedWeapon components of this entity, starting at 0.
+            /// @param NextWeaponNr   The index number into the CarriedWeapon components of this entity, starting at 1.
+            ///                       Use 0 to select "no" weapon.
             void SelectWeapon(uint8_t NextWeaponNr);
 
             /// This method draws the next weapon as previously prepared by SelectWeapon().
@@ -190,8 +191,8 @@ namespace cf
             TypeSys::VarT<uint8_t>       m_StateOfExistence;    ///< For the player's main state machine, e.g. "spectator, dead, alive, ...".
             TypeSys::VarT<uint8_t>       m_Health;              ///< Health.
             TypeSys::VarT<uint8_t>       m_Armor;               ///< Armor.
-            TypeSys::VarT<uint8_t>       m_ActiveWeaponNr;      ///< The index number into the CarriedWeapon components of this entity, starting at 0, indicating the currently active weapon. (The weapon must also be available (have been picked up) before the player can use it.)
-            TypeSys::VarT<uint8_t>       m_NextWeaponNr;        ///< The next weapon to be drawn by SelectNextWeapon(). Like m_ActiveWeaponNr, this is an index number into the CarriedWeapon components of this entity, starting at 0.
+            TypeSys::VarT<uint8_t>       m_ActiveWeaponNr;      ///< The index number into the CarriedWeapon components of this entity, starting at 1, indicating the currently active weapon. The weapon must also be available (have been picked up) before the player can use it. A value of 0 means that "no" weapon is currently active.
+            TypeSys::VarT<uint8_t>       m_NextWeaponNr;        ///< The next weapon to be drawn by SelectNextWeapon(). Like m_ActiveWeaponNr, this is an index number into the CarriedWeapon components of this entity, starting at 1. A value of 0 means "none".
             TypeSys::VarT<unsigned int>  m_HaveItems;           ///< Bit field, entity can carry 32 different items.
             TypeSys::VarT<unsigned int>  m_HaveWeapons;         ///< Bit field, entity can carry 32 different weapons.
             TypeSys::VarT<uint8_t>       m_ActiveWeaponSlot;    ///< Index into m_HaveWeapons, m_HaveAmmoInWeapons, and for determining the weapon model index.

@@ -365,10 +365,12 @@ class ComponentHumanPlayerT : public ComponentBaseT
     /// If the current weapon is fine but is not idle at the time that this method is called (e.g. reloading
     /// or firing), the call is *ignored*, that is, the weapon is *not* changed.
     ///
-    /// @param NextWeaponNr   The index number into the CarriedWeapon components of this entity, starting at 0.
+    /// @param NextWeapon   This can be the index number into the CarriedWeapon components of this entity, starting at 1.
+    ///                     Use 0 to select "no" weapon.
+    ///                     Alternatively, pass an instance of the carried weapon that is to be selected next.
     ///
     /// @see @ref CarriedWeaponsOverview
-    SelectWeapon(number NextWeaponNr);
+    SelectWeapon(any NextWeapon);
 
     /// This method draws the next weapon as previously prepared by SelectWeapon().
     ///
@@ -444,11 +446,11 @@ class ComponentHumanPlayerT : public ComponentBaseT
     /// @cppType{uint8_t}
     number Armor;
 
-    /// The index number into the CarriedWeapon components of this entity, starting at 0, indicating the currently active weapon. (The weapon must also be available (have been picked up) before the player can use it.)
+    /// The index number into the CarriedWeapon components of this entity, starting at 1, indicating the currently active weapon. The weapon must also be available (have been picked up) before the player can use it. A value of 0 means that "no" weapon is currently active.
     /// @cppType{uint8_t}
     number ActiveWeaponNr;
 
-    /// The next weapon to be drawn by SelectNextWeapon(). Like ActiveWeaponNr, this is an index number into the CarriedWeapon components of this entity, starting at 0.
+    /// The next weapon to be drawn by SelectNextWeapon(). Like ActiveWeaponNr, this is an index number into the CarriedWeapon components of this entity, starting at 1. A value of 0 means "none".
     /// @cppType{uint8_t}
     number NextWeaponNr;
 

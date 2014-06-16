@@ -83,8 +83,8 @@ const cf::TypeSys::VarsDocT ComponentHumanPlayerT::DocVars[] =
     { "State",               "For the player's main state machine, e.g. spectator, dead, alive, ..." },
     { "Health",              "Health." },
     { "Armor",               "Armor." },
-    { "ActiveWeaponNr",      "The index number into the CarriedWeapon components of this entity, starting at 0, indicating the currently active weapon. (The weapon must also be available (have been picked up) before the player can use it.)" },
-    { "NextWeaponNr",        "The next weapon to be drawn by SelectNextWeapon(). Like ActiveWeaponNr, this is an index number into the CarriedWeapon components of this entity, starting at 0." },
+    { "ActiveWeaponNr",      "The index number into the CarriedWeapon components of this entity, starting at 1, indicating the currently active weapon. The weapon must also be available (have been picked up) before the player can use it. A value of 0 means that \"no\" weapon is currently active." },
+    { "NextWeaponNr",        "The next weapon to be drawn by SelectNextWeapon(). Like ActiveWeaponNr, this is an index number into the CarriedWeapon components of this entity, starting at 1. A value of 0 means \"none\"." },
     { "HaveItems",           "Bit field, entity can carry 32 different items." },
     { "HaveWeapons",         "Bit field, entity can carry 32 different weapons." },
     { "ActiveWeaponSlot",    "Index into m_HaveWeapons, m_HaveAmmoInWeapons, and for determining the weapon model index." },
@@ -697,7 +697,7 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                     char DrawSequNr=0;
 
                     SetActiveWeaponSlot(SelectableWeapons[0]);
-                    SelectWeapon(SelectableWeapons[0]);
+                    SelectWeapon(SelectableWeapons[0] + 1);
 
                     switch (GetActiveWeaponSlot())
                     {
@@ -726,7 +726,7 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                     char DrawSequNr=0;
 
                     SetActiveWeaponSlot(SelectableWeapons[(SWNr+1) % SelectableWeapons.Size()]);
-                    SelectWeapon(SelectableWeapons[(SWNr+1) % SelectableWeapons.Size()]);
+                    SelectWeapon(SelectableWeapons[(SWNr+1) % SelectableWeapons.Size()] + 1);
 
                     switch (GetActiveWeaponSlot())
                     {
@@ -948,8 +948,10 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
 
 IntrusivePtrT<ComponentCarriedWeaponT> ComponentHumanPlayerT::GetActiveWeapon() const
 {
+    if (m_ActiveWeaponNr.Get() == 0) return NULL;
+
     IntrusivePtrT<ComponentCarriedWeaponT> CarriedWeapon =
-        dynamic_pointer_cast<ComponentCarriedWeaponT>(GetEntity()->GetComponent("CarriedWeapon", m_ActiveWeaponNr.Get()));
+        dynamic_pointer_cast<ComponentCarriedWeaponT>(GetEntity()->GetComponent("CarriedWeapon", m_ActiveWeaponNr.Get() - 1));
 
     if (CarriedWeapon == NULL) return NULL;
     if (!CarriedWeapon->IsAvail()) return NULL;
@@ -1365,8 +1367,10 @@ static const cf::TypeSys::MethsDocT META_SelectWeapon =
     "If the current weapon is fine but is not idle at the time that this method is called (e.g. reloading\n"
     "or firing), the call is *ignored*, that is, the weapon is *not* changed.\n"
     "\n"
-    "@param NextWeaponNr   The index number into the CarriedWeapon components of this entity, starting at 0.",
-    "", "(number NextWeaponNr)"
+    "@param NextWeapon   This can be the index number into the CarriedWeapon components of this entity, starting at 1.\n"
+    "                    Use 0 to select \"no\" weapon.\n"
+    "                    Alternatively, pass an instance of the carried weapon that is to be selected next.",
+    "", "(any NextWeapon)"
 };
 
 int ComponentHumanPlayerT::SelectWeapon(lua_State* LuaState)
@@ -1382,7 +1386,7 @@ int ComponentHumanPlayerT::SelectWeapon(lua_State* LuaState)
 
     IntrusivePtrT<ComponentCarriedWeaponT> CarriedWeapon = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentCarriedWeaponT> >(2);
     const ArrayT< IntrusivePtrT<ComponentBaseT> >& Components = Comp->GetEntity()->GetComponents();
-    uint8_t cwNr = 0;
+    uint8_t cwNr = 1;
 
     for (unsigned int i = 0; i < Components.Size(); i++)
     {
