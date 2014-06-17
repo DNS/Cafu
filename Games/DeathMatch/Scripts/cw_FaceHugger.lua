@@ -51,8 +51,12 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
 
             Model:set("Animation", ANIM_DRAW)
         else
-            -- Must call SelectWeapon(-1, FORCE) here, because we have no IDLE (and HOLSTER) animations
-            -- with empty hands...
+            -- We have thrown our last face-hugger, but unfortunately, we have no bare-handed animation sequences.
+            -- Therefore, we cannot switch to ANIM_IDLE here: It would render a face-hugger in our hand when we
+            -- in fact have none.
+            -- At the moment, it seems like the only sensible course of action is this:
+            HumanPlayer:SelectWeapon(0, true)
+            self:set("IsAvail", false)      -- Drawing this weapon "empty" is not possible either.
         end
         return
     end

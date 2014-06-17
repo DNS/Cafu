@@ -96,17 +96,12 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
 
             Model:set("Animation", ANIM_DRAW)
         else
-            -- This is really stupid, because ANIM_IDLE renders a grenade in our hand,
-            -- when we in fact have none.
-            -- However, we cannot remain in ANIM_THROW* either, because the player can
-            -- only switch weapons when in ANIM_IDLE state.
-            -- We'd need an ANIM_IDLE_BARE_HANDED in order to overcome this problem, or:
-            --   - stay in ANIM_THROW*,
-            --   - implement Holster() to return false if in ANIM_THROW*
-            --   - adjust IsIdle() ?
-            --   - call HumanPlayer:SelectWeapon(-1) here.
-            -- (or have something like HumanPlayer:ForceSelectWeapon(-1) ...)
-            Model:set("Animation", ANIM_IDLE)
+            -- We have thrown our last grenade, but unfortunately, we have no bare-handed animation sequences.
+            -- Therefore, we cannot switch to ANIM_IDLE here: It would render a grenade in our hand when we
+            -- in fact have none.
+            -- At the moment, it seems like the only sensible course of action is this:
+            HumanPlayer:SelectWeapon(0, true)
+            self:set("IsAvail", false)      -- Drawing this weapon "empty" is not possible either.
         end
         return
     end
