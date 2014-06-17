@@ -121,7 +121,11 @@ namespace cf
             ///
             /// @param NextWeaponNr   The index number into the CarriedWeapon components of this entity, starting at 1.
             ///                       Use 0 to select "no" weapon.
-            void SelectWeapon(uint8_t NextWeaponNr);
+            /// @param Force          If `true`, forces the drawing of the next weapon immediately, ignoring the idle
+            ///                       state and holstering sequence of the current weapon. This is normally only used
+            ///                       if, for example, the last hand grenade has been thrown and bare-handed animation
+            ///                       sequences for idle and holster are not available.
+            void SelectWeapon(uint8_t NextWeaponNr, bool Force = false);
 
             /// This method draws the next weapon as previously prepared by SelectWeapon().
             ///

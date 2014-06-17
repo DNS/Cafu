@@ -960,7 +960,7 @@ IntrusivePtrT<ComponentCarriedWeaponT> ComponentHumanPlayerT::GetActiveWeapon() 
 }
 
 
-void ComponentHumanPlayerT::SelectWeapon(uint8_t NextWeaponNr)
+void ComponentHumanPlayerT::SelectWeapon(uint8_t NextWeaponNr, bool Force)
 {
     // If the requested weapon is already active, there is nothing to do.
     if (m_ActiveWeaponNr.Get() == NextWeaponNr) return;
@@ -969,7 +969,7 @@ void ComponentHumanPlayerT::SelectWeapon(uint8_t NextWeaponNr)
     // The current weapon will, at the end of its holstering sequence, make sure that SelectNextWeapon() is called.
     IntrusivePtrT<ComponentCarriedWeaponT> CarriedWeapon = GetActiveWeapon();
 
-    if (CarriedWeapon == NULL)
+    if (CarriedWeapon == NULL || Force)
     {
         // We get here whenever there was a problem with finding the currently carried weapon
         // (where m_ActiveWeaponNr.Get() == NONE is a special case thereof), or if the carried
@@ -1369,8 +1369,12 @@ static const cf::TypeSys::MethsDocT META_SelectWeapon =
     "\n"
     "@param NextWeapon   This can be the index number into the CarriedWeapon components of this entity, starting at 1.\n"
     "                    Use 0 to select \"no\" weapon.\n"
-    "                    Alternatively, pass an instance of the carried weapon that is to be selected next.",
-    "", "(any NextWeapon)"
+    "                    Alternatively, pass an instance of the carried weapon that is to be selected next.\n"
+    "@param Force        If `true`, forces the drawing of the next weapon immediately, ignoring the idle\n"
+    "                    state and holstering sequence of the current weapon. This is normally only used\n"
+    "                    if, for example, the last hand grenade has been thrown and bare-handed animation\n"
+    "                    sequences for idle and holster are not available.\n",
+    "", "(any NextWeapon, bool Force)"
 };
 
 int ComponentHumanPlayerT::SelectWeapon(lua_State* LuaState)
@@ -1380,7 +1384,7 @@ int ComponentHumanPlayerT::SelectWeapon(lua_State* LuaState)
 
     if (lua_isnumber(LuaState, 2))
     {
-        Comp->SelectWeapon(lua_tointeger(LuaState, 2));
+        Comp->SelectWeapon(lua_tointeger(LuaState, 2), lua_toboolean(LuaState, 3) != 0);
         return 0;
     }
 
@@ -1398,7 +1402,7 @@ int ComponentHumanPlayerT::SelectWeapon(lua_State* LuaState)
         cwNr++;
     }
 
-    Comp->SelectWeapon(cwNr);
+    Comp->SelectWeapon(cwNr, lua_toboolean(LuaState, 3) != 0);
     return 0;
 }
 

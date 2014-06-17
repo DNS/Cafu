@@ -368,9 +368,13 @@ class ComponentHumanPlayerT : public ComponentBaseT
     /// @param NextWeapon   This can be the index number into the CarriedWeapon components of this entity, starting at 1.
     ///                     Use 0 to select "no" weapon.
     ///                     Alternatively, pass an instance of the carried weapon that is to be selected next.
+    /// @param Force        If `true`, forces the drawing of the next weapon immediately, ignoring the idle
+    ///                     state and holstering sequence of the current weapon. This is normally only used
+    ///                     if, for example, the last hand grenade has been thrown and bare-handed animation
+    ///                     sequences for idle and holster are not available.
     ///
     /// @see @ref CarriedWeaponsOverview
-    SelectWeapon(any NextWeapon);
+    SelectWeapon(any NextWeapon, bool Force);
 
     /// This method draws the next weapon as previously prepared by SelectWeapon().
     ///
