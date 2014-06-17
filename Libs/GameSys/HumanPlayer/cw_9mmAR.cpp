@@ -268,40 +268,6 @@ void CarriedWeapon9mmART::ServerSide_Think(IntrusivePtrT<cf::GameSys::ComponentH
 }
 
 
-static bool ParticleFunction_HitWall(ParticleMST* Particle, float Time)
-{
-    const float MaxAge=3.0;
-
-    Particle->Age+=Time;
-    if (Particle->Age>MaxAge) return false;
-
-    const float p=1.0f-Particle->Age/MaxAge;     // % of remaining lifetime.
-
-    Particle->Color[0]=char( 20.0f*p);
-    Particle->Color[1]=char(180.0f*p);
-    Particle->Color[2]=char(255.0f*p);
-
-    return true;
-}
-
-
-static bool ParticleFunction_HitEntity(ParticleMST* Particle, float Time)
-{
-    const float MaxAge=1.0;
-
-    Particle->Age+=Time;
-    if (Particle->Age>MaxAge) return false;
-
-    const float p=1.0f-Particle->Age/MaxAge;     // % of remaining lifetime.
-
-    Particle->Color[0]=char(255.0f*p);
-    Particle->Color[1]=0;
-    Particle->Color[2]=0;
-
-    return true;
-}
-
-
 void CarriedWeapon9mmART::ClientSide_HandleSecondaryFireEvent(IntrusivePtrT<const cf::GameSys::ComponentHumanPlayerT> HumanPlayer, const VectorT& /*LastSeenAmbientColor*/) const
 {
     const Vector3dT ViewDir = HumanPlayer->GetCameraViewDirWS();
@@ -324,38 +290,11 @@ void CarriedWeapon9mmART::ClientSide_HandleStateDrivenEffects(IntrusivePtrT<cons
     {
         if (HumanPlayer->GetActiveWeaponFrameNr() == 0.0f)
         {
-            const Vector3dT  ViewDir = HumanPlayer->GetCameraViewDirWS(0.03492);  // ca. 2°
-            const RayResultT RayResult(HumanPlayer->TraceCameraRay(ViewDir));
-
-            if (!RayResult.hasHit()) return;
-
-            // Register a new particle at the hit point.
-            ParticleMST NewParticle;
-
-            NewParticle.Origin[0]=PhysToUnits(RayResult.m_hitPointWorld.x());
-            NewParticle.Origin[1]=PhysToUnits(RayResult.m_hitPointWorld.y());
-            NewParticle.Origin[2]=PhysToUnits(RayResult.m_hitPointWorld.z());
-
-            NewParticle.Velocity[0]=0;
-            NewParticle.Velocity[1]=0;
-            NewParticle.Velocity[2]=0;
-
-            NewParticle.Age=0.0;
-            NewParticle.Color[3]=0;
-
-            NewParticle.Radius=12.0;
-            NewParticle.StretchY=1.0;
-            NewParticle.AllRMs = NULL;
-            NewParticle.RenderMat = m_GenericMatSet->GetRenderMats()[0];
-            NewParticle.MoveFunction=RayResult.GetHitPhysicsComp()==NULL ? ParticleFunction_HitWall : ParticleFunction_HitEntity;
-
-            ParticleEngineMS::RegisterNewParticle(NewParticle);
-
             if (FireSound)
             {
                 // Update sound position and velocity.
-                FireSound->SetPosition(HumanPlayer->GetCameraOriginWS() + scale(ViewDir, 16.0));
-                FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
+                // FireSound->SetPosition(HumanPlayer->GetCameraOriginWS() + scale(ViewDir, 16.0));
+                // FireSound->SetVelocity(HumanPlayer->GetPlayerVelocity());
 
                 // Play the fire sound.
                 // FireSound->Play();

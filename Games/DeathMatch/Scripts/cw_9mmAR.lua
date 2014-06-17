@@ -240,6 +240,8 @@ end
 
 
 function AR:ProcessEvent(EventType, NumEvents)
+    HumanPlayer:RegisterParticle("AR-ray")
+
     -- Note that we can *not* have code like
     --     WeaponSound:set("Name", ...)
     -- here, because that would only act on the client-side. The value would be "updated" in

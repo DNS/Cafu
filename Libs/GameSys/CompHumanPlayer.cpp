@@ -45,6 +45,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Models/AnimPose.hpp"          // for implementing CheckGUIs()
 #include "Models/Model_cmdl.hpp"
 #include "OpenGL/OpenGLWindow.hpp"      // for implementing CheckGUIs()
+#include "ParticleEngine/ParticleEngineMS.hpp"
 #include "String.hpp"
 #include "UniScriptState.hpp"
 
@@ -118,6 +119,10 @@ ComponentHumanPlayerT::ComponentHumanPlayerT()
       m_GuiHUD(NULL)
 {
     FillMemberVars();
+
+    // TODO: Should rather store ParticleMaterialSetTs where their lifetime cannot be shorter than that of all particles...
+    m_GenericMatSet = new ParticleMaterialSetT("generic", "Sprites/Generic1");
+    m_WhiteSmokeMatSet = new ParticleMaterialSetT("white-smoke", "Sprites/smoke1/smoke_%02u");
 }
 
 
@@ -142,6 +147,10 @@ ComponentHumanPlayerT::ComponentHumanPlayerT(const ComponentHumanPlayerT& Comp)
       m_GuiHUD(NULL)
 {
     FillMemberVars();
+
+    // TODO: Should rather store ParticleMaterialSetTs where their lifetime cannot be shorter than that of all particles...
+    m_GenericMatSet = new ParticleMaterialSetT("generic", "Sprites/Generic1");
+    m_WhiteSmokeMatSet = new ParticleMaterialSetT("white-smoke", "Sprites/smoke1/smoke_%02u");
 }
 
 
@@ -162,6 +171,16 @@ void ComponentHumanPlayerT::FillMemberVars()
     GetMemberVars().Add(&m_HaveAmmo);
     GetMemberVars().Add(&m_HaveAmmoInWeapons);
     GetMemberVars().Add(&m_HeadSway);
+}
+
+
+ComponentHumanPlayerT::~ComponentHumanPlayerT()
+{
+    delete m_WhiteSmokeMatSet;
+    m_WhiteSmokeMatSet = NULL;
+
+    delete m_GenericMatSet;
+    m_GenericMatSet = NULL;
 }
 
 
@@ -1573,6 +1592,249 @@ int ComponentHumanPlayerT::SpawnWeaponChild(lua_State* LuaState)
 }
 
 
+namespace
+{
+    static bool ParticleFunction_ShotgunHitWall(ParticleMST* Particle, float Time)
+    {
+        const float MaxAge = 0.4f;
+
+        Particle->Age += Time;
+        if (Particle->Age > MaxAge) return false;
+
+        const float p = 1.0f - Particle->Age / MaxAge;     // % of remaining lifetime
+
+        Particle->Color[0] = char( 20.0f * p);
+        Particle->Color[1] = char(255.0f * p);
+        Particle->Color[2] = char(180.0f * p);
+
+        return true;
+    }
+
+
+    static bool ParticleFunction_HitWall(ParticleMST* Particle, float Time)
+    {
+        const float MaxAge = 3.0f;
+
+        Particle->Age += Time;
+        if (Particle->Age > MaxAge) return false;
+
+        const float p = 1.0f - Particle->Age / MaxAge;     // % of remaining lifetime.
+
+        Particle->Color[0] = char( 20.0f * p);
+        Particle->Color[1] = char(180.0f * p);
+        Particle->Color[2] = char(255.0f * p);
+
+        return true;
+    }
+
+
+    static bool ParticleFunction_HitEntity(ParticleMST* Particle, float Time)
+    {
+        const float MaxAge = 1.0f;
+
+        Particle->Age += Time;
+        if (Particle->Age > MaxAge) return false;
+
+        const float p = 1.0f - Particle->Age / MaxAge;     // % of remaining lifetime.
+
+        Particle->Color[0] = char(255.0f * p);
+        Particle->Color[1] = 0;
+        Particle->Color[2] = 0;
+
+        return true;
+    }
+
+
+    static bool ParticleFunction_ShotgunWhiteSmoke(ParticleMST* Particle, float Time)
+    {
+        const float FPS    = 20.0f;          // The default value is 20.0.
+        const float MaxAge = 32.0f / FPS;    // 32 frames at 20 FPS.
+
+        Particle->Origin[0] += Particle->Velocity[0] * Time;
+        Particle->Origin[1] += Particle->Velocity[1] * Time;
+        Particle->Origin[2] += Particle->Velocity[2] * Time;
+
+        Particle->Radius += Time * 40.0f;
+
+        const unsigned long MatNr = (unsigned long)(Particle->Age * FPS);
+        assert(MatNr < Particle->AllRMs->Size());
+        Particle->RenderMat = (*Particle->AllRMs)[MatNr];
+
+        Particle->Age += Time;
+        if (Particle->Age >= MaxAge) return false;
+
+        return true;
+    }
+}
+
+
+static const cf::TypeSys::MethsDocT META_RegisterParticle =
+{
+    "RegisterParticle",
+    "An auxiliary method for spawning new particles.\n"
+    "This is only a clumsy auxiliary method -- the entire particle system needs a thorough revision instead!",
+    "", "(number Type)"
+};
+
+int ComponentHumanPlayerT::RegisterParticle(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<ComponentHumanPlayerT> HumanPlayer = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentHumanPlayerT> >(1);
+    const std::string Type = luaL_checkstring(LuaState, 2);
+
+    if (Type == "shotgun-ray")
+    {
+        const Vector3dT  ViewDir = HumanPlayer->GetCameraViewDirWS(0.08748866);   // ca. 5°
+        const RayResultT RayResult(HumanPlayer->TraceCameraRay(ViewDir));
+
+        if (!RayResult.hasHit()) return 0;
+
+        // Register a new particle at the 'Hit' point.
+        ParticleMST NewParticle;
+
+        NewParticle.Origin[0]=PhysToUnits(RayResult.m_hitPointWorld.x());
+        NewParticle.Origin[1]=PhysToUnits(RayResult.m_hitPointWorld.y());
+        NewParticle.Origin[2]=PhysToUnits(RayResult.m_hitPointWorld.z());
+
+        NewParticle.Velocity[0]=0;
+        NewParticle.Velocity[1]=0;
+        NewParticle.Velocity[2]=0;
+
+        NewParticle.Age=0.0;
+        NewParticle.Color[3]=0;
+
+        NewParticle.Radius=12.0;
+        NewParticle.StretchY=1.0;
+        NewParticle.AllRMs = NULL;
+        NewParticle.RenderMat = HumanPlayer->m_GenericMatSet->GetRenderMats()[0];
+        NewParticle.MoveFunction=RayResult.GetHitPhysicsComp()==NULL ? ParticleFunction_ShotgunHitWall : ParticleFunction_HitEntity;
+
+        ParticleEngineMS::RegisterNewParticle(NewParticle);
+    }
+    else if (Type == "shotgun-smoke-1")
+    {
+        const Vector3dT ViewDir = HumanPlayer->GetCameraViewDirWS();
+
+        // Register a new particle as "muzzle flash".
+        ParticleMST NewParticle;
+
+        NewParticle.Origin[0]=float(HumanPlayer->GetCameraOriginWS().x + ViewDir.x*16.0);
+        NewParticle.Origin[1]=float(HumanPlayer->GetCameraOriginWS().y + ViewDir.y*16.0);
+        NewParticle.Origin[2]=float(HumanPlayer->GetCameraOriginWS().z + ViewDir.z*16.0-4.0);
+
+        NewParticle.Velocity[0]=float(ViewDir.x*40.0);
+        NewParticle.Velocity[1]=float(ViewDir.y*40.0);
+        NewParticle.Velocity[2]=float(ViewDir.z*40.0);
+
+        NewParticle.Age=0.0;
+        NewParticle.Color[0]=0;     // TODO: char(LastSeenAmbientColor.x*255.0);
+        NewParticle.Color[1]=255;   // TODO: char(LastSeenAmbientColor.y*255.0);
+        NewParticle.Color[2]=0;     // TODO: char(LastSeenAmbientColor.z*255.0);
+        NewParticle.Color[3]=100;
+
+        NewParticle.Radius=3.2f;
+        NewParticle.Rotation=char(rand());
+        NewParticle.StretchY=1.0;
+        NewParticle.AllRMs = &HumanPlayer->m_WhiteSmokeMatSet->GetRenderMats();
+        NewParticle.RenderMat = HumanPlayer->m_WhiteSmokeMatSet->GetRenderMats()[0];
+        NewParticle.MoveFunction=ParticleFunction_ShotgunWhiteSmoke;
+
+        ParticleEngineMS::RegisterNewParticle(NewParticle);
+    }
+    else if (Type == "shotgun-smoke-2")
+    {
+        const Vector3dT ViewDir = HumanPlayer->GetCameraViewDirWS();
+
+        // Register a new particle as "muzzle flash".
+        ParticleMST NewParticle;
+
+        NewParticle.Origin[0]=float(HumanPlayer->GetCameraOriginWS().x + ViewDir.x*16.0);
+        NewParticle.Origin[1]=float(HumanPlayer->GetCameraOriginWS().y + ViewDir.y*16.0);
+        NewParticle.Origin[2]=float(HumanPlayer->GetCameraOriginWS().z + ViewDir.z*16.0-4.0);
+
+        NewParticle.Velocity[0]=float(ViewDir.x*60.0);
+        NewParticle.Velocity[1]=float(ViewDir.y*60.0);
+        NewParticle.Velocity[2]=float(ViewDir.z*60.0);
+
+        NewParticle.Age=0.0;
+        NewParticle.Color[0]=0;     // TODO: char(LastSeenAmbientColor.x*255.0);
+        NewParticle.Color[1]=255;   // TODO: char(LastSeenAmbientColor.y*255.0);
+        NewParticle.Color[2]=0;     // TODO: char(LastSeenAmbientColor.z*255.0);
+        NewParticle.Color[3]=180;
+
+        NewParticle.Radius=8.0;
+        NewParticle.Rotation=char(rand());
+        NewParticle.StretchY=1.0;
+        NewParticle.AllRMs = &HumanPlayer->m_WhiteSmokeMatSet->GetRenderMats();
+        NewParticle.RenderMat = HumanPlayer->m_WhiteSmokeMatSet->GetRenderMats()[0];
+        NewParticle.MoveFunction=ParticleFunction_ShotgunWhiteSmoke;
+
+        ParticleEngineMS::RegisterNewParticle(NewParticle);
+    }
+    else if (Type == "AR-ray")
+    {
+        const Vector3dT  ViewDir = HumanPlayer->GetCameraViewDirWS(0.03492);  // ca. 2°
+        const RayResultT RayResult(HumanPlayer->TraceCameraRay(ViewDir));
+
+        if (!RayResult.hasHit()) return 0;
+
+        // Register a new particle at the hit point.
+        ParticleMST NewParticle;
+
+        NewParticle.Origin[0]=PhysToUnits(RayResult.m_hitPointWorld.x());
+        NewParticle.Origin[1]=PhysToUnits(RayResult.m_hitPointWorld.y());
+        NewParticle.Origin[2]=PhysToUnits(RayResult.m_hitPointWorld.z());
+
+        NewParticle.Velocity[0]=0;
+        NewParticle.Velocity[1]=0;
+        NewParticle.Velocity[2]=0;
+
+        NewParticle.Age=0.0;
+        NewParticle.Color[3]=0;
+
+        NewParticle.Radius=12.0;
+        NewParticle.StretchY=1.0;
+        NewParticle.AllRMs = NULL;
+        NewParticle.RenderMat = HumanPlayer->m_GenericMatSet->GetRenderMats()[0];
+        NewParticle.MoveFunction=RayResult.GetHitPhysicsComp()==NULL ? ParticleFunction_HitWall : ParticleFunction_HitEntity;
+
+        ParticleEngineMS::RegisterNewParticle(NewParticle);
+    }
+    else if (Type == "DesertEagle-ray")
+    {
+        const Vector3dT  ViewDir = HumanPlayer->GetCameraViewDirWS();
+        const RayResultT RayResult(HumanPlayer->TraceCameraRay(ViewDir));
+
+        if (!RayResult.hasHit()) return 0;
+
+        // Register a new particle at the 'Hit' point.
+        ParticleMST NewParticle;
+
+        NewParticle.Origin[0]=PhysToUnits(RayResult.m_hitPointWorld.x());
+        NewParticle.Origin[1]=PhysToUnits(RayResult.m_hitPointWorld.y());
+        NewParticle.Origin[2]=PhysToUnits(RayResult.m_hitPointWorld.z());
+
+        NewParticle.Velocity[0]=0;
+        NewParticle.Velocity[1]=0;
+        NewParticle.Velocity[2]=0;
+
+        NewParticle.Age=0.0;
+        NewParticle.Color[3]=0;
+
+        NewParticle.Radius=12.0;
+        NewParticle.StretchY=1.0;
+
+        NewParticle.AllRMs = NULL;
+        NewParticle.RenderMat = HumanPlayer->m_GenericMatSet->GetRenderMats()[0];
+        NewParticle.MoveFunction=RayResult.GetHitPhysicsComp()==NULL ? ParticleFunction_HitWall : ParticleFunction_HitEntity;
+
+        ParticleEngineMS::RegisterNewParticle(NewParticle);
+    }
+
+    return 0;
+}
+
+
 static const cf::TypeSys::MethsDocT META_toString =
 {
     "__tostring",
@@ -1609,6 +1871,7 @@ const luaL_Reg ComponentHumanPlayerT::MethodsList[] =
     { "FireRay",          FireRay },
     { "GetRandom",        GetRandom },
     { "SpawnWeaponChild", SpawnWeaponChild },
+    { "RegisterParticle", RegisterParticle },
     { "__tostring",       toString },
     { NULL, NULL }
 };
@@ -1623,6 +1886,7 @@ const cf::TypeSys::MethsDocT ComponentHumanPlayerT::DocMethods[] =
     META_FireRay,
     META_GetRandom,
     META_SpawnWeaponChild,
+    META_RegisterParticle,
     META_toString,
     { NULL, NULL, NULL, NULL }
 };

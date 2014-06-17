@@ -194,6 +194,13 @@ end
 
 
 function Shotgun:ProcessEvent(EventType, NumEvents)
+    -- EventType is either 1 or 2.
+    for i = 1, EventType * 8 do
+        HumanPlayer:RegisterParticle("shotgun-ray")
+    end
+
+    HumanPlayer:RegisterParticle("shotgun-smoke-" .. EventType)
+
     -- Note that we can *not* have code like
     --     WeaponSound:set("Name", ...)
     -- here, because that would only act on the client-side. The value would be "updated" in

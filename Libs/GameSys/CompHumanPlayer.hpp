@@ -27,6 +27,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GuiSys/GuiImpl.hpp"
 #include "PhysicsWorld.hpp"
 
+class ParticleMaterialSetT;
+
 
 namespace cf
 {
@@ -52,6 +54,9 @@ namespace cf
             /// The copy constructor.
             /// @param Comp   The component to create a copy of.
             ComponentHumanPlayerT(const ComponentHumanPlayerT& Comp);
+
+            /// The destructor.
+            ~ComponentHumanPlayerT();
 
             /// A temporary method for compatibility with old code.
             ArrayT<PlayerCommandT>& GetPlayerCommands() { return m_PlayerCommands; }
@@ -177,6 +182,7 @@ namespace cf
             static int FireRay(lua_State* LuaState);
             static int GetRandom(lua_State* LuaState);
             static int SpawnWeaponChild(lua_State* LuaState);
+            static int RegisterParticle(lua_State* LuaState);
             static int toString(lua_State* LuaState);
 
             static const luaL_Reg               MethodsList[];  ///< The list of Lua methods for this class.
@@ -208,6 +214,8 @@ namespace cf
 
             ArrayT<PlayerCommandT>          m_PlayerCommands;   ///< The commands to be processed in the next Think() step.
             IntrusivePtrT<GuiSys::GuiImplT> m_GuiHUD;           ///< The GUI instance for the player's Head-Up Display.
+            ParticleMaterialSetT*           m_GenericMatSet;    ///< Resources needed to implement the temporary RegisterParticle() method.
+            ParticleMaterialSetT*           m_WhiteSmokeMatSet; ///< Resources needed to implement the temporary RegisterParticle() method.
         };
     }
 }

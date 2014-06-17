@@ -407,6 +407,10 @@ class ComponentHumanPlayerT : public ComponentBaseT
     /// This is only an auxiliary method -- it should in fact be removed and entirely be implemented in Lua instead!
     SpawnWeaponChild(string EntityName);
 
+    /// An auxiliary method for spawning new particles.
+    /// This is only a clumsy auxiliary method -- the entire particle system needs a thorough revision instead!
+    RegisterParticle(number Type);
+
 
     public:
 
