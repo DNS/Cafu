@@ -134,7 +134,7 @@ function Grenade:Draw()
     UpdateChildComponents()
 
     Model1stPerson:set("Show", true)
-    Model1stPerson:set("Name", self:get("Model1stPerson"))
+    Model1stPerson:set("Name", "Games/DeathMatch/Models/Weapons/Grenade/Grenade_v.cmdl")
     Model1stPerson:set("Animation", ANIM_DRAW)
     Model1stPerson.OnSequenceWrap_Sv = OnSequenceWrap_Sv
 end

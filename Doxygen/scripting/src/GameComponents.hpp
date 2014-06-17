@@ -249,14 +249,6 @@ class ComponentCarriedWeaponT : public ComponentBaseT
     /// @cppType{std::string}
     string Script;
 
-    /// The name of the 1st-person ("view") model of this weapon.
-    /// @cppType{std::string}
-    string Model1stPerson;
-
-    /// The name of the 3rd-person ("player") model of this weapon.
-    /// @cppType{std::string}
-    string Model3rdPerson;
-
     /// The current amount of ammo for the primary fire of this weapon.
     /// @cppType{uint16_t}
     number PrimaryAmmo;

@@ -78,8 +78,6 @@ namespace cf
             TypeSys::VarT<std::string> m_Label;             ///< A short informational name for this weapon. Used for reference e.g. in the Map Editor, in log output, or in script code.
             TypeSys::VarT<bool>        m_IsAvail;           ///< Is this weapon available to the player? A weapon is usually available to the player only after it has been picked up in the world. Alternatively, it is possible to configure the player prototype to spawn the player with the weapon readily available. Only weapons that are available can be selected and drawn.
             TypeSys::VarT<std::string> m_Script;            ///< The filename of the script that implements the behaviour of this weapon.
-            TypeSys::VarT<std::string> m_Model1stPerson;    ///< The name of the 1st-person ("view") model of this weapon.
-            TypeSys::VarT<std::string> m_Model3rdPerson;    ///< The name of the 3rd-person ("player") model of this weapon.
             TypeSys::VarT<uint16_t>    m_PrimaryAmmo;       ///< The current amount of ammo for the primary fire of this weapon.
             TypeSys::VarT<uint16_t>    m_MaxPrimaryAmmo;    ///< The maximum amount of ammo for the primary fire of this weapon.
             TypeSys::VarT<uint16_t>    m_SecondaryAmmo;     ///< The current amount of ammo for the secondary fire of this weapon.

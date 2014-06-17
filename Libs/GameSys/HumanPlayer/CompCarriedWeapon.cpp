@@ -42,8 +42,7 @@ using namespace cf::GameSys;
 
 namespace
 {
-    const char* FlagsIsModelFileName[] = { "IsModelFileName", NULL };
-    const char* FlagsIsLuaFileName[]   = { "IsLuaFileName",   NULL };
+    const char* FlagsIsLuaFileName[] = { "IsLuaFileName",   NULL };
 }
 
 
@@ -56,8 +55,6 @@ const cf::TypeSys::VarsDocT ComponentCarriedWeaponT::DocVars[] =
     { "Label",            "A short informational name for this weapon. Used for reference e.g. in the Map Editor, in log output, or in script code (therefore, changing it for existing weapons may require a review of the related script code)." },
     { "IsAvail",          "Is this weapon available to the player? Normally `false` when the player spawns. Switched to `true` when the player picks up the weapon for the first time, whereupon it can be selected and drawn." },
     { "Script",           "The filename of the script that implements the behaviour of this weapon." },
-    { "Model1stPerson",   "The name of the 1st-person (\"view\") model of this weapon." },
-    { "Model3rdPerson",   "The name of the 3rd-person (\"player\") model of this weapon." },
     { "PrimaryAmmo",      "The current amount of ammo for the primary fire of this weapon." },
     { "MaxPrimaryAmmo",   "The maximum amount of ammo for the primary fire of this weapon." },
     { "SecondaryAmmo",    "The current amount of ammo for the secondary fire of this weapon." },
@@ -71,8 +68,6 @@ ComponentCarriedWeaponT::ComponentCarriedWeaponT()
       m_Label("Label", "weapon"),
       m_IsAvail("IsAvail", false),
       m_Script("Script", "", FlagsIsLuaFileName),
-      m_Model1stPerson("Model1stPerson", "", FlagsIsModelFileName),
-      m_Model3rdPerson("Model3rdPerson", "", FlagsIsModelFileName),
       m_PrimaryAmmo("PrimaryAmmo", 0),
       m_MaxPrimaryAmmo("MaxPrimaryAmmo", 0),
       m_SecondaryAmmo("SecondaryAmmo", 0),
@@ -87,8 +82,6 @@ ComponentCarriedWeaponT::ComponentCarriedWeaponT(const ComponentCarriedWeaponT& 
       m_Label(Comp.m_Label),
       m_IsAvail(Comp.m_IsAvail),
       m_Script(Comp.m_Script),
-      m_Model1stPerson(Comp.m_Model1stPerson),
-      m_Model3rdPerson(Comp.m_Model3rdPerson),
       m_PrimaryAmmo(Comp.m_PrimaryAmmo),
       m_MaxPrimaryAmmo(Comp.m_MaxPrimaryAmmo),
       m_SecondaryAmmo(Comp.m_SecondaryAmmo),
@@ -103,8 +96,6 @@ void ComponentCarriedWeaponT::FillMemberVars()
     GetMemberVars().Add(&m_Label);
     GetMemberVars().Add(&m_IsAvail);
     GetMemberVars().Add(&m_Script);
-    GetMemberVars().Add(&m_Model1stPerson);
-    GetMemberVars().Add(&m_Model3rdPerson);
     GetMemberVars().Add(&m_PrimaryAmmo);
     GetMemberVars().Add(&m_MaxPrimaryAmmo);
     GetMemberVars().Add(&m_SecondaryAmmo);

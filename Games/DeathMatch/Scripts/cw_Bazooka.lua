@@ -110,7 +110,7 @@ function Bazooka:Draw()
     UpdateChildComponents()
 
     Model1stPerson:set("Show", true)
-    Model1stPerson:set("Name", self:get("Model1stPerson"))
+    Model1stPerson:set("Name", "Games/DeathMatch/Models/Weapons/Bazooka/Bazooka_v.cmdl")
 
     if self:get("PrimaryAmmo") > 0 then
         Model1stPerson:set("Animation", ANIM_DRAW)
