@@ -261,6 +261,7 @@ ParticleMaterialSetT::ParticleMaterialSetT(const char* SetName, const char* MatN
         if (ParticleName == PrevName) break;
         PrevName = ParticleName;
 
+        if (!MaterialManager) break;
         if (!MaterialManager->HasMaterial(ParticleName)) break;
 
         MaterialT* Mat = MaterialManager->GetMaterial(ParticleName);
