@@ -1312,53 +1312,6 @@ int ComponentHumanPlayerT::ProcessEvent(lua_State* LuaState)
 }
 
 
-static const cf::TypeSys::MethsDocT META_PickUpItem =
-{
-    "PickUpItem",
-    "This method is used by the HumanPlayer.lua script in order to redirect weapon or item pick-ups to the HumanPlayer component.\n"
-    "\n"
-    "As a technical detail, here is a typical call-chain that can cause calls to this method:\n"
-    "\n"
-    "  - An entity (a CollisionModel component) finds itself in another entity's trigger volume.\n"
-    "\n"
-    "  - The other entity's `OnTrigger()` script callback is called.\n"
-    "\n"
-    "  - If the other entity is a weapon, its `OnTrigger()` implementation in `Weapon.lua`\n"
-    "    calls the original entity's `PickUpItem()` script method.\n"
-    "\n"
-    "  - If the original entity is a human player, its `PickUpItem()` implementation in\n"
-    "    `HumanPlayer.lua` calls the `PickUpItem()` method of the HumanPlayer component.",
-    "", "(string ItemType)"
-};
-
-int ComponentHumanPlayerT::PickUpItem(lua_State* LuaState)
-{
-    ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<ComponentHumanPlayerT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentHumanPlayerT> >(1);
-
-    const std::string ItemName = luaL_checkstring(LuaState, 2);
-
-    // What's about the Glock17 model? It seems we have a model, but no code for it?
-         if (ItemName == "BattleScythe") Comp->GetCarriedWeapon(WEAPON_SLOT_BATTLESCYTHE)->ServerSide_PickedUpByEntity(Comp);
-    else if (ItemName == "Beretta"     ) Comp->GetCarriedWeapon(WEAPON_SLOT_PISTOL      )->ServerSide_PickedUpByEntity(Comp);
-    else if (ItemName == "DesertEagle" ) Comp->GetCarriedWeapon(WEAPON_SLOT_357         )->ServerSide_PickedUpByEntity(Comp);
-    else if (ItemName == "Shotgun"     ) Comp->GetCarriedWeapon(WEAPON_SLOT_SHOTGUN     )->ServerSide_PickedUpByEntity(Comp);
-    else if (ItemName == "9mmAR"       ) Comp->GetCarriedWeapon(WEAPON_SLOT_9MMAR       )->ServerSide_PickedUpByEntity(Comp);
-    else if (ItemName == "DartGun"     ) Comp->GetCarriedWeapon(WEAPON_SLOT_CROSSBOW    )->ServerSide_PickedUpByEntity(Comp);
-    else if (ItemName == "Bazooka"     ) Comp->GetCarriedWeapon(WEAPON_SLOT_RPG         )->ServerSide_PickedUpByEntity(Comp);
-    else if (ItemName == "Gauss"       ) Comp->GetCarriedWeapon(WEAPON_SLOT_GAUSS       )->ServerSide_PickedUpByEntity(Comp);
-    else if (ItemName == "Egon"        ) Comp->GetCarriedWeapon(WEAPON_SLOT_EGON        )->ServerSide_PickedUpByEntity(Comp);
-    else if (ItemName == "Grenade"     ) Comp->GetCarriedWeapon(WEAPON_SLOT_GRENADE     )->ServerSide_PickedUpByEntity(Comp);
-    else if (ItemName == "FaceHugger"  ) Comp->GetCarriedWeapon(WEAPON_SLOT_FACEHUGGER  )->ServerSide_PickedUpByEntity(Comp);
-
-    else if (ItemName == "Ammo_DartGun"    ) Comp->GetHaveAmmo()[AMMO_SLOT_ARROWS] = std::min(Comp->GetHaveAmmo()[AMMO_SLOT_ARROWS] +  5,  30);
-    else if (ItemName == "Ammo_DesertEagle") Comp->GetHaveAmmo()[AMMO_SLOT_357   ] = std::min(Comp->GetHaveAmmo()[AMMO_SLOT_357   ] +  6,  36);
-    else if (ItemName == "Ammo_Gauss"      ) Comp->GetHaveAmmo()[AMMO_SLOT_CELLS ] = std::min(Comp->GetHaveAmmo()[AMMO_SLOT_CELLS ] + 40, 200);
-
-    return 0;
-}
-
-
 static const cf::TypeSys::MethsDocT META_GetActiveWeapon =
 {
     "GetActiveWeapon",
@@ -1874,7 +1827,6 @@ void* ComponentHumanPlayerT::CreateInstance(const cf::TypeSys::CreateParamsT& Pa
 const luaL_Reg ComponentHumanPlayerT::MethodsList[] =
 {
     { "ProcessEvent",     ProcessEvent },
-    { "PickUpItem",       PickUpItem },
     { "GetActiveWeapon",  GetActiveWeapon },
     { "SelectWeapon",     SelectWeapon },
     { "SelectNextWeapon", SelectNextWeapon },
@@ -1889,7 +1841,6 @@ const luaL_Reg ComponentHumanPlayerT::MethodsList[] =
 const cf::TypeSys::MethsDocT ComponentHumanPlayerT::DocMethods[] =
 {
     META_ProcessEvent,
-    META_PickUpItem,
     META_GetActiveWeapon,
     META_SelectWeapon,
     META_SelectNextWeapon,

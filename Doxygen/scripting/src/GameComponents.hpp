@@ -329,21 +329,6 @@ class ComponentHumanPlayerT : public ComponentBaseT
     /// This method is used by the HumanPlayer.lua script in order to redirect events to the HumanPlayer component.
     string ProcessEvent();
 
-    /// This method is used by the HumanPlayer.lua script in order to redirect weapon or item pick-ups to the HumanPlayer component.
-    ///
-    /// As a technical detail, here is a typical call-chain that can cause calls to this method:
-    ///
-    ///   - An entity (a CollisionModel component) finds itself in another entity's trigger volume.
-    ///
-    ///   - The other entity's `OnTrigger()` script callback is called.
-    ///
-    ///   - If the other entity is a weapon, its `OnTrigger()` implementation in `Weapon.lua`
-    ///     calls the original entity's `PickUpItem()` script method.
-    ///
-    ///   - If the original entity is a human player, its `PickUpItem()` implementation in
-    ///     `HumanPlayer.lua` calls the `PickUpItem()` method of the HumanPlayer component.
-    PickUpItem(string ItemType);
-
     /// Returns the ComponentCarriedWeaponT component of the currently active weapon,
     /// or `nil` if currently no weapon is active.
     GetActiveWeapon();

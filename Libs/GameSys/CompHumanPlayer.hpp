@@ -175,7 +175,6 @@ namespace cf
 
             // The Lua API methods of this class.
             static int ProcessEvent(lua_State* LuaState);       // Becomes obsolete as soon as the CarriedWeapons are fully implemented in scripts.
-            static int PickUpItem(lua_State* LuaState);         // Becomes obsolete as soon as the CarriedWeapons are fully implemented in scripts.
             static int GetActiveWeapon(lua_State* LuaState);
             static int SelectWeapon(lua_State* LuaState);
             static int SelectNextWeapon(lua_State* LuaState);

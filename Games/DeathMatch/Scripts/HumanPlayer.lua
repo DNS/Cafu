@@ -128,10 +128,6 @@ As a technical detail, here is a typical call-chain that can cause calls to this
     calls the original (this) entity's `PickUpItem()` script method.
 --]]
 function PlayerScript:PickUpItem(ItemEnt, ItemType)
-    -- The details of picking up items are implemented in the "HumanPlayer"
-    -- component at this time, so forward all calls there.
-    PlayerData:PickUpItem(ItemType)
-
     -- Find the CarriedWeapon component that matches the picked up item,
     -- then let it know that the item can be picked up.
     for i = 0, 32 do
