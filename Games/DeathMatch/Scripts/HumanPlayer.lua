@@ -170,6 +170,34 @@ function PlayerScript:PickUpItem(ItemEnt, ItemType)
 end
 
 
+function PlayerScript:ChangeWeapon(GroupNr)
+    local AvailableGroup     = { }  -- The weapons available for selection in the group with the given `GroupNr`.
+    local CurrentWeaponIndex = 0    -- The current weapon's index in the `AvailableGroup` (0 is a special case).
+
+    for i = 0, 32 do
+        local cw = Entity:GetComponent("CarriedWeapon", i)
+
+        if not cw then break end
+
+        if cw:get("IsAvail") and cw:GetGroup() == GroupNr then
+            AvailableGroup[#AvailableGroup + 1] = cw
+
+            if cw == PlayerData:GetActiveWeapon() then
+                CurrentWeaponIndex = #AvailableGroup
+            end
+        end
+    end
+
+    if #AvailableGroup == 0 then return end
+
+    -- Update `CurrentWeaponIndex` for the *next* weapon in the group-
+    CurrentWeaponIndex = CurrentWeaponIndex + 1
+    if CurrentWeaponIndex > #AvailableGroup then CurrentWeaponIndex = 1 end
+
+    PlayerData:SelectWeapon(AvailableGroup[CurrentWeaponIndex])
+end
+
+
 function Model3rdPerson:OnAnimationChange(AnimNr)
     if (AnimNr < 18) or (AnimNr > 24) then
         -- The player is "alive", so blend animation sequences in 0.3 seconds,

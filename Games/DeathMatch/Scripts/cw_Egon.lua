@@ -57,6 +57,12 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
 end
 
 
+function Egon:GetGroup()
+    -- The weapon group and keyboard key that this weapon shares with other weapons.
+    return 4
+end
+
+
 function Egon:IsIdle()
     UpdateChildComponents()
 

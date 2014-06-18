@@ -670,6 +670,16 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
             }
 
             // Check if any key for changing the current weapon was pressed.
+            if (Keys >> 28)
+            {
+                IntrusivePtrT<ComponentScriptT> Script =
+                    dynamic_pointer_cast<ComponentScriptT>(GetEntity()->GetComponent("Script"));
+
+                if (Script != NULL)
+                    Script->CallLuaMethod("ChangeWeapon", 0, "i", Keys >> 28);
+            }
+
+
             ArrayT<char> SelectableWeapons;
 
             switch (Keys >> 28)
@@ -716,7 +726,7 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                     char DrawSequNr=0;
 
                     SetActiveWeaponSlot(SelectableWeapons[0]);
-                    SelectWeapon(SelectableWeapons[0] + 1);
+                    // SelectWeapon(SelectableWeapons[0] + 1);
 
                     switch (GetActiveWeaponSlot())
                     {
@@ -745,7 +755,7 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                     char DrawSequNr=0;
 
                     SetActiveWeaponSlot(SelectableWeapons[(SWNr+1) % SelectableWeapons.Size()]);
-                    SelectWeapon(SelectableWeapons[(SWNr+1) % SelectableWeapons.Size()] + 1);
+                    // SelectWeapon(SelectableWeapons[(SWNr+1) % SelectableWeapons.Size()] + 1);
 
                     switch (GetActiveWeaponSlot())
                     {

@@ -75,6 +75,12 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
 end
 
 
+function DartGun:GetGroup()
+    -- The weapon group and keyboard key that this weapon shares with other weapons.
+    return 3
+end
+
+
 function DartGun:IsIdle()
     UpdateChildComponents()
 

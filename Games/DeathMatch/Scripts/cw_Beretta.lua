@@ -80,6 +80,12 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
 end
 
 
+function Beretta:GetGroup()
+    -- The weapon group and keyboard key that this weapon shares with other weapons.
+    return 2
+end
+
+
 function Beretta:IsIdle()
     UpdateChildComponents()
 

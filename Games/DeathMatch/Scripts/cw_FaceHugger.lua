@@ -80,6 +80,12 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
 end
 
 
+function FaceHugger:GetGroup()
+    -- The weapon group and keyboard key that this weapon shares with other weapons.
+    return 5
+end
+
+
 function FaceHugger:IsIdle()
     UpdateChildComponents()
 
