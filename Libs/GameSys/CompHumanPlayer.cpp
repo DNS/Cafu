@@ -68,10 +68,6 @@ static const uint8_t StateOfExistence_FrozenSpectator = 2;
 static const uint8_t StateOfExistence_FreeSpectator   = 3;
 
 
-const unsigned int ComponentHumanPlayerT::EVENT_TYPE_PRIMARY_FIRE   = 1;
-const unsigned int ComponentHumanPlayerT::EVENT_TYPE_SECONDARY_FIRE = 2;
-
-
 const char* ComponentHumanPlayerT::DocClass =
     "Entities with this component are associated with a client connection\n"
     "at whose end is a human player who provides input to control the entity.";
@@ -1285,33 +1281,6 @@ void ComponentHumanPlayerT::DoClientFrame(float t)
 }
 
 
-static const cf::TypeSys::MethsDocT META_ProcessEvent =
-{
-    "ProcessEvent",
-    "This method is used by the HumanPlayer.lua script in order to redirect events to the HumanPlayer component.",
-    "string", "()"
-};
-
-int ComponentHumanPlayerT::ProcessEvent(lua_State* LuaState)
-{
-    ScriptBinderT Binder(LuaState);
-    IntrusivePtrT<ComponentHumanPlayerT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentHumanPlayerT> >(1);
-
-    const unsigned int EventType = unsigned(luaL_checkint(LuaState, 2));
- // const unsigned int NumEvents = unsigned(luaL_checkint(LuaState, 3));
-
-    const Vector3dT LastSeenAmbientColor(0, 1, 0);      // TODO...
-
-    switch (EventType)
-    {
-        case EVENT_TYPE_PRIMARY_FIRE:   Comp->GetCarriedWeapon(Comp->GetActiveWeaponSlot())->ClientSide_HandlePrimaryFireEvent  (Comp, LastSeenAmbientColor); break;
-        case EVENT_TYPE_SECONDARY_FIRE: Comp->GetCarriedWeapon(Comp->GetActiveWeaponSlot())->ClientSide_HandleSecondaryFireEvent(Comp, LastSeenAmbientColor); break;
-    }
-
-    return 0;
-}
-
-
 static const cf::TypeSys::MethsDocT META_GetActiveWeapon =
 {
     "GetActiveWeapon",
@@ -1826,7 +1795,6 @@ void* ComponentHumanPlayerT::CreateInstance(const cf::TypeSys::CreateParamsT& Pa
 
 const luaL_Reg ComponentHumanPlayerT::MethodsList[] =
 {
-    { "ProcessEvent",     ProcessEvent },
     { "GetActiveWeapon",  GetActiveWeapon },
     { "SelectWeapon",     SelectWeapon },
     { "SelectNextWeapon", SelectNextWeapon },
@@ -1840,7 +1808,6 @@ const luaL_Reg ComponentHumanPlayerT::MethodsList[] =
 
 const cf::TypeSys::MethsDocT ComponentHumanPlayerT::DocMethods[] =
 {
-    META_ProcessEvent,
     META_GetActiveWeapon,
     META_SelectWeapon,
     META_SelectNextWeapon,

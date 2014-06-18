@@ -326,9 +326,6 @@ class ComponentHumanPlayerT : public ComponentBaseT
 {
     public:
 
-    /// This method is used by the HumanPlayer.lua script in order to redirect events to the HumanPlayer component.
-    string ProcessEvent();
-
     /// Returns the ComponentCarriedWeaponT component of the currently active weapon,
     /// or `nil` if currently no weapon is active.
     GetActiveWeapon();
