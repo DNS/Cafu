@@ -317,24 +317,6 @@ RayResultT ComponentHumanPlayerT::TraceCameraRay(const Vector3dT& Dir) const
 }
 
 
-void ComponentHumanPlayerT::InflictDamage(EntityT* OtherEnt, float Amount, const Vector3dT& Dir) const
-{
-    if (!OtherEnt) return;
-
-    IntrusivePtrT<ComponentScriptT> OtherScript =
-        dynamic_pointer_cast<ComponentScriptT>(OtherEnt->GetComponent("Script"));
-
-    if (OtherScript == NULL) return;
-
-    cf::ScriptBinderT      OtherBinder(OtherEnt->GetWorld().GetScriptState().GetLuaState());
-    IntrusivePtrT<EntityT> This = GetEntity();
-
-    OtherBinder.Push(This);
-
-    OtherScript->CallLuaMethod("TakeDamage", 1, "ffff", Amount, Dir.x, Dir.y, Dir.z);
-}
-
-
 ComponentHumanPlayerT* ComponentHumanPlayerT::Clone() const
 {
     return new ComponentHumanPlayerT(*this);
@@ -483,7 +465,7 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
     if (CompPlayerPhysics == NULL) return;      // The presence of CompPlayerPhysics is mandatory...
     if (Model3rdPerson == NULL) return;         // The presence of CompPlayerPhysics is mandatory...
 
-    switch (GetStateOfExistence())
+    switch (m_StateOfExistence.Get())
     {
         case StateOfExistence_Alive:
         {
@@ -660,7 +642,7 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
 
                 // m_HeadSway must restart at 0.0 when the FrozenSpectator state is entered.
                 m_HeadSway.Set(0.0f);
-                SetStateOfExistence(StateOfExistence_FrozenSpectator);
+                m_StateOfExistence.Set(StateOfExistence_FrozenSpectator);
             }
 
             break;
@@ -761,10 +743,10 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                     GetEntity()->GetTransform()->SetQuatWS(IPSEntity->GetTransform()->GetQuatWS());  // TODO: Can we make sure that the z-axis points straight up, i.e. bank and pitch are 0?
                     GetEntity()->GetChildren()[0]->GetTransform()->SetOriginPS(Vector3fT(0.0f, 0.0f, 32.0f));    // TODO: Hardcoded values here and in the server code that creates the entity...
                     GetEntity()->GetChildren()[0]->GetTransform()->SetQuatPS(cf::math::QuaternionfT());
-                    SetStateOfExistence(StateOfExistence_Alive);
+                    m_StateOfExistence.Set(StateOfExistence_Alive);
                     Model3rdPerson->SetMember("Animation", 0);
-                    SetHealth(100);
-                    SetArmor(0);
+                    m_Health.Set(100);
+                    m_Armor.Set(0);
                     m_ActiveWeaponNr.Set(0);
                     m_NextWeaponNr.Set(0);
                     // TODO: Iterate over the carried weapons, and reset their `IsAvail` flag to `false`?
@@ -1144,8 +1126,8 @@ static const cf::TypeSys::MethsDocT META_FireRay =
     "such as pistols, guns, rifles, etc.\n"
     "The ray is traced from the camera's origin along the camera's view vector, which can be randomly\n"
     "scattered (used to simulate inaccurate human aiming) by the given parameter `Random`.\n"
-    "If an entity is hit, InflictDamage() is called with the hit entity and the amount of damage as given\n"
-    "by parameter `Damage`.\n"
+    "If an entity is hit, its TakeDamage() method is called with the human player as the originator and\n"
+    "the amount of damage as given by parameter `Damage`.\n"
     "@param Damage   The damage to inflict to a possibly hit entity.\n"
     "@param Random   The maximum amount of random scatter to apply to the traced ray.",
     "", "(number Damage, number Random = 0.0)"
@@ -1162,9 +1144,21 @@ int ComponentHumanPlayerT::FireRay(lua_State* LuaState)
     const Vector3dT  ViewDir = Comp->GetCameraViewDirWS(Random);
     const RayResultT RayResult(Comp->TraceCameraRay(ViewDir));
 
-    if (RayResult.hasHit() && RayResult.GetHitPhysicsComp())
-        Comp->InflictDamage(RayResult.GetHitPhysicsComp()->GetEntity(), Damage, ViewDir);
+    if (!RayResult.hasHit()) return 0;
+    if (!RayResult.GetHitPhysicsComp()) return 0;
 
+    EntityT* OtherEnt = RayResult.GetHitPhysicsComp()->GetEntity();
+
+    if (!OtherEnt) return 0;
+
+    IntrusivePtrT<ComponentScriptT> OtherScript =
+        dynamic_pointer_cast<ComponentScriptT>(OtherEnt->GetComponent("Script"));
+
+    if (OtherScript == NULL) return 0;
+
+    IntrusivePtrT<EntityT> This = Comp->GetEntity();
+    Binder.Push(This);
+    OtherScript->CallLuaMethod("TakeDamage", 1, "ffff", Damage, ViewDir.x, ViewDir.y, ViewDir.z);
     return 0;
 }
 

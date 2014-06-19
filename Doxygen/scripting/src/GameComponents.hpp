@@ -367,8 +367,8 @@ class ComponentHumanPlayerT : public ComponentBaseT
     /// such as pistols, guns, rifles, etc.
     /// The ray is traced from the camera's origin along the camera's view vector, which can be randomly
     /// scattered (used to simulate inaccurate human aiming) by the given parameter `Random`.
-    /// If an entity is hit, InflictDamage() is called with the hit entity and the amount of damage as given
-    /// by parameter `Damage`.
+    /// If an entity is hit, its TakeDamage() method is called with the human player as the originator and
+    /// the amount of damage as given by parameter `Damage`.
     /// @param Damage   The damage to inflict to a possibly hit entity.
     /// @param Random   The maximum amount of random scatter to apply to the traced ray.
     FireRay(number Damage, number Random = 0.0);

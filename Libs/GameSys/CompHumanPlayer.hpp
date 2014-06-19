@@ -57,28 +57,17 @@ namespace cf
             /// A temporary method for compatibility with old code.
             ArrayT<PlayerCommandT>& GetPlayerCommands() { return m_PlayerCommands; }
 
-            /// A convenience method for use by the `CarriedWeaponT` method implementations.
+            /// Returns the player's current velocity (as learned from its PlayerPhysics component).
             Vector3dT GetPlayerVelocity() const;
 
-            /// Another convenience method for use by the `CarriedWeaponT` method implementations.
+            /// Returns the origin of the entity's camera, in world-space.
             Vector3dT GetCameraOriginWS() const;
 
-            /// Another convenience method for use by the `CarriedWeaponT` method implementations.
+            /// Returns the view (forward) vector of the entity's camera, in world space, optionally deviated by some random amount.
             Vector3dT GetCameraViewDirWS(double Random = 0.0) const;
 
-            /// Another convenience method for use by the `CarriedWeaponT` method implementations:
-            /// It traces a ray in the given direction and that originates at the player origin
-            /// through the world.
+            /// Traces a ray that originates at the player camera's origin in the given direction through the world.
             RayResultT TraceCameraRay(const Vector3dT& Dir) const;
-
-            /// Another convenience method for use by the `CarriedWeaponT` method implementations.
-            void InflictDamage(EntityT* OtherEnt, float Amount, const Vector3dT& Dir) const;
-
-            // Temporary methods, so that obsolete DeathMatch code can access our data.
-            uint8_t GetStateOfExistence() const { return m_StateOfExistence.Get(); }
-            void SetStateOfExistence(uint8_t s) { m_StateOfExistence.Set(s); }
-            void SetHealth(uint8_t h) { m_Health.Set(h); }
-            void SetArmor(uint8_t a) { m_Armor.Set(a); }
 
             /// A helper function for Think().
             void CheckGUIs(bool ThinkingOnServerSide, bool HaveButtonClick) const;
