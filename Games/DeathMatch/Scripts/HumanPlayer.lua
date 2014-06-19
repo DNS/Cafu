@@ -30,12 +30,13 @@ Inventory:set("MaxFaceHuggers",    5)
 
 
 function PlayerScript:AddFrag(NumFrags)
-    local AmmoArray = PlayerData:get("HaveAmmo")
+    local NewFrags = PlayerData:get("Frags") + NumFrags
 
-    -- This is where the frags count is stored...
-    AmmoArray[16] = AmmoArray[16] + NumFrags
+    -- Don't overflow the underlying `uint8_t` type.
+    if NewFrags <   0 then NewFrags =   0 end
+    if NewFrags > 240 then NewFrags = 240 end
 
-    PlayerData:set("HaveAmmo", AmmoArray)
+    PlayerData:set("Frags", NewFrags)
 end
 
 

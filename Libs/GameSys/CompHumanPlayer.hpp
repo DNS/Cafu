@@ -162,6 +162,7 @@ namespace cf
             TypeSys::VarT<uint8_t>       m_StateOfExistence;    ///< For the player's main state machine, e.g. "spectator, dead, alive, ...".
             TypeSys::VarT<uint8_t>       m_Health;              ///< Health.
             TypeSys::VarT<uint8_t>       m_Armor;               ///< Armor.
+            TypeSys::VarT<uint8_t>       m_Frags;               ///< Frags.
             TypeSys::VarT<uint8_t>       m_ActiveWeaponNr;      ///< The index number into the CarriedWeapon components of this entity, starting at 1, indicating the currently active weapon. The weapon must also be available (have been picked up) before the player can use it. A value of 0 means that "no" weapon is currently active.
             TypeSys::VarT<uint8_t>       m_NextWeaponNr;        ///< The next weapon to be drawn by SelectNextWeapon(). Like m_ActiveWeaponNr, this is an index number into the CarriedWeapon components of this entity, starting at 1. A value of 0 means "none".
             TypeSys::VarT<float>         m_HeadSway;            ///< The progress of one "head swaying" cycle in state FrozenSpectator.

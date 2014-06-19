@@ -122,7 +122,7 @@ end
 InfoFrags.NumFrags = 0
 
 function InfoFrags:OnFrame()
-    local Frags = gui.Player:get("HaveAmmo")[16]    -- This is where the frags count is stored...
+    local Frags = gui.Player:get("Frags")
 
     InfoFrags:GetComponent("Text"):set("Text", "Frags  " .. Frags)
 

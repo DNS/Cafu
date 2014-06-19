@@ -428,6 +428,10 @@ class ComponentHumanPlayerT : public ComponentBaseT
     /// @cppType{uint8_t}
     number Armor;
 
+    /// Frags.
+    /// @cppType{uint8_t}
+    number Frags;
+
     /// The index number into the CarriedWeapon components of this entity, starting at 1, indicating the currently active weapon. The weapon must also be available (have been picked up) before the player can use it. A value of 0 means that "no" weapon is currently active.
     /// @cppType{uint8_t}
     number ActiveWeaponNr;

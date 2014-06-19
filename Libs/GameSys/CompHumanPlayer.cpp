@@ -77,6 +77,7 @@ const cf::TypeSys::VarsDocT ComponentHumanPlayerT::DocVars[] =
     { "State",               "For the player's main state machine, e.g. spectator, dead, alive, ..." },
     { "Health",              "Health." },
     { "Armor",               "Armor." },
+    { "Frags",               "Frags." },
     { "ActiveWeaponNr",      "The index number into the CarriedWeapon components of this entity, starting at 1, indicating the currently active weapon. The weapon must also be available (have been picked up) before the player can use it. A value of 0 means that \"no\" weapon is currently active." },
     { "NextWeaponNr",        "The next weapon to be drawn by SelectNextWeapon(). Like ActiveWeaponNr, this is an index number into the CarriedWeapon components of this entity, starting at 1. A value of 0 means \"none\"." },
     { "HeadSway",            "The progress of one \"head swaying\" cycle in state FrozenSpectator." },
@@ -91,6 +92,7 @@ ComponentHumanPlayerT::ComponentHumanPlayerT()
       m_StateOfExistence("State", 2 /*StateOfExistence_FrozenSpectator*/),
       m_Health("Health", 100),
       m_Armor("Armor", 0),
+      m_Frags("Frags", 0),
       m_ActiveWeaponNr("ActiveWeaponNr", 0),
       m_NextWeaponNr("NextWeaponNr", 0),
       m_HeadSway("HeadSway", 0.0f),
@@ -112,6 +114,7 @@ ComponentHumanPlayerT::ComponentHumanPlayerT(const ComponentHumanPlayerT& Comp)
       m_StateOfExistence(Comp.m_StateOfExistence),
       m_Health(Comp.m_Health),
       m_Armor(Comp.m_Armor),
+      m_Frags(Comp.m_Frags),
       m_ActiveWeaponNr(Comp.m_ActiveWeaponNr),
       m_NextWeaponNr(Comp.m_NextWeaponNr),
       m_HeadSway(Comp.m_HeadSway),
@@ -133,6 +136,7 @@ void ComponentHumanPlayerT::FillMemberVars()
     GetMemberVars().Add(&m_StateOfExistence);
     GetMemberVars().Add(&m_Health);
     GetMemberVars().Add(&m_Armor);
+    GetMemberVars().Add(&m_Frags);
     GetMemberVars().Add(&m_ActiveWeaponNr);
     GetMemberVars().Add(&m_NextWeaponNr);
     GetMemberVars().Add(&m_HeadSway);
@@ -747,6 +751,7 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                     Model3rdPerson->SetMember("Animation", 0);
                     m_Health.Set(100);
                     m_Armor.Set(0);
+                    // m_Frags.Set(0);          // The frags counter is obviously *not* cleared here!
                     m_ActiveWeaponNr.Set(0);
                     m_NextWeaponNr.Set(0);
                     // TODO: Iterate over the carried weapons, and reset their `IsAvail` flag to `false`?
