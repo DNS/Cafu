@@ -44,7 +44,6 @@ namespace cf
         cf::TypeSys::TypeInfoManT& GetWorldTIM();
 
 
-        class CarriedWeaponT;
         class EntityT;
 
 
@@ -86,9 +85,6 @@ namespace cf
             WorldT(UniScriptStateT& ScriptState, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes,
                    cf::ClipSys::CollModelManI& CollModelMan, cf::ClipSys::ClipWorldT* ClipWorld, PhysicsWorldT* PhysicsWorld);
 
-            /// The destructor.
-            ~WorldT();
-
             /// Returns the script state of this world.
             UniScriptStateT& GetScriptState() { return m_ScriptState; }
 
@@ -122,11 +118,6 @@ namespace cf
             /// The physics world, where entities can register their rigid bodies and run collision detection queries.
             /// Can be `NULL`, e.g. in CaWE or the map compile tools.
             PhysicsWorldT* GetPhysicsWorld() const { return m_PhysicsWorld; }
-
-            /// This function returns a pointer to the CarriedWeaponT instance for the desired ActiveWeaponSlot.
-            /// When no such class exists, it returns a pointer to an empty dummy implementation
-            /// (but for the convenience of the caller, it never returns NULL or an invalid pointer).
-            const CarriedWeaponT* GetCarriedWeapon(unsigned int ActiveWeaponSlot) const;
 
             /// Renders this world.
             /// Note that this method does *not* setup any of the MatSys's model, view or projection matrices:
@@ -181,7 +172,6 @@ namespace cf
             cf::ClipSys::CollModelManI& m_CollModelMan; ///< The manager for all collision models that are used in this world.
             cf::ClipSys::ClipWorldT*    m_ClipWorld;    ///< The clip world, where entities can register their collision models and run collision detection queries. Can be `NULL`, e.g. in CaWE or the map compile tools.
             PhysicsWorldT*              m_PhysicsWorld; ///< The physics world, where entities can register their rigid bodies and run collision detection queries. Can be `NULL`, e.g. in CaWE or the map compile tools.
-            ArrayT<CarriedWeaponT*>     m_CarriedWeapons; ///< The set of carry-able weapons in this game. These must be re-implemented as components later!
 
 
             // Methods called from Lua scripts on cf::GameSys::WorldT instances.

@@ -378,12 +378,6 @@ void ComponentHumanPlayerT::PostEvent(unsigned int EventType) const
 }
 
 
-const CarriedWeaponT* ComponentHumanPlayerT::GetCarriedWeapon(unsigned int ActiveWeaponSlot) const
-{
-    return GetEntity()->GetWorld().GetCarriedWeapon(ActiveWeaponSlot);
-}
-
-
 ComponentHumanPlayerT* ComponentHumanPlayerT::Clone() const
 {
     return new ComponentHumanPlayerT(*this);
@@ -634,29 +628,7 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
             // GameWorld->ModelAdvanceFrameTime() is called on client side in Draw().
 
 
-            // Handle the state machine of the "_v" (view) model of the current weapon.
-            if (GetHaveWeapons() & (1 << GetActiveWeaponSlot()))
-            {
-                const CarriedWeaponT* CarriedWeapon = GetCarriedWeapon(GetActiveWeaponSlot());
-
-                // Advance the frame time of the weapon.
-                const CafuModelT* WeaponModel=CarriedWeapon->GetViewWeaponModel();
-
-                IntrusivePtrT<AnimExprStandardT> StdAE = WeaponModel->GetAnimExprPool().GetStandard(GetActiveWeaponSequNr(), GetActiveWeaponFrameNr());
-
-                StdAE->SetForceLoop(true);
-                StdAE->AdvanceTime(PlayerCommand.FrameTime);
-
-                const float NewFrameNr = StdAE->GetFrameNr();
-                const bool  AnimSequenceWrap = NewFrameNr < GetActiveWeaponFrameNr() || NewFrameNr > WeaponModel->GetAnims()[GetActiveWeaponSequNr()].Frames.Size()-1;
-
-                SetActiveWeaponFrameNr(NewFrameNr);
-
-                CarriedWeapon->ServerSide_Think(this, PlayerCommand,
-                    /*ThinkingOnServerSide*/ false,     // Disable the weapon's effects on other entities, as this is implemented in the weapon *scripts* now.
-                    AnimSequenceWrap);
-            }
-
+            // Check if any key for firing the currently active weapon was pressed.
             IntrusivePtrT<ComponentCarriedWeaponT> CarriedWeapon = GetActiveWeapon();
 
             if (CarriedWeapon != NULL)
@@ -674,105 +646,6 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                 if (Script != NULL)
                     Script->CallLuaMethod("ChangeWeapon", 0, "i", Keys >> 28);
             }
-
-
-            ArrayT<char> SelectableWeapons;
-
-            switch (Keys >> 28)
-            {
-                case 0: break;  // No weapon slot was selected for changing the weapon.
-
-                case 1: if (GetHaveWeapons() & (1 << WEAPON_SLOT_BATTLESCYTHE)) SelectableWeapons.PushBack(WEAPON_SLOT_BATTLESCYTHE);
-                    //  if (GetHaveWeapons() & (1 << WEAPON_SLOT_HORNETGUN   )) SelectableWeapons.PushBack(WEAPON_SLOT_HORNETGUN   );
-                        break;
-
-                case 2: if ((GetHaveWeapons() & (1 << WEAPON_SLOT_PISTOL)) && (GetHaveAmmoInWeapons()[WEAPON_SLOT_PISTOL] || GetHaveAmmo()[AMMO_SLOT_9MM])) SelectableWeapons.PushBack(WEAPON_SLOT_PISTOL);
-                        if ((GetHaveWeapons() & (1 << WEAPON_SLOT_357   )) && (GetHaveAmmoInWeapons()[WEAPON_SLOT_357   ] || GetHaveAmmo()[AMMO_SLOT_357])) SelectableWeapons.PushBack(WEAPON_SLOT_357   );
-                        break;
-
-                case 3: if ((GetHaveWeapons() & (1 << WEAPON_SLOT_SHOTGUN )) && (GetHaveAmmoInWeapons()[WEAPON_SLOT_SHOTGUN ] || GetHaveAmmo()[AMMO_SLOT_SHELLS]                                    )) SelectableWeapons.PushBack(WEAPON_SLOT_SHOTGUN );
-                        if ((GetHaveWeapons() & (1 << WEAPON_SLOT_9MMAR   )) && (GetHaveAmmoInWeapons()[WEAPON_SLOT_9MMAR   ] || GetHaveAmmo()[AMMO_SLOT_9MM   ] || GetHaveAmmo()[AMMO_SLOT_ARGREN])) SelectableWeapons.PushBack(WEAPON_SLOT_9MMAR   );
-                        if ((GetHaveWeapons() & (1 << WEAPON_SLOT_CROSSBOW)) && (GetHaveAmmoInWeapons()[WEAPON_SLOT_CROSSBOW] || GetHaveAmmo()[AMMO_SLOT_ARROWS]                                    )) SelectableWeapons.PushBack(WEAPON_SLOT_CROSSBOW);
-                        break;
-
-                case 4: if ((GetHaveWeapons() & (1 << WEAPON_SLOT_RPG  )) && (GetHaveAmmoInWeapons()[WEAPON_SLOT_RPG  ] || GetHaveAmmo()[AMMO_SLOT_ROCKETS])) SelectableWeapons.PushBack(WEAPON_SLOT_RPG  );
-                        if ((GetHaveWeapons() & (1 << WEAPON_SLOT_GAUSS)) && (GetHaveAmmoInWeapons()[WEAPON_SLOT_GAUSS] || GetHaveAmmo()[AMMO_SLOT_CELLS  ])) SelectableWeapons.PushBack(WEAPON_SLOT_GAUSS);
-                        if ((GetHaveWeapons() & (1 << WEAPON_SLOT_EGON )) && (GetHaveAmmoInWeapons()[WEAPON_SLOT_EGON ] || GetHaveAmmo()[AMMO_SLOT_CELLS  ])) SelectableWeapons.PushBack(WEAPON_SLOT_EGON );
-                        break;
-
-                case 5: if ((GetHaveWeapons() & (1 << WEAPON_SLOT_GRENADE   )) && GetHaveAmmoInWeapons()[WEAPON_SLOT_GRENADE   ]) SelectableWeapons.PushBack(WEAPON_SLOT_GRENADE   );
-                     // if ((GetHaveWeapons() & (1 << WEAPON_SLOT_TRIPMINE  )) && GetHaveAmmoInWeapons()[WEAPON_SLOT_TRIPMINE  ]) SelectableWeapons.PushBack(WEAPON_SLOT_TRIPMINE  );
-                        if ((GetHaveWeapons() & (1 << WEAPON_SLOT_FACEHUGGER)) && GetHaveAmmoInWeapons()[WEAPON_SLOT_FACEHUGGER]) SelectableWeapons.PushBack(WEAPON_SLOT_FACEHUGGER);
-                        break;
-
-                // case 6..15: break;
-            }
-
-            unsigned long SWNr;
-
-            for (SWNr=0; SWNr<SelectableWeapons.Size(); SWNr++)
-                if (SelectableWeapons[SWNr] == GetActiveWeaponSlot()) break;
-
-            if (SWNr>=SelectableWeapons.Size())
-            {
-                // If the currently active weapon is NOT among the SelectableWeapons
-                // (that means another weapon category was chosen), choose SelectableWeapons[0] as the active weapon.
-                if (SelectableWeapons.Size()>0)
-                {
-                    char DrawSequNr=0;
-
-                    SetActiveWeaponSlot(SelectableWeapons[0]);
-                    // SelectWeapon(SelectableWeapons[0] + 1);
-
-                    switch (GetActiveWeaponSlot())
-                    {
-                        case WEAPON_SLOT_BATTLESCYTHE: DrawSequNr=1; break;
-                        case WEAPON_SLOT_PISTOL      : DrawSequNr=7; break;
-                        case WEAPON_SLOT_357         : DrawSequNr=5; break;
-                        case WEAPON_SLOT_SHOTGUN     : DrawSequNr=6; break;
-                        case WEAPON_SLOT_9MMAR       : DrawSequNr=4; break;
-                        case WEAPON_SLOT_CROSSBOW    : DrawSequNr=5; break;
-                        case WEAPON_SLOT_RPG         : DrawSequNr=5; break;
-                        case WEAPON_SLOT_GAUSS       : DrawSequNr=8; break;
-                        case WEAPON_SLOT_EGON        : DrawSequNr=9; break;
-                        case WEAPON_SLOT_GRENADE     : DrawSequNr=7; break;
-                        case WEAPON_SLOT_FACEHUGGER  : DrawSequNr=4; break;
-                    }
-
-                    SetActiveWeaponSequNr(DrawSequNr);
-                    SetActiveWeaponFrameNr(0.0f);
-                }
-            }
-            else
-            {
-                // Otherwise check if there are further selectable weapons (SelectableWeapons.Size()>1), and cycle to the next one.
-                if (SelectableWeapons.Size()>1)
-                {
-                    char DrawSequNr=0;
-
-                    SetActiveWeaponSlot(SelectableWeapons[(SWNr+1) % SelectableWeapons.Size()]);
-                    // SelectWeapon(SelectableWeapons[(SWNr+1) % SelectableWeapons.Size()] + 1);
-
-                    switch (GetActiveWeaponSlot())
-                    {
-                        case WEAPON_SLOT_BATTLESCYTHE: DrawSequNr=1; break;
-                        case WEAPON_SLOT_PISTOL      : DrawSequNr=7; break;
-                        case WEAPON_SLOT_357         : DrawSequNr=5; break;
-                        case WEAPON_SLOT_SHOTGUN     : DrawSequNr=6; break;
-                        case WEAPON_SLOT_9MMAR       : DrawSequNr=4; break;
-                        case WEAPON_SLOT_CROSSBOW    : DrawSequNr=5; break;
-                        case WEAPON_SLOT_RPG         : DrawSequNr=5; break;
-                        case WEAPON_SLOT_GAUSS       : DrawSequNr=8; break;
-                        case WEAPON_SLOT_EGON        : DrawSequNr=9; break;
-                        case WEAPON_SLOT_GRENADE     : DrawSequNr=7; break;
-                        case WEAPON_SLOT_FACEHUGGER  : DrawSequNr=4; break;
-                    }
-
-                    SetActiveWeaponSequNr(DrawSequNr);
-                    SetActiveWeaponFrameNr(0.0f);
-                }
-            }
-
 
             // Check if any GUIs must be updated.
             CheckGUIs(ThinkingOnServerSide, (Keys >> 28) == 10);
@@ -1113,74 +986,6 @@ BoundingBox3fT ComponentHumanPlayerT::GetVisualBB() const
 }
 
 
-void ComponentHumanPlayerT::Render(bool FirstPersonView, float LodDist) const
-{
-    // Keep in mind that when 'FirstPersonView==true', this is usually the human player entity
-    // of the local client, which gets *predicted*. Thus, there is no point in modifying the 'State' member variable.
-    // Otherwise however, when 'FirstPersonView==false', this is usually a human player entity
-    // of another client, which is *NOT* predicted. Thus, we may modify the 'State' member variable up to a certain extend.
-    if (FirstPersonView)
-    {
-        // Draw "view" model of the weapon
-        if (GetHaveWeapons() & (1 << GetActiveWeaponSlot()))     // Only draw the active weapon if we actually "have" it
-        {
-#if 0     // TODO!
-            Vector3fT LgtPos(MatSys::Renderer->GetCurrentLightSourcePosition());
-            Vector3fT EyePos(MatSys::Renderer->GetCurrentEyePosition());
-
-            // The translation is not actually required, but gives the weapon a very nice 'shifting' effect when the player looks up/down.
-            // If there ever is a problem with view model distortion, this may be a cause.
-            LgtPos.z+=0.5f;
-            EyePos.z+=0.5f;
-            MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, 0.0f, 0.0f, -0.5f);
-
-            const float DegPitch=float(m_Pitch)/8192.0f*45.0f;
-
-            LgtPos=LgtPos.GetRotY(-DegPitch);
-            EyePos=EyePos.GetRotY(-DegPitch);
-            MatSys::Renderer->RotateY(MatSys::RendererI::MODEL_TO_WORLD, DegPitch);
-
-            MatSys::Renderer->SetCurrentLightSourcePosition(LgtPos.x, LgtPos.y, LgtPos.z);
-            MatSys::Renderer->SetCurrentEyePosition(EyePos.x, EyePos.y, EyePos.z);
-#endif
-
-
-            const CafuModelT* WeaponModel=GetCarriedWeapon(GetActiveWeaponSlot())->GetViewWeaponModel();
-            AnimPoseT*        Pose       =WeaponModel->GetSharedPose(WeaponModel->GetAnimExprPool().GetStandard(GetActiveWeaponSequNr(), GetActiveWeaponFrameNr()));
-
-            Pose->Draw(-1 /*default skin*/, LodDist);
-        }
-    }
-    else
-    {
-        if (GetStateOfExistence() != StateOfExistence_Alive && GetStateOfExistence() != StateOfExistence_Dead) return;
-
-        // TODO / FIXME: Are these four lines still needed?
-        const float OffsetZ = -32.0f;
-        MatSys::Renderer->GetCurrentLightSourcePosition()[2]-=OffsetZ;
-        MatSys::Renderer->GetCurrentEyePosition        ()[2]-=OffsetZ;
-        MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, 0.0f, 0.0f, OffsetZ);
-
-
-        // The own player body model is drawn autonomously by the respective Model component.
-        // Here, also draw the "_p" (player) model of the active weapon as sub-model of the body.
-        if (GetHaveWeapons() & (1 << GetActiveWeaponSlot()))
-        {
-            IntrusivePtrT<ComponentModelT> Model3rdPerson = dynamic_pointer_cast<ComponentModelT>(GetEntity()->GetComponent("Model"));
-            const CafuModelT* WeaponModel = GetCarriedWeapon(GetActiveWeaponSlot())->GetPlayerWeaponModel();
-            AnimPoseT*        WeaponPose  = WeaponModel->GetSharedPose(WeaponModel->GetAnimExprPool().GetStandard(0, 0.0f));
-
-            if (Model3rdPerson != NULL)
-            {
-                WeaponPose->SetSuperPose(Model3rdPerson->GetPose());
-                WeaponPose->Draw(-1 /*default skin*/, LodDist);
-                WeaponPose->SetSuperPose(NULL);
-            }
-        }
-    }
-}
-
-
 void ComponentHumanPlayerT::DoServerFrame(float t)
 {
     // **********************************************************************************************************************************************
@@ -1273,11 +1078,11 @@ void ComponentHumanPlayerT::DoClientFrame(float t)
     MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
     MatSys::Renderer->PopMatrix(MatSys::RendererI::WORLD_TO_VIEW);
 
-    // Handle any state driven effects of the currently carried weapon.
-    if (GetHaveWeapons() & (1 << GetActiveWeaponSlot()))
-    {
-        GetCarriedWeapon(GetActiveWeaponSlot())->ClientSide_HandleStateDrivenEffects(this);
-    }
+    // // Handle any state driven effects of the currently carried weapon.
+    // if (GetHaveWeapons() & (1 << GetActiveWeaponSlot()))
+    // {
+    //     GetCarriedWeapon(GetActiveWeaponSlot())->ClientSide_HandleStateDrivenEffects(this);
+    // }
 }
 
 

@@ -24,18 +24,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Entity.hpp"
 #include "EntityCreateParams.hpp"
 
-#include "HumanPlayer/cw_357.hpp"
-#include "HumanPlayer/cw_9mmAR.hpp"
-#include "HumanPlayer/cw_BattleScythe.hpp"
-#include "HumanPlayer/cw_CrossBow.hpp"
-#include "HumanPlayer/cw_Egon.hpp"
-#include "HumanPlayer/cw_FaceHugger.hpp"
-#include "HumanPlayer/cw_Gauss.hpp"
-#include "HumanPlayer/cw_Grenade.hpp"
-#include "HumanPlayer/cw_Pistol.hpp"
-#include "HumanPlayer/cw_RPG.hpp"
-#include "HumanPlayer/cw_Shotgun.hpp"
-
 #include "ClipSys/ClipWorld.hpp"
 #include "ClipSys/TraceResult.hpp"
 #include "ConsoleCommands/Console.hpp"
@@ -208,24 +196,6 @@ WorldT::WorldT(cf::UniScriptStateT& ScriptState, ModelManagerT& ModelMan, cf::Gu
       m_ClipWorld(ClipWorld),
       m_PhysicsWorld(PhysicsWorld)
 {
-    m_CarriedWeapons.PushBack(new CarriedWeaponBattleScytheT(ModelMan));
-    m_CarriedWeapons.PushBack(new CarriedWeaponPistolT(ModelMan));
-    m_CarriedWeapons.PushBack(new CarriedWeapon357T(ModelMan));
-    m_CarriedWeapons.PushBack(new CarriedWeaponShotgunT(ModelMan));
-    m_CarriedWeapons.PushBack(new CarriedWeapon9mmART(ModelMan));
-    m_CarriedWeapons.PushBack(new CarriedWeaponCrossBowT(ModelMan));
-    m_CarriedWeapons.PushBack(new CarriedWeaponRPGT(ModelMan));
-    m_CarriedWeapons.PushBack(new CarriedWeaponGaussT(ModelMan));
-    m_CarriedWeapons.PushBack(new CarriedWeaponEgonT(ModelMan));
-    m_CarriedWeapons.PushBack(new CarriedWeaponGrenadeT(ModelMan));
-    m_CarriedWeapons.PushBack(new CarriedWeaponFaceHuggerT(ModelMan));
-}
-
-
-WorldT::~WorldT()
-{
-    for (unsigned int cwNr = 0; cwNr < m_CarriedWeapons.Size(); cwNr++)
-        delete m_CarriedWeapons[cwNr];
 }
 
 
@@ -243,12 +213,6 @@ unsigned int WorldT::GetNextEntityID(unsigned int ForcedID)
     }
 
     return m_NextEntID++;
-}
-
-
-const CarriedWeaponT* WorldT::GetCarriedWeapon(unsigned int ActiveWeaponSlot) const
-{
-    return m_CarriedWeapons[ActiveWeaponSlot < m_CarriedWeapons.Size() ? ActiveWeaponSlot : 3];
 }
 
 

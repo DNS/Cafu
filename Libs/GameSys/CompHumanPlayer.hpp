@@ -78,9 +78,6 @@ namespace cf
             /// It calls the PostEvent() method of the players Script component.
             void PostEvent(unsigned int EventType) const;
 
-            /// Another convenience method for use by the `CarriedWeaponT` method implementations.
-            const CarriedWeaponT* GetCarriedWeapon(unsigned int ActiveWeaponSlot) const;
-
             // Temporary methods, so that obsolete DeathMatch code can access our data.
             uint8_t GetStateOfExistence() const { return m_StateOfExistence.Get(); }
             void SetStateOfExistence(uint8_t s) { m_StateOfExistence.Set(s); }
@@ -156,7 +153,6 @@ namespace cf
             ComponentHumanPlayerT* Clone() const;
             const char* GetName() const { return "HumanPlayer"; }
             BoundingBox3fT GetVisualBB() const;
-            void Render(bool FirstPersonView, float LodDist) const;
             void DoServerFrame(float t);
             void DoClientFrame(float t);
 
