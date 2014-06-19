@@ -79,13 +79,6 @@ const cf::TypeSys::VarsDocT ComponentHumanPlayerT::DocVars[] =
     { "Armor",               "Armor." },
     { "ActiveWeaponNr",      "The index number into the CarriedWeapon components of this entity, starting at 1, indicating the currently active weapon. The weapon must also be available (have been picked up) before the player can use it. A value of 0 means that \"no\" weapon is currently active." },
     { "NextWeaponNr",        "The next weapon to be drawn by SelectNextWeapon(). Like ActiveWeaponNr, this is an index number into the CarriedWeapon components of this entity, starting at 1. A value of 0 means \"none\"." },
-    { "HaveItems",           "Bit field, entity can carry 32 different items." },
-    { "HaveWeapons",         "Bit field, entity can carry 32 different weapons." },
-    { "ActiveWeaponSlot",    "Index into m_HaveWeapons, m_HaveAmmoInWeapons, and for determining the weapon model index." },
-    { "ActiveWeaponSequNr",  "The weapon anim sequence that we see (the local clients 1st person ('view') weapon model)." },
-    { "ActiveWeaponFrameNr", "Respectively, this is the frame number of the current weapon sequence." },
-    { "HaveAmmo",            "Entity can carry 16 different types of ammo (weapon independent). This is the amount of each." },
-    { "HaveAmmoInWeapons",   "Entity can carry ammo in each of the 32 weapons. This is the amount of each." },
     { "HeadSway",            "The progress of one \"head swaying\" cycle in state FrozenSpectator." },
     { NULL, NULL }
 };
@@ -100,13 +93,6 @@ ComponentHumanPlayerT::ComponentHumanPlayerT()
       m_Armor("Armor", 0),
       m_ActiveWeaponNr("ActiveWeaponNr", 0),
       m_NextWeaponNr("NextWeaponNr", 0),
-      m_HaveItems("HaveItems", 0),
-      m_HaveWeapons("HaveWeapons", 0),
-      m_ActiveWeaponSlot("ActiveWeaponSlot", 0),
-      m_ActiveWeaponSequNr("ActiveWeaponSequNr", 0),
-      m_ActiveWeaponFrameNr("ActiveWeaponFrameNr", 0.0f),
-      m_HaveAmmo("HaveAmmo", 16, 0),
-      m_HaveAmmoInWeapons("HaveAmmoInWeapons", 32, 0),
       m_HeadSway("HeadSway", 0.0f),
       m_PlayerCommands(),
       m_GuiHUD(NULL)
@@ -128,13 +114,6 @@ ComponentHumanPlayerT::ComponentHumanPlayerT(const ComponentHumanPlayerT& Comp)
       m_Armor(Comp.m_Armor),
       m_ActiveWeaponNr(Comp.m_ActiveWeaponNr),
       m_NextWeaponNr(Comp.m_NextWeaponNr),
-      m_HaveItems(Comp.m_HaveItems),
-      m_HaveWeapons(Comp.m_HaveWeapons),
-      m_ActiveWeaponSlot(Comp.m_ActiveWeaponSlot),
-      m_ActiveWeaponSequNr(Comp.m_ActiveWeaponSequNr),
-      m_ActiveWeaponFrameNr(Comp.m_ActiveWeaponFrameNr),
-      m_HaveAmmo(Comp.m_HaveAmmo),
-      m_HaveAmmoInWeapons(Comp.m_HaveAmmoInWeapons),
       m_HeadSway(Comp.m_HeadSway),
       m_PlayerCommands(),
       m_GuiHUD(NULL)
@@ -156,13 +135,6 @@ void ComponentHumanPlayerT::FillMemberVars()
     GetMemberVars().Add(&m_Armor);
     GetMemberVars().Add(&m_ActiveWeaponNr);
     GetMemberVars().Add(&m_NextWeaponNr);
-    GetMemberVars().Add(&m_HaveItems);
-    GetMemberVars().Add(&m_HaveWeapons);
-    GetMemberVars().Add(&m_ActiveWeaponSlot);
-    GetMemberVars().Add(&m_ActiveWeaponSequNr);
-    GetMemberVars().Add(&m_ActiveWeaponFrameNr);
-    GetMemberVars().Add(&m_HaveAmmo);
-    GetMemberVars().Add(&m_HaveAmmoInWeapons);
     GetMemberVars().Add(&m_HeadSway);
 }
 
@@ -360,18 +332,6 @@ void ComponentHumanPlayerT::InflictDamage(EntityT* OtherEnt, float Amount, const
     OtherBinder.Push(This);
 
     OtherScript->CallLuaMethod("TakeDamage", 1, "ffff", Amount, Dir.x, Dir.y, Dir.z);
-}
-
-
-void ComponentHumanPlayerT::PostEvent(unsigned int EventType) const
-{
-    IntrusivePtrT<ComponentScriptT> Script =
-        dynamic_pointer_cast<ComponentScriptT>(GetEntity()->GetComponent("Script"));
-
-    // This assumes that in the Script component's script ("HumanPlayer.lua"),
-    // script method InitEventTypes() has been called.
-    if (Script != NULL)
-        Script->PostEvent(EventType);
 }
 
 
@@ -807,20 +767,13 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                     SetArmor(0);
                     m_ActiveWeaponNr.Set(0);
                     m_NextWeaponNr.Set(0);
-                    SetHaveItems(0);
-                    SetHaveWeapons(0);          // TODO: Iterate over the carried weapons, and reset their `IsAvail` flag to `false`?
-                    SetActiveWeaponSlot(0);
-                    SetActiveWeaponSequNr(0);
-                    SetActiveWeaponFrameNr(0.0f);
+                    // TODO: Iterate over the carried weapons, and reset their `IsAvail` flag to `false`?
                     m_HeadSway.Set(0.0f);
 
                     IntrusivePtrT<ComponentCollisionModelT> CompCollMdl = dynamic_pointer_cast<ComponentCollisionModelT>(GetEntity()->GetComponent("CollisionModel"));
 
                     if (CompCollMdl != NULL)
                         CompCollMdl->SetBoundingBox(Dimensions, "Textures/meta/collisionmodel");
-
-                    for (char Nr=0; Nr<15; Nr++) GetHaveAmmo()[Nr]=0;   // IMPORTANT: Do not clear the frags value in 'HaveAmmo[AMMO_SLOT_FRAGS]'!
-                    for (char Nr=0; Nr<32; Nr++) GetHaveAmmoInWeapons()[Nr]=0;
 
                     break;
                 }

@@ -74,29 +74,11 @@ namespace cf
             /// Another convenience method for use by the `CarriedWeaponT` method implementations.
             void InflictDamage(EntityT* OtherEnt, float Amount, const Vector3dT& Dir) const;
 
-            /// Another convenience method for use by the `CarriedWeaponT` method implementations.
-            /// It calls the PostEvent() method of the players Script component.
-            void PostEvent(unsigned int EventType) const;
-
             // Temporary methods, so that obsolete DeathMatch code can access our data.
             uint8_t GetStateOfExistence() const { return m_StateOfExistence.Get(); }
             void SetStateOfExistence(uint8_t s) { m_StateOfExistence.Set(s); }
-            uint8_t GetHealth() const { return m_Health.Get(); }
             void SetHealth(uint8_t h) { m_Health.Set(h); }
-            uint8_t GetArmor() const { return m_Armor.Get(); }
             void SetArmor(uint8_t a) { m_Armor.Set(a); }
-            unsigned int GetHaveItems() const { return m_HaveItems.Get(); }
-            void SetHaveItems(unsigned int i) { m_HaveItems.Set(i); }
-            unsigned int GetHaveWeapons() const { return m_HaveWeapons.Get(); }
-            void SetHaveWeapons(unsigned int w) { m_HaveWeapons.Set(w); }
-            uint8_t GetActiveWeaponSlot() const { return m_ActiveWeaponSlot.Get(); }
-            void SetActiveWeaponSlot(uint8_t ws) { m_ActiveWeaponSlot.Set(ws); }
-            uint8_t GetActiveWeaponSequNr() const { return m_ActiveWeaponSequNr.Get(); }
-            void SetActiveWeaponSequNr(uint8_t ws) { m_ActiveWeaponSequNr.Set(ws); }
-            float GetActiveWeaponFrameNr() const { return m_ActiveWeaponFrameNr.Get(); }
-            void SetActiveWeaponFrameNr(float f) { m_ActiveWeaponFrameNr.Set(f); }
-            TypeSys::VarArrayT<uint16_t>& GetHaveAmmo() { return m_HaveAmmo; }
-            TypeSys::VarArrayT<uint8_t>& GetHaveAmmoInWeapons() { return m_HaveAmmoInWeapons; }
 
             /// A helper function for Think().
             void CheckGUIs(bool ThinkingOnServerSide, bool HaveButtonClick) const;
@@ -193,13 +175,6 @@ namespace cf
             TypeSys::VarT<uint8_t>       m_Armor;               ///< Armor.
             TypeSys::VarT<uint8_t>       m_ActiveWeaponNr;      ///< The index number into the CarriedWeapon components of this entity, starting at 1, indicating the currently active weapon. The weapon must also be available (have been picked up) before the player can use it. A value of 0 means that "no" weapon is currently active.
             TypeSys::VarT<uint8_t>       m_NextWeaponNr;        ///< The next weapon to be drawn by SelectNextWeapon(). Like m_ActiveWeaponNr, this is an index number into the CarriedWeapon components of this entity, starting at 1. A value of 0 means "none".
-            TypeSys::VarT<unsigned int>  m_HaveItems;           ///< Bit field, entity can carry 32 different items.
-            TypeSys::VarT<unsigned int>  m_HaveWeapons;         ///< Bit field, entity can carry 32 different weapons.
-            TypeSys::VarT<uint8_t>       m_ActiveWeaponSlot;    ///< Index into m_HaveWeapons, m_HaveAmmoInWeapons, and for determining the weapon model index.
-            TypeSys::VarT<uint8_t>       m_ActiveWeaponSequNr;  ///< The weapon anim sequence that we see (the local clients 1st person ("view") weapon model).
-            TypeSys::VarT<float>         m_ActiveWeaponFrameNr; ///< Respectively, this is the frame number of the current weapon sequence.
-            TypeSys::VarArrayT<uint16_t> m_HaveAmmo;            ///< Entity can carry 16 different types of ammo (weapon independent). This is the amount of each.
-            TypeSys::VarArrayT<uint8_t>  m_HaveAmmoInWeapons;   ///< Entity can carry ammo in each of the 32 weapons. This is the amount of each.
             TypeSys::VarT<float>         m_HeadSway;            ///< The progress of one "head swaying" cycle in state FrozenSpectator.
 
             ArrayT<PlayerCommandT>          m_PlayerCommands;   ///< The commands to be processed in the next Think() step.

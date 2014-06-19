@@ -436,34 +436,6 @@ class ComponentHumanPlayerT : public ComponentBaseT
     /// @cppType{uint8_t}
     number NextWeaponNr;
 
-    /// Bit field, entity can carry 32 different items.
-    /// @cppType{unsigned int}
-    number HaveItems;
-
-    /// Bit field, entity can carry 32 different weapons.
-    /// @cppType{unsigned int}
-    number HaveWeapons;
-
-    /// Index into m_HaveWeapons, m_HaveAmmoInWeapons, and for determining the weapon model index.
-    /// @cppType{uint8_t}
-    number ActiveWeaponSlot;
-
-    /// The weapon anim sequence that we see (the local clients 1st person ('view') weapon model).
-    /// @cppType{uint8_t}
-    number ActiveWeaponSequNr;
-
-    /// Respectively, this is the frame number of the current weapon sequence.
-    /// @cppType{float}
-    number ActiveWeaponFrameNr;
-
-    /// Entity can carry 16 different types of ammo (weapon independent). This is the amount of each.
-    /// @cppType{ArrayT<uint16_t>}
-    table HaveAmmo;
-
-    /// Entity can carry ammo in each of the 32 weapons. This is the amount of each.
-    /// @cppType{ArrayT<uint8_t>}
-    table HaveAmmoInWeapons;
-
     /// The progress of one "head swaying" cycle in state FrozenSpectator.
     /// @cppType{float}
     number HeadSway;
