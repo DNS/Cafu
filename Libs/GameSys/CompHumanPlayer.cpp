@@ -31,9 +31,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "World.hpp"
 
 #include "HumanPlayer/CompCarriedWeapon.hpp"
-#include "HumanPlayer/Constants_AmmoSlots.hpp"
-#include "HumanPlayer/Constants_WeaponSlots.hpp"
-#include "HumanPlayer/cw_357.hpp"
 
 #include "ClipSys/ClipWorld.hpp"
 #include "ClipSys/TraceResult.hpp"
