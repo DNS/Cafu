@@ -55,45 +55,20 @@ class InspDlgEntityTreeT : public wxPanel, public ObserverT
     bool          IsRecursiveSelfNotify;    ///< Did we trigger the current call to NotifySubjectChanged() ourselves?
 
     wxListBox*    EntityListBox;
-    wxCheckBox*   ShowSolidEntitiesCheckBox;
-    wxCheckBox*   ShowPointEntitiesCheckBox;
     wxCheckBox*   ShowHiddenEntitiesCheckBox;
-    wxCheckBox*   FilterByPropCheckBox;
-    wxCheckBox*   FilterByPropExactCheckBox;
-    wxCheckBox*   FilterByClassCheckBox;
-    wxTextCtrl*   FilterKeyText;
-    wxTextCtrl*   FilterValueText;
-    wxComboBox*   FilterClassComboBox;
 
     // Helper functions.
     wxSizer* EntityReportInit(wxWindow* parent, bool call_fit, bool set_sizer);
     void     UpdateEntityListBox();
 
     // Event handlers.
-    void OnCheckbox_ShowSolidEntities(wxCommandEvent& Event);
-    void OnCheckbox_ShowPointEntities(wxCommandEvent& Event);
     void OnCheckbox_ShowHiddenEntities(wxCommandEvent& Event);
-    void OnCheckbox_FilterByProp(wxCommandEvent& Event);
-    void OnCheckbox_FilterByPropExact(wxCommandEvent& Event);
-    void OnCheckbox_FilterByClass(wxCommandEvent& Event);
-    void OnText_FilterKeyChanged(wxCommandEvent& Event);
-    void OnText_FilterValueChanged(wxCommandEvent& Event);
-    void OnComboBox_FilterClass_SelectionChanged(wxCommandEvent& Event);
-    void OnComboBox_FilterClass_TextChanged(wxCommandEvent& Event);
     void OnListBox_SelectionChanged(wxCommandEvent& Event);
 
     // IDs for the controls in whose events we are interested.
     enum
     {
-        ID_CHECKBOX_ShowSolidEntities=wxID_HIGHEST+1,
-        ID_CHECKBOX_ShowPointEntities,
-        ID_CHECKBOX_ShowHiddenEntities,
-        ID_CHECKBOX_FilterByProp,
-        ID_CHECKBOX_FilterByPropExact,
-        ID_CHECKBOX_FilterByClass,
-        ID_TEXT_FilterKey,
-        ID_TEXT_FilterValue,
-        ID_COMBOBOX_FilterClass,
+        ID_CHECKBOX_ShowHiddenEntities = wxID_HIGHEST + 1,
         ID_LISTBOX_Entities
     };
 
