@@ -19,29 +19,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "AppCaWE.hpp"
-#include "CompMapEntity.hpp"
-#include "CommandHistory.hpp"
-#include "ParentFrame.hpp"
 #include "DialogMapCheck.hpp"
+#include "CompMapEntity.hpp"
 #include "EntityClass.hpp"
-#include "GameConfig.hpp"
 #include "MapDocument.hpp"
 #include "MapEntRepres.hpp"
-#include "MapBrush.hpp"
 #include "ChildFrame.hpp"
-#include "ChildFrameViewWin2D.hpp"
-#include "Options.hpp"
-#include "Tool.hpp"
-#include "ToolManager.hpp"
-#include "EditorMaterial.hpp"
-#include "EditorMaterialManager.hpp"
 
-#include "MapCommands/DeleteProp.hpp"
 #include "MapCommands/Select.hpp"
-#include "wx/wx.h"
-
-#include <typeinfo>
 
 
 using namespace MapEditor;
@@ -93,200 +78,6 @@ class MapCheckerT
 
     MapDocumentT&                 m_MapDoc;
     IntrusivePtrT<CompMapEntityT> m_Ent;
-};
-
-
-class MC_UnknownTargetT : public MapCheckerT
-{
-    public:
-
-    MC_UnknownTargetT(MapDocumentT& MapDoc, IntrusivePtrT<CompMapEntityT> Ent) : MapCheckerT(MapDoc, Ent) { }
-
-    bool HasProblem() const
-    {
-        const EntPropertyT* TargetProp = m_Ent->FindProperty("target");
-
-        // If this entity doesn't have the "target" property or an empty value, we don't have a problem.
-        if (TargetProp==NULL) return false;
-        if (TargetProp->Value=="") return false;
-
-        // Finally search all entities in the world for a matching "name" property.
-        for (unsigned long Ent2Nr=1/*skip world*/; Ent2Nr<m_MapDoc.GetEntities().Size(); Ent2Nr++)
-        {
-            const EntPropertyT* NameProp=m_MapDoc.GetEntities()[Ent2Nr]->FindProperty("name");
-
-            if (NameProp==NULL) continue;
-            if (NameProp->Value==TargetProp->Value) return false;
-        }
-
-        return true;
-    }
-
-    wxString GetTargetValue() const
-    {
-        const EntPropertyT* TargetProp = m_Ent->FindProperty("target");
-
-        return TargetProp ? TargetProp->Value : "";
-    }
-
-    wxString GetInfo() const { return "Unmatched entity target."; }
-    wxString GetHelpText() const { return "The \"target\" property of this entity has value \""+GetTargetValue()+"\", but there is no entity with a corresponding name."; }
-};
-
-
-static bool LargestFirst(int const& elem1, int const& elem2)
-{
-    return elem2<elem1;
-}
-
-
-class MC_UndefinedClassOrKeysT : public MapCheckerT
-{
-    public:
-
-    MC_UndefinedClassOrKeysT(MapDocumentT& MapDoc, IntrusivePtrT<CompMapEntityT> Ent) : MapCheckerT(MapDoc, Ent) { }
-
-    bool HasProblem() const
-    {
-        if (m_Ent == NULL) return false;
-        if (!m_Ent->GetClass()->IsInGameConfig()) return true;
-
-        return GetUndefKeys().Size()>0;   // This is inefficient...
-    }
-
-    bool CanFix() const
-    {
-        return m_Ent != NULL && m_Ent->GetClass()->IsInGameConfig() && GetUndefKeys().Size() > 0;
-    }
-
-    CommandT* GetFix() const
-    {
-        if (m_Ent == NULL) return NULL;
-        if (!m_Ent->GetClass()->IsInGameConfig()) return NULL;
-
-        const ArrayT<EntPropertyT>& Props=m_Ent->GetProperties();
-        ArrayT<int>                 DelIndices;
-
-        for (unsigned long PropNr=0; PropNr<Props.Size(); PropNr++)
-            if (m_Ent->GetClass()->FindVar(Props[PropNr].Key)==NULL)
-                DelIndices.PushBack(PropNr);
-
-        if (DelIndices.Size()==0) return NULL;
-        if (DelIndices.Size()==1) return new CommandDeletePropertyT(m_MapDoc, m_Ent, DelIndices[0]);
-
-        ArrayT<CommandT*> Commands;
-        DelIndices.QuickSort(LargestFirst);     // Must delete by index strictly in largest-first order!
-        for (unsigned long iNr=0; iNr<DelIndices.Size(); iNr++)
-            Commands.PushBack(new CommandDeletePropertyT(m_MapDoc, m_Ent, DelIndices[iNr]));
-
-        return new CommandMacroT(Commands, "Delete unused entity keys.");
-    }
-
-    ArrayT<wxString> GetUndefKeys() const
-    {
-        ArrayT<wxString> UndefKeys;
-
-        if (m_Ent != NULL)
-        {
-            const ArrayT<EntPropertyT>& Props=m_Ent->GetProperties();
-
-            for (unsigned long PropNr=0; PropNr<Props.Size(); PropNr++)
-                if (m_Ent->GetClass()->FindVar(Props[PropNr].Key)==NULL)
-                    UndefKeys.PushBack(Props[PropNr].Key);
-        }
-
-        return UndefKeys;
-    }
-
-    wxString GetInfo() const
-    {
-        if (m_Ent == NULL) return "";
-
-        return m_Ent->GetClass()->IsInGameConfig() ? "Undefined entity keys." : "Undefined entity class.";
-    }
-
-    wxString GetHelpText() const
-    {
-        if (m_Ent == NULL) return "";
-
-        if (!m_Ent->GetClass()->IsInGameConfig())
-            return "The class \""+m_Ent->GetClass()->GetName()+"\" of this entity is undefined in the game configuration of this map.";
-
-        wxString Text="This entity has properties with keys that are undefined in its class \""+m_Ent->GetClass()->GetName()+"\", and are thus unused:\n\n";
-        const ArrayT<wxString> UndefKeys=GetUndefKeys();
-
-        for (unsigned long KeyNr=0; KeyNr<UndefKeys.Size(); KeyNr++)
-        {
-            Text+=UndefKeys[KeyNr];
-            if (KeyNr+1<UndefKeys.Size()) Text+=", ";
-        }
-
-        Text+="\n\nThis problem is often a harmless by-product of importing maps from other games.";
-        return Text;
-    }
-};
-
-
-class MC_DuplicateKeysT : public MapCheckerT
-{
-    public:
-
-    MC_DuplicateKeysT(MapDocumentT& MapDoc, IntrusivePtrT<CompMapEntityT> Ent) : MapCheckerT(MapDoc, Ent) { }
-
-    bool HasProblem() const
-    {
-        const ArrayT<EntPropertyT>& Props = m_Ent->GetProperties();
-
-        for (unsigned long i=0; i<Props.Size(); i++)
-            for (unsigned long j=i+1; j<Props.Size(); j++)
-                if (Props[i].Key==Props[j].Key)
-                    return true;
-
-        return false;
-    }
-
-    bool CanFix() const { return true; }
-
-    CommandT* GetFix() const
-    {
-        const ArrayT<EntPropertyT>& Props = m_Ent->GetProperties();
-        ArrayT<int>                 DelIndices;
-
-        for (unsigned long i=0; i<Props.Size(); i++)
-            for (unsigned long j=i+1; j<Props.Size(); j++)
-                if (Props[i].Key==Props[j].Key)
-                    if (DelIndices.Find(j)==-1)
-                        DelIndices.PushBack(j);
-
-        if (DelIndices.Size()==0) return NULL;
-        if (DelIndices.Size()==1) return new CommandDeletePropertyT(m_MapDoc, m_Ent, DelIndices[0]);
-
-        ArrayT<CommandT*> Commands;
-        DelIndices.QuickSort(LargestFirst);     // Must delete by index strictly in largest-first order!
-        for (unsigned long iNr=0; iNr<DelIndices.Size(); iNr++)
-            Commands.PushBack(new CommandDeletePropertyT(m_MapDoc, m_Ent, DelIndices[iNr]));
-
-        return new CommandMacroT(Commands, "Delete duplicate entity keys.");
-    }
-
-    wxString GetInfo() const { return "Duplicate entity keys."; }
-    wxString GetHelpText() const { return "This entity has properties with keys that occur multiply."; }
-};
-
-
-class MC_EmptySolidEntityT : public MapCheckerT
-{
-    public:
-
-    MC_EmptySolidEntityT(MapDocumentT& MapDoc, IntrusivePtrT<CompMapEntityT> Ent) : MapCheckerT(MapDoc, Ent) { }
-
-    bool HasProblem() const
-    {
-        return m_Ent->GetClass()->IsSolidClass() && m_Ent->GetPrimitives().Size() == 0;
-    }
-
-    wxString GetInfo() const { return "Empty solid entity."; }
-    wxString GetHelpText() const { return "This entity is supposed to be composed of map primitives (brushes, patches, models, ...), but has none. Fixing the error deletes the empty entity."; }
 };
 
 
@@ -386,10 +177,10 @@ void MapCheckDialogT::UpdateProblems()
 
         // IMPORTANT NOTE: Register at most ONE problem for each Ent.
         // This is supposed to avoid problems with CommandTs...
-        MC_UnknownTargetT        MC1(m_MapDoc, Ent); if (MC1.HasProblem()) { m_Problems.PushBack(new MC_UnknownTargetT       (MC1)); continue; }
-        MC_UndefinedClassOrKeysT MC2(m_MapDoc, Ent); if (MC2.HasProblem()) { m_Problems.PushBack(new MC_UndefinedClassOrKeysT(MC2)); continue; }
-        MC_DuplicateKeysT        MC3(m_MapDoc, Ent); if (MC3.HasProblem()) { m_Problems.PushBack(new MC_DuplicateKeysT       (MC3)); continue; }
-        MC_EmptySolidEntityT     MC4(m_MapDoc, Ent); if (MC4.HasProblem()) { m_Problems.PushBack(new MC_EmptySolidEntityT    (MC4)); continue; }
+     // MC_UnknownTargetT        MC1(m_MapDoc, Ent); if (MC1.HasProblem()) { m_Problems.PushBack(new MC_UnknownTargetT       (MC1)); continue; }
+     // MC_UndefinedClassOrKeysT MC2(m_MapDoc, Ent); if (MC2.HasProblem()) { m_Problems.PushBack(new MC_UndefinedClassOrKeysT(MC2)); continue; }
+     // MC_DuplicateKeysT        MC3(m_MapDoc, Ent); if (MC3.HasProblem()) { m_Problems.PushBack(new MC_DuplicateKeysT       (MC3)); continue; }
+     // MC_EmptySolidEntityT     MC4(m_MapDoc, Ent); if (MC4.HasProblem()) { m_Problems.PushBack(new MC_EmptySolidEntityT    (MC4)); continue; }
         MC_WorldHasPlayerStartT  MC5(m_MapDoc, Ent); if (MC5.HasProblem()) { m_Problems.PushBack(new MC_WorldHasPlayerStartT (MC5)); continue; }
     }
 
