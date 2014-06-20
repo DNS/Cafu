@@ -44,7 +44,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapCommands/AddPrim.hpp"
 #include "MapCommands/NewEntity.hpp"
 #include "MapCommands/Transform.hpp"
-#include "MapCommands/SetProp.hpp"
 #include "MapCommands/Select.hpp"
 
 #include "Plants/PlantDescription.hpp"

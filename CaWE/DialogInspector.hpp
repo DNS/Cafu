@@ -28,7 +28,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 namespace MapEditor { class EntityInspectorT; }
 class InspDlgEntityTreeT;
-class InspDlgEntityPropsT;
 class InspDlgPrimitivePropsT;
 class InspDlgMapScriptT;
 class MapDocumentT;
@@ -53,7 +52,6 @@ class InspectorDialogT : public wxPanel
     wxNotebook*                  Notebook;
     InspDlgEntityTreeT*          EntityTree;
     MapEditor::EntityInspectorT* m_EntityInspector;
-    InspDlgEntityPropsT*         EntityProps;
     InspDlgPrimitivePropsT*      PrimitiveProps;
     InspDlgMapScriptT*           MapScript;
 };
