@@ -252,10 +252,6 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig)
     IntrusivePtrT<cf::GameSys::EntityT> ScriptRootEnt = m_ScriptWorld->GetRootEntity();
     IntrusivePtrT<CompMapEntityT>       MapEnt        = new CompMapEntityT(*this);
 
-    const EntityClassT* WorldSpawnClass = GameConfig->FindClass("worldspawn");
-    wxASSERT(WorldSpawnClass);
-    MapEnt->SetClass(WorldSpawnClass != NULL ? WorldSpawnClass : FindOrCreateUnknownClass("worldspawn", false /*HasOrigin*/));
-
     wxASSERT(ScriptRootEnt->GetApp().IsNull());
     ScriptRootEnt->SetApp(MapEnt);
 
@@ -301,10 +297,6 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     try
     {
         IntrusivePtrT<CompMapEntityT> World = new CompMapEntityT(*this);
-
-        const EntityClassT* WorldSpawnClass = GameConfig->FindClass("worldspawn");
-        wxASSERT(WorldSpawnClass);
-        World->SetClass(WorldSpawnClass != NULL ? WorldSpawnClass : FindOrCreateUnknownClass("worldspawn", false /*HasOrigin*/));
 
         World->Load_cmap(TP, *this, ProgressDialog, 0, cmapFileVersion);
         AllMapEnts.PushBack(World);
@@ -420,10 +412,6 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     {
         IntrusivePtrT<CompMapEntityT> World = new CompMapEntityT(*Doc);
 
-        const EntityClassT* WorldSpawnClass = GameConfig->FindClass("worldspawn");
-        wxASSERT(WorldSpawnClass);
-        World->SetClass(WorldSpawnClass != NULL ? WorldSpawnClass : Doc->FindOrCreateUnknownClass("worldspawn", false /*HasOrigin*/));
-
         World->Load_HL1_map(TP, *Doc, ProgressDialog, 0);
         AllMapEnts.PushBack(World);
 
@@ -488,10 +476,6 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
             {
                 IntrusivePtrT<CompMapEntityT> World = new CompMapEntityT(*Doc);
 
-                const EntityClassT* WorldSpawnClass = GameConfig->FindClass("worldspawn");
-                wxASSERT(WorldSpawnClass);
-                World->SetClass(WorldSpawnClass != NULL ? WorldSpawnClass : Doc->FindOrCreateUnknownClass("worldspawn", false /*HasOrigin*/));
-
                 World->Load_HL2_vmf(TP, *Doc, ProgressDialog, 0);
                 AllMapEnts.PushBack(World);
             }
@@ -553,10 +537,6 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     try
     {
         IntrusivePtrT<CompMapEntityT> World = new CompMapEntityT(*Doc);
-
-        const EntityClassT* WorldSpawnClass = GameConfig->FindClass("worldspawn");
-        wxASSERT(WorldSpawnClass);
-        World->SetClass(WorldSpawnClass != NULL ? WorldSpawnClass : Doc->FindOrCreateUnknownClass("worldspawn", false /*HasOrigin*/));
 
         World->Load_D3_map(TP, *Doc, ProgressDialog, 0);
         AllMapEnts.PushBack(World);
@@ -633,9 +613,6 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
     {
         // There were more entities in the `.cent` file than in the `.cmap` file.
         IntrusivePtrT<CompMapEntityT> MapEnt = new CompMapEntityT(*this);
-        const EntityClassT* EntityClass = m_GameConfig->FindClass("info_generic");
-
-        MapEnt->SetClass(EntityClass ? EntityClass : FindOrCreateUnknownClass("info_generic", true));
 
         wxASSERT(AllScriptEnts[EntNr]->GetApp().IsNull());
         AllScriptEnts[EntNr]->SetApp(MapEnt);
@@ -780,9 +757,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
 
             IntrusivePtrT<cf::GameSys::EntityT> DoorEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
             IntrusivePtrT<CompMapEntityT>       MapEnt  = new CompMapEntityT(*this);
-            const EntityClassT*                 EntityClass = m_GameConfig->FindClass("info_generic");
 
-            MapEnt->SetClass(EntityClass ? EntityClass : FindOrCreateUnknownClass("info_generic", true));
             m_ScriptWorld->GetRootEntity()->AddChild(DoorEnt);
 
             DoorEnt->GetBasics()->SetEntityName("door");
@@ -802,9 +777,6 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
 
                 // The part is now positioned relative to DoorEnt, but we want to keep its origin unchanged in world-space:
                 Part->GetTransform()->SetOriginWS(PartPosWS);
-
-                // Change the class of the part from "func_door" to "info_generic".
-                GetMapEnt(Part)->SetClass(EntityClass ? EntityClass : FindOrCreateUnknownClass("info_generic", true));
 
                 // Configure the part for the main Door script.
                 IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
@@ -983,9 +955,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             // Add a child entity with a point light source component (a "lantern").
             IntrusivePtrT<cf::GameSys::EntityT> LanternEnt  = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
             IntrusivePtrT<CompMapEntityT>       LntMapEnt   = new CompMapEntityT(*this);
-            const EntityClassT*                 EntityClass = m_GameConfig->FindClass("info_generic");
 
-            LntMapEnt->SetClass(EntityClass ? EntityClass : FindOrCreateUnknownClass("info_generic", true));
             Ent->AddChild(LanternEnt);
 
             LanternEnt->GetBasics()->SetEntityName("Lantern");
@@ -2630,9 +2600,6 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
     }
     else
     {
-        const EntityClassT* NewEntityClass=m_GameConfig->FindClass(Bar->m_SolidEntityChoice->GetStringSelection());
-        if (NewEntityClass==NULL) return;
-
         ArrayT<CommandT*> SubCommands;
 
         // 1. Create a new entity.
@@ -2641,8 +2608,6 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
 
         NewEnt->GetTransform()->SetOriginWS(SnapToGrid(GetMostRecentSelBB().GetCenter(), false /*Toggle*/, -1 /*AxisNoSnap*/));
         NewEnt->SetApp(MapEnt);
-
-        MapEnt->SetClass(NewEntityClass);
 
         CommandNewEntityT* CmdNewEnt = new CommandNewEntityT(*this, NewEnt);
 

@@ -86,19 +86,13 @@ bool ToolNewEntityT::OnKeyDown2D(ViewWindow2DT& ViewWindow, wxKeyEvent& KE)
 
 bool ToolNewEntityT::OnLMouseDown2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
 {
-    const Vector3fT     WorldPos = m_MapDoc.SnapToGrid(ViewWindow.WindowToWorld(ME.GetPosition(), m_MapDoc.GetMostRecentSelBB().GetCenter().z), ME.AltDown(), -1 /*Snap all axes.*/);
-    const EntityClassT* EntClass = GetNewEntClass();
-
-    wxASSERT(EntClass);
-    if (!EntClass) return true;
+    const Vector3fT WorldPos = m_MapDoc.SnapToGrid(ViewWindow.WindowToWorld(ME.GetPosition(), m_MapDoc.GetMostRecentSelBB().GetCenter().z), ME.AltDown(), -1 /*Snap all axes.*/);
 
     IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(m_MapDoc.GetScriptWorld()));
     IntrusivePtrT<CompMapEntityT>       MapEnt = new CompMapEntityT(m_MapDoc);
 
     NewEnt->GetTransform()->SetOriginWS(WorldPos);
     NewEnt->SetApp(MapEnt);
-
-    MapEnt->SetClass(EntClass);
 
     m_MapDoc.GetHistory().SubmitCommand(new CommandNewEntityT(m_MapDoc, NewEnt));
 
@@ -132,9 +126,6 @@ bool ToolNewEntityT::OnLMouseDown3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
     const ArrayT<ViewWindow3DT::HitInfoT> Hits=ViewWindow.GetElementsAt(ME.GetPosition());
     if (Hits.Size()==0) return true;
 
-    const EntityClassT* EntClass=GetNewEntClass();
-    if (!EntClass) return true;
-
     MapBrushT* Brush=dynamic_cast<MapBrushT*>(Hits[0].Object);
     // TODO: Something different from a brush was hit. We should instantiate new entities in such cases as well!
     if (Brush==NULL) return true;
@@ -149,7 +140,6 @@ bool ToolNewEntityT::OnLMouseDown3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
         IntrusivePtrT<CompMapEntityT>       MapEnt = new CompMapEntityT(m_MapDoc);
 
         NewEnt->SetApp(MapEnt);
-        MapEnt->SetClass(EntClass);
 
         const BoundingBox3fT EntBB   = MapEnt->GetRepres()->GetBB();                    // Note that NewEnt and thus EntBB are still centered at the origin.
         const float          OffsetZ = (HitPlane.Normal.z > 0.0f) ? -EntBB.Min.z : EntBB.Max.z;

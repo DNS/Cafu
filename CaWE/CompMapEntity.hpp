@@ -29,7 +29,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/BoundingBox.hpp"
 
 
-class EntityClassT;
 class MapDocumentT;
 class MapEntRepresT;
 class MapPrimitiveT;
@@ -85,8 +84,6 @@ namespace MapEditor
 
         bool IsWorld() const;
 
-        void SetClass(const EntityClassT* NewClass);
-
         const ArrayT<EntPropertyT>& GetProperties() const { return m_Properties; }
               ArrayT<EntPropertyT>& GetProperties()       { return m_Properties; }
 
@@ -112,8 +109,7 @@ namespace MapEditor
         private:
 
         MapDocumentT&          m_MapDoc;        ///< The document that contains, keeps and manages this entity.
-        const EntityClassT*    m_Class;         ///< The "entity class" of this entity.
-        ArrayT<EntPropertyT>   m_Properties;    ///< The concrete, instantiated properties for this entity, according to its entity class.
+        ArrayT<EntPropertyT>   m_Properties;    ///< Properties associated with this entity. Obsolete, kept so that we can import old or foreign map file formats.
         MapEntRepresT*         m_Repres;        ///< The graphical representation of this entity in the map.
         ArrayT<MapPrimitiveT*> m_Primitives;    ///< The primitive, atomic elements of this entity (brushes, patches, terrains, models, plants, ...).
     };

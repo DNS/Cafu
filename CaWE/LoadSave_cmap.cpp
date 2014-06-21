@@ -19,8 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "EntityClass.hpp"
-#include "EntityClassVar.hpp"
 #include "CompMapEntity.hpp"
 #include "LuaAux.hpp"
 #include "GameConfig.hpp"
@@ -739,48 +737,6 @@ void CompMapEntityT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, wxProgress
     }
 
     TP.AssertAndSkipToken("}");
-
-
-    // "Post-process" the entity properties.
-    if (EntityNr>0)
-    {
-        int Index=-1;
-        const bool FoundOrigin = true;
-
-/*      TODO: Turn this into a MapCheckDialogT issue!!
-        // Convert terrain entities to real terrains (map files >10 don't contain terrain entities anymore).
-        EntPropertyT* ClassName=Entity->FindProperty("classname");
-
-        if (MapFileVersion<11 && ClassName!=NULL && ClassName->Value=="Terrain")
-        {
-            MapTerrainT*  Terrain=new MapTerrainT();
-            EntPropertyT* HeightMap=Entity->FindProperty("heightmap_name");
-            EntPropertyT* Material=Entity->FindProperty("material_name");
-
-            if (HeightMap!=NULL) Terrain->LoadHeightData(m_MapDoc.GetGameConfig()->ModDir+"/"+HeightMap->Value);
-            if (Material!=NULL) Terrain->SetMaterial(m_MapDoc.GetGameConfig()->GetMatMan().FindMaterial(Material->Value, true));
-
-            Terrain->SetTerrainBounds(Entity->GetBB()); // Reset the terrains bounds to those of the entity.
-            AddPrim(Terrain);
-        }
-*/
-
-        // Set our class from the "classname" property, and remove it as well:
-        // just like the "origin" property, it is a special case wrt. the EntityClassDefs.lua scripts.
-        EntPropertyT* Prop = FindProperty("classname", &Index);
-
-        if (Prop!=NULL && Prop->Value!="")
-        {
-            const wxString      ClassName  =Prop->Value;
-            const EntityClassT* EntityClass=MapDoc.GetGameConfig()->FindClass(ClassName);
-
-            SetClass(EntityClass!=NULL ? EntityClass : MapDoc.FindOrCreateUnknownClass(ClassName, FoundOrigin));
-        }
-        else
-        {
-            SetClass(MapDoc.FindOrCreateUnknownClass("undefined", FoundOrigin));
-        }
-    }
 }
 
 

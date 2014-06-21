@@ -19,7 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "EntityClass.hpp"
 #include "CompMapEntity.hpp"
 #include "GameConfig.hpp"
 #include "Load_MatReplMan.hpp"
@@ -253,28 +252,4 @@ void CompMapEntityT::Load_HL2_vmf(TextParserT& TP, MapDocumentT& MapDoc, wxProgr
     }
 
     TP.AssertAndSkipToken("}");
-
-
-    // "Post-process" the entity properties.
-    if (EntityNr>0)
-    {
-        int Index=-1;
-        const bool FoundOrigin = true;
-
-        // Set our class from the "classname" property, and remove it as well:
-        // just like the "origin" property, it is a special case wrt. the EntityClassDefs.lua scripts.
-        EntPropertyT* Prop = FindProperty("classname", &Index);
-
-        if (Prop!=NULL && Prop->Value!="")
-        {
-            const wxString      ClassName  =Prop->Value;
-            const EntityClassT* EntityClass=MapDoc.GetGameConfig()->FindClass(ClassName);
-
-            SetClass(EntityClass!=NULL ? EntityClass : MapDoc.FindOrCreateUnknownClass(ClassName, FoundOrigin));
-        }
-        else
-        {
-            SetClass(MapDoc.FindOrCreateUnknownClass("undefined", FoundOrigin));
-        }
-    }
 }

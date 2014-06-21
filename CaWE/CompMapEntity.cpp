@@ -20,8 +20,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "CompMapEntity.hpp"
-#include "EntityClass.hpp"
-#include "EntityClassVar.hpp"
 #include "MapDocument.hpp"
 #include "MapEntRepres.hpp"
 #include "MapPrimitive.hpp"
@@ -33,7 +31,6 @@ using namespace MapEditor;
 CompMapEntityT::CompMapEntityT(MapDocumentT& MapDoc)
     : ComponentBaseT(),
       m_MapDoc(MapDoc),
-      m_Class(NULL),
       m_Properties(),
       m_Repres(NULL),
       m_Primitives()
@@ -45,7 +42,6 @@ CompMapEntityT::CompMapEntityT(MapDocumentT& MapDoc)
 CompMapEntityT::CompMapEntityT(const CompMapEntityT& Comp)
     : ComponentBaseT(Comp),
       m_MapDoc(Comp.m_MapDoc),
-      m_Class(Comp.m_Class),
       m_Properties(Comp.m_Properties),
       m_Repres(NULL),
       m_Primitives()
@@ -80,25 +76,6 @@ void CompMapEntityT::Render() const
 bool CompMapEntityT::IsWorld() const
 {
     return m_MapDoc.GetEntities()[0] == this;
-}
-
-
-void CompMapEntityT::SetClass(const EntityClassT* NewClass)
-{
-    if (m_Class == NewClass) return;
-
-    m_Class=NewClass;
-
-    // Instantiate the variables declared in the entity class in the conrete entity.
-    for (unsigned long VarNr=0; VarNr<m_Class->GetVariables().Size(); VarNr++)
-    {
-        const EntClassVarT* ClassVar=m_Class->GetVariables()[VarNr];
-
-        // When no instance with the same name has been instantiated in this entity yet,
-        // create and add a new instance now.
-        if (FindProperty(ClassVar->GetName())==NULL)
-            m_Properties.PushBack(ClassVar->GetInstance());
-    }
 }
 
 
