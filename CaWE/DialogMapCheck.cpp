@@ -91,8 +91,9 @@ class MC_WorldHasPlayerStartT : public MapCheckerT
     {
         if (!m_Ent->IsWorld()) return false;
 
-        for (unsigned long EntNr=1/*skip world*/; EntNr<m_MapDoc.GetEntities().Size(); EntNr++)
-            if (m_MapDoc.GetEntities()[EntNr]->GetClass()->GetName()=="info_player_start") return false;
+        for (unsigned long EntNr = 1 /*skip world*/; EntNr < m_MapDoc.GetEntities().Size(); EntNr++)
+            if (m_MapDoc.GetEntities()[EntNr]->GetEntity()->GetComponent("PlayerStart") != NULL)
+                return false;
 
         return true;
     }

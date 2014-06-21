@@ -96,8 +96,8 @@ bool CommandAssignPrimToEntT::Do()
         {
             IntrusivePtrT<CompMapEntityT> Ent = m_MapDoc.GetEntities()[EntNr];
 
-            // If the entity is not the world, has no origin and is empty now, just delete it.
-            if (Ent->GetClass()->IsSolidClass() /*!Ent->HasOrigin()*/ && Ent->GetPrimitives().Size()==0)
+            // If the entity is not the world and is empty now, just delete it.
+            if (Ent->GetEntity()->GetComponents().Size() == 0 && Ent->GetPrimitives().Size() == 0)
             {
                 EmptyEntities.PushBack(Ent->GetRepres());
             }

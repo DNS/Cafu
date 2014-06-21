@@ -552,17 +552,14 @@ bool ToolSelectionT::OnMouseMove2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
                 Vector3fT        RefPoint;
                 const Vector3fT* RefPointPtr=NULL;
 
-                // When exactly one entity is selected and that entity has an origin, use its origin
-                // as the reference point for the transformation, not the transformation boxes center.
+                // When exactly one entity is selected, use its origin as the reference point for the
+                // transformation, not the transformation box's center.
                 if (m_MapDoc.GetSelection().Size() == 1 && m_MapDoc.GetSelection()[0]->GetType() == &MapEntRepresT::TypeInfo)
                 {
                     IntrusivePtrT<CompMapEntityT> Entity = m_MapDoc.GetSelection()[0]->GetParent();
 
-                    if (!Entity->GetClass()->IsSolidClass() /*Entity->GetClass()->HasOrigin()*/)
-                    {
-                        RefPoint    = Entity->GetEntity()->GetTransform()->GetOriginWS();
-                        RefPointPtr = &RefPoint;
-                    }
+                    RefPoint    = Entity->GetEntity()->GetTransform()->GetOriginWS();
+                    RefPointPtr = &RefPoint;
                 }
 
                 const bool Result=m_TrafoBox.BeginTrafo(ViewWindow, LDownPosTS, RefPointPtr);

@@ -152,9 +152,7 @@ void InspDlgEntityTreeT::UpdateEntityListBox()
 
         if (!ShowHiddenEntitiesCheckBox->IsChecked() && !NewEntity->GetRepres()->IsVisible()) continue;
 
-        wxString NewEntityDescription=NewEntity->GetClass()->GetName();
-
-        if (NewEntity->FindProperty("name")!=NULL) NewEntityDescription+=" ("+NewEntity->FindProperty("name")->Value+")";
+        wxString NewEntityDescription = NewEntity->GetEntity()->GetBasics()->GetEntityName();
 
         const int NewID = EntityListBox->Append(NewEntityDescription, NewEntity.get());
 

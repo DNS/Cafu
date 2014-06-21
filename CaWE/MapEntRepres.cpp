@@ -92,7 +92,6 @@ void MapEntRepresT::Assign(const MapElementT* Elem)
 
     // Note that we're here concerned only with the entity itself, not with its primitives.
     // This is intentional, because the primitives are handled explicitly elsewhere.
-    ThisEnt->SetClass(OtherEnt->GetClass());
     ThisEnt->GetProperties() = OtherEnt->GetProperties();
 
     ThisEnt->GetEntity()->GetTransform()->SetOriginPS(OtherEnt->GetEntity()->GetTransform()->GetOriginPS());
@@ -105,9 +104,10 @@ wxColour MapEntRepresT::GetColor(bool ConsiderGroup) const
     if (m_Group && ConsiderGroup)
         return m_Group->Color;
 
-    if (m_Parent->GetClass())
-        return m_Parent->GetClass()->GetColor();
+    // if (m_Parent->GetClass())
+    //     return m_Parent->GetClass()->GetColor();
 
+    // TODO: Return color as obtained by "first component"?
     return m_Color;
 }
 
@@ -116,7 +116,7 @@ wxString MapEntRepresT::GetDescription() const
 {
     wxString Desc = "The representation of an entity in the map";
 
-    Desc += ", class \"" + m_Parent->GetClass()->GetName() + "\"";
+    // Desc += ", class \"" + m_Parent->GetClass()->GetName() + "\"";
     Desc += ", name \"" + m_Parent->GetEntity()->GetBasics()->GetEntityName() + "\"";
 
     return Desc + ".";
@@ -143,9 +143,7 @@ void MapEntRepresT::Render2D(Renderer2DT& Renderer) const
     if (Options.view2d.ShowEntityInfo && (Renderer.GetViewWin2D().GetZoom() >= 1))
     {
         Renderer.SetTextColor(Color, Options.Grid.ColorBackground);
-        Renderer.DrawText(m_Parent->GetClass()->GetName(), Point1 + wxPoint(2, 1));
-
-        Renderer.DrawText(m_Parent->GetEntity()->GetBasics()->GetEntityName(), Point1 + wxPoint(2, 12));
+        Renderer.DrawText(m_Parent->GetEntity()->GetBasics()->GetEntityName(), Point1 + wxPoint(2, 1));
     }
 
     if (Options.view2d.ShowEntityTargets)
@@ -368,7 +366,8 @@ BoundingBox3fT MapEntRepresT::GetComponentsBB() const
 
 BoundingBox3fT MapEntRepresT::GetRepresBB() const
 {
-    BoundingBox3fT BB = m_Parent->GetClass() ? m_Parent->GetClass()->GetBoundingBox() : BoundingBox3fT(Vector3fT(-8, -8, -8), Vector3fT(8, 8, 8));
+    // BoundingBox3fT BB = m_Parent->GetClass() ? m_Parent->GetClass()->GetBoundingBox() : BoundingBox3fT(Vector3fT(-8, -8, -8), Vector3fT(8, 8, 8));
+    BoundingBox3fT BB = BoundingBox3fT(Vector3fT(-8, -8, -8), Vector3fT(8, 8, 8));
 
     BB.Min += m_Parent->GetEntity()->GetTransform()->GetOriginWS();
     BB.Max += m_Parent->GetEntity()->GetTransform()->GetOriginWS();

@@ -781,25 +781,11 @@ void CompMapEntityT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, wxProgress
             SetClass(MapDoc.FindOrCreateUnknownClass("undefined", FoundOrigin));
         }
     }
-
-    // Remove our "classname" property, no matter which value it has.
-    // For worlds, we've set our entity class to "worldspawn" in the constructor already, the map file cannot override this.
-    // For entities, the proper class has been set above.
-    int Index;
-    if (FindProperty("classname", &Index)!=NULL)
-        m_Properties.RemoveAtAndKeepOrder(Index);
 }
 
 
 void CompMapEntityT::Save_cmap(const MapDocumentT& MapDoc, std::ostream& OutFile, unsigned long EntityNr, const BoundingBox3fT* Intersecting) const
 {
-    // If it's a solid custom entity but doesn't have any primitives, don't save it.
-    if (EntityNr>0 && m_Class->IsSolidClass() && m_Primitives.Size()==0)
-    {
-        OutFile << "\n// Solid entity " << EntityNr << " of class " << m_Class->GetName() << " has no primitives - not saved.\n";
-        return;
-    }
-
     OutFile << "\n"
             << "{"; if (WriteComments) OutFile << " // Entity " << EntityNr; OutFile << "\n";
 
@@ -807,11 +793,6 @@ void CompMapEntityT::Save_cmap(const MapDocumentT& MapDoc, std::ostream& OutFile
     m_Repres->Save_cmap(OutFile, EntityNr, MapDoc);
 
     // Save the properties.
-    if (FindProperty("classname")==NULL)
-    {
-        EntPropertyT("classname", m_Class->GetName()).Save_cmap(OutFile);
-    }
-
     for (unsigned long PropNr=0; PropNr<m_Properties.Size(); PropNr++)
         m_Properties[PropNr].Save_cmap(OutFile);
 

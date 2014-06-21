@@ -661,13 +661,13 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
         else
         {
             // If we found no name for the entity above, just use the classname instead.
-            if (MapEnt->GetClass() && MapEnt->GetClass()->GetName() != "")
-                NewEnt->GetBasics()->SetEntityName(MapEnt->GetClass()->GetName().ToStdString());
+            if (MapEnt->GetProperty("classname") != "")
+                NewEnt->GetBasics()->SetEntityName(MapEnt->GetProperty("classname"));
         }
 
-        if (MapEnt->GetClass() && MapEnt->GetClass()->GetName() != "")
+        if (MapEnt->GetProperty("classname") != "")
         {
-            const wxString ClassName = MapEnt->GetClass()->GetName();
+            const std::string ClassName = MapEnt->GetProperty("classname");
 
             // This is a relic from CaBSP's LoadWorld() code, which was hard-coded to move the primitives of
             // entities of these classes into the world entity. Thus, for compatibility, set the "Static" flag here.
@@ -749,7 +749,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             IntrusivePtrT<cf::GameSys::EntityT> Ent    = AllScriptEnts[EntNr];
             IntrusivePtrT<CompMapEntityT>       MapEnt = GetMapEnt(Ent);
 
-            if (Ent->GetParent() == m_ScriptWorld->GetRootEntity() && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "func_door")
+            if (Ent->GetParent() == m_ScriptWorld->GetRootEntity() && MapEnt->GetProperty("classname") == "func_door")
             {
                 const std::string TeamName = MapEnt->FindProperty("team") ? MapEnt->FindProperty("team")->Value.ToStdString() : Ent->GetBasics()->GetEntityName();
 
@@ -873,7 +873,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
         IntrusivePtrT<cf::GameSys::EntityT> Ent    = AllScriptEnts[EntNr];
         IntrusivePtrT<CompMapEntityT>       MapEnt = GetMapEnt(Ent);
 
-        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "info_player_start")
+        if (Ent->GetComponents().Size() == 0 && MapEnt->GetProperty("classname") == "info_player_start")
         {
             IntrusivePtrT<cf::GameSys::ComponentPlayerStartT> PlayerStartComp  = new cf::GameSys::ComponentPlayerStartT();
 
@@ -925,7 +925,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             Ent->AddComponent(CollMdlComp);
         }
 
-        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "monster_butterfly")
+        if (Ent->GetComponents().Size() == 0 && MapEnt->GetProperty("classname") == "monster_butterfly")
         {
             IntrusivePtrT<cf::GameSys::ComponentModelT>  ModelComp  = new cf::GameSys::ComponentModelT();
             IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
@@ -937,7 +937,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             Ent->AddComponent(ScriptComp);
         }
 
-        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "LifeFormMaker")
+        if (Ent->GetComponents().Size() == 0 && MapEnt->GetProperty("classname") == "LifeFormMaker")
         {
             IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
 
@@ -959,7 +959,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             Ent->AddComponent(ScriptComp);
         }
 
-        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "monster_companybot")
+        if (Ent->GetComponents().Size() == 0 && MapEnt->GetProperty("classname") == "monster_companybot")
         {
             IntrusivePtrT<cf::GameSys::ComponentModelT> ModelComp  = new cf::GameSys::ComponentModelT();
             ModelComp->SetMember("Name", std::string("Games/DeathMatch/Models/Players/Trinity/Trinity.cmdl"));
@@ -1000,7 +1000,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             LanternEnt->AddComponent(PointLight);
         }
 
-        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "monster_eagle")
+        if (Ent->GetComponents().Size() == 0 && MapEnt->GetProperty("classname") == "monster_eagle")
         {
             IntrusivePtrT<cf::GameSys::ComponentModelT>  ModelComp  = new cf::GameSys::ComponentModelT();
             IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
@@ -1018,15 +1018,15 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             Ent->AddComponent(SoundComp);
         }
 
-        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "monster_facehugger")
+        if (Ent->GetComponents().Size() == 0 && MapEnt->GetProperty("classname") == "monster_facehugger")
         {
             // Well, I don't think that we have any such entities in any of our maps, because
             // they're normally only created dynamically, when the player throws them by firing
             // the related weapon.
-            wxMessageBox("Unexpected \"" + MapEnt->GetClass()->GetName() + "\" entity found in the map!");
+            wxMessageBox("Unexpected \"" + MapEnt->GetProperty("classname") + "\" entity found in the map!");
         }
 
-        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "PointLight")
+        if (Ent->GetComponents().Size() == 0 && MapEnt->GetProperty("classname") == "PointLight")
         {
             IntrusivePtrT<cf::GameSys::ComponentRadiosityLightT> RadiosityLight = new cf::GameSys::ComponentRadiosityLightT();
 
@@ -1045,7 +1045,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             Ent->GetTransform()->SetQuatWS(cf::math::QuaternionfT(cf::math::Matrix3x3fT::GetRotateYMatrix(90.0f)));
         }
 
-        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "PointLightSource")
+        if (Ent->GetComponents().Size() == 0 && MapEnt->GetProperty("classname") == "PointLightSource")
         {
             IntrusivePtrT<cf::GameSys::ComponentPointLightT> PointLight = new cf::GameSys::ComponentPointLightT();
 
@@ -1063,7 +1063,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             Ent->AddComponent(PointLight);
         }
 
-        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "Rigid Body")
+        if (Ent->GetComponents().Size() == 0 && MapEnt->GetProperty("classname") == "Rigid Body")
         {
             IntrusivePtrT<cf::GameSys::ComponentPhysicsT> Physics    = new cf::GameSys::ComponentPhysicsT();
             IntrusivePtrT<cf::GameSys::ComponentScriptT>  ScriptComp = new cf::GameSys::ComponentScriptT();
@@ -1075,7 +1075,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             Ent->AddComponent(ScriptComp);
         }
 
-        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "speaker")
+        if (Ent->GetComponents().Size() == 0 && MapEnt->GetProperty("classname") == "speaker")
         {
             IntrusivePtrT<cf::GameSys::ComponentSoundT> SoundComp = new cf::GameSys::ComponentSoundT();
 
@@ -1085,7 +1085,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             Ent->AddComponent(SoundComp);
         }
 
-        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "Trigger")
+        if (Ent->GetComponents().Size() == 0 && MapEnt->GetProperty("classname") == "Trigger")
         {
             IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
 
@@ -1093,7 +1093,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             Ent->AddComponent(ScriptComp);
         }
 
-        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName() == "func_mover")
+        if (Ent->GetComponents().Size() == 0 && MapEnt->GetProperty("classname") == "func_mover")
         {
             IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
 
@@ -1101,7 +1101,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             Ent->AddComponent(ScriptComp);
         }
 
-        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && (MapEnt->GetClass()->GetName().StartsWith("ammo_") || MapEnt->GetClass()->GetName().StartsWith("item_")))
+        if (Ent->GetComponents().Size() == 0 && (MapEnt->GetProperty("classname").substr(0, 5) == "ammo_" || MapEnt->GetProperty("classname").substr(0, 5) == "item_"))
         {
             // This is a perfect example how Prefabs would be highly useful!!!
             IntrusivePtrT<cf::GameSys::ComponentModelT>  ModelComp        = new cf::GameSys::ComponentModelT();
@@ -1109,7 +1109,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             IntrusivePtrT<cf::GameSys::ComponentSoundT>  PickupSoundComp  = new cf::GameSys::ComponentSoundT();
             IntrusivePtrT<cf::GameSys::ComponentSoundT>  RespawnSoundComp = new cf::GameSys::ComponentSoundT();
 
-            const wxString cn = MapEnt->GetClass()->GetName();
+            const wxString cn = MapEnt->GetProperty("classname");
             const char*    mn = "";
 
                  if (cn == "ammo_9mmclip"        ) mn ="Games/DeathMatch/Models/Items/?.cmdl";
@@ -1146,7 +1146,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             Ent->AddComponent(RespawnSoundComp);
         }
 
-        if (Ent->GetComponents().Size() == 0 && MapEnt->GetClass() && MapEnt->GetClass()->GetName().StartsWith("weapon_"))
+        if (Ent->GetComponents().Size() == 0 && MapEnt->GetProperty("classname").substr(0, 7) == "weapon_")
         {
             // This is a perfect example how Prefabs would be highly useful!!!
             IntrusivePtrT<cf::GameSys::ComponentModelT>  ModelComp        = new cf::GameSys::ComponentModelT();
@@ -1154,7 +1154,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             IntrusivePtrT<cf::GameSys::ComponentSoundT>  PickupSoundComp  = new cf::GameSys::ComponentSoundT();
             IntrusivePtrT<cf::GameSys::ComponentSoundT>  RespawnSoundComp = new cf::GameSys::ComponentSoundT();
 
-            const wxString cn = MapEnt->GetClass()->GetName().substr(7);
+            const wxString cn = MapEnt->GetProperty("classname").substr(7);
             const char*    mn = "";
 
                  if (cn == "battlescythe") mn = "Games/DeathMatch/Models/Weapons/BattleScythe/BattleScythe_w.cmdl";
@@ -2596,8 +2596,8 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
     }
     else if (SelEntities.Size()==1)
     {
-        const int Result=wxMessageBox("Would you like to keep and re-use the selected \""+SelEntities[0]->GetClass()->GetName()+"\" entity?\n\n"
-            "If you answer 'No', a new \""+Bar->m_SolidEntityChoice->GetStringSelection()+"\" entity will be created\n"
+        const int Result = wxMessageBox("Would you like to keep and re-use the selected \"" + SelEntities[0]->GetEntity()->GetBasics()->GetEntityName() + "\" entity?\n\n"
+            "If you answer 'No', a new \"" + Bar->m_SolidEntityChoice->GetStringSelection() + "\" entity will be created\n"
             "and all selected map elements added to it, including those of the of the selected entity.", "Re-use entity?", wxYES_NO | wxCANCEL | wxICON_QUESTION);
 
         switch (Result)
@@ -2612,7 +2612,7 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
         wxArrayString EntityNames;
 
         for (unsigned long EntNr=0; EntNr<SelEntities.Size(); EntNr++)
-            EntityNames.Add(SelEntities[EntNr]->GetClass()->GetName()+"   ("+SelEntities[EntNr]->GetClass()->GetDescription()+")");
+            EntityNames.Add(SelEntities[EntNr]->GetEntity()->GetBasics()->GetEntityName());
 
         const int Choice=wxGetSingleChoiceIndex("There are multiple entities in the selection.\n"
                                                 "Please choose the one that you want to keep and that will receive all the map elements of the others.\n"

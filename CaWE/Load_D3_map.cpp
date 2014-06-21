@@ -403,11 +403,4 @@ void CompMapEntityT::Load_D3_map(TextParserT& TP, MapDocumentT& MapDoc, wxProgre
             SetClass(MapDoc.FindOrCreateUnknownClass("undefined", FoundOrigin));
         }
     }
-
-    // Remove our "classname" property, no matter which value it has.
-    // For worlds, we've set our entity class to "worldspawn" in the constructor already, the map file cannot override this.
-    // For entities, the proper class has been set above.
-    int Index;
-    if (FindProperty("classname", &Index)!=NULL)
-        m_Properties.RemoveAtAndKeepOrder(Index);
 }

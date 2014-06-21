@@ -147,16 +147,6 @@ const EntPropertyT* CompMapEntityT::FindProperty(const wxString& Key, int* Index
 }
 
 
-int CompMapEntityT::FindPropertyIndex(const wxString& Key) const
-{
-    for (unsigned long PropNr=0; PropNr<m_Properties.Size(); PropNr++)
-        if (m_Properties[PropNr].Key==Key)
-            return PropNr;
-
-    return -1;
-}
-
-
 void CompMapEntityT::RemoveProperty(const wxString& Key)
 {
     for (unsigned long PropNr = 0; PropNr < m_Properties.Size(); PropNr++)
@@ -165,6 +155,16 @@ void CompMapEntityT::RemoveProperty(const wxString& Key)
             m_Properties.RemoveAtAndKeepOrder(PropNr);
             return;
         }
+}
+
+
+std::string CompMapEntityT::GetProperty(const wxString& Key, const char* Default) const
+{
+    const EntPropertyT* Prop = FindProperty(Key);
+
+    if (!Prop) return Default;
+
+    return Prop->Value.ToStdString();
 }
 
 

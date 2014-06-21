@@ -277,11 +277,4 @@ void CompMapEntityT::Load_HL2_vmf(TextParserT& TP, MapDocumentT& MapDoc, wxProgr
             SetClass(MapDoc.FindOrCreateUnknownClass("undefined", FoundOrigin));
         }
     }
-
-    // Remove our "classname" property, no matter which value it has.
-    // For worlds, we've set our entity class to "worldspawn" in the constructor already, the map file cannot override this.
-    // For entities, the proper class has been set above.
-    int Index;
-    if (FindProperty("classname", &Index)!=NULL)
-        m_Properties.RemoveAtAndKeepOrder(Index);
 }

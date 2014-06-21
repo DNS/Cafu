@@ -86,15 +86,14 @@ namespace MapEditor
         bool IsWorld() const;
 
         void SetClass(const EntityClassT* NewClass);
-        const EntityClassT* GetClass() const { return m_Class; }
 
         const ArrayT<EntPropertyT>& GetProperties() const { return m_Properties; }
               ArrayT<EntPropertyT>& GetProperties()       { return m_Properties; }
 
         EntPropertyT*       FindProperty     (const wxString& Key, int* Index=NULL, bool Create=false); ///< Find the property.
         const EntPropertyT* FindProperty     (const wxString& Key, int* Index=NULL) const;              ///< Find the property.
-        int                 FindPropertyIndex(const wxString& Key) const;                               ///< Get the index of the property.
         void                RemoveProperty(const wxString& Key);                                        ///< Remove this property.
+        std::string         GetProperty(const wxString& Key, const char* Default="") const;             ///< Returns the value of this property, using the default if not found.
         std::string         GetAndRemove(const wxString& Key, const char* Default="");                  ///< Returns the value of this property, using the default if not found, and removes it.
 
         void CopyPrimitives(const CompMapEntityT& MapEnt);  ///< Creates a copy of each primitive in MapEnt and adds it to this instance.
