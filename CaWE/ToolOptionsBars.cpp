@@ -441,27 +441,6 @@ void OptionsBar_NewTerrainToolT::OnButtonBrowse(wxCommandEvent& Event)
 }
 
 
-OptionsBar_NewLightToolT::OptionsBar_NewLightToolT(wxWindow* Parent, MapDocumentT& MapDoc)
-    : wxPanel(Parent, -1, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL | wxSUNKEN_BORDER),
-      m_LightChoice(NULL)
-{
-    SetBackgroundColour(wxColour(169, 221, 153));
-
-    wxBoxSizer *item0 = new wxBoxSizer( wxHORIZONTAL );
-
-    wxStaticText *item1 = new wxStaticText(this, -1, wxT("New light-source (point entity) type:"), wxDefaultPosition, wxDefaultSize, 0 );
-    item0->Add( item1, 0, wxALIGN_CENTER|wxLEFT, 5 );
-
-    m_LightChoice=new wxChoice(this, -1, wxDefaultPosition, wxSize(160,-1), 0, NULL, 0 );
-    m_LightChoice->SetToolTip("New light sources that are created with the \"New Light\" tool will be point entities of this type.");
-
-    item0->Add(m_LightChoice, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
-
-    this->SetSizer(item0);
-    item0->SetSizeHints(this);
-}
-
-
 OptionsBar_NewDecalToolT::OptionsBar_NewDecalToolT(wxWindow* Parent)
     : wxPanel(Parent, -1, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL | wxSUNKEN_BORDER)
 {

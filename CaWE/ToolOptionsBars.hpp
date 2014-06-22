@@ -201,20 +201,6 @@ class OptionsBar_NewTerrainToolT : public wxPanel
 };
 
 
-/// The options bar for the New Light tool.
-class OptionsBar_NewLightToolT : public wxPanel
-{
-    public:
-
-    /// The constructor.
-    /// @param Parent is the parent window of this panel.
-    /// @param MapDoc is a reference to our document.
-    OptionsBar_NewLightToolT(wxWindow* Parent, MapDocumentT& MapDoc);
-
-    wxChoice* m_LightChoice;    ///< The wxChoice with point entities that are some "light source" entity class.
-};
-
-
 /// The options bar for the New Decal tool.
 class OptionsBar_NewDecalToolT : public wxPanel
 {

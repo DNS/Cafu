@@ -374,7 +374,6 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_NEWENTITY,             wxT("New Entity\tShift+E"), wxT(""));
     item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_NEWBEZIERPATCH,        wxT("New Bezier Patch\tShift+P"), wxT(""));
     item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_NEWTERRAIN,            wxT("New Terrain\tShift+T"), wxT(""));
-    item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_NEWLIGHT,              wxT("New Light\tShift+L"), wxT(""));
     item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_NEWDECAL,              wxT("New Decal\tShift+D"), wxT(""));
     item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_EDITSURFACEPROPERTIES, wxT("Edit Surface Properties\tShift+A"), wxT(""));
     item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_TERRAINEDITOR,         wxT("Terrain Editor\tShift+F"), wxT(""));
@@ -472,7 +471,6 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     ToolbarTools->AddTool(ID_MENU_TOOLS_TOOL_NEWENTITY,             "New Entity",              wxArtProvider::GetBitmap("MapEditor/tool-new-entity",         wxART_TOOLBAR, wxSize(21, 18)), "New Entity", wxITEM_RADIO);
     ToolbarTools->AddTool(ID_MENU_TOOLS_TOOL_NEWBEZIERPATCH,        "New Bezier Patch",        wxArtProvider::GetBitmap("MapEditor/tool-new-bezierpatch",    wxART_TOOLBAR, wxSize(21, 18)), "New Bezier Patch", wxITEM_RADIO);
     ToolbarTools->AddTool(ID_MENU_TOOLS_TOOL_NEWTERRAIN,            "New Terrain",             wxArtProvider::GetBitmap("MapEditor/tool-new-terrain",        wxART_TOOLBAR, wxSize(21, 18)), "New Terrain", wxITEM_RADIO);
-    ToolbarTools->AddTool(ID_MENU_TOOLS_TOOL_NEWLIGHT,              "New Light",               wxArtProvider::GetBitmap("MapEditor/tool-new-light",          wxART_TOOLBAR, wxSize(21, 18)), "New Light", wxITEM_RADIO);
     ToolbarTools->AddTool(ID_MENU_TOOLS_TOOL_NEWDECAL,              "New Decal",               wxArtProvider::GetBitmap("MapEditor/tool-new-decal",          wxART_TOOLBAR, wxSize(21, 18)), "New Decal", wxITEM_RADIO);
     ToolbarTools->AddTool(ID_MENU_TOOLS_TOOL_EDITSURFACEPROPERTIES, "Edit Surface Properties", wxArtProvider::GetBitmap("MapEditor/tool-edit-surface-props", wxART_TOOLBAR, wxSize(21, 18)), "Edit Surface Properties", wxITEM_RADIO);
     ToolbarTools->AddTool(ID_MENU_TOOLS_TOOL_TERRAINEDITOR,         "Edit Terrain",            wxArtProvider::GetBitmap("MapEditor/tool-edit-terrain",       wxART_TOOLBAR, wxSize(21, 18)), "Edit Terrain", wxITEM_RADIO);
