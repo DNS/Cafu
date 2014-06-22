@@ -48,9 +48,6 @@ class ToolNewLightT : public ToolNewEntityT
 
     protected:
 
-    // Implementations/overrides of ToolNewEntityT methods.
-    const EntityClassT* GetNewEntClass() const;
-
     OptionsBar_NewLightToolT* m_NewLightOptionsBar;   ///< The options bar for this tool.
 };
 

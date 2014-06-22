@@ -38,13 +38,11 @@ namespace cf
     }
 }
 
-class EntityClassT;
 class wxFileConfig;
 
 
 /// The class describes the settings for a game/MOD.
 /// Some of the settings are loaded from the CaWE-spefific config file (edited by the user in the main "Configure CaWE" dialog).
-/// Some of the settings are loaded from the games EntityClassDefs.lua script.
 /// Other settings are loaded directly from the files and data in the game/MOD directory.
 class GameConfigT
 {
@@ -55,8 +53,6 @@ class GameConfigT
     GameConfigT(wxFileConfig& CfgFile, const wxString& Name_, const wxString& ModDir_);
     ~GameConfigT();
 
-    const EntityClassT* FindClass(const wxString& Name) const;
-    const ArrayT<const EntityClassT*>& GetEntityClasses() const { return m_EntityClasses; }
     EditorMatManT& GetMatMan() { return m_MatMan; }
     const EditorMatManT& GetMatMan() const { return m_MatMan; }
 
@@ -81,9 +77,6 @@ class GameConfigT
     const wxString Name;
     const wxString ModDir;
 
-    wxString       DefaultPointEntity;
-    wxString       DefaultSolidEntity;
-
     float          DefaultTextureScale;
     float          DefaultLightmapScale;
     wxString       CordonTexture;
@@ -95,7 +88,6 @@ class GameConfigT
     void operator = (const GameConfigT&);   ///< Use of the Assignment Operator is not allowed.
 
     ArrayT<cf::FileSys::FileSystemT*> m_MountedFileSystems;     ///< The file systems that have been mounted for this game config.
-    ArrayT<const EntityClassT*>       m_EntityClasses;          ///< The entity classes as obtained from the EntityClassDefs.lua script.
     EditorMatManT                     m_MatMan;                 ///< The material manager for this game config.
     ModelManagerT                     m_ModelMan;               ///< The model manager for this game config.
     cf::GuiSys::GuiResourcesT         m_GuiResources;           ///< The provider for resources (fonts and models) for all GUIs in this game config (no matter if in the Map Editor, the Gui Editor, or the Model Editor).

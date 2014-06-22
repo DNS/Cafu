@@ -25,7 +25,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CompMapEntity.hpp"
 #include "DialogEditSurfaceProps.hpp"
 #include "DialogInspector.hpp"
-#include "EntityClass.hpp"
 #include "GameConfig.hpp"
 #include "DialogGotoPrimitive.hpp"
 #include "DialogMapCheck.hpp"
@@ -35,7 +34,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapModel.hpp"         // Only needed for some TypeInfo test...
 #include "MapPlant.hpp"         // Only needed for some TypeInfo test...
 #include "MapTerrain.hpp"       // Only needed for some TypeInfo test...
-#include "EntityClassVar.hpp"
 #include "DialogMapInfo.hpp"
 #include "MapBrush.hpp"
 #include "DialogOptions.hpp"
@@ -1167,9 +1165,6 @@ MapDocumentT::~MapDocumentT()
     for (unsigned long GroupNr=0; GroupNr<m_Groups.Size(); GroupNr++) delete m_Groups[GroupNr];
     m_Groups.Clear();
 
-    for (unsigned long uecNr=0; uecNr<m_UnknownEntClasses.Size(); uecNr++) delete m_UnknownEntClasses[uecNr];
-    m_UnknownEntClasses.Clear();
-
     m_Selection.Clear();
 
     m_ScriptWorld = NULL;
@@ -1523,26 +1518,6 @@ void MapDocumentT::GetAllElems(ArrayT<MapElementT*>& Elems) const
         for (unsigned int PrimNr = 0; PrimNr < Ent->GetPrimitives().Size(); PrimNr++)
             Elems.PushBack(Ent->GetPrimitives()[PrimNr]);
     }
-}
-
-
-const EntityClassT* MapDocumentT::FindOrCreateUnknownClass(const wxString& Name, bool HasOrigin)
-{
-    wxASSERT(m_GameConfig->FindClass(Name)==NULL);
-
-    for (unsigned long ClassNr=0; ClassNr<m_UnknownEntClasses.Size(); ClassNr++)
-        if (m_UnknownEntClasses[ClassNr]->GetName()==Name)
-        {
-            // Somehow inform the user if this happens (it never should).
-            // if (!m_UnknownEntClasses[ClassNr]->HasOrigin() && HasOrigin) wxLog("...");
-
-            return m_UnknownEntClasses[ClassNr];
-        }
-
-    const EntityClassT* NewUnknownClass=new EntityClassT(*m_GameConfig, Name, HasOrigin);
-
-    m_UnknownEntClasses.PushBack(NewUnknownClass);
-    return NewUnknownClass;
 }
 
 

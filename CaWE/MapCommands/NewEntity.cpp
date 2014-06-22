@@ -22,7 +22,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "NewEntity.hpp"
 #include "Select.hpp"
 
-#include "../EntityClass.hpp"
 #include "../MapDocument.hpp"
 #include "../MapEntRepres.hpp"
 

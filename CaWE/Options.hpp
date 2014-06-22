@@ -85,7 +85,7 @@ class OptionsT
 
     struct ColorsT
     {
-        wxColour Entity;                ///< The default color of point entities & brush entities, can be overridden by the EntityClassDefs.lua file.
+        wxColour Entity;                ///< The default color of entities.
         wxColour Selection;             ///< The color of selected objects.
         wxColour SelectedFace;          ///< The color of a selected face.
         wxColour SelectedEdge;          ///< The color of a selected edge.

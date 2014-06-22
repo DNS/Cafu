@@ -20,7 +20,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "ToolOptionsBars.hpp"
-#include "EntityClass.hpp"
 #include "GameConfig.hpp"
 #include "MapBezierPatch.hpp"
 #include "MapDocument.hpp"
@@ -182,18 +181,7 @@ OptionsBar_NewEntityToolT::OptionsBar_NewEntityToolT(wxWindow* Parent, MapDocume
 
     m_PointEntityChoice=new wxChoice(this, -1, wxDefaultPosition, wxSize(160,-1), 0, NULL, wxCB_SORT );
     m_PointEntityChoice->SetToolTip("New entities that are created with the \"New Entity\" tool will be point entities of this type.");
-    {
-        const ArrayT<const EntityClassT*>& Classes=MapDoc.GetGameConfig()->GetEntityClasses();
 
-        // Fill the m_PointEntityChoice with point entity types.
-        for (unsigned long ClassNr=0; ClassNr<Classes.Size(); ClassNr++)
-            if (!Classes[ClassNr]->IsSolidClass())
-                m_PointEntityChoice->Append(Classes[ClassNr]->GetName());
-
-        const int DefaultPos=m_PointEntityChoice->FindString(MapDoc.GetGameConfig()->DefaultPointEntity);
-
-        m_PointEntityChoice->SetSelection(DefaultPos==-1 ? 0 : DefaultPos);
-    }
     item0->Add(m_PointEntityChoice, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
 
     wxStaticLine *item3 = new wxStaticLine(this, -1, wxDefaultPosition, wxSize(-1,20), wxLI_VERTICAL );
@@ -208,18 +196,7 @@ OptionsBar_NewEntityToolT::OptionsBar_NewEntityToolT(wxWindow* Parent, MapDocume
 
     m_SolidEntityChoice=new wxChoice(this, -1, wxDefaultPosition, wxSize(160,-1), 0, NULL, wxCB_SORT );
     m_SolidEntityChoice->SetToolTip("The button to the left creates solid entities of this type.");
-    {
-        const ArrayT<const EntityClassT*>& Classes=MapDoc.GetGameConfig()->GetEntityClasses();
 
-        // Fill the m_SolidEntityChoice with solid entity types.
-        for (unsigned long ClassNr=0; ClassNr<Classes.Size(); ClassNr++)
-            if (Classes[ClassNr]->IsSolidClass())
-                m_SolidEntityChoice->Append(Classes[ClassNr]->GetName());
-
-        const int DefaultPos=m_SolidEntityChoice->FindString(MapDoc.GetGameConfig()->DefaultSolidEntity);
-
-        m_SolidEntityChoice->SetSelection(DefaultPos==-1 ? 0 : DefaultPos);
-    }
     item0->Add(m_SolidEntityChoice, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
 
     wxButton *item6 = new wxButton(this, ChildFrameT::ID_MENU_TOOLS_ASSIGN_PRIM_TO_WORLD, wxT("Back to world"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
@@ -477,18 +454,7 @@ OptionsBar_NewLightToolT::OptionsBar_NewLightToolT(wxWindow* Parent, MapDocument
 
     m_LightChoice=new wxChoice(this, -1, wxDefaultPosition, wxSize(160,-1), 0, NULL, 0 );
     m_LightChoice->SetToolTip("New light sources that are created with the \"New Light\" tool will be point entities of this type.");
-    {
-        const ArrayT<const EntityClassT*>& Classes=MapDoc.GetGameConfig()->GetEntityClasses();
 
-        // Fill the m_LightChoice with point entity types.
-        for (unsigned long ClassNr=0; ClassNr<Classes.Size(); ClassNr++)
-            if (!Classes[ClassNr]->IsSolidClass() && Classes[ClassNr]->GetName().Lower().Contains("light"))
-                m_LightChoice->Append(Classes[ClassNr]->GetName());
-
-        const int DefaultPos=m_LightChoice->FindString(MapDoc.GetGameConfig()->DefaultPointEntity);   // Mh. This yields -1 anyway...
-
-        m_LightChoice->SetSelection(DefaultPos==-1 ? 0 : DefaultPos);
-    }
     item0->Add(m_LightChoice, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
 
     this->SetSizer(item0);

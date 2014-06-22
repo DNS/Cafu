@@ -20,7 +20,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "wx/wx.h"
-#include "EntityClass.hpp"
 #include "MapBrush.hpp"
 #include "ChildFrameViewWin2D.hpp"
 #include "EditorMaterial.hpp"

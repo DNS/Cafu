@@ -20,7 +20,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "DialogOptions.hpp"
-#include "EntityClass.hpp"
 #include "GameConfig.hpp"
 #include "Options.hpp"
 #include "AppCaWE.hpp"
@@ -243,30 +242,6 @@ wxSizer* OptionsDialogT::OptionsGameConfigsTabInit( wxWindow *parent, bool call_
 
     wxStaticLine *item5 = new wxStaticLine( parent, -1, wxDefaultPosition, wxSize(20,-1), wxLI_HORIZONTAL );
     item0->Add( item5, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
-
-    wxBoxSizer *item21 = new wxBoxSizer( wxHORIZONTAL );
-
-    wxBoxSizer *item22 = new wxBoxSizer( wxVERTICAL );
-
-    wxStaticText *item23 = new wxStaticText( parent, -1, wxT("Default Point Entity class:"), wxDefaultPosition, wxDefaultSize, 0 );
-    item22->Add( item23, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
-
-    GameCfg_DefaultPointEntity = new wxChoice( parent, -1, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_SORT /*FIXME: Temp. work-around that works on Win32. Other platforms? Note: Choice!=ComboBox*/);
-    item22->Add(GameCfg_DefaultPointEntity, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxBOTTOM, 5 );
-
-    item21->Add( item22, 1, wxALIGN_CENTER, 5 );
-
-    wxBoxSizer *item25 = new wxBoxSizer( wxVERTICAL );
-
-    wxStaticText *item26 = new wxStaticText( parent, -1, wxT("Default Brush Entity class:"), wxDefaultPosition, wxDefaultSize, 0 );
-    item25->Add( item26, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5 );
-
-    GameCfg_DefaultBrushEntity = new wxChoice( parent, -1, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_SORT /*FIXME: Temp. work-around that works on Win32. Other platforms? Note: Choice!=ComboBox*/);
-    item25->Add(GameCfg_DefaultBrushEntity, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxBOTTOM, 5 );
-
-    item21->Add( item25, 1, wxALIGN_CENTER, 5 );
-
-    item0->Add( item21, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
     wxBoxSizer *item28 = new wxBoxSizer( wxHORIZONTAL );
 
@@ -633,9 +608,6 @@ void OptionsDialogT::GameCfg_SaveInfo(GameConfigT* Config)
 {
     if (Config==NULL) return;
 
-    Config->DefaultPointEntity=GameCfg_DefaultPointEntity->GetStringSelection();
-    Config->DefaultSolidEntity=GameCfg_DefaultBrushEntity->GetStringSelection();
-
     // Save the default scale for textures.
     Config->DefaultTextureScale=wxAtof(GameCfg_DefaultTextureScale->GetValue());
     if (Config->DefaultTextureScale==0.0f) Config->DefaultTextureScale=1.0f;
@@ -673,41 +645,6 @@ void OptionsDialogT::GameCfg_Update_ConfigsList()
 }
 
 
-// (Re-)Inits the entity lists in the "Game Configurations" tab.
-void OptionsDialogT::GameCfg_Update_EntityLists()
-{
-    if (!GameCfg_LastSelConfig) return;
-
-    GameCfg_DefaultPointEntity->Clear();
-    GameCfg_DefaultBrushEntity->Clear();
-
-    const ArrayT<const EntityClassT*>& Classes=GameCfg_LastSelConfig->GetEntityClasses();
-
-    for (unsigned long ClassNr=0; ClassNr<Classes.Size(); ClassNr++)
-    {
-        if (Classes[ClassNr]->IsSolidClass()) GameCfg_DefaultBrushEntity->Append(Classes[ClassNr]->GetName());
-                                         else GameCfg_DefaultPointEntity->Append(Classes[ClassNr]->GetName());
-    }
-
-
-    if (!GameCfg_DefaultBrushEntity->IsEmpty())
-    {
-        const int Pos1=GameCfg_DefaultBrushEntity->FindString(GameCfg_LastSelConfig->DefaultSolidEntity);
-
-        if (Pos1!=wxNOT_FOUND) GameCfg_DefaultBrushEntity->SetSelection(Pos1);
-                          else GameCfg_DefaultBrushEntity->SetSelection(0);
-    }
-
-    if (!GameCfg_DefaultPointEntity->IsEmpty())
-    {
-        const int Pos1=GameCfg_DefaultPointEntity->FindString(GameCfg_LastSelConfig->DefaultPointEntity);
-
-        if (Pos1!=wxNOT_FOUND) GameCfg_DefaultPointEntity->SetSelection(Pos1);
-                          else GameCfg_DefaultPointEntity->SetSelection(0);
-    }
-}
-
-
 /*******************************/
 /*** Event Handler Functions ***/
 /*******************************/
@@ -741,8 +678,6 @@ void OptionsDialogT::OnChoice_GameCfg_GameConfigs(wxCommandEvent& Event)
     const int CurrentSelection=GameCfg_GameConfigChoice->GetSelection();
     GameCfg_LastSelConfig=CurrentSelection!=-1 ? (GameConfigT*)GameCfg_GameConfigChoice->GetClientData(CurrentSelection) : NULL;
 
-    GameCfg_DefaultPointEntity  ->Enable(GameCfg_LastSelConfig!=NULL);
-    GameCfg_DefaultBrushEntity  ->Enable(GameCfg_LastSelConfig!=NULL);
     GameCfg_DefaultTextureScale ->Enable(GameCfg_LastSelConfig!=NULL);
     GameCfg_DefaultLightmapScale->Enable(GameCfg_LastSelConfig!=NULL);
     GameCfg_CordonTexture       ->Enable(GameCfg_LastSelConfig!=NULL);
@@ -752,9 +687,6 @@ void OptionsDialogT::OnChoice_GameCfg_GameConfigs(wxCommandEvent& Event)
     GameCfg_DefaultTextureScale ->SetValue(wxString::Format("%g", GameCfg_LastSelConfig->DefaultTextureScale));
     GameCfg_DefaultLightmapScale->SetValue(wxString::Format("%g", GameCfg_LastSelConfig->DefaultLightmapScale));
     GameCfg_CordonTexture       ->SetValue(GameCfg_LastSelConfig->CordonTexture);
-
-    // Set the "Default Point Entity" and "Default Brush Entity" choice boxes.
-    GameCfg_Update_EntityLists();
 }
 
 

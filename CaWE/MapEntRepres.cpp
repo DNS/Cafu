@@ -24,7 +24,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChildFrameViewWin2D.hpp"
 #include "ChildFrameViewWin3D.hpp"
 #include "CompMapEntity.hpp"
-#include "EntityClass.hpp"
 #include "LuaAux.hpp"
 #include "MapDocument.hpp"
 #include "Options.hpp"

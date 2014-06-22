@@ -36,7 +36,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 class ChildFrameT;
 class EditorMaterialI;
-class EntityClassT;
 class GameConfigT;
 class GroupT;
 class MapPrimitiveT;
@@ -139,7 +138,6 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
 
     OrthoBspTreeT*                 GetBspTree() const    { return m_BspTree; }
     GameConfigT*                   GetGameConfig() const { return m_GameConfig; }
-    const EntityClassT*            FindOrCreateUnknownClass(const wxString& Name, bool HasOrigin);
     cf::SceneGraph::LightMapManT&  GetLightMapMan()      { return m_LightMapMan; }
     PlantDescrManT&                GetPlantDescrMan()    { return m_PlantDescrMan; }
 
@@ -186,7 +184,6 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     IntrusivePtrT<cf::GameSys::WorldT> m_ScriptWorld;         ///< The "script world" contains the entity hierarchy and their components.
     OrthoBspTreeT*                     m_BspTree;             ///< The BSP tree that spatially organizes the map elements in the m_MapWorld.
     GameConfigT*                       m_GameConfig;          ///< The game configuration that is used with this map.
-    ArrayT<const EntityClassT*>        m_UnknownEntClasses;   ///< The entity classes that are used by entities loaded into this map but who are unknown/undefined in this game config. This list complements GameConfigT::m_EntityClasses.
     cf::SceneGraph::LightMapManT       m_LightMapMan;         ///< The light map manager that is used with this map.
     PlantDescrManT                     m_PlantDescrMan;       ///< The plant description manager that is used with this map.
 

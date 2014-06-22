@@ -40,8 +40,6 @@ class OptionsDialogT : public wxDialog
 
     wxChoice*    GameCfg_GameConfigChoice;      // In the "Game Configurations" tab, this is the "Game Config" choice ("combobox").
     GameConfigT* GameCfg_LastSelConfig;         // In the "Game Configurations" tab, this points to the last selected config.
-    wxChoice*    GameCfg_DefaultPointEntity;
-    wxChoice*    GameCfg_DefaultBrushEntity;
     wxTextCtrl*  GameCfg_DefaultTextureScale;
     wxTextCtrl*  GameCfg_DefaultLightmapScale;
     wxTextCtrl*  GameCfg_CordonTexture;
@@ -61,7 +59,6 @@ class OptionsDialogT : public wxDialog
     // Helper functions for the event handlers of the GameConfigs tab.
     void GameCfg_SaveInfo(GameConfigT* Config);     ///< Saves all data from the GameConfigs tab in the config pointed to by GameCfg.
     void GameCfg_Update_ConfigsList();              ///< (Re-)Inits the entire "Game Configurations" tab. Needed on dialog init, and after game config edits.
-    void GameCfg_Update_EntityLists();              ///< (Re-)Inits the entity lists in the "Game Configurations" tab.
 
     // Event handlers.
     void OnOK(wxCommandEvent& Event);

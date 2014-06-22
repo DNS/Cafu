@@ -26,7 +26,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/wx.h"
 
 
-class EntityClassT;
 class OptionsBar_NewEntityToolT;
 
 
@@ -61,10 +60,6 @@ class ToolNewEntityT : public ToolT
 
 
     protected:
-
-    /// Returns the class of the entity that is to be created by this tool.
-    /// The method is virtual so that e.g. ToolNewLightT can override it.
-    virtual const EntityClassT* GetNewEntClass() const;
 
     OptionsBar_NewEntityToolT* m_OptionsBar;   ///< The options bar for this tool.
 };

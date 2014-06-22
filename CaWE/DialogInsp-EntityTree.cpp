@@ -21,8 +21,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "DialogInsp-EntityTree.hpp"
 #include "CompMapEntity.hpp"
-#include "EntityClass.hpp"
-#include "EntityClassVar.hpp"
 #include "GameConfig.hpp"
 #include "CommandHistory.hpp"
 #include "MapDocument.hpp"

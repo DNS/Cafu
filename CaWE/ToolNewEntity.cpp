@@ -202,9 +202,3 @@ void ToolNewEntityT::RenderTool3D(Renderer3DT& Renderer) const
     MatSys::Renderer->RenderMesh(Mesh);
 */
 }
-
-
-const EntityClassT* ToolNewEntityT::GetNewEntClass() const
-{
-    return m_MapDoc.GetGameConfig()->FindClass(m_OptionsBar->m_PointEntityChoice->GetStringSelection());
-}

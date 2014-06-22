@@ -53,9 +53,3 @@ wxWindow* ToolNewLightT::GetOptionsBar()
     // does not yet know that the type of m_OptionsBar is in fact related to wxWindow.
     return m_NewLightOptionsBar;
 }
-
-
-const EntityClassT* ToolNewLightT::GetNewEntClass() const
-{
-    return m_MapDoc.GetGameConfig()->FindClass(m_NewLightOptionsBar->m_LightChoice->GetStringSelection());
-}
