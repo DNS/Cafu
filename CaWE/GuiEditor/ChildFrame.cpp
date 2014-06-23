@@ -187,7 +187,7 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
             // Skip fundamental component types (each window has one instance anyway).
             if (cf::GuiSys::IsFundamental(TI)) continue;
 
-            // Skip the ComponentSelectionT class, that it specific to this GUI Editor application.
+            // Skip the ComponentSelectionT class, that is specific to this GUI Editor application.
             if (TI == &ComponentSelectionT::TypeInfo) continue;
 
             CompTIs.PushBack(TI);
@@ -203,6 +203,9 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
 
         if (Name.StartsWith("Component") && Name.EndsWith("T"))
             Name = Name.SubString(9, Name.length() - 2);
+
+        if (Name.StartsWith("GuiSys::Component") && Name.EndsWith("T"))
+            Name = Name.SubString(17, Name.length() - 2);
 
         wxASSERT(ID_MENU_CREATE_COMPONENT_FIRST + TI->TypeNr <= ID_MENU_CREATE_COMPONENT_MAX);
         m_CreateMenu->Append(ID_MENU_CREATE_COMPONENT_FIRST + TI->TypeNr, "&" + Name, "Add component to the selected window");
