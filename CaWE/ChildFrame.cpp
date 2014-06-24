@@ -39,6 +39,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ToolTerrainEdit.hpp"
 #include "ToolManager.hpp"
 
+#include "MapCommands/AddComponent.hpp"
+
+#include "GameSys/AllComponents.hpp"
+#include "GameSys/Entity.hpp"
+
 #include "wx/wx.h"
 #include "wx/artprov.h"
 #include "wx/aui/auibar.h"
@@ -46,13 +51,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/filename.h"
 #include "wx/process.h"
 #include "wx/stdpaths.h"
-
-
-#ifdef __WXMSW__
-static const wxString CompileScriptName="tempCompileScriptCaWE.bat";
-#else
-static const wxString CompileScriptName="./tempCompileScriptCaWE.bat";
-#endif
 
 
 // TODO:
@@ -226,12 +224,22 @@ BEGIN_EVENT_TABLE(ChildFrameT, wxMDIChildFrame)
     EVT_BUTTON         (ID_MENU_VIEW_CENTER_2D_VIEWS,                                   ChildFrameT::OnMenuView)
     EVT_MENU_RANGE     (ID_MENU_TOOLS_TOOL_SELECTION,  ID_MENU_TOOLS_TOOL_EDITVERTICES, ChildFrameT::OnMenuTools)
     EVT_UPDATE_UI_RANGE(ID_MENU_TOOLS_TOOL_SELECTION,  ID_MENU_TOOLS_TOOL_EDITVERTICES, ChildFrameT::OnMenuToolsUpdate)
+    EVT_MENU_RANGE     (ID_MENU_COMPONENTS_FIRST,      ID_MENU_COMPONENTS_MAX,          ChildFrameT::OnMenuComponents)
     EVT_MENU_RANGE     (ID_MENU_COMPILE_FLAG_SAVE_MAP, ID_MENU_COMPILE_ABORT,           ChildFrameT::OnMenuCompile)
 
     EVT_ACTIVATE(ChildFrameT::OnWindowActivate)
     EVT_AUI_PANE_CLOSE(ChildFrameT::OnAuiPaneClose)
     // EVT_SIZE(ChildFrameT::OnSize)
 END_EVENT_TABLE()
+
+
+namespace
+{
+    bool CompareTypeInfoNames(const cf::TypeSys::TypeInfoT* const& TI1, const cf::TypeSys::TypeInfoT* const& TI2)
+    {
+        return wxStricmp(TI1->ClassName, TI2->ClassName) < 0;
+    }
+}
 
 
 // About the wxMDIChildFrame constructor:
@@ -254,6 +262,7 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
       m_TerrainEditorDialog(NULL),
       m_Updater(NULL),
       FileMenu(NULL),
+      m_ComponentsMenu(NULL),
       CompileMenu(NULL),
       CurrentProcess(NULL),
       CurrentProcessID(0),
@@ -410,6 +419,48 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
 
     item0->Append( item8, wxT("&Tools") );
 
+
+    m_ComponentsMenu = new wxMenu;
+    const ArrayT<const cf::TypeSys::TypeInfoT*>& CompRoots = cf::GameSys::GetComponentTIM().GetTypeInfoRoots();
+    ArrayT<const cf::TypeSys::TypeInfoT*>        CompTIs;
+
+    for (unsigned long RootNr = 0; RootNr < CompRoots.Size(); RootNr++)
+    {
+        for (const cf::TypeSys::TypeInfoT* TI = CompRoots[RootNr]; TI; TI = TI->GetNext())
+        {
+            // Skip the ComponentBaseT class.
+            if (!TI->Base) continue;
+
+            // Skip fundamental component types (each entity has one instance anyway).
+            if (cf::GameSys::IsFundamental(TI)) continue;
+
+            // // Skip the ComponentSelectionT class, that is specific to this GUI Editor application.
+            // if (TI == &ComponentSelectionT::TypeInfo) continue;
+
+            CompTIs.PushBack(TI);
+        }
+    }
+
+    CompTIs.QuickSort(CompareTypeInfoNames);
+
+    for (unsigned long TINr = 0; TINr < CompTIs.Size(); TINr++)
+    {
+        const cf::TypeSys::TypeInfoT* TI   = CompTIs[TINr];
+        wxString                      Name = TI->ClassName;
+
+        if (Name.StartsWith("Component") && Name.EndsWith("T"))
+            Name = Name.SubString(9, Name.length() - 2);
+
+        if (Name.StartsWith("GameSys::Component") && Name.EndsWith("T"))
+            Name = Name.SubString(18, Name.length() - 2);
+
+        wxASSERT(ID_MENU_COMPONENTS_FIRST + TI->TypeNr <= ID_MENU_COMPONENTS_MAX);
+        m_ComponentsMenu->Append(ID_MENU_COMPONENTS_FIRST + TI->TypeNr, "&" + Name, "Add component to the selected entity");
+    }
+
+    item0->Append(m_ComponentsMenu, "&Components");
+
+
     CompileMenu=new wxMenu;
     CompileMenu->AppendCheckItem(ID_MENU_COMPILE_FLAG_SAVE_MAP,   "1. &Save Map",     ""); CompileMenu->Check(ID_MENU_COMPILE_FLAG_SAVE_MAP,   true);
     CompileMenu->AppendCheckItem(ID_MENU_COMPILE_FLAG_RUN_BSP,    "2. Run Ca&BSP",    ""); CompileMenu->Check(ID_MENU_COMPILE_FLAG_RUN_BSP,    true); CompileMenu->Enable(ID_MENU_COMPILE_FLAG_RUN_BSP, false);
@@ -423,7 +474,7 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     CompileMenu->Append(ID_MENU_COMPILE_CUSTOM,  "Run Custom...",        "");
     CompileMenu->AppendSeparator();
     CompileMenu->Append(ID_MENU_COMPILE_ABORT, "Abort", ""); CompileMenu->Enable(ID_MENU_COMPILE_ABORT, false);
-    item0->Append(CompileMenu, wxT("&Compile") );
+    item0->Append(CompileMenu, wxT("C&ompile") );
 
     wxMenu* item12 = new wxMenu;
     item12->Append(ParentFrameT::ID_MENU_HELP_CONTENTS, wxT("&CaWE Help\tF1"), wxT("") );
@@ -1180,6 +1231,39 @@ void ChildFrameT::OnMenuToolsUpdate(wxUpdateUIEvent& UE)
     const ToolT* ActiveTool=m_ToolManager->GetActiveTool();
 
     UE.Check(ActiveTool && ActiveTool->GetWxEventID()==UE.GetId());
+}
+
+
+void ChildFrameT::OnMenuComponents(wxCommandEvent& CE)
+{
+    const unsigned long           Nr = CE.GetId() - ID_MENU_COMPONENTS_FIRST;
+    const cf::TypeSys::TypeInfoT* TI = cf::GameSys::GetComponentTIM().FindTypeInfoByNr(Nr);
+
+    if (!TI)
+    {
+        wxMessageBox("Could not find a TypeInfo for this type number.", "Add component");
+        return;
+    }
+
+    const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > Selection = m_Doc->GetSelectedEntities();
+
+    if (Selection.Size() != 1)
+    {
+        wxMessageBox("Please select exactly one entity to add the component to.", "Add component");
+        return;
+    }
+
+    IntrusivePtrT<cf::GameSys::ComponentBaseT> Comp = static_cast<cf::GameSys::ComponentBaseT*>(
+        TI->CreateInstance(
+            cf::TypeSys::CreateParamsT()));
+
+    if (Comp.IsNull())
+    {
+        wxMessageBox("Could not instantiate the component.", "Add component");
+        return;
+    }
+
+    m_Doc->GetHistory().SubmitCommand(new MapEditor::CommandAddComponentT(m_Doc, Selection[0], Comp));
 }
 
 

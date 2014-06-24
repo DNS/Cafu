@@ -155,6 +155,9 @@ class ChildFrameT : public wxMDIChildFrame
         ID_MENU_TOOLS_MIRROR_HOR,
         ID_MENU_TOOLS_MIRROR_VERT,
 
+        ID_MENU_COMPONENTS_FIRST,
+        ID_MENU_COMPONENTS_MAX = ID_MENU_COMPONENTS_FIRST + 100,
+
         ID_MENU_COMPILE_FLAG_SAVE_MAP,
         ID_MENU_COMPILE_FLAG_RUN_BSP,
         ID_MENU_COMPILE_FLAG_RUN_PVS,
@@ -240,6 +243,7 @@ class ChildFrameT : public wxMDIChildFrame
     InspectorDialogT*        m_InspectorDialog;
     UpdaterT*                m_Updater;
     wxMenu*                  FileMenu;
+    wxMenu*                  m_ComponentsMenu;
     wxMenu*                  CompileMenu;
 
     wxProcess*               CurrentProcess;            ///< The currently running process started from the Compile menu. NULL when there is no process running.
@@ -267,6 +271,7 @@ class ChildFrameT : public wxMDIChildFrame
     void OnMenuViewUpdate (wxUpdateUIEvent&   UE);  ///< Event handler for View    menu update events.
     void OnMenuTools      (wxCommandEvent&    CE);  ///< Event handler for Tools   menu events.
     void OnMenuToolsUpdate(wxUpdateUIEvent&   UE);  ///< Event handler for Tools   menu update events.
+    void OnMenuComponents (wxCommandEvent&    CE);  ///< Event handler for Components menu events.
     void OnMenuCompile    (wxCommandEvent&    CE);  ///< Event handler for Compile menu events.
     void OnWindowActivate (wxActivateEvent&   AE);
     void OnAuiPaneClose   (wxAuiManagerEvent& AE);
