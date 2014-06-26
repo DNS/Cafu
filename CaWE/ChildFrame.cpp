@@ -232,10 +232,6 @@ BEGIN_EVENT_TABLE(ChildFrameT, wxMDIChildFrame)
     EVT_MENU_RANGE     (ID_MENU_FILE_CLOSE,            ID_MENU_FILE_SAVEAS,             ChildFrameT::OnMenuFile)
     EVT_UPDATE_UI_RANGE(ID_MENU_FILE_CLOSE,            ID_MENU_FILE_SAVEAS,             ChildFrameT::OnMenuFileUpdate)
 
-
-    EVT_MENU_RANGE     (ID_MENU_EDIT_ENTITY_INSPECTOR, ID_MENU_EDIT_ENTITY_INSPECTOR,   ChildFrameT::OnMenuEdit)
-    EVT_UPDATE_UI_RANGE(ID_MENU_EDIT_ENTITY_INSPECTOR, ID_MENU_EDIT_ENTITY_INSPECTOR,   ChildFrameT::OnMenuEditUpdate)
-
     EVT_MENU  (wxID_UNDO,                          ChildFrameT::OnMenuEditUndoRedo)
     EVT_MENU  (wxID_REDO,                          ChildFrameT::OnMenuEditUndoRedo)
     EVT_MENU  (wxID_CUT,                           ChildFrameT::OnMenuEditCut)
@@ -243,18 +239,15 @@ BEGIN_EVENT_TABLE(ChildFrameT, wxMDIChildFrame)
     EVT_MENU  (wxID_PASTE,                         ChildFrameT::OnMenuEditPaste)
     EVT_MENU  (ID_MENU_EDIT_PASTE_SPECIAL,         ChildFrameT::OnMenuEditPasteSpecial)
     EVT_MENU  (ID_MENU_EDIT_DELETE,                ChildFrameT::OnMenuEditDelete)
-    EVT_BUTTON(ID_MENU_EDIT_DELETE,                ChildFrameT::OnMenuEditDelete)
+    EVT_BUTTON(ID_MENU_EDIT_DELETE,                ChildFrameT::OnMenuEditDelete)       // This ID is re-used for a button in the "Entity Hierarchy" dialog.
     EVT_MENU  (ID_MENU_EDIT_SELECT_NONE,           ChildFrameT::OnMenuEditSelectNone)
     EVT_MENU  (wxID_SELECTALL,                     ChildFrameT::OnMenuEditSelectAll)
+    EVT_MENU  (ID_MENU_EDIT_ENTITY_INSPECTOR,      ChildFrameT::OnMenuEditPropsDialog)
 
-    EVT_UPDATE_UI(wxID_UNDO,                       ChildFrameT::OnUpdateEditUndoRedo)
-    EVT_UPDATE_UI(wxID_REDO,                       ChildFrameT::OnUpdateEditUndoRedo)
-    EVT_UPDATE_UI(wxID_CUT,                        ChildFrameT::OnUpdateEditCutCopyDelete)
-    EVT_UPDATE_UI(wxID_COPY,                       ChildFrameT::OnUpdateEditCutCopyDelete)
-    EVT_UPDATE_UI(ID_MENU_EDIT_DELETE,             ChildFrameT::OnUpdateEditCutCopyDelete)
-    EVT_UPDATE_UI(wxID_PASTE,                      ChildFrameT::OnUpdateEditPasteSpecial)
-    EVT_UPDATE_UI(ID_MENU_EDIT_PASTE_SPECIAL,      ChildFrameT::OnUpdateEditPasteSpecial)
-
+    EVT_UPDATE_UI_RANGE(wxID_UNDO,                  wxID_REDO,                     ChildFrameT::OnMenuEditUpdate)
+    EVT_UPDATE_UI_RANGE(wxID_CUT,                   wxID_PASTE,                    ChildFrameT::OnMenuEditUpdate)
+    EVT_UPDATE_UI_RANGE(ID_MENU_EDIT_PASTE_SPECIAL, ID_MENU_EDIT_ENTITY_INSPECTOR, ChildFrameT::OnMenuEditUpdate)
+    EVT_UPDATE_UI      (wxID_SELECTALL,                                            ChildFrameT::OnMenuEditUpdate)
 
     EVT_MENU_RANGE     (ID_MENU_VIEW_TOOLBARS,         ID_MENU_VIEW_CENTER_3D_VIEWS,    ChildFrameT::OnMenuView)
     EVT_UPDATE_UI_RANGE(ID_MENU_VIEW_TOOLBARS,         ID_MENU_VIEW_CENTER_3D_VIEWS,    ChildFrameT::OnMenuViewUpdate)
@@ -1066,39 +1059,6 @@ void ChildFrameT::OnMenuFileUpdate(wxUpdateUIEvent& UE)
 }
 
 
-void ChildFrameT::OnMenuEdit(wxCommandEvent& CE)
-{
-    switch (CE.GetId())
-    {
-        case ID_MENU_EDIT_ENTITY_INSPECTOR:
-        {
-            wxAuiPaneInfo& PaneInfo=m_AUIManager.GetPane(m_InspectorDialog);
-
-            if (!PaneInfo.IsShown())
-            {
-                const int BestPage=m_InspectorDialog->GetBestPage(m_Doc->GetSelection());
-
-                m_InspectorDialog->ChangePage(BestPage);
-            }
-
-            PaneToggleShow(PaneInfo);
-            break;
-        }
-    }
-}
-
-
-void ChildFrameT::OnMenuEditUpdate(wxUpdateUIEvent& UE)
-{
-    switch (UE.GetId())
-    {
-        case ID_MENU_EDIT_ENTITY_INSPECTOR:
-            UE.Check(m_AUIManager.GetPane(m_InspectorDialog).IsShown());
-            break;
-    }
-}
-
-
 void ChildFrameT::OnMenuEditUndoRedo(wxCommandEvent& CE)
 {
     // The undo system doesn't keep track of selected faces, so clear the face selection just to be safe.
@@ -1110,25 +1070,6 @@ void ChildFrameT::OnMenuEditUndoRedo(wxCommandEvent& CE)
                             else m_History.Redo();
 
     SetTitle(m_Doc->GetFileName() + (m_History.GetLastSaveSuggestedCommandID() == m_LastSavedAtCommandNr ? "" : "*"));
-}
-
-
-void ChildFrameT::OnUpdateEditUndoRedo(wxUpdateUIEvent& UE)
-{
-    if (UE.GetId()==wxID_UNDO)
-    {
-        const CommandT* Cmd=m_History.GetUndoCommand();
-
-        UE.SetText(Cmd!=NULL ? "Undo "+Cmd->GetName()+"\tCtrl+Z" : "Cannot Undo\tCtrl+Z");
-        UE.Enable(Cmd!=NULL);
-    }
-    else
-    {
-        const CommandT* Cmd=m_History.GetRedoCommand();
-
-        UE.SetText(Cmd!=NULL ? "Redo "+Cmd->GetName()+"\tCtrl+Y" : "Cannot Redo\tCtrl+Y");
-        UE.Enable(Cmd!=NULL);
-    }
 }
 
 
@@ -1264,19 +1205,69 @@ void ChildFrameT::OnMenuEditSelectAll(wxCommandEvent& CE)
 }
 
 
-void ChildFrameT::OnUpdateEditPasteSpecial(wxUpdateUIEvent& UE)
+void ChildFrameT::OnMenuEditPropsDialog(wxCommandEvent& CE)
 {
-    const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& SrcEnts  = GetMapClipboard().GetEntities();
-    const ArrayT<MapPrimitiveT*>&                        SrcPrims = GetMapClipboard().GetPrimitives();
+    wxAuiPaneInfo& PaneInfo = m_AUIManager.GetPane(m_InspectorDialog);
 
-    UE.Enable((SrcEnts.Size() > 0 || SrcPrims.Size() > 0) &&
-              GetToolManager().GetActiveToolType() != &ToolEditSurfaceT::TypeInfo);
+    if (!PaneInfo.IsShown())
+    {
+        const int BestPage = m_InspectorDialog->GetBestPage(m_Doc->GetSelection());
+
+        m_InspectorDialog->ChangePage(BestPage);
+    }
+
+    PaneToggleShow(PaneInfo);
 }
 
 
-void ChildFrameT::OnUpdateEditCutCopyDelete(wxUpdateUIEvent& UE)
+void ChildFrameT::OnMenuEditUpdate(wxUpdateUIEvent& UE)
 {
-    UE.Enable(GetToolManager().GetActiveToolType() != &ToolEditSurfaceT::TypeInfo);
+    switch (UE.GetId())
+    {
+        case wxID_UNDO:
+        {
+            const CommandT* Cmd = m_History.GetUndoCommand();
+
+            UE.SetText(Cmd != NULL ? "Undo " + Cmd->GetName() + "\tCtrl+Z" : "Cannot Undo\tCtrl+Z");
+            UE.Enable(Cmd != NULL);
+            break;
+        }
+
+        case wxID_REDO:
+        {
+            const CommandT* Cmd = m_History.GetRedoCommand();
+
+            UE.SetText(Cmd != NULL ? "Redo " + Cmd->GetName() + "\tCtrl+Y" : "Cannot Redo\tCtrl+Y");
+            UE.Enable(Cmd != NULL);
+            break;
+        }
+
+        case wxID_CUT:
+        case wxID_COPY:
+        case ID_MENU_EDIT_DELETE:
+        {
+            UE.Enable(m_Doc->GetSelection().Size() > 0 &&
+                      GetToolManager().GetActiveToolType() != &ToolEditSurfaceT::TypeInfo);
+            break;
+        }
+
+        case wxID_PASTE:
+        case ID_MENU_EDIT_PASTE_SPECIAL:
+        {
+            const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& SrcEnts  = GetMapClipboard().GetEntities();
+            const ArrayT<MapPrimitiveT*>&                        SrcPrims = GetMapClipboard().GetPrimitives();
+
+            UE.Enable((SrcEnts.Size() > 0 || SrcPrims.Size() > 0) &&
+                      GetToolManager().GetActiveToolType() != &ToolEditSurfaceT::TypeInfo);
+            break;
+        }
+
+        case ID_MENU_EDIT_ENTITY_INSPECTOR:
+        {
+            UE.Check(m_AUIManager.GetPane(m_InspectorDialog).IsShown());
+            break;
+        }
+    }
 }
 
 

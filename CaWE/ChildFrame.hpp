@@ -283,23 +283,16 @@ class ChildFrameT : public wxMDIChildFrame
     void OnMenuFile       (wxCommandEvent&    CE);  ///< Event handler for File    menu events.
     void OnMenuFileUpdate (wxUpdateUIEvent&   UE);  ///< Event handler for File    menu update events.
 
-
-    void OnMenuEdit       (wxCommandEvent&    CE);  ///< Event handler for Edit    menu events.
-    void OnMenuEditUpdate (wxUpdateUIEvent&   UE);  ///< Event handler for Edit    menu update events.
-
-    void OnMenuEditUndoRedo                (wxCommandEvent& CE);
-    void OnMenuEditCut                     (wxCommandEvent& CE);
-    void OnMenuEditCopy                    (wxCommandEvent& CE);
-    void OnMenuEditPaste                   (wxCommandEvent& CE);
-    void OnMenuEditPasteSpecial            (wxCommandEvent& CE);
-    void OnMenuEditDelete                  (wxCommandEvent& CE);
-    void OnMenuEditSelectNone              (wxCommandEvent& CE);
-    void OnMenuEditSelectAll               (wxCommandEvent& CE);
-
-    void OnUpdateEditUndoRedo          (wxUpdateUIEvent& UE);   // For Undo and Redo.
-    void OnUpdateEditCutCopyDelete     (wxUpdateUIEvent& UE);   // For Cut, Copy and Delete.
-    void OnUpdateEditPasteSpecial      (wxUpdateUIEvent& UE);   // For Paste and PasteSpecial.
-
+    void OnMenuEditUndoRedo      (wxCommandEvent&  CE);
+    void OnMenuEditCut           (wxCommandEvent&  CE);
+    void OnMenuEditCopy          (wxCommandEvent&  CE);
+    void OnMenuEditPaste         (wxCommandEvent&  CE);
+    void OnMenuEditPasteSpecial  (wxCommandEvent&  CE);
+    void OnMenuEditDelete        (wxCommandEvent&  CE);
+    void OnMenuEditSelectNone    (wxCommandEvent&  CE);
+    void OnMenuEditSelectAll     (wxCommandEvent&  CE);
+    void OnMenuEditPropsDialog   (wxCommandEvent&  CE);
+    void OnMenuEditUpdate        (wxUpdateUIEvent& UE);
 
     void OnMenuView       (wxCommandEvent&    CE);  ///< Event handler for View    menu events.
     void OnMenuViewUpdate (wxUpdateUIEvent&   UE);  ///< Event handler for View    menu update events.
