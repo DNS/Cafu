@@ -321,7 +321,7 @@ void InspDlgPrimitivePropsT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
         if (Command)
         {
             m_IsRecursiveSelfNotify=true;
-            m_MapDoc->GetHistory().SubmitCommand(Command);
+            m_MapDoc->CompatSubmitCommand(Command);
             m_IsRecursiveSelfNotify=false;
         }
     }
@@ -342,7 +342,7 @@ void InspDlgPrimitivePropsT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
             CommandT* Command=new CommandChangePlantSeedT(*m_MapDoc, Plant, Event.GetProperty()->GetValue().GetLong());
 
             m_IsRecursiveSelfNotify=true;
-            m_MapDoc->GetHistory().SubmitCommand(Command);
+            m_MapDoc->CompatSubmitCommand(Command);
             m_IsRecursiveSelfNotify=false;
         }
 
@@ -352,7 +352,7 @@ void InspDlgPrimitivePropsT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
             CommandT* Command=new CommandChangePlantDescrT(*m_MapDoc, Plant, Event.GetProperty()->GetValueAsString());
 
             m_IsRecursiveSelfNotify=true;
-            m_MapDoc->GetHistory().SubmitCommand(Command);
+            m_MapDoc->CompatSubmitCommand(Command);
             m_IsRecursiveSelfNotify=false;
         }
     }
@@ -386,7 +386,7 @@ void InspDlgPrimitivePropsT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
         if (Command)
         {
             m_IsRecursiveSelfNotify=true;
-            m_MapDoc->GetHistory().SubmitCommand(Command);
+            m_MapDoc->CompatSubmitCommand(Command);
             m_IsRecursiveSelfNotify=false;
         }
     }

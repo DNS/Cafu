@@ -369,7 +369,7 @@ bool ToolClipT::OnKeyDown(ViewWindowT& ViewWindow, wxKeyEvent& KE)
             UpdateClipResults();
             if (m_ClipResults.Size()==0) return true;
 
-            m_MapDoc.GetHistory().SubmitCommand(new CommandClipT(m_MapDoc, m_ClipResults));
+            m_MapDoc.CompatSubmitCommand(new CommandClipT(m_MapDoc, m_ClipResults));
 
             // If there are any empty groups (usually as a result from an implicit deletion by the clip), purge them now.
             // We use an explicit command for deleting the groups (instead of putting everything into a macro command)
@@ -377,7 +377,7 @@ bool ToolClipT::OnKeyDown(ViewWindowT& ViewWindow, wxKeyEvent& KE)
             const ArrayT<GroupT*> EmptyGroups=m_MapDoc.GetAbandonedGroups();
 
             if (EmptyGroups.Size()>0)
-                m_MapDoc.GetHistory().SubmitCommand(new CommandDeleteGroupT(m_MapDoc, EmptyGroups));
+                m_MapDoc.CompatSubmitCommand(new CommandDeleteGroupT(m_MapDoc, EmptyGroups));
 
             // Just clear the clip results without deleting them (they are now owned by the command).
             m_ClipResults.Overwrite();

@@ -39,7 +39,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "DialogOptions.hpp"
 #include "Options.hpp"
 #include "OrthoBspTree.hpp"
-#include "DialogPasteSpecial.hpp"
 #include "DialogReplaceMaterials.hpp"
 #include "VarVisitorsLua.hpp"
 #include "MapCommands/Transform.hpp"
@@ -48,7 +47,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapCommands/ApplyMaterial.hpp"
 #include "MapCommands/AssignPrimToEnt.hpp"
 #include "MapCommands/Carve.hpp"
-#include "MapCommands/Delete.hpp"
 #include "MapCommands/Mirror.hpp"
 #include "MapCommands/SnapToGrid.hpp"
 #include "MapCommands/MakeHollow.hpp"
@@ -120,25 +118,6 @@ using namespace MapEditor;
 
 
 BEGIN_EVENT_TABLE(MapDocumentT, wxEvtHandler)
-    EVT_MENU  (wxID_UNDO,                                         MapDocumentT::OnEditUndoRedo)
-    EVT_MENU  (wxID_REDO,                                         MapDocumentT::OnEditUndoRedo)
-    EVT_MENU  (wxID_CUT,                                          MapDocumentT::OnEditCut)
-    EVT_MENU  (wxID_COPY,                                         MapDocumentT::OnEditCopy)
-    EVT_MENU  (wxID_PASTE,                                        MapDocumentT::OnEditPaste)
-    EVT_MENU  (ChildFrameT::ID_MENU_EDIT_PASTE_SPECIAL,           MapDocumentT::OnEditPasteSpecial)
-    EVT_MENU  (ChildFrameT::ID_MENU_EDIT_DELETE,                  MapDocumentT::OnEditDelete)
-    EVT_BUTTON(ChildFrameT::ID_MENU_EDIT_DELETE,                  MapDocumentT::OnEditDelete)
-    EVT_MENU  (ChildFrameT::ID_MENU_EDIT_SELECT_NONE,             MapDocumentT::OnEditSelectNone)
-    EVT_MENU  (wxID_SELECTALL,                                    MapDocumentT::OnEditSelectAll)
-
-    EVT_UPDATE_UI(wxID_UNDO,                                    MapDocumentT::OnUpdateEditUndoRedo)
-    EVT_UPDATE_UI(wxID_REDO,                                    MapDocumentT::OnUpdateEditUndoRedo)
-    EVT_UPDATE_UI(wxID_CUT,                                     MapDocumentT::OnUpdateEditCutCopyDelete)
-    EVT_UPDATE_UI(wxID_COPY,                                    MapDocumentT::OnUpdateEditCutCopyDelete)
-    EVT_UPDATE_UI(ChildFrameT::ID_MENU_EDIT_DELETE,             MapDocumentT::OnUpdateEditCutCopyDelete)
-    EVT_UPDATE_UI(wxID_PASTE,                                   MapDocumentT::OnUpdateEditPasteSpecial)
-    EVT_UPDATE_UI(ChildFrameT::ID_MENU_EDIT_PASTE_SPECIAL,      MapDocumentT::OnUpdateEditPasteSpecial)
-
     EVT_MENU  (ChildFrameT::ID_MENU_SELECTION_APPLY_MATERIAL,   MapDocumentT::OnSelectionApplyMaterial)
     EVT_BUTTON(ChildFrameT::ID_MENU_SELECTION_APPLY_MATERIAL,   MapDocumentT::OnSelectionApplyMaterial)
 
@@ -202,7 +181,6 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig)
       m_BspTree(NULL),
       m_GameConfig(GameConfig),
       m_PlantDescrMan(std::string(m_GameConfig->ModDir)),
-      m_History(),
       m_Selection(),
       m_SelectionBB(Vector3fT(-64.0f, -64.0f, 0.0f), Vector3fT(64.0f, 64.0f, 64.0f)),
       m_PointFilePoints(),
@@ -271,7 +249,6 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
       m_BspTree(NULL),
       m_GameConfig(GameConfig),
       m_PlantDescrMan(std::string(m_GameConfig->ModDir)),
-      m_History(),
       m_Selection(),
       m_SelectionBB(Vector3fT(-64.0f, -64.0f, 0.0f), Vector3fT(64.0f, 64.0f, 64.0f)),
       m_PointFilePoints(),
@@ -1479,6 +1456,12 @@ bool MapDocumentT::Save()
 }
 
 
+bool MapDocumentT::CompatSubmitCommand(CommandT* Command)
+{
+    return m_ChildFrame->SubmitCommand(Command);
+}
+
+
 const ArrayT< IntrusivePtrT<CompMapEntityT> >& MapDocumentT::GetEntities() const
 {
     /**************************************************************************************/
@@ -1729,329 +1712,6 @@ void MapDocumentT::GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) con
 /*** Event Handlers ***/
 /**********************/
 
-void MapDocumentT::OnEditUndoRedo(wxCommandEvent& CE)
-{
-    // The undo system doesn't keep track of selected faces, so clear the face selection just to be safe.
-    if (m_ChildFrame->GetToolManager().GetActiveToolType()==&ToolEditSurfaceT::TypeInfo)
-        m_ChildFrame->GetSurfacePropsDialog()->ClearSelection();
-
-    // Step forward or backward in the command history.
-    if (CE.GetId()==wxID_UNDO) m_History.Undo();
-                          else m_History.Redo();
-}
-
-
-void MapDocumentT::OnUpdateEditUndoRedo(wxUpdateUIEvent& UE)
-{
-    if (UE.GetId()==wxID_UNDO)
-    {
-        const CommandT* Cmd=m_History.GetUndoCommand();
-
-        UE.SetText(Cmd!=NULL ? "Undo "+Cmd->GetName()+"\tCtrl+Z" : "Cannot Undo\tCtrl+Z");
-        UE.Enable(Cmd!=NULL);
-    }
-    else
-    {
-        const CommandT* Cmd=m_History.GetRedoCommand();
-
-        UE.SetText(Cmd!=NULL ? "Redo "+Cmd->GetName()+"\tCtrl+Y" : "Cannot Redo\tCtrl+Y");
-        UE.Enable(Cmd!=NULL);
-    }
-}
-
-
-void MapDocumentT::OnEditCut(wxCommandEvent& CE)
-{
-    OnEditCopy(CE);
-    OnEditDelete(CE);
-}
-
-
-void MapDocumentT::OnEditCopy(wxCommandEvent& CE)
-{
-    wxBusyCursor BusyCursor;
-
-    m_ChildFrame->GetMapClipboard().CopyFrom(m_Selection);
-    m_ChildFrame->GetMapClipboard().SetOriginalCenter(GetMostRecentSelBB().GetCenter());
-}
-
-
-/// Helper function to paste the clipboard contents into the map.
-/// @param DeltaTranslation    Translation offset for each pasted copy (only relevant if NumberOfCopies > 1).
-/// @param DeltaRotation       Rotation offset for each pasted copy (only relevant if NumberOfCopies > 1).
-/// @param NrOfCopies          Number of times the objects are pasted into the world.
-/// @param PasteGrouped        Should all pasted objects be grouped?
-/// @param CenterAtOriginals   Should pasted objects be centered at position of original objects?
-ArrayT<CommandT*> MapDocumentT::CreatePasteCommands(const Vector3fT& DeltaTranslation, const cf::math::AnglesfT& DeltaRotation,
-    unsigned int NrOfCopies, bool PasteGrouped, bool CenterAtOriginals)
-{
-    // Initialize the total translation and rotation for the first paste operation.
-    // Note that a TotalTranslation of zero pastes each object in the exact same place as its original.
-    Vector3fT          TotalTranslation = DeltaTranslation;
-    cf::math::AnglesfT TotalRotation    = DeltaRotation;
-
-    if (!CenterAtOriginals)
-    {
-        const Vector3fT GoodPastePos    = m_ChildFrame->GuessUserVisiblePoint();
-        const Vector3fT OriginalsCenter = m_ChildFrame->GetMapClipboard().GetOriginalCenter();
-
-        static Vector3fT    LastPastePoint(0, 0, 0);
-        static unsigned int LastPasteCount = 0;
-
-        if (GoodPastePos != LastPastePoint)
-        {
-            LastPastePoint = GoodPastePos;
-            LastPasteCount = 0;
-        }
-
-        int PasteOffset = std::max(GetGridSpacing(), 1);
-
-        while (PasteOffset < 8)
-            PasteOffset *= 2;   // Make PasteOffset some multiple of the grid spacing larger than 8.0.
-
-        TotalTranslation = SnapToGrid(LastPastePoint + Vector3fT(((LastPasteCount % 8)+(LastPasteCount/8))*PasteOffset, (LastPasteCount % 8)*PasteOffset, 0.0f) - OriginalsCenter, false, -1 /*Snap all axes.*/);
-
-        LastPasteCount++;
-    }
-
-
-    // FIXME: This should probably be a param to the Trafo*() methods, rather than having these methods query it from the global Options.general.LockingTextures.
-    const bool PrevLockMats = Options.general.LockingTextures;
-    Options.general.LockingTextures = true;
-
-    const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& SrcEnts  = m_ChildFrame->GetMapClipboard().GetEntities();
-    const ArrayT<MapPrimitiveT*>&                        SrcPrims = m_ChildFrame->GetMapClipboard().GetPrimitives();
-
-    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > NewEnts;
-    ArrayT<MapPrimitiveT*>                        NewPrims;
-
-    for (unsigned int CopyNr = 0; CopyNr < NrOfCopies; CopyNr++)
-    {
-        for (unsigned long EntNr = 0; EntNr < SrcEnts.Size(); EntNr++)
-        {
-            IntrusivePtrT<cf::GameSys::EntityT> NewEnt = SrcEnts[EntNr]->Clone(true /*Recursive?*/);
-            IntrusivePtrT<CompMapEntityT>       MapEnt = GetMapEnt(NewEnt);
-
-            // TODO: For MapEnt this works well, but it seems that we have to recurse into the children of NewEnt, too!
-            MapEnt->CopyPrimitives(*GetMapEnt(SrcEnts[EntNr]));
-
-            if (TotalTranslation != Vector3fT())
-            {
-                MapEnt->GetRepres()->TrafoMove(TotalTranslation);
-
-                for (unsigned long PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
-                    MapEnt->GetPrimitives()[PrimNr]->TrafoMove(TotalTranslation);
-            }
-
-            if (TotalRotation != cf::math::AnglesfT())
-            {
-                MapEnt->GetRepres()->TrafoRotate(MapEnt->GetRepres()->GetBB().GetCenter(), TotalRotation);
-
-                for (unsigned long PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
-                    MapEnt->GetPrimitives()[PrimNr]->TrafoRotate(MapEnt->GetPrimitives()[PrimNr]->GetBB().GetCenter(), TotalRotation);
-            }
-
-            NewEnts.PushBack(NewEnt);
-        }
-
-        for (unsigned long PrimNr = 0; PrimNr < SrcPrims.Size(); PrimNr++)
-        {
-            MapPrimitiveT* NewPrim = SrcPrims[PrimNr]->Clone();
-
-            if (TotalTranslation != Vector3fT())
-                NewPrim->TrafoMove(TotalTranslation);
-
-            if (TotalRotation != cf::math::AnglesfT())
-                NewPrim->TrafoRotate(NewPrim->GetBB().GetCenter(), TotalRotation);
-
-            NewPrims.PushBack(NewPrim);
-        }
-
-        // Advance the total translation and rotation.
-        TotalTranslation += DeltaTranslation;
-        TotalRotation    += DeltaRotation;
-    }
-
-    Options.general.LockingTextures = PrevLockMats;
-
-
-    ArrayT<CommandT*> SubCommands;
-
-    if (NewEnts.Size() > 0)
-    {
-        CommandNewEntityT* CmdNewEnt = new CommandNewEntityT(*this, NewEnts, false /*don't select*/);
-
-        CmdNewEnt->Do();
-        SubCommands.PushBack(CmdNewEnt);
-    }
-
-    if (NewPrims.Size() > 0)
-    {
-        CommandAddPrimT* CmdAddPrim = new CommandAddPrimT(*this, NewPrims, GetEntities()[0], "insert prims", false /*don't select*/);
-
-        CmdAddPrim->Do();
-        SubCommands.PushBack(CmdAddPrim);
-    }
-
-    if (SubCommands.Size() > 0)
-    {
-        CommandSelectT* CmdSel = CommandSelectT::Set(this, NewEnts, NewPrims);
-
-        CmdSel->Do();
-        SubCommands.PushBack(CmdSel);
-
-        if (PasteGrouped)
-        {
-            ArrayT<MapElementT*> NewElems;
-
-            for (unsigned long EntNr = 0; EntNr < NewEnts.Size(); EntNr++)
-            {
-                IntrusivePtrT<CompMapEntityT> NewEnt = GetMapEnt(NewEnts[EntNr]);
-
-                NewElems.PushBack(NewEnt->GetRepres());
-
-                for (unsigned long PrimNr = 0; PrimNr < NewEnt->GetPrimitives().Size(); PrimNr++)
-                    NewElems.PushBack(NewEnt->GetPrimitives()[PrimNr]);
-            }
-
-            for (unsigned long PrimNr = 0; PrimNr < NewPrims.Size(); PrimNr++)
-                NewElems.PushBack(NewPrims[PrimNr]);
-
-
-            CommandNewGroupT* CmdNewGroup = new CommandNewGroupT(*this,
-                wxString::Format("paste group (%lu element%s)", NewElems.Size(), NewElems.Size() == 1 ? "" : "s"));
-
-            CmdNewGroup->GetGroup()->SelectAsGroup = true;
-            CmdNewGroup->Do();
-            SubCommands.PushBack(CmdNewGroup);
-
-            CommandAssignGroupT* CmdAssignGroup = new CommandAssignGroupT(*this, NewElems, CmdNewGroup->GetGroup());
-
-            CmdAssignGroup->Do();
-            SubCommands.PushBack(CmdAssignGroup);
-        }
-    }
-
-    return SubCommands;
-}
-
-
-void MapDocumentT::OnEditPaste(wxCommandEvent& CE)
-{
-    wxBusyCursor      BusyCursor;
-    ArrayT<CommandT*> SubCommands = CreatePasteCommands();
-
-    if (SubCommands.Size() > 0)
-    {
-        // Submit the composite macro command.
-        GetHistory().SubmitCommand(new CommandMacroT(SubCommands, "Paste"));
-    }
-
-    m_ChildFrame->GetToolManager().SetActiveTool(GetToolTIM().FindTypeInfoByName("ToolSelectionT"));
-}
-
-
-void MapDocumentT::OnEditPasteSpecial(wxCommandEvent& CE)
-{
-    const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& SrcEnts  = m_ChildFrame->GetMapClipboard().GetEntities();
-    const ArrayT<MapPrimitiveT*>&                        SrcPrims = m_ChildFrame->GetMapClipboard().GetPrimitives();
-
-    BoundingBox3fT ClipboardBB;
-
-    for (unsigned long EntNr = 0; EntNr < SrcEnts.Size(); EntNr++)
-        ClipboardBB.InsertValid(GetMapEnt(SrcEnts[EntNr])->GetElemsBB());
-
-    for (unsigned long PrimNr = 0; PrimNr < SrcPrims.Size(); PrimNr++)
-        ClipboardBB.InsertValid(SrcPrims[PrimNr]->GetBB());
-
-    if (SrcEnts.Size() == 0 && SrcPrims.Size() == 0) return;
-    if (!ClipboardBB.IsInited()) return;
-
-    PasteSpecialDialogT PasteSpecialDialog(ClipboardBB);
-
-    if (PasteSpecialDialog.ShowModal() == wxID_CANCEL) return;
-
-    wxBusyCursor      BusyCursor;
-    const Vector3fT   Translation = Vector3fT(PasteSpecialDialog.TranslateX, PasteSpecialDialog.TranslateY, PasteSpecialDialog.TranslateZ);
-    const Vector3fT   Rotation    = Vector3fT(PasteSpecialDialog.RotateX,    PasteSpecialDialog.RotateY,    PasteSpecialDialog.RotateZ);
-    ArrayT<CommandT*> SubCommands = CreatePasteCommands(Translation, Rotation, PasteSpecialDialog.NrOfCopies,
-                                        PasteSpecialDialog.GroupCopies, PasteSpecialDialog.CenterAtOriginal);
-
-    if (SubCommands.Size() > 0)
-    {
-        // Submit the composite macro command.
-        GetHistory().SubmitCommand(new CommandMacroT(SubCommands, "Paste Special"));
-    }
-
-    m_ChildFrame->GetToolManager().SetActiveTool(GetToolTIM().FindTypeInfoByName("ToolSelectionT"));
-}
-
-
-void MapDocumentT::OnEditDelete(wxCommandEvent& CE)
-{
-    // If the camera tool is the currently active tool, delete its active camera.
-    ToolCameraT* CameraTool=dynamic_cast<ToolCameraT*>(m_ChildFrame->GetToolManager().GetActiveTool());
-
-    if (CameraTool)
-    {
-        CameraTool->DeleteActiveCamera();
-        return;
-    }
-
-    if (m_Selection.Size()>0)
-    {
-        // Do the actual deletion of the selected elements.
-        GetHistory().SubmitCommand(new CommandDeleteT(*this, m_Selection));
-
-        // If there are any empty groups (usually as a result from the deletion), purge them now.
-        // We use an explicit command for deleting the groups (instead of putting everything into a macro command)
-        // so that the user has the option to undo the purge (separately from the deletion) if he wishes.
-        const ArrayT<GroupT*> EmptyGroups=GetAbandonedGroups();
-
-        if (EmptyGroups.Size()>0)
-            GetHistory().SubmitCommand(new CommandDeleteGroupT(*this, EmptyGroups));
-    }
-}
-
-
-void MapDocumentT::OnEditSelectNone(wxCommandEvent& CE)
-{
-    if (m_ChildFrame->GetToolManager().GetActiveToolType()!=&ToolEditSurfaceT::TypeInfo)
-    {
-        GetHistory().SubmitCommand(CommandSelectT::Clear(this));
-    }
-    else
-    {
-        m_ChildFrame->GetSurfacePropsDialog()->ClearSelection();
-    }
-}
-
-
-void MapDocumentT::OnEditSelectAll(wxCommandEvent& CE)
-{
-    ArrayT<MapElementT*> NewSelection;
-    GetAllElems(NewSelection);
-
-    // This used to remove the world entity (representation) at index 0,
-    // but we don't want to make this exception any longer.
-    // if (NewSelection.Size()>0)
-    // {
-    //     wxASSERT(NewSelection[0]->GetType() == &MapEntRepresT::TypeInfo);
-    //     NewSelection.RemoveAt(0);
-    // }
-
-    // Remove all invisible elements.
-    for (unsigned long ElemNr=0; ElemNr<NewSelection.Size(); ElemNr++)
-        if (!NewSelection[ElemNr]->IsVisible())
-        {
-            NewSelection.RemoveAt(ElemNr);
-            ElemNr--;
-        }
-
-    m_History.SubmitCommand(CommandSelectT::Add(this, NewSelection));
-}
-
-
 void MapDocumentT::OnUpdateSelectionApplyMaterial(wxUpdateUIEvent& UE)
 {
     UE.Enable(m_ChildFrame->GetToolManager().GetActiveToolType()!=&ToolEditSurfaceT::TypeInfo);
@@ -2062,7 +1722,7 @@ void MapDocumentT::OnSelectionApplyMaterial(wxCommandEvent& CE)
 {
     CommandT* Command=new CommandApplyMaterialT(*this, m_Selection, m_GameConfig->GetMatMan().GetDefaultMaterial());
 
-    GetHistory().SubmitCommand(Command);
+    CompatSubmitCommand(Command);
 }
 
 
@@ -2134,7 +1794,7 @@ void MapDocumentT::OnMapGotoPrimitive(wxCommandEvent& CE)
     }
 
     // The primitive was found and is visible, now select it and center the 2D views on it.
-    m_History.SubmitCommand(CommandSelectT::Set(this, Prim));
+    CompatSubmitCommand(CommandSelectT::Set(this, Prim));
     m_ChildFrame->All2DViews_Center(Prim->GetBB().GetCenter());
 }
 
@@ -2156,7 +1816,7 @@ void MapDocumentT::OnMapCheckForProblems(wxCommandEvent& CE)
 void MapDocumentT::OnMapProperties(wxCommandEvent& CE)
 {
     // Select the worldspawn entity, then open the inspector dialog.
-    m_History.SubmitCommand(CommandSelectT::Set(this, GetEntities()[0]->GetRepres()));
+    CompatSubmitCommand(CommandSelectT::Set(this, GetEntities()[0]->GetRepres()));
 
     GetChildFrame()->GetInspectorDialog()->ChangePage(1);
     GetChildFrame()->ShowPane(GetChildFrame()->GetInspectorDialog());
@@ -2348,7 +2008,7 @@ void MapDocumentT::OnViewHideSelectedObjects(wxCommandEvent& CE)
     SubCommands.PushBack(CmdPurgeGroups);
 
     // 5. Submit the composite macro command.
-    m_History.SubmitCommand(new CommandMacroT(SubCommands, "Hide "+NewGroup->Name));
+    CompatSubmitCommand(new CommandMacroT(SubCommands, "Hide "+NewGroup->Name));
 }
 
 
@@ -2401,7 +2061,7 @@ void MapDocumentT::OnViewHideUnselectedObjects(wxCommandEvent& CE)
     SubCommands.PushBack(CmdPurgeGroups);
 
     // 5. Submit the composite macro command.
-    m_History.SubmitCommand(new CommandMacroT(SubCommands, "Hide "+NewGroup->Name));
+    CompatSubmitCommand(new CommandMacroT(SubCommands, "Hide "+NewGroup->Name));
 }
 
 
@@ -2421,7 +2081,7 @@ void MapDocumentT::OnViewShowHiddenObjects(wxCommandEvent& CE)
 
     if (HiddenGroups.Size()==1)
     {
-        m_History.SubmitCommand(new CommandGroupSetVisibilityT(*this, HiddenGroups[0], true /*NewVis*/));
+        CompatSubmitCommand(new CommandGroupSetVisibilityT(*this, HiddenGroups[0], true /*NewVis*/));
         return;
     }
 
@@ -2430,7 +2090,7 @@ void MapDocumentT::OnViewShowHiddenObjects(wxCommandEvent& CE)
     for (unsigned long GroupNr=0; GroupNr<HiddenGroups.Size(); GroupNr++)
         SubCommands.PushBack(new CommandGroupSetVisibilityT(*this, HiddenGroups[GroupNr], true /*NewVis*/));
 
-    m_History.SubmitCommand(new CommandMacroT(SubCommands, "Show all groups"));
+    CompatSubmitCommand(new CommandMacroT(SubCommands, "Show all groups"));
 }
 
 
@@ -2451,7 +2111,7 @@ void MapDocumentT::OnToolsCarve(wxCommandEvent& CE)
     if (Carvers.Size()==0) return;
 
     // Do the actual carve.
-    GetHistory().SubmitCommand(new CommandCarveT(*this, Carvers));
+    CompatSubmitCommand(new CommandCarveT(*this, Carvers));
 
     // If there are any empty groups (usually as a result from an implicit deletion by the carve), purge them now.
     // We use an explicit command for deleting the groups (instead of putting everything into a macro command)
@@ -2459,7 +2119,7 @@ void MapDocumentT::OnToolsCarve(wxCommandEvent& CE)
     const ArrayT<GroupT*> EmptyGroups=GetAbandonedGroups();
 
     if (EmptyGroups.Size()>0)
-        GetHistory().SubmitCommand(new CommandDeleteGroupT(*this, EmptyGroups));
+        CompatSubmitCommand(new CommandDeleteGroupT(*this, EmptyGroups));
 }
 
 
@@ -2498,7 +2158,7 @@ void MapDocumentT::OnToolsHollow(wxCommandEvent& CE)
 
     // Do the actual hollowing.
     // Note that there is no need to ever purge abandoned groups here: hollowing might replace, but never lessen their members.
-    GetHistory().SubmitCommand(new CommandMakeHollowT(*this, WallWidth, m_Selection));
+    CompatSubmitCommand(new CommandMakeHollowT(*this, WallWidth, m_Selection));
 }
 
 
@@ -2571,7 +2231,7 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
 
     if (SelEntities[0]!=NULL)
     {
-        GetHistory().SubmitCommand(new CommandAssignPrimToEntT(*this, SelPrimitives, SelEntities[0]));
+        CompatSubmitCommand(new CommandAssignPrimToEntT(*this, SelPrimitives, SelEntities[0]));
     }
     else
     {
@@ -2596,7 +2256,7 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
         SubCommands.PushBack(CmdAssignToEnt);
 
         // 3. Submit the composite macro command.
-        GetHistory().SubmitCommand(new CommandMacroT(SubCommands, "tie to new entity"));
+        CompatSubmitCommand(new CommandMacroT(SubCommands, "tie to new entity"));
     }
 
     // This is very rare - only fires when a parent entity became empty, thus implicitly deleted, and was the last element in its group:
@@ -2607,7 +2267,7 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
         const ArrayT<GroupT*> EmptyGroups=GetAbandonedGroups();
 
         if (EmptyGroups.Size()>0)
-            GetHistory().SubmitCommand(new CommandDeleteGroupT(*this, EmptyGroups));
+            CompatSubmitCommand(new CommandDeleteGroupT(*this, EmptyGroups));
     }
 
     m_ChildFrame->GetToolManager().SetActiveTool(GetToolTIM().FindTypeInfoByName("ToolSelectionT"));
@@ -2631,7 +2291,7 @@ void MapDocumentT::OnToolsAssignPrimToWorld(wxCommandEvent& CE)
     // If there were no primitives among the selected map elements, quit here.
     if (SelPrimitives.Size()==0) return;
 
-    GetHistory().SubmitCommand(new CommandAssignPrimToEntT(*this, SelPrimitives, GetEntities()[0]));
+    CompatSubmitCommand(new CommandAssignPrimToEntT(*this, SelPrimitives, GetEntities()[0]));
 
     // This is very rare - only fires when a parent entity became empty, thus implicitly deleted, and was the last element in its group:
     // If there are any empty groups (usually as a result from the deletion), purge them now.
@@ -2641,7 +2301,7 @@ void MapDocumentT::OnToolsAssignPrimToWorld(wxCommandEvent& CE)
         const ArrayT<GroupT*> EmptyGroups=GetAbandonedGroups();
 
         if (EmptyGroups.Size()>0)
-            GetHistory().SubmitCommand(new CommandDeleteGroupT(*this, EmptyGroups));
+            CompatSubmitCommand(new CommandDeleteGroupT(*this, EmptyGroups));
     }
 
     m_ChildFrame->GetToolManager().SetActiveTool(GetToolTIM().FindTypeInfoByName("ToolSelectionT"));
@@ -2671,7 +2331,7 @@ void MapDocumentT::OnToolsSnapSelectionToGrid(wxCommandEvent& CE)
 
     CommandT* Command=new CommandSnapToGridT(*this, m_Selection);
 
-    GetHistory().SubmitCommand(Command);
+    CompatSubmitCommand(Command);
 }
 
 
@@ -2720,7 +2380,7 @@ void MapDocumentT::OnToolsTransform(wxCommandEvent& CE)
             RefPoint=GetMostRecentSelBB().GetCenter();
         }
 
-        GetHistory().SubmitCommand(
+        CompatSubmitCommand(
             new CommandTransformT(*this, m_Selection, Mode, RefPoint, Value));
     }
 }
@@ -2741,7 +2401,7 @@ void MapDocumentT::OnToolsAlign(wxCommandEvent& CE)
         return;
     }
 
-    GetHistory().SubmitCommand(
+    CompatSubmitCommand(
         new CommandAlignT(*this, m_Selection, ViewWindows[0]->GetAxesInfo(), GetMostRecentSelBB(), CE.GetId()));
 }
 
@@ -2767,23 +2427,13 @@ void MapDocumentT::OnToolsMirror(wxCommandEvent& CE)
     const unsigned int NormalAxis=(CE.GetId()==ChildFrameT::ID_MENU_TOOLS_MIRROR_HOR) ? AxesInfo.HorzAxis : AxesInfo.VertAxis;
     const float        Dist      =GetMostRecentSelBB().GetCenter()[NormalAxis];
 
-    GetHistory().SubmitCommand(new CommandMirrorT(*this, m_Selection, NormalAxis, Dist));
+    CompatSubmitCommand(new CommandMirrorT(*this, m_Selection, NormalAxis, Dist));
 }
 
 
 void MapDocumentT::OnUpdateToolsMaterialLock(wxUpdateUIEvent& UE)
 {
     UE.Check(Options.general.LockingTextures);
-}
-
-
-void MapDocumentT::OnUpdateEditPasteSpecial(wxUpdateUIEvent& UE)
-{
-    const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& SrcEnts  = m_ChildFrame->GetMapClipboard().GetEntities();
-    const ArrayT<MapPrimitiveT*>&                        SrcPrims = m_ChildFrame->GetMapClipboard().GetPrimitives();
-
-    UE.Enable((SrcEnts.Size() > 0 || SrcPrims.Size() > 0) &&
-              m_ChildFrame->GetToolManager().GetActiveToolType() != &ToolEditSurfaceT::TypeInfo);
 }
 
 
@@ -2796,12 +2446,6 @@ void MapDocumentT::OnUpdateViewShowEntityInfo(wxUpdateUIEvent& UE)
 void MapDocumentT::OnUpdateViewShowEntityTargets(wxUpdateUIEvent& UE)
 {
     UE.Check(Options.view2d.ShowEntityTargets);
-}
-
-
-void MapDocumentT::OnUpdateEditCutCopyDelete(wxUpdateUIEvent& UE)
-{
-    UE.Enable(m_ChildFrame->GetToolManager().GetActiveToolType()!=&ToolEditSurfaceT::TypeInfo);
 }
 
 

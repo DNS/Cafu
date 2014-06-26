@@ -179,7 +179,7 @@ void InspDlgEntityTreeT::OnListBox_SelectionChanged(wxCommandEvent& Event)
     for (int SelNr=0; SelNr<NrOfSelections; SelNr++)
         EntitySelection.PushBack(((CompMapEntityT*)EntityListBox->GetClientData(SelEntries[SelNr]))->GetRepres());
 
-    MapDoc->GetHistory().SubmitCommand(CommandSelectT::Set(MapDoc, EntitySelection));
+    MapDoc->CompatSubmitCommand(CommandSelectT::Set(MapDoc, EntitySelection));
 
     IsRecursiveSelfNotify=false;
 }

@@ -84,7 +84,7 @@ void ToolEditSurfaceT::OnActivate(ToolT* OldTool)
         for (unsigned long SelNr=0; SelNr<m_MapDoc.GetSelection().Size(); SelNr++)
             m_MapDoc.GetChildFrame()->GetSurfacePropsDialog()->ToggleClick(m_MapDoc.GetSelection()[SelNr], EditSurfacePropsDialogT::ALL_FACES);
 
-        m_MapDoc.GetHistory().SubmitCommand(CommandSelectT::Clear(&m_MapDoc));
+        m_MapDoc.CompatSubmitCommand(CommandSelectT::Clear(&m_MapDoc));
     }
 }
 

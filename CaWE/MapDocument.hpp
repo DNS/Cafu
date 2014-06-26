@@ -22,19 +22,20 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_MAP_DOCUMENT_HPP_INCLUDED
 #define CAFU_MAP_DOCUMENT_HPP_INCLUDED
 
-#include "CommandHistory.hpp"
 #include "DocumentAdapter.hpp"
 #include "ObserverPattern.hpp"
 
-#include "Math3D/Angles.hpp"
 #include "Plants/PlantDescrMan.hpp"
 #include "Templates/Array.hpp"
 #include "Templates/Pointer.hpp"
 #include "SceneGraph/LightMapMan.hpp"
 #include "UniScriptState.hpp"
 
+#include "wx/event.h"
+
 
 class ChildFrameT;
+class CommandT;
 class EditorMaterialI;
 class GameConfigT;
 class GroupT;
@@ -106,6 +107,9 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     MapDocAdapterT&                GetAdapter() { return m_DocAdapter; }
     cf::GameSys::WorldT&           GetScriptWorld() { return *m_ScriptWorld; }
 
+    /// For compatibility only. This method should be removed.
+    bool CompatSubmitCommand(CommandT* Command);
+
     /// Returns all entities that exist in this map. The world entity is always first at index 0, followed by an arbitrary number of "regular" entities.
     const ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> >& GetEntities() const;
 
@@ -141,7 +145,6 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     cf::SceneGraph::LightMapManT&  GetLightMapMan()      { return m_LightMapMan; }
     PlantDescrManT&                GetPlantDescrMan()    { return m_PlantDescrMan; }
 
-    CommandHistoryT&         GetHistory()               { return m_History; }
     const ArrayT<PtsPointT>& GetPointFilePoints() const { return m_PointFilePoints; }
     const ArrayT<wxColour>&  GetPointFileColors() const { return m_PointFileColors; }
 
@@ -174,9 +177,6 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
 
     void PostLoadEntityAlign(unsigned int cmapFileVersion, const ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> >& AllMapEnts);
 
-    ArrayT<CommandT*> CreatePasteCommands(const Vector3fT& DeltaTranslation=Vector3fT(), const cf::math::AnglesfT& DeltaRotation=cf::math::AnglesfT(),
-        unsigned int NrOfCopies=1, bool PasteGrouped=false, bool CenterAtOriginals=false);
-
     ChildFrameT*                       m_ChildFrame;          ///< The child frame within which this document lives.
     wxString                           m_FileName;            ///< This documents file name.
     MapDocAdapterT                     m_DocAdapter;          ///< Kept here because it sometimes needs the same lifetime as the MapDocumentT itself, e.g. when referenced by a "material" property of the Entity Inspector, or by commands in the command history.
@@ -186,8 +186,6 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     GameConfigT*                       m_GameConfig;          ///< The game configuration that is used with this map.
     cf::SceneGraph::LightMapManT       m_LightMapMan;         ///< The light map manager that is used with this map.
     PlantDescrManT                     m_PlantDescrMan;       ///< The plant description manager that is used with this map.
-
-    CommandHistoryT                    m_History;             ///< The command history.
 
     ArrayT<MapElementT*>               m_Selection;           ///< The currently selected map elements.
     mutable BoundingBox3fT             m_SelectionBB;         ///< The bounding-box of the current selection, or if there is no selection, the bounding-box of the previous selection.
@@ -204,21 +202,7 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     /*** Event handlers for >>document specific<< menu events. ***/
     /*************************************************************/
 
-    void OnEditUndoRedo                (wxCommandEvent& CE);
-    void OnEditCut                     (wxCommandEvent& CE);
-    void OnEditCopy                    (wxCommandEvent& CE);
-    void OnEditPaste                   (wxCommandEvent& CE);
-    void OnEditPasteSpecial            (wxCommandEvent& CE);
-    void OnEditDelete                  (wxCommandEvent& CE);
-    void OnEditSelectNone              (wxCommandEvent& CE);
-    void OnEditSelectAll               (wxCommandEvent& CE);
-
-    void OnUpdateEditUndoRedo          (wxUpdateUIEvent& UE);   // For Undo and Redo.
-    void OnUpdateEditCutCopyDelete     (wxUpdateUIEvent& UE);   // For Cut, Copy and Delete.
-    void OnUpdateEditPasteSpecial      (wxUpdateUIEvent& UE);   // For Paste and PasteSpecial.
-
     void OnSelectionApplyMaterial      (wxCommandEvent& CE);
-
     void OnUpdateSelectionApplyMaterial(wxUpdateUIEvent& UE);
 
     void OnMapSnapToGrid               (wxCommandEvent& CE);

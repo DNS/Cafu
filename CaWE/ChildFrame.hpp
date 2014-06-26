@@ -22,6 +22,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_CHILDFRAME_HPP_INCLUDED
 #define CAFU_CHILDFRAME_HPP_INCLUDED
 
+#include "CommandHistory.hpp"
+
+#include "Math3D/Angles.hpp"
 #include "Math3D/Vector3.hpp"
 #include "Templates/Array.hpp"
 
@@ -197,6 +200,10 @@ class ChildFrameT : public wxMDIChildFrame
     /// Returns this child frames document.
     MapDocumentT* GetDoc() const { return m_Doc; }
 
+    /// [...]
+    /// All(!) commands for modifying the document must be submitted via this method.
+    bool SubmitCommand(CommandT* Command);
+
     /// Returns the list of all (2D and 3D) view windows that are currently open in this frame.
     /// The returned list is always sorted in MRU (most-recently-used) order.
     const ArrayT<ViewWindowT*>& GetViewWindows() const { return m_ViewWindows; }
@@ -232,6 +239,7 @@ class ChildFrameT : public wxMDIChildFrame
     wxAuiManager             m_AUIManager;
     wxString                 m_AUIDefaultPerspective;
     MapDocumentT*            m_Doc;
+    CommandHistoryT          m_History;                 ///< The command history.
     unsigned long            m_LastSavedAtCommandNr;    ///< The ID of the command after which the document was last saved. If the current command ID from the history differs from this, the document contains unsaved changes.
     AutoSaveTimerT           m_AutoSaveTimer;
     ToolManagerT*            m_ToolManager;
@@ -259,14 +267,40 @@ class ChildFrameT : public wxMDIChildFrame
     /// Shows or hides the given AUI pane.
     void PaneToggleShow(wxAuiPaneInfo& PaneInfo);
 
+    /// Helper function to paste the clipboard contents into the map.
+    /// @param DeltaTranslation    Translation offset for each pasted copy (only relevant if NumberOfCopies > 1).
+    /// @param DeltaRotation       Rotation offset for each pasted copy (only relevant if NumberOfCopies > 1).
+    /// @param NrOfCopies          Number of times the objects are pasted into the world.
+    /// @param PasteGrouped        Should all pasted objects be grouped?
+    /// @param CenterAtOriginals   Should pasted objects be centered at position of original objects?
+    ArrayT<CommandT*> CreatePasteCommands(const Vector3fT& DeltaTranslation = Vector3fT(), const cf::math::AnglesfT& DeltaRotation = cf::math::AnglesfT(),
+        unsigned int NrOfCopies = 1, bool PasteGrouped = false, bool CenterAtOriginals = false) const;
+
     // Event handlers.
     void OnClose          (wxCloseEvent&      CE);  ///< Event handler for close events, e.g. after a system close button or command or a call to Close() (also see ParentFrameT::OnClose()). See wx Window Deletion Overview for more details.
     void OnIdle           (wxIdleEvent&       IE);  ///< Idle event handler, for updating the console when an external compile process runs, update all 3D views and caching textures.
     void OnProcessEnd     (wxProcessEvent&    PE);
     void OnMenuFile       (wxCommandEvent&    CE);  ///< Event handler for File    menu events.
     void OnMenuFileUpdate (wxUpdateUIEvent&   UE);  ///< Event handler for File    menu update events.
+
+
     void OnMenuEdit       (wxCommandEvent&    CE);  ///< Event handler for Edit    menu events.
     void OnMenuEditUpdate (wxUpdateUIEvent&   UE);  ///< Event handler for Edit    menu update events.
+
+    void OnMenuEditUndoRedo                (wxCommandEvent& CE);
+    void OnMenuEditCut                     (wxCommandEvent& CE);
+    void OnMenuEditCopy                    (wxCommandEvent& CE);
+    void OnMenuEditPaste                   (wxCommandEvent& CE);
+    void OnMenuEditPasteSpecial            (wxCommandEvent& CE);
+    void OnMenuEditDelete                  (wxCommandEvent& CE);
+    void OnMenuEditSelectNone              (wxCommandEvent& CE);
+    void OnMenuEditSelectAll               (wxCommandEvent& CE);
+
+    void OnUpdateEditUndoRedo          (wxUpdateUIEvent& UE);   // For Undo and Redo.
+    void OnUpdateEditCutCopyDelete     (wxUpdateUIEvent& UE);   // For Cut, Copy and Delete.
+    void OnUpdateEditPasteSpecial      (wxUpdateUIEvent& UE);   // For Paste and PasteSpecial.
+
+
     void OnMenuView       (wxCommandEvent&    CE);  ///< Event handler for View    menu events.
     void OnMenuViewUpdate (wxUpdateUIEvent&   UE);  ///< Event handler for View    menu update events.
     void OnMenuTools      (wxCommandEvent&    CE);  ///< Event handler for Tools   menu events.

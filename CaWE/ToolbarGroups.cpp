@@ -20,6 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "ToolbarGroups.hpp"
+#include "ChildFrame.hpp"
 #include "MapDocument.hpp"
 #include "MapElement.hpp"
 #include "Group.hpp"
@@ -55,7 +56,7 @@ class GroupsListViewT : public wxListView
 {
     public:
 
-    GroupsListViewT(GroupsToolbarT* Parent, wxWindowID ID);
+    GroupsListViewT(GroupsToolbarT* Parent, ChildFrameT* ChildFrame, wxWindowID ID);
 
     // Overrides of parent class methods.
     bool DeleteAllItems();
@@ -70,6 +71,7 @@ class GroupsListViewT : public wxListView
     private:
 
     GroupsToolbarT* m_Parent;
+    ChildFrameT*    m_ChildFrame;
     ArrayT<GroupT*> m_ClientData;    ///< Our custom client data for each list item.
 
     void OnKeyDown      (wxKeyEvent&         KE);
@@ -92,9 +94,10 @@ BEGIN_EVENT_TABLE(GroupsListViewT, wxListView)
 END_EVENT_TABLE()
 
 
-GroupsListViewT::GroupsListViewT(GroupsToolbarT* Parent, wxWindowID ID)
+GroupsListViewT::GroupsListViewT(GroupsToolbarT* Parent, ChildFrameT* ChildFrame, wxWindowID ID)
     : wxListView(Parent, ID, wxDefaultPosition, wxDefaultSize, wxLC_REPORT | wxLC_NO_HEADER | wxLC_EDIT_LABELS),
-      m_Parent(Parent)
+      m_Parent(Parent),
+      m_ChildFrame(ChildFrame)
 {
     // Build list of list view icons.
     wxImageList* ListIcons=new wxImageList(16, 16);
@@ -305,7 +308,7 @@ void GroupsListViewT::OnEndLabelEdit(wxListEvent& LE)
     if (Index>=MapDoc->GetGroups().Size()) return;
 
     m_Parent->m_IsRecursiveSelfNotify=true;
-    MapDoc->GetHistory().SubmitCommand(new CommandGroupSetPropT(*MapDoc, MapDoc->GetGroups()[Index], LE.GetLabel()));
+    m_ChildFrame->SubmitCommand(new CommandGroupSetPropT(*MapDoc, MapDoc->GetGroups()[Index], LE.GetLabel()));
     m_Parent->m_IsRecursiveSelfNotify=false;
 }
 
@@ -316,9 +319,11 @@ BEGIN_EVENT_TABLE(GroupsToolbarT, wxPanel)
 END_EVENT_TABLE()
 
 
-GroupsToolbarT::GroupsToolbarT(wxWindow* Parent, MapDocumentT* MapDoc)
-    : wxPanel(Parent, -1, wxDefaultPosition, wxDefaultSize),
-      m_MapDoc(MapDoc),
+GroupsToolbarT::GroupsToolbarT(ChildFrameT* ChildFrame, CommandHistoryT& History)
+    : wxPanel(ChildFrame, -1, wxDefaultPosition, wxDefaultSize),
+      m_ChildFrame(ChildFrame),
+      m_History(History),
+      m_MapDoc(ChildFrame->GetDoc()),
       m_ListView(NULL),
       m_IsRecursiveSelfNotify(false)
 {
@@ -330,7 +335,7 @@ GroupsToolbarT::GroupsToolbarT(wxWindow* Parent, MapDocumentT* MapDoc)
     // wxStaticText *item1 = new wxStaticText(this, -1, wxT("Groups:"), wxDefaultPosition, wxDefaultSize, 0 );
     // item0->Add( item1, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP, 5 );
 
-    m_ListView=new GroupsListViewT(this, ID_LISTVIEW_GROUPS);
+    m_ListView=new GroupsListViewT(this, m_ChildFrame, ID_LISTVIEW_GROUPS);
     item0->Add(m_ListView, 1, wxEXPAND|wxLEFT|wxRIGHT|wxTOP|wxBOTTOM, 5 );
 
     this->SetSizer(item0);
@@ -398,12 +403,12 @@ void GroupsToolbarT::OnToggleVisibility(unsigned long GroupNr)
 
     // First, try to achieve the desired action by undoing a previous "set group visibility" command.
     {
-        const CommandGroupSetVisibilityT* UndoVisCmd=dynamic_cast<const CommandGroupSetVisibilityT*>(m_MapDoc->GetHistory().GetUndoCommand());
+        const CommandGroupSetVisibilityT* UndoVisCmd=dynamic_cast<const CommandGroupSetVisibilityT*>(m_History.GetUndoCommand());
 
         if (UndoVisCmd && UndoVisCmd->GetGroup()==Group)
         {
             m_IsRecursiveSelfNotify=true;
-            m_MapDoc->GetHistory().Undo();
+            m_History.Undo();
             m_IsRecursiveSelfNotify=false;
             return;
         }
@@ -411,12 +416,12 @@ void GroupsToolbarT::OnToggleVisibility(unsigned long GroupNr)
 
     // Second, try to achieve the desired action by redoing a following "set group visibility" command.
     {
-        const CommandGroupSetVisibilityT* RedoVisCmd=dynamic_cast<const CommandGroupSetVisibilityT*>(m_MapDoc->GetHistory().GetRedoCommand());
+        const CommandGroupSetVisibilityT* RedoVisCmd=dynamic_cast<const CommandGroupSetVisibilityT*>(m_History.GetRedoCommand());
 
         if (RedoVisCmd && RedoVisCmd->GetGroup()==Group)
         {
             m_IsRecursiveSelfNotify=true;
-            m_MapDoc->GetHistory().Redo();
+            m_History.Redo();
             m_IsRecursiveSelfNotify=false;
             return;
         }
@@ -424,7 +429,7 @@ void GroupsToolbarT::OnToggleVisibility(unsigned long GroupNr)
 
     // Third and finally, the normal case: Submit a new command for toggling the visibility of the group.
     m_IsRecursiveSelfNotify=true;
-    m_MapDoc->GetHistory().SubmitCommand(new CommandGroupSetVisibilityT(*m_MapDoc, Group, !Group->IsVisible));
+    m_ChildFrame->SubmitCommand(new CommandGroupSetVisibilityT(*m_MapDoc, Group, !Group->IsVisible));
     m_IsRecursiveSelfNotify=false;
 }
 
@@ -439,12 +444,12 @@ void GroupsToolbarT::OnToggleProperty(unsigned long GroupNr, CommandGroupSetProp
 
     // First, try to achieve the desired action by undoing a previous "set group property" command.
     {
-        const CommandGroupSetPropT* UndoPropCmd=dynamic_cast<const CommandGroupSetPropT*>(m_MapDoc->GetHistory().GetUndoCommand());
+        const CommandGroupSetPropT* UndoPropCmd=dynamic_cast<const CommandGroupSetPropT*>(m_History.GetUndoCommand());
 
         if (UndoPropCmd && UndoPropCmd->GetGroup()==Group && UndoPropCmd->GetProp()==Prop)
         {
             m_IsRecursiveSelfNotify=true;
-            m_MapDoc->GetHistory().Undo();
+            m_History.Undo();
             m_IsRecursiveSelfNotify=false;
             return;
         }
@@ -452,12 +457,12 @@ void GroupsToolbarT::OnToggleProperty(unsigned long GroupNr, CommandGroupSetProp
 
     // Second, try to achieve the desired action by redoing a following "set group property" command.
     {
-        const CommandGroupSetPropT* RedoPropCmd=dynamic_cast<const CommandGroupSetPropT*>(m_MapDoc->GetHistory().GetRedoCommand());
+        const CommandGroupSetPropT* RedoPropCmd=dynamic_cast<const CommandGroupSetPropT*>(m_History.GetRedoCommand());
 
         if (RedoPropCmd && RedoPropCmd->GetGroup()==Group && RedoPropCmd->GetProp()==Prop)
         {
             m_IsRecursiveSelfNotify=true;
-            m_MapDoc->GetHistory().Redo();
+            m_History.Redo();
             m_IsRecursiveSelfNotify=false;
             return;
         }
@@ -465,7 +470,7 @@ void GroupsToolbarT::OnToggleProperty(unsigned long GroupNr, CommandGroupSetProp
 
     // Third and finally, the normal case: Submit a new command for toggling the property of the group.
     m_IsRecursiveSelfNotify=true;
-    m_MapDoc->GetHistory().SubmitCommand(new CommandGroupSetPropT(*m_MapDoc, Group, Prop,
+    m_ChildFrame->SubmitCommand(new CommandGroupSetPropT(*m_MapDoc, Group, Prop,
         !(Prop==CommandGroupSetPropT::PROP_CANSELECT ? Group->CanSelect : Group->SelectAsGroup)));
     m_IsRecursiveSelfNotify=false;
 }
@@ -501,7 +506,7 @@ void GroupsToolbarT::OnMenu(wxCommandEvent& CE)
             }
 
             // Select the elements in Elems (which may be empty).
-            m_MapDoc->GetHistory().SubmitCommand(CommandSelectT::Set(m_MapDoc, Elems));
+            m_ChildFrame->SubmitCommand(CommandSelectT::Set(m_MapDoc, Elems));
             break;
         }
 
@@ -514,7 +519,7 @@ void GroupsToolbarT::OnMenu(wxCommandEvent& CE)
             for (unsigned long GroupNr=0; GroupNr<SelGroups.Size(); GroupNr++)
                 SubCommands.PushBack(new CommandGroupSetPropT(*m_MapDoc, SelGroups[GroupNr], NewName));
 
-            m_MapDoc->GetHistory().SubmitCommand(new CommandMacroT(SubCommands, SubCommands[0]->GetName()));
+            m_ChildFrame->SubmitCommand(new CommandMacroT(SubCommands, SubCommands[0]->GetName()));
             break;
         }
 
@@ -527,7 +532,7 @@ void GroupsToolbarT::OnMenu(wxCommandEvent& CE)
             for (unsigned long GroupNr=0; GroupNr<SelGroups.Size(); GroupNr++)
                 SubCommands.PushBack(new CommandGroupSetPropT(*m_MapDoc, SelGroups[GroupNr], NewColor));
 
-            m_MapDoc->GetHistory().SubmitCommand(new CommandMacroT(SubCommands, SubCommands[0]->GetName()));
+            m_ChildFrame->SubmitCommand(new CommandMacroT(SubCommands, SubCommands[0]->GetName()));
             break;
         }
 
@@ -542,7 +547,7 @@ void GroupsToolbarT::OnMenu(wxCommandEvent& CE)
                     SubCommands.PushBack(new CommandGroupSetVisibilityT(*m_MapDoc, SelGroups[GroupNr], WantVisible));
 
             if (SubCommands.Size()>0)
-                m_MapDoc->GetHistory().SubmitCommand(new CommandMacroT(SubCommands, wxString(WantVisible ? "Show " : "Hide ") + wxString(SubCommands.Size()==1 ? "group" : "groups")));
+                m_ChildFrame->SubmitCommand(new CommandMacroT(SubCommands, wxString(WantVisible ? "Show " : "Hide ") + wxString(SubCommands.Size()==1 ? "group" : "groups")));
             break;
         }
 
@@ -558,7 +563,7 @@ void GroupsToolbarT::OnMenu(wxCommandEvent& CE)
                         CommandGroupSetPropT::PROP_CANSELECT, WantCanSelect));
 
             if (SubCommands.Size()>0)
-                m_MapDoc->GetHistory().SubmitCommand(new CommandMacroT(SubCommands, SubCommands[0]->GetName()));
+                m_ChildFrame->SubmitCommand(new CommandMacroT(SubCommands, SubCommands[0]->GetName()));
             break;
         }
 
@@ -574,13 +579,13 @@ void GroupsToolbarT::OnMenu(wxCommandEvent& CE)
                         CommandGroupSetPropT::PROP_SELECTASGROUP, WantSelAsGroup));
 
             if (SubCommands.Size()>0)
-                m_MapDoc->GetHistory().SubmitCommand(new CommandMacroT(SubCommands, SubCommands[0]->GetName()));
+                m_ChildFrame->SubmitCommand(new CommandMacroT(SubCommands, SubCommands[0]->GetName()));
             break;
         }
 
         case ID_MENU_DELETE:
         {
-            m_MapDoc->GetHistory().SubmitCommand(new CommandDeleteGroupT(*m_MapDoc, SelGroups));
+            m_ChildFrame->SubmitCommand(new CommandDeleteGroupT(*m_MapDoc, SelGroups));
             break;
         }
 
@@ -623,7 +628,7 @@ void GroupsToolbarT::OnMenu(wxCommandEvent& CE)
             SubCommands.PushBack(CmdDelete);
 
             // 4. Submit the composite macro command.
-            m_MapDoc->GetHistory().SubmitCommand(new CommandMacroT(SubCommands, "Merge groups"));
+            m_ChildFrame->SubmitCommand(new CommandMacroT(SubCommands, "Merge groups"));
             break;
         }
 
@@ -641,7 +646,7 @@ void GroupsToolbarT::OnMenu(wxCommandEvent& CE)
             }
 
             if (PosNr<NewOrder.Size())
-                m_MapDoc->GetHistory().SubmitCommand(new CommandReorderGroupsT(*m_MapDoc, NewOrder));
+                m_ChildFrame->SubmitCommand(new CommandReorderGroupsT(*m_MapDoc, NewOrder));
             break;
         }
 
@@ -661,7 +666,7 @@ void GroupsToolbarT::OnMenu(wxCommandEvent& CE)
             }
 
             if (PosNr<NewOrder.Size())
-                m_MapDoc->GetHistory().SubmitCommand(new CommandReorderGroupsT(*m_MapDoc, NewOrder));
+                m_ChildFrame->SubmitCommand(new CommandReorderGroupsT(*m_MapDoc, NewOrder));
             break;
         }
     }

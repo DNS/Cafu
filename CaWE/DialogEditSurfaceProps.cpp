@@ -519,7 +519,7 @@ void EditSurfacePropsDialogT::ApplyClick(ViewWindow3DT& ViewWin3D, MapElementT* 
     {
         CommandMacroT* Macro=new CommandMacroT(SurfaceCommands, "Right-click apply");
 
-        m_MapDoc->GetHistory().SubmitCommand(Macro);
+        m_MapDoc->CompatSubmitCommand(Macro);
     }
 }
 
@@ -889,7 +889,7 @@ void EditSurfacePropsDialogT::OnSpinCtrlValueChanged(wxSpinDoubleEvent& Event)
 
         CommandMacroT* Macro=new CommandMacroT(SurfaceCommands, Name);
 
-        m_MapDoc->GetHistory().SubmitCommand(Macro);
+        m_MapDoc->CompatSubmitCommand(Macro);
     }
 }
 
@@ -926,7 +926,7 @@ void EditSurfacePropsDialogT::OnButtonAlign(wxCommandEvent& Event)
             SurfaceCommands.PushBack(new CommandUpdateSurfaceFaceT(*m_MapDoc, m_SelectedFaces[FaceNr].Brush, m_SelectedFaces[FaceNr].FaceIndex, SI, NULL));
         }
 
-        m_MapDoc->GetHistory().SubmitCommand(new CommandMacroT(SurfaceCommands, "Align Material"));
+        m_MapDoc->CompatSubmitCommand(new CommandMacroT(SurfaceCommands, "Align Material"));
     }
     else if (m_SelectedPatches.Size()>0)
     {
@@ -951,7 +951,7 @@ void EditSurfacePropsDialogT::OnButtonAlign(wxCommandEvent& Event)
 
         CommandMacroT* Macro=new CommandMacroT(SurfaceCommands, "Justify Material");
 
-        m_MapDoc->GetHistory().SubmitCommand(Macro);
+        m_MapDoc->CompatSubmitCommand(Macro);
     }
 }
 
@@ -976,7 +976,7 @@ void EditSurfacePropsDialogT::OnCheckBoxAlignWorld(wxCommandEvent& Event)
 
         CommandMacroT* Macro=new CommandMacroT(SurfaceCommands, "Align Material wrt. World Axes");
 
-        m_MapDoc->GetHistory().SubmitCommand(Macro);
+        m_MapDoc->CompatSubmitCommand(Macro);
     }
 }
 
@@ -1001,7 +1001,7 @@ void EditSurfacePropsDialogT::OnCheckBoxAlignFace(wxCommandEvent& Event)
 
         CommandMacroT* Macro=new CommandMacroT(SurfaceCommands, "Align Material wrt. Face Plane");
 
-        m_MapDoc->GetHistory().SubmitCommand(Macro);
+        m_MapDoc->CompatSubmitCommand(Macro);
     }
 }
 
@@ -1081,7 +1081,7 @@ void EditSurfacePropsDialogT::OnSelChangeCurrentMat(wxCommandEvent& Event)
             {
                 CommandMacroT* Macro=new CommandMacroT(SurfaceCommands, "Apply material to selection");
 
-                m_MapDoc->GetHistory().SubmitCommand(Macro);
+                m_MapDoc->CompatSubmitCommand(Macro);
             }
         }
     }
@@ -1193,7 +1193,7 @@ void EditSurfacePropsDialogT::OnButtonApplyToAllSelected(wxCommandEvent& Event)
     {
         CommandMacroT* Macro=new CommandMacroT(SurfaceCommands, "Apply to all selected");
 
-        m_MapDoc->GetHistory().SubmitCommand(Macro);
+        m_MapDoc->CompatSubmitCommand(Macro);
     }
 }
 

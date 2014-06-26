@@ -121,7 +121,7 @@ bool ToolNewBezierPatchT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& 
 
     if (m_NewBPs.Size()==1)
     {
-        m_MapDoc.GetHistory().SubmitCommand(new CommandAddPrimT(m_MapDoc, m_NewBPs[0], m_MapDoc.GetEntities()[0], "new bezier patch"));
+        m_MapDoc.CompatSubmitCommand(new CommandAddPrimT(m_MapDoc, m_NewBPs[0], m_MapDoc.GetEntities()[0], "new bezier patch"));
     }
     else
     {
@@ -158,7 +158,7 @@ bool ToolNewBezierPatchT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& 
         SubCommands.PushBack(CmdAssign);
 
         // 4. Submit the composite macro command.
-        m_MapDoc.GetHistory().SubmitCommand(new CommandMacroT(SubCommands, "new bezier patch"));
+        m_MapDoc.CompatSubmitCommand(new CommandMacroT(SubCommands, "new bezier patch"));
     }
 
     // Instances are now "owned" by the command.

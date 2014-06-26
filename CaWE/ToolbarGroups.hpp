@@ -28,6 +28,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/panel.h"
 
 
+class ChildFrameT;
+class CommandHistoryT;
 class MapDocumentT;
 class GroupsListViewT;
 
@@ -38,7 +40,7 @@ class GroupsToolbarT : public wxPanel, public ObserverT
     public:
 
     /// The constructor.
-    GroupsToolbarT(wxWindow* Parent, MapDocumentT* MapDoc);
+    GroupsToolbarT(ChildFrameT* ChildFrame, CommandHistoryT& History);
 
     /// The destructor.
     ~GroupsToolbarT();
@@ -52,6 +54,8 @@ class GroupsToolbarT : public wxPanel, public ObserverT
 
     friend class GroupsListViewT;
 
+    ChildFrameT*     m_ChildFrame;
+    CommandHistoryT& m_History;
     MapDocumentT*    m_MapDoc;
     GroupsListViewT* m_ListView;
     bool             m_IsRecursiveSelfNotify;

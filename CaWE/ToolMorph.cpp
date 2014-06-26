@@ -437,7 +437,7 @@ void ToolMorphT::FinishDragMorphHandles()
         Commands.PushBack(SelCmd);
     }
 
-    m_MapDoc.GetHistory().SubmitCommand(new CommandMacroT(Commands, "Edit Vertices"));
+    m_MapDoc.CompatSubmitCommand(new CommandMacroT(Commands, "Edit Vertices"));
 
     // This is somewhat redundant, but have it anyway here for clarity.
     m_DragState=DragNothing;
@@ -626,7 +626,7 @@ bool ToolMorphT::OnLMouseDown2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
             // not account for it at all, or to route this through the selection tool somehow.
             //
             // The implied call to NotifySubjectChanged_Selection() will update our tool state.
-            m_MapDoc.GetHistory().SubmitCommand(ME.ControlDown()
+            m_MapDoc.CompatSubmitCommand(ME.ControlDown()
                 ? CommandSelectT::Add(&m_MapDoc, HitPrim)
                 : CommandSelectT::Set(&m_MapDoc, HitPrim));
 
@@ -901,7 +901,7 @@ bool ToolMorphT::OnLMouseDown3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
             // not account for it at all, or to route this through the selection tool somehow.
             //
             // The implied call to NotifySubjectChanged_Selection() will update our tool state.
-            m_MapDoc.GetHistory().SubmitCommand(ME.ControlDown()
+            m_MapDoc.CompatSubmitCommand(ME.ControlDown()
                 ? CommandSelectT::Add(&m_MapDoc, HitPrim)
                 : CommandSelectT::Set(&m_MapDoc, HitPrim));
 

@@ -134,7 +134,7 @@ bool ToolNewBrushT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
             case  4: CmdDescr="new sphere brush";   break;
         }
 
-        m_MapDoc.GetHistory().SubmitCommand(new CommandAddPrimT(m_MapDoc, m_NewBrush, m_MapDoc.GetEntities()[0], CmdDescr));
+        m_MapDoc.CompatSubmitCommand(new CommandAddPrimT(m_MapDoc, m_NewBrush, m_MapDoc.GetEntities()[0], CmdDescr));
         m_NewBrush=NULL;    // Instance is now "owned" by the command.
     }
     else
@@ -179,7 +179,7 @@ bool ToolNewBrushT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
             SubCommands.PushBack(CmdAssign);
 
             // 4. Submit the composite macro command.
-            m_MapDoc.GetHistory().SubmitCommand(new CommandMacroT(SubCommands, "new arch"));
+            m_MapDoc.CompatSubmitCommand(new CommandMacroT(SubCommands, "new arch"));
         }
     }
 
@@ -233,7 +233,7 @@ bool ToolNewBrushT::OnRMouseClick3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
 
         MapBrushT* NewBrush=new MapBrushT(Planes, m_MapDoc.GetGameConfig()->GetMatMan().GetDefaultMaterial(), true);
 
-        m_MapDoc.GetHistory().SubmitCommand(new CommandAddPrimT(m_MapDoc, NewBrush, m_MapDoc.GetEntities()[0], "new view frustum brush"));
+        m_MapDoc.CompatSubmitCommand(new CommandAddPrimT(m_MapDoc, NewBrush, m_MapDoc.GetEntities()[0], "new view frustum brush"));
         return true;
     }
 

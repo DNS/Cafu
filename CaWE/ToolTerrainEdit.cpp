@@ -207,7 +207,7 @@ void ToolTerrainEditorT::SetResolution(unsigned long Resolution)
 
     // Change the resolution of the original terrain. The m_TerrainCopy member is updated when we receive
     // the change notification via the Observer pattern (call to our NotifySubjectChanged() method).
-    m_MapDoc.GetHistory().SubmitCommand(new CommandChangeTerrainResT(m_MapDoc, m_TerrainOrig, Resolution));
+    m_MapDoc.CompatSubmitCommand(new CommandChangeTerrainResT(m_MapDoc, m_TerrainOrig, Resolution));
 
     // After a resolution change the tool position could become invalid, so we reset it here.
     m_HeightDataPos=wxPoint(-1, -1);
@@ -283,7 +283,7 @@ void ToolTerrainEditorT::ImportHeightMap(const wxString& FileName)
 
     // Our copy has already been updated, so we don't need to update again on modification of the original terrain.
     m_IsRecSelfNotify=true;
-    m_MapDoc.GetHistory().SubmitCommand(new CommandMacroT(Commands, "Import height data into terrain"));
+    m_MapDoc.CompatSubmitCommand(new CommandMacroT(Commands, "Import height data into terrain"));
     m_IsRecSelfNotify=false;
 
     // After a resolution change the tool position could become invalid, so we reset it here.
@@ -581,7 +581,7 @@ void ToolTerrainEditorT::OnActivate(ToolT* OldTool)
             }
         }
 
-        m_MapDoc.GetHistory().SubmitCommand(CommandSelectT::Clear(&m_MapDoc));
+        m_MapDoc.CompatSubmitCommand(CommandSelectT::Clear(&m_MapDoc));
     }
 
     m_MapDoc.GetChildFrame()->ShowPane(m_MapDoc.GetChildFrame()->GetTerrainEditorDialog(), true);
@@ -597,7 +597,7 @@ void ToolTerrainEditorT::OnDeactivate(ToolT* NewTool)
         SetTerrain(NULL);   // Resets m_TerrainOrig to NULL.
 
         if (EditedTerrain!=NULL)
-            m_MapDoc.GetHistory().SubmitCommand(CommandSelectT::Add(&m_MapDoc, EditedTerrain));
+            m_MapDoc.CompatSubmitCommand(CommandSelectT::Add(&m_MapDoc, EditedTerrain));
 
         m_MapDoc.GetChildFrame()->ShowPane(m_MapDoc.GetChildFrame()->GetTerrainEditorDialog(), false);
     }
@@ -1921,7 +1921,7 @@ void ToolTerrainEditorT::CommitChanges()
 
     // Our copy has already been updated, so we don't need to recursively update it again.
     m_IsRecSelfNotify=true;
-    m_MapDoc.GetHistory().SubmitCommand(Command);
+    m_MapDoc.CompatSubmitCommand(Command);
     m_IsRecSelfNotify=false;
 
     // Set edit bounds empty since all changes have been commited.

@@ -206,7 +206,7 @@ ReplaceMaterialsDialogT::ReplaceMaterialsDialogT(bool IsSomethingSelected, MapDo
 void ReplaceMaterialsDialogT::OnOK(wxCommandEvent& Event)
 {
     // Clear selection before marking new stuff.
-    if (CheckBoxFindOnly->IsChecked()) m_MapDoc.GetHistory().SubmitCommand(CommandSelectT::Clear(&m_MapDoc));
+    if (CheckBoxFindOnly->IsChecked()) m_MapDoc.CompatSubmitCommand(CommandSelectT::Clear(&m_MapDoc));
 
     // CF: The big TODO question with this dialog is:
     // If I select something, and then hide it in a group, is it still selected?
@@ -222,7 +222,7 @@ void ReplaceMaterialsDialogT::OnOK(wxCommandEvent& Event)
         CheckBoxInclusiveBPs->IsChecked(),        // Include bezier patches?
         CheckBoxInclusiveHidden->IsChecked());    // Search for hidden if "all objects (inclusive hidden objects)" is selected.
 
-    m_MapDoc.GetHistory().SubmitCommand(Command);
+    m_MapDoc.CompatSubmitCommand(Command);
     wxMessageBox(Command->GetResultString());
 
     // Tell wxWidgets to continue processing the default behavior for wxID_OK

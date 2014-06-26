@@ -318,7 +318,7 @@ void EntityInspectorT::OnPropertyGridChanging(wxPropertyGridEvent& Event)
         VarVisitorHandlePropChangingEventT PropChange(Event, m_MapDocument->GetAdapter());
 
         Var->accept(PropChange);
-        if (!m_MapDocument->GetHistory().SubmitCommand(PropChange.TransferCommand())) Event.Veto();
+        if (!m_ChildFrame->SubmitCommand(PropChange.TransferCommand())) Event.Veto();
     }
     else
     {
@@ -331,7 +331,7 @@ void EntityInspectorT::OnPropertyGridChanging(wxPropertyGridEvent& Event)
             VarVisitorHandleSubChangingEventT PropChange(Event, m_MapDocument->GetAdapter());
 
             Var->accept(PropChange);
-            if (!m_MapDocument->GetHistory().SubmitCommand(PropChange.TransferCommand())) Event.Veto();
+            if (!m_ChildFrame->SubmitCommand(PropChange.TransferCommand())) Event.Veto();
         }
     }
 
@@ -468,7 +468,7 @@ void EntityInspectorT::OnPropertyGridRightClick(wxPropertyGridEvent& Event)
             Commands.PushBack(new CommandDeleteComponentT(m_MapDocument, m_SelectedEntity, Index));
             Commands.PushBack(new CommandAddComponentT(m_MapDocument, m_SelectedEntity, Comp, Index-1));
 
-            m_MapDocument->GetHistory().SubmitCommand(new CommandMacroT(Commands, "Move component up"));
+            m_ChildFrame->SubmitCommand(new CommandMacroT(Commands, "Move component up"));
             break;
         }
 
@@ -482,7 +482,7 @@ void EntityInspectorT::OnPropertyGridRightClick(wxPropertyGridEvent& Event)
             Commands.PushBack(new CommandDeleteComponentT(m_MapDocument, m_SelectedEntity, Index));
             Commands.PushBack(new CommandAddComponentT(m_MapDocument, m_SelectedEntity, Comp, Index+1));
 
-            m_MapDocument->GetHistory().SubmitCommand(new CommandMacroT(Commands, "Move component down"));
+            m_ChildFrame->SubmitCommand(new CommandMacroT(Commands, "Move component down"));
             break;
         }
 
@@ -496,7 +496,7 @@ void EntityInspectorT::OnPropertyGridRightClick(wxPropertyGridEvent& Event)
         {
             if (!IsCustom) break;
 
-            m_MapDocument->GetHistory().SubmitCommand(new CommandDeleteComponentT(m_MapDocument, m_SelectedEntity, Index));
+            m_ChildFrame->SubmitCommand(new CommandDeleteComponentT(m_MapDocument, m_SelectedEntity, Index));
             break;
         }
 

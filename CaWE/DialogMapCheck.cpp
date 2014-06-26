@@ -222,8 +222,8 @@ void MapCheckDialogT::OnListBoxProblemsSelChange(wxCommandEvent& Event)
     ButtonFix      ->Enable(Problem->HasProblem() && Problem->CanFix());
     ButtonFixAll   ->Enable(Problem->CanFix());
 
-    if (ProbEnt != NULL && !ProbEnt->IsWorld()) m_MapDoc.GetHistory().SubmitCommand(CommandSelectT::Set(&m_MapDoc, ProbEnt->GetRepres()));
-                                           else m_MapDoc.GetHistory().SubmitCommand(CommandSelectT::Clear(&m_MapDoc));
+    if (ProbEnt != NULL && !ProbEnt->IsWorld()) m_MapDoc.CompatSubmitCommand(CommandSelectT::Set(&m_MapDoc, ProbEnt->GetRepres()));
+                                           else m_MapDoc.CompatSubmitCommand(CommandSelectT::Clear(&m_MapDoc));
 }
 
 
@@ -252,7 +252,7 @@ void MapCheckDialogT::OnButtonFix(wxCommandEvent& Event)
 
     if (ProbCmd)
     {
-        m_MapDoc.GetHistory().SubmitCommand(ProbCmd);
+        m_MapDoc.CompatSubmitCommand(ProbCmd);
     }
 
     wxCommandEvent CE;
@@ -279,7 +279,7 @@ void MapCheckDialogT::OnButtonFixAll(wxCommandEvent& Event)
         }
 
     if (Fixes.Size())
-        m_MapDoc.GetHistory().SubmitCommand(new CommandMacroT(Fixes, "Fix all: "+Problem->GetInfo()));
+        m_MapDoc.CompatSubmitCommand(new CommandMacroT(Fixes, "Fix all: "+Problem->GetInfo()));
 
     wxCommandEvent CE;
     OnListBoxProblemsSelChange(CE);

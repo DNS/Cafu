@@ -70,7 +70,7 @@ void MapDocAdapterT::OnMarkMaterial(EditorMaterialI* Mat) const
         true,   // Include bezier patches in the search.
         false); // Do not include hidden objects (makes no sense for marking anyway).
 
-    m_MapDoc.GetHistory().SubmitCommand(Command);
+    m_MapDoc.CompatSubmitCommand(Command);
     wxMessageBox(Command->GetResultString());
 }
 

@@ -23,23 +23,34 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChildFrameViewWin2D.hpp"
 #include "ChildFrameViewWin3D.hpp"
 #include "Camera.hpp"
+#include "CompMapEntity.hpp"
 #include "DialogConsole.hpp"
 #include "DialogCustomCompile.hpp"
 #include "DialogEditSurfaceProps.hpp"
 #include "DialogInspector.hpp"
+#include "DialogPasteSpecial.hpp"
 #include "DialogTerrainEdit.hpp"
 #include "GameConfig.hpp"
 #include "MapDocument.hpp"
+#include "MapEntRepres.hpp"
 #include "Options.hpp"
 #include "ParentFrame.hpp"
 #include "Tool.hpp"
 #include "ToolbarMaterials.hpp"
 #include "ToolbarGroups.hpp"
 #include "ToolCamera.hpp"
+#include "ToolEditSurface.hpp"
 #include "ToolTerrainEdit.hpp"
 #include "ToolManager.hpp"
 
 #include "MapCommands/AddComponent.hpp"
+#include "MapCommands/AddPrim.hpp"
+#include "MapCommands/Delete.hpp"
+#include "MapCommands/Group_Assign.hpp"
+#include "MapCommands/Group_Delete.hpp"
+#include "MapCommands/Group_New.hpp"
+#include "MapCommands/NewEntity.hpp"
+#include "MapCommands/Select.hpp"
 
 #include "GameSys/AllComponents.hpp"
 #include "GameSys/Entity.hpp"
@@ -51,6 +62,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/filename.h"
 #include "wx/process.h"
 #include "wx/stdpaths.h"
+
+
+using namespace MapEditor;
 
 
 // TODO:
@@ -217,8 +231,31 @@ BEGIN_EVENT_TABLE(ChildFrameT, wxMDIChildFrame)
 
     EVT_MENU_RANGE     (ID_MENU_FILE_CLOSE,            ID_MENU_FILE_SAVEAS,             ChildFrameT::OnMenuFile)
     EVT_UPDATE_UI_RANGE(ID_MENU_FILE_CLOSE,            ID_MENU_FILE_SAVEAS,             ChildFrameT::OnMenuFileUpdate)
+
+
     EVT_MENU_RANGE     (ID_MENU_EDIT_ENTITY_INSPECTOR, ID_MENU_EDIT_ENTITY_INSPECTOR,   ChildFrameT::OnMenuEdit)
     EVT_UPDATE_UI_RANGE(ID_MENU_EDIT_ENTITY_INSPECTOR, ID_MENU_EDIT_ENTITY_INSPECTOR,   ChildFrameT::OnMenuEditUpdate)
+
+    EVT_MENU  (wxID_UNDO,                          ChildFrameT::OnMenuEditUndoRedo)
+    EVT_MENU  (wxID_REDO,                          ChildFrameT::OnMenuEditUndoRedo)
+    EVT_MENU  (wxID_CUT,                           ChildFrameT::OnMenuEditCut)
+    EVT_MENU  (wxID_COPY,                          ChildFrameT::OnMenuEditCopy)
+    EVT_MENU  (wxID_PASTE,                         ChildFrameT::OnMenuEditPaste)
+    EVT_MENU  (ID_MENU_EDIT_PASTE_SPECIAL,         ChildFrameT::OnMenuEditPasteSpecial)
+    EVT_MENU  (ID_MENU_EDIT_DELETE,                ChildFrameT::OnMenuEditDelete)
+    EVT_BUTTON(ID_MENU_EDIT_DELETE,                ChildFrameT::OnMenuEditDelete)
+    EVT_MENU  (ID_MENU_EDIT_SELECT_NONE,           ChildFrameT::OnMenuEditSelectNone)
+    EVT_MENU  (wxID_SELECTALL,                     ChildFrameT::OnMenuEditSelectAll)
+
+    EVT_UPDATE_UI(wxID_UNDO,                       ChildFrameT::OnUpdateEditUndoRedo)
+    EVT_UPDATE_UI(wxID_REDO,                       ChildFrameT::OnUpdateEditUndoRedo)
+    EVT_UPDATE_UI(wxID_CUT,                        ChildFrameT::OnUpdateEditCutCopyDelete)
+    EVT_UPDATE_UI(wxID_COPY,                       ChildFrameT::OnUpdateEditCutCopyDelete)
+    EVT_UPDATE_UI(ID_MENU_EDIT_DELETE,             ChildFrameT::OnUpdateEditCutCopyDelete)
+    EVT_UPDATE_UI(wxID_PASTE,                      ChildFrameT::OnUpdateEditPasteSpecial)
+    EVT_UPDATE_UI(ID_MENU_EDIT_PASTE_SPECIAL,      ChildFrameT::OnUpdateEditPasteSpecial)
+
+
     EVT_MENU_RANGE     (ID_MENU_VIEW_TOOLBARS,         ID_MENU_VIEW_CENTER_3D_VIEWS,    ChildFrameT::OnMenuView)
     EVT_UPDATE_UI_RANGE(ID_MENU_VIEW_TOOLBARS,         ID_MENU_VIEW_CENTER_3D_VIEWS,    ChildFrameT::OnMenuViewUpdate)
     EVT_BUTTON         (ID_MENU_VIEW_CENTER_2D_VIEWS,                                   ChildFrameT::OnMenuView)
@@ -574,7 +611,7 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
                          Name("Materials").Caption("Materials").
                          Left().Position(0));
 
-    m_GroupsToolbar=new GroupsToolbarT(this, m_Doc);
+    m_GroupsToolbar=new GroupsToolbarT(this, m_History);
     m_AUIManager.AddPane(m_GroupsToolbar, wxAuiPaneInfo().
                          Name("Groups").Caption("Groups").
                          Left().Position(1));
@@ -678,6 +715,18 @@ ChildFrameT::~ChildFrameT()
 
     // Uninit the AUI manager.
     m_AUIManager.UnInit();
+}
+
+
+bool ChildFrameT::SubmitCommand(CommandT* Command)
+{
+    if (m_History.SubmitCommand(Command))
+    {
+        if (Command->SuggestsSave()) SetTitle(m_Doc->GetFileName() + "*");
+        return true;
+    }
+
+    return false;
 }
 
 
@@ -797,7 +846,7 @@ void ChildFrameT::OnClose(wxCloseEvent& CE)
         return;
     }
 
-    if (m_Doc->GetHistory().GetLastSaveSuggestedCommandID()==m_LastSavedAtCommandNr)
+    if (m_LastSavedAtCommandNr == m_History.GetLastSaveSuggestedCommandID())
     {
         // Our document has not been modified since the last save - close this window.
         Destroy();
@@ -821,7 +870,7 @@ void ChildFrameT::OnClose(wxCloseEvent& CE)
                 return;
             }
 
-            if (m_Doc->GetHistory().GetLastSaveSuggestedCommandID()!=m_LastSavedAtCommandNr)
+            if (m_LastSavedAtCommandNr != m_History.GetLastSaveSuggestedCommandID())
             {
                 // The save was successful, but maybe it was a map export rather than a native cmap save.
                 // In this case, also keep the window open.
@@ -875,12 +924,6 @@ void ChildFrameT::OnIdle(wxIdleEvent& IE)
 
     if (this==ActiveChild)
     {
-        // Set the proper window title with or without a trailing "*", depending on the current save state.
-        // The extra check (GetTitle()!=NewTitle) is necessary in order to prevent the title from flickering...
-        // can we implement an entirely different solution here, e.g. as in the GUI editor?
-        wxString NewTitle=m_Doc->GetFileName() + (m_Doc->GetHistory().GetLastSaveSuggestedCommandID()==m_LastSavedAtCommandNr ? "" : "*");
-        if (GetTitle()!=NewTitle) SetTitle(NewTitle);
-
         // Cache materials for the childframes game configuration (one material per idle event).
         m_Doc->GetGameConfig()->GetMatMan().LazilyUpdateProxies();
 
@@ -971,6 +1014,8 @@ void ChildFrameT::OnProcessEnd(wxProcessEvent& PE)
 
 void ChildFrameT::OnMenuFile(wxCommandEvent& CE)
 {
+    bool SaveOK = false;
+
     switch (CE.GetId())
     {
         case ID_MENU_FILE_CLOSE:
@@ -983,37 +1028,29 @@ void ChildFrameT::OnMenuFile(wxCommandEvent& CE)
 
         case ID_MENU_FILE_SAVE:
         {
-            const bool SaveOK=m_Doc->Save();
-
-            if (SaveOK && m_Doc->GetFileName().Right(5).MakeLower()==".cmap")
-            {
-                // Mark the document as "not modified" only if the save was successful AND in cmap file format.
-                // All other file formats are exported formats, and may not be able to store all information that is stored in a cmap file.
-                // Thus data loss may occur if the document is only saved in an exported, but not in cmap file format.
-                // Considering file *exports* not as file *saves* (that mark the document as "not modified" when successful)
-                // makes sure that on application exit, the user is warned about possible data loss in such cases.
-                m_LastSavedAtCommandNr=m_Doc->GetHistory().GetLastSaveSuggestedCommandID();
-                m_Parent->m_FileHistory.AddFileToHistory(m_Doc->GetFileName());
-            }
+            SaveOK = m_Doc->Save();
             break;
         }
 
         case ID_MENU_FILE_SAVEAS:
         {
-            const bool SaveOK=m_Doc->SaveAs();
-
-            if (SaveOK && m_Doc->GetFileName().Right(5).MakeLower()==".cmap")
-            {
-                // Mark the document as "not modified" only if the save was successful AND in cmap file format.
-                // All other file formats are exported formats, and may not be able to store all information that is stored in a cmap file.
-                // Thus data loss may occur if the document is only saved in an exported, but not in cmap file format.
-                // Considering file *exports* not as file *saves* (that mark the document as "not modified" when successful)
-                // makes sure that on application exit, the user is warned about possible data loss in such cases.
-                m_LastSavedAtCommandNr=m_Doc->GetHistory().GetLastSaveSuggestedCommandID();
-                m_Parent->m_FileHistory.AddFileToHistory(m_Doc->GetFileName());
-            }
+            SaveOK = m_Doc->SaveAs();
             break;
         }
+    }
+
+    if (SaveOK && m_Doc->GetFileName().Right(5).MakeLower() == ".cmap")
+    {
+        // Mark the document as "not modified" only if the save was successful AND in cmap file format.
+        // All other file formats are exported formats, and may not be able to store all information that is stored in a cmap file.
+        // Thus data loss may occur if the document is only saved in an exported, but not in cmap file format.
+        // Considering file *exports* not as file *saves* (that mark the document as "not modified" when successful)
+        // makes sure that on application exit, the user is warned about possible data loss in such cases.
+        m_LastSavedAtCommandNr = m_History.GetLastSaveSuggestedCommandID();
+        // m_FileName = FileName;   // A member of the document, updated in its Save() and SaveAs() methods.
+
+        SetTitle(m_Doc->GetFileName());
+        m_Parent->m_FileHistory.AddFileToHistory(m_Doc->GetFileName());
     }
 }
 
@@ -1023,7 +1060,7 @@ void ChildFrameT::OnMenuFileUpdate(wxUpdateUIEvent& UE)
     switch (UE.GetId())
     {
         case ID_MENU_FILE_SAVE:
-            UE.Enable(m_Doc->GetHistory().GetLastSaveSuggestedCommandID()!=m_LastSavedAtCommandNr);
+            UE.Enable(m_History.GetLastSaveSuggestedCommandID() != m_LastSavedAtCommandNr);
             break;
     }
 }
@@ -1062,6 +1099,187 @@ void ChildFrameT::OnMenuEditUpdate(wxUpdateUIEvent& UE)
 }
 
 
+void ChildFrameT::OnMenuEditUndoRedo(wxCommandEvent& CE)
+{
+    // The undo system doesn't keep track of selected faces, so clear the face selection just to be safe.
+    if (GetToolManager().GetActiveToolType() == &ToolEditSurfaceT::TypeInfo)
+        GetSurfacePropsDialog()->ClearSelection();
+
+    // Step forward or backward in the command history.
+    if (CE.GetId() == wxID_UNDO) m_History.Undo();
+                            else m_History.Redo();
+
+    SetTitle(m_Doc->GetFileName() + (m_History.GetLastSaveSuggestedCommandID() == m_LastSavedAtCommandNr ? "" : "*"));
+}
+
+
+void ChildFrameT::OnUpdateEditUndoRedo(wxUpdateUIEvent& UE)
+{
+    if (UE.GetId()==wxID_UNDO)
+    {
+        const CommandT* Cmd=m_History.GetUndoCommand();
+
+        UE.SetText(Cmd!=NULL ? "Undo "+Cmd->GetName()+"\tCtrl+Z" : "Cannot Undo\tCtrl+Z");
+        UE.Enable(Cmd!=NULL);
+    }
+    else
+    {
+        const CommandT* Cmd=m_History.GetRedoCommand();
+
+        UE.SetText(Cmd!=NULL ? "Redo "+Cmd->GetName()+"\tCtrl+Y" : "Cannot Redo\tCtrl+Y");
+        UE.Enable(Cmd!=NULL);
+    }
+}
+
+
+void ChildFrameT::OnMenuEditCut(wxCommandEvent& CE)
+{
+    OnMenuEditCopy(CE);
+    OnMenuEditDelete(CE);
+}
+
+
+void ChildFrameT::OnMenuEditCopy(wxCommandEvent& CE)
+{
+    wxBusyCursor BusyCursor;
+
+    GetMapClipboard().CopyFrom(m_Doc->GetSelection());
+    GetMapClipboard().SetOriginalCenter(m_Doc->GetMostRecentSelBB().GetCenter());
+}
+
+
+void ChildFrameT::OnMenuEditPaste(wxCommandEvent& CE)
+{
+    wxBusyCursor      BusyCursor;
+    ArrayT<CommandT*> SubCommands = CreatePasteCommands();
+
+    if (SubCommands.Size() > 0)
+    {
+        // Submit the composite macro command.
+        SubmitCommand(new CommandMacroT(SubCommands, "Paste"));
+    }
+
+    GetToolManager().SetActiveTool(GetToolTIM().FindTypeInfoByName("ToolSelectionT"));
+}
+
+
+void ChildFrameT::OnMenuEditPasteSpecial(wxCommandEvent& CE)
+{
+    const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& SrcEnts  = GetMapClipboard().GetEntities();
+    const ArrayT<MapPrimitiveT*>&                        SrcPrims = GetMapClipboard().GetPrimitives();
+
+    BoundingBox3fT ClipboardBB;
+
+    for (unsigned long EntNr = 0; EntNr < SrcEnts.Size(); EntNr++)
+        ClipboardBB.InsertValid(GetMapEnt(SrcEnts[EntNr])->GetElemsBB());
+
+    for (unsigned long PrimNr = 0; PrimNr < SrcPrims.Size(); PrimNr++)
+        ClipboardBB.InsertValid(SrcPrims[PrimNr]->GetBB());
+
+    if (SrcEnts.Size() == 0 && SrcPrims.Size() == 0) return;
+    if (!ClipboardBB.IsInited()) return;
+
+    PasteSpecialDialogT PasteSpecialDialog(ClipboardBB);
+
+    if (PasteSpecialDialog.ShowModal() == wxID_CANCEL) return;
+
+    wxBusyCursor      BusyCursor;
+    const Vector3fT   Translation = Vector3fT(PasteSpecialDialog.TranslateX, PasteSpecialDialog.TranslateY, PasteSpecialDialog.TranslateZ);
+    const Vector3fT   Rotation    = Vector3fT(PasteSpecialDialog.RotateX,    PasteSpecialDialog.RotateY,    PasteSpecialDialog.RotateZ);
+    ArrayT<CommandT*> SubCommands = CreatePasteCommands(Translation, Rotation, PasteSpecialDialog.NrOfCopies,
+                                        PasteSpecialDialog.GroupCopies, PasteSpecialDialog.CenterAtOriginal);
+
+    if (SubCommands.Size() > 0)
+    {
+        // Submit the composite macro command.
+        SubmitCommand(new CommandMacroT(SubCommands, "Paste Special"));
+    }
+
+    GetToolManager().SetActiveTool(GetToolTIM().FindTypeInfoByName("ToolSelectionT"));
+}
+
+
+void ChildFrameT::OnMenuEditDelete(wxCommandEvent& CE)
+{
+    // If the camera tool is the currently active tool, delete its active camera.
+    ToolCameraT* CameraTool = dynamic_cast<ToolCameraT*>(GetToolManager().GetActiveTool());
+
+    if (CameraTool)
+    {
+        CameraTool->DeleteActiveCamera();
+        return;
+    }
+
+    if (m_Doc->GetSelection().Size() > 0)
+    {
+        // Do the actual deletion of the selected elements.
+        SubmitCommand(new CommandDeleteT(*m_Doc, m_Doc->GetSelection()));
+
+        // If there are any empty groups (usually as a result from the deletion), purge them now.
+        // We use an explicit command for deleting the groups (instead of putting everything into a macro command)
+        // so that the user has the option to undo the purge (separately from the deletion) if he wishes.
+        const ArrayT<GroupT*> EmptyGroups = m_Doc->GetAbandonedGroups();
+
+        if (EmptyGroups.Size() > 0)
+            SubmitCommand(new CommandDeleteGroupT(*m_Doc, EmptyGroups));
+    }
+}
+
+
+void ChildFrameT::OnMenuEditSelectNone(wxCommandEvent& CE)
+{
+    if (GetToolManager().GetActiveToolType() != &ToolEditSurfaceT::TypeInfo)
+    {
+        SubmitCommand(CommandSelectT::Clear(m_Doc));
+    }
+    else
+    {
+        GetSurfacePropsDialog()->ClearSelection();
+    }
+}
+
+
+void ChildFrameT::OnMenuEditSelectAll(wxCommandEvent& CE)
+{
+    ArrayT<MapElementT*> NewSelection;
+    m_Doc->GetAllElems(NewSelection);
+
+    // This used to remove the world entity (representation) at index 0,
+    // but we don't want to make this exception any longer.
+    // if (NewSelection.Size() > 0)
+    // {
+    //     wxASSERT(NewSelection[0]->GetType() == &MapEntRepresT::TypeInfo);
+    //     NewSelection.RemoveAt(0);
+    // }
+
+    // Remove all invisible elements.
+    for (unsigned long ElemNr = 0; ElemNr < NewSelection.Size(); ElemNr++)
+        if (!NewSelection[ElemNr]->IsVisible())
+        {
+            NewSelection.RemoveAt(ElemNr);
+            ElemNr--;
+        }
+
+    m_History.SubmitCommand(CommandSelectT::Add(m_Doc, NewSelection));
+}
+
+
+void ChildFrameT::OnUpdateEditPasteSpecial(wxUpdateUIEvent& UE)
+{
+    const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& SrcEnts  = GetMapClipboard().GetEntities();
+    const ArrayT<MapPrimitiveT*>&                        SrcPrims = GetMapClipboard().GetPrimitives();
+
+    UE.Enable((SrcEnts.Size() > 0 || SrcPrims.Size() > 0) &&
+              GetToolManager().GetActiveToolType() != &ToolEditSurfaceT::TypeInfo);
+}
+
+
+void ChildFrameT::OnUpdateEditCutCopyDelete(wxUpdateUIEvent& UE)
+{
+    UE.Enable(GetToolManager().GetActiveToolType() != &ToolEditSurfaceT::TypeInfo);
+}
+
+
 void ChildFrameT::PaneToggleShow(wxAuiPaneInfo& PaneInfo)
 {
     if (!PaneInfo.IsOk()) return;
@@ -1073,6 +1291,160 @@ void ChildFrameT::PaneToggleShow(wxAuiPaneInfo& PaneInfo)
         PaneInfo.FloatingPosition(ClientToScreen(wxPoint(20, 20)));
 
     m_AUIManager.Update();
+}
+
+
+ArrayT<CommandT*> ChildFrameT::CreatePasteCommands(const Vector3fT& DeltaTranslation, const cf::math::AnglesfT& DeltaRotation,
+    unsigned int NrOfCopies, bool PasteGrouped, bool CenterAtOriginals) const
+{
+    // Initialize the total translation and rotation for the first paste operation.
+    // Note that a TotalTranslation of zero pastes each object in the exact same place as its original.
+    Vector3fT          TotalTranslation = DeltaTranslation;
+    cf::math::AnglesfT TotalRotation    = DeltaRotation;
+
+    if (!CenterAtOriginals)
+    {
+        const Vector3fT GoodPastePos    = GuessUserVisiblePoint();
+        const Vector3fT OriginalsCenter = GetMapClipboard().GetOriginalCenter();
+
+        static Vector3fT    LastPastePoint(0, 0, 0);
+        static unsigned int LastPasteCount = 0;
+
+        if (GoodPastePos != LastPastePoint)
+        {
+            LastPastePoint = GoodPastePos;
+            LastPasteCount = 0;
+        }
+
+        int PasteOffset = std::max(m_Doc->GetGridSpacing(), 1);
+
+        while (PasteOffset < 8)
+            PasteOffset *= 2;   // Make PasteOffset some multiple of the grid spacing larger than 8.0.
+
+        TotalTranslation = m_Doc->SnapToGrid(LastPastePoint + Vector3fT(((LastPasteCount % 8)+(LastPasteCount/8))*PasteOffset, (LastPasteCount % 8)*PasteOffset, 0.0f) - OriginalsCenter, false, -1 /*Snap all axes.*/);
+
+        LastPasteCount++;
+    }
+
+
+    // FIXME: This should probably be a param to the Trafo*() methods, rather than having these methods query it from the global Options.general.LockingTextures.
+    const bool PrevLockMats = Options.general.LockingTextures;
+    Options.general.LockingTextures = true;
+
+    const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& SrcEnts  = GetMapClipboard().GetEntities();
+    const ArrayT<MapPrimitiveT*>&                        SrcPrims = GetMapClipboard().GetPrimitives();
+
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > NewEnts;
+    ArrayT<MapPrimitiveT*>                        NewPrims;
+
+    for (unsigned int CopyNr = 0; CopyNr < NrOfCopies; CopyNr++)
+    {
+        for (unsigned long EntNr = 0; EntNr < SrcEnts.Size(); EntNr++)
+        {
+            IntrusivePtrT<cf::GameSys::EntityT> NewEnt = SrcEnts[EntNr]->Clone(true /*Recursive?*/);
+            IntrusivePtrT<CompMapEntityT>       MapEnt = GetMapEnt(NewEnt);
+
+            // TODO: For MapEnt this works well, but it seems that we have to recurse into the children of NewEnt, too!
+            MapEnt->CopyPrimitives(*GetMapEnt(SrcEnts[EntNr]));
+
+            if (TotalTranslation != Vector3fT())
+            {
+                MapEnt->GetRepres()->TrafoMove(TotalTranslation);
+
+                for (unsigned long PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
+                    MapEnt->GetPrimitives()[PrimNr]->TrafoMove(TotalTranslation);
+            }
+
+            if (TotalRotation != cf::math::AnglesfT())
+            {
+                MapEnt->GetRepres()->TrafoRotate(MapEnt->GetRepres()->GetBB().GetCenter(), TotalRotation);
+
+                for (unsigned long PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
+                    MapEnt->GetPrimitives()[PrimNr]->TrafoRotate(MapEnt->GetPrimitives()[PrimNr]->GetBB().GetCenter(), TotalRotation);
+            }
+
+            NewEnts.PushBack(NewEnt);
+        }
+
+        for (unsigned long PrimNr = 0; PrimNr < SrcPrims.Size(); PrimNr++)
+        {
+            MapPrimitiveT* NewPrim = SrcPrims[PrimNr]->Clone();
+
+            if (TotalTranslation != Vector3fT())
+                NewPrim->TrafoMove(TotalTranslation);
+
+            if (TotalRotation != cf::math::AnglesfT())
+                NewPrim->TrafoRotate(NewPrim->GetBB().GetCenter(), TotalRotation);
+
+            NewPrims.PushBack(NewPrim);
+        }
+
+        // Advance the total translation and rotation.
+        TotalTranslation += DeltaTranslation;
+        TotalRotation    += DeltaRotation;
+    }
+
+    Options.general.LockingTextures = PrevLockMats;
+
+
+    ArrayT<CommandT*> SubCommands;
+
+    if (NewEnts.Size() > 0)
+    {
+        CommandNewEntityT* CmdNewEnt = new CommandNewEntityT(*m_Doc, NewEnts, false /*don't select*/);
+
+        CmdNewEnt->Do();
+        SubCommands.PushBack(CmdNewEnt);
+    }
+
+    if (NewPrims.Size() > 0)
+    {
+        CommandAddPrimT* CmdAddPrim = new CommandAddPrimT(*m_Doc, NewPrims, m_Doc->GetEntities()[0], "insert prims", false /*don't select*/);
+
+        CmdAddPrim->Do();
+        SubCommands.PushBack(CmdAddPrim);
+    }
+
+    if (SubCommands.Size() > 0)
+    {
+        CommandSelectT* CmdSel = CommandSelectT::Set(m_Doc, NewEnts, NewPrims);
+
+        CmdSel->Do();
+        SubCommands.PushBack(CmdSel);
+
+        if (PasteGrouped)
+        {
+            ArrayT<MapElementT*> NewElems;
+
+            for (unsigned long EntNr = 0; EntNr < NewEnts.Size(); EntNr++)
+            {
+                IntrusivePtrT<CompMapEntityT> NewEnt = GetMapEnt(NewEnts[EntNr]);
+
+                NewElems.PushBack(NewEnt->GetRepres());
+
+                for (unsigned long PrimNr = 0; PrimNr < NewEnt->GetPrimitives().Size(); PrimNr++)
+                    NewElems.PushBack(NewEnt->GetPrimitives()[PrimNr]);
+            }
+
+            for (unsigned long PrimNr = 0; PrimNr < NewPrims.Size(); PrimNr++)
+                NewElems.PushBack(NewPrims[PrimNr]);
+
+
+            CommandNewGroupT* CmdNewGroup = new CommandNewGroupT(*m_Doc,
+                wxString::Format("paste group (%lu element%s)", NewElems.Size(), NewElems.Size() == 1 ? "" : "s"));
+
+            CmdNewGroup->GetGroup()->SelectAsGroup = true;
+            CmdNewGroup->Do();
+            SubCommands.PushBack(CmdNewGroup);
+
+            CommandAssignGroupT* CmdAssignGroup = new CommandAssignGroupT(*m_Doc, NewElems, CmdNewGroup->GetGroup());
+
+            CmdAssignGroup->Do();
+            SubCommands.PushBack(CmdAssignGroup);
+        }
+    }
+
+    return SubCommands;
 }
 
 
@@ -1263,7 +1635,7 @@ void ChildFrameT::OnMenuComponents(wxCommandEvent& CE)
         return;
     }
 
-    m_Doc->GetHistory().SubmitCommand(new MapEditor::CommandAddComponentT(m_Doc, Selection[0], Comp));
+    SubmitCommand(new MapEditor::CommandAddComponentT(m_Doc, Selection[0], Comp));
 }
 
 
