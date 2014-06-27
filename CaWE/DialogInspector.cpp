@@ -22,7 +22,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "DialogInspector.hpp"
 #include "DialogInsp-EntityTree.hpp"
 #include "DialogInsp-PrimitiveProps.hpp"
-#include "DialogInsp-MapScript.hpp"
 #include "EntityInspector.hpp"
 #include "MapDocument.hpp"
 #include "MapEntRepres.hpp"
@@ -37,8 +36,7 @@ InspectorDialogT::InspectorDialogT(wxWindow* Parent, MapDocumentT* MapDoc)
     : wxPanel(Parent, -1),
       Notebook(NULL),
       EntityTree(NULL),
-      m_EntityInspector(NULL),
-      MapScript(NULL)
+      m_EntityInspector(NULL)
 {
     wxSizer* mainSizer=new wxBoxSizer(wxVERTICAL);
 
@@ -47,12 +45,10 @@ InspectorDialogT::InspectorDialogT(wxWindow* Parent, MapDocumentT* MapDoc)
     EntityTree        = new InspDlgEntityTreeT    (Notebook, MapDoc);
     m_EntityInspector = new EntityInspectorT      (Notebook, MapDoc->GetChildFrame(), wxSize(300, 200));
     PrimitiveProps    = new InspDlgPrimitivePropsT(Notebook, MapDoc);
-    MapScript         = new InspDlgMapScriptT     (Notebook, MapDoc);
 
     Notebook->AddPage(EntityTree,        "Entity Report");
     Notebook->AddPage(m_EntityInspector, "Entity Inspector");
     Notebook->AddPage(PrimitiveProps,    "Primitive Properties");
-    Notebook->AddPage(MapScript,         "Map Script");
 
     mainSizer->Add(Notebook, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 2);
 
