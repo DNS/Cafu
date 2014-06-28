@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "DialogConsole.hpp"
 #include "DialogCustomCompile.hpp"
 #include "DialogEditSurfaceProps.hpp"
+#include "MapEditor/DialogEntityTree.hpp"
 #include "DialogInspector.hpp"
 #include "DialogPasteSpecial.hpp"
 #include "DialogTerrainEdit.hpp"
@@ -285,6 +286,7 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
       m_LastSavedAtCommandNr(0),
       m_AutoSaveTimer(m_Doc, Parent->m_ChildFrames.Size()),
       m_ToolManager(NULL),
+      m_EntityTreeDialog(NULL),
       m_MaterialsToolbar(NULL),
       m_GroupsToolbar(NULL),
       m_ConsoleDialog(NULL),
@@ -379,6 +381,8 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item7->AppendCheckItem(ID_MENU_VIEW_TOOLBARS_FILE, wxT("&General"), wxT("") );
     item7->AppendCheckItem(ID_MENU_VIEW_TOOLBARS_TOOLS, wxT("&Tools"), wxT("") );
     item6->Append(ID_MENU_VIEW_TOOLBARS, wxT("&Toolbars"), item7 );
+
+    item6->Append(ID_MENU_VIEW_ENTITY_TREE, "Entity Tree", "Show/Hide the Entity Tree", wxITEM_CHECK);
 
     wxMenu* ViewPanelsMenu=new wxMenu;
     ViewPanelsMenu->AppendCheckItem(ID_MENU_VIEW_PANELS_TOOLOPTIONS, wxT("&Tool Options"), wxT("") );
@@ -599,50 +603,55 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     // Create the toolbars and non-modal dialogs.
     // Note that most if not all of these wxAUI panes have extra style wxWS_EX_BLOCK_EVENTS set,
     // so that they do not propagate their events to us, but behave as if they were derived from wxDialog.
-    m_MaterialsToolbar=new MaterialsToolbarT(this, m_Doc);
-    m_AUIManager.AddPane(m_MaterialsToolbar, wxAuiPaneInfo().
-                         Name("Materials").Caption("Materials").
+    m_EntityTreeDialog = new EntityTreeDialogT(this, wxSize(230, 500));
+    m_AUIManager.AddPane(m_EntityTreeDialog, wxAuiPaneInfo().
+                         Name("EntityTree").Caption("Entity Tree").
                          Left().Position(0));
 
-    m_GroupsToolbar=new GroupsToolbarT(this, m_History);
-    m_AUIManager.AddPane(m_GroupsToolbar, wxAuiPaneInfo().
-                         Name("Groups").Caption("Groups").
+    m_MaterialsToolbar = new MaterialsToolbarT(this, m_Doc);
+    m_AUIManager.AddPane(m_MaterialsToolbar, wxAuiPaneInfo().
+                         Name("Materials").Caption("Materials").
                          Left().Position(1));
 
-    m_InspectorDialog=new InspectorDialogT(this, m_Doc);
+    m_GroupsToolbar = new GroupsToolbarT(this, m_History);
+    m_AUIManager.AddPane(m_GroupsToolbar, wxAuiPaneInfo().
+                         Name("Groups").Caption("Groups").
+                         Left().Position(2));
+
+    m_InspectorDialog = new InspectorDialogT(this, m_Doc);
     m_AUIManager.AddPane(m_InspectorDialog, wxAuiPaneInfo().
                          Name("Properties").Caption("Object Properties").
                          Float().Hide());
 
-    m_ConsoleDialog=new ConsoleDialogT(this);
+    m_ConsoleDialog = new ConsoleDialogT(this);
     m_AUIManager.AddPane(m_ConsoleDialog, wxAuiPaneInfo().
                          Name("Console").Caption("Console").
                          BestSize(400, 300).
                          Bottom().Hide());
 
-    m_SurfacePropsDialog=new EditSurfacePropsDialogT(this, m_Doc);
+    m_SurfacePropsDialog = new EditSurfacePropsDialogT(this, m_Doc);
     m_AUIManager.AddPane(m_SurfacePropsDialog, wxAuiPaneInfo().
                          Name("Surface Properties").Caption("Surface Properties").
                          Float().Hide());
 
-    m_TerrainEditorDialog=new TerrainEditorDialogT(this, *m_Doc->GetGameConfig(), static_cast<ToolTerrainEditorT*>(m_ToolManager->GetTool(ToolTerrainEditorT::TypeInfo)));
+    m_TerrainEditorDialog = new TerrainEditorDialogT(this, *m_Doc->GetGameConfig(), static_cast<ToolTerrainEditorT*>(m_ToolManager->GetTool(ToolTerrainEditorT::TypeInfo)));
     m_AUIManager.AddPane(m_TerrainEditorDialog, wxAuiPaneInfo().
                          Name("Terrain Editor").Caption("Terrain Editor").
                          Float().Hide());
 
 
-    ViewWindow3DT* CenterPaneView=new ViewWindow3DT(this, this, NULL, (ViewWindowT::ViewTypeT)wxConfigBase::Get()->Read("Splitter/ViewType00", ViewWindowT::VT_3D_FULL_MATS));
+    ViewWindow3DT* CenterPaneView = new ViewWindow3DT(this, this, NULL, (ViewWindowT::ViewTypeT)wxConfigBase::Get()->Read("Splitter/ViewType00", ViewWindowT::VT_3D_FULL_MATS));
     m_AUIManager.AddPane(CenterPaneView, wxAuiPaneInfo().
                          Name("Main View").Caption(CenterPaneView->GetCaption()).
                          CenterPane().CaptionVisible().MaximizeButton().MinimizeButton());
 
-    ViewWindow2DT* ViewTopRight=new ViewWindow2DT(this, this, (ViewWindowT::ViewTypeT)wxConfigBase::Get()->Read("Splitter/ViewType01", ViewWindowT::VT_2D_XY));
+    ViewWindow2DT* ViewTopRight = new ViewWindow2DT(this, this, (ViewWindowT::ViewTypeT)wxConfigBase::Get()->Read("Splitter/ViewType01", ViewWindowT::VT_2D_XY));
     m_AUIManager.AddPane(ViewTopRight, wxAuiPaneInfo().
                          // Name("xy").
                          Caption(ViewTopRight->GetCaption()).
                          DestroyOnClose().Right().Position(0).MaximizeButton().MinimizeButton());
 
-    ViewWindow2DT* ViewBottomRight=new ViewWindow2DT(this, this, (ViewWindowT::ViewTypeT)wxConfigBase::Get()->Read("Splitter/ViewType11", ViewWindowT::VT_2D_XZ));
+    ViewWindow2DT* ViewBottomRight = new ViewWindow2DT(this, this, (ViewWindowT::ViewTypeT)wxConfigBase::Get()->Read("Splitter/ViewType11", ViewWindowT::VT_2D_XZ));
     m_AUIManager.AddPane(ViewBottomRight, wxAuiPaneInfo().
                          // Name("xy").
                          Caption(ViewBottomRight->GetCaption()).
@@ -650,7 +659,7 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
 
 
     // Save the AUI perspective that we set up in this ctor code as the "default perspective".
-    m_AUIDefaultPerspective=m_AUIManager.SavePerspective();
+    m_AUIDefaultPerspective = m_AUIManager.SavePerspective();
 
     // Load the AUI user perspective (implies a call to m_AUIManager.Update()).
     m_AUIManager.LoadPerspective(wxConfigBase::Get()->Read("MapEditor_AUIUserPerspective", m_AUIDefaultPerspective));
@@ -1451,6 +1460,10 @@ void ChildFrameT::OnMenuView(wxCommandEvent& CE)
             PaneToggleShow(m_AUIManager.GetPane("Tools Toolbar"));
             break;
 
+        case ID_MENU_VIEW_ENTITY_TREE:
+            PaneToggleShow(m_AUIManager.GetPane(m_EntityTreeDialog));
+            break;
+
         case ID_MENU_VIEW_PANELS_TOOLOPTIONS:
             PaneToggleShow(m_AUIManager.GetPane("Tool Options"));
             break;
@@ -1546,6 +1559,10 @@ void ChildFrameT::OnMenuViewUpdate(wxUpdateUIEvent& UE)
 
         case ID_MENU_VIEW_TOOLBARS_TOOLS:
             UE.Check(m_AUIManager.GetPane("Tools Toolbar").IsShown());
+            break;
+
+        case ID_MENU_VIEW_ENTITY_TREE:
+            UE.Check(m_AUIManager.GetPane(m_EntityTreeDialog).IsShown());
             break;
 
         case ID_MENU_VIEW_PANELS_TOOLOPTIONS:

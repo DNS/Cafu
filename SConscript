@@ -132,13 +132,14 @@ envCaWE.Append(CPPPATH=['ExtLibs/lua/src', 'ExtLibs/bullet/src', 'ExtLibs/noise/
 envCaWE.Append(LIBS=Split("SceneGraph MatSys SoundSys ClipSys cfsLib ClipSys ModelLoaders cfs_jpeg bulletdynamics bulletcollision bulletmath noise lua minizip lightwave freetype png z"))
 
 SourceFilesList = (Glob("CaWE/*.cpp")
-    +Glob("CaWE/FontWizard/*.cpp")
-    +Glob("CaWE/GuiEditor/*.cpp")+Glob("CaWE/GuiEditor/Commands/*.cpp")+Glob("CaWE/GuiEditor/Windows/*.cpp")
-    +Glob("CaWE/MapCommands/*.cpp")
-    +Glob("CaWE/MaterialBrowser/*.cpp")
-    +Glob("CaWE/ModelEditor/*.cpp")+Glob("CaWE/ModelEditor/Commands/*.cpp")
-    +Glob("CaWE/wxExt/*.cpp")
-    +Glob("CaWE/wxFB/*.cpp"))
+    + Glob("CaWE/FontWizard/*.cpp")
+    + Glob("CaWE/GuiEditor/*.cpp") + Glob("CaWE/GuiEditor/Commands/*.cpp")
+    + Glob("CaWE/MapEditor/*.cpp") + Glob("CaWE/MapEditor/Commands/*.cpp")
+    + Glob("CaWE/MapCommands/*.cpp")
+    + Glob("CaWE/MaterialBrowser/*.cpp")
+    + Glob("CaWE/ModelEditor/*.cpp")+Glob("CaWE/ModelEditor/Commands/*.cpp")
+    + Glob("CaWE/wxExt/*.cpp")
+    + Glob("CaWE/wxFB/*.cpp"))
 
 if sys.platform=="win32":
     SourceFilesList += envCaWE.RES("CaWE/CaWE.rc")
