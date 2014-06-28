@@ -141,13 +141,6 @@ void EntityInspectorT::Notify_EntChanged(SubjectT* Subject, const ArrayT< Intrus
             RefreshPropGrid();
             break;
         }
-
-        case EMD_PROPERTIES:
-     // case EMD_HIERARCHY:
-        {
-            // Neither of these affects the entity inspector.
-            break;
-        }
     }
 }
 
