@@ -61,8 +61,8 @@ enum MapElemModDetailE
 
 enum EntityModDetailE
 {
-    EMD_COMPONENTS      ///< The set of components has changed (e.g. added, deleted, order changed).
-  //EMD_HIERARCHY       ///< The position of an entity in the entity hierarchy has changed.
+    EMD_COMPONENTS,     ///< The set of components has changed (e.g. added, deleted, order changed).
+    EMD_HIERARCHY       ///< The position of an entity in the entity hierarchy has changed.
 };
 
 enum MapDocOtherDetailT
