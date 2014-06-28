@@ -134,7 +134,7 @@ bool ToolNewBrushT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
             case  4: CmdDescr="new sphere brush";   break;
         }
 
-        m_MapDoc.CompatSubmitCommand(new CommandAddPrimT(m_MapDoc, m_NewBrush, m_MapDoc.GetEntities()[0], CmdDescr));
+        m_MapDoc.CompatSubmitCommand(new CommandAddPrimT(m_MapDoc, m_NewBrush, m_MapDoc.GetRootMapEntity(), CmdDescr));
         m_NewBrush=NULL;    // Instance is now "owned" by the command.
     }
     else
@@ -153,7 +153,7 @@ bool ToolNewBrushT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
             ArrayT<CommandT*> SubCommands;
 
             // 1. Add the arch segments to the world.
-            CommandAddPrimT* CmdAddSegments=new CommandAddPrimT(m_MapDoc, ArchSegments, m_MapDoc.GetEntities()[0], "new arch segments");
+            CommandAddPrimT* CmdAddSegments=new CommandAddPrimT(m_MapDoc, ArchSegments, m_MapDoc.GetRootMapEntity(), "new arch segments");
 
             CmdAddSegments->Do();
             SubCommands.PushBack(CmdAddSegments);
@@ -233,7 +233,7 @@ bool ToolNewBrushT::OnRMouseClick3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
 
         MapBrushT* NewBrush=new MapBrushT(Planes, m_MapDoc.GetGameConfig()->GetMatMan().GetDefaultMaterial(), true);
 
-        m_MapDoc.CompatSubmitCommand(new CommandAddPrimT(m_MapDoc, NewBrush, m_MapDoc.GetEntities()[0], "new view frustum brush"));
+        m_MapDoc.CompatSubmitCommand(new CommandAddPrimT(m_MapDoc, NewBrush, m_MapDoc.GetRootMapEntity(), "new view frustum brush"));
         return true;
     }
 

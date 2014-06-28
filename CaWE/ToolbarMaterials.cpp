@@ -89,7 +89,7 @@ MaterialsToolbarT::MaterialsToolbarT(wxWindow* Parent, MapDocumentT* MapDoc)
 
 
     // Load MRU materials from world.
-    IntrusivePtrT<const CompMapEntityT> World = m_MapDoc->GetEntities()[0];
+    IntrusivePtrT<const CompMapEntityT> World = m_MapDoc->GetRootMapEntity();
     bool FirstMat = true;   // The material is the first one to be inserted into the list (and becomes the default material).
 
     // Get up to 10 MRU materials.
@@ -220,7 +220,7 @@ void MaterialsToolbarT::OnSelChangeCurrentMat(wxCommandEvent& Event)
 
     for (unsigned long i=0; i<ChoiceCurrentMat->GetCount(); i++)
     {
-        EntPropertyT* MRUProp=m_MapDoc->GetEntities()[0]->FindProperty(wxString::Format("mru_mat_%lu", i), NULL, true);
+        EntPropertyT* MRUProp=m_MapDoc->GetRootMapEntity()->FindProperty(wxString::Format("mru_mat_%lu", i), NULL, true);
 
         wxASSERT(MRUProp!=NULL);
 

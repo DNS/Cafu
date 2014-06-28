@@ -1486,6 +1486,12 @@ const ArrayT< IntrusivePtrT<CompMapEntityT> >& MapDocumentT::GetEntities() const
 }
 
 
+IntrusivePtrT<MapEditor::CompMapEntityT> MapDocumentT::GetRootMapEntity() const
+{
+    return GetMapEnt(m_ScriptWorld->GetRootEntity());
+}
+
+
 void MapDocumentT::GetAllElems(ArrayT<MapElementT*>& Elems) const
 {
     const ArrayT< IntrusivePtrT<CompMapEntityT> >& MapEntities = GetEntities();
@@ -1816,7 +1822,7 @@ void MapDocumentT::OnMapCheckForProblems(wxCommandEvent& CE)
 void MapDocumentT::OnMapProperties(wxCommandEvent& CE)
 {
     // Select the worldspawn entity, then open the inspector dialog.
-    CompatSubmitCommand(CommandSelectT::Set(this, GetEntities()[0]->GetRepres()));
+    CompatSubmitCommand(CommandSelectT::Set(this, GetRootMapEntity()->GetRepres()));
 
     GetChildFrame()->GetInspectorDialog()->ChangePage(1);
     GetChildFrame()->ShowPane(GetChildFrame()->GetInspectorDialog());
@@ -2291,7 +2297,7 @@ void MapDocumentT::OnToolsAssignPrimToWorld(wxCommandEvent& CE)
     // If there were no primitives among the selected map elements, quit here.
     if (SelPrimitives.Size()==0) return;
 
-    CompatSubmitCommand(new CommandAssignPrimToEntT(*this, SelPrimitives, GetEntities()[0]));
+    CompatSubmitCommand(new CommandAssignPrimToEntT(*this, SelPrimitives, GetRootMapEntity()));
 
     // This is very rare - only fires when a parent entity became empty, thus implicitly deleted, and was the last element in its group:
     // If there are any empty groups (usually as a result from the deletion), purge them now.

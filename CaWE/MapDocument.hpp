@@ -113,6 +113,9 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     /// Returns all entities that exist in this map. The world entity is always first at index 0, followed by an arbitrary number of "regular" entities.
     const ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> >& GetEntities() const;
 
+    /// Returns the root "map" entity of the map.
+    IntrusivePtrT<MapEditor::CompMapEntityT> GetRootMapEntity() const;
+
     /// Adds all elements in this map (entity representations and primitives) to the given array.
     /// The `MapEntRepresT` instance of the world entity is always the first element that is added to the list.
     void GetAllElems(ArrayT<MapElementT*>& Elems) const;

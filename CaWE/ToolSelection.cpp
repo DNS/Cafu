@@ -445,7 +445,7 @@ bool ToolSelectionT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
 
                 if (NewPrims.Size() > 0)
                 {
-                    CommandAddPrimT* CmdAddPrim = new CommandAddPrimT(m_MapDoc, NewPrims, m_MapDoc.GetEntities()[0], "insert prims", false /*don't select*/);
+                    CommandAddPrimT* CmdAddPrim = new CommandAddPrimT(m_MapDoc, NewPrims, m_MapDoc.GetRootMapEntity(), "insert prims", false /*don't select*/);
 
                     CmdAddPrim->Do();
                     SubCommands.PushBack(CmdAddPrim);
@@ -1005,7 +1005,7 @@ void ToolSelectionT::CreateModel(const Vector3fT& WorldPos)
     ModelFile.MakeRelativeTo(m_MapDoc.GetGameConfig()->ModDir);
     MapModelT* NewModel=new MapModelT(m_MapDoc, ModelFile.GetFullPath(wxPATH_UNIX), WorldPos);
 
-    m_MapDoc.CompatSubmitCommand(new CommandAddPrimT(m_MapDoc, NewModel, m_MapDoc.GetEntities()[0], "new model"));
+    m_MapDoc.CompatSubmitCommand(new CommandAddPrimT(m_MapDoc, NewModel, m_MapDoc.GetRootMapEntity(), "new model"));
 }
 
 
@@ -1020,7 +1020,7 @@ void ToolSelectionT::CreatePlant(const Vector3fT& WorldPos)
     PlantDescriptionT* PlantDescr=m_MapDoc.GetPlantDescrMan().GetPlantDescription(std::string(PlantDescrFile.GetFullPath(wxPATH_UNIX)));
     MapPlantT*         NewPlant  =new MapPlantT(PlantDescr, PlantDescr->RandomSeed, WorldPos);
 
-    m_MapDoc.CompatSubmitCommand(new CommandAddPrimT(m_MapDoc, NewPlant, m_MapDoc.GetEntities()[0], "new plant"));
+    m_MapDoc.CompatSubmitCommand(new CommandAddPrimT(m_MapDoc, NewPlant, m_MapDoc.GetRootMapEntity(), "new plant"));
 }
 
 

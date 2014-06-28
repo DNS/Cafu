@@ -185,7 +185,7 @@ void MapCheckDialogT::UpdateProblems()
     }
 
     // If no problems were found, add the "no problem" problem.
-    if (m_Problems.Size()==0) m_Problems.PushBack(new MapCheckerT(m_MapDoc, m_MapDoc.GetEntities()[0]));
+    if (m_Problems.Size()==0) m_Problems.PushBack(new MapCheckerT(m_MapDoc, m_MapDoc.GetRootMapEntity()));
 
     // Fill the wxListBox.
     ListBoxProblems->Clear();

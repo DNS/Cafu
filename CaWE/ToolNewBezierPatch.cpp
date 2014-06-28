@@ -121,7 +121,7 @@ bool ToolNewBezierPatchT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& 
 
     if (m_NewBPs.Size()==1)
     {
-        m_MapDoc.CompatSubmitCommand(new CommandAddPrimT(m_MapDoc, m_NewBPs[0], m_MapDoc.GetEntities()[0], "new bezier patch"));
+        m_MapDoc.CompatSubmitCommand(new CommandAddPrimT(m_MapDoc, m_NewBPs[0], m_MapDoc.GetRootMapEntity(), "new bezier patch"));
     }
     else
     {
@@ -137,7 +137,7 @@ bool ToolNewBezierPatchT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& 
             BPsAsPrims.PushBack(m_NewBPs[BPNr]);
         }
 
-        CommandAddPrimT* CmdAddBPs=new CommandAddPrimT(m_MapDoc, BPsAsPrims, m_MapDoc.GetEntities()[0], "new bezier patch parts");
+        CommandAddPrimT* CmdAddBPs=new CommandAddPrimT(m_MapDoc, BPsAsPrims, m_MapDoc.GetRootMapEntity(), "new bezier patch parts");
 
         CmdAddBPs->Do();
         SubCommands.PushBack(CmdAddBPs);

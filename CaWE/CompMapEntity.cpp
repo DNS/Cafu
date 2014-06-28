@@ -75,7 +75,7 @@ void CompMapEntityT::Render() const
 
 bool CompMapEntityT::IsWorld() const
 {
-    return m_MapDoc.GetEntities()[0] == this;
+    return m_MapDoc.GetRootMapEntity() == this;
 }
 
 

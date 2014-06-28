@@ -197,7 +197,7 @@ bool ToolNewTerrainT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
             m_MapDoc.GetGameConfig()->GetMatMan().FindMaterial("Textures/meta/caulk", true /*Create dummy if not found.*/)));
     }
 
-    m_MapDoc.CompatSubmitCommand(new CommandAddPrimT(m_MapDoc, TerrainPrims, m_MapDoc.GetEntities()[0], "new terrain"));
+    m_MapDoc.CompatSubmitCommand(new CommandAddPrimT(m_MapDoc, TerrainPrims, m_MapDoc.GetRootMapEntity(), "new terrain"));
 
     m_ToolMan.UpdateAllObservers(this, UPDATE_SOON);
     return true;

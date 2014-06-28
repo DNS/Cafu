@@ -1390,7 +1390,7 @@ ArrayT<CommandT*> ChildFrameT::CreatePasteCommands(const Vector3fT& DeltaTransla
 
     if (NewPrims.Size() > 0)
     {
-        CommandAddPrimT* CmdAddPrim = new CommandAddPrimT(*m_Doc, NewPrims, m_Doc->GetEntities()[0], "insert prims", false /*don't select*/);
+        CommandAddPrimT* CmdAddPrim = new CommandAddPrimT(*m_Doc, NewPrims, m_Doc->GetRootMapEntity(), "insert prims", false /*don't select*/);
 
         CmdAddPrim->Do();
         SubCommands.PushBack(CmdAddPrim);
