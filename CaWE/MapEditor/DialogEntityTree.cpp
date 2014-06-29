@@ -449,8 +449,21 @@ void EntityTreeDialogT::OnTreeItemRightClick(wxTreeEvent& TE)
     // Create context menus.
     AppendMI(Menu, ID_MENU_CREATE_ENTITY, "Create Entity", "window-new");
     AppendMI(Menu, ID_MENU_RENAME,        "Rename\tF2", "textfield_rename");
+    Menu.AppendSeparator();
+    AppendMI(Menu, wxID_CUT,                                  "Cut", wxART_CUT);
+    AppendMI(Menu, wxID_COPY,                                 "Copy", wxART_COPY);
+    AppendMI(Menu, wxID_PASTE,                                "Paste", wxART_PASTE);
+    AppendMI(Menu, ChildFrameT::ID_MENU_EDIT_PASTE_SPECIAL,   "Paste Special...", "");
+    AppendMI(Menu, ChildFrameT::ID_MENU_EDIT_DELETE,          "Delete", wxART_DELETE);
+    Menu.AppendSeparator();
+    AppendMI(Menu, ChildFrameT::ID_MENU_VIEW_CENTER_2D_VIEWS, "Center 2D Views on Selection", "");
+    AppendMI(Menu, ChildFrameT::ID_MENU_VIEW_CENTER_3D_VIEWS, "Center 3D Views on Selection", "");
 
-    switch (GetPopupMenuSelectionFromUser(Menu))
+    Menu.UpdateUI(m_Parent);
+
+    const int MenuSelID = GetPopupMenuSelectionFromUser(Menu);
+
+    switch (MenuSelID)
     {
         case ID_MENU_CREATE_ENTITY:
             m_Parent->SubmitCommand(new CommandNewEntityT(*m_MapDoc, ((EntityTreeItemT*)GetItemData(TE.GetItem()))->GetEntity(), false /*don't auto-select the new entity*/));
@@ -459,6 +472,26 @@ void EntityTreeDialogT::OnTreeItemRightClick(wxTreeEvent& TE)
         case ID_MENU_RENAME:
             EditLabel(TE.GetItem());
             break;
+
+        default:
+        {
+            // This is neither elegant nor entirely right.
+            //   - It is not elegant because of the awkward event forwarding to the ChildFrameT.
+            //   - It is not entirely right because the context menu should (primarily) act on the tree event's item,
+            //     i.e. `((EntityTreeItemT*)GetItemData(TE.GetItem()))->GetEntity()`, not on the general mapdoc's
+            //     selection, as the ChildFrameT's menus do.
+            //   - I'm not sure if duplicating functionality that is already in the ChildFrameT's main toolbars and
+            //     menus makes sense.
+            //     It seems better to only have functionality that is *specific* to the entity hierarchy here!
+            //   - Well, this *was* done because the "Entity Tree" dialog is intended as a substitute for the old
+            //     (pre-component-system) "Entity Inspector", which had, beside several filter options, also buttons
+            //     "Go to" and "Delete", which we reproduce here in an attempt to preserve the old dialog's set of
+            //     features.
+            wxCommandEvent CE(wxEVT_COMMAND_MENU_SELECTED, MenuSelID);
+
+            m_Parent->GetEventHandler()->ProcessEvent(CE);
+            break;
+        }
     }
 }
 
