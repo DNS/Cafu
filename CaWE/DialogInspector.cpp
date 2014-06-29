@@ -20,7 +20,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "DialogInspector.hpp"
-#include "DialogInsp-EntityTree.hpp"
 #include "DialogInsp-PrimitiveProps.hpp"
 #include "EntityInspector.hpp"
 #include "MapDocument.hpp"
@@ -35,18 +34,15 @@ using namespace MapEditor;
 InspectorDialogT::InspectorDialogT(wxWindow* Parent, MapDocumentT* MapDoc)
     : wxPanel(Parent, -1),
       Notebook(NULL),
-      EntityTree(NULL),
       m_EntityInspector(NULL)
 {
     wxSizer* mainSizer=new wxBoxSizer(wxVERTICAL);
 
     Notebook          = new wxNotebook(this, -1, wxDefaultPosition, wxSize(350, 450));
 
-    EntityTree        = new InspDlgEntityTreeT    (Notebook, MapDoc);
     m_EntityInspector = new EntityInspectorT      (Notebook, MapDoc->GetChildFrame(), wxSize(300, 200));
     PrimitiveProps    = new InspDlgPrimitivePropsT(Notebook, MapDoc);
 
-    Notebook->AddPage(EntityTree,        "Entity Report");
     Notebook->AddPage(m_EntityInspector, "Entity Inspector");
     Notebook->AddPage(PrimitiveProps,    "Primitive Properties");
 
@@ -90,7 +86,7 @@ int InspectorDialogT::GetBestPage(const ArrayT<MapElementT*>& Selection) const
     {
         MapElementT* MapElement=Selection[0];
 
-        return (MapElement->GetType() == &MapEntRepresT::TypeInfo) ? 1 : 2;
+        return (MapElement->GetType() == &MapEntRepresT::TypeInfo) ? 0 : 1;
     }
     else
     {
@@ -111,6 +107,6 @@ int InspectorDialogT::GetBestPage(const ArrayT<MapElementT*>& Selection) const
             }
         }
 
-        return HaveEntities ? 1 : 2;
+        return HaveEntities ? 0 : 1;
     }
 }
