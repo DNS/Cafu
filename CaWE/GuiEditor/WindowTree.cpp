@@ -72,7 +72,7 @@ END_EVENT_TABLE()
 
 
 WindowTreeT::WindowTreeT(ChildFrameT* Parent, const wxSize& Size)
-    : wxTreeCtrl(Parent, wxID_ANY, wxDefaultPosition, Size, wxTR_HAS_BUTTONS|wxTR_LINES_AT_ROOT|wxTR_MULTIPLE|wxSUNKEN_BORDER|wxTR_EDIT_LABELS),
+    : wxTreeCtrl(Parent, wxID_ANY, wxDefaultPosition, Size, wxTR_HAS_BUTTONS|wxTR_LINES_AT_ROOT|wxTR_MULTIPLE|wxBORDER_NONE|wxTR_EDIT_LABELS),
       m_GuiDocument(Parent->GetGuiDoc()),
       m_Parent(Parent),
       m_IsRecursiveSelfNotify(false),
@@ -446,7 +446,7 @@ void WindowTreeT::OnTreeItemRightClick(wxTreeEvent& TE)
     // Create context menus.
     AppendMI(Menu, ID_MENU_CREATE_WINDOW, "Create Window", "window-new");
     AppendMI(Menu, ID_MENU_DEFAULTFOCUS,  "Set as default focus", "");
-    AppendMI(Menu, ID_MENU_RENAME,        "Rename\tF2", "" /*"textfield_rename"*/);
+    AppendMI(Menu, ID_MENU_RENAME,        "Rename\tF2", "textfield_rename");
 
     switch (GetPopupMenuSelectionFromUser(Menu))
     {

@@ -70,7 +70,7 @@ END_EVENT_TABLE()
 
 
 EntityTreeDialogT::EntityTreeDialogT(ChildFrameT* Parent, const wxSize& Size)
-    : wxTreeCtrl(Parent, wxID_ANY, wxDefaultPosition, Size, wxTR_HAS_BUTTONS|wxTR_LINES_AT_ROOT|wxTR_MULTIPLE|wxSUNKEN_BORDER|wxTR_EDIT_LABELS),
+    : wxTreeCtrl(Parent, wxID_ANY, wxDefaultPosition, Size, wxTR_HAS_BUTTONS|wxTR_LINES_AT_ROOT|wxTR_MULTIPLE|wxBORDER_NONE|wxTR_EDIT_LABELS),
       m_MapDoc(Parent->GetDoc()),
       m_Parent(Parent),
       m_IsRecursiveSelfNotify(false),
@@ -448,7 +448,7 @@ void EntityTreeDialogT::OnTreeItemRightClick(wxTreeEvent& TE)
 
     // Create context menus.
     AppendMI(Menu, ID_MENU_CREATE_ENTITY, "Create Entity", "window-new");
-    AppendMI(Menu, ID_MENU_RENAME,        "Rename\tF2", "" /*"textfield_rename"*/);
+    AppendMI(Menu, ID_MENU_RENAME,        "Rename\tF2", "textfield_rename");
 
     switch (GetPopupMenuSelectionFromUser(Menu))
     {
