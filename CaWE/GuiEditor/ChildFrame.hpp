@@ -39,7 +39,7 @@ class wxAuiToolBar;
 namespace GuiEditor
 {
     class RenderWindowT;
-    class WindowTreeT;
+    class WindowHierarchyT;
     class WindowInspectorT;
     class GuiInspectorT;
     class GuiDocumentT;
@@ -91,7 +91,7 @@ namespace GuiEditor
 
         ParentFrameT*     m_Parent;
         RenderWindowT*    m_RenderWindow;
-        WindowTreeT*      m_WindowTree;
+        WindowHierarchyT* m_WindowHierarchy;
         WindowInspectorT* m_WindowInspector;
         GuiInspectorT*    m_GuiInspector;
 
@@ -117,7 +117,7 @@ namespace GuiEditor
             ID_MENU_CREATE_COMPONENT_FIRST,
             ID_MENU_CREATE_COMPONENT_MAX = ID_MENU_CREATE_COMPONENT_FIRST + 100,
 
-            ID_MENU_VIEW_WINDOWTREE,
+            ID_MENU_VIEW_WINDOW_HIERARCHY,
             ID_MENU_VIEW_WINDOWINSPECTOR,
             ID_MENU_VIEW_GUIINSPECTOR,
             ID_MENU_VIEW_RESTORE_DEFAULT_LAYOUT,

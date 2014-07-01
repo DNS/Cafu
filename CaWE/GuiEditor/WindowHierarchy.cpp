@@ -19,7 +19,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "WindowTree.hpp"
+#include "WindowHierarchy.hpp"
 #include "ChildFrame.hpp"
 #include "GuiDocument.hpp"
 
@@ -59,26 +59,26 @@ namespace
 using namespace GuiEditor;
 
 
-BEGIN_EVENT_TABLE(WindowTreeT, wxTreeCtrl)
-    EVT_KEY_DOWN             (WindowTreeT::OnKeyDown)
-    EVT_LEFT_DOWN            (WindowTreeT::OnTreeLeftClick)
-    EVT_LEFT_DCLICK          (WindowTreeT::OnTreeLeftClick) // Handle double clicks like normal left clicks when it comes to clicks on tree item icons (otherwise double clicks are handled normally).
-    EVT_TREE_SEL_CHANGED     (wxID_ANY, WindowTreeT::OnSelectionChanged)
-    EVT_TREE_END_LABEL_EDIT  (wxID_ANY, WindowTreeT::OnEndLabelEdit)
-    EVT_TREE_ITEM_RIGHT_CLICK(wxID_ANY, WindowTreeT::OnTreeItemRightClick)
-    EVT_TREE_BEGIN_DRAG      (wxID_ANY, WindowTreeT::OnBeginDrag)
-    EVT_TREE_END_DRAG        (wxID_ANY, WindowTreeT::OnEndDrag)
+BEGIN_EVENT_TABLE(WindowHierarchyT, wxTreeCtrl)
+    EVT_KEY_DOWN             (WindowHierarchyT::OnKeyDown)
+    EVT_LEFT_DOWN            (WindowHierarchyT::OnTreeLeftClick)
+    EVT_LEFT_DCLICK          (WindowHierarchyT::OnTreeLeftClick) // Handle double clicks like normal left clicks when it comes to clicks on tree item icons (otherwise double clicks are handled normally).
+    EVT_TREE_SEL_CHANGED     (wxID_ANY, WindowHierarchyT::OnSelectionChanged)
+    EVT_TREE_END_LABEL_EDIT  (wxID_ANY, WindowHierarchyT::OnEndLabelEdit)
+    EVT_TREE_ITEM_RIGHT_CLICK(wxID_ANY, WindowHierarchyT::OnTreeItemRightClick)
+    EVT_TREE_BEGIN_DRAG      (wxID_ANY, WindowHierarchyT::OnBeginDrag)
+    EVT_TREE_END_DRAG        (wxID_ANY, WindowHierarchyT::OnEndDrag)
 END_EVENT_TABLE()
 
 
-WindowTreeT::WindowTreeT(ChildFrameT* Parent, const wxSize& Size)
+WindowHierarchyT::WindowHierarchyT(ChildFrameT* Parent, const wxSize& Size)
     : wxTreeCtrl(Parent, wxID_ANY, wxDefaultPosition, Size, wxTR_HAS_BUTTONS|wxTR_LINES_AT_ROOT|wxTR_MULTIPLE|wxBORDER_NONE|wxTR_EDIT_LABELS),
       m_GuiDocument(Parent->GetGuiDoc()),
       m_Parent(Parent),
       m_IsRecursiveSelfNotify(false),
       m_DraggedWindow(NULL)
 {
-    // Build list of window tree icons.
+    // Build list of window hierarchy icons.
     wxImageList* TreeIcons=new wxImageList(16, 16);
 
     TreeIcons->Add(wxBitmap("CaWE/res/checked.png", wxBITMAP_TYPE_PNG));
@@ -88,13 +88,13 @@ WindowTreeT::WindowTreeT(ChildFrameT* Parent, const wxSize& Size)
 }
 
 
-WindowTreeT::~WindowTreeT()
+WindowHierarchyT::~WindowHierarchyT()
 {
 }
 
 
 // Automatically fills children of tree item using the items client data.
-void WindowTreeT::AddChildren(const wxTreeItemId& Item, bool Recursive)
+void WindowHierarchyT::AddChildren(const wxTreeItemId& Item, bool Recursive)
 {
     ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> > Children;
 
@@ -115,7 +115,7 @@ void WindowTreeT::AddChildren(const wxTreeItemId& Item, bool Recursive)
 }
 
 
-const wxTreeItemId WindowTreeT::FindTreeItem(const wxTreeItemId& StartingItem, IntrusivePtrT<cf::GuiSys::WindowT> Window) const
+const wxTreeItemId WindowHierarchyT::FindTreeItem(const wxTreeItemId& StartingItem, IntrusivePtrT<cf::GuiSys::WindowT> Window) const
 {
     // If the item to start with is invalid, return it so the result of this function call is invalid too.
     if (!StartingItem.IsOk()) return StartingItem;
@@ -145,7 +145,7 @@ const wxTreeItemId WindowTreeT::FindTreeItem(const wxTreeItemId& StartingItem, I
 }
 
 
-void WindowTreeT::GetTreeItems(const wxTreeItemId& StartingItem, ArrayT<wxTreeItemId>& Items)
+void WindowHierarchyT::GetTreeItems(const wxTreeItemId& StartingItem, ArrayT<wxTreeItemId>& Items)
 {
     if (!StartingItem.IsOk()) return;
 
@@ -162,7 +162,7 @@ void WindowTreeT::GetTreeItems(const wxTreeItemId& StartingItem, ArrayT<wxTreeIt
 }
 
 
-void WindowTreeT::NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& OldSelection, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& NewSelection)
+void WindowHierarchyT::NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& OldSelection, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& NewSelection)
 {
     if (m_IsRecursiveSelfNotify) return;
 
@@ -189,7 +189,7 @@ void WindowTreeT::NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT
 }
 
 
-void WindowTreeT::NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows)
+void WindowHierarchyT::NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows)
 {
     if (m_IsRecursiveSelfNotify) return;
 
@@ -197,7 +197,7 @@ void WindowTreeT::NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT< 
 }
 
 
-void WindowTreeT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows)
+void WindowHierarchyT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows)
 {
     if (m_IsRecursiveSelfNotify) return;
 
@@ -205,7 +205,7 @@ void WindowTreeT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT< 
 }
 
 
-void WindowTreeT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail)
+void WindowHierarchyT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail)
 {
     if (m_IsRecursiveSelfNotify) return;
 
@@ -217,7 +217,7 @@ void WindowTreeT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<
 }
 
 
-void WindowTreeT::Notify_Changed(SubjectT* Subject, const cf::TypeSys::VarBaseT& Var)
+void WindowHierarchyT::Notify_Changed(SubjectT* Subject, const cf::TypeSys::VarBaseT& Var)
 {
     if (m_IsRecursiveSelfNotify) return;
 
@@ -244,7 +244,7 @@ void WindowTreeT::Notify_Changed(SubjectT* Subject, const cf::TypeSys::VarBaseT&
 }
 
 
-void WindowTreeT::RefreshTree()
+void WindowHierarchyT::RefreshTree()
 {
     if (m_GuiDocument==NULL) return;
 
@@ -310,7 +310,7 @@ void WindowTreeT::RefreshTree()
 }
 
 
-void WindowTreeT::NotifySubjectDies(SubjectT* dyingSubject)
+void WindowHierarchyT::NotifySubjectDies(SubjectT* dyingSubject)
 {
     wxASSERT(dyingSubject==m_GuiDocument);
 
@@ -320,7 +320,7 @@ void WindowTreeT::NotifySubjectDies(SubjectT* dyingSubject)
 }
 
 
-void WindowTreeT::OnKeyDown(wxKeyEvent& KE)
+void WindowHierarchyT::OnKeyDown(wxKeyEvent& KE)
 {
     switch (KE.GetKeyCode())
     {
@@ -339,7 +339,7 @@ void WindowTreeT::OnKeyDown(wxKeyEvent& KE)
 }
 
 
-void WindowTreeT::OnTreeLeftClick(wxMouseEvent& ME)
+void WindowHierarchyT::OnTreeLeftClick(wxMouseEvent& ME)
 {
     // Check if we hit an tree item icon.
     int HitFlag=0;
@@ -370,7 +370,7 @@ void WindowTreeT::OnTreeLeftClick(wxMouseEvent& ME)
 }
 
 
-void WindowTreeT::OnSelectionChanged(wxTreeEvent& TE)
+void WindowHierarchyT::OnSelectionChanged(wxTreeEvent& TE)
 {
     if (m_GuiDocument==NULL || m_IsRecursiveSelfNotify) return;
 
@@ -390,7 +390,7 @@ void WindowTreeT::OnSelectionChanged(wxTreeEvent& TE)
 }
 
 
-void WindowTreeT::OnEndLabelEdit(wxTreeEvent& TE)
+void WindowHierarchyT::OnEndLabelEdit(wxTreeEvent& TE)
 {
     IntrusivePtrT<cf::GuiSys::WindowT> Window = ((WindowTreeItemT*)GetItemData(TE.GetItem()))->GetWindow();
     cf::TypeSys::VarT<std::string>* Name = dynamic_cast<cf::TypeSys::VarT<std::string>*>(Window->GetBasics()->GetMemberVars().Find("Name"));
@@ -430,7 +430,7 @@ static wxMenuItem* AppendMI(wxMenu& Menu, int MenuID, const wxString& Label, con
 }
 
 
-void WindowTreeT::OnTreeItemRightClick(wxTreeEvent& TE)
+void WindowHierarchyT::OnTreeItemRightClick(wxTreeEvent& TE)
 {
     // Note that GetPopupMenuSelectionFromUser() temporarily disables UI updates for the window,
     // so our menu IDs used below should be doubly clash-free.
@@ -465,7 +465,7 @@ void WindowTreeT::OnTreeItemRightClick(wxTreeEvent& TE)
 }
 
 
-void WindowTreeT::OnBeginDrag(wxTreeEvent& TE)
+void WindowHierarchyT::OnBeginDrag(wxTreeEvent& TE)
 {
     wxASSERT(m_DraggedWindow==NULL);
 
@@ -496,7 +496,7 @@ void WindowTreeT::OnBeginDrag(wxTreeEvent& TE)
 }
 
 
-void WindowTreeT::OnEndDrag(wxTreeEvent& TE)
+void WindowHierarchyT::OnEndDrag(wxTreeEvent& TE)
 {
     wxASSERT(!m_DraggedWindow.IsNull());
     if (m_DraggedWindow.IsNull()) return;

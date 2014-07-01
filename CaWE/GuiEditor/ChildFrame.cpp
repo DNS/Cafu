@@ -22,7 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChildFrame.hpp"
 #include "GuiDocument.hpp"
 #include "RenderWindow.hpp"
-#include "WindowTree.hpp"
+#include "WindowHierarchy.hpp"
 #include "WindowInspector.hpp"
 #include "GuiInspector.hpp"
 #include "LivePreview.hpp"
@@ -89,22 +89,22 @@ namespace
 
 
 BEGIN_EVENT_TABLE(GuiEditor::ChildFrameT, wxMDIChildFrame)
-    EVT_MENU_RANGE     (ID_MENU_FILE_CLOSE,        ID_MENU_FILE_SAVEAS,           GuiEditor::ChildFrameT::OnMenuFile)
-    EVT_UPDATE_UI_RANGE(ID_MENU_FILE_CLOSE,        ID_MENU_FILE_SAVEAS,           GuiEditor::ChildFrameT::OnMenuFileUpdate)
-    EVT_MENU_RANGE     (wxID_UNDO,                 wxID_REDO,                     GuiEditor::ChildFrameT::OnMenuUndoRedo)
-    EVT_UPDATE_UI_RANGE(wxID_UNDO,                 wxID_REDO,                     GuiEditor::ChildFrameT::OnUpdateEditUndoRedo)
-    EVT_UPDATE_UI_RANGE(wxID_CUT,                  wxID_PASTE,                    GuiEditor::ChildFrameT::OnMenuEditUpdate)
-    EVT_UPDATE_UI_RANGE(ID_MENU_EDIT_DELETE,       ID_MENU_EDIT_SET_GRID_SIZE,    GuiEditor::ChildFrameT::OnMenuEditUpdate)
-    EVT_MENU           (wxID_CUT,                                                 GuiEditor::ChildFrameT::OnMenuEditCut)
-    EVT_MENU           (wxID_COPY,                                                GuiEditor::ChildFrameT::OnMenuEditCopy)
-    EVT_MENU           (wxID_PASTE,                                               GuiEditor::ChildFrameT::OnMenuEditPaste)
-    EVT_MENU           (ID_MENU_EDIT_DELETE,                                      GuiEditor::ChildFrameT::OnMenuEditDelete)
-    EVT_MENU_RANGE     (ID_MENU_EDIT_SNAP_TO_GRID, ID_MENU_EDIT_SET_GRID_SIZE,    GuiEditor::ChildFrameT::OnMenuEditGrid)
-    EVT_MENU_RANGE     (ID_MENU_CREATE_WINDOW,     ID_MENU_CREATE_COMPONENT_MAX,  GuiEditor::ChildFrameT::OnMenuCreate)
-    EVT_MENU_RANGE     (ID_MENU_VIEW_WINDOWTREE,   ID_MENU_VIEW_SAVE_USER_LAYOUT, GuiEditor::ChildFrameT::OnMenuView)
-    EVT_UPDATE_UI_RANGE(ID_MENU_VIEW_WINDOWTREE,   ID_MENU_VIEW_GUIINSPECTOR,     GuiEditor::ChildFrameT::OnMenuViewUpdate)
-    EVT_CLOSE          (                                                          GuiEditor::ChildFrameT::OnClose)
-    EVT_TOOL_RANGE     (ID_TOOLBAR_DOC_PREVIEW,    ID_TOOLBAR_ZOOM_100,           GuiEditor::ChildFrameT::OnToolbar)
+    EVT_MENU_RANGE     (ID_MENU_FILE_CLOSE,            ID_MENU_FILE_SAVEAS,           GuiEditor::ChildFrameT::OnMenuFile)
+    EVT_UPDATE_UI_RANGE(ID_MENU_FILE_CLOSE,            ID_MENU_FILE_SAVEAS,           GuiEditor::ChildFrameT::OnMenuFileUpdate)
+    EVT_MENU_RANGE     (wxID_UNDO,                     wxID_REDO,                     GuiEditor::ChildFrameT::OnMenuUndoRedo)
+    EVT_UPDATE_UI_RANGE(wxID_UNDO,                     wxID_REDO,                     GuiEditor::ChildFrameT::OnUpdateEditUndoRedo)
+    EVT_UPDATE_UI_RANGE(wxID_CUT,                      wxID_PASTE,                    GuiEditor::ChildFrameT::OnMenuEditUpdate)
+    EVT_UPDATE_UI_RANGE(ID_MENU_EDIT_DELETE,           ID_MENU_EDIT_SET_GRID_SIZE,    GuiEditor::ChildFrameT::OnMenuEditUpdate)
+    EVT_MENU           (wxID_CUT,                                                     GuiEditor::ChildFrameT::OnMenuEditCut)
+    EVT_MENU           (wxID_COPY,                                                    GuiEditor::ChildFrameT::OnMenuEditCopy)
+    EVT_MENU           (wxID_PASTE,                                                   GuiEditor::ChildFrameT::OnMenuEditPaste)
+    EVT_MENU           (ID_MENU_EDIT_DELETE,                                          GuiEditor::ChildFrameT::OnMenuEditDelete)
+    EVT_MENU_RANGE     (ID_MENU_EDIT_SNAP_TO_GRID,     ID_MENU_EDIT_SET_GRID_SIZE,    GuiEditor::ChildFrameT::OnMenuEditGrid)
+    EVT_MENU_RANGE     (ID_MENU_CREATE_WINDOW,         ID_MENU_CREATE_COMPONENT_MAX,  GuiEditor::ChildFrameT::OnMenuCreate)
+    EVT_MENU_RANGE     (ID_MENU_VIEW_WINDOW_HIERARCHY, ID_MENU_VIEW_SAVE_USER_LAYOUT, GuiEditor::ChildFrameT::OnMenuView)
+    EVT_UPDATE_UI_RANGE(ID_MENU_VIEW_WINDOW_HIERARCHY, ID_MENU_VIEW_GUIINSPECTOR,     GuiEditor::ChildFrameT::OnMenuViewUpdate)
+    EVT_CLOSE          (                                                              GuiEditor::ChildFrameT::OnClose)
+    EVT_TOOL_RANGE     (ID_TOOLBAR_DOC_PREVIEW,        ID_TOOLBAR_ZOOM_100,           GuiEditor::ChildFrameT::OnToolbar)
 END_EVENT_TABLE()
 
 
@@ -119,7 +119,7 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
       m_ToolManager(GuiDocument, this),
       m_Parent(Parent),
       m_RenderWindow(NULL),
-      m_WindowTree(NULL),
+      m_WindowHierarchy(NULL),
       m_WindowInspector(NULL),
       m_FileMenu(NULL),
       m_EditMenu(NULL),
@@ -215,7 +215,7 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
 
 
     m_ViewMenu=new wxMenu;
-    m_ViewMenu->Append(ID_MENU_VIEW_WINDOWTREE, "Window Tree", "Show/Hide the Window Tree", wxITEM_CHECK);
+    m_ViewMenu->Append(ID_MENU_VIEW_WINDOW_HIERARCHY, "Window Hierarchy", "Show/Hide the Window Hierarchy", wxITEM_CHECK);
     m_ViewMenu->Append(ID_MENU_VIEW_WINDOWINSPECTOR, "Window Inspector", "Show/Hide the Window Inspector", wxITEM_CHECK);
     m_ViewMenu->Append(ID_MENU_VIEW_GUIINSPECTOR, "GUI Inspector", "Show/Hide the GUI Inspector", wxITEM_CHECK);
     m_ViewMenu->AppendSeparator();
@@ -241,7 +241,7 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
 
     // Create GUI views.
     m_RenderWindow   =new RenderWindowT   (this);
-    m_WindowTree     =new WindowTreeT     (this, wxSize(230, 500));
+    m_WindowHierarchy=new WindowHierarchyT(this, wxSize(230, 500));
     m_WindowInspector=new WindowInspectorT(this, wxSize(230, 500));
     m_GuiInspector   =new GuiInspectorT   (this, wxSize(230, 150));
 
@@ -249,8 +249,8 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
                          Name("RenderWindow").Caption("Render Window").
                          CenterPane());
 
-    m_AUIManager.AddPane(m_WindowTree, wxAuiPaneInfo().
-                         Name("WindowTree").Caption("Window Tree").
+    m_AUIManager.AddPane(m_WindowHierarchy, wxAuiPaneInfo().
+                         Name("WindowHierarchy").Caption("Window Hierarchy").
                          Left().Position(0));
 
     m_AUIManager.AddPane(m_WindowInspector, wxAuiPaneInfo().
@@ -280,7 +280,7 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
     m_ToolbarTools=new wxAuiToolBar(this, wxID_ANY);
     m_ToolbarTools->AddTool(ID_TOOLBAR_TOOL_SELECTION, "Selection tool", wxArtProvider::GetBitmap("cursor_mouse", wxART_TOOLBAR, wxSize(16, 16) /*The only one that we have at this time; don't scale it.*/), "Selection tool", wxITEM_CHECK);
     m_ToolbarTools->ToggleTool(ID_TOOLBAR_TOOL_SELECTION, true); // Selection tool is active by default.
-    m_ToolbarTools->AddTool(ID_TOOLBAR_TOOL_NEW_WINDOW, "Window Creation tool", wxArtProvider::GetBitmap("window-new", wxART_TOOLBAR), "Window creation tool (in this version, use the Create menu, or the context menu in the Window Tree or main view in order to create new windows)", wxITEM_CHECK);
+    m_ToolbarTools->AddTool(ID_TOOLBAR_TOOL_NEW_WINDOW, "Window Creation tool", wxArtProvider::GetBitmap("window-new", wxART_TOOLBAR), "Window creation tool (in this version, use the Create menu, or the context menu in the Window Hierarchy or main view in order to create new windows)", wxITEM_CHECK);
     m_ToolbarTools->EnableTool(ID_TOOLBAR_TOOL_NEW_WINDOW, false);
     m_ToolbarTools->Realize();
 
@@ -334,7 +334,7 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
 
     // Register observers.
     m_GuiDocument->RegisterObserver(m_RenderWindow);
-    m_GuiDocument->RegisterObserver(m_WindowTree);
+    m_GuiDocument->RegisterObserver(m_WindowHierarchy);
     m_GuiDocument->RegisterObserver(m_WindowInspector);
     m_GuiDocument->RegisterObserver(m_GuiInspector);
 
@@ -343,7 +343,7 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
 
     // Initial update of the gui documents observers.
     m_RenderWindow->Refresh(false);
-    m_WindowTree->RefreshTree();
+    m_WindowHierarchy->RefreshTree();
     m_WindowInspector->RefreshPropGrid();
     m_GuiInspector->RefreshPropGrid();
 }
@@ -659,8 +659,8 @@ void GuiEditor::ChildFrameT::OnMenuView(wxCommandEvent& CE)
 {
     switch (CE.GetId())
     {
-        case ID_MENU_VIEW_WINDOWTREE:
-            m_AUIManager.GetPane(m_WindowTree).Show(m_ViewMenu->IsChecked(ID_MENU_VIEW_WINDOWTREE));
+        case ID_MENU_VIEW_WINDOW_HIERARCHY:
+            m_AUIManager.GetPane(m_WindowHierarchy).Show(m_ViewMenu->IsChecked(ID_MENU_VIEW_WINDOW_HIERARCHY));
             m_AUIManager.Update();
             break;
 
@@ -696,8 +696,8 @@ void GuiEditor::ChildFrameT::OnMenuViewUpdate(wxUpdateUIEvent& UE)
 {
     switch (UE.GetId())
     {
-        case ID_MENU_VIEW_WINDOWTREE:
-            m_ViewMenu->Check(ID_MENU_VIEW_WINDOWTREE, m_AUIManager.GetPane(m_WindowTree).IsShown());
+        case ID_MENU_VIEW_WINDOW_HIERARCHY:
+            m_ViewMenu->Check(ID_MENU_VIEW_WINDOW_HIERARCHY, m_AUIManager.GetPane(m_WindowHierarchy).IsShown());
             break;
 
         case ID_MENU_VIEW_WINDOWINSPECTOR:

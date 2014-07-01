@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef CAFU_GUIEDITOR_WINDOW_TREE_HPP_INCLUDED
-#define CAFU_GUIEDITOR_WINDOW_TREE_HPP_INCLUDED
+#ifndef CAFU_GUIEDITOR_WINDOW_HIERARCHY_HPP_INCLUDED
+#define CAFU_GUIEDITOR_WINDOW_HIERARCHY_HPP_INCLUDED
 
 #include "ObserverPattern.hpp"
 
@@ -36,12 +36,12 @@ namespace GuiEditor
     class ChildFrameT;
     class GuiDocumentT;
 
-    class WindowTreeT : public wxTreeCtrl, public ObserverT
+    class WindowHierarchyT : public wxTreeCtrl, public ObserverT
     {
         public:
 
-        WindowTreeT(ChildFrameT* Parent, const wxSize& Size);
-        ~WindowTreeT();
+        WindowHierarchyT(ChildFrameT* Parent, const wxSize& Size);
+        ~WindowHierarchyT();
 
         // ObserverT implementation.
         void NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& OldSelection, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& NewSelection);
