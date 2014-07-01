@@ -34,6 +34,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameSys/Entity.hpp"
 
 #include "wx/artprov.h"
+#include "wx/imaglist.h"
 
 
 namespace

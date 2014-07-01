@@ -43,8 +43,8 @@ InspectorDialogT::InspectorDialogT(wxWindow* Parent, MapDocumentT* MapDoc)
     m_EntityInspector = new EntityInspectorT      (Notebook, MapDoc->GetChildFrame(), wxSize(300, 200));
     PrimitiveProps    = new InspDlgPrimitivePropsT(Notebook, MapDoc);
 
-    Notebook->AddPage(m_EntityInspector, "Entity Inspector");
-    Notebook->AddPage(PrimitiveProps,    "Primitive Properties");
+    Notebook->AddPage(m_EntityInspector, "Entity Details");
+    Notebook->AddPage(PrimitiveProps,    "Primitive Details");
 
     mainSizer->Add(Notebook, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 2);
 

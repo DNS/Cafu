@@ -381,16 +381,15 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item7->AppendCheckItem(ID_MENU_VIEW_TOOLBARS_FILE, wxT("&General"), wxT("") );
     item7->AppendCheckItem(ID_MENU_VIEW_TOOLBARS_TOOLS, wxT("&Tools"), wxT("") );
     item6->Append(ID_MENU_VIEW_TOOLBARS, wxT("&Toolbars"), item7 );
+    item6->AppendSeparator();
 
-    item6->Append(ID_MENU_VIEW_ENTITY_TREE, "Entity Tree", "Show/Hide the Entity Tree", wxITEM_CHECK);
-
-    wxMenu* ViewPanelsMenu=new wxMenu;
-    ViewPanelsMenu->AppendCheckItem(ID_MENU_VIEW_PANELS_TOOLOPTIONS, wxT("&Tool Options"), wxT("") );
-    ViewPanelsMenu->AppendCheckItem(ID_MENU_VIEW_PANELS_MATERIALS,   wxT("&Materials"), wxT("") );
-    ViewPanelsMenu->AppendCheckItem(ID_MENU_VIEW_PANELS_GROUPS,      wxT("&Groups"), wxT("") );
-    ViewPanelsMenu->AppendCheckItem(ID_MENU_VIEW_PANELS_INSPECTOR,   wxT("Object &Properties"), wxT("") );
-    ViewPanelsMenu->AppendCheckItem(ID_MENU_VIEW_PANELS_CONSOLE,     wxT("&Console"), wxT("") );
-    item6->Append(ID_MENU_VIEW_PANELS, wxT("&Panels"), ViewPanelsMenu);
+    item6->AppendCheckItem(ID_MENU_VIEW_PANELS_TOOLOPTIONS,      "&Tool Options", "");
+    item6->AppendCheckItem(ID_MENU_VIEW_PANELS_ENTITY_TREE,      "Entity &Tree", "Show/Hide the Entity Tree");
+    item6->AppendCheckItem(ID_MENU_VIEW_PANELS_ENTITY_INSPECTOR, "Entity &Inspector", "");
+    item6->AppendCheckItem(ID_MENU_VIEW_PANELS_MATERIALS,        "&Materials", "");
+    item6->AppendCheckItem(ID_MENU_VIEW_PANELS_GROUPS,           "&Groups", "");
+    item6->AppendCheckItem(ID_MENU_VIEW_PANELS_CONSOLE,          "&Console", "");
+    item6->AppendSeparator();
 
     item6->Append(ID_MENU_VIEW_NEW_2D_VIEW, "New &2D view", "Opens a new 2D view on the map");
     item6->Append(ID_MENU_VIEW_NEW_3D_VIEW, "New &3D view", "Opens a new 3D view on the map");
@@ -618,11 +617,6 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
                          Name("Groups").Caption("Groups").
                          Left().Position(2));
 
-    m_InspectorDialog = new InspectorDialogT(this, m_Doc);
-    m_AUIManager.AddPane(m_InspectorDialog, wxAuiPaneInfo().
-                         Name("Properties").Caption("Object Properties").
-                         Float().Hide());
-
     m_ConsoleDialog = new ConsoleDialogT(this);
     m_AUIManager.AddPane(m_ConsoleDialog, wxAuiPaneInfo().
                          Name("Console").Caption("Console").
@@ -649,13 +643,18 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     m_AUIManager.AddPane(ViewTopRight, wxAuiPaneInfo().
                          // Name("xy").
                          Caption(ViewTopRight->GetCaption()).
-                         DestroyOnClose().Right().Position(0).MaximizeButton().MinimizeButton());
+                         DestroyOnClose().Right().Row(1).Position(0).MaximizeButton().MinimizeButton());
 
     ViewWindow2DT* ViewBottomRight = new ViewWindow2DT(this, this, (ViewWindowT::ViewTypeT)wxConfigBase::Get()->Read("Splitter/ViewType11", ViewWindowT::VT_2D_XZ));
     m_AUIManager.AddPane(ViewBottomRight, wxAuiPaneInfo().
                          // Name("xy").
                          Caption(ViewBottomRight->GetCaption()).
-                         DestroyOnClose().Right().Position(1).MaximizeButton().MinimizeButton());
+                         DestroyOnClose().Right().Row(1).Position(1).MaximizeButton().MinimizeButton());
+
+    m_InspectorDialog = new InspectorDialogT(this, m_Doc);
+    m_AUIManager.AddPane(m_InspectorDialog, wxAuiPaneInfo().
+                         Name("EntityInspector").Caption("Entity Inspector").
+                         Right().Row(0).Position(0));
 
 
     // Save the AUI perspective that we set up in this ctor code as the "default perspective".
@@ -1460,12 +1459,16 @@ void ChildFrameT::OnMenuView(wxCommandEvent& CE)
             PaneToggleShow(m_AUIManager.GetPane("Tools Toolbar"));
             break;
 
-        case ID_MENU_VIEW_ENTITY_TREE:
+        case ID_MENU_VIEW_PANELS_TOOLOPTIONS:
+            PaneToggleShow(m_AUIManager.GetPane("Tool Options"));
+            break;
+
+        case ID_MENU_VIEW_PANELS_ENTITY_TREE:
             PaneToggleShow(m_AUIManager.GetPane(m_EntityTreeDialog));
             break;
 
-        case ID_MENU_VIEW_PANELS_TOOLOPTIONS:
-            PaneToggleShow(m_AUIManager.GetPane("Tool Options"));
+        case ID_MENU_VIEW_PANELS_ENTITY_INSPECTOR:
+            PaneToggleShow(m_AUIManager.GetPane(m_InspectorDialog));
             break;
 
         case ID_MENU_VIEW_PANELS_MATERIALS:
@@ -1474,10 +1477,6 @@ void ChildFrameT::OnMenuView(wxCommandEvent& CE)
 
         case ID_MENU_VIEW_PANELS_GROUPS:
             PaneToggleShow(m_AUIManager.GetPane(m_GroupsToolbar));
-            break;
-
-        case ID_MENU_VIEW_PANELS_INSPECTOR:
-            PaneToggleShow(m_AUIManager.GetPane(m_InspectorDialog));
             break;
 
         case ID_MENU_VIEW_PANELS_CONSOLE:
@@ -1561,12 +1560,16 @@ void ChildFrameT::OnMenuViewUpdate(wxUpdateUIEvent& UE)
             UE.Check(m_AUIManager.GetPane("Tools Toolbar").IsShown());
             break;
 
-        case ID_MENU_VIEW_ENTITY_TREE:
+        case ID_MENU_VIEW_PANELS_TOOLOPTIONS:
+            UE.Check(m_AUIManager.GetPane("Tool Options").IsShown());
+            break;
+
+        case ID_MENU_VIEW_PANELS_ENTITY_TREE:
             UE.Check(m_AUIManager.GetPane(m_EntityTreeDialog).IsShown());
             break;
 
-        case ID_MENU_VIEW_PANELS_TOOLOPTIONS:
-            UE.Check(m_AUIManager.GetPane("Tool Options").IsShown());
+        case ID_MENU_VIEW_PANELS_ENTITY_INSPECTOR:
+            UE.Check(m_AUIManager.GetPane(m_InspectorDialog).IsShown());
             break;
 
         case ID_MENU_VIEW_PANELS_MATERIALS:
@@ -1575,10 +1578,6 @@ void ChildFrameT::OnMenuViewUpdate(wxUpdateUIEvent& UE)
 
         case ID_MENU_VIEW_PANELS_GROUPS:
             UE.Check(m_AUIManager.GetPane(m_GroupsToolbar).IsShown());
-            break;
-
-        case ID_MENU_VIEW_PANELS_INSPECTOR:
-            UE.Check(m_AUIManager.GetPane(m_InspectorDialog).IsShown());
             break;
 
         case ID_MENU_VIEW_PANELS_CONSOLE:
