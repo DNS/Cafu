@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef CAFU_MAPEDITOR_DIALOG_ENTITY_TREE_HPP_INCLUDED
-#define CAFU_MAPEDITOR_DIALOG_ENTITY_TREE_HPP_INCLUDED
+#ifndef CAFU_MAPEDITOR_DIALOG_ENTITY_HIERARCHY_HPP_INCLUDED
+#define CAFU_MAPEDITOR_DIALOG_ENTITY_HIERARCHY_HPP_INCLUDED
 
 #include "../ObserverPattern.hpp"
 
@@ -33,12 +33,12 @@ class MapDocumentT;
 
 namespace MapEditor
 {
-    class EntityTreeDialogT : public wxTreeCtrl, public ObserverT
+    class EntityHierarchyDialogT : public wxTreeCtrl, public ObserverT
     {
         public:
 
-        EntityTreeDialogT(ChildFrameT* Parent, const wxSize& Size);
-        ~EntityTreeDialogT();
+        EntityHierarchyDialogT(ChildFrameT* Parent, const wxSize& Size);
+        ~EntityHierarchyDialogT();
 
         // Implementation of the ObserverT interface.
         void NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<MapElementT*>& OldSelection, const ArrayT<MapElementT*>& NewSelection);

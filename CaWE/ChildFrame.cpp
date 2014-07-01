@@ -27,7 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "DialogConsole.hpp"
 #include "DialogCustomCompile.hpp"
 #include "DialogEditSurfaceProps.hpp"
-#include "MapEditor/DialogEntityTree.hpp"
+#include "MapEditor/DialogEntityHierarchy.hpp"
 #include "DialogInspector.hpp"
 #include "DialogPasteSpecial.hpp"
 #include "DialogTerrainEdit.hpp"
@@ -286,7 +286,7 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
       m_LastSavedAtCommandNr(0),
       m_AutoSaveTimer(m_Doc, Parent->m_ChildFrames.Size()),
       m_ToolManager(NULL),
-      m_EntityTreeDialog(NULL),
+      m_EntityHierarchyDialog(NULL),
       m_MaterialsToolbar(NULL),
       m_GroupsToolbar(NULL),
       m_ConsoleDialog(NULL),
@@ -384,7 +384,7 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item6->AppendSeparator();
 
     item6->AppendCheckItem(ID_MENU_VIEW_PANELS_TOOLOPTIONS,      "&Tool Options", "");
-    item6->AppendCheckItem(ID_MENU_VIEW_PANELS_ENTITY_TREE,      "Entity &Tree", "Show/Hide the Entity Tree");
+    item6->AppendCheckItem(ID_MENU_VIEW_PANELS_ENTITY_HIERARCHY, "Entity &Hierarchy", "Show/Hide the Entity Hierarchy");
     item6->AppendCheckItem(ID_MENU_VIEW_PANELS_ENTITY_INSPECTOR, "Entity &Inspector", "");
     item6->AppendCheckItem(ID_MENU_VIEW_PANELS_MATERIALS,        "&Materials", "");
     item6->AppendCheckItem(ID_MENU_VIEW_PANELS_GROUPS,           "&Groups", "");
@@ -602,9 +602,9 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     // Create the toolbars and non-modal dialogs.
     // Note that most if not all of these wxAUI panes have extra style wxWS_EX_BLOCK_EVENTS set,
     // so that they do not propagate their events to us, but behave as if they were derived from wxDialog.
-    m_EntityTreeDialog = new EntityTreeDialogT(this, wxSize(230, 500));
-    m_AUIManager.AddPane(m_EntityTreeDialog, wxAuiPaneInfo().
-                         Name("EntityTree").Caption("Entity Tree").
+    m_EntityHierarchyDialog = new EntityHierarchyDialogT(this, wxSize(230, 500));
+    m_AUIManager.AddPane(m_EntityHierarchyDialog, wxAuiPaneInfo().
+                         Name("EntityHierarchy").Caption("Entity Hierarchy").
                          Left().Position(0));
 
     m_MaterialsToolbar = new MaterialsToolbarT(this, m_Doc);
@@ -1463,8 +1463,8 @@ void ChildFrameT::OnMenuView(wxCommandEvent& CE)
             PaneToggleShow(m_AUIManager.GetPane("Tool Options"));
             break;
 
-        case ID_MENU_VIEW_PANELS_ENTITY_TREE:
-            PaneToggleShow(m_AUIManager.GetPane(m_EntityTreeDialog));
+        case ID_MENU_VIEW_PANELS_ENTITY_HIERARCHY:
+            PaneToggleShow(m_AUIManager.GetPane(m_EntityHierarchyDialog));
             break;
 
         case ID_MENU_VIEW_PANELS_ENTITY_INSPECTOR:
@@ -1564,8 +1564,8 @@ void ChildFrameT::OnMenuViewUpdate(wxUpdateUIEvent& UE)
             UE.Check(m_AUIManager.GetPane("Tool Options").IsShown());
             break;
 
-        case ID_MENU_VIEW_PANELS_ENTITY_TREE:
-            UE.Check(m_AUIManager.GetPane(m_EntityTreeDialog).IsShown());
+        case ID_MENU_VIEW_PANELS_ENTITY_HIERARCHY:
+            UE.Check(m_AUIManager.GetPane(m_EntityHierarchyDialog).IsShown());
             break;
 
         case ID_MENU_VIEW_PANELS_ENTITY_INSPECTOR:

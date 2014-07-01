@@ -19,7 +19,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "DialogEntityTree.hpp"
+#include "DialogEntityHierarchy.hpp"
 #include "../ChildFrame.hpp"
 #include "../CompMapEntity.hpp"
 #include "../MapDocument.hpp"
@@ -58,26 +58,26 @@ namespace
 using namespace MapEditor;
 
 
-BEGIN_EVENT_TABLE(EntityTreeDialogT, wxTreeCtrl)
-    EVT_KEY_DOWN             (EntityTreeDialogT::OnKeyDown)
-    EVT_LEFT_DOWN            (EntityTreeDialogT::OnTreeLeftClick)
-    EVT_LEFT_DCLICK          (EntityTreeDialogT::OnTreeLeftClick)   // Handle double clicks like normal left clicks when it comes to clicks on tree item icons (otherwise double clicks are handled normally).
-    EVT_TREE_SEL_CHANGED     (wxID_ANY, EntityTreeDialogT::OnSelectionChanged)
-    EVT_TREE_END_LABEL_EDIT  (wxID_ANY, EntityTreeDialogT::OnEndLabelEdit)
-    EVT_TREE_ITEM_RIGHT_CLICK(wxID_ANY, EntityTreeDialogT::OnTreeItemRightClick)
-    EVT_TREE_BEGIN_DRAG      (wxID_ANY, EntityTreeDialogT::OnBeginDrag)
-    EVT_TREE_END_DRAG        (wxID_ANY, EntityTreeDialogT::OnEndDrag)
+BEGIN_EVENT_TABLE(EntityHierarchyDialogT, wxTreeCtrl)
+    EVT_KEY_DOWN             (EntityHierarchyDialogT::OnKeyDown)
+    EVT_LEFT_DOWN            (EntityHierarchyDialogT::OnTreeLeftClick)
+    EVT_LEFT_DCLICK          (EntityHierarchyDialogT::OnTreeLeftClick)   // Handle double clicks like normal left clicks when it comes to clicks on tree item icons (otherwise double clicks are handled normally).
+    EVT_TREE_SEL_CHANGED     (wxID_ANY, EntityHierarchyDialogT::OnSelectionChanged)
+    EVT_TREE_END_LABEL_EDIT  (wxID_ANY, EntityHierarchyDialogT::OnEndLabelEdit)
+    EVT_TREE_ITEM_RIGHT_CLICK(wxID_ANY, EntityHierarchyDialogT::OnTreeItemRightClick)
+    EVT_TREE_BEGIN_DRAG      (wxID_ANY, EntityHierarchyDialogT::OnBeginDrag)
+    EVT_TREE_END_DRAG        (wxID_ANY, EntityHierarchyDialogT::OnEndDrag)
 END_EVENT_TABLE()
 
 
-EntityTreeDialogT::EntityTreeDialogT(ChildFrameT* Parent, const wxSize& Size)
+EntityHierarchyDialogT::EntityHierarchyDialogT(ChildFrameT* Parent, const wxSize& Size)
     : wxTreeCtrl(Parent, wxID_ANY, wxDefaultPosition, Size, wxTR_HAS_BUTTONS|wxTR_LINES_AT_ROOT|wxTR_MULTIPLE|wxBORDER_NONE|wxTR_EDIT_LABELS),
       m_MapDoc(Parent->GetDoc()),
       m_Parent(Parent),
       m_IsRecursiveSelfNotify(false),
       m_DraggedEntity(NULL)
 {
-    // Build list of entity tree icons.
+    // Build list of entity hierarchy icons.
     wxImageList* TreeIcons = new wxImageList(16, 16);
 
     TreeIcons->Add(wxBitmap("CaWE/res/checked.png", wxBITMAP_TYPE_PNG));
@@ -90,14 +90,14 @@ EntityTreeDialogT::EntityTreeDialogT(ChildFrameT* Parent, const wxSize& Size)
 }
 
 
-EntityTreeDialogT::~EntityTreeDialogT()
+EntityHierarchyDialogT::~EntityHierarchyDialogT()
 {
     if (m_MapDoc) m_MapDoc->UnregisterObserver(this);
 }
 
 
 // Automatically fills children of tree item using the items client data.
-void EntityTreeDialogT::AddChildren(const wxTreeItemId& Item, bool Recursive)
+void EntityHierarchyDialogT::AddChildren(const wxTreeItemId& Item, bool Recursive)
 {
     ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > Children;
 
@@ -118,7 +118,7 @@ void EntityTreeDialogT::AddChildren(const wxTreeItemId& Item, bool Recursive)
 }
 
 
-const wxTreeItemId EntityTreeDialogT::FindTreeItem(const wxTreeItemId& StartingItem, IntrusivePtrT<cf::GameSys::EntityT> Entity) const
+const wxTreeItemId EntityHierarchyDialogT::FindTreeItem(const wxTreeItemId& StartingItem, IntrusivePtrT<cf::GameSys::EntityT> Entity) const
 {
     // If the item to start with is invalid, return it so the result of this function call is invalid too.
     if (!StartingItem.IsOk()) return StartingItem;
@@ -148,7 +148,7 @@ const wxTreeItemId EntityTreeDialogT::FindTreeItem(const wxTreeItemId& StartingI
 }
 
 
-void EntityTreeDialogT::GetTreeItems(const wxTreeItemId& StartingItem, ArrayT<wxTreeItemId>& Items)
+void EntityHierarchyDialogT::GetTreeItems(const wxTreeItemId& StartingItem, ArrayT<wxTreeItemId>& Items)
 {
     if (!StartingItem.IsOk()) return;
 
@@ -165,7 +165,7 @@ void EntityTreeDialogT::GetTreeItems(const wxTreeItemId& StartingItem, ArrayT<wx
 }
 
 
-void EntityTreeDialogT::NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<MapElementT*>& OldSelection, const ArrayT<MapElementT*>& NewSelection)
+void EntityHierarchyDialogT::NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<MapElementT*>& OldSelection, const ArrayT<MapElementT*>& NewSelection)
 {
     if (m_IsRecursiveSelfNotify) return;
 
@@ -194,7 +194,7 @@ void EntityTreeDialogT::NotifySubjectChanged_Selection(SubjectT* Subject, const 
 }
 
 
-void EntityTreeDialogT::NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities)
+void EntityHierarchyDialogT::NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities)
 {
     if (m_IsRecursiveSelfNotify) return;
 
@@ -202,7 +202,7 @@ void EntityTreeDialogT::NotifySubjectChanged_Created(SubjectT* Subject, const Ar
 }
 
 
-void EntityTreeDialogT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities)
+void EntityHierarchyDialogT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities)
 {
     if (m_IsRecursiveSelfNotify) return;
 
@@ -210,7 +210,7 @@ void EntityTreeDialogT::NotifySubjectChanged_Deleted(SubjectT* Subject, const Ar
 }
 
 
-void EntityTreeDialogT::Notify_EntChanged(SubjectT* Subject, const ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> >& Entities, EntityModDetailE Detail)
+void EntityHierarchyDialogT::Notify_EntChanged(SubjectT* Subject, const ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> >& Entities, EntityModDetailE Detail)
 {
     if (m_IsRecursiveSelfNotify) return;
     if (Detail != EMD_HIERARCHY) return;
@@ -220,7 +220,7 @@ void EntityTreeDialogT::Notify_EntChanged(SubjectT* Subject, const ArrayT< Intru
 }
 
 
-void EntityTreeDialogT::Notify_VarChanged(SubjectT* Subject, const cf::TypeSys::VarBaseT& Var)
+void EntityHierarchyDialogT::Notify_VarChanged(SubjectT* Subject, const cf::TypeSys::VarBaseT& Var)
 {
     if (m_IsRecursiveSelfNotify) return;
 
@@ -247,7 +247,7 @@ void EntityTreeDialogT::Notify_VarChanged(SubjectT* Subject, const cf::TypeSys::
 }
 
 
-void EntityTreeDialogT::NotifySubjectDies(SubjectT* dyingSubject)
+void EntityHierarchyDialogT::NotifySubjectDies(SubjectT* dyingSubject)
 {
     wxASSERT(dyingSubject == m_MapDoc);
 
@@ -257,7 +257,7 @@ void EntityTreeDialogT::NotifySubjectDies(SubjectT* dyingSubject)
 }
 
 
-void EntityTreeDialogT::RefreshTree()
+void EntityHierarchyDialogT::RefreshTree()
 {
     if (m_MapDoc == NULL) return;
 
@@ -325,7 +325,7 @@ void EntityTreeDialogT::RefreshTree()
 }
 
 
-void EntityTreeDialogT::OnKeyDown(wxKeyEvent& KE)
+void EntityHierarchyDialogT::OnKeyDown(wxKeyEvent& KE)
 {
     switch (KE.GetKeyCode())
     {
@@ -344,7 +344,7 @@ void EntityTreeDialogT::OnKeyDown(wxKeyEvent& KE)
 }
 
 
-void EntityTreeDialogT::OnTreeLeftClick(wxMouseEvent& ME)
+void EntityHierarchyDialogT::OnTreeLeftClick(wxMouseEvent& ME)
 {
     // Check if we hit an tree item icon.
     int HitFlag = 0;
@@ -375,7 +375,7 @@ void EntityTreeDialogT::OnTreeLeftClick(wxMouseEvent& ME)
 }
 
 
-void EntityTreeDialogT::OnSelectionChanged(wxTreeEvent& TE)
+void EntityHierarchyDialogT::OnSelectionChanged(wxTreeEvent& TE)
 {
     if (m_MapDoc == NULL || m_IsRecursiveSelfNotify) return;
 
@@ -395,7 +395,7 @@ void EntityTreeDialogT::OnSelectionChanged(wxTreeEvent& TE)
 }
 
 
-void EntityTreeDialogT::OnEndLabelEdit(wxTreeEvent& TE)
+void EntityHierarchyDialogT::OnEndLabelEdit(wxTreeEvent& TE)
 {
     IntrusivePtrT<cf::GameSys::EntityT> Entity = ((EntityTreeItemT*)GetItemData(TE.GetItem()))->GetEntity();
     cf::TypeSys::VarT<std::string>* Name = dynamic_cast<cf::TypeSys::VarT<std::string>*>(Entity->GetBasics()->GetMemberVars().Find("Name"));
@@ -435,7 +435,7 @@ static wxMenuItem* AppendMI(wxMenu& Menu, int MenuID, const wxString& Label, con
 }
 
 
-void EntityTreeDialogT::OnTreeItemRightClick(wxTreeEvent& TE)
+void EntityHierarchyDialogT::OnTreeItemRightClick(wxTreeEvent& TE)
 {
     // Note that GetPopupMenuSelectionFromUser() temporarily disables UI updates for the entity,
     // so our menu IDs used below should be doubly clash-free.
@@ -484,7 +484,7 @@ void EntityTreeDialogT::OnTreeItemRightClick(wxTreeEvent& TE)
             //   - I'm not sure if duplicating functionality that is already in the ChildFrameT's main toolbars and
             //     menus makes sense.
             //     It seems better to only have functionality that is *specific* to the entity hierarchy here!
-            //   - Well, this *was* done because the "Entity Tree" dialog is intended as a substitute for the old
+            //   - Well, this *was* done because the "Entity Hierarchy" dialog is intended as a substitute for the old
             //     (pre-component-system) "Entity Inspector", which had, beside several filter options, also buttons
             //     "Go to" and "Delete", which we reproduce here in an attempt to preserve the old dialog's set of
             //     features.
@@ -497,7 +497,7 @@ void EntityTreeDialogT::OnTreeItemRightClick(wxTreeEvent& TE)
 }
 
 
-void EntityTreeDialogT::OnBeginDrag(wxTreeEvent& TE)
+void EntityHierarchyDialogT::OnBeginDrag(wxTreeEvent& TE)
 {
     wxASSERT(m_DraggedEntity == NULL);
 
@@ -528,7 +528,7 @@ void EntityTreeDialogT::OnBeginDrag(wxTreeEvent& TE)
 }
 
 
-void EntityTreeDialogT::OnEndDrag(wxTreeEvent& TE)
+void EntityHierarchyDialogT::OnEndDrag(wxTreeEvent& TE)
 {
     wxASSERT(!m_DraggedEntity.IsNull());
     if (m_DraggedEntity.IsNull()) return;
