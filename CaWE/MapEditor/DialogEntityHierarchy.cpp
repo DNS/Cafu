@@ -485,7 +485,7 @@ void EntityHierarchyDialogT::OnTreeItemRightClick(wxTreeEvent& TE)
             //     menus makes sense.
             //     It seems better to only have functionality that is *specific* to the entity hierarchy here!
             //   - Well, this *was* done because the "Entity Hierarchy" dialog is intended as a substitute for the old
-            //     (pre-component-system) "Entity Inspector", which had, beside several filter options, also buttons
+            //     (pre-component-system) "Entity Report", which had, beside several filter options, also buttons
             //     "Go to" and "Delete", which we reproduce here in an attempt to preserve the old dialog's set of
             //     features.
             wxCommandEvent CE(wxEVT_COMMAND_MENU_SELECTED, MenuSelID);

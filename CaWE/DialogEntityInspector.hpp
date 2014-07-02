@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef CAFU_MAPEDITOR_ENTITY_INSPECTOR_HPP_INCLUDED
-#define CAFU_MAPEDITOR_ENTITY_INSPECTOR_HPP_INCLUDED
+#ifndef CAFU_MAPEDITOR_DIALOG_ENTITY_INSPECTOR_HPP_INCLUDED
+#define CAFU_MAPEDITOR_DIALOG_ENTITY_INSPECTOR_HPP_INCLUDED
 
 #include "ObserverPattern.hpp"
 
@@ -37,11 +37,11 @@ class MapDocumentT;
 
 namespace MapEditor
 {
-    class EntityInspectorT : public wxPropertyGridManager, public ObserverT
+    class EntityInspectorDialogT : public wxPropertyGridManager, public ObserverT
     {
         public:
 
-        EntityInspectorT(wxWindow* Parent, ChildFrameT* ChildFrame, const wxSize& Size);
+        EntityInspectorDialogT(wxWindow* Parent, ChildFrameT* ChildFrame, const wxSize& Size);
 
         // ObserverT implementation.
         void NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<MapElementT*>& OldSelection, const ArrayT<MapElementT*>& NewSelection);

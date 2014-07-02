@@ -385,7 +385,7 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
 
     item6->AppendCheckItem(ID_MENU_VIEW_PANELS_TOOLOPTIONS,      "&Tool Options", "");
     item6->AppendCheckItem(ID_MENU_VIEW_PANELS_ENTITY_HIERARCHY, "Entity &Hierarchy", "Show/Hide the Entity Hierarchy");
-    item6->AppendCheckItem(ID_MENU_VIEW_PANELS_ENTITY_INSPECTOR, "Entity &Inspector", "");
+    item6->AppendCheckItem(ID_MENU_VIEW_PANELS_ENTITY_INSPECTOR, "Entity &Inspector", "Show/Hide the Entity Inspector");
     item6->AppendCheckItem(ID_MENU_VIEW_PANELS_MATERIALS,        "&Materials", "");
     item6->AppendCheckItem(ID_MENU_VIEW_PANELS_GROUPS,           "&Groups", "");
     item6->AppendCheckItem(ID_MENU_VIEW_PANELS_CONSOLE,          "&Console", "");

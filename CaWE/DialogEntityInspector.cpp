@@ -19,7 +19,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "EntityInspector.hpp"
+#include "DialogEntityInspector.hpp"
 #include "ChildFrame.hpp"
 #include "CompMapEntity.hpp"
 #include "MapDocument.hpp"
@@ -38,7 +38,7 @@ using namespace MapEditor;
 /*
  * The two classes
  *
- *     MapEditor::EntityInspectorT
+ *     MapEditor::EntityInspectorDialogT
  *     GuiEditor::WindowInspectorT
  *
  * are "siblings" of each other, and the have lots of code in common.
@@ -47,14 +47,14 @@ using namespace MapEditor;
  */
 
 
-BEGIN_EVENT_TABLE(EntityInspectorT, wxPropertyGridManager)
-    EVT_PG_CHANGING(wxID_ANY, EntityInspectorT::OnPropertyGridChanging)
-    EVT_PG_CHANGED(wxID_ANY, EntityInspectorT::OnPropertyGridChanged)
-    EVT_PG_RIGHT_CLICK(wxID_ANY, EntityInspectorT::OnPropertyGridRightClick)
+BEGIN_EVENT_TABLE(EntityInspectorDialogT, wxPropertyGridManager)
+    EVT_PG_CHANGING(wxID_ANY, EntityInspectorDialogT::OnPropertyGridChanging)
+    EVT_PG_CHANGED(wxID_ANY, EntityInspectorDialogT::OnPropertyGridChanged)
+    EVT_PG_RIGHT_CLICK(wxID_ANY, EntityInspectorDialogT::OnPropertyGridRightClick)
 END_EVENT_TABLE()
 
 
-EntityInspectorT::EntityInspectorT(wxWindow* Parent, ChildFrameT* ChildFrame, const wxSize& Size)
+EntityInspectorDialogT::EntityInspectorDialogT(wxWindow* Parent, ChildFrameT* ChildFrame, const wxSize& Size)
     : wxPropertyGridManager(Parent, wxID_ANY, wxDefaultPosition, Size, wxPG_BOLD_MODIFIED | wxPG_SPLITTER_AUTO_CENTER | wxPG_DESCRIPTION),
       m_MapDocument(ChildFrame->GetDoc()),
       m_ChildFrame(ChildFrame),
@@ -70,14 +70,14 @@ EntityInspectorT::EntityInspectorT(wxWindow* Parent, ChildFrameT* ChildFrame, co
 }
 
 
-void EntityInspectorT::NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<MapElementT*>& OldSelection, const ArrayT<MapElementT*>& NewSelection)
+void EntityInspectorDialogT::NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<MapElementT*>& OldSelection, const ArrayT<MapElementT*>& NewSelection)
 {
     // TODO: Only do this if there is at least one EntRepresT among the Old and New selection?
     RefreshPropGrid();
 }
 
 
-void EntityInspectorT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities)
+void EntityInspectorDialogT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities)
 {
     if (m_SelectedEntity.IsNull()) return;
 
@@ -95,7 +95,7 @@ void EntityInspectorT::NotifySubjectChanged_Deleted(SubjectT* Subject, const Arr
 }
 
 
-void EntityInspectorT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail)
+void EntityInspectorDialogT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail)
 {
     if (m_IsRecursiveSelfNotify) return;
     if (m_SelectedEntity.IsNull()) return;
@@ -115,20 +115,20 @@ void EntityInspectorT::NotifySubjectChanged_Modified(SubjectT* Subject, const Ar
         case MEMD_SURFACE_INFO_CHANGED:
         case MEMD_ASSIGN_PRIM_TO_ENTITY:
         {
-            // Neither of these affects the entity inspector.
+            // Neither of these affects the Entity Inspector dialog.
             break;
         }
     }
 }
 
 
-void EntityInspectorT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const ArrayT<BoundingBox3fT>& OldBounds)
+void EntityInspectorDialogT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const ArrayT<BoundingBox3fT>& OldBounds)
 {
     NotifySubjectChanged_Modified(Subject, MapElements, Detail);
 }
 
 
-void EntityInspectorT::Notify_EntChanged(SubjectT* Subject, const ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> >& Entities, EntityModDetailE Detail)
+void EntityInspectorDialogT::Notify_EntChanged(SubjectT* Subject, const ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> >& Entities, EntityModDetailE Detail)
 {
     if (m_IsRecursiveSelfNotify) return;
     if (m_SelectedEntity.IsNull()) return;
@@ -144,7 +144,7 @@ void EntityInspectorT::Notify_EntChanged(SubjectT* Subject, const ArrayT< Intrus
 
         case EMD_HIERARCHY:
         {
-            // The entity hierarchy doesn't affect the entity inspector.
+            // The entity hierarchy doesn't affect the Entity Inspector dialog.
             break;
         }
     }
@@ -174,7 +174,7 @@ namespace
 }
 
 
-void EntityInspectorT::Notify_VarChanged(SubjectT* Subject, const cf::TypeSys::VarBaseT& Var)
+void EntityInspectorDialogT::Notify_VarChanged(SubjectT* Subject, const cf::TypeSys::VarBaseT& Var)
 {
     // if (m_IsRecursiveSelfNotify) return;   // Not here, see below.
     if (!GetPage(0)) return;
@@ -212,7 +212,7 @@ void EntityInspectorT::Notify_VarChanged(SubjectT* Subject, const cf::TypeSys::V
 }
 
 
-void EntityInspectorT::NotifySubjectDies(SubjectT* dyingSubject)
+void EntityInspectorDialogT::NotifySubjectDies(SubjectT* dyingSubject)
 {
     wxASSERT(dyingSubject == m_MapDocument);
 
@@ -222,7 +222,7 @@ void EntityInspectorT::NotifySubjectDies(SubjectT* dyingSubject)
 }
 
 
-void EntityInspectorT::AppendComponent(IntrusivePtrT<cf::GameSys::ComponentBaseT> Comp)
+void EntityInspectorDialogT::AppendComponent(IntrusivePtrT<cf::GameSys::ComponentBaseT> Comp)
 {
     const ArrayT<cf::TypeSys::VarBaseT*>& MemberVars = Comp->GetMemberVars().GetArray();
     const wxString                        UniqueName = wxString::Format("%p", Comp.get());
@@ -241,7 +241,7 @@ void EntityInspectorT::AppendComponent(IntrusivePtrT<cf::GameSys::ComponentBaseT
 }
 
 
-void EntityInspectorT::RefreshPropGrid()
+void EntityInspectorDialogT::RefreshPropGrid()
 {
     if (m_MapDocument == NULL) return;
 
@@ -297,7 +297,7 @@ void EntityInspectorT::RefreshPropGrid()
  *
  * Note that there is no event at all related to the changed "z" value!
  */
-void EntityInspectorT::OnPropertyGridChanging(wxPropertyGridEvent& Event)
+void EntityInspectorDialogT::OnPropertyGridChanging(wxPropertyGridEvent& Event)
 {
     // Changing a property by pressing ENTER doesn't change the selection. In consequence the property refresh below does not result in
     // any change since selected properties are not updated (because the user could be in the process of editing a value).
@@ -346,7 +346,7 @@ void EntityInspectorT::OnPropertyGridChanging(wxPropertyGridEvent& Event)
 }
 
 
-void EntityInspectorT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
+void EntityInspectorDialogT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
 {
     // Changing a property by pressing ENTER doesn't change the selection. In consequence the property refresh below does not result in
     // any change since selected properties are not updated (because the user could be in the process of editing a value).
@@ -404,7 +404,7 @@ static wxMenuItem* AppendMI(wxMenu& Menu, int MenuID, const wxString& Label, con
 }
 
 
-void EntityInspectorT::OnPropertyGridRightClick(wxPropertyGridEvent& Event)
+void EntityInspectorDialogT::OnPropertyGridRightClick(wxPropertyGridEvent& Event)
 {
     // Find the component that this right click corresponds to.
     if (m_SelectedEntity == NULL) return;

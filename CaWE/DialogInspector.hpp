@@ -26,7 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/panel.h"
 
 
-namespace MapEditor { class EntityInspectorT; }
+namespace MapEditor { class EntityInspectorDialogT; }
 class InspDlgPrimitivePropsT;
 class MapDocumentT;
 class MapElementT;
@@ -47,9 +47,9 @@ class InspectorDialogT : public wxPanel
 
     private:
 
-    wxNotebook*                  Notebook;
-    MapEditor::EntityInspectorT* m_EntityInspector;
-    InspDlgPrimitivePropsT*      PrimitiveProps;
+    wxNotebook*                        Notebook;
+    MapEditor::EntityInspectorDialogT* m_EntityInspectorDialog;
+    InspDlgPrimitivePropsT*            PrimitiveProps;
 };
 
 #endif

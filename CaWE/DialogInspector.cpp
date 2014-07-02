@@ -21,7 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "DialogInspector.hpp"
 #include "DialogInsp-PrimitiveProps.hpp"
-#include "EntityInspector.hpp"
+#include "DialogEntityInspector.hpp"
 #include "MapDocument.hpp"
 #include "MapEntRepres.hpp"
 
@@ -34,17 +34,16 @@ using namespace MapEditor;
 InspectorDialogT::InspectorDialogT(wxWindow* Parent, MapDocumentT* MapDoc)
     : wxPanel(Parent, -1),
       Notebook(NULL),
-      m_EntityInspector(NULL)
+      m_EntityInspectorDialog(NULL)
 {
     wxSizer* mainSizer=new wxBoxSizer(wxVERTICAL);
 
-    Notebook          = new wxNotebook(this, -1, wxDefaultPosition, wxSize(350, 450));
+    Notebook                = new wxNotebook(this, -1, wxDefaultPosition, wxSize(350, 450));
+    m_EntityInspectorDialog = new EntityInspectorDialogT(Notebook, MapDoc->GetChildFrame(), wxSize(300, 200));
+    PrimitiveProps          = new InspDlgPrimitivePropsT(Notebook, MapDoc);
 
-    m_EntityInspector = new EntityInspectorT      (Notebook, MapDoc->GetChildFrame(), wxSize(300, 200));
-    PrimitiveProps    = new InspDlgPrimitivePropsT(Notebook, MapDoc);
-
-    Notebook->AddPage(m_EntityInspector, "Entity Details");
-    Notebook->AddPage(PrimitiveProps,    "Primitive Details");
+    Notebook->AddPage(m_EntityInspectorDialog, "Entity");
+    Notebook->AddPage(PrimitiveProps,          "Primitive");
 
     mainSizer->Add(Notebook, 1, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 2);
 
@@ -58,14 +57,14 @@ InspectorDialogT::InspectorDialogT(wxWindow* Parent, MapDocumentT* MapDoc)
     // Does the GUI Editor's child frame's Show() call play a role? See (A) below.
 
     // Register observers.
-    MapDoc->RegisterObserver(m_EntityInspector);
+    MapDoc->RegisterObserver(m_EntityInspectorDialog);
 
     // This is code from the GUI Editor's child frame; see (A) above.
     // if (!IsMaximized()) Maximize(true);     // Also have wxMAXIMIZE set as frame style.
     // Show(true);
 
     // Initial update of the gui documents observers.
-    m_EntityInspector->RefreshPropGrid();
+    m_EntityInspectorDialog->RefreshPropGrid();
 }
 
 
