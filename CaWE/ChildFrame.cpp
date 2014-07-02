@@ -380,10 +380,10 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     wxMenu* item7 = new wxMenu;
     item7->AppendCheckItem(ID_MENU_VIEW_TOOLBARS_FILE, wxT("&General"), wxT("") );
     item7->AppendCheckItem(ID_MENU_VIEW_TOOLBARS_TOOLS, wxT("&Tools"), wxT("") );
+    item7->AppendCheckItem(ID_MENU_VIEW_TOOLBARS_TOOLOPTIONS, "&Tool Options", "");
     item6->Append(ID_MENU_VIEW_TOOLBARS, wxT("&Toolbars"), item7 );
     item6->AppendSeparator();
 
-    item6->AppendCheckItem(ID_MENU_VIEW_PANELS_TOOLOPTIONS,      "&Tool Options", "");
     item6->AppendCheckItem(ID_MENU_VIEW_PANELS_ENTITY_HIERARCHY, "Entity &Hierarchy", "Show/Hide the Entity Hierarchy");
     item6->AppendCheckItem(ID_MENU_VIEW_PANELS_ENTITY_INSPECTOR, "Entity &Inspector", "Show/Hide the Entity Inspector");
     item6->AppendCheckItem(ID_MENU_VIEW_PANELS_MATERIALS,        "&Materials", "");
@@ -595,7 +595,7 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     // TTOSizer->SetSizeHints(ToolbarToolOptions);      // When this line is activated ("commented in"), the size of the pane gets wrong.
 
     m_AUIManager.AddPane(ToolbarToolOptions, wxAuiPaneInfo().
-                         Name("Tool Options").Caption("Tool Options").
+                         Name("Tool Options Toolbar").Caption("Tool Options Toolbar").
                          Top().Row(1));
 
 
@@ -1459,8 +1459,8 @@ void ChildFrameT::OnMenuView(wxCommandEvent& CE)
             PaneToggleShow(m_AUIManager.GetPane("Tools Toolbar"));
             break;
 
-        case ID_MENU_VIEW_PANELS_TOOLOPTIONS:
-            PaneToggleShow(m_AUIManager.GetPane("Tool Options"));
+        case ID_MENU_VIEW_TOOLBARS_TOOLOPTIONS:
+            PaneToggleShow(m_AUIManager.GetPane("Tool Options Toolbar"));
             break;
 
         case ID_MENU_VIEW_PANELS_ENTITY_HIERARCHY:
@@ -1560,8 +1560,8 @@ void ChildFrameT::OnMenuViewUpdate(wxUpdateUIEvent& UE)
             UE.Check(m_AUIManager.GetPane("Tools Toolbar").IsShown());
             break;
 
-        case ID_MENU_VIEW_PANELS_TOOLOPTIONS:
-            UE.Check(m_AUIManager.GetPane("Tool Options").IsShown());
+        case ID_MENU_VIEW_TOOLBARS_TOOLOPTIONS:
+            UE.Check(m_AUIManager.GetPane("Tool Options Toolbar").IsShown());
             break;
 
         case ID_MENU_VIEW_PANELS_ENTITY_HIERARCHY:
