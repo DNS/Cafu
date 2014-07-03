@@ -67,6 +67,15 @@ EntityInspectorDialogT::EntityInspectorDialogT(wxWindow* Parent, ChildFrameT* Ch
     // SetExtraStyle(wxPG_EX_HELP_AS_TOOLTIPS);
 
     AddPage("Entity Properties");
+
+    m_MapDocument->RegisterObserver(this);
+    RefreshPropGrid();
+}
+
+
+EntityInspectorDialogT::~EntityInspectorDialogT()
+{
+    if (m_MapDocument) m_MapDocument->UnregisterObserver(this);
 }
 
 

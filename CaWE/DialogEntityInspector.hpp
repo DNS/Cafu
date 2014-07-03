@@ -42,6 +42,7 @@ namespace MapEditor
         public:
 
         EntityInspectorDialogT(wxWindow* Parent, ChildFrameT* ChildFrame, const wxSize& Size);
+        ~EntityInspectorDialogT();
 
         // ObserverT implementation.
         void NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<MapElementT*>& OldSelection, const ArrayT<MapElementT*>& NewSelection);
@@ -52,21 +53,20 @@ namespace MapEditor
         void Notify_VarChanged(SubjectT* Subject, const cf::TypeSys::VarBaseT& Var);
         void NotifySubjectDies(SubjectT* dyingSubject);
 
-        void RefreshPropGrid();
-
 
         private:
 
-        MapDocumentT*                       m_MapDocument;
-        ChildFrameT*                        m_ChildFrame;
-        IntrusivePtrT<cf::GameSys::EntityT> m_SelectedEntity;
-        bool                                m_IsRecursiveSelfNotify;
-
+        void RefreshPropGrid();
         void AppendComponent(IntrusivePtrT<cf::GameSys::ComponentBaseT> Comp);
 
         void OnPropertyGridChanging(wxPropertyGridEvent& Event);
         void OnPropertyGridChanged(wxPropertyGridEvent& Event);
         void OnPropertyGridRightClick(wxPropertyGridEvent& Event);
+
+        MapDocumentT*                       m_MapDocument;
+        ChildFrameT*                        m_ChildFrame;
+        IntrusivePtrT<cf::GameSys::EntityT> m_SelectedEntity;
+        bool                                m_IsRecursiveSelfNotify;
 
         DECLARE_EVENT_TABLE()
     };

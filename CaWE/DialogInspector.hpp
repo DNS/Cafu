@@ -45,6 +45,7 @@ class InspectorDialogT : public wxPanel
     /// (scene graph, entity properties or primitive properties) should be shown.
     int GetBestPage(const ArrayT<MapElementT*>& Selection) const;
 
+
     private:
 
     wxNotebook*                        Notebook;

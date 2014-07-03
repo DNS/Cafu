@@ -49,22 +49,6 @@ InspectorDialogT::InspectorDialogT(wxWindow* Parent, MapDocumentT* MapDoc)
 
     this->SetSizer(mainSizer);
     mainSizer->SetSizeHints(this);
-
-    // The following code is analogous to the GUI Editor's child frame,
-    // where observers don't register themselves at the document automatically.
-    // In contrast, most observers in the Map Editor register themselves and run the initial update themselves.
-    // I'm not sure why this is so, and which variant is "best".
-    // Does the GUI Editor's child frame's Show() call play a role? See (A) below.
-
-    // Register observers.
-    MapDoc->RegisterObserver(m_EntityInspectorDialog);
-
-    // This is code from the GUI Editor's child frame; see (A) above.
-    // if (!IsMaximized()) Maximize(true);     // Also have wxMAXIMIZE set as frame style.
-    // Show(true);
-
-    // Initial update of the gui documents observers.
-    m_EntityInspectorDialog->RefreshPropGrid();
 }
 
 
