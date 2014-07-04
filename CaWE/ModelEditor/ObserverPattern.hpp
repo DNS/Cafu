@@ -122,23 +122,23 @@ namespace ModelEditor
 
         /// Registers the observer Obs for notification on updates of this class.
         /// \param Obs   The observer that is to be registered.
-        virtual void RegisterObserver(ObserverT* Obs);
+        void RegisterObserver(ObserverT* Obs);
 
         /// Unregisters the observer Obs from further notification on updates of this class.
         /// \param Obs   The observer that is to be unregistered.
-        virtual void UnregisterObserver(ObserverT* Obs);
+        void UnregisterObserver(ObserverT* Obs);
 
-        virtual void UpdateAllObservers_SelectionChanged(ModelElementTypeT Type, const ArrayT<unsigned int>& OldSel, const ArrayT<unsigned int>& NewSel);
-        virtual void UpdateAllObservers_Created(ModelElementTypeT Type, const ArrayT<unsigned int>& Indices);
-        virtual void UpdateAllObservers_Deleted(ModelElementTypeT Type, const ArrayT<unsigned int>& Indices);
-        virtual void UpdateAllObservers_JointChanged(unsigned int JointNr);
-        virtual void UpdateAllObservers_MeshChanged(unsigned int MeshNr);
-        virtual void UpdateAllObservers_SkinChanged(unsigned int SkinNr);
-        virtual void UpdateAllObservers_GuiFixtureChanged(unsigned int GuiFixtureNr);
-        virtual void UpdateAllObservers_AnimChanged(unsigned int AnimNr);
-        virtual void UpdateAllObservers_ChannelChanged(unsigned int ChannelNr);
-        virtual void UpdateAllObservers_SubmodelsChanged();
-        virtual void UpdateAllObservers_AnimStateChanged();
+        void UpdateAllObservers_SelectionChanged(ModelElementTypeT Type, const ArrayT<unsigned int>& OldSel, const ArrayT<unsigned int>& NewSel);
+        void UpdateAllObservers_Created(ModelElementTypeT Type, const ArrayT<unsigned int>& Indices);
+        void UpdateAllObservers_Deleted(ModelElementTypeT Type, const ArrayT<unsigned int>& Indices);
+        void UpdateAllObservers_JointChanged(unsigned int JointNr);
+        void UpdateAllObservers_MeshChanged(unsigned int MeshNr);
+        void UpdateAllObservers_SkinChanged(unsigned int SkinNr);
+        void UpdateAllObservers_GuiFixtureChanged(unsigned int GuiFixtureNr);
+        void UpdateAllObservers_AnimChanged(unsigned int AnimNr);
+        void UpdateAllObservers_ChannelChanged(unsigned int ChannelNr);
+        void UpdateAllObservers_SubmodelsChanged();
+        void UpdateAllObservers_AnimStateChanged();
 
         /// The virtual destructor.
         virtual ~SubjectT();

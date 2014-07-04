@@ -688,34 +688,35 @@ ChildFrameT::~ChildFrameT()
 {
     m_AutoSaveTimer.Stop();
 
-    if (CurrentProcess!=NULL)
+    if (CurrentProcess != NULL)
     {
         CurrentProcess->Detach();
-        CurrentProcess=NULL;
-        CurrentProcessID=0;
+        CurrentProcess = NULL;
+        CurrentProcessID = 0;
     }
 
     m_Parent->m_FileHistory.RemoveMenu(FileMenu);
 
     delete m_Updater;
-    m_Updater=NULL;
+    m_Updater = NULL;
 
     delete m_ToolManager;
-    m_ToolManager=NULL;
+    m_ToolManager = NULL;
 
     // Unregister us from the parents list of children.
-    const int Index=m_Parent->m_ChildFrames.Find(this);
+    const int Index = m_Parent->m_ChildFrames.Find(this);
     m_Parent->m_ChildFrames.RemoveAt(Index);
 
     // Remove the document as our first event handler.
     PopEventHandler();
 
-    // Delete the document.
-    delete m_Doc;
-    m_Doc=NULL;
 
     // Uninit the AUI manager.
     m_AUIManager.UnInit();
+
+    // Delete the document.
+    delete m_Doc;
+    m_Doc = NULL;
 }
 
 

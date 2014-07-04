@@ -1155,9 +1155,9 @@ MapDocumentT::~MapDocumentT()
     UpdateAllObservers_SubjectDies();
 
     delete m_BspTree;
-    m_BspTree=NULL;
+    m_BspTree = NULL;
 
-    for (unsigned long GroupNr=0; GroupNr<m_Groups.Size(); GroupNr++) delete m_Groups[GroupNr];
+    for (unsigned long GroupNr = 0; GroupNr < m_Groups.Size(); GroupNr++) delete m_Groups[GroupNr];
     m_Groups.Clear();
 
     m_Selection.Clear();

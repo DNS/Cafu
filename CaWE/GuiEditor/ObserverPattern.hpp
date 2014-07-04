@@ -113,21 +113,21 @@ namespace GuiEditor
 
         /// Registers the observer Obs for notification on updates of this class.
         /// \param Obs   The observer that is to be registered.
-        virtual void RegisterObserver(ObserverT* Obs);
+        void RegisterObserver(ObserverT* Obs);
 
         /// Unregisters the observer Obs from further notification on updates of this class.
         /// \param Obs   The observer that is to be unregistered.
-        virtual void UnregisterObserver(ObserverT* Obs);
+        void UnregisterObserver(ObserverT* Obs);
 
-        virtual void UpdateAllObservers_SelectionChanged(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& OldSelection, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& NewSelection);
-        virtual void UpdateAllObservers_Created(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows);
-        virtual void UpdateAllObservers_Created(IntrusivePtrT<cf::GuiSys::WindowT> Window);
-        virtual void UpdateAllObservers_Deleted(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows);
-        virtual void UpdateAllObservers_Deleted(IntrusivePtrT<cf::GuiSys::WindowT> Window);
-        virtual void UpdateAllObservers_GuiPropertyModified();
-        virtual void UpdateAllObservers_Modified(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail);
-        virtual void UpdateAllObservers_Modified(IntrusivePtrT<cf::GuiSys::WindowT> Window, WindowModDetailE Detail);
-        virtual void UpdateAllObservers_Modified(const cf::TypeSys::VarBaseT& Var);
+        void UpdateAllObservers_SelectionChanged(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& OldSelection, const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& NewSelection);
+        void UpdateAllObservers_Created(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows);
+        void UpdateAllObservers_Created(IntrusivePtrT<cf::GuiSys::WindowT> Window);
+        void UpdateAllObservers_Deleted(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows);
+        void UpdateAllObservers_Deleted(IntrusivePtrT<cf::GuiSys::WindowT> Window);
+        void UpdateAllObservers_GuiPropertyModified();
+        void UpdateAllObservers_Modified(const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Windows, WindowModDetailE Detail);
+        void UpdateAllObservers_Modified(IntrusivePtrT<cf::GuiSys::WindowT> Window, WindowModDetailE Detail);
+        void UpdateAllObservers_Modified(const cf::TypeSys::VarBaseT& Var);
 
         /// The virtual destructor.
         virtual ~SubjectT();

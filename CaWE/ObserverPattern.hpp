@@ -176,38 +176,31 @@ class SubjectT
 
     /// Registers the observer Obs for notification on updates of this class.
     /// \param Obs   The observer that is to be registered.
-    virtual void RegisterObserver(ObserverT* Obs);
+    void RegisterObserver(ObserverT* Obs);
 
     /// Unregisters the observer Obs from further notification on updates of this class.
     /// \param Obs   The observer that is to be unregistered.
-    virtual void UnregisterObserver(ObserverT* Obs);
+    void UnregisterObserver(ObserverT* Obs);
 
 
     //###################################################################################################################################
     //# New observer notifications methods. These methods differ from the basic observer pattern from the GoF and are CaWE specific!    #
     //# For detailed comments on the parameters, see the equivalent methods in ObserverT                                                #
-    //#                                                                                                                                 #
-    //#         TODO: Why are these methods *virtual*???                                                                                #
-    //#                                                                                                                                 #
     //###################################################################################################################################
-    virtual void UpdateAllObservers(MapDocOtherDetailT OtherDetail);
-    virtual void UpdateAllObservers_SelectionChanged(const ArrayT<MapElementT*>& OldSelection, const ArrayT<MapElementT*>& NewSelection);
-    virtual void UpdateAllObservers_GroupsChanged();
-    virtual void UpdateAllObservers_Created(const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities);
-    virtual void UpdateAllObservers_Created(const ArrayT<MapPrimitiveT*>& Primitives);
-    virtual void UpdateAllObservers_Deleted(const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entites);
-    virtual void UpdateAllObservers_Deleted(const ArrayT<MapPrimitiveT*>& Primitives);
-    virtual void UpdateAllObservers_Modified(const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail);
-    virtual void UpdateAllObservers_Modified(const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const ArrayT<BoundingBox3fT>& OldBounds);
-    virtual void UpdateAllObservers_EntChanged(const ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> >& Entities, EntityModDetailE Detail);
-    virtual void UpdateAllObservers_EntChanged(const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities, EntityModDetailE Detail);
-    virtual void UpdateAllObservers_EntChanged(IntrusivePtrT<cf::GameSys::EntityT> Entity, EntityModDetailE Detail);
-    virtual void UpdateAllObservers_VarChanged(const cf::TypeSys::VarBaseT& Var);
+    void UpdateAllObservers(MapDocOtherDetailT OtherDetail);
+    void UpdateAllObservers_SelectionChanged(const ArrayT<MapElementT*>& OldSelection, const ArrayT<MapElementT*>& NewSelection);
+    void UpdateAllObservers_GroupsChanged();
+    void UpdateAllObservers_Created(const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities);
+    void UpdateAllObservers_Created(const ArrayT<MapPrimitiveT*>& Primitives);
+    void UpdateAllObservers_Deleted(const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entites);
+    void UpdateAllObservers_Deleted(const ArrayT<MapPrimitiveT*>& Primitives);
+    void UpdateAllObservers_Modified(const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail);
+    void UpdateAllObservers_Modified(const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail, const ArrayT<BoundingBox3fT>& OldBounds);
+    void UpdateAllObservers_EntChanged(const ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> >& Entities, EntityModDetailE Detail);
+    void UpdateAllObservers_EntChanged(const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities, EntityModDetailE Detail);
+    void UpdateAllObservers_EntChanged(IntrusivePtrT<cf::GameSys::EntityT> Entity, EntityModDetailE Detail);
+    void UpdateAllObservers_VarChanged(const cf::TypeSys::VarBaseT& Var);
     void UpdateAllObservers_SubjectDies();
-    //############################################
-    //# End of new observer notification methods #
-    //############################################
-
 
     /// The virtual destructor.
     virtual ~SubjectT();

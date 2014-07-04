@@ -67,16 +67,16 @@ class ToolsSubjectT
 
     /// Registers the observer Obs for notification on changes in this class.
     /// @param Obs   The observer that is to be registered.
-    virtual void RegisterObserver(ToolsObserverT* Obs);
+    void RegisterObserver(ToolsObserverT* Obs);
 
     /// Unregisters the observer Obs from further notification on changes in this class.
     /// @param Obs   The observer that is to be unregistered.
-    virtual void UnregisterObserver(ToolsObserverT* Obs);
+    void UnregisterObserver(ToolsObserverT* Obs);
 
     /// Notifies all observers that something in the given tool changed so that they update themselves.
     /// @param Tool       The specific tool that has changed.
     /// @param Priority   The priority with which the update should be implemented.
-    virtual void UpdateAllObservers(ToolT* Tool, ToolsUpdatePriorityT Priority);
+    void UpdateAllObservers(ToolT* Tool, ToolsUpdatePriorityT Priority);
 
     /// The virtual destructor.
     virtual ~ToolsSubjectT();
