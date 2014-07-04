@@ -203,6 +203,7 @@ class SubjectT
     virtual void UpdateAllObservers_EntChanged(const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities, EntityModDetailE Detail);
     virtual void UpdateAllObservers_EntChanged(IntrusivePtrT<cf::GameSys::EntityT> Entity, EntityModDetailE Detail);
     virtual void UpdateAllObservers_VarChanged(const cf::TypeSys::VarBaseT& Var);
+    void UpdateAllObservers_SubjectDies();
     //############################################
     //# End of new observer notification methods #
     //############################################

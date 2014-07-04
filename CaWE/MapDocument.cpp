@@ -1136,6 +1136,24 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
 
 MapDocumentT::~MapDocumentT()
 {
+    // This method does what the destructor of the base class of the MapDocumentT, that is, the
+    // SubjectT's destructor, would do anyway: It notifies all observers that the map document
+    // is about to die.
+    //
+    // However, in this case, it would happen only *after* our setting of `m_ScriptWorld = NULL`
+    // below. An observer that keeps `IntrusivePtrT<cf::GameSys::EntityT>`s, such as the Entity
+    // Hierarchy dialog, would then release them, and the related `EntityT` destructor would run.
+    // If such a destructor tried access the entity's world, e.g. a component trying to release a
+    // shared resource, it would access a world instance that has already been deleted and crash.
+    //
+    // Therefore, we have to anticipate the de-coupling of the observers here, while the "parent"
+    // resources of the map document are still fully available. Note that this is also related to
+    // the "unexpected" window destruction order that can occur with wxWidgets: The parent frame
+    // (the `ChildFrameT` instance that in turn holds this `MapDocumentT`) is destroyed *before*
+    // its child windows (the observers). If the order was opposite, as one would normally expect,
+    // the entire problem would not exist in the first place.
+    UpdateAllObservers_SubjectDies();
+
     delete m_BspTree;
     m_BspTree=NULL;
 

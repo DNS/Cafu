@@ -152,6 +152,15 @@ void SubjectT::UpdateAllObservers_VarChanged(const cf::TypeSys::VarBaseT& Var)
 }
 
 
+void SubjectT::UpdateAllObservers_SubjectDies()
+{
+    for (unsigned long ObsNr = 0; ObsNr < m_Observers.Size(); ObsNr++)
+        m_Observers[ObsNr]->NotifySubjectDies(this);
+
+    m_Observers.Clear();
+}
+
+
 SubjectT::~SubjectT()
 {
     for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
