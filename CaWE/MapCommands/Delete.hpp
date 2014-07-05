@@ -58,7 +58,9 @@ class CommandDeleteT : public CommandT
     void Init(const ArrayT<MapElementT*>& DeleteElems);
 
     MapDocumentT&                                      m_MapDoc;
-    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >      m_DeleteEnts;          ///< The entities to delete.
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >      m_Entities;            ///< The entities to delete.
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >      m_EntityParents;       ///< The parents of the above entities.
+    ArrayT<unsigned long>                              m_EntityIndices;       ///< The indices of the entities in their respective parent.
     ArrayT<MapPrimitiveT*>                             m_DeletePrims;         ///< The primitives to delete.
     ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> > m_DeletePrimsParents;  ///< The parents of the above primitives (the world or any custom entity).
     CommandSelectT*                                    m_CommandSelect;       ///< The command that unselects all elements before they are deleted.
