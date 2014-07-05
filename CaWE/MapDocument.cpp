@@ -1530,81 +1530,73 @@ void MapDocumentT::GetAllElems(ArrayT<MapElementT*>& Elems) const
 
 void MapDocumentT::Insert(IntrusivePtrT<cf::GameSys::EntityT> Ent)
 {
-    wxASSERT(Ent != NULL);
-    if (Ent == NULL) return;
+    Insert(Ent, m_ScriptWorld->GetRootEntity());
+}
 
-    // Should not have Ent already.
-    // wxASSERT(Find(m_ScriptWorld, Ent) == NULL);
 
-    // Insert Ent into the m_ScriptWorld.
-    m_ScriptWorld->GetRootEntity()->AddChild(Ent);
+void MapDocumentT::Insert(IntrusivePtrT<cf::GameSys::EntityT> Entity, IntrusivePtrT<cf::GameSys::EntityT> Parent, unsigned long Pos)
+{
+    wxASSERT(Entity != NULL);
+    wxASSERT(Entity->GetParent() == NULL);
+    wxASSERT(Entity != m_ScriptWorld->GetRootEntity());
 
-    // Insert all primitives of Ent and Ent itself into the BSP tree.
-    IntrusivePtrT<CompMapEntityT> MapEnt = GetMapEnt(Ent);
+    wxASSERT(Parent != NULL);
+    wxASSERT(Parent->GetRoot() == m_ScriptWorld->GetRootEntity());
 
-    for (unsigned long PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
-        m_BspTree->Insert(MapEnt->GetPrimitives()[PrimNr]);
+    Parent->AddChild(Entity, Pos);
 
-    m_BspTree->Insert(MapEnt->GetRepres());
+    // Insert all map elements of Entity and of all of its children into the BSP tree.
+    const ArrayT<MapElementT*> MapElements = GetMapEnt(Entity)->GetAllMapElements();
+
+    for (unsigned long ElemNr = 0; ElemNr < MapElements.Size(); ElemNr++)
+        m_BspTree->Insert(MapElements[ElemNr]);
 }
 
 
 void MapDocumentT::Insert(MapPrimitiveT* Prim, IntrusivePtrT<CompMapEntityT> ParentEnt)
 {
     wxASSERT(Prim != NULL);
-    if (Prim == NULL) return;
 
     wxASSERT(ParentEnt != NULL);
-    if (ParentEnt == NULL) return;
-
-    // wxASSERT(Find(m_ScriptWorld, ParentEnt) != NULL);
+    wxASSERT(ParentEnt->GetEntity()->GetRoot() == m_ScriptWorld->GetRootEntity());
 
     ParentEnt->AddPrim(Prim);
+    wxASSERT(Prim->GetParent() == ParentEnt);
+
     m_BspTree->Insert(Prim);
 }
 
 
-void MapDocumentT::Remove(IntrusivePtrT<cf::GameSys::EntityT> Ent)
+void MapDocumentT::Remove(IntrusivePtrT<cf::GameSys::EntityT> Entity)
 {
-    // Ent was not found? Should not happen!
-    wxASSERT(Ent != NULL);
-    if (Ent == NULL) return;
+    wxASSERT(Entity != NULL);
+    wxASSERT(Entity->GetParent() != NULL);
+    wxASSERT(Entity->GetRoot() == m_ScriptWorld->GetRootEntity());
+    wxASSERT(Entity != m_ScriptWorld->GetRootEntity());
 
-    // Ent is the world (or not a part of it)? Should not happen!
-    wxASSERT(Ent->GetParent() != NULL);
-    if (Ent->GetParent() == NULL) return;
+    // The caller (e.g. the Delete command) has taken ownership of `Entity`,
+    // that is, keeps another `IntrusivePtrT<cf::GameSys::EntityT>` to `Entity`.
+    Entity->GetParent()->RemoveChild(Entity);
 
-    // The caller (e.g. the Delete command) has taken ownership of `Ent`,
-    // that is, keeps another `IntrusivePtrT<cf::GameSys::EntityT>` to `Ent`.
-    Ent->GetParent()->RemoveChild(Ent);
+    // Remove all map elements of Entity and of all of its children from the BSP tree.
+    const ArrayT<MapElementT*> MapElements = GetMapEnt(Entity)->GetAllMapElements();
 
-    // Remove all primitives of Ent from the BSP tree.
-    IntrusivePtrT<CompMapEntityT> MapEnt = GetMapEnt(Ent);
-
-    for (unsigned long PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
-        m_BspTree->Remove(MapEnt->GetPrimitives()[PrimNr]);
-
-    // Remove the representation of Ent from the BSP tree.
-    m_BspTree->Remove(MapEnt->GetRepres());
+    for (unsigned long ElemNr = 0; ElemNr < MapElements.Size(); ElemNr++)
+        m_BspTree->Remove(MapElements[ElemNr]);
 }
 
 
 void MapDocumentT::Remove(MapPrimitiveT* Prim)
 {
     wxASSERT(Prim != NULL);
-    if (Prim == NULL) return;
 
     IntrusivePtrT<CompMapEntityT> ParentEnt = Prim->GetParent();
 
-    // The first assert is actually redundant in the second, but keep it for clarity.
     wxASSERT(ParentEnt != NULL);
-    // wxASSERT(Find(m_ScriptWorld, ParentEnt) != NULL);
+    wxASSERT(ParentEnt->GetEntity()->GetRoot() == m_ScriptWorld->GetRootEntity());
 
-    if (ParentEnt != NULL)
-    {
-        ParentEnt->RemovePrim(Prim);
-        wxASSERT(Prim->GetParent() == NULL);
-    }
+    ParentEnt->RemovePrim(Prim);
+    wxASSERT(Prim->GetParent() == NULL);
 
     m_BspTree->Remove(Prim);
 }

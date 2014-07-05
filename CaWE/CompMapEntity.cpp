@@ -199,6 +199,27 @@ void CompMapEntityT::RemovePrim(MapPrimitiveT* Prim)
 }
 
 
+ArrayT<MapElementT*> CompMapEntityT::GetAllMapElements() const
+{
+    ArrayT<MapElementT*> AllElems;
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
+
+    GetEntity()->GetAll(AllEnts);
+
+    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
+    {
+        IntrusivePtrT<CompMapEntityT> MapEnt = GetMapEnt(AllEnts[EntNr]);
+
+        AllElems.PushBack(MapEnt->GetRepres());
+
+        for (unsigned int PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
+            AllElems.PushBack(MapEnt->GetPrimitives()[PrimNr]);
+    }
+
+    return AllElems;
+}
+
+
 BoundingBox3fT CompMapEntityT::GetElemsBB() const
 {
     BoundingBox3fT BB = m_Repres->GetBB();

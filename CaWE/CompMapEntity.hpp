@@ -30,6 +30,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 class MapDocumentT;
+class MapElementT;
 class MapEntRepresT;
 class MapPrimitiveT;
 class wxProgressDialog;
@@ -93,13 +94,16 @@ namespace MapEditor
         std::string         GetProperty(const wxString& Key, const char* Default="") const;             ///< Returns the value of this property, using the default if not found.
         std::string         GetAndRemove(const wxString& Key, const char* Default="");                  ///< Returns the value of this property, using the default if not found, and removes it.
 
-        void CopyPrimitives(const CompMapEntityT& MapEnt);  ///< Creates a copy of each primitive in MapEnt and adds it to this instance.
+        MapEntRepresT* GetRepres() const { return m_Repres; }
+
         const ArrayT<MapPrimitiveT*>& GetPrimitives() const { return m_Primitives; }
+        void CopyPrimitives(const CompMapEntityT& MapEnt);  ///< Creates a copy of each primitive in MapEnt and adds it to this instance.
 
         void AddPrim(MapPrimitiveT* Prim);
         void RemovePrim(MapPrimitiveT* Prim);
 
-        MapEntRepresT* GetRepres() const { return m_Repres; }
+        /// Returns all map elements (the representation and the primitives) of this entity and of all of its children.
+        ArrayT<MapElementT*> GetAllMapElements() const;
 
         /// Returns the "overall" bounding-box of this entity.
         /// The returned bounding-box contains all elements (the representation and all primitives) of this entity.
