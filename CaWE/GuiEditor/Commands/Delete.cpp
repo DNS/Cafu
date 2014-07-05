@@ -35,8 +35,6 @@ CommandDeleteT::CommandDeleteT(GuiDocumentT* GuiDocument, IntrusivePtrT<cf::GuiS
     // The root window cannot be deleted.
     if (Window != Window->GetRoot())
     {
-        wxASSERT(Window->GetParent()->GetChildren().Find(Window) >= 0);
-
         m_Windows.PushBack(Window);
         m_Parents.PushBack(Window->GetParent());
         m_Indices.PushBack(-1);
@@ -57,8 +55,6 @@ CommandDeleteT::CommandDeleteT(GuiDocumentT* GuiDocument, const ArrayT< Intrusiv
         // The root window cannot be deleted.
         if (Window != Window->GetRoot())
         {
-            wxASSERT(Window->GetParent()->GetChildren().Find(Window) >= 0);
-
             m_Windows.PushBack(Window);
             m_Parents.PushBack(Window->GetParent());
             m_Indices.PushBack(-1);
@@ -90,7 +86,12 @@ bool CommandDeleteT::Do()
     {
         IntrusivePtrT<cf::GuiSys::WindowT> Window = m_Windows[WinNr];
 
+        wxASSERT(m_Parents[WinNr]->GetChildren().Find(Window) >= 0);
+
+        // The proper index number can only be determined here, because removing a child
+        // may change the index numbers of its siblings.
         m_Indices[WinNr] = m_Parents[WinNr]->GetChildren().Find(Window);
+
         m_Parents[WinNr]->RemoveChild(Window);
     }
 
