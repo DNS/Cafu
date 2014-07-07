@@ -43,7 +43,10 @@ namespace MapEditor
         // Implementation of the ObserverT interface.
         void NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<MapElementT*>& OldSelection, const ArrayT<MapElementT*>& NewSelection);
         void NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities);
+        void NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT<MapPrimitiveT*>& Primitives);
         void NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities);
+        void NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapPrimitiveT*>& Primitives);
+        void NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail);
         void Notify_EntChanged(SubjectT* Subject, const ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> >& Entities, EntityModDetailE Detail);
         void Notify_VarChanged(SubjectT* Subject, const cf::TypeSys::VarBaseT& Var);
         void NotifySubjectDies(SubjectT* dyingSubject);
@@ -64,6 +67,9 @@ namespace MapEditor
         /// Recursively gets all tree items, beginning with the passed tree item.
         void GetTreeItems(const wxTreeItemId& StartingItem, ArrayT<wxTreeItemId>& Items);
 
+        /// Updates the labels of all items in the tree.
+        void UpdateAllLabels();
+
         MapDocumentT*                       m_MapDoc;
         ChildFrameT*                        m_Parent;
         bool                                m_IsRecursiveSelfNotify;
@@ -72,6 +78,7 @@ namespace MapEditor
         void OnKeyDown           (wxKeyEvent&   KE);
         void OnTreeLeftClick     (wxMouseEvent& ME);
         void OnSelectionChanged  (wxTreeEvent&  TE);
+        void OnBeginLabelEdit    (wxTreeEvent&  TE);
         void OnEndLabelEdit      (wxTreeEvent&  TE);
         void OnTreeItemRightClick(wxTreeEvent&  TE);
         void OnBeginDrag         (wxTreeEvent&  TE);

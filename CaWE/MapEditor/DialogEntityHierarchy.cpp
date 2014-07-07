@@ -37,6 +37,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/imaglist.h"
 
 
+using namespace MapEditor;
+
+
 namespace
 {
     class EntityTreeItemT : public wxTreeItemData
@@ -52,10 +55,19 @@ namespace
 
         IntrusivePtrT<cf::GameSys::EntityT> m_Entity;
     };
+
+
+    wxString GetEntityLabel(IntrusivePtrT<cf::GameSys::EntityT> Entity)
+    {
+        wxString            Label    = Entity->GetBasics()->GetEntityName();
+        const unsigned long NumPrims = GetMapEnt(Entity)->GetPrimitives().Size();
+
+        if (NumPrims > 0)
+            Label += wxString::Format(" (%lu)", NumPrims);
+
+        return Label;
+    }
 }
-
-
-using namespace MapEditor;
 
 
 BEGIN_EVENT_TABLE(EntityHierarchyDialogT, wxTreeCtrl)
@@ -63,6 +75,7 @@ BEGIN_EVENT_TABLE(EntityHierarchyDialogT, wxTreeCtrl)
     EVT_LEFT_DOWN            (EntityHierarchyDialogT::OnTreeLeftClick)
     EVT_LEFT_DCLICK          (EntityHierarchyDialogT::OnTreeLeftClick)   // Handle double clicks like normal left clicks when it comes to clicks on tree item icons (otherwise double clicks are handled normally).
     EVT_TREE_SEL_CHANGED     (wxID_ANY, EntityHierarchyDialogT::OnSelectionChanged)
+    EVT_TREE_BEGIN_LABEL_EDIT(wxID_ANY, EntityHierarchyDialogT::OnBeginLabelEdit)
     EVT_TREE_END_LABEL_EDIT  (wxID_ANY, EntityHierarchyDialogT::OnEndLabelEdit)
     EVT_TREE_ITEM_RIGHT_CLICK(wxID_ANY, EntityHierarchyDialogT::OnTreeItemRightClick)
     EVT_TREE_BEGIN_DRAG      (wxID_ANY, EntityHierarchyDialogT::OnBeginDrag)
@@ -109,7 +122,7 @@ void EntityHierarchyDialogT::AddChildren(const wxTreeItemId& Item, bool Recursiv
 
     for (unsigned long i = 0; i < Children.Size(); i++)
     {
-        wxTreeItemId ID = AppendItem(Item, Children[i]->GetBasics()->GetEntityName(), -1, -1, new EntityTreeItemT(Children[i]));
+        wxTreeItemId ID = AppendItem(Item, GetEntityLabel(Children[i]), -1, -1, new EntityTreeItemT(Children[i]));
 
         SetItemImage(ID, Children[i]->GetBasics()->IsShown() ? 0 : 1);  // Set the "is visible" or "is invisible" icon.
 
@@ -165,6 +178,21 @@ void EntityHierarchyDialogT::GetTreeItems(const wxTreeItemId& StartingItem, Arra
 }
 
 
+void EntityHierarchyDialogT::UpdateAllLabels()
+{
+    ArrayT<wxTreeItemId> TreeItems;
+
+    GetTreeItems(GetRootItem(), TreeItems);
+
+    for (unsigned long ItemNr = 0; ItemNr < TreeItems.Size(); ItemNr++)
+    {
+        IntrusivePtrT<cf::GameSys::EntityT> Entity = ((EntityTreeItemT*)GetItemData(TreeItems[ItemNr]))->GetEntity();
+
+        SetItemText(TreeItems[ItemNr], GetEntityLabel(Entity));
+    }
+}
+
+
 void EntityHierarchyDialogT::NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<MapElementT*>& OldSelection, const ArrayT<MapElementT*>& NewSelection)
 {
     if (m_IsRecursiveSelfNotify) return;
@@ -202,11 +230,38 @@ void EntityHierarchyDialogT::NotifySubjectChanged_Created(SubjectT* Subject, con
 }
 
 
+void EntityHierarchyDialogT::NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT<MapPrimitiveT*>& Primitives)
+{
+    if (m_IsRecursiveSelfNotify) return;
+
+    UpdateAllLabels();
+}
+
+
 void EntityHierarchyDialogT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities)
 {
     if (m_IsRecursiveSelfNotify) return;
 
     RefreshTree();
+}
+
+
+void EntityHierarchyDialogT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapPrimitiveT*>& Primitives)
+{
+    if (m_IsRecursiveSelfNotify) return;
+
+    UpdateAllLabels();
+}
+
+
+void EntityHierarchyDialogT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail)
+{
+    if (m_IsRecursiveSelfNotify) return;
+
+    if (Detail == MEMD_ASSIGN_PRIM_TO_ENTITY)
+    {
+        UpdateAllLabels();
+    }
 }
 
 
@@ -234,7 +289,7 @@ void EntityHierarchyDialogT::Notify_VarChanged(SubjectT* Subject, const cf::Type
 
         if (&Var == Basics->GetMemberVars().Find("Name"))
         {
-            SetItemText(TreeItems[ItemNr], Basics->GetEntityName());
+            SetItemText(TreeItems[ItemNr], GetEntityLabel(Basics->GetEntity()));
             return;
         }
 
@@ -280,7 +335,7 @@ void EntityHierarchyDialogT::RefreshTree()
 
     // First add the root entity to the tree.
     IntrusivePtrT<cf::GameSys::EntityT> RootEntity = m_MapDoc->GetRootMapEntity()->GetEntity();
-    wxTreeItemId ID = AddRoot(RootEntity->GetBasics()->GetEntityName(), -1, -1, new EntityTreeItemT(RootEntity));
+    wxTreeItemId ID = AddRoot(GetEntityLabel(RootEntity), -1, -1, new EntityTreeItemT(RootEntity));
 
     SetItemImage(ID, RootEntity->GetBasics()->IsShown() ? 0 : 1);   // Set the "is visible" or "is invisible" icon.
 
@@ -395,12 +450,24 @@ void EntityHierarchyDialogT::OnSelectionChanged(wxTreeEvent& TE)
 }
 
 
+void EntityHierarchyDialogT::OnBeginLabelEdit(wxTreeEvent& TE)
+{
+    IntrusivePtrT<cf::GameSys::EntityT> Entity = ((EntityTreeItemT*)GetItemData(TE.GetItem()))->GetEntity();
+
+    SetItemText(TE.GetItem(), Entity->GetBasics()->GetEntityName());
+}
+
+
 void EntityHierarchyDialogT::OnEndLabelEdit(wxTreeEvent& TE)
 {
     IntrusivePtrT<cf::GameSys::EntityT> Entity = ((EntityTreeItemT*)GetItemData(TE.GetItem()))->GetEntity();
     cf::TypeSys::VarT<std::string>* Name = dynamic_cast<cf::TypeSys::VarT<std::string>*>(Entity->GetBasics()->GetMemberVars().Find("Name"));
 
-    if (TE.IsEditCancelled()) return;
+    if (TE.IsEditCancelled())
+    {
+        SetItemText(TE.GetItem(), GetEntityLabel(Entity));
+        return;
+    }
 
     m_IsRecursiveSelfNotify = true;
 
@@ -413,7 +480,7 @@ void EntityHierarchyDialogT::OnEndLabelEdit(wxTreeEvent& TE)
 
     // The command may well have set a name different from TE.GetLabel().
     TE.Veto();
-    SetItemText(TE.GetItem(), Entity->GetBasics()->GetEntityName());
+    SetItemText(TE.GetItem(), GetEntityLabel(Entity));
 }
 
 
