@@ -60,7 +60,6 @@ using namespace MapEditor;
 //   - Make sure that pressing SHIFT properly adds the small "+" to the "sizing" cursor.
 //   - Die m_TrafoBox mit den richtigen Werten initialisieren im LMB-*down* handler, obwohl es erstmal in den UNDECIDED state geht
 //   - Fix improperly invalidated drawing rect, see http://www.cafu.de/forum/viewtopic.php?p=3255#p3255 for details.
-//   - What do we do with   m_OptionsBar->IsIgnoreGroupsChecked() ?  It became unused in r969.
 
 
 CycleHitsTimerT::CycleHitsTimerT(ToolSelectionT& SelectionTool)
@@ -1049,7 +1048,7 @@ void ToolSelectionT::GetToggleEffects(MapElementT* Elem, ArrayT<MapElementT*>& R
     IntrusivePtrT<CompMapEntityT> Entity = Elem->GetParent();
 
     // If Prim belongs to a non-world entity, put all primitives of the entity into the appropriate lists.
-    if (!Entity->IsWorld() /*&& m_OptionsBar->SelectWholeEntities() / TreatEntitiesAsGroups*/)
+    if (!Entity->IsWorld() && m_OptionsBar->AutoGroupEntities())
     {
         MapEntRepresT* Repres = Entity->GetRepres();
 
@@ -1071,6 +1070,14 @@ void ToolSelectionT::GetToggleEffects(MapElementT* Elem, ArrayT<MapElementT*>& R
                 if (Member->IsSelected()) RemoveFromSel.PushBack(Member);
                                      else AddToSel.PushBack(Member);
             }
+        }
+
+        // Recursively toggle the entity's children as well.
+        IntrusivePtrT<cf::GameSys::EntityT> Ent = Entity->GetEntity();
+
+        for (unsigned long ChildNr = 0; ChildNr < Ent->GetChildren().Size(); ChildNr++)
+        {
+            GetToggleEffects(GetMapEnt(Ent->GetChildren()[ChildNr])->GetRepres(), RemoveFromSel, AddToSel);
         }
     }
 

@@ -53,12 +53,12 @@ class OptionsBar_SelectionToolT : public wxPanel
     /// @param Parent is the parent window of this panel.
     OptionsBar_SelectionToolT(wxWindow* Parent);
 
-    bool IsIgnoreGroupsChecked() { return m_IgnoreGroups->IsChecked(); }
+    bool AutoGroupEntities() { return m_AutoGroupEntities->IsChecked(); }
 
 
     private:
 
-    wxCheckBox* m_IgnoreGroups; ///< The "Ignore Groups" checkbox.
+    wxCheckBox* m_AutoGroupEntities; ///< The "auto-group entities" checkbox.
 };
 
 
