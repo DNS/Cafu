@@ -2180,9 +2180,6 @@ void MapDocumentT::OnToolsHollow(wxCommandEvent& CE)
 
 void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
 {
-    ToolT*           NewEntityTool=m_ChildFrame->GetToolManager().GetTool(*GetToolTIM().FindTypeInfoByName("ToolNewEntityT")); if (!NewEntityTool) return;
-    OptionsBar_NewEntityToolT* Bar=dynamic_cast<OptionsBar_NewEntityToolT*>(NewEntityTool->GetOptionsBar()); if (!Bar) return;
-
     ArrayT< IntrusivePtrT<CompMapEntityT> > SelEntities;    // All entities   that are in the selection.
     ArrayT<MapPrimitiveT*>                  SelPrimitives;  // All primitives that are in the selection.
 
@@ -2218,7 +2215,7 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
     else if (SelEntities.Size()==1)
     {
         const int Result = wxMessageBox("Would you like to keep and re-use the selected \"" + SelEntities[0]->GetEntity()->GetBasics()->GetEntityName() + "\" entity?\n\n"
-            "If you answer 'No', a new \"" + Bar->m_SolidEntityChoice->GetStringSelection() + "\" entity will be created\n"
+            "If you answer 'No', a new entity will be created\n"
             "and all selected map elements added to it, including those of the of the selected entity.", "Re-use entity?", wxYES_NO | wxCANCEL | wxICON_QUESTION);
 
         switch (Result)

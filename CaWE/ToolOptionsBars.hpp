@@ -121,9 +121,6 @@ class OptionsBar_NewEntityToolT : public wxPanel
     /// @param Parent is the parent window of this panel.
     /// @param MapDoc is a reference to our document.
     OptionsBar_NewEntityToolT(wxWindow* Parent, MapDocumentT& MapDoc);
-
-    wxChoice* m_PointEntityChoice;
-    wxChoice* m_SolidEntityChoice;
 };
 
 

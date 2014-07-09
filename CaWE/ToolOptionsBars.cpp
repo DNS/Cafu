@@ -168,24 +168,11 @@ void OptionsBar_NewBrushToolT::OnSpinCtrlNrOfFaces(wxSpinEvent& Event)
 
 
 OptionsBar_NewEntityToolT::OptionsBar_NewEntityToolT(wxWindow* Parent, MapDocumentT& MapDoc)
-    : wxPanel(Parent, -1, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL | wxSUNKEN_BORDER),
-      m_PointEntityChoice(NULL),
-      m_SolidEntityChoice(NULL)
+    : wxPanel(Parent, -1, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL | wxSUNKEN_BORDER)
 {
     SetBackgroundColour(wxColour(169, 221, 153));
 
     wxBoxSizer *item0 = new wxBoxSizer( wxHORIZONTAL );
-
-    wxStaticText *item1 = new wxStaticText(this, -1, wxT("New (point) entity type:"), wxDefaultPosition, wxDefaultSize, 0 );
-    item0->Add( item1, 0, wxALIGN_CENTER|wxLEFT, 5 );
-
-    m_PointEntityChoice=new wxChoice(this, -1, wxDefaultPosition, wxSize(160,-1), 0, NULL, wxCB_SORT );
-    m_PointEntityChoice->SetToolTip("New entities that are created with the \"New Entity\" tool will be point entities of this type.");
-
-    item0->Add(m_PointEntityChoice, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
-
-    wxStaticLine *item3 = new wxStaticLine(this, -1, wxDefaultPosition, wxSize(-1,20), wxLI_VERTICAL );
-    item0->Add( item3, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
 
     wxStaticText *item3_ = new wxStaticText(this, -1, wxT("Current selection:"), wxDefaultPosition, wxDefaultSize, 0 );
     item0->Add( item3_, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
@@ -193,11 +180,6 @@ OptionsBar_NewEntityToolT::OptionsBar_NewEntityToolT(wxWindow* Parent, MapDocume
     wxButton *item4 = new wxButton(this, ChildFrameT::ID_MENU_TOOLS_ASSIGN_PRIM_TO_ENTITY, wxT("Turn into (solid) entity type:"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
     item4->SetToolTip("If you press this button, the selected objects will be turned into a solid entity of the chosen type.");
     item0->Add( item4, 0, wxALIGN_CENTER|wxLEFT, 5 );
-
-    m_SolidEntityChoice=new wxChoice(this, -1, wxDefaultPosition, wxSize(160,-1), 0, NULL, wxCB_SORT );
-    m_SolidEntityChoice->SetToolTip("The button to the left creates solid entities of this type.");
-
-    item0->Add(m_SolidEntityChoice, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
 
     wxButton *item6 = new wxButton(this, ChildFrameT::ID_MENU_TOOLS_ASSIGN_PRIM_TO_WORLD, wxT("Back to world"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
     item6->SetToolTip( wxT("Reverts the selected solid entities back to plain world brushes.") );
