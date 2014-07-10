@@ -236,7 +236,6 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     void OnToolsCarve                  (wxCommandEvent& CE);
     void OnToolsHollow                 (wxCommandEvent& CE);
     void OnToolsAssignPrimToEntity     (wxCommandEvent& CE);
-    void OnToolsAssignPrimToWorld      (wxCommandEvent& CE);
     void OnToolsReplaceMaterials       (wxCommandEvent& CE);
     void OnToolsMaterialLock           (wxCommandEvent& CE);
     void OnToolsSnapSelectionToGrid    (wxCommandEvent& CE);

@@ -151,8 +151,6 @@ BEGIN_EVENT_TABLE(MapDocumentT, wxEvtHandler)
     EVT_BUTTON(ChildFrameT::ID_MENU_TOOLS_GROUP,                  MapDocumentT::OnViewHideSelectedObjects)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_ASSIGN_PRIM_TO_ENTITY,  MapDocumentT::OnToolsAssignPrimToEntity)
     EVT_BUTTON(ChildFrameT::ID_MENU_TOOLS_ASSIGN_PRIM_TO_ENTITY,  MapDocumentT::OnToolsAssignPrimToEntity)
-    EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_ASSIGN_PRIM_TO_WORLD,   MapDocumentT::OnToolsAssignPrimToWorld)
-    EVT_BUTTON(ChildFrameT::ID_MENU_TOOLS_ASSIGN_PRIM_TO_WORLD,   MapDocumentT::OnToolsAssignPrimToWorld)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_REPLACE_MATERIALS,      MapDocumentT::OnToolsReplaceMaterials)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_MATERIAL_LOCK,          MapDocumentT::OnToolsMaterialLock)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_SNAP_SELECTION_TO_GRID, MapDocumentT::OnToolsSnapSelectionToGrid)
@@ -2286,38 +2284,6 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
     m_ChildFrame->GetToolManager().SetActiveTool(GetToolTIM().FindTypeInfoByName("ToolSelectionT"));
     m_ChildFrame->GetInspectorDialog()->ChangePage(1);
     m_ChildFrame->ShowPane(m_ChildFrame->GetInspectorDialog());
-}
-
-
-void MapDocumentT::OnToolsAssignPrimToWorld(wxCommandEvent& CE)
-{
-    ArrayT<MapPrimitiveT*> SelPrimitives;   // All primitives that are in the selection.
-
-    for (unsigned long SelNr=0; SelNr<m_Selection.Size(); SelNr++)
-    {
-        MapPrimitiveT* Prim=dynamic_cast<MapPrimitiveT*>(m_Selection[SelNr]);
-
-        if (Prim)
-            SelPrimitives.PushBack(Prim);
-    }
-
-    // If there were no primitives among the selected map elements, quit here.
-    if (SelPrimitives.Size()==0) return;
-
-    CompatSubmitCommand(new CommandAssignPrimToEntT(*this, SelPrimitives, GetRootMapEntity()));
-
-    // This is very rare - only fires when a parent entity became empty, thus implicitly deleted, and was the last element in its group:
-    // If there are any empty groups (usually as a result from the deletion), purge them now.
-    // We use an explicit command for deleting the groups (instead of putting everything into a macro command)
-    // so that the user has the option to undo the purge (separately from the deletion) if he wishes.
-    {
-        const ArrayT<GroupT*> EmptyGroups=GetAbandonedGroups();
-
-        if (EmptyGroups.Size()>0)
-            CompatSubmitCommand(new CommandDeleteGroupT(*this, EmptyGroups));
-    }
-
-    m_ChildFrame->GetToolManager().SetActiveTool(GetToolTIM().FindTypeInfoByName("ToolSelectionT"));
 }
 
 

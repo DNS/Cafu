@@ -428,7 +428,6 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item8->Append(ID_MENU_TOOLS_GROUP, wxT("&Group\tCtrl+G"), wxT("") );
     item8->AppendSeparator();
     item8->Append(ID_MENU_TOOLS_ASSIGN_PRIM_TO_ENTITY, wxT("&Tie to Entity\tCtrl+T"), wxT("") );
-    item8->Append(ID_MENU_TOOLS_ASSIGN_PRIM_TO_WORLD, wxT("&Move to World\tShift+Ctrl+W"), wxT("") );
     item8->AppendSeparator();
     item8->Append(ID_MENU_TOOLS_REPLACE_MATERIALS, wxT("R&eplace Materials"), wxT("") );
     item8->AppendCheckItem(ID_MENU_TOOLS_MATERIAL_LOCK, wxT("Material &Lock\tShift+L"), wxT("") );

@@ -181,10 +181,6 @@ OptionsBar_NewEntityToolT::OptionsBar_NewEntityToolT(wxWindow* Parent, MapDocume
     item4->SetToolTip("If you press this button, the selected objects will be turned into a solid entity of the chosen type.");
     item0->Add( item4, 0, wxALIGN_CENTER|wxLEFT, 5 );
 
-    wxButton *item6 = new wxButton(this, ChildFrameT::ID_MENU_TOOLS_ASSIGN_PRIM_TO_WORLD, wxT("Back to world"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-    item6->SetToolTip( wxT("Reverts the selected solid entities back to plain world brushes.") );
-    item0->Add( item6, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
-
     this->SetSizer(item0);
     item0->SetSizeHints(this);
 }
