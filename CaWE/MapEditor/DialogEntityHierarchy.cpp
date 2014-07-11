@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../CompMapEntity.hpp"
 #include "../MapDocument.hpp"
 #include "../MapElement.hpp"
+#include "../MapEntRepres.hpp"
 
 #include "Commands/ChangeEntityHierarchy.hpp"
 #include "../MapCommands/NewEntity.hpp"
@@ -207,7 +208,9 @@ void EntityHierarchyDialogT::NotifySubjectChanged_Selection(SubjectT* Subject, c
 
     for (unsigned long NewSelNr = 0; NewSelNr < NewSelection.Size(); NewSelNr++)
     {
-        if (NewSelection[NewSelNr]->GetParent() == NULL) continue;
+        // If the selected element is something other than an entity representation
+        // (that is, a map primitive), don't consider it.
+        if (NewSelection[NewSelNr]->GetParent()->GetRepres() != NewSelection[NewSelNr]) continue;
 
         wxTreeItemId Result = FindTreeItem(GetRootItem(), NewSelection[NewSelNr]->GetParent()->GetEntity());
 
