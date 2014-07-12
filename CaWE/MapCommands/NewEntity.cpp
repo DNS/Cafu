@@ -73,7 +73,7 @@ bool CommandNewEntityT::Do()
     m_MapDoc.UpdateAllObservers_Created(m_Entities);
 
     if (m_SetSel && !m_CommandSelect)
-        m_CommandSelect = CommandSelectT::Set(&m_MapDoc, m_Entities);
+        m_CommandSelect = CommandSelectT::Set(&m_MapDoc, m_Entities, true /*WithEntPrims*/);
 
     if (m_CommandSelect)
         m_CommandSelect->Do();

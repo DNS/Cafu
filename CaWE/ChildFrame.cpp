@@ -1405,7 +1405,7 @@ ArrayT<CommandT*> ChildFrameT::CreatePasteCommands(const Vector3fT& DeltaTransla
 
     if (SubCommands.Size() > 0)
     {
-        CommandSelectT* CmdSel = CommandSelectT::Set(m_Doc, NewEnts, NewPrims);
+        CommandSelectT* CmdSel = CommandSelectT::Set(m_Doc, NewEnts, true /*WithEntPrims*/, NewPrims);
 
         CmdSel->Do();
         SubCommands.PushBack(CmdSel);

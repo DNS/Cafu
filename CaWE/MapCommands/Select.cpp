@@ -115,7 +115,7 @@ CommandSelectT* CommandSelectT::Set(MapDocumentT* MapDocument, MapElementT* MapE
 }
 
 
-CommandSelectT* CommandSelectT::Set(MapDocumentT* MapDocument, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities)
+CommandSelectT* CommandSelectT::Set(MapDocumentT* MapDocument, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities, bool WithEntPrims)
 {
     ArrayT<MapElementT*> Elems;
 
@@ -125,8 +125,9 @@ CommandSelectT* CommandSelectT::Set(MapDocumentT* MapDocument, const ArrayT< Int
 
         Elems.PushBack(MapEnt->GetRepres());
 
-        for (unsigned long PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
-            Elems.PushBack(MapEnt->GetPrimitives()[PrimNr]);
+        if (WithEntPrims)
+            for (unsigned long PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
+                Elems.PushBack(MapEnt->GetPrimitives()[PrimNr]);
     }
 
     return CommandSelectT::Set(MapDocument, Elems);
@@ -144,7 +145,7 @@ CommandSelectT* CommandSelectT::Set(MapDocumentT* MapDocument, const ArrayT<MapP
 }
 
 
-CommandSelectT* CommandSelectT::Set(MapDocumentT* MapDocument, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities, const ArrayT<MapPrimitiveT*>& Primitives)
+CommandSelectT* CommandSelectT::Set(MapDocumentT* MapDocument, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities, bool WithEntPrims, const ArrayT<MapPrimitiveT*>& Primitives)
 {
     ArrayT<MapElementT*> Elems;
 
@@ -154,8 +155,9 @@ CommandSelectT* CommandSelectT::Set(MapDocumentT* MapDocument, const ArrayT< Int
 
         Elems.PushBack(MapEnt->GetRepres());
 
-        for (unsigned long PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
-            Elems.PushBack(MapEnt->GetPrimitives()[PrimNr]);
+        if (WithEntPrims)
+            for (unsigned long PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
+                Elems.PushBack(MapEnt->GetPrimitives()[PrimNr]);
     }
 
     for (unsigned long PrimNr = 0; PrimNr < Primitives.Size(); PrimNr++)

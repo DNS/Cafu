@@ -44,9 +44,9 @@ class CommandSelectT : public CommandT
     static CommandSelectT* Remove(MapDocumentT* MapDocument, MapElementT* MapElement);
     static CommandSelectT* Set   (MapDocumentT* MapDocument, const ArrayT<MapElementT*>& MapElements);
     static CommandSelectT* Set   (MapDocumentT* MapDocument, MapElementT* MapElement);
-    static CommandSelectT* Set   (MapDocumentT* MapDocument, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities);
+    static CommandSelectT* Set   (MapDocumentT* MapDocument, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities, bool WithEntPrims);
     static CommandSelectT* Set   (MapDocumentT* MapDocument, const ArrayT<MapPrimitiveT*>& Primitives);
-    static CommandSelectT* Set   (MapDocumentT* MapDocument, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities, const ArrayT<MapPrimitiveT*>& Primitives);
+    static CommandSelectT* Set   (MapDocumentT* MapDocument, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities, bool WithEntPrims, const ArrayT<MapPrimitiveT*>& Primitives);
 
     ~CommandSelectT();
 

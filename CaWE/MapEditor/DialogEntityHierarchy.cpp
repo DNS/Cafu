@@ -445,10 +445,11 @@ void EntityHierarchyDialogT::OnSelectionChanged(wxTreeEvent& TE)
     GetSelections(SelectedItems);
 
     ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > NewSelection;
+
     for (size_t SelNr = 0; SelNr < SelectedItems.GetCount(); SelNr++)
         NewSelection.PushBack(((EntityTreeItemT*)GetItemData(SelectedItems[SelNr]))->GetEntity());
 
-    m_Parent->SubmitCommand(CommandSelectT::Set(m_MapDoc, NewSelection));
+    m_Parent->SubmitCommand(CommandSelectT::Set(m_MapDoc, NewSelection, false /*WithEntPrims*/));
 
     m_IsRecursiveSelfNotify = false;
 }

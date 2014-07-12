@@ -452,7 +452,7 @@ bool ToolSelectionT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
 
                 if (SubCommands.Size() > 0)
                 {
-                    CommandSelectT* CmdSel = CommandSelectT::Set(&m_MapDoc, NewEnts, NewPrims);
+                    CommandSelectT* CmdSel = CommandSelectT::Set(&m_MapDoc, NewEnts, true /*WithEntPrims*/, NewPrims);
 
                     CmdSel->Do();
                     SubCommands.PushBack(CmdSel);
