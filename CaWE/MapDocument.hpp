@@ -220,7 +220,6 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     void OnMapGotoPrimitive            (wxCommandEvent& CE);
     void OnMapShowInfo                 (wxCommandEvent& CE);
     void OnMapCheckForProblems         (wxCommandEvent& CE);
-    void OnMapProperties               (wxCommandEvent& CE);
     void OnMapLoadPointFile            (wxCommandEvent& CE);
     void OnMapUnloadPointFile          (wxCommandEvent& CE);
 

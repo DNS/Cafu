@@ -131,7 +131,6 @@ BEGIN_EVENT_TABLE(MapDocumentT, wxEvtHandler)
     EVT_MENU(ChildFrameT::ID_MENU_MAP_GOTO_PRIMITIVE,           MapDocumentT::OnMapGotoPrimitive)
     EVT_MENU(ChildFrameT::ID_MENU_MAP_SHOW_INFO,                MapDocumentT::OnMapShowInfo)
     EVT_MENU(ChildFrameT::ID_MENU_MAP_CHECK_FOR_PROBLEMS,       MapDocumentT::OnMapCheckForProblems)
-    EVT_MENU(ChildFrameT::ID_MENU_MAP_PROPERTIES,               MapDocumentT::OnMapProperties)
     EVT_MENU(ChildFrameT::ID_MENU_MAP_LOAD_POINTFILE,           MapDocumentT::OnMapLoadPointFile)
     EVT_MENU(ChildFrameT::ID_MENU_MAP_UNLOAD_POINTFILE,         MapDocumentT::OnMapUnloadPointFile)
 
@@ -1825,16 +1824,6 @@ void MapDocumentT::OnMapCheckForProblems(wxCommandEvent& CE)
 {
     MapCheckDialogT MapCheckDialog(NULL, *this);
     MapCheckDialog.ShowModal();
-}
-
-
-void MapDocumentT::OnMapProperties(wxCommandEvent& CE)
-{
-    // Select the worldspawn entity, then open the inspector dialog.
-    CompatSubmitCommand(CommandSelectT::Set(this, GetRootMapEntity()->GetRepres()));
-
-    GetChildFrame()->GetInspectorDialog()->ChangePage(1);
-    GetChildFrame()->ShowPane(GetChildFrame()->GetInspectorDialog());
 }
 
 

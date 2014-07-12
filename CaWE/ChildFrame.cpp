@@ -369,7 +369,6 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item3->Append(ID_MENU_MAP_GOTO_PRIMITIVE, wxT("G&o to Primitive...\tShift+Ctrl+G"), wxT("") );
     item3->Append(ID_MENU_MAP_SHOW_INFO, wxT("Show &Information..."), wxT("") );
     item3->Append(ID_MENU_MAP_CHECK_FOR_PROBLEMS, wxT("&Check for Problems...\tAlt+P"), wxT("") );
-    item3->Append(ID_MENU_MAP_PROPERTIES, wxT("&Map Properties..."), wxT("") );
     item3->AppendSeparator();
     item3->Append(ID_MENU_MAP_LOAD_POINTFILE, wxT("&Load Pointfile..."), wxT("") );
     item3->Append(ID_MENU_MAP_UNLOAD_POINTFILE, wxT("&Unload Pointfile"), wxT("") );
