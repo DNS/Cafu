@@ -518,7 +518,7 @@ void EntityHierarchyDialogT::OnTreeItemRightClick(wxTreeEvent& TE)
     wxMenu Menu;
 
     // Create context menus.
-    AppendMI(Menu, ID_MENU_CREATE_ENTITY, "Create Entity", "window-new");
+    AppendMI(Menu, ID_MENU_CREATE_ENTITY, "Create Entity", "MapEditor/tool-new-entity");
     AppendMI(Menu, ID_MENU_RENAME,        "Rename\tF2", "textfield_rename");
     Menu.AppendSeparator();
     AppendMI(Menu, wxID_CUT,                                  "Cut", wxART_CUT);
