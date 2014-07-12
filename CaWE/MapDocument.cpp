@@ -2229,7 +2229,8 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
         NewEnt->GetTransform()->SetOriginWS(SnapToGrid(GetMostRecentSelBB().GetCenter(), false /*Toggle*/, -1 /*AxisNoSnap*/));
         NewEnt->SetApp(MapEnt);
 
-        CommandNewEntityT* CmdNewEnt = new CommandNewEntityT(*this, NewEnt, false /*SetSelection?*/);
+        CommandNewEntityT* CmdNewEnt = new CommandNewEntityT(
+            *this, NewEnt, SelPrimitives[0]->GetParent()->GetEntity(), false /*SetSelection?*/);
 
         CmdNewEnt->Do();
         SubCommands.PushBack(CmdNewEnt);

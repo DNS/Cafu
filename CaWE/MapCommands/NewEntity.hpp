@@ -39,8 +39,9 @@ class CommandNewEntityT : public CommandT
     /// The constructor.
     /// @param MapDoc   Map document into which the entity is inserted.
     /// @param Entity   The entity to insert.
+    /// @param Parent   The parent entity.
     /// @param SetSel   Whether the inserted entity should automatically be selected.
-    CommandNewEntityT(MapDocumentT& MapDoc, IntrusivePtrT<cf::GameSys::EntityT> Entity, bool SetSel=true);
+    CommandNewEntityT(MapDocumentT& MapDoc, IntrusivePtrT<cf::GameSys::EntityT> Entity, IntrusivePtrT<cf::GameSys::EntityT> Parent, bool SetSet);
 
     /// The constructor.
     /// @param MapDoc     Map document into which the entities are inserted.

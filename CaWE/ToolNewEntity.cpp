@@ -37,6 +37,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "GameSys/Entity.hpp"
 #include "GameSys/EntityCreateParams.hpp"
+#include "GameSys/World.hpp"
 
 
 using namespace MapEditor;
@@ -94,7 +95,11 @@ bool ToolNewEntityT::OnLMouseDown2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
     NewEnt->GetTransform()->SetOriginWS(WorldPos);
     NewEnt->SetApp(MapEnt);
 
-    m_MapDoc.CompatSubmitCommand(new CommandNewEntityT(m_MapDoc, NewEnt));
+    m_MapDoc.CompatSubmitCommand(new CommandNewEntityT(
+        m_MapDoc,
+        NewEnt,
+        m_MapDoc.GetScriptWorld().GetRootEntity(),
+        true /*SetSelection?*/));
 
     // m_ToolMan.SetActiveTool(GetToolTIM().FindTypeInfoByName("ToolSelectionT"));
     return true;
@@ -146,7 +151,11 @@ bool ToolNewEntityT::OnLMouseDown3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
 
         NewEnt->GetTransform()->SetOriginWS(HitPos + HitPlane.Normal*(OffsetZ + 1.0f));   // The +1.0f is some additional epsilon for the OffsetZ.
 
-        m_MapDoc.CompatSubmitCommand(new CommandNewEntityT(m_MapDoc, NewEnt));
+        m_MapDoc.CompatSubmitCommand(new CommandNewEntityT(
+            m_MapDoc,
+            NewEnt,
+            m_MapDoc.GetScriptWorld().GetRootEntity(),
+            true /*SetSelection?*/));
     }
     catch (const DivisionByZeroE&)
     {

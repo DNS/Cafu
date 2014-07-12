@@ -33,6 +33,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../SetCompVar.hpp"
 
 #include "GameSys/Entity.hpp"
+#include "GameSys/EntityCreateParams.hpp"
 
 #include "wx/artprov.h"
 #include "wx/imaglist.h"
@@ -537,8 +538,30 @@ void EntityHierarchyDialogT::OnTreeItemRightClick(wxTreeEvent& TE)
     switch (MenuSelID)
     {
         case ID_MENU_CREATE_ENTITY:
-            m_Parent->SubmitCommand(new CommandNewEntityT(*m_MapDoc, ((EntityTreeItemT*)GetItemData(TE.GetItem()))->GetEntity(), false /*don't auto-select the new entity*/));
+        {
+            IntrusivePtrT<cf::GameSys::EntityT> Parent = ((EntityTreeItemT*)GetItemData(TE.GetItem()))->GetEntity();
+            IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(m_MapDoc->GetScriptWorld()));
+            IntrusivePtrT<CompMapEntityT>       MapEnt = new CompMapEntityT(*m_MapDoc);
+
+            if (Parent->GetParent() == NULL)
+            {
+                NewEnt->GetTransform()->SetOriginWS(m_MapDoc->SnapToGrid(m_MapDoc->GetMostRecentSelBB().GetCenter(), false /*Toggle*/, -1 /*AxisNoSnap*/));
+            }
+            else
+            {
+                // NewEnt->GetBasics()->SetMember("Static", true);
+                NewEnt->GetTransform()->SetOriginPS(Vector3fT(8, 8, 8));
+            }
+
+            NewEnt->SetApp(MapEnt);
+
+            m_Parent->SubmitCommand(new CommandNewEntityT(
+                *m_MapDoc,
+                NewEnt,
+                Parent,
+                true /*select the new entity*/));
             break;
+        }
 
         case ID_MENU_RENAME:
             EditLabel(TE.GetItem());

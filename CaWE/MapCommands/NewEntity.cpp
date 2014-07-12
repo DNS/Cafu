@@ -29,10 +29,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameSys/World.hpp"
 
 
-CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, IntrusivePtrT<cf::GameSys::EntityT> Entity, bool SetSel)
+CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, IntrusivePtrT<cf::GameSys::EntityT> Entity, IntrusivePtrT<cf::GameSys::EntityT> Parent, bool SetSel)
     : m_MapDoc(MapDoc),
       m_Entities(),
-      m_Parent(MapDoc.GetScriptWorld().GetRootEntity()),
+      m_Parent(Parent),
       m_SetSel(SetSel),
       m_CommandSelect(NULL)
 {
