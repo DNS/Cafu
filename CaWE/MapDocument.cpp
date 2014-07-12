@@ -45,8 +45,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapCommands/AddPrim.hpp"
 #include "MapCommands/Align.hpp"
 #include "MapCommands/ApplyMaterial.hpp"
-#include "MapCommands/AssignPrimToEnt.hpp"
+#include "MapEditor/Commands/ReparentPrimitive.hpp"
 #include "MapCommands/Carve.hpp"
+#include "MapCommands/Delete.hpp"
 #include "MapCommands/Mirror.hpp"
 #include "MapCommands/SnapToGrid.hpp"
 #include "MapCommands/MakeHollow.hpp"
@@ -2178,17 +2179,18 @@ void MapDocumentT::OnToolsHollow(wxCommandEvent& CE)
 
 void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
 {
+    // Split the selection into entities and primitives.
     ArrayT< IntrusivePtrT<CompMapEntityT> > SelEntities;    // All entities   that are in the selection.
     ArrayT<MapPrimitiveT*>                  SelPrimitives;  // All primitives that are in the selection.
 
-    for (unsigned long SelNr=0; SelNr<m_Selection.Size(); SelNr++)
+    for (unsigned long SelNr = 0; SelNr < m_Selection.Size(); SelNr++)
     {
-        MapElementT*   Elem   = m_Selection[SelNr];
-        MapEntRepresT* Repres = dynamic_cast<MapEntRepresT*>(Elem);
+        MapElementT* Elem = m_Selection[SelNr];
 
-        if (Repres)
+        if (Elem->GetParent()->GetRepres() == Elem)
         {
-            SelEntities.PushBack(Repres->GetParent());
+            wxASSERT(dynamic_cast<MapEntRepresT*>(Elem));
+            SelEntities.PushBack(Elem->GetParent());
         }
         else
         {
@@ -2198,86 +2200,120 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
     }
 
     // If there were no primitives among the selected map elements, quit here.
-    if (SelPrimitives.Size()==0)
+    if (SelPrimitives.Size() == 0)
     {
-        wxMessageBox("Nothing is selected that could be tied to an entity.");
+        wxMessageBox(
+            "No map primitives are currently selected.\n\n"
+            "Select at least one map primitive (and optionally the desired target entity) "
+            "in order to have the selected map primitives re-assigned.",
+            "Assignment is empty");
+
         return;
     }
 
-    // The details on how to proceed depend on the number of entities in the selection.
-    if (SelEntities.Size()==0)
+    // If exactly one entity is selected and all primitives are already assigned to that entity, quit here.
+    if (SelEntities.Size() == 1)
     {
-        // Don't query the user, but create (below) a new entity of default class.
-        SelEntities.PushBack(NULL);
-    }
-    else if (SelEntities.Size()==1)
-    {
-        const int Result = wxMessageBox("Would you like to keep and re-use the selected \"" + SelEntities[0]->GetEntity()->GetBasics()->GetEntityName() + "\" entity?\n\n"
-            "If you answer 'No', a new entity will be created\n"
-            "and all selected map elements added to it, including those of the of the selected entity.", "Re-use entity?", wxYES_NO | wxCANCEL | wxICON_QUESTION);
+        unsigned long PrimNr = 0;
 
-        switch (Result)
+        for (PrimNr = 0; PrimNr < SelPrimitives.Size(); PrimNr++)
+            if (SelPrimitives[PrimNr]->GetParent() != SelEntities[0])
+                break;
+
+        if (PrimNr >= SelPrimitives.Size())
         {
-            case wxYES: break;                      // Do nothing, SelEntities[0] is ok as-is.
-            case wxNO:  SelEntities[0]=NULL; break; // The user wants a new default entity, not this one.
-            default:    return;                     // User pressed Cancel.
+            wxMessageBox(
+                "All selected map primitives are assigned to the selected entity already.\n\n"
+                "Select a different entity (or none, in order to have automatically created a new one) "
+                "in order to have the selected map primitives re-assigned.",
+                "Assignment has no effect");
+
+            return;
         }
+    }
+
+    // Determine the target entity.
+    ArrayT<CommandT*>             SubCommands;
+    IntrusivePtrT<CompMapEntityT> TargetEntity = NULL;
+
+    if (SelEntities.Size() == 0)
+    {
+        // Create a new entity.
+        IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
+        IntrusivePtrT<CompMapEntityT>       MapEnt = new CompMapEntityT(*this);
+
+        NewEnt->GetBasics()->SetMember("Static", true);
+        NewEnt->GetTransform()->SetOriginWS(SnapToGrid(GetMostRecentSelBB().GetCenter(), false /*Toggle*/, -1 /*AxisNoSnap*/));
+        NewEnt->SetApp(MapEnt);
+
+        CommandNewEntityT* CmdNewEnt = new CommandNewEntityT(*this, NewEnt, false /*SetSelection?*/);
+
+        CmdNewEnt->Do();
+        SubCommands.PushBack(CmdNewEnt);
+
+        TargetEntity = MapEnt;
+    }
+    else if (SelEntities.Size() == 1)
+    {
+        TargetEntity = SelEntities[0];
     }
     else
     {
         wxArrayString EntityNames;
 
-        for (unsigned long EntNr=0; EntNr<SelEntities.Size(); EntNr++)
-            EntityNames.Add(SelEntities[EntNr]->GetEntity()->GetBasics()->GetEntityName());
+        for (unsigned long EntNr = 0; EntNr < SelEntities.Size(); EntNr++)
+        {
+            wxString            Label    = SelEntities[EntNr]->GetEntity()->GetBasics()->GetEntityName();
+            const unsigned long NumPrims = SelEntities[EntNr]->GetPrimitives().Size();
 
-        const int Choice=wxGetSingleChoiceIndex("There are multiple entities in the selection.\n"
-                                                "Please choose the one that you want to keep and that will receive all the map elements of the others.\n"
-                                                "Or press Cancel, select only one entity, and start over.",
-                                                "Please select the destination entity",
-                                                EntityNames);
+            if (NumPrims > 0)
+                Label += wxString::Format(" (%lu)", NumPrims);
 
-        if (Choice<0) return;                 // The user pressed Cancel.
-        SelEntities[0]=SelEntities[Choice];   // Make sure that the chosen entity is at index 0.
+            EntityNames.Add(Label);
+        }
+
+        const int Choice = wxGetSingleChoiceIndex(
+            "Multiple entities are currently selected. In the following list,\n"
+            "choose the one that the map primitives are to be assigned to\n"
+            "(or press Cancel, select only one entity, and start over).",
+            "Assignment is ambiguous",
+            EntityNames);
+
+        if (Choice < 0) return;               // The user pressed Cancel.
+
+        TargetEntity = SelEntities[Choice];   // Make sure that the chosen entity is at index 0.
     }
 
-    if (SelEntities[0]!=NULL)
-    {
-        CompatSubmitCommand(new CommandAssignPrimToEntT(*this, SelPrimitives, SelEntities[0]));
-    }
-    else
-    {
-        ArrayT<CommandT*> SubCommands;
+    // Assign the primitives to the target entity.
+    CommandReparentPrimitiveT* CmdRepPrim = new CommandReparentPrimitiveT(*this, SelPrimitives, TargetEntity);
 
-        // 1. Create a new entity.
-        IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
-        IntrusivePtrT<CompMapEntityT>       MapEnt = new CompMapEntityT(*this);
+    CmdRepPrim->Do();
+    SubCommands.PushBack(CmdRepPrim);
 
-        NewEnt->GetTransform()->SetOriginWS(SnapToGrid(GetMostRecentSelBB().GetCenter(), false /*Toggle*/, -1 /*AxisNoSnap*/));
-        NewEnt->SetApp(MapEnt);
+    // Submit the macro command.
+    CompatSubmitCommand(new CommandMacroT(SubCommands, "Assign primitives"));
 
-        CommandNewEntityT* CmdNewEnt = new CommandNewEntityT(*this, NewEnt);
+    // Purge empty entities.
+    // This is intentionally not submitted along with the macro command above, so that the user
+    // has the option to undo the purge (separately from the assignment) if he wishes.
+    ArrayT<MapElementT*> EmptyEntities;
 
-        CmdNewEnt->Do();
-        SubCommands.PushBack(CmdNewEnt);
+    for (unsigned long EntNr = 0; EntNr < SelEntities.Size(); EntNr++)
+        if (SelEntities[EntNr]->GetPrimitives().Size() == 0 && SelEntities[EntNr]->GetEntity()->GetComponents().Size() == 0)
+            EmptyEntities.PushBack(SelEntities[EntNr]->GetRepres());
 
-        // 2. Assign the primitives to the new entity.
-        CommandAssignPrimToEntT* CmdAssignToEnt = new CommandAssignPrimToEntT(*this, SelPrimitives, MapEnt);
+    if (EmptyEntities.Size() > 0)
+        CompatSubmitCommand(new CommandDeleteT(*this, EmptyEntities));
 
-        CmdAssignToEnt->Do();
-        SubCommands.PushBack(CmdAssignToEnt);
-
-        // 3. Submit the composite macro command.
-        CompatSubmitCommand(new CommandMacroT(SubCommands, "tie to new entity"));
-    }
-
-    // This is very rare - only fires when a parent entity became empty, thus implicitly deleted, and was the last element in its group:
+    // Purge empty groups.
+    // This is very rare: it only fires when a parent entity became empty, was thus deleted above, and was the last element in its group:
     // If there are any empty groups (usually as a result from the deletion), purge them now.
     // We use an explicit command for deleting the groups (instead of putting everything into a macro command)
     // so that the user has the option to undo the purge (separately from the deletion) if he wishes.
     {
-        const ArrayT<GroupT*> EmptyGroups=GetAbandonedGroups();
+        const ArrayT<GroupT*> EmptyGroups = GetAbandonedGroups();
 
-        if (EmptyGroups.Size()>0)
+        if (EmptyGroups.Size() > 0)
             CompatSubmitCommand(new CommandDeleteGroupT(*this, EmptyGroups));
     }
 
