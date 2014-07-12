@@ -26,11 +26,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../MapEntRepres.hpp"
 
 #include "GameSys/Entity.hpp"
+#include "GameSys/World.hpp"
 
 
 CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, IntrusivePtrT<cf::GameSys::EntityT> Entity, bool SetSel)
     : m_MapDoc(MapDoc),
       m_Entities(),
+      m_Parent(MapDoc.GetScriptWorld().GetRootEntity()),
       m_SetSel(SetSel),
       m_CommandSelect(NULL)
 {
@@ -41,6 +43,7 @@ CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, IntrusivePtrT<cf::Gam
 CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities, bool SetSel)
     : m_MapDoc(MapDoc),
       m_Entities(Entities),
+      m_Parent(MapDoc.GetScriptWorld().GetRootEntity()),
       m_SetSel(SetSel),
       m_CommandSelect(NULL)
 {
@@ -65,7 +68,7 @@ bool CommandNewEntityT::Do()
 
     // Insert the entities into the map.
     for (unsigned long EntNr = 0; EntNr < m_Entities.Size(); EntNr++)
-        m_MapDoc.Insert(m_Entities[EntNr]);
+        m_MapDoc.Insert(m_Entities[EntNr], m_Parent);
 
     m_MapDoc.UpdateAllObservers_Created(m_Entities);
 

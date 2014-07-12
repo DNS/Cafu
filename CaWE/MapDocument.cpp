@@ -1526,12 +1526,6 @@ void MapDocumentT::GetAllElems(ArrayT<MapElementT*>& Elems) const
 }
 
 
-void MapDocumentT::Insert(IntrusivePtrT<cf::GameSys::EntityT> Ent)
-{
-    Insert(Ent, m_ScriptWorld->GetRootEntity());
-}
-
-
 void MapDocumentT::Insert(IntrusivePtrT<cf::GameSys::EntityT> Entity, IntrusivePtrT<cf::GameSys::EntityT> Parent, unsigned long Pos)
 {
     wxASSERT(Entity != NULL);

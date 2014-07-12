@@ -123,11 +123,6 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     /// Inserts the given entity into the map.
     /// Callers should never attempt to insert an element into the world in a way other than calling this method,
     /// as it also inserts the element into the internal BSP tree that is used for rendering and culling.
-    void Insert(IntrusivePtrT<cf::GameSys::EntityT> Ent);
-
-    /// Inserts the given entity into the map.
-    /// Callers should never attempt to insert an element into the world in a way other than calling this method,
-    /// as it also inserts the element into the internal BSP tree that is used for rendering and culling.
     void Insert(IntrusivePtrT<cf::GameSys::EntityT> Entity, IntrusivePtrT<cf::GameSys::EntityT> Parent, unsigned long Pos=0xFFFFFFFF);
 
     /// Inserts the given primitive into the map, as a child of the given entity (the world or a custom entity).

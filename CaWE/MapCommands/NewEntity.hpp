@@ -61,6 +61,7 @@ class CommandNewEntityT : public CommandT
 
     MapDocumentT&                                 m_MapDoc;
     ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > m_Entities;
+    IntrusivePtrT<cf::GameSys::EntityT>           m_Parent;
     const bool                                    m_SetSel;
     CommandSelectT*                               m_CommandSelect;  ///< Subcommand for changing the selection.
 };
