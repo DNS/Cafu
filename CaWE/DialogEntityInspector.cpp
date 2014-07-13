@@ -25,8 +25,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapDocument.hpp"
 #include "MapEntRepres.hpp"
 #include "VarVisitors.hpp"
-#include "MapCommands/AddComponent.hpp"
-#include "MapCommands/DeleteComponent.hpp"
+#include "Commands/AddComponent.hpp"
+#include "Commands/DeleteComponent.hpp"
 
 #include "wx/artprov.h"
 #include "wx/notifmsg.h"

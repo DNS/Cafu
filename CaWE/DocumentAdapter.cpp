@@ -25,7 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameConfig.hpp"
 #include "MapDocument.hpp"
 #include "GuiEditor/GuiDocument.hpp"
-#include "MapCommands/ReplaceMat.hpp"
+#include "Commands/ReplaceMat.hpp"
 #include "ModelEditor/ModelDocument.hpp"
 
 #include "GuiSys/CompImage.hpp"

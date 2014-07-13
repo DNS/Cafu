@@ -25,7 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapEntRepres.hpp"
 #include "ChildFrame.hpp"
 
-#include "MapCommands/Select.hpp"
+#include "Commands/Select.hpp"
 
 
 using namespace MapEditor;

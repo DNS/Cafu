@@ -33,8 +33,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Renderer3D.hpp"
 #include "ToolManager.hpp"
 #include "ToolOptionsBars.hpp"
-#include "MapCommands/Clip.hpp"             // Includes struct ClipResultT.
-#include "MapCommands/Group_Delete.hpp"     // For purging the groups after a clip operation.
+#include "Commands/Clip.hpp"             // Includes struct ClipResultT.
+#include "Commands/Group_Delete.hpp"     // For purging the groups after a clip operation.
 #include "wx/wx.h"
 
 

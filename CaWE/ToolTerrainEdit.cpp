@@ -35,9 +35,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChildFrameViewWin2D.hpp"
 #include "Renderer2D.hpp"
 #include "ToolOptionsBars.hpp"
-#include "MapCommands/ModifyTerrain.hpp"
-#include "MapCommands/ChangeTerrainRes.hpp"
-#include "MapCommands/Select.hpp"
+#include "Commands/ModifyTerrain.hpp"
+#include "Commands/ChangeTerrainRes.hpp"
+#include "Commands/Select.hpp"
 
 #include "Bitmap/Bitmap.hpp"
 

@@ -39,10 +39,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ToolManager.hpp"
 #include "DialogEditSurfaceProps.hpp"
 
-#include "MapCommands/AddPrim.hpp"
-#include "MapCommands/NewEntity.hpp"
-#include "MapCommands/Transform.hpp"
-#include "MapCommands/Select.hpp"
+#include "Commands/AddPrim.hpp"
+#include "Commands/NewEntity.hpp"
+#include "Commands/Transform.hpp"
+#include "Commands/Select.hpp"
 
 #include "Plants/PlantDescription.hpp"
 

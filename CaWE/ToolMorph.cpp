@@ -37,9 +37,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "AppCaWE.hpp"
 #include "MapBezierPatch.hpp"
 #include "ToolOptionsBars.hpp"
-#include "MapCommands/AddPrim.hpp"
-#include "MapCommands/Delete.hpp"
-#include "MapCommands/Select.hpp"
+#include "Commands/AddPrim.hpp"
+#include "Commands/Delete.hpp"
+#include "Commands/Select.hpp"
 
 
 using namespace MapEditor;

@@ -28,7 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Options.hpp"
 #include "Renderer2D.hpp"
 #include "Renderer3D.hpp"
-#include "MapCommands/Transform.hpp"
+#include "Commands/Transform.hpp"
 #include "Math3D/Angles.hpp"
 #include "Math3D/Misc.hpp"
 

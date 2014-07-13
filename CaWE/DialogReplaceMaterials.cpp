@@ -31,8 +31,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "EditorMaterialManager.hpp"
 
 #include "MaterialBrowser/MaterialBrowserDialog.hpp"
-#include "MapCommands/ReplaceMat.hpp"
-#include "MapCommands/Select.hpp"
+#include "Commands/ReplaceMat.hpp"
+#include "Commands/Select.hpp"
 
 #include "wx/image.h"
 

@@ -33,7 +33,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChildFrameViewWin3D.hpp"
 #include "ToolManager.hpp"
 #include "ToolOptionsBars.hpp"
-#include "MapCommands/NewEntity.hpp"
+#include "Commands/NewEntity.hpp"
 
 #include "GameSys/Entity.hpp"
 #include "GameSys/EntityCreateParams.hpp"

@@ -39,7 +39,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ToolManager.hpp"
 #include "ToolbarMaterials.hpp"
 
-#include "MapCommands/UpdateSurface.hpp"
+#include "Commands/UpdateSurface.hpp"
 #include "MaterialBrowser/MaterialBrowserDialog.hpp"
 
 #include "wx/image.h"

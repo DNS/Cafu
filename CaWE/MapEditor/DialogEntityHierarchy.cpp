@@ -27,8 +27,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../MapEntRepres.hpp"
 
 #include "Commands/ChangeEntityHierarchy.hpp"
-#include "../MapCommands/NewEntity.hpp"
-#include "../MapCommands/Select.hpp"
+#include "../Commands/NewEntity.hpp"
+#include "../Commands/Select.hpp"
 
 #include "../SetCompVar.hpp"
 

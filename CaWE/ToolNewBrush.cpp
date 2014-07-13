@@ -33,9 +33,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ToolManager.hpp"
 #include "ToolOptionsBars.hpp"
 #include "DialogCreateArch.hpp"
-#include "MapCommands/AddPrim.hpp"
-#include "MapCommands/Group_Assign.hpp"
-#include "MapCommands/Group_New.hpp"
+#include "Commands/AddPrim.hpp"
+#include "Commands/Group_Assign.hpp"
+#include "Commands/Group_New.hpp"
 
 #include "wx/wx.h"
 

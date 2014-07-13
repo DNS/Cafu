@@ -29,10 +29,10 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapTerrain.hpp"
 #include "GameConfig.hpp"
 
-#include "MapCommands/ChangePlantSeed.hpp"
-#include "MapCommands/ChangePlantDescr.hpp"
-#include "MapCommands/ModifyModel.hpp"
-#include "MapCommands/SetBPSubdivs.hpp"
+#include "Commands/ChangePlantSeed.hpp"
+#include "Commands/ChangePlantDescr.hpp"
+#include "Commands/ModifyModel.hpp"
+#include "Commands/SetBPSubdivs.hpp"
 
 #include "wx/notebook.h"
 #include "wx/propgrid/propgrid.h"

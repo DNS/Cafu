@@ -23,7 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_TOOLBAR_GROUPS_HPP_INCLUDED
 
 #include "ObserverPattern.hpp"
-#include "MapCommands/Group_SetProp.hpp"
+#include "Commands/Group_SetProp.hpp"
 #include "Templates/Array.hpp"
 #include "wx/panel.h"
 
