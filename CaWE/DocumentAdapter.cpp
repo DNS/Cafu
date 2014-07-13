@@ -20,12 +20,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "DocumentAdapter.hpp"
-#include "DialogReplaceMaterials.hpp"
 #include "EditorMaterial.hpp"
 #include "GameConfig.hpp"
-#include "MapDocument.hpp"
+
 #include "GuiEditor/GuiDocument.hpp"
-#include "Commands/ReplaceMat.hpp"
+#include "MapEditor/DialogReplaceMaterials.hpp"
+#include "MapEditor/MapDocument.hpp"
+#include "MapEditor/Commands/ReplaceMat.hpp"
 #include "ModelEditor/ModelDocument.hpp"
 
 #include "GuiSys/CompImage.hpp"

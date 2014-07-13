@@ -22,7 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_PARENT_FRAME_HPP_INCLUDED
 #define CAFU_PARENT_FRAME_HPP_INCLUDED
 
-#include "Clipboard.hpp"
+#include "MapEditor/Clipboard.hpp"
 #include "Templates/Array.hpp"
 #include "Templates/Pointer.hpp"
 #include "wx/docview.h"     // Needed for wxFileHistory.

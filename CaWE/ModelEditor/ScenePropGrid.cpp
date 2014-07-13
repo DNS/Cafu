@@ -25,7 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../Camera.hpp"
 #include "../EditorMaterial.hpp"
 #include "../GameConfig.hpp"
-#include "../MapBrush.hpp"
+#include "../MapEditor/MapBrush.hpp"
 #include "../Options.hpp"
 #include "MaterialSystem/MapComposition.hpp"
 #include "MaterialSystem/TextureMap.hpp"

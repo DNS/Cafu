@@ -28,11 +28,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../AppCaWE.hpp"
 #include "../Camera.hpp"
 #include "../EditorMaterial.hpp"
-#include "../MapBrush.hpp"
-#include "../MapFace.hpp"
+#include "../MapEditor/MapBrush.hpp"
+#include "../MapEditor/MapFace.hpp"
 #include "../Options.hpp"
 #include "../ParentFrame.hpp"
-#include "../Renderer3D.hpp"    // For class Renderer3DT::UseOrthoMatricesT.
+#include "../MapEditor/Renderer3D.hpp"    // For class Renderer3DT::UseOrthoMatricesT.
 
 #include "GuiSys/GuiImpl.hpp"
 #include "GuiSys/Window.hpp"

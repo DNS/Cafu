@@ -20,17 +20,17 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "DialogEntityHierarchy.hpp"
-#include "../ChildFrame.hpp"
-#include "../CompMapEntity.hpp"
-#include "../MapDocument.hpp"
-#include "../MapElement.hpp"
-#include "../MapEntRepres.hpp"
-
-#include "Commands/ChangeEntityHierarchy.hpp"
-#include "../Commands/NewEntity.hpp"
-#include "../Commands/Select.hpp"
+#include "ChildFrame.hpp"
+#include "CompMapEntity.hpp"
+#include "MapDocument.hpp"
+#include "MapElement.hpp"
+#include "MapEntRepres.hpp"
 
 #include "../SetCompVar.hpp"
+
+#include "Commands/ChangeEntityHierarchy.hpp"
+#include "Commands/NewEntity.hpp"
+#include "Commands/Select.hpp"
 
 #include "GameSys/Entity.hpp"
 #include "GameSys/EntityCreateParams.hpp"

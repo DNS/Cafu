@@ -19,16 +19,16 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "ChildFrame.hpp"
 #include "GameConfig.hpp"
 #include "ParentFrame.hpp"
-#include "MapDocument.hpp"
 #include "Options.hpp"
 #include "DialogOptions.hpp"
 
 #include "GuiEditor/ChildFrame.hpp"
 #include "GuiEditor/GuiDocument.hpp"
 #include "FontWizard/FontWizard.hpp"
+#include "MapEditor/ChildFrame.hpp"
+#include "MapEditor/MapDocument.hpp"
 #include "ModelEditor/ChildFrame.hpp"
 #include "ModelEditor/ModelDocument.hpp"
 

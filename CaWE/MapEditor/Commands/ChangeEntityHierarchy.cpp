@@ -20,7 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "ChangeEntityHierarchy.hpp"
-#include "../../MapDocument.hpp"
+#include "../MapDocument.hpp"
 
 #include "GameSys/Entity.hpp"
 

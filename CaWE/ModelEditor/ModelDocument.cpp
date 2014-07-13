@@ -23,7 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../Camera.hpp"
 #include "../EditorMaterialEngine.hpp"
 #include "../GameConfig.hpp"
-#include "../MapBrush.hpp"
+#include "../MapEditor/MapBrush.hpp"
 
 #include "GuiSys/GuiImpl.hpp"
 #include "GuiSys/Window.hpp"

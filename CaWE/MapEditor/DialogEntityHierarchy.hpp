@@ -22,7 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_MAPEDITOR_DIALOG_ENTITY_HIERARCHY_HPP_INCLUDED
 #define CAFU_MAPEDITOR_DIALOG_ENTITY_HIERARCHY_HPP_INCLUDED
 
-#include "../ObserverPattern.hpp"
+#include "ObserverPattern.hpp"
 
 #include "wx/treectrl.h"
 

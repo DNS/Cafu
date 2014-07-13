@@ -135,11 +135,10 @@ SourceFilesList = (Glob("CaWE/*.cpp")
     + Glob("CaWE/FontWizard/*.cpp")
     + Glob("CaWE/GuiEditor/*.cpp") + Glob("CaWE/GuiEditor/Commands/*.cpp")
     + Glob("CaWE/MapEditor/*.cpp") + Glob("CaWE/MapEditor/Commands/*.cpp")
-    + Glob("CaWE/Commands/*.cpp")
     + Glob("CaWE/MaterialBrowser/*.cpp")
     + Glob("CaWE/ModelEditor/*.cpp")+Glob("CaWE/ModelEditor/Commands/*.cpp")
-    + Glob("CaWE/wxExt/*.cpp")
-    + Glob("CaWE/wxFB/*.cpp"))
+    + Glob("CaWE/MapEditor/wxExt/*.cpp")
+    + Glob("CaWE/MapEditor/wxFB/*.cpp"))
 
 if sys.platform=="win32":
     SourceFilesList += envCaWE.RES("CaWE/CaWE.rc")

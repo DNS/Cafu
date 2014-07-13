@@ -21,9 +21,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ReparentPrimitive.hpp"
 
-#include "../../CompMapEntity.hpp"
-#include "../../MapDocument.hpp"
-#include "../../MapPrimitive.hpp"
+#include "../CompMapEntity.hpp"
+#include "../MapDocument.hpp"
+#include "../MapPrimitive.hpp"
 
 
 using namespace MapEditor;
