@@ -192,7 +192,7 @@ NSRect wxOSXGetFrameForControl( wxWindowMac* window , const wxPoint& pos , const
     const UCKeyboardLayout *keyboardLayout = (const UCKeyboardLayout*)CFDataGetBytePtr(uchr);
     if (keyboardLayout) {
         UInt32 deadKeyState = 0;
-        UniCharCount maxStringLength = 255;
+        const UniCharCount maxStringLength = 255;
         UniCharCount actualStringLength = 0;
         UniChar unicodeString[maxStringLength];
         
@@ -788,7 +788,7 @@ void wxWidgetCocoaImpl::SetupMouseEvent( wxMouseEvent &wxevent , NSEvent * nsEve
     [_lastToolTipOwner mouseEntered:fakeEvent];
 }
 
-- (void)setToolTip:(NSString *)string;
+- (void)setToolTip:(NSString *)string
 {
     if (string)
     {
@@ -1127,6 +1127,7 @@ void wxOSX_controlDoubleAction(NSView* self, SEL _cmd, id sender)
     impl->controlDoubleAction(self, _cmd, sender);
 }
 
+#if wxUSE_DRAG_AND_DROP
 unsigned int wxWidgetCocoaImpl::draggingEntered(void* s, WXWidget WXUNUSED(slf), void *WXUNUSED(_cmd))
 {
     id <NSDraggingInfo>sender = (id <NSDraggingInfo>) s;
@@ -1270,6 +1271,7 @@ bool wxWidgetCocoaImpl::performDragOperation(void* s, WXWidget WXUNUSED(slf), vo
 
     return result != wxDragNone;
 }
+#endif // wxUSE_DRAG_AND_DROP
 
 void wxWidgetCocoaImpl::mouseEvent(WX_NSEvent event, WXWidget slf, void *_cmd)
 {
@@ -1292,8 +1294,12 @@ void wxWidgetCocoaImpl::mouseEvent(WX_NSEvent event, WXWidget slf, void *_cmd)
             superimpl(slf, (SEL)_cmd, event);
             
             // super of built-ins keeps the mouse up, as wx expects this event, we have to synthesize it
-            // only trigger if at this moment the mouse is already up
-            if ( [ event type]  == NSLeftMouseDown && !wxGetMouseState().LeftIsDown() )
+            // only trigger if at this moment the mouse is already up, and the control is still existing after the event has
+            // been handled (we do this by looking up the native NSView's peer from the hash map, that way we are sure the info
+            // is current - even when the instance memory of ourselves may have been freed ...
+            
+            wxWidgetCocoaImpl* impl = (wxWidgetCocoaImpl* ) wxWidgetImpl::FindFromWXWidget( slf );
+            if ( [ event type]  == NSLeftMouseDown && !wxGetMouseState().LeftIsDown() && impl != NULL )
             {
                 wxMouseEvent wxevent(wxEVT_LEFT_DOWN);
                 SetupMouseEvent(wxevent , event) ;
@@ -1396,7 +1402,9 @@ void wxWidgetCocoaImpl::insertText(NSString* text, WXWidget slf, void *_cmd)
                 wxevent.m_rawFlags = 0;
                 wxevent.SetTimestamp();
                 unichar aunichar = [text characterAtIndex:i];
+#if wxUSE_UNICODE
                 wxevent.m_uniChar = aunichar;
+#endif
                 wxevent.m_keyCode = aunichar < 0x80 ? aunichar : WXK_NONE;
                 wxWindowMac* peer = GetWXPeer();
                 if ( peer )
@@ -1574,20 +1582,23 @@ void wxWidgetCocoaImpl::drawRect(void* rect, WXWidget slf, void *WXUNUSED(_cmd))
     wxRegion clearRgn;
     if ( tlwParent->GetWindowStyle() & wxFRAME_SHAPED )
     {
-        if ( isTopLevel )
-            clearRgn = updateRgn;
-
-        int xoffset = 0, yoffset = 0;
         wxRegion rgn = tlwParent->GetShape();
-        wxpeer->MacRootWindowToWindow( &xoffset, &yoffset );
-        rgn.Offset( xoffset, yoffset );
-        updateRgn.Intersect(rgn);
-
-        if ( isTopLevel )
+        if ( rgn.IsOk() )
         {
-            // Exclude the window shape from the region to be cleared below.
-            rgn.Xor(wxpeer->GetSize());
-            clearRgn.Intersect(rgn);
+            if ( isTopLevel )
+                clearRgn = updateRgn;
+
+            int xoffset = 0, yoffset = 0;
+            wxpeer->MacRootWindowToWindow( &xoffset, &yoffset );
+            rgn.Offset( xoffset, yoffset );
+            updateRgn.Intersect(rgn);
+
+            if ( isTopLevel )
+            {
+                // Exclude the window shape from the region to be cleared below.
+                rgn.Xor(wxpeer->GetSize());
+                clearRgn.Intersect(rgn);
+            }
         }
     }
     
@@ -1832,6 +1843,9 @@ void wxWidgetCocoaImpl::Init()
 
 wxWidgetCocoaImpl::~wxWidgetCocoaImpl()
 {
+    if ( GetWXPeer() && GetWXPeer()->IsFrozen() )
+        [[m_osxView window] enableFlushWindow];
+    
     RemoveAssociations( this );
 
     if ( !IsRootControl() )
@@ -2349,6 +2363,7 @@ bool wxWidgetCocoaImpl::SetFocus()
     return true;
 }
 
+#if wxUSE_DRAG_AND_DROP
 void wxWidgetCocoaImpl::SetDropTarget(wxDropTarget* target)
 {
     [m_osxView unregisterDraggedTypes];
@@ -2370,6 +2385,7 @@ void wxWidgetCocoaImpl::SetDropTarget(wxDropTarget* target)
         CFRelease(typesarray);
     }
 }
+#endif // wxUSE_DRAG_AND_DROP
 
 void wxWidgetCocoaImpl::RemoveFromParent()
 {

@@ -179,7 +179,8 @@ inline wxDataViewItem wxDataViewItemFromMaybeNilItem(id item)
     // not just some arbitrary object, so we serialize the pointer into the
     // string. Notice the use of NSInteger which is big enough to store a
     // pointer in both 32 and 64 bit builds.
-    return [NSString stringWithFormat:@"%lu", reinterpret_cast<NSUInteger>(column)];
+    return [NSString stringWithFormat:@"%lu",
+                (unsigned long)reinterpret_cast<NSUInteger>(column)];
 }
 
 -(id) initWithColumnPointer:(const wxDataViewColumn*)column
@@ -367,10 +368,8 @@ NSTableColumn* CreateNativeColumn(const wxDataViewColumn *column)
     }
     [nativeColumn setResizingMask:resizingMask];
 
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
     // setting the visibility:
     [nativeColumn setHidden:static_cast<BOOL>(column->IsHidden())];
-#endif
 
     wxDataViewRendererNativeData * const renderData = renderer->GetNativeData();
 
@@ -496,6 +495,8 @@ initWithModelPtr:(wxDataViewModel*)initModelPtr
 
         currentParentItem = nil;
 
+        sortDescriptors = nil;
+
         children = [[NSMutableArray alloc] init];
         items    = [[NSMutableSet   alloc] init];
     }
@@ -504,6 +505,8 @@ initWithModelPtr:(wxDataViewModel*)initModelPtr
 
 -(void) dealloc
 {
+    [sortDescriptors release];
+
     [currentParentItem release];
 
     [children release];
@@ -1486,7 +1489,6 @@ outlineView:(NSOutlineView*)outlineView
     [super editWithFrame:textFrame inView:controlView editor:textObj delegate:anObject event:theEvent];
 }
 
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_5
 -(NSUInteger) hitTestForEvent:(NSEvent*)event inRect:(NSRect)cellFrame ofView:(NSView*)controlView
 {
     NSPoint point = [controlView convertPoint:[event locationInWindow] fromView:nil];
@@ -1528,7 +1530,6 @@ outlineView:(NSOutlineView*)outlineView
 
     return [super hitTestForEvent:event inRect:textFrame ofView:controlView];
 }
-#endif
 
 -(NSRect) imageRectForBounds:(NSRect)cellFrame
 {
@@ -2048,6 +2049,10 @@ bool wxCocoaDataViewControl::InsertColumn(unsigned int pos, wxDataViewColumn* co
     // specified position the column is first appended and - if necessary -
     // moved to its final position:
     [m_OutlineView addTableColumn:nativeColumn];
+
+    // it is owned, and kepy alive, by m_OutlineView now
+    [nativeColumn release];
+
     if (pos != static_cast<unsigned int>([m_OutlineView numberOfColumns]-1))
         [m_OutlineView moveColumn:[m_OutlineView numberOfColumns]-1 toColumn:pos];
 
@@ -2060,7 +2065,6 @@ bool wxCocoaDataViewControl::InsertColumn(unsigned int pos, wxDataViewColumn* co
 
 void wxCocoaDataViewControl::FitColumnWidthToContent(unsigned int pos)
 {
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_5
     const int count = GetCount();
     NSTableColumn *column = GetColumn(pos)->GetNativeData()->GetNativeColumnPtr();
 
@@ -2173,7 +2177,6 @@ void wxCocoaDataViewControl::FitColumnWidthToContent(unsigned int pos)
     }
 
     [column setWidth:calculator.GetMaxWidth()];
-#endif // MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_5
 }
 
 //
@@ -2663,6 +2666,9 @@ wxDataViewRenderer::OSXOnCellChanged(NSObject *object,
         return;
     }
 
+    if ( !Validate(value) )
+        return;
+
     wxDataViewModel *model = GetOwner()->GetOwner()->GetModel();
     model->ChangeValue(value, item, col);
 }
@@ -2753,7 +2759,9 @@ wxDataViewCustomRenderer::wxDataViewCustomRenderer(const wxString& varianttype,
       m_editorCtrlPtr(NULL),
       m_DCPtr(NULL)
 {
-    SetNativeData(new wxDataViewRendererNativeData([[wxCustomCell alloc] init]));
+    wxCustomCell* cell = [[wxCustomCell alloc] init];
+    SetNativeData(new wxDataViewRendererNativeData(cell));
+    [cell release];
 }
 
 bool wxDataViewCustomRenderer::MacRender()
@@ -2812,8 +2820,12 @@ wxDataViewTextRenderer::OSXOnCellChanged(NSObject *value,
                                          const wxDataViewItem& item,
                                          unsigned col)
 {
+    wxVariant valueText(ObjectToString(value));
+    if ( !Validate(valueText) )
+        return;
+
     wxDataViewModel *model = GetOwner()->GetOwner()->GetModel();
-    model->ChangeValue(ObjectToString(value), item, col);
+    model->ChangeValue(valueText, item, col);
 }
 
 IMPLEMENT_CLASS(wxDataViewTextRenderer,wxDataViewRenderer)
@@ -2882,8 +2894,23 @@ wxDataViewChoiceRenderer::OSXOnCellChanged(NSObject *value,
 {
     // At least under OS X 10.7 we get the index of the item selected and not
     // its string.
+    const long choiceIndex = ObjectToLong(value);
+
+    // We can receive -1 if the selection was cancelled, just ignore it.
+    if ( choiceIndex == -1 )
+        return;
+
+    // If it's not -1, it must be valid, but avoid crashing in GetChoice()
+    // below if it isn't, for some reason.
+    wxCHECK_RET( choiceIndex >= 0 && (size_t)choiceIndex < GetChoices().size(),
+                 wxS("Choice index out of range.") );
+
+    wxVariant valueChoice(GetChoice(choiceIndex));
+    if ( !Validate(valueChoice) )
+        return;
+
     wxDataViewModel *model = GetOwner()->GetOwner()->GetModel();
-    model->ChangeValue(GetChoice(ObjectToLong(value)), item, col);
+    model->ChangeValue(valueChoice, item, col);
 }
 
 bool wxDataViewChoiceRenderer::MacRender()
@@ -2990,8 +3017,12 @@ wxDataViewDateRenderer::OSXOnCellChanged(NSObject *value,
                                          const wxDataViewItem& item,
                                          unsigned col)
 {
+    wxVariant valueDate(ObjectToDate(value));
+    if ( !Validate(valueDate) )
+        return;
+
     wxDataViewModel *model = GetOwner()->GetOwner()->GetModel();
-    model->ChangeValue(ObjectToDate(value), item, col);
+    model->ChangeValue(valueDate, item, col);
 }
 
 IMPLEMENT_ABSTRACT_CLASS(wxDataViewDateRenderer,wxDataViewRenderer)
@@ -3045,6 +3076,9 @@ wxDataViewIconTextRenderer::OSXOnCellChanged(NSObject *value,
     wxVariant valueIconText;
     valueIconText << wxDataViewIconText(ObjectToString(value));
 
+    if ( !Validate(valueIconText) )
+        return;
+
     wxDataViewModel *model = GetOwner()->GetOwner()->GetModel();
     model->ChangeValue(valueIconText, item, col);
 }
@@ -3089,8 +3123,12 @@ wxDataViewToggleRenderer::OSXOnCellChanged(NSObject *value,
                                            const wxDataViewItem& item,
                                            unsigned col)
 {
+    wxVariant valueToggle(ObjectToBool(value));
+    if ( !Validate(valueToggle) )
+        return;
+
     wxDataViewModel *model = GetOwner()->GetOwner()->GetModel();
-    model->ChangeValue(ObjectToBool(value), item, col);
+    model->ChangeValue(valueToggle, item, col);
 }
 
 IMPLEMENT_ABSTRACT_CLASS(wxDataViewToggleRenderer,wxDataViewRenderer)
@@ -3134,8 +3172,12 @@ wxDataViewProgressRenderer::OSXOnCellChanged(NSObject *value,
                                              const wxDataViewItem& item,
                                              unsigned col)
 {
+    wxVariant valueProgress(ObjectToLong(value));
+    if ( !Validate(valueProgress) )
+        return;
+
     wxDataViewModel *model = GetOwner()->GetOwner()->GetModel();
-    model->ChangeValue(ObjectToLong(value), item, col);
+    model->ChangeValue(valueProgress, item, col);
 }
 
 IMPLEMENT_ABSTRACT_CLASS(wxDataViewProgressRenderer,wxDataViewRenderer)
@@ -3295,15 +3337,13 @@ void wxDataViewColumn::SetWidth(int width)
     switch ( width )
     {
         case wxCOL_WIDTH_AUTOSIZE:
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_5
             if ( GetOwner() )
             {
                 wxCocoaDataViewControl *peer = static_cast<wxCocoaDataViewControl*>(GetOwner()->GetPeer());
                 peer->FitColumnWidthToContent(GetOwner()->GetColumnPosition(this));
                 break;
             }
-#endif
-            // fall through if unsupported (OSX < 10.5) or not yet settable
+            // fall through if not yet settable
 
         case wxCOL_WIDTH_DEFAULT:
             width = wxDVC_DEFAULT_WIDTH;

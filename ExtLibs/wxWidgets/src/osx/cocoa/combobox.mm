@@ -90,6 +90,38 @@
     }
 }
 
+- (void)comboBoxWillPopUp:(NSNotification *)notification
+{
+    wxUnusedVar(notification);
+    wxWidgetCocoaImpl* impl = (wxWidgetCocoaImpl* ) wxWidgetImpl::FindFromWXWidget( self );
+    if( impl && impl->ShouldSendEvents() )
+    {
+        wxComboBox* wxpeer = static_cast<wxComboBox*>(impl->GetWXPeer());
+        if( wxpeer )
+        {
+            wxCommandEvent event(wxEVT_COMBOBOX_DROPDOWN, wxpeer->GetId());
+            event.SetEventObject( wxpeer );
+            wxpeer->GetEventHandler()->ProcessEvent( event );
+        }
+    }
+}
+
+- (void)comboBoxWillDismiss:(NSNotification *)notification
+{
+    wxUnusedVar(notification);
+    wxWidgetCocoaImpl* impl = (wxWidgetCocoaImpl* ) wxWidgetImpl::FindFromWXWidget( self );
+    if( impl && impl->ShouldSendEvents() )
+    {
+        wxComboBox* wxpeer = static_cast<wxComboBox*>(impl->GetWXPeer());
+        if( wxpeer )
+        {
+            wxCommandEvent event(wxEVT_COMBOBOX_CLOSEUP, wxpeer->GetId());
+            event.SetEventObject( wxpeer );
+            wxpeer->GetEventHandler()->ProcessEvent( event );
+        }
+    }
+}
+
 - (void)comboBoxSelectionDidChange:(NSNotification *)notification
 {
     wxUnusedVar(notification);
@@ -248,6 +280,7 @@ wxWidgetImplType* wxWidgetImpl::CreateComboBox( wxComboBox* wxpeer,
 {
     NSRect r = wxOSXGetFrameForControl( wxpeer, pos , size ) ;
     wxNSComboBox* v = [[wxNSComboBox alloc] initWithFrame:r];
+    [v setNumberOfVisibleItems:13];
     if (style & wxCB_READONLY)
         [v setEditable:NO];
     wxNSComboBoxControl* c = new wxNSComboBoxControl( wxpeer, v );

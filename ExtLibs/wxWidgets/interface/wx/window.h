@@ -455,13 +455,21 @@ public:
 
     /**
         Find a child of this window, by @a id.
+
         May return @a this if it matches itself.
+
+        Notice that only real children, not top level windows using this window
+        as parent, are searched by this function.
     */
     wxWindow* FindWindow(long id) const;
 
     /**
         Find a child of this window, by name.
+
         May return @a this if it matches itself.
+
+        Notice that only real children, not top level windows using this window
+        as parent, are searched by this function.
     */
     wxWindow* FindWindow(const wxString& name) const;
 
@@ -1378,6 +1386,9 @@ public:
     virtual void SetSizeHints( const wxSize& minSize,
                                const wxSize& maxSize=wxDefaultSize,
                                const wxSize& incSize=wxDefaultSize);
+    /**
+        @overload
+    */
     virtual void SetSizeHints( int minW, int minH,
                                int maxW = -1, int maxH = -1,
                                int incW = -1, int incH = -1 );
@@ -2900,12 +2911,17 @@ public:
     virtual void SetName(const wxString& name);
 
     /**
-        This function can be called under all platforms but only does anything under
-        Mac OS X 10.3+ currently. Under this system, each of the standard control can
-        exist in several sizes which correspond to the elements of wxWindowVariant enum.
+        Chooses a different variant of the window display to use.
 
-        By default the controls use the normal size, of course, but this function can
-        be used to change this.
+        Window variants currently just differ in size, as can be seen from
+        ::wxWindowVariant documentation. Under all platforms but OS X, this
+        function does nothing more than change the font used by the window.
+        However under OS X it is implemented natively and selects the
+        appropriate variant of the native widget, which has better appearance
+        than just scaled down or up version of the normal variant, so it should
+        be preferred to directly tweaking the font size.
+
+        By default the controls naturally use the normal variant.
     */
     void SetWindowVariant(wxWindowVariant variant);
 

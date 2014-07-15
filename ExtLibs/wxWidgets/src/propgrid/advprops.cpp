@@ -1256,14 +1256,20 @@ bool wxSystemColourProperty::QueryColourFromUser( wxVariant& variant ) const
 }
 
 
-bool wxSystemColourProperty::IntToValue( wxVariant& variant, int number, int WXUNUSED(argFlags) ) const
+bool wxSystemColourProperty::IntToValue( wxVariant& variant, int number, int argFlags ) const
 {
     int index = number;
     int type = m_choices.GetValue(index);
 
-    if ( type == wxPG_COLOUR_CUSTOM )
+    if ( m_choices.GetLabel(index) == _("Custom") )
     {
-        QueryColourFromUser(variant);
+         if ( !(argFlags & wxPG_PROPERTY_SPECIFIC) )
+            return QueryColourFromUser(variant);
+
+         // Call from event handler.
+         // User will be asked for custom color later on in OnEvent().
+         wxColourPropertyValue val = GetVal();
+         variant = DoTranslateVal(val);
     }
     else
     {
@@ -1442,7 +1448,18 @@ bool wxSystemColourProperty::StringToValue( wxVariant& value, const wxString& te
             return false;
         }
 
-        QueryColourFromUser(value);
+        if ( (argFlags & wxPG_PROPERTY_SPECIFIC) )
+        {
+            // Query for value from the event handler.
+            // User will be asked for custom color later on in OnEvent().
+            ResetNextIndex();
+            return false;
+        }
+        if ( !QueryColourFromUser(value) )
+        {
+            ResetNextIndex();
+            return false;
+        }
     }
     else
     {
@@ -1518,46 +1535,28 @@ bool wxSystemColourProperty::DoSetAttribute( const wxString& name, wxVariant& va
 
 static const wxChar* const gs_cp_es_normcolour_labels[] = {
     wxT("Black"),
-    wxT("Maroon"),
-    wxT("Navy"),
-    wxT("Purple"),
-    wxT("Teal"),
-    wxT("Gray"),
-    wxT("Green"),
-    wxT("Olive"),
-    wxT("Brown"),
-    wxT("Blue"),
-    wxT("Fuchsia"),
     wxT("Red"),
-    wxT("Orange"),
-    wxT("Silver"),
-    wxT("Lime"),
-    wxT("Aqua"),
+    wxT("Green"),
+    wxT("Blue"),
+    wxT("Cyan"),
+    wxT("Magenta"),
     wxT("Yellow"),
     wxT("White"),
+    wxT("Grey"),
     wxT("Custom"),
     (const wxChar*) NULL
 };
 
 static const unsigned long gs_cp_es_normcolour_colours[] = {
     wxPG_COLOUR(0,0,0),
-    wxPG_COLOUR(128,0,0),
-    wxPG_COLOUR(0,0,128),
-    wxPG_COLOUR(128,0,128),
-    wxPG_COLOUR(0,128,128),
-    wxPG_COLOUR(128,128,128),
-    wxPG_COLOUR(0,128,0),
-    wxPG_COLOUR(128,128,0),
-    wxPG_COLOUR(166,124,81),
-    wxPG_COLOUR(0,0,255),
-    wxPG_COLOUR(255,0,255),
     wxPG_COLOUR(255,0,0),
-    wxPG_COLOUR(247,148,28),
-    wxPG_COLOUR(192,192,192),
     wxPG_COLOUR(0,255,0),
+    wxPG_COLOUR(0,0,255),
     wxPG_COLOUR(0,255,255),
+    wxPG_COLOUR(255,0,255),
     wxPG_COLOUR(255,255,0),
     wxPG_COLOUR(255,255,255),
+    wxPG_COLOUR(128,128,128),
     wxPG_COLOUR(0,0,0)
 };
 

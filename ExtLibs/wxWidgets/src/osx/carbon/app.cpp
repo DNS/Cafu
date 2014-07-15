@@ -65,9 +65,6 @@ BEGIN_EVENT_TABLE(wxApp, wxEvtHandler)
 END_EVENT_TABLE()
 
 
-// platform specific static variables
-static const short kwxMacAppleMenuId = 1 ;
-
 wxWindow* wxApp::s_captureWindow = NULL ;
 long      wxApp::s_lastModifiers = 0 ;
 
@@ -242,7 +239,7 @@ short wxApp::MacHandleAEPDoc(const WXEVENTREF event , WXEVENTREF WXUNUSED(reply)
             return err;
         
         fName = wxMacFSRefToPath( &theRef ) ;
-        files += fName;
+        fileNames.Add( fName );
     }
     
     MacPrintFiles(fileNames);
@@ -444,6 +441,9 @@ bool wxApp::OSXOnShouldTerminate()
 // if no native match they just return the passed-in id
 
 #if wxOSX_USE_CARBON
+
+// platform specific static variables
+static const short kwxMacAppleMenuId = 1 ;
 
 struct IdPair
 {

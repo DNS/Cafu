@@ -155,6 +155,11 @@ public:
     // a char* string is also a pointer and an integer is also a char.
     enum ArgumentType
     {
+#if wxABI_VERSION >= 30001
+        Arg_Unused      = 0, // not used at all; the value of 0 is chosen to
+                             // conveniently pass wxASSERT_ARG_TYPE's check
+#endif
+
         Arg_Char        = 0x0001,    // character as char %c
         Arg_Pointer     = 0x0002,    // %p
         Arg_String      = 0x0004 | Arg_Pointer, // any form of string (%s and %p too)
@@ -748,7 +753,7 @@ struct wxArgNormalizer<const wxUniChar&> : public wxArgNormalizer<wchar_t>
 {
     wxArgNormalizer(const wxUniChar& s,
                     const wxFormatString *fmt, unsigned index)
-        : wxArgNormalizer<wchar_t>(s.GetValue(), fmt, index) {}
+        : wxArgNormalizer<wchar_t>(wx_truncate_cast(wchar_t, s.GetValue()), fmt, index) {}
 };
 
 // for wchar_t, default handler does the right thing

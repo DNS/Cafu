@@ -283,7 +283,10 @@ void wxCursor::InitFromImage( const wxImage & image )
 
 GdkCursor *wxCursor::GetCursor() const
 {
-    return M_CURSORDATA->m_cursor;
+    GdkCursor* cursor = NULL;
+    if (m_refData)
+        cursor = M_CURSORDATA->m_cursor;
+    return cursor;
 }
 
 wxGDIRefData *wxCursor::CreateGDIRefData() const
@@ -308,59 +311,70 @@ wxCursor::CloneGDIRefData(const wxGDIRefData * WXUNUSED(data)) const
 // busy cursor routines
 //-----------------------------------------------------------------------------
 
-/* Current cursor, in order to hang on to
- * cursor handle when setting the cursor globally */
 wxCursor g_globalCursor;
-
-static wxCursor  gs_savedCursor;
+wxCursor g_busyCursor;
+static wxCursor gs_storedCursor;
 static int       gs_busyCount = 0;
 
-const wxCursor &wxBusyCursor::GetStoredCursor()
+const wxCursor& wxBusyCursor::GetStoredCursor()
 {
-    return gs_savedCursor;
+    return gs_storedCursor;
 }
 
 const wxCursor wxBusyCursor::GetBusyCursor()
 {
-    return wxCursor(wxCURSOR_WATCH);
+    return g_busyCursor;
 }
 
-static void UpdateCursors(GdkDisplay** display)
+static void UpdateCursors(wxWindow* win, bool isBusyOrGlobalCursor)
 {
+    win->GTKUpdateCursor(isBusyOrGlobalCursor);
+    const wxWindowList& children = win->GetChildren(); 
+    wxWindowList::const_iterator i = children.begin();
+    for (size_t n = children.size(); n--; ++i)
+        UpdateCursors(*i, isBusyOrGlobalCursor);
+}
+
+static void SetGlobalCursor(const wxCursor& cursor)
+{
+    GdkCursor* gdk_cursor = cursor.GetCursor();
+    GdkDisplay* display = NULL;
     wxWindowList::const_iterator i = wxTopLevelWindows.begin();
     for (size_t n = wxTopLevelWindows.size(); n--; ++i)
     {
         wxWindow* win = *i;
-        win->GTKUpdateCursor();
-        if (display && *display == NULL && win->m_widget)
-            *display = gtk_widget_get_display(win->m_widget);
+        GdkWindow* window;
+        if (win->m_widget && (window = gtk_widget_get_window(win->m_widget)))
+        {
+            gdk_window_set_cursor(window, gdk_cursor);
+            UpdateCursors(win, gdk_cursor != NULL);
+            if (display == NULL)
+                display = gdk_window_get_display(window);
+        }
+    }
+    if (display)
+        gdk_display_flush(display);
+}
+
+void wxBeginBusyCursor(const wxCursor* cursor)
+{
+    if (gs_busyCount++ == 0)
+    {
+        g_busyCursor = *cursor;
+        gs_storedCursor = g_globalCursor;
+        SetGlobalCursor(*cursor);
     }
 }
 
 void wxEndBusyCursor()
 {
-    if (--gs_busyCount > 0)
-        return;
-
-    g_globalCursor = gs_savedCursor;
-    gs_savedCursor = wxNullCursor;
-    UpdateCursors(NULL);
-}
-
-void wxBeginBusyCursor(const wxCursor* cursor)
-{
-    if (gs_busyCount++ > 0)
-        return;
-
-    wxASSERT_MSG( !gs_savedCursor.IsOk(),
-                  wxT("forgot to call wxEndBusyCursor, will leak memory") );
-
-    gs_savedCursor = g_globalCursor;
-    g_globalCursor = *cursor;
-    GdkDisplay* display = NULL;
-    UpdateCursors(&display);
-    if (display)
-        gdk_display_flush(display);
+    if (gs_busyCount && --gs_busyCount == 0)
+    {
+        g_globalCursor = gs_storedCursor;
+        gs_storedCursor =
+        g_busyCursor = wxCursor();
+        SetGlobalCursor(g_globalCursor);
+    }
 }
 
 bool wxIsBusy()
@@ -371,5 +385,5 @@ bool wxIsBusy()
 void wxSetCursor( const wxCursor& cursor )
 {
     g_globalCursor = cursor;
-    UpdateCursors(NULL);
+    SetGlobalCursor(cursor);
 }

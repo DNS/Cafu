@@ -4083,6 +4083,11 @@ public:
         You can only veto a shutdown if CanVeto() returns @true.
     */
     void Veto(bool veto = true);
+
+    /**
+       Returns whether the Veto flag was set.
+    */
+    bool GetVeto() const;
 };
 
 
@@ -4102,7 +4107,8 @@ public:
         A menu is about to be opened. On Windows, this is only sent once for each
         navigation of the menubar (up until all menus have closed).
     @event{EVT_MENU_CLOSE(func)}
-        A menu has been just closed.
+        A menu has been just closed. Notice that this event is currently being
+        sent before the menu selection (@c wxEVT_MENU) event, if any.
     @event{EVT_MENU_HIGHLIGHT(id, func)}
         The menu item with the specified id has been highlighted: used to show
         help prompts in the status bar by wxFrame

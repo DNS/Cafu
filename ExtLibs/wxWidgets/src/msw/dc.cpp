@@ -148,7 +148,7 @@ wxAlphaBlend(HDC hdcDst, int xDst, int yDst,
 
 #endif // wxHAS_RAW_BITMAP
 
-namespace wxMSW
+namespace wxMSWImpl
 {
 
 // Wrappers for the dynamically loaded {Set,Get}Layout() functions. They work
@@ -162,7 +162,7 @@ DWORD SetLayout(HDC hdc, DWORD dwLayout);
 // temporary compatible memory DC to the real target DC) using the same layout.
 HDC CreateCompatibleDCWithLayout(HDC hdc);
 
-} // namespace wxMSW
+} // namespace wxMSWImpl
 
 // ----------------------------------------------------------------------------
 // private classes
@@ -694,10 +694,12 @@ void wxMSWDCImpl::Clear()
         if (!m_selectedBitmap.IsOk())
             return;
 
-        rect.left = -m_deviceOriginX; rect.top = -m_deviceOriginY;
-        rect.right = m_selectedBitmap.GetWidth()-m_deviceOriginX;
-        rect.bottom = m_selectedBitmap.GetHeight()-m_deviceOriginY;
+        rect.left = rect.top = 0;
+        rect.right = m_selectedBitmap.GetWidth();
+        rect.bottom = m_selectedBitmap.GetHeight();
     }
+
+    ::OffsetRect(&rect, -m_deviceOriginX, -m_deviceOriginY);
 
 #ifndef __WXWINCE__
     (void) ::SetMapMode(GetHdc(), MM_TEXT);
@@ -1271,11 +1273,26 @@ void wxMSWDCImpl::DoDrawIcon(const wxIcon& icon, wxCoord x, wxCoord y)
 
     wxCHECK_RET( icon.IsOk(), wxT("invalid icon in DrawIcon") );
 
+    // Check if we are printing: notice that it's not enough to just check for
+    // DT_RASPRINTER as this is also the kind of print preview HDC, but its
+    // type is OBJ_ENHMETADC while the type of the "real" printer DC is OBJ_DC.
+    if ( ::GetDeviceCaps(GetHdc(), TECHNOLOGY) == DT_RASPRINTER &&
+            ::GetObjectType(GetHdc()) == OBJ_DC )
+    {
+        // DrawIcon API doesn't work for printer DCs (printer DC is write-only
+        // and DrawIcon requires DC supporting SRCINVERT ROP).
+        // We need to convert icon to bitmap and use alternative API calls.
+        wxBitmap bmp(icon);
+        DoDrawBitmap(bmp, x, y, !bmp.HasAlpha() /* use mask */);
+    }
+    else
+    {
 #ifdef __WIN32__
-    ::DrawIconEx(GetHdc(), XLOG2DEV(x), YLOG2DEV(y), GetHiconOf(icon), icon.GetWidth(), icon.GetHeight(), 0, NULL, DI_NORMAL);
+        ::DrawIconEx(GetHdc(), XLOG2DEV(x), YLOG2DEV(y), GetHiconOf(icon), icon.GetWidth(), icon.GetHeight(), 0, NULL, DI_NORMAL);
 #else
-    ::DrawIcon(GetHdc(), XLOG2DEV(x), YLOG2DEV(y), GetHiconOf(icon));
+        ::DrawIcon(GetHdc(), XLOG2DEV(x), YLOG2DEV(y), GetHiconOf(icon));
 #endif
+    }
 
     CalcBoundingBox(x, y);
     CalcBoundingBox(x + icon.GetWidth(), y + icon.GetHeight());
@@ -1302,7 +1319,11 @@ void wxMSWDCImpl::DoDrawBitmap( const wxBitmap &bmp, wxCoord x, wxCoord y, bool 
         SelectInHDC select(hdcMem, GetHbitmapOf(bmp));
 
         if ( AlphaBlt(GetHdc(), x, y, width, height, 0, 0, width, height, hdcMem, bmp) )
+        {
+            CalcBoundingBox(x, y);
+            CalcBoundingBox(x + bmp.GetWidth(), y + bmp.GetHeight());
             return;
+        }
     }
 
     SET_STRETCH_BLT_MODE(GetHdc());
@@ -1341,7 +1362,7 @@ void wxMSWDCImpl::DoDrawBitmap( const wxBitmap &bmp, wxCoord x, wxCoord y, bool 
 #endif // wxUSE_SYSTEM_OPTIONS
         {
             HDC cdc = GetHdc();
-            HDC hdcMem = wxMSW::CreateCompatibleDCWithLayout(cdc);
+            HDC hdcMem = wxMSWImpl::CreateCompatibleDCWithLayout(cdc);
             HGDIOBJ hOldBitmap = ::SelectObject(hdcMem, GetHbitmapOf(bmp));
 #if wxUSE_PALETTE
             wxPalette *pal = bmp.GetPalette();
@@ -1382,7 +1403,7 @@ void wxMSWDCImpl::DoDrawBitmap( const wxBitmap &bmp, wxCoord x, wxCoord y, bool 
     else // no mask, just use BitBlt()
     {
         HDC cdc = GetHdc();
-        HDC memdc = wxMSW::CreateCompatibleDCWithLayout( cdc );
+        HDC memdc = wxMSWImpl::CreateCompatibleDCWithLayout( cdc );
         HBITMAP hbitmap = (HBITMAP) bmp.GetHBITMAP( );
 
         wxASSERT_MSG( hbitmap, wxT("bitmap is ok but HBITMAP is NULL?") );
@@ -1409,6 +1430,9 @@ void wxMSWDCImpl::DoDrawBitmap( const wxBitmap &bmp, wxCoord x, wxCoord y, bool 
         ::SelectObject( memdc, hOldBitmap );
         ::DeleteDC( memdc );
     }
+
+    CalcBoundingBox(x, y);
+    CalcBoundingBox(x + bmp.GetWidth(), y + bmp.GetHeight());
 }
 
 void wxMSWDCImpl::DoDrawText(const wxString& text, wxCoord x, wxCoord y)
@@ -2169,7 +2193,7 @@ bool wxMSWDCImpl::DoStretchBlit(wxCoord xdest, wxCoord ydest,
         return false;
     }
 
-    const HDC hdcSrc = GetHdcOf(*implSrc);
+    HDC hdcSrc = GetHdcOf(*implSrc);
 
     // if either the source or destination has alpha channel, we must use
     // AlphaBlt() as other function don't handle it correctly
@@ -2179,7 +2203,11 @@ bool wxMSWDCImpl::DoStretchBlit(wxCoord xdest, wxCoord ydest,
     {
         if ( AlphaBlt(GetHdc(), xdest, ydest, dstWidth, dstHeight,
                       xsrc, ysrc, srcWidth, srcHeight, hdcSrc, bmpSrc) )
+        {
+            CalcBoundingBox(xdest, ydest);
+            CalcBoundingBox(xdest + dstWidth, ydest + dstHeight);
             return true;
+        }
     }
 
     wxMask *mask = NULL;
@@ -2224,6 +2252,16 @@ bool wxMSWDCImpl::DoStretchBlit(wxCoord xdest, wxCoord ydest,
         default:
            wxFAIL_MSG( wxT("unsupported logical function") );
            return false;
+    }
+
+    // Most of the operations involve the source or the pattern, but a few of
+    // them (and only those few, no other are possible) only use destination
+    // HDC. For them we must not give a valid source HDC to MaskBlt() as it
+    // still uses it, somehow, and the result is garbage.
+    if ( dwRop == BLACKNESS || dwRop == WHITENESS ||
+            dwRop == DSTINVERT || dwRop == DSTCOPY )
+    {
+        hdcSrc = NULL;
     }
 
     bool success = false;
@@ -2281,8 +2319,8 @@ bool wxMSWDCImpl::DoStretchBlit(wxCoord xdest, wxCoord ydest,
             buffer_bmap = (HBITMAP) bitmapCacheEntry->m_bitmap;
 #else // !wxUSE_DC_CACHEING
             // create a temp buffer bitmap and DCs to access it and the mask
-            dc_mask = wxMSW::CreateCompatibleDCWithLayout(hdcSrc);
-            dc_buffer = wxMSW::CreateCompatibleDCWithLayout(GetHdc());
+            dc_mask = wxMSWImpl::CreateCompatibleDCWithLayout(hdcSrc);
+            dc_buffer = wxMSWImpl::CreateCompatibleDCWithLayout(GetHdc());
             buffer_bmap = ::CreateCompatibleBitmap(GetHdc(), dstWidth, dstHeight);
 #endif // wxUSE_DC_CACHEING/!wxUSE_DC_CACHEING
             HGDIOBJ hOldMaskBitmap = ::SelectObject(dc_mask, (HBITMAP) mask->GetMaskBitmap());
@@ -2446,6 +2484,12 @@ bool wxMSWDCImpl::DoStretchBlit(wxCoord xdest, wxCoord ydest,
         }
     }
 
+    if ( success )
+    {
+        CalcBoundingBox(xdest, ydest);
+        CalcBoundingBox(xdest + dstWidth, ydest + dstHeight);
+    }
+
     return success;
 }
 
@@ -2595,7 +2639,7 @@ wxDCCacheEntry* wxMSWDCImpl::FindDCInCache(wxDCCacheEntry* notThis, WXHDC dc)
 
         node = node->GetNext();
     }
-    WXHDC hDC = (WXHDC) wxMSW::CreateCompatibleDCWithLayout((HDC) dc);
+    WXHDC hDC = (WXHDC) wxMSWImpl::CreateCompatibleDCWithLayout((HDC) dc);
     if ( !hDC)
     {
         wxLogLastError(wxT("CreateCompatibleDC"));
@@ -2815,6 +2859,8 @@ void wxMSWDCImpl::DoGradientFillLinear (const wxRect& rect,
              ) )
         {
             // skip call of the base class version below
+            CalcBoundingBox(rect.GetLeft(), rect.GetBottom());
+            CalcBoundingBox(rect.GetRight(), rect.GetTop());
             return;
         }
 
@@ -2827,7 +2873,7 @@ void wxMSWDCImpl::DoGradientFillLinear (const wxRect& rect,
 
 #if wxUSE_DYNLIB_CLASS
 
-namespace wxMSW
+namespace wxMSWImpl
 {
 
 DWORD GetLayout(HDC hdc)
@@ -2853,19 +2899,19 @@ HDC CreateCompatibleDCWithLayout(HDC hdc)
     HDC hdcNew = ::CreateCompatibleDC(hdc);
     if ( hdcNew )
     {
-        DWORD dwLayout = wxMSW::GetLayout(hdc);
+        DWORD dwLayout = wxMSWImpl::GetLayout(hdc);
         if ( dwLayout != GDI_ERROR )
-            wxMSW::SetLayout(hdcNew, dwLayout);
+            wxMSWImpl::SetLayout(hdcNew, dwLayout);
     }
 
     return hdcNew;
 }
 
-} // namespace wxMSW
+} // namespace wxMSWImpl
 
 wxLayoutDirection wxMSWDCImpl::GetLayoutDirection() const
 {
-    DWORD layout = wxMSW::GetLayout(GetHdc());
+    DWORD layout = wxMSWImpl::GetLayout(GetHdc());
 
     if ( layout == GDI_ERROR )
         return wxLayout_Default;
@@ -2882,7 +2928,7 @@ void wxMSWDCImpl::SetLayoutDirection(wxLayoutDirection dir)
             return;
     }
 
-    DWORD layout = wxMSW::GetLayout(GetHdc());
+    DWORD layout = wxMSWImpl::GetLayout(GetHdc());
     if ( layout == GDI_ERROR )
         return;
 
@@ -2891,13 +2937,13 @@ void wxMSWDCImpl::SetLayoutDirection(wxLayoutDirection dir)
     else
         layout &= ~LAYOUT_RTL;
 
-    wxMSW::SetLayout(GetHdc(), layout);
+    wxMSWImpl::SetLayout(GetHdc(), layout);
 }
 
 #else // !wxUSE_DYNLIB_CLASS
 
 // Provide stubs to avoid ifdefs in the code using these functions.
-namespace wxMSW
+namespace wxMSWImpl
 {
 
 DWORD GetLayout(HDC WXUNUSED(hdc))
@@ -2915,7 +2961,7 @@ HDC CreateCompatibleDCWithLayout(HDC hdc)
     return ::CreateCompatibleDC(hdc);
 }
 
-} // namespace wxMSW
+} // namespace wxMSWImpl
 
 // we can't provide RTL support without dynamic loading, so stub it out
 wxLayoutDirection wxMSWDCImpl::GetLayoutDirection() const

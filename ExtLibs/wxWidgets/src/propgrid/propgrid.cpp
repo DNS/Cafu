@@ -45,6 +45,7 @@
     #include "wx/statusbr.h"
     #include "wx/intl.h"
     #include "wx/frame.h"
+    #include "wx/textctrl.h"
 #endif
 
 
@@ -1297,8 +1298,10 @@ void wxPropertyGrid::CalculateFontAndBitmapStuff( int vspacing )
 
 void wxPropertyGrid::OnSysColourChanged( wxSysColourChangedEvent &WXUNUSED(event) )
 {
-    RegainColours();
-    Refresh();
+    if ((m_iFlags & wxPG_FL_INITIALIZED)!=0) {
+        RegainColours();
+        Refresh();
+    }
 }
 
 // -----------------------------------------------------------------------

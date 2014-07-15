@@ -26,7 +26,10 @@
     #include "wx/math.h"
 #endif
 
-#define _FORCENAMELESSUNION
+#ifndef _FORCENAMELESSUNION
+    #define _FORCENAMELESSUNION
+#endif
+
 #include "wx/msw/private.h"
 #include "wx/msw/ole/oleutils.h"
 #include "wx/msw/ole/automtn.h"
@@ -70,6 +73,7 @@ wxAutomationObject::wxAutomationObject(WXIDISPATCH* dispatchPtr)
 {
     m_dispatchPtr = dispatchPtr;
     m_lcid = LOCALE_SYSTEM_DEFAULT;
+    m_convertVariantFlags = wxOleConvertVariant_Default;
 }
 
 wxAutomationObject::~wxAutomationObject()
@@ -214,7 +218,7 @@ bool wxAutomationObject::Invoke(const wxString& member, int action,
         if (vReturnPtr)
         {
             // Convert result to wxVariant form
-            if (!wxConvertOleToVariant(vReturn, retValue))
+            if (!wxConvertOleToVariant(vReturn, retValue, m_convertVariantFlags))
                 return false;
             // Mustn't release the dispatch pointer
             if (vReturn.vt == VT_DISPATCH)
@@ -474,6 +478,7 @@ bool wxAutomationObject::GetObject(wxAutomationObject& obj, const wxString& prop
     {
         obj.SetDispatchPtr(dispatch);
         obj.SetLCID(GetLCID());
+        obj.SetConvertVariantFlags(GetConvertVariantFlags());
         return true;
     }
     else
@@ -488,6 +493,7 @@ bool wxAutomationObject::GetObject(wxAutomationObject& obj, const wxString& prop
     {
         obj.SetDispatchPtr(dispatch);
         obj.SetLCID(GetLCID());
+        obj.SetConvertVariantFlags(GetConvertVariantFlags());
         return true;
     }
     else
@@ -597,15 +603,26 @@ bool wxAutomationObject::CreateInstance(const wxString& progId) const
     return m_dispatchPtr != NULL;
 }
 
-LCID wxAutomationObject::GetLCID() const
+WXLCID wxAutomationObject::GetLCID() const
 {
     return m_lcid;
 }
 
-void wxAutomationObject::SetLCID(LCID lcid)
+void wxAutomationObject::SetLCID(WXLCID lcid)
 {
     m_lcid = lcid;
 }
+
+long wxAutomationObject::GetConvertVariantFlags() const
+{
+    return m_convertVariantFlags;
+}
+
+void wxAutomationObject::SetConvertVariantFlags(long flags)
+{
+    m_convertVariantFlags = flags;
+}
+
 
 static void
 ShowException(const wxString& member,

@@ -103,10 +103,6 @@ using namespace wxMSWImpl;
     #define ODS_NOFOCUSRECT     0x0200
 #endif
 
-#ifndef DT_HIDEPREFIX
-    #define DT_HIDEPREFIX       0x00100000
-#endif
-
 #if wxUSE_UXTHEME
 extern wxWindowMSW *wxWindowBeingErased; // From src/msw/window.cpp
 #endif // wxUSE_UXTHEME
@@ -675,6 +671,31 @@ wxBitmap wxAnyButton::DoGetBitmap(State which) const
 
 void wxAnyButton::DoSetBitmap(const wxBitmap& bitmap, State which)
 {
+    if ( !bitmap.IsOk() )
+    {
+        if ( m_imageData  )
+        {
+            // Normal image is special: setting it enables images for the
+            // button and resetting it to nothing disables all of them.
+            if ( which == State_Normal )
+            {
+                delete m_imageData;
+                m_imageData = NULL;
+            }
+            else
+            {
+                // Replace the removed bitmap with the normal one.
+                wxBitmap bmpNormal = m_imageData->GetBitmap(State_Normal);
+                m_imageData->SetBitmap(which == State_Disabled
+                                            ? bmpNormal.ConvertToDisabled()
+                                            : bmpNormal,
+                                       which);
+            }
+        }
+
+        return;
+    }
+
 #if wxUSE_UXTHEME
     wxXPButtonImageData *oldData = NULL;
 #endif // wxUSE_UXTHEME
@@ -761,9 +782,8 @@ void wxAnyButton::DoSetBitmapMargins(wxCoord x, wxCoord y)
 
 void wxAnyButton::DoSetBitmapPosition(wxDirection dir)
 {
-    wxCHECK_RET( m_imageData, "SetBitmap() must be called first" );
-
-    m_imageData->SetBitmapPosition(dir);
+    if ( m_imageData )
+        m_imageData->SetBitmapPosition(dir);
     InvalidateBestSize();
 }
 
@@ -830,56 +850,137 @@ void DrawButtonText(HDC hdc,
 {
     const wxString text = btn->GetLabel();
 
-    if ( text.find(wxT('\n')) != wxString::npos )
+    // To get a native look for owner-drawn button in disabled state (without
+    // theming) we must use DrawState() to draw the text label.
+    if ( !wxUxThemeEngine::GetIfActive() && !btn->IsEnabled() )
     {
-        // draw multiline label
+        // However using DrawState() has some drawbacks:
+        // 1. It generally doesn't support alignment flags (except right
+        //    alignment), so we need to align the text on our own.
+        // 2. It doesn't support multliline texts and there is necessary to
+        //    draw/align multiline text line by line.
 
-        // center text horizontally in any case
-        flags |= DT_CENTER;
-
-        // first we need to compute its bounding rect
+        // Compute bounding rect for the whole text.
         RECT rc;
-        ::CopyRect(&rc, pRect);
-        ::DrawText(hdc, text.t_str(), text.length(), &rc,
-                   DT_CENTER | DT_CALCRECT);
+        ::SetRectEmpty(&rc);
+        ::DrawText(hdc, text.t_str(), text.length(), &rc, DT_CALCRECT);
 
-        // now center this rect inside the entire button area
-        const LONG w = rc.right - rc.left;
         const LONG h = rc.bottom - rc.top;
-        rc.left = pRect->left + (pRect->right - pRect->left)/2 - w/2;
-        rc.right = rc.left+w;
-        rc.top = pRect->top + (pRect->bottom - pRect->top)/2 - h/2;
-        rc.bottom = rc.top+h;
 
-        ::DrawText(hdc, text.t_str(), text.length(), &rc, flags);
-    }
-    else // single line label
-    {
-        // translate wx button flags to alignment flags for DrawText()
-        if ( btn->HasFlag(wxBU_RIGHT) )
-        {
-            flags |= DT_RIGHT;
-        }
-        else if ( !btn->HasFlag(wxBU_LEFT) )
-        {
-            flags |= DT_CENTER;
-        }
-        //else: DT_LEFT is the default anyhow (and its value is 0 too)
-
+        // Based on wxButton flags determine bottom edge of the drawing rect
+        // inside the entire button area.
+        int y0;
         if ( btn->HasFlag(wxBU_BOTTOM) )
         {
-            flags |= DT_BOTTOM;
+            y0 = pRect->bottom - h;
         }
         else if ( !btn->HasFlag(wxBU_TOP) )
         {
-            flags |= DT_VCENTER;
+            // DT_VCENTER
+            y0 = pRect->top + (pRect->bottom - pRect->top)/2 - h/2;
         }
-        //else: as above, DT_TOP is the default
+        else // DT_TOP is the default
+        {
+            y0 = pRect->top;
+        }
 
-        // notice that we must have DT_SINGLELINE for vertical alignment flags
-        // to work
-        ::DrawText(hdc, text.t_str(), text.length(), pRect,
-                   flags | DT_SINGLELINE );
+        UINT dsFlags = DSS_DISABLED;
+        if( flags & DT_HIDEPREFIX )
+            dsFlags |= (DSS_HIDEPREFIX | DST_PREFIXTEXT);
+        else
+            dsFlags |= DST_TEXT;
+
+        const wxArrayString lines = wxSplit(text, '\n', '\0');
+        const int hLine = h / lines.size();
+        for ( size_t lineNum = 0; lineNum < lines.size(); lineNum++ )
+        {
+            // Each line must be aligned in horizontal direction individually.
+            ::SetRectEmpty(&rc);
+            ::DrawText(hdc, lines[lineNum].t_str(), lines[lineNum].length(),
+                       &rc, DT_CALCRECT);
+            const LONG w = rc.right - rc.left;
+
+            // Based on wxButton flags set horizontal position of the rect
+            // inside the entire button area. Text is always centered for
+            // multiline label.
+            if ( (!btn->HasFlag(wxBU_LEFT) && !btn->HasFlag(wxBU_RIGHT)) ||
+                    lines.size() > 1 )
+            {
+                // DT_CENTER
+                rc.left = pRect->left + (pRect->right - pRect->left)/2 - w/2;
+                rc.right = rc.left + w;
+            }
+            else if ( btn->HasFlag(wxBU_RIGHT) )
+            {
+                rc.right = pRect->right;
+                rc.left = rc.right - w;
+            }
+            else // DT_LEFT is the default
+            {
+                rc.left = pRect->left;
+                rc.right = rc.left  + w;
+            }
+
+            ::OffsetRect(&rc, 0, y0 + lineNum * hLine);
+
+            ::DrawState(hdc, NULL, NULL, wxMSW_CONV_LPARAM(lines[lineNum]),
+                        lines[lineNum].length(),
+                        rc.left, rc.top, rc.right, rc.bottom, dsFlags);
+        }
+    }
+    else // Button is enabled or using themes.
+    {
+        if ( text.find(wxT('\n')) != wxString::npos )
+        {
+            // draw multiline label
+
+            // center text horizontally in any case
+            flags |= DT_CENTER;
+
+            // first we need to compute its bounding rect
+            RECT rc;
+            ::CopyRect(&rc, pRect);
+            ::DrawText(hdc, text.t_str(), text.length(), &rc,
+                       DT_CENTER | DT_CALCRECT);
+
+            // now center this rect inside the entire button area
+            const LONG w = rc.right - rc.left;
+            const LONG h = rc.bottom - rc.top;
+            rc.left = pRect->left + (pRect->right - pRect->left)/2 - w/2;
+            rc.right = rc.left+w;
+            rc.top = pRect->top + (pRect->bottom - pRect->top)/2 - h/2;
+            rc.bottom = rc.top+h;
+
+            ::DrawText(hdc, text.t_str(), text.length(), &rc, flags);
+        }
+        else // single line label
+        {
+            // translate wx button flags to alignment flags for DrawText()
+            if ( btn->HasFlag(wxBU_RIGHT) )
+            {
+                flags |= DT_RIGHT;
+            }
+            else if ( !btn->HasFlag(wxBU_LEFT) )
+            {
+                flags |= DT_CENTER;
+            }
+            //else: DT_LEFT is the default anyhow (and its value is 0 too)
+
+            if ( btn->HasFlag(wxBU_BOTTOM) )
+            {
+                flags |= DT_BOTTOM;
+            }
+            else if ( !btn->HasFlag(wxBU_TOP) )
+            {
+                flags |= DT_VCENTER;
+            }
+            //else: as above, DT_TOP is the default
+
+            // notice that we must have DT_SINGLELINE for vertical alignment
+            // flags to work
+            ::DrawText(hdc, text.t_str(), text.length(), pRect,
+                       flags | DT_SINGLELINE );
+        }
     }
 }
 

@@ -583,6 +583,19 @@ static void mark_set(GtkTextBuffer*, GtkTextIter*, GtkTextMark* mark, GSList** m
 }
 }
 
+#ifdef __WXGTK3__
+//-----------------------------------------------------------------------------
+//  "state_flags_changed"
+//-----------------------------------------------------------------------------
+extern "C" {
+static void state_flags_changed(GtkWidget*, GtkStateFlags, wxTextCtrl* win)
+{
+    // restore non-default cursor, if any
+    win->GTKUpdateCursor(false, true);
+}
+}
+#endif // __WXGTK3__
+
 //-----------------------------------------------------------------------------
 //  wxTextCtrl
 //-----------------------------------------------------------------------------
@@ -820,10 +833,11 @@ bool wxTextCtrl::Create( wxWindow *parent,
         GTKConnectInsertTextSignal(GTK_ENTRY(m_text));
     }
 
-
     GTKConnectClipboardSignals(m_text);
 
-    m_cursor = wxCursor( wxCURSOR_IBEAM );
+#ifdef __WXGTK3__
+    g_signal_connect(m_text, "state_flags_changed", G_CALLBACK(state_flags_changed), this);
+#endif
 
     return true;
 }
@@ -842,26 +856,24 @@ GtkEntry *wxTextCtrl::GetEntry() const
 
 int wxTextCtrl::GTKIMFilterKeypress(GdkEventKey* event) const
 {
+    if (IsSingleLine())
+        return wxTextEntry::GTKIMFilterKeypress(event);
+
+    int result;
 #if GTK_CHECK_VERSION(2, 22, 0)
-    if ( gtk_check_version(2, 12, 0) == 0 )
+#ifndef __WXGTK3__
+    result = false;
+    if (gtk_check_version(2,22,0) == NULL)
+#endif
     {
-        if ( IsSingleLine() )
-        {
-            return wxTextEntry::GTKIMFilterKeypress(event);
-        }
-        else
-        {
-            return gtk_text_view_im_context_filter_keypress(
-                        GTK_TEXT_VIEW(m_text),
-                        event
-                    );
-        }
+        result = gtk_text_view_im_context_filter_keypress(GTK_TEXT_VIEW(m_text), event);
     }
 #else // GTK+ < 2.22
     wxUnusedVar(event);
+    result = false;
 #endif // GTK+ 2.22+
 
-    return FALSE;
+    return result;
 }
 
 // ----------------------------------------------------------------------------
@@ -1331,7 +1343,6 @@ bool wxTextCtrl::Enable( bool enable )
     }
 
     gtk_widget_set_sensitive( m_text, enable );
-    SetCursor(enable ? wxCursor(wxCURSOR_IBEAM) : wxCursor());
 
     return true;
 }
@@ -1639,8 +1650,8 @@ GdkWindow *wxTextCtrl::GTKGetWindow(wxArrayGdkWindows& WXUNUSED(windows)) const
     else
     {
 #ifdef __WXGTK3__
-        // no access to internal GdkWindows
-        return NULL;
+        GdkWindow* wxGTKFindWindow(GtkWidget* widget);
+        return wxGTKFindWindow(m_text);
 #else
         return gtk_entry_get_text_window(GTK_ENTRY(m_text));
 #endif
@@ -1790,6 +1801,39 @@ bool wxTextCtrl::GetStyle(long position, wxTextAttr& style)
 
 void wxTextCtrl::DoApplyWidgetStyle(GtkRcStyle *style)
 {
+#ifdef __WXGTK3__
+    // Preserve selection colors, otherwise the GTK_STATE_FLAG_NORMAL override
+    // will be used, and the selection is invisible
+    const GtkStateFlags selectedFocused =
+        GtkStateFlags(GTK_STATE_FLAG_SELECTED | GTK_STATE_FLAG_FOCUSED);
+    // remove any previous override
+    gtk_widget_override_color(m_text, GTK_STATE_FLAG_NORMAL, NULL);
+    gtk_widget_override_color(m_text, selectedFocused, NULL);
+    gtk_widget_override_background_color(m_text, GTK_STATE_FLAG_NORMAL, NULL);
+    gtk_widget_override_background_color(m_text, selectedFocused, NULL);
+    const bool fg_ok = m_foregroundColour.IsOk();
+    const bool bg_ok = m_backgroundColour.IsOk();
+    if (fg_ok || bg_ok)
+    {
+        GdkRGBA fg_orig, bg_orig;
+        GtkStyleContext* context = gtk_widget_get_style_context(m_text);
+        if (IsMultiLine())
+        {
+            gtk_style_context_save(context);
+            gtk_style_context_add_class(context, GTK_STYLE_CLASS_VIEW);
+        }
+        gtk_style_context_get_color(context, selectedFocused, &fg_orig);
+        gtk_style_context_get_background_color(context, selectedFocused, &bg_orig);
+        if (IsMultiLine())
+            gtk_style_context_restore(context);
+
+        if (fg_ok)
+            gtk_widget_override_color(m_text, selectedFocused, &fg_orig);
+        if (bg_ok)
+            gtk_widget_override_background_color(m_text, selectedFocused, &bg_orig);
+    }
+#endif // __WXGTK3__
+
     GTKApplyStyle(m_text, style);
 }
 
@@ -1991,7 +2035,7 @@ void wxTextCtrl::OnUrlMouseEvent(wxMouseEvent& event)
     gtk_text_view_get_iter_at_location(GTK_TEXT_VIEW(m_text), &end, x, y);
     if (!gtk_text_iter_has_tag(&end, tag))
     {
-        SetCursor(wxCursor(wxCURSOR_IBEAM));
+        SetCursor(wxCursor());
         return;
     }
 

@@ -89,7 +89,7 @@ WXDLLIMPEXP_BASE size_t wxMB2WC(wchar_t *buf, const char *psz, size_t n)
 #ifdef HAVE_WCSRTOMBS
     return mbsrtowcs(buf, &psz, n, &mbstate);
 #else
-    return wxMbstowcs(buf, psz, n);
+    return mbstowcs(buf, psz, n);
 #endif
   }
 
@@ -102,7 +102,7 @@ WXDLLIMPEXP_BASE size_t wxMB2WC(wchar_t *buf, const char *psz, size_t n)
 #ifdef HAVE_WCSRTOMBS
   return mbsrtowcs(NULL, &psz, 0, &mbstate);
 #else
-  return wxMbstowcs(NULL, psz, 0);
+  return mbstowcs(NULL, psz, 0);
 #endif
 }
 
@@ -122,14 +122,14 @@ WXDLLIMPEXP_BASE size_t wxWC2MB(char *buf, const wchar_t *pwz, size_t n)
 #ifdef HAVE_WCSRTOMBS
     return wcsrtombs(buf, &pwz, n, &mbstate);
 #else
-    return wxWcstombs(buf, pwz, n);
+    return wcstombs(buf, pwz, n);
 #endif
   }
 
 #ifdef HAVE_WCSRTOMBS
   return wcsrtombs(NULL, &pwz, 0, &mbstate);
 #else
-  return wxWcstombs(NULL, pwz, 0);
+  return wcstombs(NULL, pwz, 0);
 #endif
 }
 
@@ -299,13 +299,13 @@ static int vswscanf(const wchar_t *ws, const wchar_t *format, va_list argptr)
     // of the function. This doesn't work with %c and %s because of difference
     // in size of char and wchar_t, though.
 
-    wxCHECK_MSG( wxStrstr(format, wxT("%s")) == NULL, -1,
+    wxCHECK_MSG( wxStrstr(format, L"%s") == NULL, -1,
                  wxT("incomplete vswscanf implementation doesn't allow %s") );
-    wxCHECK_MSG( wxStrstr(format, wxT("%c")) == NULL, -1,
+    wxCHECK_MSG( wxStrstr(format, L"%c") == NULL, -1,
                  wxT("incomplete vswscanf implementation doesn't allow %c") );
 
-    return vsscanf(static_cast<const char*>(wxConvLibc.cWX2MB(ws)),
-        wxConvLibc.cWX2MB(format), argptr);
+    return wxCRT_VsscanfA(static_cast<const char*>(wxConvLibc.cWC2MB(ws)),
+        wxConvLibc.cWC2MB(format), argptr);
 }
 #endif
 
@@ -737,54 +737,6 @@ int wxVsnprintf(wchar_t *str, size_t size, const wxString& format, va_list argpt
 // ctype.h stuff (currently unused)
 // ----------------------------------------------------------------------------
 
-#ifdef wxNEED_WX_MBSTOWCS
-
-WXDLLIMPEXP_BASE size_t wxMbstowcs (wchar_t * out, const char * in, size_t outlen)
-{
-    if (!out)
-    {
-        size_t outsize = 0;
-        while(*in++)
-            outsize++;
-        return outsize;
-    }
-
-    const char* origin = in;
-
-    while (outlen-- && *in)
-    {
-        *out++ = (wchar_t) *in++;
-    }
-
-    *out = '\0';
-
-    return in - origin;
-}
-
-WXDLLIMPEXP_BASE size_t wxWcstombs (char * out, const wchar_t * in, size_t outlen)
-{
-    if (!out)
-    {
-        size_t outsize = 0;
-        while(*in++)
-            outsize++;
-        return outsize;
-    }
-
-    const wchar_t* origin = in;
-
-    while (outlen-- && *in)
-    {
-        *out++ = (char) *in++;
-    }
-
-    *out = '\0';
-
-    return in - origin;
-}
-
-#endif // wxNEED_WX_MBSTOWCS
-
 #ifndef wxCRT_StrdupA
 WXDLLIMPEXP_BASE char *wxCRT_StrdupA(const char *s)
 {
@@ -842,7 +794,7 @@ wxChar32* wxStrdup(const wxChar32* s)
 #ifndef wxCRT_StricmpA
 WXDLLIMPEXP_BASE int wxCRT_StricmpA(const char *psz1, const char *psz2)
 {
-  register char c1, c2;
+  char c1, c2;
   do {
     c1 = wxTolower(*psz1++);
     c2 = wxTolower(*psz2++);
@@ -854,7 +806,7 @@ WXDLLIMPEXP_BASE int wxCRT_StricmpA(const char *psz1, const char *psz2)
 #ifndef wxCRT_StricmpW
 WXDLLIMPEXP_BASE int wxCRT_StricmpW(const wchar_t *psz1, const wchar_t *psz2)
 {
-  register wchar_t c1, c2;
+  wchar_t c1, c2;
   do {
     c1 = wxTolower(*psz1++);
     c2 = wxTolower(*psz2++);
@@ -867,7 +819,7 @@ WXDLLIMPEXP_BASE int wxCRT_StricmpW(const wchar_t *psz1, const wchar_t *psz2)
 WXDLLIMPEXP_BASE int wxCRT_StrnicmpA(const char *s1, const char *s2, size_t n)
 {
   // initialize the variables just to suppress stupid gcc warning
-  register char c1 = 0, c2 = 0;
+  char c1 = 0, c2 = 0;
   while (n && ((c1 = wxTolower(*s1)) == (c2 = wxTolower(*s2)) ) && c1) n--, s1++, s2++;
   if (n) {
     if (c1 < c2) return -1;
@@ -881,7 +833,7 @@ WXDLLIMPEXP_BASE int wxCRT_StrnicmpA(const char *s1, const char *s2, size_t n)
 WXDLLIMPEXP_BASE int wxCRT_StrnicmpW(const wchar_t *s1, const wchar_t *s2, size_t n)
 {
   // initialize the variables just to suppress stupid gcc warning
-  register wchar_t c1 = 0, c2 = 0;
+  wchar_t c1 = 0, c2 = 0;
   while (n && ((c1 = wxTolower(*s1)) == (c2 = wxTolower(*s2)) ) && c1) n--, s1++, s2++;
   if (n) {
     if (c1 < c2) return -1;

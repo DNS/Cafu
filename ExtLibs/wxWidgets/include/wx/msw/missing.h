@@ -48,6 +48,10 @@
     #define DT_HIDEPREFIX 0x00100000
 #endif
 
+#ifndef DSS_HIDEPREFIX
+    #define DSS_HIDEPREFIX  0x0200
+#endif
+
 // Needed by toplevel.cpp
 #ifndef UIS_SET
     #define UIS_SET         1
@@ -655,21 +659,6 @@ typedef struct
 
 #ifndef MUI_LANGUAGE_NAME
 #define MUI_LANGUAGE_NAME 0x8
-#endif
-
-//We need to check if we are using MinGW or mingw-w64 as their
-//definitions are different
-
-#ifdef __MINGW32__
-#include <_mingw.h>
-#endif
-
-#ifdef __MINGW32_TOOLCHAIN__
-typedef enum CommandStateChangeConstants {
-    CSC_UPDATECOMMANDS = (int) 0xFFFFFFFF,
-    CSC_NAVIGATEFORWARD = 0x1,
-    CSC_NAVIGATEBACK = 0x2
-} CommandStateChangeConstants;
 #endif
 
  /*

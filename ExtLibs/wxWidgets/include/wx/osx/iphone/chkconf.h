@@ -19,7 +19,6 @@
  * under a certain platform
  */
 
-#define wxOSX_USE_CORE_TEXT 1
 #define wxOSX_USE_ATSU_TEXT 0
 #define wxHAS_OPENGL_ES
 
@@ -322,6 +321,9 @@
 #define wxUSE_NOTIFICATION_MESSAGE 0
 #endif
 
+#undef wxUSE_PREFERENCES_EDITOR
+#define wxUSE_PREFERENCES_EDITOR 0
+
 #if wxUSE_PROPGRID
 #undef wxUSE_PROPGRID
 #define wxUSE_PROPGRID 0
@@ -360,6 +362,11 @@
 #if wxUSE_RICHTOOLTIP
 #undef wxUSE_RICHTOOLTIP
 #define wxUSE_RICHTOOLTIP 0
+#endif
+
+#if wxUSE_WEBVIEW
+#undef wxUSE_WEBVIEW
+#define wxUSE_WEBVIEW 0
 #endif
 
 #endif

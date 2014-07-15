@@ -142,9 +142,7 @@ public:
         return *this;
     }
 
-#if wxOSX_USE_CORE_TEXT
     void Init(CTFontDescriptorRef descr);
-#endif
     void Init(const wxNativeFontInfo& info);
     void Init(int size,
                   wxFontFamily family,
@@ -156,6 +154,9 @@ public:
 
     void Free();
     void EnsureValid();
+
+    static void UpdateNamesMap(const wxString& familyname, CTFontDescriptorRef descr);
+    static void UpdateNamesMap(const wxString& familyname, CTFontRef font);
 
     bool m_descriptorValid;
 

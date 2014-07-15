@@ -148,9 +148,12 @@
 #pragma comment(lib, wxWX_LIB_NAME("base", ""))
 
 #ifndef wxNO_NET_LIB
+    #ifndef WXUSINGDLL
+        #pragma comment(lib, "wsock32")
+    #endif
     #pragma comment(lib, wxBASE_LIB_NAME("net"))
 #endif
-#ifndef wxNO_XML_LIB
+#if wxUSE_XML && !defined(wxNO_XML_LIB)
     #pragma comment(lib, wxBASE_LIB_NAME("xml"))
 #endif
 #if wxUSE_REGEX && !defined(wxNO_REGEX_LIB) && !defined(WXUSINGDLL)
@@ -180,7 +183,7 @@
         #pragma comment(lib, wxTOOLKIT_LIB_NAME("adv"))
     #endif
 
-    #ifndef wxNO_HTML_LIB
+    #if wxUSE_HTML && !defined(wxNO_HTML_LIB)
         #pragma comment(lib, wxTOOLKIT_LIB_NAME("html"))
     #endif
     #if wxUSE_GLCANVAS && !defined(wxNO_GL_LIB)
@@ -235,7 +238,6 @@
     #pragma comment(lib, "uuid")
     #pragma comment(lib, "rpcrt4")
     #pragma comment(lib, "advapi32")
-    #pragma comment(lib, "wsock32")
     #if wxUSE_URL_NATIVE
         #pragma comment(lib, "wininet")
     #endif

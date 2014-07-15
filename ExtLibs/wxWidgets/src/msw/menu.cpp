@@ -169,6 +169,57 @@ public:
         return true;
     }
 
+    // Update the ranges of the existing radio groups after removing the menu
+    // item at the given position.
+    //
+    // The item being removed can be the item of any kind, not only the radio
+    // button belonging to the radio group, and this function checks for it
+    // and, as a side effect, returns true if this item was found inside an
+    // existing radio group.
+    bool UpdateOnRemoveItem(int pos)
+    {
+        bool inExistingGroup = false;
+
+        // Pointer to (necessarily unique) empty group which could be left
+        // after removing the last radio button from it.
+        Ranges::iterator itEmptyGroup = m_ranges.end();
+
+        for ( Ranges::iterator it = m_ranges.begin();
+              it != m_ranges.end();
+              ++it )
+        {
+            Range& r = *it;
+
+            if ( pos < r.start )
+            {
+                // Removed item was positioned before this range, update its
+                // indices.
+                r.start--;
+                r.end--;
+            }
+            else if ( pos <= r.end )
+            {
+                // Removed item belongs to this radio group (it is a radio
+                // button), update index of its end.
+                r.end--;
+
+                // Check if empty group left after removal.
+                // If so, it will be deleted later on.
+                if ( r.end < r.start )
+                    itEmptyGroup = it;
+
+                inExistingGroup = true;
+            }
+            //else: Removed item was after this range, nothing to do for it.
+        }
+
+        // Remove empty group from the list.
+        if ( itEmptyGroup != m_ranges.end() )
+            m_ranges.erase(itEmptyGroup);
+
+        return inExistingGroup;
+    }
+
 private:
     // Contains the inclusive positions of the range start and end.
     struct Range
@@ -526,6 +577,15 @@ bool wxMenu::DoInsertOrAppend(wxMenuItem *pItem, size_t pos)
             checkInitially = true;
     }
 
+    // Also handle the case of check menu items that had been checked before
+    // being attached to the menu: we don't need to actually call Check() on
+    // them, so we don't use checkInitially in this case, but we do need to
+    // make them checked at Windows level too. Notice that we shouldn't ask
+    // Windows for the checked state here, as wxMenuItem::IsChecked() does, as
+    // the item is not attached yet, so explicitly call the base class version.
+    if ( pItem->IsCheck() && pItem->wxMenuItemBase::IsChecked() )
+        flags |= MF_CHECKED;
+
     // adjust position to account for the title of a popup menu, if any
     if ( !GetMenuBar() && !m_title.empty() )
         pos += 2; // for the title itself and its separator
@@ -558,7 +618,13 @@ bool wxMenu::DoInsertOrAppend(wxMenuItem *pItem, size_t pos)
                                      pItem->GetBackgroundColour().IsOk() ||
                                      pItem->GetFont().IsOk();
 
-            if ( !mustUseOwnerDrawn )
+            // Windows XP or earlier don't display menu bitmaps bigger than
+            // standard size correctly (they're truncated), so we must use
+            // owner-drawn items to show them correctly there. OTOH Win7
+            // doesn't seem to have any problems with even very large bitmaps
+            // so don't use owner-drawn items unnecessarily there (Vista wasn't
+            // actually tested but I assume it works as 7 rather than as XP).
+            if ( !mustUseOwnerDrawn && winver < wxWinVersion_Vista )
             {
                 const wxBitmap& bmpUnchecked = pItem->GetBitmap(false),
                                 bmpChecked   = pItem->GetBitmap(true);
@@ -603,6 +669,12 @@ bool wxMenu::DoInsertOrAppend(wxMenuItem *pItem, size_t pos)
                 {
                     mii.fMask |= MIIM_ID;
                     mii.wID = id;
+                }
+
+                if ( flags & MF_CHECKED )
+                {
+                    mii.fMask |= MIIM_STATE;
+                    mii.fState = MFS_CHECKED;
                 }
 
                 mii.dwItemData = reinterpret_cast<ULONG_PTR>(pItem);
@@ -805,6 +877,15 @@ wxMenuItem *wxMenu::DoRemove(wxMenuItem *item)
     }
     //else: this item doesn't have an accel, nothing to do
 #endif // wxUSE_ACCEL
+
+    // Update indices of radio groups.
+    if ( m_radioData )
+    {
+        bool inExistingGroup = m_radioData->UpdateOnRemoveItem(pos);
+
+        wxASSERT_MSG( !inExistingGroup || item->GetKind() == wxITEM_RADIO,
+                      wxT("Removing non radio button from radio group?") );
+    }
 
     // remove the item from the menu
     if ( !::RemoveMenu(GetHmenu(), (UINT)pos, MF_BYPOSITION) )
@@ -1361,10 +1442,6 @@ bool wxMenuBar::Insert(size_t pos, wxMenu *menu, const wxString& title)
         (GetHmenu() != 0);
 #endif
 
-    int mswpos = (!isAttached || (pos == m_menus.GetCount()))
-        ?   -1 // append the menu
-        :   MSWPositionForWxMenu(GetMenu(pos),pos);
-
     if ( !wxMenuBarBase::Insert(pos, menu, title) )
         return false;
 
@@ -1392,9 +1469,33 @@ bool wxMenuBar::Insert(size_t pos, wxMenu *menu, const wxString& title)
             wxLogLastError(wxT("TB_INSERTBUTTON"));
             return false;
         }
-        wxUnusedVar(mswpos);
 #else
-        if ( !::InsertMenu(GetHmenu(), mswpos,
+        // We have a problem with the index if there is an extra "Window" menu
+        // in this menu bar, which is added by wxMDIParentFrame to it directly
+        // using Windows API (so that it remains invisible to the user code),
+        // but which does affect the indices of the items we insert after it.
+        // So we check if any of the menus before the insertion position is a
+        // foreign one and adjust the insertion index accordingly.
+        int mswExtra = 0;
+
+        // Skip all this if the total number of menus matches (notice that the
+        // internal menu count has already been incremented by wxMenuBarBase::
+        // Insert() call above, hence -1).
+        int mswCount = ::GetMenuItemCount(GetHmenu());
+        if ( mswCount != -1 &&
+                static_cast<unsigned>(mswCount) != GetMenuCount() - 1 )
+        {
+            wxMenuList::compatibility_iterator node = m_menus.GetFirst();
+            for ( size_t n = 0; n < pos; n++ )
+            {
+                if ( ::GetSubMenu(GetHmenu(), n) != GetHmenuOf(node->GetData()) )
+                    mswExtra++;
+                else
+                    node = node->GetNext();
+            }
+        }
+
+        if ( !::InsertMenu(GetHmenu(), pos + mswExtra,
                            MF_BYPOSITION | MF_POPUP | MF_STRING,
                            (UINT_PTR)GetHmenuOf(menu), title.t_str()) )
         {

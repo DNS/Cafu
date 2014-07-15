@@ -196,7 +196,7 @@ enum wxGridCellFloatFormat
     /// Decimal floating point (%f).
     wxGRID_FLOAT_FORMAT_FIXED       = 0x0010,
 
-    /// Scientific notation (mantise/exponent) using e character (%e).
+    /// Scientific notation (mantissa/exponent) using e character (%e).
     wxGRID_FLOAT_FORMAT_SCIENTIFIC  = 0x0020,
 
     /// Use the shorter of %e or %f (%g).
@@ -465,6 +465,18 @@ public:
        Returns the value currently in the editor control.
      */
     virtual wxString GetValue() const = 0;
+
+    /**
+       Get the wxControl used by this editor.
+    */
+    wxControl* GetControl() const;
+
+    /**
+       Set the wxControl that will be used by this cell editor for editing the
+       value.
+    */
+    void SetControl(wxControl* control);
+
 
 protected:
 
@@ -4447,6 +4459,36 @@ public:
 
     //@}
 
+
+    virtual void DrawCellHighlight( wxDC& dc, const wxGridCellAttr *attr );
+    
+    virtual void DrawRowLabels( wxDC& dc, const wxArrayInt& rows );
+    virtual void DrawRowLabel( wxDC& dc, int row );
+
+    virtual void DrawColLabels( wxDC& dc, const wxArrayInt& cols );
+    virtual void DrawColLabel( wxDC& dc, int col );
+
+    virtual void DrawCornerLabel(wxDC& dc);
+
+    void DrawTextRectangle( wxDC& dc, const wxString& text, const wxRect& rect,
+                            int horizontalAlignment = wxALIGN_LEFT,
+                            int verticalAlignment = wxALIGN_TOP,
+                            int textOrientation = wxHORIZONTAL ) const;
+
+    void DrawTextRectangle( wxDC& dc, const wxArrayString& lines, const wxRect& rect,
+                            int horizontalAlignment = wxALIGN_LEFT,
+                            int verticalAlignment = wxALIGN_TOP,
+                            int textOrientation = wxHORIZONTAL ) const;
+
+    wxColour GetCellHighlightColour() const;
+    int      GetCellHighlightPenWidth() const;
+    int      GetCellHighlightROPenWidth() const;
+
+    void SetCellHighlightColour( const wxColour& );
+    void SetCellHighlightPenWidth(int width);
+    void SetCellHighlightROPenWidth(int width);   
+
+    
 protected:
     /**
         Returns @true if this grid has support for cell attributes.

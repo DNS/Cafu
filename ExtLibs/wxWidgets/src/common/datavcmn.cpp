@@ -1790,6 +1790,11 @@ void wxDataViewListStore::DeleteAllItems()
     Reset( 0 );
 }
 
+void wxDataViewListStore::ClearColumns()
+{
+    m_cols.clear();
+}
+
 void wxDataViewListStore::SetItemData( const wxDataViewItem& item, wxUIntPtr data )
 {
     wxDataViewListStoreLine* line = m_data[GetRow(item)];
@@ -1801,7 +1806,7 @@ void wxDataViewListStore::SetItemData( const wxDataViewItem& item, wxUIntPtr dat
 wxUIntPtr wxDataViewListStore::GetItemData( const wxDataViewItem& item ) const
 {
     wxDataViewListStoreLine* line = m_data[GetRow(item)];
-    if (!line) return static_cast<wxUIntPtr>(NULL);
+    if (!line) return 0;
 
     return line->GetData();
 }
@@ -1880,17 +1885,23 @@ bool wxDataViewListCtrl::InsertColumn( unsigned int pos, wxDataViewColumn *colum
 
 bool wxDataViewListCtrl::PrependColumn( wxDataViewColumn *col )
 {
-    return PrependColumn( col, "string" );
+    return PrependColumn( col, col->GetRenderer()->GetVariantType() );
 }
 
 bool wxDataViewListCtrl::InsertColumn( unsigned int pos, wxDataViewColumn *col )
 {
-    return InsertColumn( pos, col, "string" );
+    return InsertColumn( pos, col, col->GetRenderer()->GetVariantType() );
 }
 
 bool wxDataViewListCtrl::AppendColumn( wxDataViewColumn *col )
 {
-    return AppendColumn( col, "string" );
+    return AppendColumn( col, col->GetRenderer()->GetVariantType() );
+}
+
+bool wxDataViewListCtrl::ClearColumns()
+{
+    GetStore()->ClearColumns();
+    return wxDataViewCtrl::ClearColumns();
 }
 
 wxDataViewColumn *wxDataViewListCtrl::AppendTextColumn( const wxString &label,

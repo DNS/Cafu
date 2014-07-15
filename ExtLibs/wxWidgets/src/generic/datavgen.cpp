@@ -119,6 +119,34 @@ wxDataViewColumn* GetExpanderColumnOrFirstOne(wxDataViewCtrl* dataview)
     return expander;
 }
 
+wxTextCtrl *CreateEditorTextCtrl(wxWindow *parent, const wxRect& labelRect, const wxString& value)
+{
+    wxTextCtrl* ctrl = new wxTextCtrl(parent, wxID_ANY, value,
+                                      wxPoint(labelRect.x,labelRect.y),
+                                      wxSize(labelRect.width,labelRect.height),
+                                      wxTE_PROCESS_ENTER);
+
+    // Adjust size of wxTextCtrl editor to fit text, even if it means being
+    // wider than the corresponding column (this is how Explorer behaves).
+    const int fitting = ctrl->GetSizeFromTextSize(ctrl->GetTextExtent(ctrl->GetValue())).x;
+    const int current = ctrl->GetSize().x;
+    const int maxwidth = ctrl->GetParent()->GetSize().x - ctrl->GetPosition().x;
+
+    // Adjust size so that it fits all content. Don't change anything if the
+    // allocated space is already larger than needed and don't extend wxDVC's
+    // boundaries.
+    int width = wxMin(wxMax(current, fitting), maxwidth);
+
+    if ( width != current )
+        ctrl->SetSize(wxSize(width, -1));
+
+    // select the text in the control an place the cursor at the end
+    ctrl->SetInsertionPointEnd();
+    ctrl->SelectAll();
+
+    return ctrl;
+}
+
 } // anonymous namespace
 
 //-----------------------------------------------------------------------------
@@ -229,6 +257,8 @@ protected:
     }
 
 private:
+    void FinishEditing();
+
     bool SendEvent(wxEventType type, unsigned int n)
     {
         wxDataViewCtrl * const owner = GetOwner();
@@ -246,6 +276,8 @@ private:
 
     void OnClick(wxHeaderCtrlEvent& event)
     {
+        FinishEditing();
+
         const unsigned idx = event.GetColumn();
 
         if ( SendEvent(wxEVT_DATAVIEW_COLUMN_HEADER_CLICK, idx) )
@@ -290,6 +322,8 @@ private:
 
     void OnResize(wxHeaderCtrlEvent& event)
     {
+        FinishEditing();
+
         wxDataViewCtrl * const owner = GetOwner();
 
         const unsigned col = event.GetColumn();
@@ -299,6 +333,8 @@ private:
 
     void OnEndReorder(wxHeaderCtrlEvent& event)
     {
+        FinishEditing();
+
         wxDataViewCtrl * const owner = GetOwner();
         owner->ColumnMoved(owner->GetColumn(event.GetColumn()),
                         event.GetNewOrder());
@@ -769,6 +805,7 @@ public:
     // Called by wxDataViewCtrl and our own OnRenameTimer() to start edit the
     // specified item in the given column.
     void StartEditing(const wxDataViewItem& item, const wxDataViewColumn* col);
+    void FinishEditing();
 
 private:
     int RecalculateCount() const;
@@ -958,16 +995,7 @@ bool wxDataViewTextRenderer::HasEditorCtrl() const
 wxWindow* wxDataViewTextRenderer::CreateEditorCtrl( wxWindow *parent,
         wxRect labelRect, const wxVariant &value )
 {
-    wxTextCtrl* ctrl = new wxTextCtrl( parent, wxID_ANY, value,
-                                       wxPoint(labelRect.x,labelRect.y),
-                                       wxSize(labelRect.width,labelRect.height),
-                                       wxTE_PROCESS_ENTER );
-
-    // select the text in the control an place the cursor at the end
-    ctrl->SetInsertionPointEnd();
-    ctrl->SelectAll();
-
-    return ctrl;
+    return CreateEditorTextCtrl(parent, labelRect, value);
 }
 
 bool wxDataViewTextRenderer::GetValueFromEditorCtrl( wxWindow *editor, wxVariant &value )
@@ -1167,7 +1195,11 @@ wxDataViewProgressRenderer::Render(wxRect rect, wxDC *dc, int WXUNUSED(state))
 
 wxSize wxDataViewProgressRenderer::GetSize() const
 {
-    return wxSize(40,12);
+    // Return -1 width because a progress bar fits any width; unlike most
+    // renderers, it doesn't have a "good" width for the content. This makes it
+    // grow to the whole column, which is pretty much always the desired
+    // behaviour. Keep the height fixed so that the progress bar isn't too fat.
+    return wxSize(-1, 12);
 }
 
 // ---------------------------------------------------------
@@ -1239,16 +1271,7 @@ wxWindow* wxDataViewIconTextRenderer::CreateEditorCtrl(wxWindow *parent, wxRect 
         labelRect.width -= w;
     }
 
-    wxTextCtrl* ctrl = new wxTextCtrl( parent, wxID_ANY, text,
-                                       wxPoint(labelRect.x,labelRect.y),
-                                       wxSize(labelRect.width,labelRect.height),
-                                       wxTE_PROCESS_ENTER );
-
-    // select the text in the control an place the cursor at the end
-    ctrl->SetInsertionPointEnd();
-    ctrl->SelectAll();
-
-    return ctrl;
+    return CreateEditorTextCtrl(parent, labelRect, text);
 }
 
 bool wxDataViewIconTextRenderer::GetValueFromEditorCtrl( wxWindow *editor, wxVariant& value )
@@ -2055,11 +2078,11 @@ void wxDataViewMainWindow::OnPaint( wxPaintEvent &WXUNUSED(event) )
                 dataitem = wxDataViewItem( wxUIntToPtr(item+1) );
             }
 
-            cell->PrepareForItem(model, dataitem, col->GetModelColumn());
-
             // update cell_rect
             cell_rect.y = GetLineStart( item );
             cell_rect.height = GetLineHeight( item );
+
+            cell->PrepareForItem(model, dataitem, col->GetModelColumn());
 
             // draw the background
             bool selected = m_selection.Index( item ) != wxNOT_FOUND;
@@ -2192,6 +2215,20 @@ wxDataViewMainWindow::StartEditing(const wxDataViewItem& item,
         m_editorRenderer = renderer;
         m_editorCtrl = renderer->GetEditorCtrl();
     }
+}
+
+void wxDataViewMainWindow::FinishEditing()
+{
+    if ( m_editorCtrl )
+    {
+        m_editorRenderer->FinishEditing();
+    }
+}
+
+void wxDataViewHeaderWindow::FinishEditing()
+{
+    wxDataViewMainWindow *win = static_cast<wxDataViewMainWindow*>(GetOwner()->GetMainWindow());
+    win->FinishEditing();
 }
 
 //-----------------------------------------------------------------------------
@@ -4140,7 +4177,7 @@ void wxDataViewMainWindow::OnMouse( wxMouseEvent &event )
         {
             // we make the rectangle we are looking in a bit bigger than the actual
             // visual expander so the user can hit that little thing reliably
-            wxRect rect(itemOffset,
+            wxRect rect(xpos + itemOffset,
                         GetLineStart( current ) + (GetLineHeight(current) - m_lineHeight)/2,
                         m_lineHeight, m_lineHeight);
 
@@ -4361,12 +4398,16 @@ void wxDataViewMainWindow::OnMouse( wxMouseEvent &event )
         if ( IsCellEditableInMode(item, col, wxDATAVIEW_CELL_ACTIVATABLE) )
         {
             // notify cell about click
-            cell->PrepareForItem(model, item, col->GetModelColumn());
 
             wxRect cell_rect( xpos + itemOffset,
                               GetLineStart( current ),
                               col->GetWidth() - itemOffset,
                               GetLineHeight( current ) );
+
+            // Note that PrepareForItem() should be called after GetLineStart()
+            // call in cell_rect initialization above as GetLineStart() calls
+            // PrepareForItem() for other items from inside it.
+            cell->PrepareForItem(model, item, col->GetModelColumn());
 
             // Report position relative to the cell's custom area, i.e.
             // not the entire space as given by the control but the one
@@ -4381,7 +4422,7 @@ void wxDataViewMainWindow::OnMouse( wxMouseEvent &event )
             // adjust the rectangle ourselves to account for the alignment
             int align = cell->GetAlignment();
             if ( align == wxDVR_DEFAULT_ALIGNMENT )
-                align = wxALIGN_CENTRE;
+                align = cell->GetOwner()->GetAlignment() | wxALIGN_CENTRE_VERTICAL;
 
             wxRect rectItem = cell_rect;
             const wxSize size = cell->GetSize();
@@ -4454,7 +4495,7 @@ void wxDataViewMainWindow::OnColumnsCountChanged()
             editableCount++;
     }
 
-    m_useCellFocus = (editableCount > 1);
+    m_useCellFocus = (editableCount > 0);
 
     UpdateDisplay();
 }
@@ -4979,6 +5020,7 @@ bool wxDataViewCtrl::ClearColumns()
 {
     SetExpanderColumn(NULL);
     m_cols.Clear();
+    m_sortingColumnIdx = wxNOT_FOUND;
     m_colsBestWidths.clear();
 
     m_clientArea->ClearCurrentColumn();
