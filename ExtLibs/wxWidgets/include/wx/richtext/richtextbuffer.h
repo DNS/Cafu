@@ -325,8 +325,9 @@ enum wxTextAttrUnits
     wxTEXT_ATTR_UNITS_PIXELS                = 0x0002,
     wxTEXT_ATTR_UNITS_PERCENTAGE            = 0x0004,
     wxTEXT_ATTR_UNITS_POINTS                = 0x0008,
+    wxTEXT_ATTR_UNITS_HUNDREDTHS_POINT      = 0x0100,
 
-    wxTEXT_ATTR_UNITS_MASK                  = 0x000F
+    wxTEXT_ATTR_UNITS_MASK                  = 0x010F
 };
 
 /**
@@ -401,12 +402,12 @@ public:
         Returns the floating-pointing value of the dimension in mm.
 
     */
-    float GetValueMM() const { return float(m_value) / 10.0; }
+    float GetValueMM() const { return m_value / 10.0f; }
 
     /**
         Sets the value of the dimension in mm.
     */
-    void SetValueMM(float value) { m_value = (int) ((value * 10.0) + 0.5); m_flags |= wxTEXT_ATTR_VALUE_VALID; }
+    void SetValueMM(float value) { m_value = (int) ((value * 10.0f) + 0.5f); m_flags |= wxTEXT_ATTR_VALUE_VALID; }
 
     /**
         Sets the integer value of the dimension.
@@ -709,6 +710,33 @@ public:
     */
     int ConvertPixelsToTenthsMM(int pixels) const;
 
+    /**
+        Sets the scale factor.
+    */
+    void SetScale(double scale) { m_scale = scale; }
+    /**
+        Returns the scale factor.
+    */
+    double GetScale() const { return m_scale; }
+
+    /**
+        Sets the ppi.
+    */
+    void SetPPI(int ppi) { m_ppi = ppi; }
+    /**
+        Returns the ppi.
+    */
+    int GetPPI() const { return m_ppi; }
+
+    /**
+        Sets the parent size.
+    */
+    void SetParentSize(const wxSize& parentSize) { m_parentSize = parentSize; }
+    /**
+        Returns the parent size.
+    */
+    const wxSize& GetParentSize() const { return m_parentSize; }
+
     int     m_ppi;
     double  m_scale;
     wxSize  m_parentSize;
@@ -919,6 +947,11 @@ public:
     void MakeValid() { m_borderWidth.SetValid(true); }
 
     /**
+        True if the border has no attributes set.
+    */
+    bool IsDefault() const { return (m_flags == 0); }
+
+    /**
         Returns the border flags.
     */
     int GetFlags() const { return m_flags; }
@@ -1026,9 +1059,14 @@ public:
     void CollectCommonAttributes(const wxTextAttrBorders& attr, wxTextAttrBorders& clashingAttr, wxTextAttrBorders& absentAttr);
 
     /**
-        Returns @true if all borders are valid.
+        Returns @true if at least one border is valid.
     */
     bool IsValid() const { return m_left.IsValid() || m_right.IsValid() || m_top.IsValid() || m_bottom.IsValid(); }
+
+    /**
+        Returns @true if no border attributes were set.
+    */
+    bool IsDefault() const { return m_left.IsDefault() && m_right.IsDefault() && m_top.IsDefault() && m_bottom.IsDefault(); }
 
     /**
         Returns the left border.
@@ -1698,6 +1736,11 @@ public:
         Sets a property by name and string value.
     */
     void SetProperty(const wxString& name, const wxString& value);
+
+    /**
+        Sets a property by name and wxChar* value.
+    */
+    void SetProperty(const wxString& name, const wxChar* value) { SetProperty(name, wxString(value)); }
 
     /**
         Sets  property by name and long integer value.
@@ -2889,7 +2932,7 @@ protected:
 };
 
 /**
-    @class wxRichTextParagraphBox
+    @class wxRichTextParagraphLayoutBox
 
     This class knows how to lay out paragraphs.
 

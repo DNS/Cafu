@@ -59,7 +59,7 @@ typedef guint KeySym;
 
 // gdk_window_set_composited() is only supported since 2.12
 #define wxGTK_VERSION_REQUIRED_FOR_COMPOSITING 2,12,0
-#define wxGTK_HAS_COMPOSITING_SUPPORT GTK_CHECK_VERSION(2,12,0)
+#define wxGTK_HAS_COMPOSITING_SUPPORT (GTK_CHECK_VERSION(2,12,0) && wxUSE_CAIRO)
 
 //-----------------------------------------------------------------------------
 // documentation on internals
@@ -197,7 +197,7 @@ typedef guint KeySym;
 bool g_blockEventsOnDrag;
 // Don't allow mouse event propagation during scroll
 bool g_blockEventsOnScroll;
-extern wxCursor   g_globalCursor;
+extern wxCursor g_globalCursor;
 
 // mouse capture state: the window which has it and if the mouse is currently
 // inside it
@@ -218,6 +218,11 @@ static wxWindowGTK *gs_deferredFocusOut = NULL;
 // mouse event that caused it
 GdkEvent    *g_lastMouseEvent = NULL;
 int          g_lastButtonNumber = 0;
+
+#ifdef __WXGTK3__
+static GList* gs_sizeRevalidateList;
+void wxGTKSizeRevalidate(wxWindow*);
+#endif
 
 //-----------------------------------------------------------------------------
 // debug
@@ -1529,6 +1534,34 @@ gtk_window_button_release_callback( GtkWidget *WXUNUSED(widget),
 }
 
 //-----------------------------------------------------------------------------
+
+WX_DECLARE_VOIDPTR_HASH_MAP(bool, wxVoidPtrBoolMap);
+static wxVoidPtrBoolMap gs_needCursorResetMap;
+
+static const wxCursor* gs_overrideCursor;
+
+static void SendSetCursorEvent(wxWindowGTK* win, int x, int y)
+{
+    wxSetCursorEvent event(x, y);
+    wxWindowGTK* w = win;
+    do {
+        if (w->GTKProcessEvent(event))
+        {
+            gs_overrideCursor = &event.GetCursor();
+            win->GTKUpdateCursor();
+            gs_needCursorResetMap[win] = true;
+            return;
+        }
+        // this is how wxMSW works...
+        if (w->GetCursor().IsOk())
+            break;
+        w = w->GetParent();
+    } while (w);
+    if (gs_needCursorResetMap[win])
+        win->GTKUpdateCursor();
+}
+
+//-----------------------------------------------------------------------------
 // "motion_notify_event"
 //-----------------------------------------------------------------------------
 
@@ -1595,13 +1628,7 @@ gtk_window_motion_notify_callback( GtkWidget * WXUNUSED(widget),
     }
 
     if ( !g_captureWindow )
-    {
-        wxSetCursorEvent cevent( event.m_x, event.m_y );
-        if (win->GTKProcessEvent( cevent ))
-        {
-            win->SetCursor( cevent.GetCursor() );
-        }
-    }
+        SendSetCursorEvent(win, event.m_x, event.m_y);
 
     bool ret = win->GTKProcessEvent(event);
 
@@ -1723,6 +1750,9 @@ scroll_event(GtkWidget* widget, GdkEventScroll* gdk_event, wxWindow* win)
 
     if (!win->GTKProcessEvent(event))
     {
+        if (!range)
+            return false;
+
         if (direction == GDK_SCROLL_UP || direction == GDK_SCROLL_LEFT)
             step = -step;
         AdjustRangeValue(range, step);
@@ -1806,13 +1836,7 @@ gtk_window_enter_callback( GtkWidget*,
     InitMouseEvent(win, event, gdk_event);
 
     if ( !g_captureWindow )
-    {
-        wxSetCursorEvent cevent( event.m_x, event.m_y );
-        if (win->GTKProcessEvent( cevent ))
-        {
-            win->SetCursor( cevent.GetCursor() );
-        }
-    }
+        SendSetCursorEvent(win, event.m_x, event.m_y);
 
     return win->GTKProcessEvent(event);
 }
@@ -1827,6 +1851,9 @@ gtk_window_leave_callback( GtkWidget*,
                            wxWindowGTK *win )
 {
     wxCOMMON_CALLBACK_PROLOGUE(gdk_event, win);
+
+    if (gs_needCursorResetMap[win])
+        win->GTKUpdateCursor();
 
     // Event was emitted after an ungrab
     if (gdk_event->mode != GDK_CROSSING_NORMAL) return FALSE;
@@ -2016,6 +2043,17 @@ static void unrealize(GtkWidget*, wxWindow* win)
     win->GTKHandleUnrealize();
 }
 
+#if GTK_CHECK_VERSION(3,8,0)
+//-----------------------------------------------------------------------------
+// "layout" from GdkFrameClock
+//-----------------------------------------------------------------------------
+
+static void frame_clock_layout(GdkFrameClock*, wxWindow* win)
+{
+    wxGTKSizeRevalidate(win);
+}
+#endif // GTK_CHECK_VERSION(3,8,0)
+
 } // extern "C"
 
 void wxWindowGTK::GTKHandleRealized()
@@ -2025,14 +2063,20 @@ void wxWindowGTK::GTKHandleRealized()
 
     GdkWindow* const window = GTKGetDrawingWindow();
 
-    if (m_imContext)
+    if (m_wxwindow)
     {
-        gtk_im_context_set_client_window
-        (
-            m_imContext,
-            window ? window
-                       : gtk_widget_get_window(m_widget)
-        );
+        if (m_imContext == NULL)
+        {
+            // Create input method handler
+            m_imContext = gtk_im_multicontext_new();
+
+            // Cannot handle drawing preedited text yet
+            gtk_im_context_set_use_preedit(m_imContext, false);
+
+            g_signal_connect(m_imContext,
+                "commit", G_CALLBACK(gtk_wxwindow_commit_cb), this);
+        }
+        gtk_im_context_set_client_window(m_imContext, window);
     }
 
     // Use composited window if background is transparent, if supported.
@@ -2061,13 +2105,26 @@ void wxWindowGTK::GTKHandleRealized()
     }
 #endif
 
+    const bool isTopLevel = IsTopLevel();
+#if GTK_CHECK_VERSION(3,8,0)
+    if (isTopLevel && gtk_check_version(3,8,0) == NULL)
+    {
+        GdkFrameClock* clock = gtk_widget_get_frame_clock(m_widget);
+        if (clock &&
+            !g_signal_handler_find(clock, G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, this))
+        {
+            g_signal_connect(clock, "layout", G_CALLBACK(frame_clock_layout), this);
+        }
+    }
+#endif
+
     wxWindowCreateEvent event(static_cast<wxWindow*>(this));
     event.SetEventObject( this );
     GTKProcessEvent( event );
 
-    GTKUpdateCursor(true, false);
+    GTKUpdateCursor(false, true);
 
-    if (m_wxwindow && IsTopLevel())
+    if (m_wxwindow && isTopLevel)
     {
         // attaching to style changed signal after realization avoids initial
         // changes we don't care about
@@ -2255,8 +2312,6 @@ void wxWindowGTK::Init()
     m_useCachedClientSize = false;
 
     m_clipPaintRegion = false;
-
-    m_cursor = *wxSTANDARD_CURSOR;
 
     m_imContext = NULL;
     m_imKeyEvent = NULL;
@@ -2462,7 +2517,11 @@ wxWindowGTK::~wxWindowGTK()
 #ifdef __WXGTK3__
     if (m_styleProvider)
         g_object_unref(m_styleProvider);
+
+    gs_sizeRevalidateList = g_list_remove(gs_sizeRevalidateList, this);
 #endif
+
+    gs_needCursorResetMap.erase(this);
 
     if (m_widget)
     {
@@ -2534,15 +2593,6 @@ void wxWindowGTK::PostCreation()
             if (GetLayoutDirection() == wxLayout_LeftToRight)
                 gtk_widget_set_redraw_on_allocate(m_wxwindow, HasFlag(wxFULL_REPAINT_ON_RESIZE));
         }
-
-        // Create input method handler
-        m_imContext = gtk_im_multicontext_new();
-
-        // Cannot handle drawing preedited text yet
-        gtk_im_context_set_use_preedit( m_imContext, FALSE );
-
-        g_signal_connect (m_imContext, "commit",
-                          G_CALLBACK (gtk_wxwindow_commit_cb), this);
     }
 
     // focus handling
@@ -3527,8 +3577,15 @@ wxWindowGTK::AdjustForLayoutDirection(wxCoord x,
 void wxWindowGTK::DoMoveInTabOrder(wxWindow *win, WindowOrder move)
 {
     wxWindowBase::DoMoveInTabOrder(win, move);
-    m_dirtyTabOrder = true;
-    wxTheApp->WakeUpIdle();
+
+    // Update the TAB order at GTK+ level too, but do it slightly later in case
+    // we're changing the TAB order of several controls at once, as is common.
+    wxWindow* const parent = GetParent();
+    if ( parent )
+    {
+        parent->m_dirtyTabOrder = true;
+        wxTheApp->WakeUpIdle();
+    }
 }
 
 bool wxWindowGTK::DoNavigateIn(int flags)
@@ -3660,7 +3717,7 @@ void wxWindowGTK::Lower()
 
 bool wxWindowGTK::SetCursor( const wxCursor &cursor )
 {
-    if ( !wxWindowBase::SetCursor(cursor.IsOk() ? cursor : *wxSTANDARD_CURSOR) )
+    if (!wxWindowBase::SetCursor(cursor))
         return false;
 
     GTKUpdateCursor();
@@ -3668,38 +3725,67 @@ bool wxWindowGTK::SetCursor( const wxCursor &cursor )
     return true;
 }
 
-void wxWindowGTK::GTKUpdateCursor(bool update_self /*=true*/, bool recurse /*=true*/)
+void wxWindowGTK::GTKUpdateCursor(bool isBusyOrGlobalCursor, bool isRealize)
 {
-    if (update_self)
+    gs_needCursorResetMap[this] = false;
+
+    if (m_widget == NULL || !gtk_widget_get_realized(m_widget))
+        return;
+
+    // if we don't already know there is a busy/global cursor, we have to check for one
+    if (!isBusyOrGlobalCursor)
     {
-        wxCursor cursor(g_globalCursor.IsOk() ? g_globalCursor : GetCursor());
-        if ( cursor.IsOk() )
+        if (g_globalCursor.IsOk())
+            isBusyOrGlobalCursor = true;
+        else if (wxIsBusy())
         {
-            wxArrayGdkWindows windowsThis;
-            GdkWindow* window = GTKGetWindow(windowsThis);
-            if (window)
-                gdk_window_set_cursor( window, cursor.GetCursor() );
-            else
+            wxWindow* win = wxGetTopLevelParent(static_cast<wxWindow*>(this));
+            if (win && win->m_widget && !gtk_window_get_modal(GTK_WINDOW(win->m_widget)))
+                isBusyOrGlobalCursor = true;
+        }
+    }
+    GdkCursor* cursor = NULL;
+    if (!isBusyOrGlobalCursor)
+    {
+        const wxCursor* overrideCursor = gs_overrideCursor;
+        gs_overrideCursor = NULL;
+        cursor = (overrideCursor ? *overrideCursor : m_cursor).GetCursor();
+    }
+
+    GdkWindow* window = NULL;
+    if (cursor || isBusyOrGlobalCursor || !isRealize)
+    {
+        wxArrayGdkWindows windows;
+        window = GTKGetWindow(windows);
+        if (window)
+            gdk_window_set_cursor(window, cursor);
+        else
+        {
+            for (size_t i = windows.size(); i--;)
             {
-                const size_t count = windowsThis.size();
-                for ( size_t n = 0; n < count; n++ )
-                {
-                    GdkWindow *win = windowsThis[n];
-                    // It can be zero if the window has not been realized yet.
-                    if ( win )
-                    {
-                        gdk_window_set_cursor(win, cursor.GetCursor());
-                    }
-                }
+                window = windows[i];
+                if (window)
+                    gdk_window_set_cursor(window, cursor);
             }
         }
     }
-
-    if (recurse)
+    if (window && cursor == NULL && m_wxwindow == NULL && !isBusyOrGlobalCursor && !isRealize)
     {
-        for (wxWindowList::iterator it = GetChildren().begin(); it != GetChildren().end(); ++it)
+        void* data;
+        gdk_window_get_user_data(window, &data);
+        if (data)
         {
-            (*it)->GTKUpdateCursor( true );
+#ifdef __WXGTK3__
+            const char sig_name[] = "state-flags-changed";
+            GtkStateFlags state = gtk_widget_get_state_flags(GTK_WIDGET(data));
+#else
+            const char sig_name[] = "state-changed";
+            GtkStateType state = gtk_widget_get_state(GTK_WIDGET(data));
+#endif
+            static unsigned sig_id = g_signal_lookup(sig_name, GTK_TYPE_WIDGET);
+
+            // encourage native widget to restore any non-default cursors
+            g_signal_emit(data, sig_id, 0, state);
         }
     }
 }
@@ -3800,7 +3886,7 @@ void wxWindowGTK::Refresh(bool WXUNUSED(eraseBackground),
 
 void wxWindowGTK::Update()
 {
-    if (m_widget && gtk_widget_get_mapped(m_widget))
+    if (m_widget && gtk_widget_get_mapped(m_widget) && m_width > 0 && m_height > 0)
     {
         GdkDisplay* display = gtk_widget_get_display(m_widget);
         // Flush everything out to the server, and wait for it to finish.
@@ -4232,7 +4318,7 @@ void wxWindowGTK::GTKApplyStyle(GtkWidget* widget, GtkRcStyle* WXUNUSED_IN_GTK3(
 #ifdef __WXGTK3__
     const PangoFontDescription* pfd = NULL;
     if (m_font.IsOk())
-        pfd = pango_font_description_copy(m_font.GetNativeFontInfo()->description);
+        pfd = m_font.GetNativeFontInfo()->description;
     gtk_widget_override_font(widget, pfd);
     gtk_widget_override_color(widget, GTK_STATE_FLAG_NORMAL, m_foregroundColour);
     gtk_widget_override_background_color(widget, GTK_STATE_FLAG_NORMAL, m_backgroundColour);
@@ -4321,6 +4407,35 @@ bool wxWindowGTK::IsTransparentBackgroundSupported(wxString* reason) const
     return false;
 #endif // wxGTK_HAS_COMPOSITING_SUPPORT/!wxGTK_HAS_COMPOSITING_SUPPORT
 }
+
+#ifdef __WXGTK3__
+GdkWindow* wxGTKFindWindow(GtkWidget* widget)
+{
+    GdkWindow* window = gtk_widget_get_window(widget);
+    for (const GList* p = gdk_window_peek_children(window); p; p = p->next)
+    {
+        window = GDK_WINDOW(p->data);
+        void* data;
+        gdk_window_get_user_data(window, &data);
+        if (data == widget)
+            return window;
+    }
+    return NULL;
+}
+
+void wxGTKFindWindow(GtkWidget* widget, wxArrayGdkWindows& windows)
+{
+    GdkWindow* window = gtk_widget_get_window(widget);
+    for (const GList* p = gdk_window_peek_children(window); p; p = p->next)
+    {
+        window = GDK_WINDOW(p->data);
+        void* data;
+        gdk_window_get_user_data(window, &data);
+        if (data == widget)
+            windows.push_back(window);
+    }
+}
+#endif // __WXGTK3__
 
 // ----------------------------------------------------------------------------
 // Pop-up menu stuff
@@ -4444,6 +4559,32 @@ GdkWindow *wxWindowGTK::GTKGetWindow(wxArrayGdkWindows& WXUNUSED(windows)) const
     return m_wxwindow ? GTKGetDrawingWindow() : gtk_widget_get_window(m_widget);
 }
 
+#ifdef __WXGTK3__
+void wxGTKSizeRevalidate(wxWindow* tlw)
+{
+    GList* next;
+    for (GList* p = gs_sizeRevalidateList; p; p = next)
+    {
+        next = p->next;
+        wxWindow* win = static_cast<wxWindow*>(p->data);
+        if (wxGetTopLevelParent(win) == tlw)
+        {
+            win->InvalidateBestSize();
+            gs_sizeRevalidateList = g_list_delete_link(gs_sizeRevalidateList, p);
+        }
+    }
+}
+
+extern "C" {
+static gboolean before_resize(void* data)
+{
+    wxWindow* win = static_cast<wxWindow*>(data);
+    win->InvalidateBestSize();
+    return false;
+}
+}
+#endif // __WXGTK3__
+
 bool wxWindowGTK::SetFont( const wxFont &font )
 {
     if (!wxWindowBase::SetFont(font))
@@ -4455,6 +4596,24 @@ bool wxWindowGTK::SetFont( const wxFont &font )
         // even if the font changed from valid to wxNullFont):
         GTKApplyWidgetStyle(true);
     }
+
+#ifdef __WXGTK3__
+    // Starting with GTK 3.6, style information is cached, and the cache is only
+    // updated before resizing, or when showing a TLW. If a different size font
+    // is set, our best size calculation will be wrong. All we can do is
+    // invalidate the best size right before the style cache is updated, so any
+    // subsequent best size requests use the correct font.
+    if (gtk_check_version(3,8,0) == NULL)
+        gs_sizeRevalidateList = g_list_append(gs_sizeRevalidateList, this);
+    else if (gtk_check_version(3,6,0) == NULL)
+    {
+        wxWindow* tlw = wxGetTopLevelParent(static_cast<wxWindow*>(this));
+        if (tlw->m_widget && gtk_widget_get_visible(tlw->m_widget))
+            g_idle_add_full(GTK_PRIORITY_RESIZE - 1, before_resize, this, NULL);
+        else
+            gs_sizeRevalidateList = g_list_append(gs_sizeRevalidateList, this);
+    }
+#endif
 
     return true;
 }
@@ -4471,10 +4630,6 @@ void wxWindowGTK::DoCaptureMouse()
 
     wxCHECK_RET( window, wxT("CaptureMouse() failed") );
 
-    const wxCursor* cursor = &m_cursor;
-    if (!cursor->IsOk())
-        cursor = wxSTANDARD_CURSOR;
-
     const GdkEventMask mask = GdkEventMask(
         GDK_BUTTON_PRESS_MASK |
         GDK_BUTTON_RELEASE_MASK |
@@ -4486,12 +4641,12 @@ void wxWindowGTK::DoCaptureMouse()
     GdkDevice* device = gdk_device_manager_get_client_pointer(manager);
     gdk_device_grab(
         device, window, GDK_OWNERSHIP_NONE, false, mask,
-        cursor->GetCursor(), unsigned(GDK_CURRENT_TIME));
+        NULL, unsigned(GDK_CURRENT_TIME));
 #else
     gdk_pointer_grab( window, FALSE,
                       mask,
                       NULL,
-                      cursor->GetCursor(),
+                      NULL,
                       (guint32)GDK_CURRENT_TIME );
 #endif
     g_captureWindow = this;

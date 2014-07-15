@@ -136,6 +136,8 @@ public:
 #if wxUSE_WXDIB
     // copies from a device independent bitmap
     bool CopyFromDIB(const wxDIB& dib);
+    bool IsDIB() const;
+    bool ConvertToDIB();
 #endif
 
     virtual bool Create(int width, int height, int depth = wxBITMAP_SCREEN_DEPTH);
@@ -169,6 +171,7 @@ public:
     // disappear in the future
     bool HasAlpha() const;
     void UseAlpha();
+    void ResetAlpha();
 
     // support for scaled bitmaps
     virtual double GetScaleFactor() const { return 1.0; }

@@ -156,16 +156,34 @@ static void bg(GtkWidget* widget, GtkStateFlags state, GdkRGBA& gdkRGBA)
 {
     GtkStyleContext* sc = gtk_widget_get_style_context(widget);
     gtk_style_context_get_background_color(sc, state, &gdkRGBA);
+    if (gdkRGBA.alpha <= 0)
+    {
+        widget = gtk_widget_get_parent(GTK_WIDGET(ContainerWidget()));
+        sc = gtk_widget_get_style_context(widget);
+        gtk_style_context_get_background_color(sc, state, &gdkRGBA);
+    }
 }
 static void fg(GtkWidget* widget, GtkStateFlags state, GdkRGBA& gdkRGBA)
 {
     GtkStyleContext* sc = gtk_widget_get_style_context(widget);
     gtk_style_context_get_color(sc, state, &gdkRGBA);
+    if (gdkRGBA.alpha <= 0)
+    {
+        widget = gtk_widget_get_parent(GTK_WIDGET(ContainerWidget()));
+        sc = gtk_widget_get_style_context(widget);
+        gtk_style_context_get_color(sc, state, &gdkRGBA);
+    }
 }
 static void border(GtkWidget* widget, GtkStateFlags state, GdkRGBA& gdkRGBA)
 {
     GtkStyleContext* sc = gtk_widget_get_style_context(widget);
     gtk_style_context_get_border_color(sc, state, &gdkRGBA);
+    if (gdkRGBA.alpha <= 0)
+    {
+        widget = gtk_widget_get_parent(GTK_WIDGET(ContainerWidget()));
+        sc = gtk_widget_get_style_context(widget);
+        gtk_style_context_get_border_color(sc, state, &gdkRGBA);
+    }
 }
 
 wxColour wxSystemSettingsNative::GetColour(wxSystemColour index)
@@ -235,14 +253,21 @@ wxColour wxSystemSettingsNative::GetColour(wxSystemColour index)
         break;
     case wxSYS_COLOUR_ACTIVECAPTION:
     case wxSYS_COLOUR_MENUHILIGHT:
-        bg(MenuItemWidget(), GTK_STATE_FLAG_SELECTED, gdkRGBA);
+        bg(MenuItemWidget(), GTK_STATE_FLAG_PRELIGHT, gdkRGBA);
         break;
     case wxSYS_COLOUR_MENUTEXT:
         fg(MenuItemWidget(), GTK_STATE_FLAG_NORMAL, gdkRGBA);
         break;
     case wxSYS_COLOUR_APPWORKSPACE:
     case wxSYS_COLOUR_WINDOW:
-        bg(TextCtrlWidget(), GTK_STATE_FLAG_NORMAL, gdkRGBA);
+        {
+            GtkWidget* widget = TextCtrlWidget();
+            GtkStyleContext* sc = gtk_widget_get_style_context(widget);
+            gtk_style_context_save(sc);
+            gtk_style_context_add_class(sc, GTK_STYLE_CLASS_VIEW);
+            bg(widget, GTK_STATE_FLAG_NORMAL, gdkRGBA);
+            gtk_style_context_restore(sc);
+        }
         break;
     case wxSYS_COLOUR_CAPTIONTEXT:
         {
@@ -428,8 +453,8 @@ wxFont wxSystemSettingsNative::GetFont( wxSystemFont index )
                 wxNativeFontInfo info;
 #ifdef __WXGTK3__
                 GtkStyleContext* sc = gtk_widget_get_style_context(ButtonWidget());
-                info.description = const_cast<PangoFontDescription*>(
-                    gtk_style_context_get_font(sc, GTK_STATE_FLAG_NORMAL));
+                gtk_style_context_get(sc, GTK_STATE_FLAG_NORMAL,
+                    GTK_STYLE_PROPERTY_FONT, &info.description, NULL);
 #else
                 info.description = ButtonStyle()->font_desc;
 #endif
@@ -440,10 +465,14 @@ wxFont wxSystemSettingsNative::GetFont( wxSystemFont index )
                 // it's "Sans Serif" but the real font is called "Sans"):
                 if (!wxFontEnumerator::IsValidFacename(gs_fontSystem.GetFaceName()) &&
                     gs_fontSystem.GetFaceName() == "Sans Serif")
+                {
                     gs_fontSystem.SetFaceName("Sans");
+                }
 #endif // wxUSE_FONTENUM
 
+#ifndef __WXGTK3__
                 info.description = NULL;
+#endif
             }
             font = gs_fontSystem;
             break;

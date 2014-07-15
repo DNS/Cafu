@@ -239,6 +239,12 @@ Changes in behaviour not resulting in compilation errors, please read this!
 - wxAny now uses C locale format for the floating point numbers and not the
   current locale one, i.e. decimal point is always used.
 
+- wxGridBagSizer::AddGrowable{Col,Row}() must now be called after the items are
+  added to the sizer, i.e. the columns and rows already exist.
+
+- wxWindow::FindWindow() skips over top level children now as finding a child
+  dialog when looking for a child control could have been very unexpected.
+
 
 Changes in behaviour which may result in compilation errors
 -----------------------------------------------------------
@@ -493,6 +499,13 @@ Deprecated methods and their replacements
 Changes in behaviour visible to end users
 -----------------------------------------
 
+- wxTextCtrl::SaveFile() now creates UTF-8-encoded files instead of using the
+  default locale encoding. This ensures that the entire text control contents
+  can be saved and is consistent with the use of UTF-8 by default in the other
+  places, notably DoLoadFile(), but is a change since the previous versions.
+  If you need the old behaviour, consider calling wxFFile::Write() explicitly
+  with wxConvCurrent conversion parameter.
+
 - In wxMSW wxSpinCtrl used to prevent the user from entering more digits than
   could fit in its visible area. This was inconsistent with the other ports and
   now the control scrolls if too much text is added.
@@ -558,6 +571,158 @@ Major new features in this release
 
 - Support for persistent objects automatically saving and restoring their state
   was added.
+
+
+
+3.0.1: (released 2014-06-15)
+----------------------------
+
+All:
+
+- Fix wxMBConvUTF8::ToWChar() for non-NUL-terminated strings (andyr).
+- Fix length returned from wxMBConvUTF16::ToWChar(NULL) (Thomas Goyne).
+- Fix wxSocket::WaitForAccept() in non-main thread (Hajo Kirchhoff).
+- Fix memory overallocation in wxVector::reserve() (Nigel Paton).
+- Fix `wx-config --libs` in monolithic build.
+- Fix wxFileSystemWatcher::RemoveAll() (Melroy Tellis).
+- Fix the build under HP-UX (tested under 11.31).
+- Add Aragonese translation.
+
+All (GUI):
+
+- Fix crash when setting invalid label ending with "&" (ZaneUJi).
+- Fix wxEditableListBox user data corruption when exchanging items
+  in 64 bit builds (Tom Mettam, Rapid2D).
+- Fix wxCommandProcessor::IsDirty() return value which was wrong after undoing
+  all commands without saving (Neil Chittenden).
+- Fix crash when Destroy()-ing a TLW with non-TLW parent.
+- Fix crash in wxAuiToolBar::GetToolBarFits().
+- Make wxFILTER_INCLUDE_LIST in wxTextValidator actually usable.
+- Make wxHTML more efficient when displaying large tables (Kinaou Hervé).
+- Prevent wxGrid rows/columns from becoming too small on double click.
+- Fix wxGraphicsBitmap::ConvertToImage() when using Cairo.
+- Support loading ICO files with data in PNG format (Artur Wieczorek).
+- Fix dragging columns in wxGrid when some of them are hidden (Artur Wieczorek).
+- Fix selecting elements from wxPropertyGrid enum properties (Artur Wieczorek).
+- Don't show the dialog twice for colours in wxPropertyGrid (Artur Wieczorek).
+- Fix handling of custom colours in wxPropertyGrid choices (Artur Wieczorek).
+- Add "hint" property to wxTextCtrl XRC handler.
+- Allow using wxALIGN_CENTER, and not just CENTRE, in XRC for wxStaticText.
+
+wxGTK:
+
+- Fix mouse wheel scrolling in wxListCtrl broken just before 3.0.0.
+- Fix memory leak in wxSocket.
+- Fix raw access to wxBitmap pixels after drawing on it using wxMemoryDC.
+- Fix setting font and colours of wxToggleButtons with images.
+- Fix wxPopupTransientWindow mouse events with GTK3,
+  also fixes wxOwnerDrawnComboBox, wxDatePickerCtrl.
+- Fix cursor inheritance.
+- Fix wxStaticBoxSizer size calculation.
+- Fix AUI panel re-docking.
+- Add support for wxDD_DIR_MUST_EXIST to wxDirDialog.
+- Fix handling of the accelerators for sub menu items (Chaobin Zhang).
+- Fix disappearing mouse clicks when using wxTreeCtrl.
+- Fix calls to Move{Before,After}InTabOrder() after parent window creation.
+- Fix wxDirPickerCtrl to send wxEVT_DIRPICKER_CHANGED when user selects a
+  special folder from combobox
+- Fix wxSystemSettings::GetColour() returning transparent colors with GTK3.
+- Fix setting client data when adding items to a sorted wxListBox.
+- Fix X 'BadPixmap' crash in wxDC::Blit() with mask when GTK+ <= 2.16.
+
+wxMSW:
+
+- Disable the use of compiler TLS to avoid mysterious crashes in plugins.
+- Added solution files for MSVS 2012 and 2013 (Artur Wieczorek).
+- Fix handling of unsupported formats in dnd (jwiesemann).
+- Fix blank wxBitmapComboBox dropdown appearance.
+- Fix clicking on checkboxes in wxDataViewCtrl.
+- Fix handling of Esc while an auto-complete drop down is open (Chaobin Zhang).
+- Many improvements to alpha transparency handling (Artur Wieczorek).
+- Make "%lu" work with size_t arguments under Win64 (laro).
+- Fix wxRegion::Offset() with shared objects (Joost Nieuwenhuijse).
+- Fix wxSocket::Initialize() after Shutdown() (Laurent Poujoulat).
+- Fix coordinates of EVT_MOUSEWHEEL in frames with toolbars (LtJax).
+- Support "show" verb as well as "open" in wxFileType (Eric Jensen).
+- Fix display of bitmaps with alpha in wxStaticBitmap (Artur Wieczorek).
+- Fix wxClientDC::Clear() for scrolled windows (Artur Wieczorek).
+- Make wxPrinterDC::DrawIcon() actually work (Artur Wieczorek).
+- Fix handling of wxSET, wxCLEAR and wxINVERT in wxDC (Artur Wieczorek).
+- Fix bug with multiple default buttons in a dialog (Artur Wieczorek).
+- Improve tooltips wrapping after updating their text (Artur Wieczorek).
+- Fix checking menu items before appending them to the menu.
+- Fix crash when adding/removing the same path to/from wxFileSystemWatcher.
+- Draw "classic" disabled owner drawn buttons better (Artur Wieczorek).
+- Fix width of the vertical toolbars (Artur Wieczorek).
+- Fix handling of controls in the vertical toolbars (Artur Wieczorek).
+- Fix loading of top to bottom BMP files in wxBitmap (Artur Wieczorek).
+- Fix resource leak in wxStaticBitmap with RGBA icons (Artur Wieczorek).
+- Fix toolbar repainting after deleting a tool from it (Artur Wieczorek).
+- Allow resetting bitmaps used in wxButton (Artur Wieczorek).
+- Fix bug with removing items from a menu with radio buttons (Artur Wieczorek).
+- Fix handling of deleting directories in wxFileSystemWatcher (Eric Raijmakers).
+- Disable the use of new style wxDirDialog under Vista to work around a bug in
+  its implementation under this system (jtrauntvein).
+- Fix wxExecute() keeping open too many thread handles for too long (dannchr).
+- Fix clicking on togglable columns in wxDataViewCtrl (Laurent Poujoulat).
+- Fix expander in non left-most position in wxDataViewCtrl (Laurent Poujoulat).
+- Don't fail when using large paper sizes in print preview.
+- Fix wxRichMessageDialog return value for dialog with only "OK" button.
+- Fix precision loss in wxGraphicsContext::{Draw,Stroke}Lines() (tibo_).
+- Fix destroying the font from wxFont::GetFaceName() in some cases (aebailey82).
+- Fix wxCheckListBox appearance when using larger fonts (Igor Korot).
+- Return correct results from wxPopupWindow::GetPosition() (Christian Walther).
+
+wxOSX:
+
+- Fix buffer overrun in drag-and-drop code (Kristian Duske).
+- Fix incorrect joystick detection in configure (Lauri Nurmi).
+- Fix crash in wxDataViewCtrl when cancelling choice selection (hartwigw).
+- Implement support for wxGA_VERTICAL in wxGauge (themindiswatching).
+- Add support for wxEVT_COMBOBOX_DROPDOWN and wxEVT_COMBOBOX_CLOSEUP
+  events to wxOSX/Cocoa (Igor Korot).
+- Fix several memory leaks in wxDataViewCtrl (John Roberts).
+
+
+3.0.0: (released 2013-11-11)
+----------------------------
+
+All:
+
+- Fix crash if wxCharBuffer fails to allocate the requested amount of memory.
+
+wxGTK:
+
+- Fix wxSpinButton default width under GTK+ 3 (David Hart).
+
+wxMSW:
+
+- Compilation fix for WXWIN_COMPATIBILITY_2_6=1 case (Tim Stahlhut).
+- Fix behaviour of wxComboBox using ID=1000.
+
+
+3.0-RC2: (released 2013-10-28)
+------------------------------
+
+All:
+
+- wxTextFile::SaveFile() uses UTF-8 now.
+- Add possibility to validate the input files against a schema to wxrc.
+- Fix recently broken compilation with Intel compiler.
+- Fix reading of files with Mac EOLs in wxTextFile.
+
+All (GUI):
+
+- Fix wxListEvent::GetData() in LLP64 builds.
+- Fix special characters handling in wxSVGFileDC::DrawText() (Ludovic Aubert).
+
+wxGTK:
+
+- Fix DrawArc() when printing.
+
+wxMSW:
+
+- Optional better handling of SAFEARRAYs in wxAutomationObject (PB).
 
 
 3.0-RC1: (released 2013-10-07)
@@ -643,7 +808,7 @@ All:
 - Add separate read/written bytes counters and per-direction NOWAIT and WAITALL
   flags to wxSocket (Rob Bresalier).
 - Add wxEventLoop::ScheduleExit() (Rob Bresalier).
-- Add wxProcess::SetPriority() (Marian Meravy).
+- Add wxProcess::SetPriority() (Marián "VooDooMan" Meravý).
 - Add wxDir::Close() method (Silverstorm82).
 - Fix wxDateTime::GetWeekOfYear() for the last week of year (aimo).
 - Fix compilation of wxHash{Map,Set} with g++ 4.7 (Nathan Ridge).
@@ -653,7 +818,7 @@ All:
 - Add wxVector::assign() (Jonas Rydberg).
 - Add wx[F]File{Input,Output}Stream::GetFile() (troelsk).
 - Add wxSocketBase::GetSocket() (Laurent Poujoulat).
-- Add IEEE 754 single/double precision support to wxDataStream classes (net147).
+- Add IEEE 754 formats support to wxDataStream classes (Jonathan Liu).
 - Add wxVector<>::const_reverse_iterator (troelsk).
 - Fix thread-safety issue in wxSharedPtr<> (plorkyeran).
 - Add wxTimer::StartOnce().

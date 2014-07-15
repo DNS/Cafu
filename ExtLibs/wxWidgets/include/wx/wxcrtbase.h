@@ -165,7 +165,7 @@ WXDLLIMPEXP_BASE void *calloc( size_t num, size_t size );
 
 /* Almost all compilers have strdup(), but VC++ and MinGW call it _strdup().
    And it's not available in MinGW strict ANSI mode nor under Windows CE. */
-#if (defined(__VISUALC__) && __VISUALC__ >= 1400) || (defined(_MSC_VER) && _MSC_VER >= 1400 && defined (__INTELC__))
+#if (defined(__VISUALC__) && __VISUALC__ >= 1400)
     #define wxCRT_StrdupA _strdup
 #elif defined(__MINGW32__)
     #ifndef __WX_STRICT_ANSI_GCC__
@@ -564,24 +564,6 @@ WXDLLIMPEXP_BASE wchar_t * wxCRT_GetenvW(const wchar_t *name);
     #define wxCRT_AtolW(s)         wcstol(s, NULL, 10)
     /* wcstoi doesn't exist */
 #endif
-
-#ifdef __DARWIN__
-    #if !defined(__WXOSX_IPHONE__) && MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_2
-        #define wxNEED_WX_MBSTOWCS
-    #endif
-#endif
-
-#ifdef wxNEED_WX_MBSTOWCS
-    /* even though they are defined and "implemented", they are bad and just
-       stubs so we need our own - we need these even in ANSI builds!! */
-    WXDLLIMPEXP_BASE size_t wxMbstowcs(wchar_t *, const char *, size_t);
-    WXDLLIMPEXP_BASE size_t wxWcstombs(char *, const wchar_t *, size_t);
-#else
-    #define wxMbstowcs mbstowcs
-    #define wxWcstombs wcstombs
-#endif
-
-
 
 /* -------------------------------------------------------------------------
                                 time.h

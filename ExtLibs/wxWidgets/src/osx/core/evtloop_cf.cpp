@@ -71,14 +71,14 @@ wxCFEventLoopSource::~wxCFEventLoopSource()
 void wxCFEventLoop::OSXCommonModeObserverCallBack(CFRunLoopObserverRef observer, int activity, void *info)
 {
     wxCFEventLoop * eventloop = static_cast<wxCFEventLoop *>(info);
-    if ( eventloop )
+    if ( eventloop && eventloop->IsRunning() )
         eventloop->CommonModeObserverCallBack(observer, activity);
 }
 
 void wxCFEventLoop::OSXDefaultModeObserverCallBack(CFRunLoopObserverRef observer, int activity, void *info)
 {
     wxCFEventLoop * eventloop = static_cast<wxCFEventLoop *>(info);
-    if ( eventloop )
+    if ( eventloop && eventloop->IsRunning() )
         eventloop->DefaultModeObserverCallBack(observer, activity);
 }
 
@@ -243,7 +243,7 @@ int wxCFEventLoop::DoProcessEvents()
     }
     else
 #endif
-        return DispatchTimeout( 0 );
+        return DispatchTimeout( m_isInsideYield ? 0 : 1000 );
 }
 
 bool wxCFEventLoop::Dispatch()

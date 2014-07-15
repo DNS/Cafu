@@ -376,6 +376,8 @@ wxStdDialogButtonSizer *wxDialogBase::CreateStdDialogButtonSizer( long flags )
         SetAffirmativeId(wxID_OK);
     else if (flags & wxYES)
         SetAffirmativeId(wxID_YES);
+    else if (flags & wxCLOSE)
+        SetAffirmativeId(wxID_CLOSE);
 
     sizer->Realize();
 
@@ -517,7 +519,13 @@ IMPLEMENT_DYNAMIC_CLASS(wxWindowModalDialogEvent, wxCommandEvent)
 
 void wxDialogBase::ShowWindowModal ()
 {
-    ShowModal();
+    int retval = ShowModal();
+    // wxWindowModalDialogEvent relies on GetReturnCode() returning correct
+    // code. Rather than doing it manually in all ShowModal() overrides for
+    // native dialogs (and getting accidentally broken again), set it here.
+    // The worst that can happen is that it will be set twice to the same
+    // value.
+    SetReturnCode(retval);
     SendWindowModalDialogEvent ( wxEVT_WINDOW_MODAL_DIALOG_CLOSED  );
 }
 

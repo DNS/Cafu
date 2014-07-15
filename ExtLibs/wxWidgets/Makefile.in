@@ -76,7 +76,7 @@ wx_top_builddir = @wx_top_builddir@
 DESTDIR = 
 WX_RELEASE = 3.0
 WX_RELEASE_NODOT = 30
-WX_VERSION = $(WX_RELEASE).0
+WX_VERSION = $(WX_RELEASE).1
 LIBDIRNAME = $(wx_top_builddir)/lib
 WXREGEX_CFLAGS = -DNDEBUG -D__WX$(TOOLKIT)__ $(__WXUNIV_DEFINE_p) $(____SHARED) \
 	$(CPPFLAGS) $(CFLAGS)
@@ -699,6 +699,9 @@ ALL_PORTS_BASE_HEADERS =  \
 	wx/unix/stackwalk.h \
 	wx/unix/tls.h \
 	wx/unix/fswatcher_kqueue.h \
+	wx/private/streamtempinput.h \
+	wx/private/pipestream.h \
+	wx/unix/private/pipestream.h \
 	wx/unix/execute.h \
 	wx/unix/mimetype.h \
 	wx/unix/fswatcher_inotify.h \
@@ -2083,7 +2086,7 @@ LOCALE_MSW_LINGUAS =  it
 @COND_DEPS_TRACKING_1@CXXC = $(BK_DEPS) $(CXX)
 @COND_USE_PLUGINS_0@PLUGIN_ADV_EXTRALIBS = $(EXTRALIBS_SDL)
 @COND_PLATFORM_MACOSX_1@WXMACVERSION_CMD = \
-@COND_PLATFORM_MACOSX_1@	-compatibility_version 1.0 -current_version 1.0
+@COND_PLATFORM_MACOSX_1@	-compatibility_version 2.0 -current_version 2.0
 @COND_USE_GUI_0@PORTNAME = base
 @COND_USE_GUI_1@PORTNAME = $(TOOLKIT_LOWERCASE)$(TOOLKIT_VERSION)
 @COND_TOOLKIT_MAC@WXBASEPORT = _carbon
@@ -2476,6 +2479,9 @@ COND_TOOLKIT_COCOA_BASE_OSX_HDR =  \
 	wx/unix/stackwalk.h \
 	wx/unix/tls.h \
 	wx/unix/fswatcher_kqueue.h \
+	wx/private/streamtempinput.h \
+	wx/private/pipestream.h \
+	wx/unix/private/pipestream.h \
 	wx/unix/execute.h \
 	wx/unix/mimetype.h \
 	wx/osx/core/cfdataref.h \
@@ -2499,6 +2505,9 @@ COND_TOOLKIT_GTK_BASE_OSX_HDR =  \
 	wx/unix/stackwalk.h \
 	wx/unix/tls.h \
 	wx/unix/fswatcher_kqueue.h \
+	wx/private/streamtempinput.h \
+	wx/private/pipestream.h \
+	wx/unix/private/pipestream.h \
 	wx/unix/execute.h \
 	wx/unix/mimetype.h \
 	wx/osx/core/cfdataref.h \
@@ -2522,6 +2531,9 @@ COND_TOOLKIT_X11_BASE_OSX_HDR =  \
 	wx/unix/stackwalk.h \
 	wx/unix/tls.h \
 	wx/unix/fswatcher_kqueue.h \
+	wx/private/streamtempinput.h \
+	wx/private/pipestream.h \
+	wx/unix/private/pipestream.h \
 	wx/unix/execute.h \
 	wx/unix/mimetype.h \
 	wx/osx/core/cfdataref.h \
@@ -2545,6 +2557,9 @@ COND_TOOLKIT_MOTIF_BASE_OSX_HDR =  \
 	wx/unix/stackwalk.h \
 	wx/unix/tls.h \
 	wx/unix/fswatcher_kqueue.h \
+	wx/private/streamtempinput.h \
+	wx/private/pipestream.h \
+	wx/unix/private/pipestream.h \
 	wx/unix/execute.h \
 	wx/unix/mimetype.h \
 	wx/osx/core/cfdataref.h \
@@ -2568,6 +2583,9 @@ COND_TOOLKIT__BASE_OSX_HDR =  \
 	wx/unix/stackwalk.h \
 	wx/unix/tls.h \
 	wx/unix/fswatcher_kqueue.h \
+	wx/private/streamtempinput.h \
+	wx/private/pipestream.h \
+	wx/unix/private/pipestream.h \
 	wx/unix/execute.h \
 	wx/unix/mimetype.h \
 	wx/osx/core/cfdataref.h \
@@ -2604,6 +2622,9 @@ COND_PLATFORM_UNIX_1_BASE_PLATFORM_HDR =  \
 	wx/unix/stackwalk.h \
 	wx/unix/tls.h \
 	wx/unix/fswatcher_kqueue.h \
+	wx/private/streamtempinput.h \
+	wx/private/pipestream.h \
+	wx/unix/private/pipestream.h \
 	wx/unix/execute.h \
 	wx/unix/mimetype.h \
 	wx/unix/fswatcher_inotify.h
@@ -4137,6 +4158,7 @@ COND_USE_GUI_1_ALL_GUI_HEADERS =  \
 	wx/panel.h \
 	wx/pen.h \
 	wx/position.h \
+	wx/preferences.h \
 	wx/radiobox.h \
 	wx/radiobut.h \
 	wx/range.h \
@@ -4154,6 +4176,7 @@ COND_USE_GUI_1_ALL_GUI_HEADERS =  \
 	wx/statbox.h \
 	wx/stattext.h \
 	wx/statusbr.h \
+	wx/testing.h \
 	wx/textcompleter.h \
 	wx/textctrl.h \
 	wx/textdlg.h \
@@ -5219,6 +5242,7 @@ COND_TOOLKIT_GTK_TOOLKIT_VERSION_2___LOWLEVEL_SRC_OBJECTS =  \
 	monodll_gtk_cursor.o \
 	monodll_gtk_dataobj.o \
 	monodll_gtk_dc.o \
+	monodll_gtk_display.o \
 	monodll_gtk_dnd.o \
 	monodll_gtk_evtloop.o \
 	monodll_filectrl.o \
@@ -5257,6 +5281,7 @@ COND_TOOLKIT_GTK_TOOLKIT_VERSION_3___LOWLEVEL_SRC_OBJECTS =  \
 	monodll_gtk_cursor.o \
 	monodll_gtk_dataobj.o \
 	monodll_gtk_dc.o \
+	monodll_gtk_display.o \
 	monodll_gtk_dnd.o \
 	monodll_gtk_evtloop.o \
 	monodll_filectrl.o \
@@ -6167,6 +6192,7 @@ COND_TOOLKIT_GTK_TOOLKIT_VERSION_2___LOWLEVEL_SRC_OBJECTS_1 =  \
 	monodll_gtk_cursor.o \
 	monodll_gtk_dataobj.o \
 	monodll_gtk_dc.o \
+	monodll_gtk_display.o \
 	monodll_gtk_dnd.o \
 	monodll_gtk_evtloop.o \
 	monodll_filectrl.o \
@@ -6205,6 +6231,7 @@ COND_TOOLKIT_GTK_TOOLKIT_VERSION_3___LOWLEVEL_SRC_OBJECTS_1 =  \
 	monodll_gtk_cursor.o \
 	monodll_gtk_dataobj.o \
 	monodll_gtk_dc.o \
+	monodll_gtk_display.o \
 	monodll_gtk_dnd.o \
 	monodll_gtk_evtloop.o \
 	monodll_filectrl.o \
@@ -7467,6 +7494,7 @@ COND_TOOLKIT_GTK_TOOLKIT_VERSION_2___LOWLEVEL_SRC_OBJECTS_2 =  \
 	monolib_gtk_cursor.o \
 	monolib_gtk_dataobj.o \
 	monolib_gtk_dc.o \
+	monolib_gtk_display.o \
 	monolib_gtk_dnd.o \
 	monolib_gtk_evtloop.o \
 	monolib_filectrl.o \
@@ -7505,6 +7533,7 @@ COND_TOOLKIT_GTK_TOOLKIT_VERSION_3___LOWLEVEL_SRC_OBJECTS_2 =  \
 	monolib_gtk_cursor.o \
 	monolib_gtk_dataobj.o \
 	monolib_gtk_dc.o \
+	monolib_gtk_display.o \
 	monolib_gtk_dnd.o \
 	monolib_gtk_evtloop.o \
 	monolib_filectrl.o \
@@ -8415,6 +8444,7 @@ COND_TOOLKIT_GTK_TOOLKIT_VERSION_2___LOWLEVEL_SRC_OBJECTS_3 =  \
 	monolib_gtk_cursor.o \
 	monolib_gtk_dataobj.o \
 	monolib_gtk_dc.o \
+	monolib_gtk_display.o \
 	monolib_gtk_dnd.o \
 	monolib_gtk_evtloop.o \
 	monolib_filectrl.o \
@@ -8453,6 +8483,7 @@ COND_TOOLKIT_GTK_TOOLKIT_VERSION_3___LOWLEVEL_SRC_OBJECTS_3 =  \
 	monolib_gtk_cursor.o \
 	monolib_gtk_dataobj.o \
 	monolib_gtk_dc.o \
+	monolib_gtk_display.o \
 	monolib_gtk_dnd.o \
 	monolib_gtk_evtloop.o \
 	monolib_filectrl.o \
@@ -9889,6 +9920,7 @@ COND_TOOLKIT_GTK_TOOLKIT_VERSION_2___LOWLEVEL_SRC_OBJECTS_4 =  \
 	coredll_gtk_cursor.o \
 	coredll_gtk_dataobj.o \
 	coredll_gtk_dc.o \
+	coredll_gtk_display.o \
 	coredll_gtk_dnd.o \
 	coredll_gtk_evtloop.o \
 	coredll_filectrl.o \
@@ -9927,6 +9959,7 @@ COND_TOOLKIT_GTK_TOOLKIT_VERSION_3___LOWLEVEL_SRC_OBJECTS_4 =  \
 	coredll_gtk_cursor.o \
 	coredll_gtk_dataobj.o \
 	coredll_gtk_dc.o \
+	coredll_gtk_display.o \
 	coredll_gtk_dnd.o \
 	coredll_gtk_evtloop.o \
 	coredll_filectrl.o \
@@ -10837,6 +10870,7 @@ COND_TOOLKIT_GTK_TOOLKIT_VERSION_2___LOWLEVEL_SRC_OBJECTS_5 =  \
 	coredll_gtk_cursor.o \
 	coredll_gtk_dataobj.o \
 	coredll_gtk_dc.o \
+	coredll_gtk_display.o \
 	coredll_gtk_dnd.o \
 	coredll_gtk_evtloop.o \
 	coredll_filectrl.o \
@@ -10875,6 +10909,7 @@ COND_TOOLKIT_GTK_TOOLKIT_VERSION_3___LOWLEVEL_SRC_OBJECTS_5 =  \
 	coredll_gtk_cursor.o \
 	coredll_gtk_dataobj.o \
 	coredll_gtk_dc.o \
+	coredll_gtk_display.o \
 	coredll_gtk_dnd.o \
 	coredll_gtk_evtloop.o \
 	coredll_filectrl.o \
@@ -11566,6 +11601,7 @@ COND_TOOLKIT_GTK_TOOLKIT_VERSION_2___LOWLEVEL_SRC_OBJECTS_6 =  \
 	corelib_gtk_cursor.o \
 	corelib_gtk_dataobj.o \
 	corelib_gtk_dc.o \
+	corelib_gtk_display.o \
 	corelib_gtk_dnd.o \
 	corelib_gtk_evtloop.o \
 	corelib_filectrl.o \
@@ -11604,6 +11640,7 @@ COND_TOOLKIT_GTK_TOOLKIT_VERSION_3___LOWLEVEL_SRC_OBJECTS_6 =  \
 	corelib_gtk_cursor.o \
 	corelib_gtk_dataobj.o \
 	corelib_gtk_dc.o \
+	corelib_gtk_display.o \
 	corelib_gtk_dnd.o \
 	corelib_gtk_evtloop.o \
 	corelib_filectrl.o \
@@ -12514,6 +12551,7 @@ COND_TOOLKIT_GTK_TOOLKIT_VERSION_2___LOWLEVEL_SRC_OBJECTS_7 =  \
 	corelib_gtk_cursor.o \
 	corelib_gtk_dataobj.o \
 	corelib_gtk_dc.o \
+	corelib_gtk_display.o \
 	corelib_gtk_dnd.o \
 	corelib_gtk_evtloop.o \
 	corelib_filectrl.o \
@@ -12552,6 +12590,7 @@ COND_TOOLKIT_GTK_TOOLKIT_VERSION_3___LOWLEVEL_SRC_OBJECTS_7 =  \
 	corelib_gtk_cursor.o \
 	corelib_gtk_dataobj.o \
 	corelib_gtk_dc.o \
+	corelib_gtk_display.o \
 	corelib_gtk_dnd.o \
 	corelib_gtk_evtloop.o \
 	corelib_filectrl.o \
@@ -15155,9 +15194,9 @@ COND_MONOLITHIC_0_SHARED_1_USE_GUI_1_USE_HTML_1___htmldll_library_link_LIBR_0 \
 @COND_USE_SOVERSION_0@dll___targetsuf2 = .$(SO_SUFFIX)
 @COND_PLATFORM_MACOSX_0_USE_SOVERCYGWIN_0_USE_SOVERSION_1@dll___targetsuf3 \
 @COND_PLATFORM_MACOSX_0_USE_SOVERCYGWIN_0_USE_SOVERSION_1@	= \
-@COND_PLATFORM_MACOSX_0_USE_SOVERCYGWIN_0_USE_SOVERSION_1@	.$(SO_SUFFIX).0.0.0
+@COND_PLATFORM_MACOSX_0_USE_SOVERCYGWIN_0_USE_SOVERSION_1@	.$(SO_SUFFIX).0.1.0
 @COND_PLATFORM_MACOSX_1_USE_SOVERSION_1@dll___targetsuf3 \
-@COND_PLATFORM_MACOSX_1_USE_SOVERSION_1@	= .0.0.0.$(SO_SUFFIX)
+@COND_PLATFORM_MACOSX_1_USE_SOVERSION_1@	= .0.1.0.$(SO_SUFFIX)
 @COND_USE_SOVERCYGWIN_1_USE_SOVERSION_1@dll___targetsuf3 = -0.$(SO_SUFFIX)
 @COND_USE_SOVERSION_0@dll___targetsuf3 = .$(SO_SUFFIX)
 @COND_USE_SOVERSION_1_USE_SOVERSOLARIS_1@dll___targetsuf3 = .$(SO_SUFFIX).0
@@ -19384,6 +19423,12 @@ monodll_sound_sdl.o: $(srcdir)/src/unix/sound_sdl.cpp $(MONODLL_ODEP)
 
 @COND_TOOLKIT_GTK_TOOLKIT_VERSION_3_USE_GUI_1@monodll_gtk_dc.o: $(srcdir)/src/gtk/dc.cpp $(MONODLL_ODEP)
 @COND_TOOLKIT_GTK_TOOLKIT_VERSION_3_USE_GUI_1@	$(CXXC) -c -o $@ $(MONODLL_CXXFLAGS) $(srcdir)/src/gtk/dc.cpp
+
+@COND_TOOLKIT_GTK_TOOLKIT_VERSION_2_USE_GUI_1@monodll_gtk_display.o: $(srcdir)/src/gtk/display.cpp $(MONODLL_ODEP)
+@COND_TOOLKIT_GTK_TOOLKIT_VERSION_2_USE_GUI_1@	$(CXXC) -c -o $@ $(MONODLL_CXXFLAGS) $(srcdir)/src/gtk/display.cpp
+
+@COND_TOOLKIT_GTK_TOOLKIT_VERSION_3_USE_GUI_1@monodll_gtk_display.o: $(srcdir)/src/gtk/display.cpp $(MONODLL_ODEP)
+@COND_TOOLKIT_GTK_TOOLKIT_VERSION_3_USE_GUI_1@	$(CXXC) -c -o $@ $(MONODLL_CXXFLAGS) $(srcdir)/src/gtk/display.cpp
 
 @COND_TOOLKIT_GTK_TOOLKIT_VERSION_2_USE_GUI_1@monodll_gtk_dnd.o: $(srcdir)/src/gtk/dnd.cpp $(MONODLL_ODEP)
 @COND_TOOLKIT_GTK_TOOLKIT_VERSION_2_USE_GUI_1@	$(CXXC) -c -o $@ $(MONODLL_CXXFLAGS) $(srcdir)/src/gtk/dnd.cpp
@@ -25252,6 +25297,12 @@ monolib_sound_sdl.o: $(srcdir)/src/unix/sound_sdl.cpp $(MONOLIB_ODEP)
 
 @COND_TOOLKIT_GTK_TOOLKIT_VERSION_3_USE_GUI_1@monolib_gtk_dc.o: $(srcdir)/src/gtk/dc.cpp $(MONOLIB_ODEP)
 @COND_TOOLKIT_GTK_TOOLKIT_VERSION_3_USE_GUI_1@	$(CXXC) -c -o $@ $(MONOLIB_CXXFLAGS) $(srcdir)/src/gtk/dc.cpp
+
+@COND_TOOLKIT_GTK_TOOLKIT_VERSION_2_USE_GUI_1@monolib_gtk_display.o: $(srcdir)/src/gtk/display.cpp $(MONOLIB_ODEP)
+@COND_TOOLKIT_GTK_TOOLKIT_VERSION_2_USE_GUI_1@	$(CXXC) -c -o $@ $(MONOLIB_CXXFLAGS) $(srcdir)/src/gtk/display.cpp
+
+@COND_TOOLKIT_GTK_TOOLKIT_VERSION_3_USE_GUI_1@monolib_gtk_display.o: $(srcdir)/src/gtk/display.cpp $(MONOLIB_ODEP)
+@COND_TOOLKIT_GTK_TOOLKIT_VERSION_3_USE_GUI_1@	$(CXXC) -c -o $@ $(MONOLIB_CXXFLAGS) $(srcdir)/src/gtk/display.cpp
 
 @COND_TOOLKIT_GTK_TOOLKIT_VERSION_2_USE_GUI_1@monolib_gtk_dnd.o: $(srcdir)/src/gtk/dnd.cpp $(MONOLIB_ODEP)
 @COND_TOOLKIT_GTK_TOOLKIT_VERSION_2_USE_GUI_1@	$(CXXC) -c -o $@ $(MONOLIB_CXXFLAGS) $(srcdir)/src/gtk/dnd.cpp
@@ -31286,6 +31337,12 @@ coredll_win32.o: $(srcdir)/src/univ/themes/win32.cpp $(COREDLL_ODEP)
 @COND_TOOLKIT_GTK_TOOLKIT_VERSION_3_USE_GUI_1@coredll_gtk_dc.o: $(srcdir)/src/gtk/dc.cpp $(COREDLL_ODEP)
 @COND_TOOLKIT_GTK_TOOLKIT_VERSION_3_USE_GUI_1@	$(CXXC) -c -o $@ $(COREDLL_CXXFLAGS) $(srcdir)/src/gtk/dc.cpp
 
+@COND_TOOLKIT_GTK_TOOLKIT_VERSION_2_USE_GUI_1@coredll_gtk_display.o: $(srcdir)/src/gtk/display.cpp $(COREDLL_ODEP)
+@COND_TOOLKIT_GTK_TOOLKIT_VERSION_2_USE_GUI_1@	$(CXXC) -c -o $@ $(COREDLL_CXXFLAGS) $(srcdir)/src/gtk/display.cpp
+
+@COND_TOOLKIT_GTK_TOOLKIT_VERSION_3_USE_GUI_1@coredll_gtk_display.o: $(srcdir)/src/gtk/display.cpp $(COREDLL_ODEP)
+@COND_TOOLKIT_GTK_TOOLKIT_VERSION_3_USE_GUI_1@	$(CXXC) -c -o $@ $(COREDLL_CXXFLAGS) $(srcdir)/src/gtk/display.cpp
+
 @COND_TOOLKIT_GTK_TOOLKIT_VERSION_2_USE_GUI_1@coredll_gtk_dnd.o: $(srcdir)/src/gtk/dnd.cpp $(COREDLL_ODEP)
 @COND_TOOLKIT_GTK_TOOLKIT_VERSION_2_USE_GUI_1@	$(CXXC) -c -o $@ $(COREDLL_CXXFLAGS) $(srcdir)/src/gtk/dnd.cpp
 
@@ -35662,6 +35719,12 @@ corelib_win32.o: $(srcdir)/src/univ/themes/win32.cpp $(CORELIB_ODEP)
 
 @COND_TOOLKIT_GTK_TOOLKIT_VERSION_3_USE_GUI_1@corelib_gtk_dc.o: $(srcdir)/src/gtk/dc.cpp $(CORELIB_ODEP)
 @COND_TOOLKIT_GTK_TOOLKIT_VERSION_3_USE_GUI_1@	$(CXXC) -c -o $@ $(CORELIB_CXXFLAGS) $(srcdir)/src/gtk/dc.cpp
+
+@COND_TOOLKIT_GTK_TOOLKIT_VERSION_2_USE_GUI_1@corelib_gtk_display.o: $(srcdir)/src/gtk/display.cpp $(CORELIB_ODEP)
+@COND_TOOLKIT_GTK_TOOLKIT_VERSION_2_USE_GUI_1@	$(CXXC) -c -o $@ $(CORELIB_CXXFLAGS) $(srcdir)/src/gtk/display.cpp
+
+@COND_TOOLKIT_GTK_TOOLKIT_VERSION_3_USE_GUI_1@corelib_gtk_display.o: $(srcdir)/src/gtk/display.cpp $(CORELIB_ODEP)
+@COND_TOOLKIT_GTK_TOOLKIT_VERSION_3_USE_GUI_1@	$(CXXC) -c -o $@ $(CORELIB_CXXFLAGS) $(srcdir)/src/gtk/display.cpp
 
 @COND_TOOLKIT_GTK_TOOLKIT_VERSION_2_USE_GUI_1@corelib_gtk_dnd.o: $(srcdir)/src/gtk/dnd.cpp $(CORELIB_ODEP)
 @COND_TOOLKIT_GTK_TOOLKIT_VERSION_2_USE_GUI_1@	$(CXXC) -c -o $@ $(CORELIB_CXXFLAGS) $(srcdir)/src/gtk/dnd.cpp

@@ -19,12 +19,6 @@
     #import <Cocoa/Cocoa.h>
 #endif
 
-#if MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_5
-// available in 10.4 but not in the headers
-enum {
-    kEventMouseScroll             = 11
-};
-#endif
 //
 // shared between Cocoa and Carbon
 //
@@ -107,9 +101,9 @@ public :
     void                SetCursor( const wxCursor & cursor );
     void                CaptureMouse();
     void                ReleaseMouse();
-
+#if wxUSE_DRAG_AND_DROP
     void                SetDropTarget(wxDropTarget* target);
-    
+#endif
     wxInt32             GetValue() const;
     void                SetValue( wxInt32 v );
     wxBitmap            GetBitmap() const;
@@ -152,10 +146,12 @@ public :
     
     // cocoa thunk connected calls
 
+#if wxUSE_DRAG_AND_DROP
     virtual unsigned int        draggingEntered(void* sender, WXWidget slf, void* _cmd);
     virtual void                draggingExited(void* sender, WXWidget slf, void* _cmd);
     virtual unsigned int        draggingUpdated(void* sender, WXWidget slf, void* _cmd);
     virtual bool                performDragOperation(void* sender, WXWidget slf, void* _cmd);
+#endif
     virtual void                mouseEvent(WX_NSEvent event, WXWidget slf, void* _cmd);
     virtual void                cursorUpdate(WX_NSEvent event, WXWidget slf, void* _cmd);
     virtual void                keyEvent(WX_NSEvent event, WXWidget slf, void* _cmd);

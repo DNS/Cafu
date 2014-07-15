@@ -633,7 +633,11 @@ static bool ReadAll(wxInputStream *is, wxArrayString& output)
     // Notice that wxTextInputStream doesn't work correctly with wxConvAuto
     // currently, see #14720, so use the current locale conversion explicitly
     // under assumption that any external program should be using it too.
-    wxTextInputStream tis(*is, " \t", wxConvLibc);
+    wxTextInputStream tis(*is, " \t"
+#if wxUSE_UNICODE
+                                    , wxConvLibc
+#endif
+                                                );
 
     for ( ;; )
     {
@@ -770,8 +774,8 @@ Thanks,
 #define SWAP(a, b, size)                                                      \
   do                                                                          \
     {                                                                         \
-      register size_t __size = (size);                                        \
-      register char *__a = (a), *__b = (b);                                   \
+      size_t __size = (size);                                                 \
+      char *__a = (a), *__b = (b);                                            \
       do                                                                      \
         {                                                                     \
           char __tmp = *__a;                                                  \
@@ -824,7 +828,7 @@ typedef struct
 void wxQsort(void* pbase, size_t total_elems,
              size_t size, wxSortCallback cmp, const void* user_data)
 {
-  register char *base_ptr = (char *) pbase;
+  char *base_ptr = (char *) pbase;
   const size_t max_thresh = MAX_THRESH * size;
 
   if (total_elems == 0)
@@ -938,7 +942,7 @@ void wxQsort(void* pbase, size_t total_elems,
     char *thresh = base_ptr + max_thresh;
     if ( thresh > end_ptr )
         thresh = end_ptr;
-    register char *run_ptr;
+    char *run_ptr;
 
     /* Find smallest element in first threshold and place it at the
        array's beginning.  This is the smallest array element,
@@ -1201,6 +1205,7 @@ wxString wxStripMenuCodes(const wxString& in, int flags)
             if ( ++it == in.end() )
             {
                 wxLogDebug(wxT("Invalid menu string '%s'"), in.c_str());
+                break;
             }
             else
             {
@@ -1417,7 +1422,7 @@ wxVersionInfo wxGetLibraryVersionInfo()
                          wxMINOR_VERSION,
                          wxRELEASE_NUMBER,
                          msg,
-                         wxS("Copyright (c) 1995-2011 wxWidgets team"));
+                         wxS("Copyright (c) 1995-2013 wxWidgets team"));
 }
 
 void wxInfoMessageBox(wxWindow* parent)

@@ -414,7 +414,7 @@ wxgtk_webview_webkit_context_menu(WebKitWebView *,
 
 static WebKitWebView*
 wxgtk_webview_webkit_create_webview(WebKitWebView *web_view,
-                                    WebKitWebFrame *frame,
+                                    WebKitWebFrame*,
                                     wxWebViewWebKit *webKitCtrl)
 {
     //As we do not know the uri being loaded at this point allow the load to
@@ -774,7 +774,7 @@ wxWebViewZoom wxWebViewWebKit::GetZoom() const
     }
 
     // to shut up compilers, this can never be reached logically
-    wxASSERT(false);
+    wxFAIL;
     return wxWEBVIEW_ZOOM_MEDIUM;
 }
 
@@ -805,7 +805,7 @@ void wxWebViewWebKit::SetZoom(wxWebViewZoom zoom)
             break;
 
         default:
-            wxASSERT(false);
+            wxFAIL;
     }
 }
 

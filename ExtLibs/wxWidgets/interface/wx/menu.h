@@ -408,6 +408,18 @@ public:
     */
     static wxMenuBar* MacGetCommonMenuBar();
 
+    /**
+        Returns the Apple menu.
+
+        This is the leftmost menu with application's name as its title. You
+        shouldn't remove any items from it, but it is safe to insert extra menu
+        items or submenus into it.
+
+        @onlyfor{wxosx}
+        @since 3.0.1
+     */
+    wxMenu *OSXGetAppleMenu() const;
+
     wxFrame *GetFrame() const;
     bool IsAttached() const;
     virtual void Attach(wxFrame *frame);
@@ -433,8 +445,8 @@ public:
     @note
     Please note that @e wxID_ABOUT and @e wxID_EXIT are predefined by wxWidgets
     and have a special meaning since entries using these IDs will be taken out
-    of the normal menus under MacOS X and will be inserted into the system menu
-    (following the appropriate MacOS X interface guideline).
+    of the normal menus under OS X and will be inserted into the system menu
+    (following the appropriate OS X interface guideline).
 
     Menu items may be either @e normal items, @e check items or @e radio items.
     Normal items don't have any special properties while the check items have a
@@ -640,6 +652,8 @@ public:
         Adds the given @a submenu to this menu. @a text is the text shown in the
         menu for it and @a help is the help string shown in the status bar when the
         submenu item is selected.
+
+        @see Insert(), Prepend()
     */
     wxMenuItem* AppendSubMenu(wxMenu* submenu, const wxString& text,
                               const wxString& help = wxEmptyString);
@@ -854,6 +868,16 @@ public:
                        wxItemKind kind = wxITEM_NORMAL);
 
     /**
+        Inserts the given @a submenu before the position @a pos.
+        @a text is the text shown in the menu for it and @a help is the
+        help string shown in the status bar when the submenu item is selected.
+
+        @see AppendSubMenu(), Prepend()
+    */
+    wxMenuItem* Insert(size_t pos, int id, const wxString& text,
+                       wxMenu* submenu, const wxString& help = wxEmptyString);
+
+    /**
         Inserts a checkable item at the given position.
 
         @see Insert(), AppendCheckItem()
@@ -917,6 +941,14 @@ public:
     wxMenuItem* Prepend(int id, const wxString& item = wxEmptyString,
                         const wxString& helpString = wxEmptyString,
                         wxItemKind kind = wxITEM_NORMAL);
+
+    /**
+        Inserts the given @a submenu at position 0.
+
+        @see AppendSubMenu(), Insert()
+    */
+    wxMenuItem* Prepend(int id, const wxString& text, wxMenu* submenu,
+                        const wxString& help = wxEmptyString);
 
     /**
         Inserts a checkable item at position 0.

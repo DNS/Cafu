@@ -16,9 +16,15 @@
     Compiler detection and related helpers.
  */
 
+/*
+    Notice that Intel compiler can be used as Microsoft Visual C++ add-on and
+    so we should define both __INTELC__ and __VISUALC__ for it.
+*/
 #ifdef __INTEL_COMPILER
 #   define __INTELC__
-#elif defined(_MSC_VER)
+#endif
+
+#if defined(_MSC_VER)
     /*
        define another standard symbol for Microsoft Visual C++: the standard
        one (_MSC_VER) is also defined by some other compilers.
@@ -129,16 +135,15 @@
 #endif
 
 /*
-   This macro can be used to check that the version of mingw32 compiler is
-   at least maj.min
+   This macro can be used to check that the version of mingw32 CRT is at least
+   maj.min
  */
 
-/* Check for Mingw runtime version: */
-#if defined(__MINGW32_MAJOR_VERSION) && defined(__MINGW32_MINOR_VERSION)
-    #define wxCHECK_MINGW32_VERSION( major, minor ) \
- ( ( ( __MINGW32_MAJOR_VERSION > (major) ) \
-      || ( __MINGW32_MAJOR_VERSION == (major) && __MINGW32_MINOR_VERSION >= (minor) ) ) )
-
+/*
+    Define Mingw identification symbols, wxCHECK_MINGW32_VERSION() is defined in
+    wx/msw/gccpriv.h which is included later, see comments there.
+ */
+#ifdef __MINGW32__
 /*
     MinGW-w64 project provides compilers for both Win32 and Win64 but only
     defines the same __MINGW32__ symbol for the former as MinGW32 toolchain
@@ -160,8 +165,6 @@
 #           define __MINGW32_TOOLCHAIN__
 #       endif
 #   endif
-#else
-    #define wxCHECK_MINGW32_VERSION( major, minor ) (0)
 #endif
 
 #endif // _WX_COMPILER_H_

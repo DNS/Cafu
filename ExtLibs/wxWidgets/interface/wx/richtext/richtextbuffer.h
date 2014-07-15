@@ -204,8 +204,9 @@ enum wxTextAttrUnits
     wxTEXT_ATTR_UNITS_PIXELS                = 0x0002,
     wxTEXT_ATTR_UNITS_PERCENTAGE            = 0x0004,
     wxTEXT_ATTR_UNITS_POINTS                = 0x0008,
+    wxTEXT_ATTR_UNITS_HUNDREDTHS_POINT      = 0x0100,
 
-    wxTEXT_ATTR_UNITS_MASK                  = 0x000F
+    wxTEXT_ATTR_UNITS_MASK                  = 0x010F
 };
 
 /**
@@ -793,6 +794,11 @@ public:
     bool IsValid() const { return HasWidth(); }
 
     /**
+        True if the border has no attributes set.
+    */
+    bool IsDefault() const { return (m_flags == 0); }
+
+    /**
         Set the valid flag for this border.
     */
     void MakeValid() { m_borderWidth.SetValid(true); }
@@ -905,7 +911,7 @@ public:
     void CollectCommonAttributes(const wxTextAttrBorders& attr, wxTextAttrBorders& clashingAttr, wxTextAttrBorders& absentAttr);
 
     /**
-        Returns @true if all borders are valid.
+        Returns @true if at least one border is valid.
     */
     bool IsValid() const { return m_left.IsValid() || m_right.IsValid() || m_top.IsValid() || m_bottom.IsValid(); }
 
@@ -1345,7 +1351,7 @@ public:
     @library{wxrichtext}
     @category{richtext}
 
-    @see wxRichTextAttr, wxTextBoxAttr, wxRichTextCtrl
+    @see wxTextAttr, wxTextBoxAttr, wxRichTextCtrl
 */
 
 class wxRichTextAttr: public wxTextAttr
@@ -1573,6 +1579,11 @@ public:
         Sets a property by name and string value.
     */
     void SetProperty(const wxString& name, const wxString& value);
+
+    /**
+        Sets a property by name and wxChar* value.
+    */
+    void SetProperty(const wxString& name, const wxChar* value);
 
     /**
         Sets  property by name and long integer value.
@@ -2771,7 +2782,7 @@ protected:
 };
 
 /**
-    @class wxRichTextParagraphBox
+    @class wxRichTextParagraphLayoutBox
 
     This class knows how to lay out paragraphs.
 

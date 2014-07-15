@@ -34,6 +34,7 @@
     #include "wx/dc.h"
     #include "wx/dcclient.h"
     #include "wx/dcmemory.h"
+    #include "wx/dialog.h"
     #include "wx/utils.h"
     #include "wx/app.h"
     #include "wx/layout.h"
@@ -365,30 +366,21 @@ END_EVENT_TABLE()
 // ---------------------------------------------------------------------------
 
 // Find an item given the MS Windows id
-wxWindow *wxWindowMSW::FindItem(long id) const
+wxWindow *wxWindowMSW::FindItem(long id, WXHWND hWnd) const
 {
-#if wxUSE_CONTROLS
-    wxControl *item = wxDynamicCastThis(wxControl);
-    if ( item )
-    {
-        // is it us or one of our "internal" children?
-        if ( item->GetId() == id
-#ifndef __WXUNIVERSAL__
-                || (item->GetSubcontrols().Index(id) != wxNOT_FOUND)
-#endif // __WXUNIVERSAL__
-           )
-        {
-            return item;
-        }
-    }
-#endif // wxUSE_CONTROLS
+    // First check for the control itself and its Windows-level children which
+    // are mapped to the same wxWindow at wx level.
+    wxWindow *wnd = MSWFindItem(id, hWnd);
+    if ( wnd )
+        return wnd;
 
+    // Then check wx level children.
     wxWindowList::compatibility_iterator current = GetChildren().GetFirst();
     while (current)
     {
         wxWindow *childWin = current->GetData();
 
-        wxWindow *wnd = childWin->FindItem(id);
+        wnd = childWin->FindItem(id, hWnd);
         if ( wnd )
             return wnd;
 
@@ -675,7 +667,8 @@ wxWindowMSW::MSWShowWithEffect(bool show,
                                unsigned timeout)
 {
 #if wxUSE_DYNLIB_CLASS
-    if ( effect == wxSHOW_EFFECT_NONE )
+    if ( effect == wxSHOW_EFFECT_NONE ||
+            (GetParent() && !GetParent()->IsShownOnScreen()) )
         return Show(show);
 
     if ( !wxWindowBase::Show(show) )
@@ -2303,12 +2296,14 @@ bool wxWindowMSW::MSWProcessMessage(WXMSG* pMsg)
 {
     // wxUniversal implements tab traversal itself
 #ifndef __WXUNIVERSAL__
-    // Notice that we check for WS_EX_CONTROLPARENT and not wxTAB_TRAVERSAL
-    // here. While usually they are both set or both unset, doing it like this
-    // also works if there is ever a bug that results in wxTAB_TRAVERSAL being
-    // set but not WS_EX_CONTROLPARENT as we must not call IsDialogMessage() in
-    // this case, it would simply hang (see #15458).
-    if ( m_hWnd != 0 && (wxGetWindowExStyle(this) & WS_EX_CONTROLPARENT) )
+    // Notice that we check for both wxTAB_TRAVERSAL and WS_EX_CONTROLPARENT
+    // being set here. While normally the latter should always be set if the
+    // former is, doing it like this also works if there is ever a bug that
+    // results in wxTAB_TRAVERSAL being set but not WS_EX_CONTROLPARENT as we
+    // must not call IsDialogMessage() then, it would simply hang (see #15458).
+    if ( m_hWnd &&
+            HasFlag(wxTAB_TRAVERSAL) &&
+                (wxGetWindowExStyle(this) & WS_EX_CONTROLPARENT) )
     {
         // intercept dialog navigation keys
         MSG *msg = (MSG *)pMsg;
@@ -4204,7 +4199,20 @@ bool wxWindowMSW::HandleSetCursor(WXHWND WXUNUSED(hWnd),
     //  3. if still no cursor but we're in a TLW, set the global cursor
 
     HCURSOR hcursor = 0;
+
+    // Check for "business" is complicated by the fact that modal dialogs shown
+    // while busy cursor is in effect shouldn't show it as they are active and
+    // accept input from the user, unlike all the other windows.
+    bool isBusy = false;
     if ( wxIsBusy() )
+    {
+        wxDialog* const
+            dlg = wxDynamicCast(wxGetTopLevelParent(this), wxDialog);
+        if ( !dlg || !dlg->IsModal() )
+            isBusy = true;
+    }
+
+    if ( isBusy )
     {
         hcursor = wxGetCurrentBusyCursor();
     }
@@ -5321,7 +5329,7 @@ bool wxWindowMSW::HandleCommand(WXWORD id_, WXWORD cmd, WXHWND control)
     // try the id
     if ( !win )
     {
-        win = FindItem(id);
+        win = FindItem(id, control);
     }
 
     if ( win )
@@ -5612,9 +5620,15 @@ wxWindowMSW::HandleMouseWheel(wxMouseWheelAxis axis,
     // notice that WM_MOUSEWHEEL position is in screen coords (as it's
     // forwarded up to the parent by DefWindowProc()) and not in the client
     // ones as all the other messages, translate them to the client coords for
-    // consistency
-    const wxPoint
-        pt = ScreenToClient(wxPoint(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
+    // consistency -- but do it using Windows function and not our own one
+    // because InitMouseEvent() expects coordinates in Windows client
+    // coordinates and not wx ones (the difference being the height of the
+    // toolbar, if any).
+    POINT pt;
+    pt.x = GET_X_LPARAM(lParam);
+    pt.y = GET_Y_LPARAM(lParam);
+    ::ScreenToClient(GetHwnd(), &pt);
+
     wxMouseEvent event(wxEVT_MOUSEWHEEL);
     InitMouseEvent(event, pt.x, pt.y, LOWORD(wParam));
     event.m_wheelRotation = (short)HIWORD(wParam);

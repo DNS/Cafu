@@ -57,21 +57,6 @@
 #    endif /* !__WINDOWS__ */
 #endif /* Any standard symbol indicating Windows */
 
-#if defined(_WIN64)
-#    ifndef _WIN32
-        /*
-            a lot of code (mistakenly) uses #ifdef _WIN32 to either test for
-            Windows or to test for !__WIN16__, so we must define _WIN32 for
-            Win64 as well to ensure that the existing code continues to work.
-         */
-#       define _WIN32
-#   endif /* !_WIN32 */
-
-#   ifndef __WIN64__
-#       define __WIN64__
-#   endif /* !__WIN64__ */
-#endif /* _WIN64 */
-
 #if defined(__WINDOWS__)
     /* Select wxMSW under Windows if no other port is specified. */
 #   if !defined(__WXMSW__) && !defined(__WXMOTIF__) && !defined(__WXGTK__) && !defined(__WXX11__)
@@ -93,10 +78,24 @@
 #   ifndef __WIN32__
 #        define __WIN32__
 #   endif
+
+    /* MSVC predefines _WIN64 for 64 bit builds, for gcc we use generic
+       architecture definitions. */
+#   if defined(_WIN64) || defined(__x86_64__)
+#       ifndef __WIN64__
+#           define __WIN64__
+#       endif /* !__WIN64__ */
+#   endif /* _WIN64 */
+
 #endif /* __WINDOWS__ */
 
-/* Don't use widget toolkit specific code in non-GUI code */
-#if defined(wxUSE_GUI) && !wxUSE_GUI
+/*
+    Don't use widget toolkit specific code in non-GUI code in the library
+    itself to ensure that the same base library is used for both MSW and GTK
+    ports. But keep __WXMSW__ defined for (console) applications using
+    wxWidgets for compatibility.
+ */
+#if defined(WXBUILDING) && defined(wxUSE_GUI) && !wxUSE_GUI
 #   ifdef __WXMSW__
 #       undef __WXMSW__
 #   endif
@@ -316,10 +315,8 @@
 
 #    define __UNIX_LIKE__
 
-    /* Helps SGI compilation, apparently */
 #    ifdef __SGI__
 #        ifdef __GNUG__
-#            define __need_wchar_t
 #        else /* !gcc */
             /*
                Note I use the term __SGI_CC__ for both cc and CC, its not a good
@@ -346,12 +343,6 @@
 #    if defined(__hpux) && !defined(__HPUX__)
 #        define __HPUX__
 #    endif /* HP-UX */
-
-#    if defined(__CYGWIN__) || defined(__WINE__)
-#        if !defined(wxSIZE_T_IS_UINT)
-#            define wxSIZE_T_IS_UINT
-#        endif
-#    endif
 
     /*  All of these should already be defined by including configure-
         generated setup.h but we wish to support Xcode compilation without
@@ -451,6 +442,10 @@
 #define wxNEEDS_CHARPP
 #endif
 
+/*
+    Note that wx/msw/gccpriv.h must be included after defining UNICODE and
+    _UNICODE macros as it includes _mingw.h which relies on them being set.
+ */
 #if ( defined( __GNUWIN32__ ) || defined( __MINGW32__ ) || \
     ( defined( __CYGWIN__ ) && defined( __WINDOWS__ ) ) || \
       wxCHECK_WATCOM_VERSION(1,0) ) && \
@@ -462,6 +457,8 @@
 #else
 #    undef wxCHECK_W32API_VERSION
 #    define wxCHECK_W32API_VERSION(maj, min) (0)
+#    undef wxCHECK_MINGW32_VERSION
+#    define wxCHECK_MINGW32_VERSION( major, minor ) (0)
 #endif
 
 

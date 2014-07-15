@@ -143,6 +143,14 @@ public:
     virtual void         MacNewFile() ;
     // in response of a reopen-application apple event
     virtual void         MacReopenApp() ;
+
+    // Notice that this is just a placeholder and doesn't work yet!
+    //
+    // Override this to return false from a non-bundled console app in order to
+    // stay in background instead of being made a foreground application as
+    // happens by default.
+    virtual bool         OSXIsGUIApplication() { return true; }
+
 #if wxOSX_USE_COCOA_OR_IPHONE
     // immediately before the native event loop launches
     virtual void         OSXOnWillFinishLaunching();

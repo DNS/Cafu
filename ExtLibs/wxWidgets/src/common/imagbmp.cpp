@@ -33,6 +33,7 @@
 #include "wx/wfstream.h"
 #include "wx/quantize.h"
 #include "wx/scopeguard.h"
+#include "wx/scopedarray.h"
 #include "wx/anidecod.h"
 
 // For memcpy
@@ -586,8 +587,12 @@ bool wxBMPHandler::DoLoadDib(wxImage * image, int width, int height,
             if (hasPalette)
             {
                 if ( !stream.ReadAll(bbuf, 4) )
+                {
+                    delete [] r;
+                    delete [] g;
+                    delete [] b;
                     return false;
-
+                }
                 cmap[j].b = bbuf[0];
                 cmap[j].g = bbuf[1];
                 cmap[j].r = bbuf[2];
@@ -1405,10 +1410,9 @@ bool wxICOHandler::LoadFile(wxImage *image, wxInputStream& stream,
 }
 
 bool wxICOHandler::DoLoadFile(wxImage *image, wxInputStream& stream,
-                            bool WXUNUSED(verbose), int index)
+                            bool verbose, int index)
 {
     bool bResult wxDUMMY_INITIALIZE(false);
-    bool IsBmp = false;
 
     ICONDIR IconDir;
 
@@ -1421,8 +1425,8 @@ bool wxICOHandler::DoLoadFile(wxImage *image, wxInputStream& stream,
     wxUint16 nType = wxUINT16_SWAP_ON_BE(IconDir.idType);
 
     // loop round the icons and choose the best one:
-    ICONDIRENTRY *pIconDirEntry = new ICONDIRENTRY[nIcons];
-    ICONDIRENTRY *pCurrentEntry = pIconDirEntry;
+    wxScopedArray<ICONDIRENTRY> pIconDirEntry(new ICONDIRENTRY[nIcons]);
+    ICONDIRENTRY *pCurrentEntry = pIconDirEntry.get();
     int wMax = 0;
     int colmax = 0;
     int iSel = wxNOT_FOUND;
@@ -1437,8 +1441,13 @@ bool wxICOHandler::DoLoadFile(wxImage *image, wxInputStream& stream,
 
         alreadySeeked += stream.LastRead();
 
+        // ICO file format uses only a single byte for width and if it is 0, it
+        // means that the width is actually 256 pixels.
+        const wxUint16
+            widthReal = pCurrentEntry->bWidth ? pCurrentEntry->bWidth : 256;
+
         // bHeight and bColorCount are wxUint8
-        if ( pCurrentEntry->bWidth >= wMax )
+        if ( widthReal >= wMax )
         {
             // see if we have more colors, ==0 indicates > 8bpp:
             if ( pCurrentEntry->bColorCount == 0 )
@@ -1446,7 +1455,7 @@ bool wxICOHandler::DoLoadFile(wxImage *image, wxInputStream& stream,
             if ( pCurrentEntry->bColorCount >= colmax )
             {
                 iSel = i;
-                wMax = pCurrentEntry->bWidth;
+                wMax = widthReal;
                 colmax = pCurrentEntry->bColorCount;
             }
         }
@@ -1469,7 +1478,7 @@ bool wxICOHandler::DoLoadFile(wxImage *image, wxInputStream& stream,
     else
     {
         // seek to selected icon:
-        pCurrentEntry = pIconDirEntry + iSel;
+        pCurrentEntry = pIconDirEntry.get() + iSel;
 
         // NOTE: seeking a positive amount in wxFromCurrent mode allows us to
         //       load even non-seekable streams (see wxInputStream::SeekI docs)!
@@ -1477,7 +1486,52 @@ bool wxICOHandler::DoLoadFile(wxImage *image, wxInputStream& stream,
         if (offset != 0 && stream.SeekI(offset, wxFromCurrent) == wxInvalidOffset)
             return false;
 
-        bResult = LoadDib(image, stream, true, IsBmp);
+#if wxUSE_LIBPNG
+        // We can't fall back to loading an icon in the usual BMP format after
+        // trying to load it as PNG if we have an unseekable stream, so to
+        // avoid breaking the existing code which does successfully load icons
+        // from such streams, we only try to load them as PNGs if we can unwind
+        // back later.
+        //
+        // Ideal would be to modify LoadDib() to accept the first 8 bytes not
+        // coming from the stream but from the signature buffer below, as then
+        // we'd be able to load PNG icons from any kind of streams.
+        bool isPNG;
+        if ( stream.IsSeekable() )
+        {
+            // Check for the PNG signature first to avoid wasting time on
+            // trying to load typical ICO files which are not PNGs at all.
+            static const unsigned char signaturePNG[] =
+            {
+                0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A
+            };
+            static const int signatureLen = WXSIZEOF(signaturePNG);
+
+            unsigned char signature[signatureLen];
+            if ( !stream.ReadAll(signature, signatureLen) )
+                return false;
+
+            isPNG = memcmp(signature, signaturePNG, signatureLen) == 0;
+
+            // Rewind to the beginning of the image in any case.
+            if ( stream.SeekI(-signatureLen, wxFromCurrent) == wxInvalidOffset )
+                return false;
+        }
+        else // Not seekable stream
+        {
+            isPNG = false;
+        }
+
+        if ( isPNG )
+        {
+            wxPNGHandler handlerPNG;
+            bResult = handlerPNG.LoadFile(image, stream, verbose);
+        }
+        else
+#endif // wxUSE_LIBPNG
+        {
+            bResult = LoadDib(image, stream, verbose, false /* not BMP */);
+        }
         bool bIsCursorType = (this->GetType() == wxBITMAP_TYPE_CUR) || (this->GetType() == wxBITMAP_TYPE_ANI);
         if ( bResult && bIsCursorType && nType == 2 )
         {
@@ -1486,8 +1540,6 @@ bool wxICOHandler::DoLoadFile(wxImage *image, wxInputStream& stream,
             image->SetOption(wxIMAGE_OPTION_CUR_HOTSPOT_Y, wxUINT16_SWAP_ON_BE(pCurrentEntry->wBitCount));
         }
     }
-
-    delete [] pIconDirEntry;
 
     return bResult;
 }

@@ -61,6 +61,9 @@ void wxBell()
     [appleEventManager setEventHandler:self andSelector:@selector(handleOpenAppEvent:withReplyEvent:)
                          forEventClass:kCoreEventClass andEventID:kAEOpenApplication];
     
+    [appleEventManager setEventHandler:self andSelector:@selector(handleQuitAppEvent:withReplyEvent:)
+                         forEventClass:kCoreEventClass andEventID:kAEQuitApplication];
+
     wxTheApp->OSXOnWillFinishLaunching();
 }
 
@@ -109,7 +112,16 @@ void wxBell()
 {
     wxUnusedVar(flag);
     wxUnusedVar(sender);
-    wxTheApp->MacReopenApp() ;
+    if ( wxTheApp->OSXInitWasCalled() )
+        wxTheApp->MacReopenApp();
+    // else: It's possible that this function was called as the first thing.
+    //       This can happen when OS X restores running apps when starting a new
+    //       user session. Apps that were hidden (dock only) when the previous
+    //       session terminated are only restored in a limited, resources-saving
+    //       way. When the user clicks the icon, applicationShouldHandleReopen:
+    //       is called, but we didn't call OnInit() yet. In this case, we
+    //       shouldn't call MacReopenApp(), but should proceed with normal
+    //       initialization.
     return NO;
 }
 
@@ -123,6 +135,16 @@ void wxBell()
         wxTheApp->MacOpenURL(cf.AsString()) ;
     else
         wxTheApp->OSXStoreOpenURL(cf.AsString());
+}
+
+- (void)handleQuitAppEvent:(NSAppleEventDescriptor *)event
+            withReplyEvent:(NSAppleEventDescriptor *)replyEvent
+{
+    if ( wxTheApp->OSXOnShouldTerminate() )
+    {
+        wxTheApp->OSXOnWillTerminate();
+        wxTheApp->ExitMainLoop();
+    }
 }
 
 - (void)handleOpenAppEvent:(NSAppleEventDescriptor *)event
@@ -276,6 +298,26 @@ void wxBell()
     return self;
 }
 
+- (void) transformToForegroundApplication {
+    ProcessSerialNumber psn = { 0, kCurrentProcess };
+    TransformProcessType(&psn, kProcessTransformToForegroundApplication);
+    
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6
+    if ( UMAGetSystemVersion() >= 0x1090 )
+    {
+        [[NSRunningApplication currentApplication] activateWithOptions:
+         (NSApplicationActivateAllWindows | NSApplicationActivateIgnoringOtherApps)];
+    }
+    else
+#endif
+    {
+        [self deactivate];
+        [self activateIgnoringOtherApps:YES];
+    }
+}
+
+
+
 /* This is needed because otherwise we don't receive any key-up events for command-key
  combinations (an AppKit bug, apparently)			*/
 - (void)sendEvent:(NSEvent *)anEvent
@@ -312,6 +354,20 @@ bool wxApp::DoInitGui()
     {
         [wxNSApplication sharedApplication];
 
+        if ( OSXIsGUIApplication() )
+        {
+            CFURLRef url = CFBundleCopyBundleURL(CFBundleGetMainBundle() ) ;
+            CFStringRef path = CFURLCopyFileSystemPath ( url , kCFURLPOSIXPathStyle ) ;
+            CFRelease( url ) ;
+            wxString app = wxCFStringRef(path).AsString(wxLocale::GetSystemEncoding());
+            
+            // workaround is only needed for non-bundled apps
+            if ( !app.EndsWith(".app") )
+            {
+                [(wxNSApplication*) [wxNSApplication sharedApplication] transformToForegroundApplication];
+            }
+        }
+
         appcontroller = OSXCreateAppController();
         [NSApp setDelegate:appcontroller];
         [NSColor setIgnoresAlpha:NO];
@@ -332,7 +388,21 @@ bool wxApp::CallOnInit()
     wxMacAutoreleasePool autoreleasepool;
     m_onInitResult = false;
     m_inited = false;
+
+    // Feed the upcoming event loop with a dummy event. Without this,
+    // [NSApp run] below wouldn't return, as we expect it to, if the
+    // application was launched without being activated and would block
+    // until the dock icon was clicked - delaying OnInit() call too.
+    NSEvent *event = [NSEvent otherEventWithType:NSApplicationDefined
+                                    location:NSMakePoint(0.0, 0.0)
+                               modifierFlags:0
+                                   timestamp:0
+                                windowNumber:0
+                                     context:nil
+                                     subtype:0 data1:0 data2:0];
+    [NSApp postEvent:event atStart:FALSE];
     [NSApp run];
+
     m_onInitResult = OnInit();
     m_inited = true;
     if ( m_onInitResult )

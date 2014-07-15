@@ -132,19 +132,6 @@ void MoveWindowToScreenRect(HWND hwnd, RECT rc)
     SetWindowRect(hwnd, rc);
 }
 
-// helper of AdjustButtonLabels(): move the given window by dx
-//
-// works for both child and top level windows
-void OffsetWindow(HWND hwnd, int dx)
-{
-    RECT rc = wxGetWindowRect(hwnd);
-
-    rc.left += dx;
-    rc.right += dx;
-
-    MoveWindowToScreenRect(hwnd, rc);
-}
-
 } // anonymous namespace
 
 /* static */
@@ -586,9 +573,7 @@ int wxMessageDialog::ShowMessageBox()
     // do show the dialog
     int msAns = MessageBox(hWnd, message.t_str(), m_caption.t_str(), msStyle);
 
-    int ret = MSWTranslateReturnCode(msAns);
-    SetReturnCode(ret);
-    return ret;
+    return MSWTranslateReturnCode(msAns);
 }
 
 int wxMessageDialog::ShowModal()
@@ -623,9 +608,7 @@ int wxMessageDialog::ShowModal()
             msAns = IDOK;
         }
 
-        int ret = MSWTranslateReturnCode(msAns);
-        SetReturnCode(ret);
-        return ret;
+        return MSWTranslateReturnCode( msAns );
     }
 #endif // wxHAS_MSW_TASKDIALOG
 

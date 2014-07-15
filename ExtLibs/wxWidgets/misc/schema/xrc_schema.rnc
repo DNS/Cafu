@@ -76,10 +76,14 @@ start =
 #
 # (2) The other 'platform'-related issue is that it messes up cardinality of
 # properties elements. Properties can only be specified once, so the two forms
-# for describing properties are
+# for describing properties would be
 #
 #       1. element size {_, t_size }?   # optional property
 #       2. element size {_, t_size }    # required property
+#
+# (Fortunately, all XRC properties are optional, se the second case is a
+# non-issue and can be safely ignored. It is nevertheless briefly mentioned
+# below for explanatory purposes.)
 #
 # But this is problematic with 'platform', because it's reasonable (and,
 # indeed, done in the wild) to set properties differently for different
@@ -111,14 +115,24 @@ start =
 #
 # But this is verbose and unreadable with the amount of properties present in
 # the schema. Instead, we use the more-forbidding version and annotate
-# properties with 'p' annotation (for "property") that has either 'r'
-# (required) or 'o' (optional) value:
+# properties with 'p' annotation (for "property") to mark these uses of * as
+# special and enable post-processing of the schema.
 #
-#       [xrc:p="o"] element checked { t_bool }*  # optional
-#       [xrc:p="r"] element label { t_text }+    # required
+# The value of the annotation is normally just "o" (for "optional" -- remember
+# that there are no required properties) to indicate optional properties.
+#
+# Since we have the annotation anyway, we take advantage of it to indicate
+# properties that are strictly speaking optional, but should almost always be
+# specified, even though they don't _have_ to be. A typical example would be
+# wxStaticText's label: it very rarely makes sense to omit it, but usually
+# doesn't. Such properties are indicated with the "important" value of the
+# annotation:
+#
+#       [xrc:p="o"] element checked { t_bool }*        # optional
+#       [xrc:p="important"] element label { t_text }*  # should be provided
 #
 # This makes it possible to implement tools that translate this schema into a
-# variant that use [B].
+# variant that uses [B].
 #
 
 toplevelObjectNode = (objectRef | builtinToplevelClasses | customClasses)
@@ -352,8 +366,9 @@ anyXMLContent =
 #
 # [xrc:p] marks properties, with two possible values:
 #
-#       [xrc:p="r"]     for required properties
-#       [xrc:p="o"]     for optional properties
+#     [xrc:p="o"]           for normal/optional properties
+#     [xrc:p="important"]   for important properties that
+#                           should almost always be set
 #
 
 
@@ -397,9 +412,10 @@ t_text       = string
 t_string     = string
 t_bool       = "1" | "0"
 t_integer    = xsd:integer
+t_unsigned   = xsd:nonNegativeInteger
 t_float      = xsd:float
 t_direction  = "wxLEFT" | "wxRIGHT" | "wxTOP" | "wxBOTTOM"
-t_style      = xsd:string { pattern = "(wx[A-Z_]+)( *\| *(wx[A-Z_]+))*" }
+t_style      = xsd:string { pattern = "(wx[A-Z0-9_]+)( *\| *(wx[A-Z0-9_]+))*" }
 
 t_url        = string
 t_colour     = xsd:string { pattern = "#[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]" } |
@@ -502,7 +518,7 @@ wxAuiNotebook =
 wxAuiNotebook_notebookpage =
     element object {
         attribute class  { "notebookpage" } &
-        [xrc:p="r"] element label    {_, t_text }+ &
+        [xrc:p="important"] element label {_, t_text }* &
         [xrc:p="o"] element bitmap   {_, t_bitmap }* &
         [xrc:p="o"] element selected {_, t_bool }* &
         windowNode
@@ -533,7 +549,7 @@ wxBitmapButton =
         stdObjectNodeAttributes &
         stdWindowProperties &
         [xrc:p="o"] element default  {_, t_bool }* &
-        [xrc:p="r"] element bitmap   {_, t_bitmap }+ &
+        [xrc:p="important"] element bitmap {_, t_bitmap }* &
         [xrc:p="o"] element selected {_, t_bitmap }* &
         [xrc:p="o"] element focus    {_, t_bitmap }* &
         [xrc:p="o"] element disabled {_, t_bitmap }* &
@@ -555,7 +571,7 @@ wxBitmapComboBox_ownerdrawnitem =
     element object {
         attribute class  { "ownerdrawnitem" } &
         platform &
-        [xrc:p="r"] element text     {_, t_text }+ &
+        [xrc:p="important"] element text {_, t_text }* &
         [xrc:p="o"] element bitmap   {_, t_bitmap }*
     }
 
@@ -565,7 +581,7 @@ wxBitmapToggleButton =
         attribute class { "wxBitmapToggleButton" } &
         stdObjectNodeAttributes &
         stdWindowProperties &
-        [xrc:p="r"] element bitmap  {_, t_bitmap }+ &
+        [xrc:p="important"] element bitmap {_, t_bitmap }* &
         [xrc:p="o"] element checked {_, t_bool }*
     }
 
@@ -595,7 +611,7 @@ wxCheckBox =
         attribute class { "wxCheckBox" } &
         stdObjectNodeAttributes &
         stdWindowProperties &
-        [xrc:p="o"] element label   {_, t_text }* &
+        [xrc:p="important"] element label {_, t_text }* &
         [xrc:p="o"] element checked {_, t_bool }*
     }
 
@@ -641,7 +657,7 @@ wxChoicebook_choicebookpage =
     element object {
         attribute class { "choicebookpage" } &
         platform &
-        [xrc:p="r"] element label    {_, t_text }+ &
+        [xrc:p="important"] element label {_, t_text }* &
         [xrc:p="o"](
             element bitmap {_, t_bitmap } |
             element image  {_, t_integer }
@@ -656,7 +672,7 @@ wxCommandLinkButton =
         attribute class { "wxCommandLinkButton" } &
         stdObjectNodeAttributes &
         stdWindowProperties &
-        [xrc:p="r"] element label {_, t_text }+ &
+        [xrc:p="important"] element label {_, t_text }* &
         [xrc:p="o"] element note  {_, t_text }*
     }
 
@@ -666,7 +682,7 @@ wxCollapsiblePane =
         attribute class { "wxCollapsiblePane" } &
         stdObjectNodeAttributes &
         stdWindowProperties &
-        [xrc:p="r"] element label     {_, t_text }+ &
+        [xrc:p="important"] element label {_, t_text }* &
         [xrc:p="o"] element collapsed {_, t_bool }* &
         (wxCollapsiblePane_panewindow | objectRef)?
     }
@@ -737,7 +753,7 @@ wxDirPickerCtrl =
         stdObjectNodeAttributes &
         stdWindowProperties &
         [xrc:p="o"] element value   {_, t_string }* &
-        [xrc:p="r"] element message {_, t_text}+
+        [xrc:p="important"] element message {_, t_text}*
     }
 
 
@@ -759,9 +775,9 @@ wxFileCtrl =
         attribute class { "wxFileCtrl" } &
         stdObjectNodeAttributes &
         stdWindowProperties &
-        [xrc:p="o"] element value    {_, t_string }* &
-        [xrc:p="r"] element message  {_, t_text }+ &
-        [xrc:p="o"] element wildcard {_, t_string }*
+        [xrc:p="o"] element defaultdirectory {_, t_string }* &
+        [xrc:p="o"] element defaultfilename  {_, t_string }* &
+        [xrc:p="o"] element wildcard         {_, t_string }*
     }
 
 
@@ -771,7 +787,7 @@ wxFilePickerCtrl =
         stdObjectNodeAttributes &
         stdWindowProperties &
         [xrc:p="o"] element value    {_, t_string }* &
-        [xrc:p="r"] element message  {_, t_text }+ &
+        [xrc:p="important"] element message  {_, t_text }* &
         [xrc:p="o"] element wildcard {_, t_string }*
     }
 
@@ -846,8 +862,8 @@ wxHyperlinkCtrl =
         attribute class { "wxHyperlinkCtrl" } &
         stdObjectNodeAttributes &
         stdWindowProperties &
-        [xrc:p="r"] element label {_, t_text }+ &
-        [xrc:p="r"] element url   {_, t_url }+
+        [xrc:p="important"] element label {_, t_text }* &
+        [xrc:p="important"] element url   {_, t_url }*
     }
 
 
@@ -876,7 +892,7 @@ wxListbook =
 wxListbook_listbookpage =
     element object {
         attribute class { "listbookpage" } &
-        [xrc:p="r"] element label    {_, t_text }+ &
+        [xrc:p="important"] element label {_, t_text }* &
         [xrc:p="o"](
             element bitmap {_, t_bitmap } |
             element image  {_, t_integer }
@@ -1008,7 +1024,7 @@ wxNotebook_notebookpage =
     element object {
         attribute class { "notebookpage" } &
         platform &
-        [xrc:p="r"] element label    {_, t_text }+ &
+        [xrc:p="important"] element label {_, t_text }* &
         (
             element bitmap {_, t_bitmap } |
             element image  {_, t_integer }
@@ -1058,7 +1074,7 @@ wxPropertySheetDialog_propertysheetpage =
     element object {
         attribute class { "propertysheetpage" } &
         platform &
-        [xrc:p="r"] element label    {_, t_text }+ &
+        [xrc:p="important"] element label {_, t_text }* &
         [xrc:p="o"] element bitmap {_, t_bitmap }* &
         [xrc:p="o"] element selected {_, t_bool }* &
         windowNode
@@ -1070,7 +1086,7 @@ wxRadioButton =
         attribute class { "wxRadioButton" } &
         stdObjectNodeAttributes &
         stdWindowProperties &
-        [xrc:p="r"] element label {_, t_text }+ &
+        [xrc:p="important"] element label {_, t_text }* &
         [xrc:p="o"] element value {_, t_bool }*
     }
 
@@ -1080,7 +1096,7 @@ wxRadioBox =
         attribute class { "wxRadioBox" } &
         stdObjectNodeAttributes &
         stdWindowProperties &
-        [xrc:p="o"] element label     {_, t_text }* &
+        [xrc:p="important"] element label {_, t_text }* &
         [xrc:p="o"] element dimension {_, t_integer }* &
         [xrc:p="o"] element selection {_, t_integer }* &
         element content {
@@ -1120,8 +1136,8 @@ wxRibbonButtonBar_button =
         stdObjectNodeAttributes &
         [xrc:p="o"] element hybrid                {_, t_bool }* &
         [xrc:p="o"] element disabled              {_, t_bool }* &
-        [xrc:p="r"] element label                 {_, t_text }+ &
-        [xrc:p="r"] element bitmap                {_, t_bitmap }+ &
+        [xrc:p="important"] element label         {_, t_text }* &
+        [xrc:p="important"] element bitmap        {_, t_bitmap }* &
         [xrc:p="o"] element small-bitmap          {_, t_bitmap }* &
         [xrc:p="o"] element disabled-bitmap       {_, t_bitmap }* &
         [xrc:p="o"] element small-disabled-bitmap {_, t_bitmap }* &
@@ -1183,7 +1199,8 @@ wxRichTextCtrl =
         stdObjectNodeAttributes &
         stdWindowProperties &
         [xrc:p="o"] element value     {_, t_text }* &
-        [xrc:p="o"] element maxlength {_, t_integer }*
+        [xrc:p="o"] element maxlength {_, t_integer }* &
+        [xrc:p="o"] element hint      {_, t_text }*
     }
 
 
@@ -1310,7 +1327,7 @@ wxStaticBox =
         attribute class { "wxStaticBox" } &
         stdObjectNodeAttributes &
         stdWindowProperties &
-        [xrc:p="o"] element label {_, t_text }*
+        [xrc:p="important"] element label {_, t_text }*
     }
 
 
@@ -1327,7 +1344,7 @@ wxStaticText =
         attribute class { "wxStaticText" } &
         stdObjectNodeAttributes &
         stdWindowProperties &
-        [xrc:p="o"] element label {_, t_text }* &
+        [xrc:p="important"] element label {_, t_text }* &
         [xrc:p="o"] element wrap  {_, t_dimension }*
     }
 
@@ -1355,7 +1372,7 @@ wxToggleButton =
         attribute class { "wxToggleButton" } &
         stdObjectNodeAttributes &
         stdWindowProperties &
-        [xrc:p="r"] element label   {_, t_text }+ &
+        [xrc:p="important"] element label {_, t_text }* &
         [xrc:p="o"] element checked {_, t_bool }*
     }
 
@@ -1382,7 +1399,7 @@ wxToolBar_tool =
     element object {
         attribute class { "tool" } &
         stdObjectNodeAttributes &
-        [xrc:p="r"] element bitmap   {_, t_bitmap }+ &
+        [xrc:p="important"] element bitmap {_, t_bitmap }* &
         [xrc:p="o"] element bitmap2  {_, t_bitmap }* &
         [xrc:p="o"] element label    {_, t_text }* &
         [xrc:p="o"] element tooltip  {_, t_text }* &
@@ -1410,7 +1427,7 @@ wxToolbook_toolbookpage =
     element object {
         attribute class { "toolbookpage" } &
         platform &
-        [xrc:p="r"] element label    {_, t_text }+ &
+        [xrc:p="important"] element label {_, t_text }* &
         [xrc:p="o"](
             element bitmap {_, t_bitmap } |
             element image  {_, t_integer }
@@ -1442,8 +1459,8 @@ wxTreebook_treebookpage =
     element object {
         attribute class { "treebookpage" } &
         platform &
-        [xrc:p="r"] element depth    {_, t_integer }+ &
-        [xrc:p="r"] element label    {_, t_text }+ &
+        [xrc:p="important"] element depth {_, t_integer }* &
+        [xrc:p="important"] element label {_, t_text }* &
         [xrc:p="o"](
             element bitmap {_, t_bitmap } |
             element image  {_, t_integer }
@@ -1491,13 +1508,17 @@ wxSizer_item =
         ) &
         stdObjectNodeAttributes &
         [xrc:p="o"] element option   {_, t_integer }* &
-        [xrc:p="o"] element flag     {_, t_style }* &
         [xrc:p="o"] element border   {_, t_dimension }* &
         [xrc:p="o"] element minsize  {_, t_size }* &
         [xrc:p="o"] element ratio    {_, t_size }* &
         # TODO: cell{pos,span} are wxGridBagSizer-only and required in it, this is too lax
         [xrc:p="o"] element cellpos  {_, t_position }* &
-        [xrc:p="o"] element cellspan {_, t_size }*
+        [xrc:p="o"] element cellspan {_, t_size }* &
+        [xrc:p="o"] element flag     {_,
+            xsd:string {
+                pattern = "(wxLEFT|wxRIGHT|wxTOP|wxBOTTOM|wxNORTH|wxSOUTH|wxEAST|wxWEST|wxALL|wxGROW|wxEXPAND|wxSHAPED|wxSTRETCH_NOT|wxALIGN_CENTER|wxALIGN_CENTRE|wxALIGN_LEFT|wxALIGN_RIGHT|wxALIGN_TOP|wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTRE_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALIGN_CENTRE_VERTICAL)( *\| *(wxLEFT|wxRIGHT|wxTOP|wxBOTTOM|wxNORTH|wxSOUTH|wxEAST|wxWEST|wxALL|wxGROW|wxEXPAND|wxSHAPED|wxSTRETCH_NOT|wxALIGN_CENTER|wxALIGN_CENTRE|wxALIGN_LEFT|wxALIGN_RIGHT|wxALIGN_TOP|wxALIGN_BOTTOM|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTRE_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALIGN_CENTRE_VERTICAL))*"
+            }
+        }*
     }
 
 wxBoxSizer =
@@ -1514,7 +1535,7 @@ wxStaticBoxSizer =
         attribute class { "wxStaticBoxSizer" } &
         stdObjectNodeAttributes &
         [xrc:p="o"] element minsize {_, t_size }* &
-        [xrc:p="o"] element label   {_, t_text }* &
+        [xrc:p="important"] element label {_, t_text }* &
         [xrc:p="o"] element orient  {_, ("wxHORIZONTAL" | "wxVERTICAL") }* &
         (wxSizer_item | objectRef)*
     }
@@ -1524,8 +1545,8 @@ wxGridSizer =
         attribute class { "wxGridSizer" } &
         stdObjectNodeAttributes &
         [xrc:p="o"] element minsize {_, t_size }* &
-        [xrc:p="o"] element rows    {_, t_integer }* &
-        [xrc:p="o"] element cols    {_, t_integer }* &
+        [xrc:p="o"] element rows    {_, t_unsigned }* &
+        [xrc:p="o"] element cols    {_, t_unsigned }* &
         [xrc:p="o"] element vgap    {_, t_dimension }* &
         [xrc:p="o"] element hgap    {_, t_dimension }* &
         (wxSizer_item | objectRef)*
@@ -1536,8 +1557,8 @@ wxFlexGridSizer =
         attribute class { "wxFlexGridSizer" } &
         stdObjectNodeAttributes &
         [xrc:p="o"] element minsize             {_, t_size }* &
-        [xrc:p="o"] element rows                {_, t_integer }* &
-        [xrc:p="o"] element cols                {_, t_integer }* &
+        [xrc:p="o"] element rows                {_, t_unsigned }* &
+        [xrc:p="o"] element cols                {_, t_unsigned }* &
         [xrc:p="o"] element vgap                {_, t_dimension }* &
         [xrc:p="o"] element hgap                {_, t_dimension }* &
         [xrc:p="o"] element flexibledirection   {_, ("wxVERTICAL" | "wxHORIZONTAL" | "wxBOTH") }* &
@@ -1570,7 +1591,7 @@ wxWrapSizer =
         attribute class { "wxWrapSizer" } &
         stdObjectNodeAttributes &
         [xrc:p="o"] element minsize {_, t_size }* &
-        [xrc:p="r"] element orient  {_, ("wxHORIZONTAL" | "wxVERTICAL") }+ &
+        [xrc:p="important"] element orient {_, ("wxHORIZONTAL" | "wxVERTICAL") }* &
         [xrc:p="o"] element flag    {_, t_style }* &
         (wxSizer_item | objectRef)*
     }

@@ -191,6 +191,8 @@ void wxFileDialog::Init()
     m_filterIndex = -1;
     m_delegate = nil;
     m_sheetDelegate = nil;
+    m_filterPanel = NULL;
+    m_filterChoice = NULL;
 }
 
 void wxFileDialog::Create(
@@ -457,7 +459,7 @@ void wxFileDialog::SetupExtraControls(WXWindow nativeWindow)
     // for sandboxed app we cannot access the outer structures
     // this leads to problems with extra controls, so as a temporary
     // workaround for crashes we don't support those yet
-    if ( [panel contentView] == nil )
+    if ( [panel contentView] == nil || getenv("APP_SANDBOX_CONTAINER_ID") != NULL )
         return;
     
     wxNonOwnedWindow::Create( GetParent(), nativeWindow );

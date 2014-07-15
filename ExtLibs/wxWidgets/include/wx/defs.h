@@ -310,8 +310,10 @@ typedef short int WXTYPE;
     inline T wx_truncate_cast_impl(X x)
     {
         #pragma warning(push)
-        /* conversion from 'X' to 'T', possible loss of data */
+        /* conversion from 'size_t' to 'type', possible loss of data */
         #pragma warning(disable: 4267)
+        /* conversion from 'type1' to 'type2', possible loss of data */
+        #pragma warning(disable: 4242)
 
         return x;
 
@@ -356,30 +358,37 @@ typedef short int WXTYPE;
 #endif
 
 #if defined(__has_include)
-    #if !defined(HAVE_TYPE_TRAITS) && __has_include(<type_traits>)
-        #define HAVE_TYPE_TRAITS
+    /*
+        Notice that we trust our configure tests more than __has_include(),
+        notably the latter can return true even if the header exists but isn't
+        actually usable, as it happens with <type_traits> in non C++11 mode.
+        So if configure already detected at least one working alternative,
+        just use it.
+     */
+    #if !defined(HAVE_TYPE_TRAITS) && !defined(HAVE_TR1_TYPE_TRAITS)
+        #if __has_include(<type_traits>)
+            #define HAVE_TYPE_TRAITS
+        #elif __has_include(<tr1/type_traits>)
+            #define HAVE_TR1_TYPE_TRAITS
+        #endif
     #endif
 
-    #if !defined(HAVE_TR1_TYPE_TRAITS) && __has_include(<tr1/type_traits>)
-        #define HAVE_TR1_TYPE_TRAITS
+    #if !defined(HAVE_STD_UNORDERED_MAP) && !defined(HAVE_TR1_UNORDERED_MAP)
+        #if __has_include(<unordered_map>)
+            #define HAVE_STD_UNORDERED_MAP
+        #elif __has_include(<tr1/unordered_map>)
+            #define HAVE_TR1_UNORDERED_MAP
+        #endif
     #endif
 
-    #if !defined(HAVE_STD_UNORDERED_MAP) && __has_include(<unordered_map>)
-        #define HAVE_STD_UNORDERED_MAP
+    #if !defined(HAVE_STD_UNORDERED_SET) && !defined(HAVE_TR1_UNORDERED_SET)
+        #if __has_include(<unordered_set>)
+            #define HAVE_STD_UNORDERED_SET
+        #elif __has_include(<tr1/unordered_set>)
+            #define HAVE_TR1_UNORDERED_SET
+        #endif
     #endif
-
-    #if !defined(HAVE_TR1_UNORDERED_MAP) && __has_include(<tr1/unordered_map>)
-        #define HAVE_TR1_UNORDERED_MAP
-    #endif
-
-    #if !defined(HAVE_STD_UNORDERED_SET) && __has_include(<unordered_set>)
-        #define HAVE_STD_UNORDERED_SET
-    #endif
-
-    #if !defined(HAVE_TR1_UNORDERED_SET) && __has_include(<tr1/unordered_set>)
-        #define HAVE_TR1_UNORDERED_SET
-    #endif
-#endif // defined(__has_include)
+#endif /* defined(__has_include) */
 
 /* provide replacement for C99 va_copy() if the compiler doesn't have it */
 
@@ -949,6 +958,10 @@ typedef wxUint16 wxWord;
 
         #ifndef SIZEOF_LONG
             #define SIZEOF_LONG 4
+        #endif
+
+        #ifndef SIZEOF_LONG_LONG
+            #define SIZEOF_LONG_LONG 8
         #endif
 
         #ifndef SIZEOF_WCHAR_T
@@ -2080,8 +2093,10 @@ enum wxBackgroundStyle
      */
     wxBG_STYLE_PAINT,
 
-
-    /* this is a Mac-only style, don't use in portable code */
+    /*
+        Indicates that the window background is not erased, letting the parent
+        window show through.
+     */
     wxBG_STYLE_TRANSPARENT,
 
     /* this style is deprecated and doesn't do anything, don't use */
@@ -2287,8 +2302,13 @@ enum wxStandardID
     wxID_OSX_HIDE = wxID_OSX_MENU_FIRST,
     wxID_OSX_HIDEOTHERS,
     wxID_OSX_SHOWALL,
+#if wxABI_VERSION >= 30001
+    wxID_OSX_SERVICES,
+    wxID_OSX_MENU_LAST = wxID_OSX_SERVICES,
+#else
     wxID_OSX_MENU_LAST = wxID_OSX_SHOWALL,
-    
+#endif
+
     /*  IDs used by generic file dialog (13 consecutive starting from this value) */
     wxID_FILEDLGG = 5900,
 
@@ -3211,9 +3231,9 @@ typedef WXHWND          WXWidget;
 #endif
 
 #ifdef __WIN64__
-typedef unsigned __int64   WXWPARAM;
-typedef __int64            WXLPARAM;
-typedef __int64            WXLRESULT;
+typedef wxUint64           WXWPARAM;
+typedef wxInt64            WXLPARAM;
+typedef wxInt64            WXLRESULT;
 #else
 typedef wxW64 unsigned int WXWPARAM;
 typedef wxW64 long         WXLPARAM;

@@ -946,7 +946,9 @@ wxGDIPlusFontData::wxGDIPlusFontData( wxGraphicsRenderer* renderer,
     if ( font.GetWeight() == wxFONTWEIGHT_BOLD )
         style |= FontStyleBold;
 
-    Init(font.GetFaceName(), font.GetPointSize(), style, col, UnitPoint);
+    // Create font which size is measured in logical units
+    // and let the system rescale it according to the target resolution.
+    Init(font.GetFaceName(), font.GetPixelSize().GetHeight(), style, col, UnitPixel);
 }
 
 wxGDIPlusFontData::wxGDIPlusFontData(wxGraphicsRenderer* renderer,
@@ -1419,7 +1421,9 @@ void wxGDIPlusContext::Init(Graphics* graphics, int width, int height)
     m_context->SetTextRenderingHint(TextRenderingHintSystemDefault);
     m_context->SetPixelOffsetMode(PixelOffsetModeHalf);
     m_context->SetSmoothingMode(SmoothingModeHighQuality);
-    m_context->SetInterpolationMode(InterpolationModeHighQuality);
+
+    SetInterpolationQuality(wxINTERPOLATION_GOOD);
+
     m_state1 = m_context->Save();
     m_state2 = m_context->Save();
 }
@@ -1484,11 +1488,11 @@ void wxGDIPlusContext::StrokeLines( size_t n, const wxPoint2DDouble *points)
    if ( !m_pen.IsNull() )
    {
        wxGDIPlusOffsetHelper helper( m_context , ShouldOffset() );
-       Point *cpoints = new Point[n];
+       PointF *cpoints = new PointF[n];
        for (size_t i = 0; i < n; i++)
        {
-           cpoints[i].X = (int)(points[i].m_x );
-           cpoints[i].Y = (int)(points[i].m_y );
+           cpoints[i].X = static_cast<REAL>(points[i].m_x);
+           cpoints[i].Y = static_cast<REAL>(points[i].m_y);
 
        } // for (size_t i = 0; i < n; i++)
        m_context->DrawLines( ((wxGDIPlusPenData*)m_pen.GetGraphicsData())->GetGDIPlusPen() , cpoints , n ) ;
@@ -1502,11 +1506,11 @@ void wxGDIPlusContext::DrawLines( size_t n, const wxPoint2DDouble *points, wxPol
         return;
 
     wxGDIPlusOffsetHelper helper( m_context , ShouldOffset() );
-    Point *cpoints = new Point[n];
+    PointF *cpoints = new PointF[n];
     for (size_t i = 0; i < n; i++)
     {
-        cpoints[i].X = (int)(points[i].m_x );
-        cpoints[i].Y = (int)(points[i].m_y );
+        cpoints[i].X = static_cast<REAL>(points[i].m_x);
+        cpoints[i].Y = static_cast<REAL>(points[i].m_y);
 
     } // for (int i = 0; i < n; i++)
     if ( !m_brush.IsNull() )

@@ -14,7 +14,7 @@ dnl ---------------------------------------------------------------------------
 dnl initialization
 dnl ---------------------------------------------------------------------------
 
-AC_INIT([wxWidgets], [3.0.0], [wx-dev@lists.wxwidgets.org])
+AC_INIT([wxWidgets], [3.0.1], [wx-dev@lists.wxwidgets.org])
 
 dnl the file passed to AC_CONFIG_SRCDIR should be specific to our package
 AC_CONFIG_SRCDIR([wx-config.in])
@@ -40,7 +40,7 @@ dnl wx_release_number += 1
 
 wx_major_version_number=3
 wx_minor_version_number=0
-wx_release_number=0
+wx_release_number=1
 wx_subrelease_number=0
 
 WX_RELEASE=$wx_major_version_number.$wx_minor_version_number
@@ -468,11 +468,11 @@ AC_ARG_WITH(motif,         [  --with-motif            use Motif/Lesstif], [wxUSE
 AC_ARG_WITH(osx_carbon,    [  --with-osx_carbon       use Mac OS X (Carbon)], [wxUSE_OSX_CARBON="$withval" CACHE_OSX_CARBON=1 TOOLKIT_GIVEN=1])
 AC_ARG_WITH(osx_cocoa,     [  --with-osx_cocoa        use Mac OS X (Cocoa)], [wxUSE_OSX_COCOA="$withval" CACHE_OSX_COCOA=1 TOOLKIT_GIVEN=1])
 AC_ARG_WITH(osx_iphone,    [  --with-osx_iphone       use iPhone OS X port], [wxUSE_OSX_IPHONE="$withval" CACHE_OSX_IPHONE=1 TOOLKIT_GIVEN=1])
-AC_ARG_WITH(osx,           [  --with-osx              use Mac OS X (default port, currently Carbon)], [wxUSE_OSX_CARBON="$withval" CACHE_OSX_CARBON=1 TOOLKIT_GIVEN=1])
+AC_ARG_WITH(osx,           [  --with-osx              use Mac OS X (default port, Cocoa)], [wxUSE_OSX_COCOA="$withval" CACHE_OSX_COCOA=1 TOOLKIT_GIVEN=1])
 AC_ARG_WITH(carbon,        [  --with-carbon           same as --with-osx_carbon], [wxUSE_OSX_CARBON="$withval" CACHE_OSX_CARBON=1 TOOLKIT_GIVEN=1])
 AC_ARG_WITH(cocoa,         [  --with-cocoa            same as --with-osx_cocoa], [wxUSE_OSX_COCOA="$withval" CACHE_OSX_COCOA=1 TOOLKIT_GIVEN=1])
 AC_ARG_WITH(iphone,        [  --with-iphone           same as --with-osx_iphone], [wxUSE_OSX_IPHONE="$withval" CACHE_OSX_IPHONE=1 TOOLKIT_GIVEN=1])
-AC_ARG_WITH(mac,           [  --with-mac              same as --with-osx], [wxUSE_OSX_CARBON="$withval" CACHE_OSX_CARBON=1 TOOLKIT_GIVEN=1])
+AC_ARG_WITH(mac,           [  --with-mac              same as --with-osx], [wxUSE_OSX_COCOA="$withval" CACHE_OSX_COCOA=1 TOOLKIT_GIVEN=1])
 AC_ARG_WITH(old_cocoa,     [  --with-old_cocoa        use old, deprecated, Cocoa port], [wxUSE_OLD_COCOA="$withval" CACHE_OLD_COCOA=1 TOOLKIT_GIVEN=1])
 AC_ARG_WITH(wine,          [  --with-wine             use Wine], [wxUSE_WINE="$withval" CACHE_WINE=1])
 AC_ARG_WITH(msw,           [  --with-msw              use MS-Windows], [wxUSE_MSW="$withval" CACHE_MSW=1 TOOLKIT_GIVEN=1])
@@ -3102,14 +3102,15 @@ libraries returned by 'pkg-config gtk+-2.0 --libs' or 'gtk-config
         if test "$wxUSE_UNICODE" = "yes"; then
             PKG_PROG_PKG_CONFIG()
 
-            PKG_CHECK_MODULES(PANGOX, pangox,
+            PKG_CHECK_MODULES(PANGOXFT, pangoxft,
                 [
-                    CFLAGS="$PANGOX_CFLAGS $CFLAGS"
-                    CXXFLAGS="$PANGOX_CFLAGS $CXXFLAGS"
-                    GUI_TK_LIBRARY="$GUI_TK_LIBRARY $PANGOX_LIBS"
+                    AC_DEFINE(HAVE_PANGO_XFT)
+                    CFLAGS="$PANGOXFT_CFLAGS $CFLAGS"
+                    CXXFLAGS="$PANGOXFT_CFLAGS $CXXFLAGS"
+                    GUI_TK_LIBRARY="$GUI_TK_LIBRARY $PANGOXFT_LIBS"
                 ],
                 [
-                    AC_MSG_ERROR([pangox library not found, library cannot be compiled in Unicode mode])
+                    AC_MSG_ERROR([pangoxft library not found, library cannot be compiled in Unicode mode])
                 ]
             )
             PKG_CHECK_MODULES(PANGOFT2, pangoft2,
@@ -3123,21 +3124,8 @@ libraries returned by 'pkg-config gtk+-2.0 --libs' or 'gtk-config
                     wxUSE_PRINTING_ARCHITECTURE="no"
                 ]
             )
-            PKG_CHECK_MODULES(PANGOXFT, pangoxft,
-                [
-                    AC_DEFINE(HAVE_PANGO_XFT)
-                    CFLAGS="$PANGOXFT_CFLAGS $CFLAGS"
-                    CXXFLAGS="$PANGOXFT_CFLAGS $CXXFLAGS"
-                    GUI_TK_LIBRARY="$GUI_TK_LIBRARY $PANGOXFT_LIBS"
-                ],
-                [
-                    AC_MSG_WARN([pangoxft library not found, library will be compiled without anti-aliasing support])
-                ]
-            )
-            save_LIBS="$LIBS"
-            LIBS="$LIBS $PANGOX_LIBS"
+
             AC_CHECK_FUNCS([pango_font_family_is_monospace])
-            LIBS="$save_LIBS"
         fi
 
         wxUSE_UNIVERSAL="yes"
@@ -3795,7 +3783,6 @@ done
 for i in \${libnames} ; do
     ${HOST_PREFIX}install_name_tool \${changes} -id \${3}/\${i} \${1}/\${i}
 done
-${HOST_PREFIX}install_name_tool \${changes} \${2}/wxrc-${WX_RELEASE}
 EOF
             chmod +x change-install-names
             DYLIB_RPATH_INSTALL="\$(wx_top_builddir)/change-install-names \${DESTDIR}\${libdir} \${DESTDIR}\${bindir} \${libdir} \$(wx_top_builddir)/lib"
@@ -4248,11 +4235,40 @@ if test "$ac_cv_func_vsscanf" = "yes"; then
 
     if test "$wx_cv_func_vsscanf_decl" = "yes"; then
         AC_DEFINE(HAVE_VSSCANF_DECL)
+
+        dnl we know there is a vsscanf() declaration, but it can be broken by
+        dnl declaring vsscanf() as taking a non-const first argument (this
+        dnl happens at least under HP-UX 11.31, see #15638).
+        AC_CACHE_CHECK([if vsscanf() declaration is broken], wx_cv_func_broken_vsscanf_decl,
+            [
+                AC_TRY_COMPILE(
+                    [
+                        #include <stdio.h>
+                        #include <stdarg.h>
+                        #ifdef __MSL__
+                        #if __MSL__ >= 0x6000
+                        namespace std {}
+                        using namespace std;
+                        #endif
+                        #endif
+                    ],
+                    [
+                        const char *buf;
+                        va_list args;
+                        vsscanf(buf, "%s", args);
+                    ],
+                    wx_cv_func_broken_vsscanf_decl=no,
+                    wx_cv_func_broken_vsscanf_decl=yes
+                )
+            ]
+        )
+
+        if test "$wx_cv_func_broken_vsscanf_decl" = "yes"; then
+            AC_DEFINE(HAVE_BROKEN_VSSCANF_DECL)
+        fi
     fi
 fi
 AC_LANG_POP()
-
-if test "$wxUSE_UNICODE" = yes; then
 
     dnl also look if we have wide char IO functions, notice that [f]putws are
     dnl declared in special widec.h under Solaris
@@ -4279,7 +4295,6 @@ if test "$wxUSE_UNICODE" = yes; then
                    [AC_MSG_RESULT([yes])
                     AC_DEFINE(HAVE__VSNWPRINTF)],
                    [AC_MSG_RESULT([no])]);
-fi
 
 if test "$wxUSE_FILE" = "yes"; then
     WX_CHECK_FUNCS(fsync)
@@ -6343,7 +6358,7 @@ if test "$wxUSE_GUI" = "yes" -a "$wxUSE_JOYSTICK" = "yes"; then
         wxUSE_JOYSTICK=yes
 
     dnl mac only available on darwin
-    elif test "$TOOLKIT" = "OSX" -o "$TOOLKIT" = "COCOA"; then
+    elif test "$TOOLKIT" = "OSX_COCOA" -o "$TOOLKIT" = "COCOA"; then
         if test "$USE_DARWIN" = 1; then
             dnl check for a bug in the headers, some have bad setEventCallout
             AC_MSG_CHECKING([headers have declarations needed for joystick support])
@@ -6556,7 +6571,12 @@ if test "$wxUSE_IPC" = "yes"; then
 fi
 
 if test "$wxUSE_DATAOBJ" = "yes"; then
-    AC_DEFINE(wxUSE_DATAOBJ)
+    if test "$wxUSE_DFB" = 1; then
+        AC_MSG_WARN([wxDataObject not yet supported under $TOOLKIT... disabled])
+        wxUSE_DATAOBJ=no
+    else
+        AC_DEFINE(wxUSE_DATAOBJ)
+    fi
 else
     AC_MSG_WARN([Clipboard and drag-and-drop require wxDataObject -- disabled])
     wxUSE_CLIPBOARD=no
@@ -7123,6 +7143,8 @@ if test "$wxUSE_XRC" = "yes"; then
         AC_DEFINE(wxUSE_XRC)
         USE_XRC=1
         SAMPLES_SUBDIRS="$SAMPLES_SUBDIRS xrc"
+
+        echo "${HOST_PREFIX}install_name_tool \${changes} \${2}/wxrc-${WX_RELEASE}" >> change-install-names
     fi
 fi
 

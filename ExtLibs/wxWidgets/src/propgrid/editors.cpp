@@ -1176,7 +1176,7 @@ bool wxPGChoiceEditor::GetValueFromControl( wxVariant& variant, wxPGProperty* pr
          property->IsValueUnspecified()
        )
     {
-        return property->IntToValue( variant, index, 0 );
+        return property->IntToValue(variant, index, wxPG_PROPERTY_SPECIFIC);
     }
     return false;
 }
@@ -1285,7 +1285,7 @@ bool wxPGComboBoxEditor::GetValueFromControl( wxVariant& variant, wxPGProperty* 
         return true;
     }
 
-    bool res = property->StringToValue(variant, textVal, wxPG_EDITABLE_VALUE);
+    bool res = property->StringToValue(variant, textVal, wxPG_EDITABLE_VALUE|wxPG_PROPERTY_SPECIFIC);
 
     // Changing unspecified always causes event (returning
     // true here should be enough to trigger it).
@@ -1699,7 +1699,7 @@ bool wxPGCheckBoxEditor::GetValueFromControl( wxVariant& variant, wxPGProperty* 
          property->IsValueUnspecified()
        )
     {
-        return property->IntToValue(variant, index, 0);
+        return property->IntToValue(variant, index, wxPG_PROPERTY_SPECIFIC);
     }
     return false;
 }
