@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ObserverPattern.hpp"
 
+#include "wx/panel.h"
 #include "wx/treectrl.h"
 
 
@@ -37,7 +38,7 @@ namespace MapEditor
     {
         public:
 
-        EntityHierarchyDialogT(ChildFrameT* Parent, const wxSize& Size);
+        EntityHierarchyDialogT(ChildFrameT* Parent, wxWindow* WinParent);
         ~EntityHierarchyDialogT();
 
         // Implementation of the ObserverT interface.
@@ -83,6 +84,42 @@ namespace MapEditor
         void OnTreeItemRightClick(wxTreeEvent&  TE);
         void OnBeginDrag         (wxTreeEvent&  TE);
         void OnEndDrag           (wxTreeEvent&  TE);
+
+        DECLARE_EVENT_TABLE()
+    };
+
+
+    class EntityHierarchyViewT
+    {
+        ;
+    };
+
+
+    class EntityHierarchyPanelT : public wxPanel
+    {
+        public:
+
+        EntityHierarchyPanelT(ChildFrameT* MainFrame, const wxSize& Size);
+
+
+        private:
+
+        /// IDs for the controls whose events we are interested in.
+        enum
+        {
+            ID_TREEVIEW = wxID_HIGHEST + 1,
+            ID_BUTTON_ADD,
+            ID_BUTTON_UP,
+            ID_BUTTON_DOWN,
+            ID_BUTTON_DELETE
+        };
+
+        // void OnButton(wxCommandEvent& Event);
+        // void OnButtonUpdate(wxUpdateUIEvent& UE);
+
+        ChildFrameT*            m_MainFrame;
+        EntityHierarchyDialogT* m_OldTreeCtrl;
+        EntityHierarchyViewT*   m_TreeView;
 
         DECLARE_EVENT_TABLE()
     };

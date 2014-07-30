@@ -45,7 +45,7 @@ class ToolManagerT;
 class ViewWindowT;
 class wxProcessEvent;
 namespace MapEditor { class ClipboardT; }
-namespace MapEditor { class EntityHierarchyDialogT; }
+namespace MapEditor { class EntityHierarchyPanelT; }
 
 
 class AutoSaveTimerT : public wxTimer
@@ -242,7 +242,7 @@ class ChildFrameT : public wxMDIChildFrame
     unsigned long            m_LastSavedAtCommandNr;    ///< The ID of the command after which the document was last saved. If the current command ID from the history differs from this, the document contains unsaved changes.
     AutoSaveTimerT           m_AutoSaveTimer;
     ToolManagerT*            m_ToolManager;
-    MapEditor::EntityHierarchyDialogT* m_EntityHierarchyDialog;
+    MapEditor::EntityHierarchyPanelT* m_EntityHierarchyDialog;
     MaterialsToolbarT*       m_MaterialsToolbar;
     GroupsToolbarT*          m_GroupsToolbar;
     ConsoleDialogT*          m_ConsoleDialog;

@@ -85,8 +85,8 @@ BEGIN_EVENT_TABLE(EntityHierarchyDialogT, wxTreeCtrl)
 END_EVENT_TABLE()
 
 
-EntityHierarchyDialogT::EntityHierarchyDialogT(ChildFrameT* Parent, const wxSize& Size)
-    : wxTreeCtrl(Parent, wxID_ANY, wxDefaultPosition, Size, wxTR_HAS_BUTTONS|wxTR_LINES_AT_ROOT|wxTR_MULTIPLE|wxBORDER_NONE|wxTR_EDIT_LABELS),
+EntityHierarchyDialogT::EntityHierarchyDialogT(ChildFrameT* Parent, wxWindow* WinParent)
+    : wxTreeCtrl(WinParent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTR_HAS_BUTTONS|wxTR_LINES_AT_ROOT|wxTR_MULTIPLE|wxBORDER_NONE|wxTR_EDIT_LABELS),
       m_MapDoc(Parent->GetDoc()),
       m_Parent(Parent),
       m_IsRecursiveSelfNotify(false),
@@ -668,4 +668,44 @@ void EntityHierarchyDialogT::OnEndDrag(wxTreeEvent& TE)
 
         m_Parent->SubmitCommand(new CommandChangeEntityHierarchyT(m_MapDoc, SourceEntity, TargetEntity->GetParent(), NewPos));
     }
+}
+
+
+/****************************/
+/*** EntityHierarchyViewT ***/
+/****************************/
+
+
+/*****************************/
+/*** EntityHierarchyPanelT ***/
+/*****************************/
+
+BEGIN_EVENT_TABLE(EntityHierarchyPanelT, wxPanel)
+//     EVT_BUTTON(ID_BUTTON_ADD,    EntityHierarchyPanelT::OnButton)
+//     EVT_BUTTON(ID_BUTTON_UP,     EntityHierarchyPanelT::OnButton)
+//     EVT_BUTTON(ID_BUTTON_DOWN,   EntityHierarchyPanelT::OnButton)
+//     EVT_BUTTON(ID_BUTTON_DELETE, EntityHierarchyPanelT::OnButton)
+//     EVT_UPDATE_UI_RANGE(ID_BUTTON_ADD, ID_BUTTON_DELETE, EntityHierarchyPanelT::OnButtonUpdate)
+END_EVENT_TABLE()
+
+
+EntityHierarchyPanelT::EntityHierarchyPanelT(ChildFrameT* MainFrame, const wxSize& Size)
+    : wxPanel(MainFrame, -1, wxDefaultPosition, Size),
+      m_MainFrame(MainFrame),
+      m_OldTreeCtrl(NULL),
+      m_TreeView(NULL)
+{
+    // As we are a wxAUI pane rather than a wxDialog, explicitly set that events are not propagated to our parent.
+    SetExtraStyle(wxWS_EX_BLOCK_EVENTS);
+
+    wxBoxSizer* item0 = new wxBoxSizer( wxVERTICAL );
+
+    m_OldTreeCtrl = new EntityHierarchyDialogT(m_MainFrame, this);
+    item0->Add(m_OldTreeCtrl, 1, wxEXPAND | wxALL, 5 );
+
+    // m_TreeView = new EntityHierarchyViewT(m_MainFrame, this);
+    // item0->Add(m_TreeView, 1, wxEXPAND, 0 );
+
+    this->SetSizer( item0 );
+    item0->SetSizeHints(this);
 }

@@ -601,7 +601,7 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     // Create the toolbars and non-modal dialogs.
     // Note that most if not all of these wxAUI panes have extra style wxWS_EX_BLOCK_EVENTS set,
     // so that they do not propagate their events to us, but behave as if they were derived from wxDialog.
-    m_EntityHierarchyDialog = new EntityHierarchyDialogT(this, wxSize(230, 500));
+    m_EntityHierarchyDialog = new EntityHierarchyPanelT(this, wxSize(230, 500));
     m_AUIManager.AddPane(m_EntityHierarchyDialog, wxAuiPaneInfo().
                          Name("EntityHierarchy").Caption("Entity Hierarchy").
                          Left().Position(0));
