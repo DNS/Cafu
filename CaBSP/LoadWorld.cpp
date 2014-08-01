@@ -45,44 +45,21 @@ using namespace cf;
 
 void MapFileSanityCheck(const ArrayT<MapFileEntityT>& MFEntityList)
 {
-    unsigned long NrOfWorldSpawnEntities = 0;
+    if (MFEntityList.Size() == 0)
+        Error("There are no entities in the map file.");
 
-    for (unsigned long EntityNr=0; EntityNr<MFEntityList.Size(); EntityNr++)
+    const MapFileEntityT& RootEnt = MFEntityList[0];
+
+    if (RootEnt.MFBrushes.Size() < 4)
     {
-        const MapFileEntityT& E=MFEntityList[EntityNr];
-        const std::map<std::string, std::string>::const_iterator It=E.MFProperties.find("classname");
+        Console->Print(cf::va("This map only has %lu brush%s, but CSG requires at least 4 (better 6).\n", RootEnt.MFBrushes.Size(), RootEnt.MFBrushes.Size()==1 ? "" : "es"));
+        Console->Print("That means that the minimum of geometry you have to provide is a small room,\n");
+        Console->Print("consisting of 4 walls, the floor, and the ceiling.\n");
+        Console->Print("That in turn means that you need at least 6 brushes to create a \"closed room\".\n");
+        Console->Print("(The minimum is 4 brushes for a \"closed pyramid\".  :-)\n");
 
-        if (It==E.MFProperties.end()) Error("\"classname\" property not found in entity %lu.", EntityNr);
-
-        // If we found the 'classname worldspawn' property pair, we count the occurence, because there must only be exactly one such entity.
-        // Additionally, our map file spec. implies that there MUST be a 'mapfile_version XX' pair following the 'classname worldspawn' pair.
-        if (It->second=="worldspawn")
-        {
-            if (EntityNr!=0) Error("Entity %u is the 'worldspawn' entity, but entity 0 is expected to be the only 'worldspawn' entity.", EntityNr);
-            if (E.MFProperties.size()==1) Error("Entity %u is the worldspawn entity, but has only one PPair (missing mapfile_version).", EntityNr);
-
-            // These two issues are directly checked while loading.
-            // The pair also must not be precisely at second position (index 1) anymore.
-            // if (E.MFPropPairs[1].Key!="mapfile_version") Error("Entity %u: Second PPair key is not 'mapfile_version'.", EntityNr);
-            // if (atoi(E.MFPropPairs[1].Value.c_str())!=9)) Error("Bad map file version: Expected %s, got %s.", "9", E.MFPropPairs[1].Value.c_str());
-
-            if (E.MFBrushes.Size()<4)
-            {
-                Console->Print(cf::va("This map only has %lu brush%s, but CSG requires at least 4 (better 6).\n", E.MFBrushes.Size(), E.MFBrushes.Size()==1 ? "" : "es"));
-                Console->Print("That means that the minimum of geometry you have to provide is a small room,\n");
-                Console->Print("consisting of 4 walls, the floor, and the ceiling.\n");
-                Console->Print("That in turn means that you need at least 6 brushes to create a \"closed room\".\n");
-                Console->Print("(The minimum is 4 brushes for a \"closed pyramid\".  :-)\n");
-                Error("Too few brushes.");
-            }
-
-            NrOfWorldSpawnEntities++;
-        }
-
-        // No further checks should be necessary for now. We can always ignore invalid property pairs and/or fill in default values.
+        Error("Too few brushes.");
     }
-
-    if (NrOfWorldSpawnEntities != 1) Error("Found %u worldspawn entities, expected exactly 1.", NrOfWorldSpawnEntities);
 }
 
 
@@ -295,10 +272,6 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
     }
 
 
-    // Perform certain sanity checks on the map (MFEntityList), look into the function for details.
-    MapFileSanityCheck(MFEntityList);
-
-
     ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllScriptEnts;
     ScriptWorld->GetRootEntity()->GetAll(AllScriptEnts);
 
@@ -334,6 +307,9 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
         }
     }
 
+    // Perform certain sanity checks on the map (MFEntityList), look into the function for details.
+    MapFileSanityCheck(MFEntityList);
+
     // Move/migrate/insert the map primitives of each entity into the entity's BSP tree.
     for (unsigned long EntNr = 0; EntNr < AllScriptEnts.Size() && EntNr < MFEntityList.Size(); EntNr++)
     {
@@ -347,20 +323,15 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
         World.m_StaticEntityData.PushBack(GameEnt);
 
         const MapFileEntityT& E = MFEntityList[EntNr];
-        const std::map<std::string, std::string>::const_iterator ClassNamePair = E.MFProperties.find("classname");
 
         float LightMapPatchSize = 200.0f;
         float SHLMapPatchSize   = 200.0f;
 
-        if (ClassNamePair == E.MFProperties.end())
-            Error("\"classname\" property not found in entity %lu.", EntNr);
-
-        if (ClassNamePair->second == "worldspawn")
         {
             std::map<std::string, std::string>::const_iterator It;
 
-            It=E.MFProperties.find("lightmap_patchsize");
-            if (It!=E.MFProperties.end())
+            It = E.MFProperties.find("lightmap_patchsize");
+            if (It != E.MFProperties.end())
             {
                 LightMapPatchSize = float(atof(It->second.c_str()));
 
@@ -368,8 +339,8 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
                 if (LightMapPatchSize > 2000.0) { LightMapPatchSize = 2000.0; Console->Print("NOTE: LightMap PatchSize clamped to 2000.\n"); }
             }
 
-            It=E.MFProperties.find("shlmap_patchsize");
-            if (It!=E.MFProperties.end())
+            It = E.MFProperties.find("shlmap_patchsize");
+            if (It != E.MFProperties.end())
             {
                 SHLMapPatchSize = float(atof(It->second.c_str()));
 
