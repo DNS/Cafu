@@ -817,11 +817,11 @@ void MapBezierPatchT::Render3D(Renderer3DT& Renderer) const
             break;
 
         case ViewWindowT::VT_3D_FLAT:
-            Render3D_Basic(Renderer.GetRMatFlatShaded(), IsSelected() ? Options.colors.SelectedFace : m_Color, 255);
+            Render3D_Basic(Renderer.GetRMatFlatShaded(), IsSelected() ? Options.colors.SelectedFace : GetColor(Options.view2d.UseGroupColors), 255);
             break;
 
         case ViewWindowT::VT_3D_WIREFRAME:
-            Render3D_Basic(Renderer.GetRMatWireframe(), IsSelected() ? Options.colors.SelectedEdge : m_Color, 255);
+            Render3D_Basic(Renderer.GetRMatWireframe(), IsSelected() ? Options.colors.SelectedEdge : GetColor(Options.view2d.UseGroupColors), 255);
             break;
 
         default:

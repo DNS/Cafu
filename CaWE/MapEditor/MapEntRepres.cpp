@@ -50,7 +50,7 @@ const cf::TypeSys::TypeInfoT MapEntRepresT::TypeInfo(GetMapElemTIM(), "MapEntRep
 
 
 MapEntRepresT::MapEntRepresT(IntrusivePtrT<MapEditor::CompMapEntityT> Parent)
-    : MapElementT(Options.colors.Entity),
+    : MapElementT(),
       m_Cloned(NULL)
 {
     wxASSERT(Parent != NULL);

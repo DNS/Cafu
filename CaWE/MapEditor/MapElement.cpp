@@ -52,10 +52,9 @@ const cf::TypeSys::TypeInfoT MapElementT::TypeInfo(GetMapElemTIM(), "MapElementT
 /*** End of TypeSys related definitions for this class. ***/
 
 
-MapElementT::MapElementT(const wxColour& Color)
+MapElementT::MapElementT()
     : m_Parent(NULL),
       m_IsSelected(false),
-      m_Color(Color),
       m_Group(NULL),
       m_FrameCount(0)
 {
@@ -65,7 +64,6 @@ MapElementT::MapElementT(const wxColour& Color)
 MapElementT::MapElementT(const MapElementT& Elem)
     : m_Parent(NULL),
       m_IsSelected(false),    // The copied element cannot initially be selected: It is not a member of the selection array (kept in the map document).
-      m_Color(Elem.m_Color),
       m_Group(NULL),
       m_FrameCount(Elem.m_FrameCount)
 {
@@ -88,7 +86,6 @@ void MapElementT::Assign(const MapElementT* Elem)
 
  // m_Parent     = ...;                 // Not changed by this method, per definition.
  // m_IsSelected = Elem->m_IsSelected;  // The selection status cannot be changed by the assignment: It is kept in the map document and up to the caller to change.
-    m_Color      = Elem->m_Color;
  // m_Group      = ...;                 // Not changed by this method, it's up to the caller to change.
  // m_FrameCount = Elem->m_FrameCount;
 }
@@ -97,19 +94,6 @@ void MapElementT::Assign(const MapElementT* Elem)
 void MapElementT::SetParent(const IntrusivePtrT<MapEditor::CompMapEntityT>& Ent)
 {
     m_Parent = Ent;
-}
-
-
-wxColour MapElementT::GetColor(bool ConsiderGroup) const
-{
-    if (m_Group && ConsiderGroup)
-        return m_Group->Color;
-
-    if (m_Parent != NULL && !m_Parent->IsWorld())
-        return m_Parent->GetRepres()->GetColor(false);
-
-    // The primitive has no parent, or the parent is the world.
-    return m_Color;
 }
 
 

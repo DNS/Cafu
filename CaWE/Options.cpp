@@ -147,7 +147,6 @@ void OptionsT::Init()
     colors.SelectedFace =wxColour(220, 0, 0);
     colors.SelectedEdge =wxColour(250, 220, 0);
     colors.ToolMorph    =wxColour(255, 0, 0);
-    colors.Entity       =wxColour(220, 30, 220);
 
 
     wxFileConfig CfgFile(wxTheApp->GetAppName(), wxTheApp->GetVendorName(), wxStandardPaths::Get().GetUserDataDir()+"/Games.config");

@@ -163,7 +163,7 @@ namespace cf
             /// Returns a color that the Map Editor can use to render the representation of this component's entity.
             /// The Map Editor will use the color of an entity's first component as returned by this method to render
             /// the visual representation of the entity.
-            virtual unsigned int GetEditorColor() const { return 0xFF00FF; }
+            virtual unsigned int GetEditorColor() const { return 0xDC1EDC; }    // (220, 30, 220)
 
             /// This method returns a bounding-box that encloses the visual representation of this component.
             /// The returned bounding-box is in local space, i.e. typically centered around the origin (0, 0, 0).

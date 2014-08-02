@@ -51,11 +51,20 @@ class MapPrimitiveT : public MapElementT
     /// thus fail to compile, because a `MapElementT*` cannot be assigned to `NewPrim`.
     MapPrimitiveT* Clone() const=0;
 
+    // Implementations and overrides for base class methods.
+    void     Assign(const MapElementT* Elem);
+    wxColour GetColor(bool ConsiderGroup=true) const;
+
 
     // The TypeSys related declarations for this class.
     virtual const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
     static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
     static const cf::TypeSys::TypeInfoT TypeInfo;
+
+
+    private:
+
+    wxColour m_Color;   ///< The inherent color of this map primitive.
 };
 
 #endif

@@ -62,7 +62,7 @@ class MapElementT
     public:
 
     /// The default constructor.
-    MapElementT(const wxColour& Color);
+    MapElementT();
 
     /// The copy constructor for copying a map element.
     ///
@@ -122,6 +122,11 @@ class MapElementT
     void SetSelected(bool Selected=true) { m_IsSelected=Selected; }
 
 
+    /// Returns whether this map element is (entirely or partially) translucent.
+    /// Translucent map elements are typically implemented with "alpha blending" and require rendering in back-to-front order.
+    /// @see EditorMaterialI::IsTranslucent()
+    virtual bool IsTranslucent() const { return false; }
+
     /// This method returns the "inherent" color of this map element.
     /// The returned color should be used for rendering the map element whenever no better
     /// (e.g. texture-mapped) alternative is available.
@@ -132,12 +137,7 @@ class MapElementT
     ///   When the map element is an entity, the color of the entity class is returned.
     ///   Otherwise (the element is a primitive), when the map element is part of an entity, the entity color
     ///   is returned. Finally (it's a map primitive that is in the world), its native color is returned.
-    virtual wxColour GetColor(bool ConsiderGroup=true) const;
-
-    /// Returns whether this map element is (entirely or partially) translucent.
-    /// Translucent map elements are typically implemented with "alpha blending" and require rendering in back-to-front order.
-    /// @see EditorMaterialI::IsTranslucent()
-    virtual bool IsTranslucent() const { return false; }
+    virtual wxColour GetColor(bool ConsiderGroup=true) const = 0;
 
     virtual wxString GetDescription() const { return ""; }
 
@@ -222,7 +222,6 @@ class MapElementT
 
     IntrusivePtrT<MapEditor::CompMapEntityT> m_Parent;      ///< The entity that this element is a part of.
     bool                                     m_IsSelected;  ///< Is this element currently selected in the map document?
-    wxColour                                 m_Color;       ///< The color of this element.
     GroupT*                                  m_Group;       ///< The group this element is in, NULL if in no group.
     unsigned int                             m_FrameCount;  ///< The number of the frame in which this element was last rendered in a 3D view, used in order to avoid processing/rendering it twice.
 };
