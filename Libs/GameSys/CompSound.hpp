@@ -50,6 +50,7 @@ namespace cf
             // Base class overrides.
             ComponentSoundT* Clone() const;
             const char* GetName() const { return "Sound"; }
+            unsigned int GetEditorColor() const { return 0xFF0000; }
             void DoClientFrame(float t);
 
 

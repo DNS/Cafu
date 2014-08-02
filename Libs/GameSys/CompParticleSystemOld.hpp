@@ -54,6 +54,7 @@ namespace cf
             // Base class overrides.
             ComponentParticleSystemOldT* Clone() const;
             const char* GetName() const { return "ParticleSystemOld"; }
+            unsigned int GetEditorColor() const { return 0xFFFF00; }
 
 
             // The TypeSys related declarations for this class.

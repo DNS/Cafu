@@ -61,6 +61,7 @@ namespace cf
             ComponentCollisionModelT* Clone() const;
             const char* GetName() const { return "CollisionModel"; }
             void UpdateDependencies(EntityT* Entity);
+            unsigned int GetEditorColor() const { return 0xAAAAAA; }
             void GetCollisionBB(BoundingBox3fT& BB) const;
 
 

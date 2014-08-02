@@ -63,6 +63,7 @@ namespace cf
             ComponentModelT* Clone() const;
             const char* GetName() const { return "Model"; }
             void UpdateDependencies(EntityT* Entity);
+            unsigned int GetEditorColor() const { return 0x00FFFF; }
             BoundingBox3fT GetVisualBB() const;
             void Render(bool FirstPersonView, float LodDist) const;
             void DoServerFrame(float t);

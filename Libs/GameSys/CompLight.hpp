@@ -37,6 +37,7 @@ namespace cf
             // Base class overrides.
             ComponentLightT* Clone() const;
             const char* GetName() const { return "Light"; }
+            unsigned int GetEditorColor() const { return 0xCCFFFF; }
 
 
             // The TypeSys related declarations for this class.

@@ -52,6 +52,7 @@ namespace cf
             // Base class overrides.
             ComponentPlayerStartT* Clone() const;
             const char* GetName() const { return "PlayerStart"; }
+            unsigned int GetEditorColor() const { return 0x00FF00; }
 
 
             // The TypeSys related declarations for this class.

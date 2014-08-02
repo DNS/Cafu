@@ -63,6 +63,7 @@ namespace cf
             // Base class overrides.
             ComponentScriptT* Clone() const;
             const char* GetName() const { return "Script"; }
+            unsigned int GetEditorColor() const { return 0x4482FC; }
             void OnPostLoad(bool InEditor);
 
 

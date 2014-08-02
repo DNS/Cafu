@@ -104,11 +104,12 @@ wxColour MapEntRepresT::GetColor(bool ConsiderGroup) const
     if (m_Group && ConsiderGroup)
         return m_Group->Color;
 
-    // if (m_Parent->GetClass())
-    //     return m_Parent->GetClass()->GetColor();
+    IntrusivePtrT<cf::GameSys::EntityT> Ent = m_Parent->GetEntity();
 
-    // TODO: Return color as obtained by "first component"?
-    return m_Color;
+    if (Ent->GetComponents().Size() > 0)
+        return Ent->GetComponents()[0]->GetEditorColor();
+
+    return Ent->GetBasics()->GetEditorColor();
 }
 
 
