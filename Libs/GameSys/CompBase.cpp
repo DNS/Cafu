@@ -117,18 +117,6 @@ bool ComponentBaseT::InitClientApprox(const char* VarName)  // This method also 
 }
 
 
-bool ComponentBaseT::CallLuaMethod(const char* MethodName, int NumExtraArgs, const char* Signature, ...)
-{
-    va_list vl;
-
-    va_start(vl, Signature);
-    const bool Result = m_Entity && m_Entity->GetWorld().GetScriptState().CallMethod_Impl(IntrusivePtrT<ComponentBaseT>(this), MethodName, NumExtraArgs, Signature, vl);
-    va_end(vl);
-
-    return Result;
-}
-
-
 // Note that this method is the twin of Deserialize(), whose implementation it must match.
 void ComponentBaseT::Serialize(cf::Network::OutStreamT& Stream) const
 {
@@ -177,6 +165,18 @@ void ComponentBaseT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
     // Call this after updating the interpolator updates above, so that code
     // that implements DoDeserialize() deals with the latest values.
     DoDeserialize(Stream, IsIniting);
+}
+
+
+bool ComponentBaseT::CallLuaMethod(const char* MethodName, int NumExtraArgs, const char* Signature, ...)
+{
+    va_list vl;
+
+    va_start(vl, Signature);
+    const bool Result = m_Entity && m_Entity->GetWorld().GetScriptState().CallMethod_Impl(IntrusivePtrT<ComponentBaseT>(this), MethodName, NumExtraArgs, Signature, vl);
+    va_end(vl);
+
+    return Result;
 }
 
 

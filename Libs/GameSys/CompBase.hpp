@@ -88,6 +88,9 @@ namespace cf
             virtual ~ComponentBaseT();
 
 
+            /// Returns the name of this component.
+            virtual const char* GetName() const { return "Base"; }
+
             /// Returns the parent entity that contains this component,
             /// or `NULL` if this component is currently not a part of any entity.
             EntityT* GetEntity() const { return m_Entity; }
@@ -115,16 +118,6 @@ namespace cf
             /// `Vector2fT`, `Vector3fT` or `Vector3dT`.
             bool InitClientApprox(const char* VarName);
 
-            /// Calls the given Lua method of this component.
-            /// This method is analogous to UniScriptStateT::CallMethod(), see there for details.
-            /// @param MethodName     The name of the Lua method to call.
-            /// @param NumExtraArgs   The number of extra arguments that have been pushed on the stack.
-            /// @param Signature      See UniScriptStateT::Call() for details.
-            bool CallLuaMethod(const char* MethodName, int NumExtraArgs, const char* Signature="", ...);
-
-            /// Returns the name of this component.
-            virtual const char* GetName() const { return "Base"; }
-
             /// Writes the current state of this component into the given stream.
             /// This method is called to send the state of the component over the network, to save it to disk,
             /// or to store it in the clipboard.
@@ -148,6 +141,13 @@ namespace cf
             ///   Used to indicate that the call is part of the construction / first-time initialization of the component.
             ///   The implementation will use this to not wrongly process the event counters, interpolation, etc.
             void Deserialize(cf::Network::InStreamT& Stream, bool IsIniting);
+
+            /// Calls the given Lua method of this component.
+            /// This method is analogous to UniScriptStateT::CallMethod(), see there for details.
+            /// @param MethodName     The name of the Lua method to call.
+            /// @param NumExtraArgs   The number of extra arguments that have been pushed on the stack.
+            /// @param Signature      See UniScriptStateT::Call() for details.
+            bool CallLuaMethod(const char* MethodName, int NumExtraArgs, const char* Signature="", ...);
 
 
             /// This method is called whenever something "external" to this component has changed:
