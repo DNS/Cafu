@@ -335,14 +335,14 @@ IntrusivePtrT<EntityT> EntityT::Find(const std::string& WantedName)
 }
 
 
-BoundingBox3fT EntityT::GetVisualBB(bool WorldSpace) const
+BoundingBox3fT EntityT::GetCullingBB(bool WorldSpace) const
 {
     BoundingBox3fT BB;
 
     // We know that m_Basics and m_Transform have no visual representation, but m_App may have.
     if (m_App != NULL)
     {
-        const BoundingBox3fT CompBB = m_App->GetVisualBB();
+        const BoundingBox3fT CompBB = m_App->GetCullingBB();
 
         if (CompBB.IsInited())
             BB += CompBB;
@@ -350,7 +350,7 @@ BoundingBox3fT EntityT::GetVisualBB(bool WorldSpace) const
 
     for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
     {
-        const BoundingBox3fT CompBB = m_Components[CompNr]->GetVisualBB();
+        const BoundingBox3fT CompBB = m_Components[CompNr]->GetCullingBB();
 
         if (CompBB.IsInited())
             BB += CompBB;

@@ -113,7 +113,7 @@ ComponentPointLightT* ComponentPointLightT::Clone() const
 }
 
 
-BoundingBox3fT ComponentPointLightT::GetVisualBB() const
+BoundingBox3fT ComponentPointLightT::GetCullingBB() const
 {
     const float r = m_Radius.Get();
 

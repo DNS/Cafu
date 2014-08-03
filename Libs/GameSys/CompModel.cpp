@@ -556,7 +556,7 @@ void ComponentModelT::UpdateDependencies(EntityT* Entity)
 }
 
 
-BoundingBox3fT ComponentModelT::GetVisualBB() const
+BoundingBox3fT ComponentModelT::GetCullingBB() const
 {
     return GetPose() ? GetPose()->GetBB() : BoundingBox3fT();
 }

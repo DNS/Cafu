@@ -91,7 +91,7 @@ void CompGameEntityT::UpdateDependencies(cf::GameSys::EntityT* Entity)
 }
 
 
-BoundingBox3fT CompGameEntityT::GetVisualBB() const
+BoundingBox3fT CompGameEntityT::GetCullingBB() const
 {
     if (m_StaticEntityData->m_BspTree)
         return m_StaticEntityData->m_BspTree->GetBoundingBox().AsBoxOfFloat();

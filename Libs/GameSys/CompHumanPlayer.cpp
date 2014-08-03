@@ -912,11 +912,11 @@ double ComponentHumanPlayerT::GetRandom()
 }
 
 
-BoundingBox3fT ComponentHumanPlayerT::GetVisualBB() const
+BoundingBox3fT ComponentHumanPlayerT::GetCullingBB() const
 {
     const float r = 1.0f;
 
-    // Make sure that the EntityT::GetVisualBB() method always returns *some* bounding-box if the entity is a
+    // Make sure that the EntityT::GetCullingBB() method always returns *some* bounding-box if the entity is a
     // human player, even if for whatever reason there is no other component (e.g. a Model) that adds one.
     // This makes (doubly) sure that in the `CaServerWorldT`, a client is always found in its own PVS.
     return BoundingBox3fT(Vector3fT(-r, -r, -r), Vector3fT(r, r, r));

@@ -196,7 +196,7 @@ namespace cf
             ///
             /// This method does *not* recurse: The returned bounding-box covers this entity, but not its children.
             ///
-            /// Note that many details are up to the entity's components, whose GetVisualBB() method this method's
+            /// Note that many details are up to the entity's components, whose GetCullingBB() method this method's
             /// implementation calls. For example, it is up to the Map Editor's "App" component to decide whether
             /// it includes selection gizmo handles and/or the map primitives in the returned bounding-box.
             ///
@@ -208,7 +208,7 @@ namespace cf
             /// @return The bounding-box that encloses the visual representation of this entity. The returned
             ///     bounding-box is always valid, but possibly not inited (`!IsInited()`), indicating that the entity
             ///     doesn't have a visual representation.
-            BoundingBox3fT GetVisualBB(bool WorldSpace) const;
+            BoundingBox3fT GetCullingBB(bool WorldSpace) const;
 
             /// Writes the current state of this entity into the given stream.
             /// This method is called to send the state of the entity over the network, to save it to disk,

@@ -471,7 +471,7 @@ void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID
     for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
         if (m_EngineEntities[EntityNr]!=NULL)
         {
-            BoundingBox3dT EntityBB = m_EngineEntities[EntityNr]->GetEntity()->GetVisualBB(true /*WorldSpace*/).AsBoxOfDouble();
+            BoundingBox3dT EntityBB = m_EngineEntities[EntityNr]->GetEntity()->GetCullingBB(true /*WorldSpace*/).AsBoxOfDouble();
 
             if (!EntityBB.IsInited())
             {
