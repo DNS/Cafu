@@ -61,8 +61,8 @@ namespace cf
             bool IsStatic() const { return m_Static.Get(); }
 
             // Base class overrides.
-            ComponentBasicsT* Clone() const;
-            const char* GetName() const { return "Basics"; }
+            ComponentBasicsT* Clone() const override;
+            const char* GetName() const override { return "Basics"; }
 
 
             // The TypeSys related declarations for this class.

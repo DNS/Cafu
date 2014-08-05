@@ -32,6 +32,35 @@ def BuildFileFromValue(env, target, source):
 envCommon['BUILDERS']['FileFromValue'] = envCommon.Builder(action=BuildFileFromValue)
 
 
+# A custom check to determine if the C++ compiler supports the C++11 `override` identifier.
+def CheckOverrideIdentifier(context):
+    source = """
+    class A
+    {
+        public:
+
+        virtual int f() const { return 1; }
+    }
+
+    class B : public A
+    {
+        public:
+
+        int f() const override { return 2; }
+    }
+
+    int main()
+    {
+        return 0;
+    }
+    """
+
+    context.Message("Checking for C++11 `override` identifier... ")
+    result = context.TryLink(source, '.cpp')
+    context.Result(result)
+    return result
+
+
 # This big if-else tree has a branch for each supported platform and each supported compiler.
 # For the chosen combination of platform and compiler, it prepares the environments envDebug, envRelease and envProfile.
 if sys.platform=="win32":
@@ -230,8 +259,18 @@ elif sys.platform=="linux2":
 
         compiler="g++"
 
-        # Begin with an environment with settings that are common for debug, release and profile builds.
-        envCommon.Append(CCFLAGS = Split(""))   # CCFLAGS is also taken as the default value for CXXFLAGS.
+        # The initial environment has settings that are common for debug, release and profile builds.
+        envCommon.Append(CCFLAGS = [])    # CCFLAGS is also taken as the default value for CXXFLAGS.
+        envCommon.Append(CXXFLAGS = ["-std=c++0x"])
+
+        # Run additional, compiler-specific checks.
+        conf = Configure(envCommon, custom_tests = {'CheckOverrideIdentifier' : CheckOverrideIdentifier})
+
+        if not conf.CheckOverrideIdentifier():
+            print "C++11 `override` identifier is not supported (defining an empty macro as a work-around)."
+            conf.env.Append(CPPDEFINES = [("override", "")])
+
+        envCommon = conf.Finish()
 
         # Environment for debug builds:
         envDebug=envCommon.Clone();
