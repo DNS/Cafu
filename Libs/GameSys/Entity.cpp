@@ -503,18 +503,22 @@ void EntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
 }
 
 
-void EntityT::RenderComponents(bool FirstPersonView, float LodDist) const
+bool EntityT::RenderComponents(bool FirstPersonView, float LodDist) const
 {
-    if (!m_Basics->IsShown()) return;
+    if (!m_Basics->IsShown()) return false;
+
+    bool b = false;
 
     // Render the "custom" components in the proper order -- bottom-up.
     for (unsigned long CompNr = m_Components.Size(); CompNr > 0; CompNr--)
-        m_Components[CompNr-1]->Render(FirstPersonView, LodDist);
+        b = b || m_Components[CompNr-1]->Render(FirstPersonView, LodDist);
 
     // Render the "fixed" components.
-    // m_Transform->Render(FirstPersonView, LodDist);
-    // m_Basics->Render(FirstPersonView, LodDist);
-    if (m_App != NULL) m_App->Render(FirstPersonView, LodDist);
+    // b = b || m_Transform->Render(FirstPersonView, LodDist);
+    // b = b || m_Basics->Render(FirstPersonView, LodDist);
+    if (m_App != NULL) b = b || m_App->Render(FirstPersonView, LodDist);
+
+    return b;
 }
 
 

@@ -562,11 +562,11 @@ BoundingBox3fT ComponentModelT::GetCullingBB() const
 }
 
 
-void ComponentModelT::Render(bool FirstPersonView, float LodDist) const
+bool ComponentModelT::Render(bool FirstPersonView, float LodDist) const
 {
-    if (!m_ModelShow.Get()) return;
-    if (m_Is1stPerson.Get() != FirstPersonView) return;
-    if (!GetPose()) return;
+    if (!m_ModelShow.Get()) return false;
+    if (m_Is1stPerson.Get() != FirstPersonView) return false;
+    if (!GetPose()) return false;
 
     MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
     MatSys::Renderer->Scale(MatSys::RendererI::MODEL_TO_WORLD, m_ModelScale.Get());
@@ -632,6 +632,7 @@ void ComponentModelT::Render(bool FirstPersonView, float LodDist) const
     }
 
     MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
+    return true;
 }
 
 

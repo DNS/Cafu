@@ -180,7 +180,9 @@ namespace cf
             /// This method implements the graphical output of this component.
             /// @param FirstPersonView   If the world is rendered from the perspective of this component's entity.
             /// @param LodDist           The distance of the viewer entity to this component's entity.
-            virtual void Render(bool FirstPersonView, float LodDist) const { }
+            /// @returns `true` if "something" was rendered, `false` otherwise (in this case the Map Editor may choose
+            ///     to render another visual representation of this component's entity).
+            virtual bool Render(bool FirstPersonView, float LodDist) const { return false; }
 
             /// This method is called after all entities and their components have been loaded.
             ///

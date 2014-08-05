@@ -239,7 +239,9 @@ namespace cf
             /// MatSys's model, view or projection matrices: it's up to the caller to do that.
             /// @param FirstPersonView   If the world is rendered from the perspective of this entity.
             /// @param LodDist           The distance of the viewer entity to this entity.
-            void RenderComponents(bool FirstPersonView, float LodDist) const;
+            /// @returns `true` if "something" was rendered, `false` otherwise (in this case the Map Editor may choose
+            ///     to render another visual representation of this component's entity).
+            bool RenderComponents(bool FirstPersonView, float LodDist) const;
 
             /// Keyboard input event handler.
             /// @param KE   Keyboard event.
