@@ -64,6 +64,7 @@ namespace cf
             const char* GetName() const { return "Model"; }
             void UpdateDependencies(EntityT* Entity);
             unsigned int GetEditorColor() const { return 0x00FFFF; }
+            BoundingBox3fT GetEditorBB() const;
             BoundingBox3fT GetCullingBB() const;
             bool Render(bool FirstPersonView, float LodDist) const;
             void DoServerFrame(float t);

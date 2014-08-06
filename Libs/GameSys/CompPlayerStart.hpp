@@ -53,6 +53,7 @@ namespace cf
             ComponentPlayerStartT* Clone() const;
             const char* GetName() const { return "PlayerStart"; }
             unsigned int GetEditorColor() const { return 0x00FF00; }
+            BoundingBox3fT GetEditorBB() const { return BoundingBox3fT(Vector3fT(-16, -16, -36), Vector3fT(16, 16, 36)); }
 
 
             // The TypeSys related declarations for this class.

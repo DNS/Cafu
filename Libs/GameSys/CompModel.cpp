@@ -556,6 +556,32 @@ void ComponentModelT::UpdateDependencies(EntityT* Entity)
 }
 
 
+BoundingBox3fT ComponentModelT::GetEditorBB() const
+{
+    BoundingBox3fT BB = ComponentBaseT::GetEditorBB();
+
+    if (!GetPose()) return BB;
+
+    // We could return `GetPose()->GetBB()` here, but this bounding-box is permanently changing if the model is
+    // animated, which is not ideal for the purposes of the Map Editor. Instead, always return the bounding-box
+    // for frame 0 of the current animation sequence.
+
+    // Save the model's true anim expression for later restore.
+    IntrusivePtrT<AnimExpressionT> AnimExpr = GetPose()->GetAnimExpr();
+
+    // Temporarily assign a "standard" anim expression at frame 0.
+    GetPose()->SetAnimExpr(m_Model->GetAnimExprPool().GetStandard(m_ModelAnimNr.Get(), 0.0f));
+
+    // Pick up the desired bounding-box.
+    BB = GetPose()->GetBB();
+
+    // Restore the true anim expression.
+    GetPose()->SetAnimExpr(AnimExpr);
+
+    return BB;
+}
+
+
 BoundingBox3fT ComponentModelT::GetCullingBB() const
 {
     return GetPose() ? GetPose()->GetBB() : BoundingBox3fT();

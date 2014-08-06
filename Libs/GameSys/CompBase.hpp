@@ -165,6 +165,24 @@ namespace cf
             /// the visual representation of the entity.
             virtual unsigned int GetEditorColor() const { return 0xDC1EDC; }    // (220, 30, 220)
 
+            /// Returns a bounding-box that the Map Editor can use to render the representation of this component's
+            /// entity and for related hit tests in the 2D and 3D views after mouse clicks.
+            /// The Map Editor may use the bounding-box of an entity's first component as returned by this method to
+            /// render the visual representation of the entity.
+            ///
+            /// Note that the returned bounding-box is often *smaller* than the bounding-box returned by
+            /// GetCullingBB(), e.g. for light sources (whose radius and thus their indirect effects on other objects
+            /// it may not cover), for trees (whose trunk it usually covers, but maybe not their crown), or for models
+            /// (that, when animated, may break the limits of the static bounding-box).
+            ///
+            /// On the other hand, the returned bounding-box may also be *larger* than the bounding-box returned by
+            /// GetCullingBB(), e.g. for models that are not initialized. Such models would be "invisible" in the 2D
+            /// and 3D views of the Map Editor if we didn't return "dummy" bounding-boxes for them so that users can
+            /// see and work with them.
+            ///
+            /// The returned bounding-box is in local entity space and is always initialized (`IsInited() == true`).
+            virtual BoundingBox3fT GetEditorBB() const { return BoundingBox3fT(Vector3fT(-8, -8, -8), Vector3fT(8, 8, 8)); }
+
             /// This method returns a bounding-box that encloses the visual representation of this component.
             /// It is used to determine if the entity is in the view-frustum of a camera, how large a region must be
             /// updated in the 2D views of a Map Editor, if the entity is in the potentially-visibility-set (PVS) of
