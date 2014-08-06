@@ -83,7 +83,6 @@ class MapEntRepresT : public MapElementT
 
     private:
 
-    BoundingBox3fT GetComponentsBB() const;
     BoundingBox3fT GetRepresBB() const;
 
     IntrusivePtrT<cf::GameSys::EntityT> m_Cloned;   ///< If the MapEntRepresT has been cloned, the related (cloned) entity instance is stored here. Note that we can *not* get rid of this variable by turning m_Parent into an IntrusivePtrT<>: Doing so would create a cycle and cause entity instances to never get freed, leaking memory.
