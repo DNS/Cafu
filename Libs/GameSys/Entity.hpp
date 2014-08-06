@@ -191,8 +191,9 @@ namespace cf
             IntrusivePtrT<EntityT> Find(const std::string& WantedName);   // Method cannot be const because return type is not const -- see implementation.
 
             /// Returns a bounding-box that encloses the visual representation of this entity.
-            /// It is used to determine if the entity is in the view-frustum of a camera or in the potentially-
-            /// visibility-set (PVS) of another entity, and similar purposes.
+            /// It is used to determine if the entity is in the view-frustum of a camera, how large a region must be
+            /// updated in the 2D views of a Map Editor, if the entity is in the potentially-visibility-set (PVS) of
+            /// another entity, and similar purposes.
             ///
             /// This method does *not* recurse: The returned bounding-box covers this entity, but not its children.
             ///

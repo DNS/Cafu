@@ -161,11 +161,15 @@ namespace cf
             virtual void UpdateDependencies(EntityT* Entity);
 
             /// Returns a color that the Map Editor can use to render the representation of this component's entity.
-            /// The Map Editor will use the color of an entity's first component as returned by this method to render
+            /// The Map Editor may use the color of an entity's first component as returned by this method to render
             /// the visual representation of the entity.
             virtual unsigned int GetEditorColor() const { return 0xDC1EDC; }    // (220, 30, 220)
 
             /// This method returns a bounding-box that encloses the visual representation of this component.
+            /// It is used to determine if the entity is in the view-frustum of a camera, how large a region must be
+            /// updated in the 2D views of a Map Editor, if the entity is in the potentially-visibility-set (PVS) of
+            /// another entity, and similar purposes.
+            ///
             /// The returned bounding-box is in local space, i.e. typically centered around the origin (0, 0, 0).
             /// If the component doesn't have a visual representation, the returned bounding-box may be uninitialized
             /// (`!IsInited()`). Also see EntityT::GetCullingBB() for additional details.
