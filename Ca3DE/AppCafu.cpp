@@ -203,7 +203,7 @@ AppCafuT::AppCafuT()
     SetVendorName("Carsten Fuchs Software");
     wxStandardPaths::Get().UseAppInfo(wxStandardPaths::AppInfo_VendorName | wxStandardPaths::AppInfo_AppName);
 
-    Console->Print("Cafu Engine, "__DATE__"\n");
+    Console->Print("Cafu Engine, " __DATE__ "\n");
 }
 
 

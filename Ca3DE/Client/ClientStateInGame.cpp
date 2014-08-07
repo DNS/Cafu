@@ -522,9 +522,9 @@ void ClientStateInGameT::Render(float FrameTime)
             const unsigned long CharWidth=10;
 
             #ifdef DEBUG
-                LoadingFont->Print(FrameSize.GetWidth()/2-34*CharWidth/2, FrameSize.GetHeight()*9/10+12, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00800000, "Version: "__DATE__" [Debug build], "+LoadingProgressText);
+                LoadingFont->Print(FrameSize.GetWidth()/2-34*CharWidth/2, FrameSize.GetHeight()*9/10+12, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00800000, "Version: " __DATE__" [Debug build], "+LoadingProgressText);
             #else
-                LoadingFont->Print(FrameSize.GetWidth()/2-20*CharWidth/2, FrameSize.GetHeight()*9/10+12, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00800000, "Version: "__DATE__);
+                LoadingFont->Print(FrameSize.GetWidth()/2-20*CharWidth/2, FrameSize.GetHeight()*9/10+12, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00800000, "Version: " __DATE__);
             #endif
 
             if (LoadingProgressPercent>0)

@@ -40,14 +40,14 @@ def CheckOverrideIdentifier(context):
         public:
 
         virtual int f() const { return 1; }
-    }
+    };
 
     class B : public A
     {
         public:
 
         int f() const override { return 2; }
-    }
+    };
 
     int main()
     {
