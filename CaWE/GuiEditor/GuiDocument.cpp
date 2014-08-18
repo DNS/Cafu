@@ -233,7 +233,7 @@ bool GuiDocumentT::SaveInit_cgui(std::ostream& OutFile)
     OutFile << "-- This is a Cafu engine GUI script file, written by CaWE, the Cafu World Editor.\n";
     OutFile << "-- You CAN edit this file manually, but note that CaWE may overwrite your changes.\n";
     OutFile << "-- It is recommended that you place all your customizations like method overrides\n";
-    OutFile << "-- and effects into a separate .cgui file that calls dofile() for including this.\n";
+    OutFile << "-- and effects into a separate cgui file that calls loadfile() for including this.\n";
     OutFile << "\n\n";
     OutFile << "-- Instantiation of all windows.\n";
     OutFile << "-- *****************************\n";

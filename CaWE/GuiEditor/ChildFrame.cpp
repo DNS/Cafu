@@ -463,8 +463,13 @@ bool GuiEditor::ChildFrameT::Save(bool AskForFileName)
         wxFileName RelFileName=FileName;
         RelFileName.MakeRelativeTo(".");    // Make it relative to the current working directory.
 
-        if (MainFile.is_open()) MainFile << "dofile(\"" << RelFileName.GetFullPath(wxPATH_UNIX) << "\");\n\n";
-                           else wxMessageBox("Unable to create template file\n"+GuiMainScript);
+        if (MainFile.is_open())
+        {
+            MainFile << "local gui = ...\n";
+            MainFile << "\n";
+            MainFile << "assert(loadfile(\"" << RelFileName.GetFullPath(wxPATH_UNIX) << "\"))(gui)\n";
+        }
+        else wxMessageBox("Unable to create template file\n"+GuiMainScript);
     }
 
     // Mark the document as "not modified" only if the save was successful.
