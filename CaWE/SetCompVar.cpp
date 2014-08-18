@@ -135,7 +135,7 @@ bool CommandSetCompVarArrayT<T>::Do()
 
     m_Var.Overwrite();
     for (unsigned int i = 0; i < m_NewValues.Size(); i++)
-        m_Var[i] = m_NewValues[i];
+        m_Var.PushBack(m_NewValues[i]);
 
     m_DocAdapter.UpdateAllObservers_VarChanged(m_Var);
     m_Done=true;
