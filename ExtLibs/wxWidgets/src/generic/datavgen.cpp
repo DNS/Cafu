@@ -384,31 +384,25 @@ public:
     wxDataViewTreeNode(wxDataViewTreeNode *parent, const wxDataViewItem& item)
         : m_parent(parent),
           m_item(item),
-          m_branchData(NULL)
+          m_open(false)
     {
     }
 
     ~wxDataViewTreeNode()
     {
-        if ( m_branchData )
+        for ( wxDataViewTreeNodes::iterator i = m_children.begin();
+              i != m_children.end();
+              ++i )
         {
-            wxDataViewTreeNodes& nodes = m_branchData->children;
-            for ( wxDataViewTreeNodes::iterator i = nodes.begin();
-                  i != nodes.end();
-                  ++i )
-            {
-                delete *i;
-            }
-
-            delete m_branchData;
+            delete *i;
         }
     }
 
     static wxDataViewTreeNode* CreateRootNode()
     {
         wxDataViewTreeNode *n = new wxDataViewTreeNode(NULL, wxDataViewItem());
-        n->m_branchData = new BranchNodeData;
-        n->m_branchData->open = true;
+
+        n->m_open = true;
         return n;
     }
 
@@ -416,46 +410,99 @@ public:
 
     const wxDataViewTreeNodes& GetChildNodes() const
     {
-        wxASSERT( m_branchData != NULL );
-        return m_branchData->children;
+        return m_children;
+    }
+
+    // Aligns the (sub-)tree that is rooted at this node to the tree that is
+    // described by the model, making all required adjustments recursively.
+    void AlignTree(const wxDataViewModel* model)
+    {
+        wxDataViewItemArray itemChildren;
+        model->GetChildren(m_item, itemChildren);
+
+        wxDataViewTreeNodes& nodeChildren = m_children;
+        bool needResort = false;
+
+        // If the item has fewer children than the node, remove node children accordingly.
+        while (itemChildren.size() < nodeChildren.size())
+        {
+            delete nodeChildren[nodeChildren.size() - 1];
+            nodeChildren.RemoveAt(nodeChildren.size() - 1);
+            // needResort = true;   // Not needed here, assuming they were sorted before.
+        }
+
+        // If the item has more children than the node, add node children accordingly.
+        for (size_t i = nodeChildren.size(); i < itemChildren.size(); i++)
+        {
+            nodeChildren.Add(new wxDataViewTreeNode(this, itemChildren[i]));
+            needResort = true;
+        }
+
+        wxASSERT(itemChildren.size() == nodeChildren.size());
+
+        // Make sure that the node's children match the item's children, then recurse.
+        for (size_t i = 0; i < itemChildren.size(); i++)
+        {
+            if (itemChildren[i].GetID() != nodeChildren[i]->GetItem().GetID())
+            {
+                delete nodeChildren[i];
+                nodeChildren[i] = new wxDataViewTreeNode(this, itemChildren[i]);
+                needResort = true;
+            }
+
+            nodeChildren[i]->AlignTree(model);
+        }
+
+        if (needResort && g_column >= -1)
+            nodeChildren.Sort(&wxGenericTreeModelNodeCmp);
     }
 
     void InsertChild(wxDataViewTreeNode *node, unsigned index)
     {
-        if ( !m_branchData )
-            m_branchData = new BranchNodeData;
-
-        m_branchData->children.Insert(node, index);
+        m_children.Insert(node, index);
 
         // TODO: insert into sorted array directly in O(log n) instead of resorting in O(n log n)
         if (g_column >= -1)
-            m_branchData->children.Sort( &wxGenericTreeModelNodeCmp );
+            m_children.Sort( &wxGenericTreeModelNodeCmp );
     }
 
     void RemoveChild(wxDataViewTreeNode *node)
     {
-        wxCHECK_RET( m_branchData != NULL, "leaf node doesn't have children" );
-        m_branchData->children.Remove(node);
+        m_children.Remove(node);
     }
 
     // returns position of child node for given item in children list or wxNOT_FOUND
+    // (ItemAdded() is the only user of this method.)
     int FindChildByItem(const wxDataViewItem& item) const
     {
-        if ( !m_branchData )
-            return wxNOT_FOUND;
+        const int len = m_children.size();
 
-        const wxDataViewTreeNodes& nodes = m_branchData->children;
-        const int len = nodes.size();
         for ( int i = 0; i < len; i++ )
         {
-            if ( nodes[i]->m_item == item )
+            if ( m_children[i]->m_item == item )
                 return i;
         }
+
         return wxNOT_FOUND;
     }
 
     const wxDataViewItem & GetItem() const { return m_item; }
-    void SetItem( const wxDataViewItem & item ) { m_item = item; }
+
+    // Returns the node in the (sub-)tree of this node that has the given item, or NULL for none.
+    wxDataViewTreeNode* FindNode(const wxDataViewItem& item)
+    {
+        if (m_item.GetID() == item.GetID())
+            return this;
+
+        for (size_t i = 0; i < m_children.GetCount(); i++)
+        {
+            wxDataViewTreeNode* node = m_children[i]->FindNode(item);
+
+            if (node) return node;
+        }
+
+        return NULL;
+    }
 
     int GetIndentLevel() const
     {
@@ -471,7 +518,7 @@ public:
 
     bool IsOpen() const
     {
-        return m_branchData && m_branchData->open;
+        return m_open;
     }
 
     void ToggleOpen()
@@ -481,86 +528,46 @@ public:
         if ( !m_parent )
             return;
 
-        wxCHECK_RET( m_branchData != NULL, "can't open leaf node" );
-
-        int sum = 0;
-
-        const wxDataViewTreeNodes& nodes = m_branchData->children;
-        const int len = nodes.GetCount();
-        for ( int i = 0;i < len; i ++)
-            sum += 1 + nodes[i]->GetSubTreeCount();
-
-        if (m_branchData->open)
-        {
-            ChangeSubTreeCount(-sum);
-            m_branchData->open = !m_branchData->open;
-        }
-        else
-        {
-            m_branchData->open = !m_branchData->open;
-            ChangeSubTreeCount(+sum);
-        }
+        m_open = !m_open;
     }
 
-    // "HasChildren" property corresponds to model's IsContainer(). Note that it may be true
-    // even if GetChildNodes() is empty; see below.
+    // "HasChildren" property corresponds to model's IsContainer().
     bool HasChildren() const
     {
-        return m_branchData != NULL;
+        // The invisible root item always has children, so ignore return true in this case.
+        // (TODO: Is this special-case really still necessary?)
+        if (!m_parent)
+            return true;
+
+        return m_children.size() > 0;
     }
 
-    void SetHasChildren(bool has)
-    {
-        // The invisible root item always has children, so ignore any attempts
-        // to change this.
-        if ( !m_parent )
-            return;
-
-        if ( !has )
-        {
-            wxDELETE(m_branchData);
-        }
-        else if ( m_branchData == NULL )
-        {
-            m_branchData = new BranchNodeData;
-        }
-    }
-
+    // Total count of expanded (i.e. visible with the help of some
+    // scrolling) items in the subtree, but excluding this node. I.e. it is
+    // 0 for leaves and is the number of rows the subtree occupies for
+    // branch nodes.
     int GetSubTreeCount() const
     {
-        return m_branchData ? m_branchData->subTreeCount : 0;
-    }
+        if (!m_open) return 0;
 
-    void ChangeSubTreeCount( int num )
-    {
-        wxASSERT( m_branchData != NULL );
+        int count = m_children.GetCount();
 
-        if( !m_branchData->open )
-            return;
+        for (size_t i = 0; i < m_children.GetCount(); i++)
+            count += m_children[i]->GetSubTreeCount();
 
-        m_branchData->subTreeCount += num;
-        wxASSERT( m_branchData->subTreeCount >= 0 );
-
-        if( m_parent )
-            m_parent->ChangeSubTreeCount(num);
+        return count;
     }
 
     void Resort()
     {
-        if ( !m_branchData )
-            return;
-
         if (g_column >= -1)
         {
-            wxDataViewTreeNodes& nodes = m_branchData->children;
+            m_children.Sort( &wxGenericTreeModelNodeCmp );
 
-            nodes.Sort( &wxGenericTreeModelNodeCmp );
-            int len = nodes.GetCount();
+            int len = m_children.GetCount();
+
             for (int i = 0; i < len; i ++)
-            {
-                if ( nodes[i]->HasChildren() )
-                    nodes[i]->Resort();
-            }
+                m_children[i]->Resort();
         }
     }
 
@@ -571,31 +578,11 @@ private:
     // Corresponding model item.
     wxDataViewItem       m_item;
 
-    // Data specific to non-leaf (branch, inner) nodes. They are kept in a
-    // separate struct in order to conserve memory.
-    struct BranchNodeData
-    {
-        BranchNodeData()
-            : open(false),
-              subTreeCount(0)
-        {
-        }
+    // This children of this node. Zero children indicates that this is a leaf node.
+    wxDataViewTreeNodes  m_children;
 
-        // Child nodes. Note that this may be empty even if m_hasChildren in
-        // case this branch of the tree wasn't expanded and realized yet.
-        wxDataViewTreeNodes  children;
-
-        // Is the branch node currently open (expanded)?
-        bool                 open;
-
-        // Total count of expanded (i.e. visible with the help of some
-        // scrolling) items in the subtree, but excluding this node. I.e. it is
-        // 0 for leaves and is the number of rows the subtree occupies for
-        // branch nodes.
-        int                  subTreeCount;
-    };
-
-    BranchNodeData *m_branchData;
+    // Is the node currently open (expanded)?
+    bool                 m_open;
 };
 
 
@@ -779,7 +766,6 @@ public:
     // wxDataViewTreeNode * GetTreeNodeByItem( const wxDataViewItem & item );
 
     // Methods for building the mapping tree
-    void BuildTree( wxDataViewModel  * model );
     void DestroyTree();
     void HitTest( const wxPoint & point, wxDataViewItem & item, wxDataViewColumn* &column );
     wxRect GetItemRect( const wxDataViewItem & item, const wxDataViewColumn* column );
@@ -812,8 +798,6 @@ private:
 
     // Return false only if the event was vetoed by its handler.
     bool SendExpanderEvent(wxEventType type, const wxDataViewItem& item);
-
-    wxDataViewTreeNode * FindNode( const wxDataViewItem & item );
 
     wxDataViewColumn *FindColumnForEditing(const wxDataViewItem& item, wxDataViewCellMode mode);
 
@@ -1436,10 +1420,6 @@ void wxDataViewRenameTimer::Notify()
 //-----------------------------------------------------------------------------
 // wxDataViewMainWindow
 //-----------------------------------------------------------------------------
-
-// The tree building helper, declared firstly
-static void BuildTreeHelper( const wxDataViewModel * model,  const wxDataViewItem & item,
-                             wxDataViewTreeNode * node);
 
 int LINKAGEMODE wxDataViewSelectionCmp( unsigned int row1, unsigned int row2 )
 {
@@ -2293,7 +2273,7 @@ bool wxDataViewMainWindow::ItemAdded(const wxDataViewItem & parent, const wxData
     {
         SortPrepare();
 
-        wxDataViewTreeNode *parentNode = FindNode(parent);
+        wxDataViewTreeNode* parentNode = m_root->FindNode(parent);
 
         if ( !parentNode )
             return false;
@@ -2306,9 +2286,6 @@ bool wxDataViewMainWindow::ItemAdded(const wxDataViewItem & parent, const wxData
         wxCHECK_MSG( posInModel != wxNOT_FOUND, false, "adding non-existent item?" );
 
         wxDataViewTreeNode *itemNode = new wxDataViewTreeNode(parentNode, item);
-        itemNode->SetHasChildren(GetModel()->IsContainer(item));
-
-        parentNode->SetHasChildren(true);
 
         const wxDataViewTreeNodes& nodeSiblings = parentNode->GetChildNodes();
         const int nodeSiblingsSize = nodeSiblings.size();
@@ -2349,7 +2326,6 @@ bool wxDataViewMainWindow::ItemAdded(const wxDataViewItem & parent, const wxData
             }
         }
 
-        parentNode->ChangeSubTreeCount(+1);
         parentNode->InsertChild(itemNode, nodePos);
 
         m_count = -1;
@@ -2392,7 +2368,7 @@ bool wxDataViewMainWindow::ItemDeleted(const wxDataViewItem& parent,
     }
     else // general case
     {
-        wxDataViewTreeNode *parentNode = FindNode(parent);
+        wxDataViewTreeNode *parentNode = m_root->FindNode(parent);
 
         // Notice that it is possible that the item being deleted is not in the
         // tree at all, for example we could be deleting a never shown (because
@@ -2425,11 +2401,6 @@ bool wxDataViewMainWindow::ItemDeleted(const wxDataViewItem& parent,
         // node corresponding to 'item' and so there's nothing left to do.
         if ( !itemNode )
         {
-            // If this was the last child to be removed, it's possible the parent
-            // node became a leaf. Let's ask the model about it.
-            if ( parentNode->GetChildNodes().empty() )
-                parentNode->SetHasChildren(GetModel()->IsContainer(parent));
-
             return true;
         }
 
@@ -2438,7 +2409,6 @@ bool wxDataViewMainWindow::ItemDeleted(const wxDataViewItem& parent,
 
         parentNode->RemoveChild(itemNode);
         delete itemNode;
-        parentNode->ChangeSubTreeCount(-itemsDeleted);
 
         // Make the row number invalid and get a new valid one when user call GetRowCount
         m_count = -1;
@@ -2448,7 +2418,7 @@ bool wxDataViewMainWindow::ItemDeleted(const wxDataViewItem& parent,
         if ( parentNode->GetChildNodes().empty() )
         {
             bool isContainer = GetModel()->IsContainer(parent);
-            parentNode->SetHasChildren(isContainer);
+
             if ( isContainer )
             {
                 // If it's still a container, make sure we show "+" icon for it
@@ -2557,20 +2527,31 @@ bool wxDataViewMainWindow::ValueChanged( const wxDataViewItem & item, unsigned i
     return true;
 }
 
-bool wxDataViewMainWindow::Cleared()
+bool wxDataViewMainWindow::Cleared()    // "(re-)sync to user model" (or "Update") would be a better name...
 {
-    DestroyTree();
+    if (!GetModel() || GetModel()->IsVirtualListModel())
+    {
+        wxDELETE(m_root);
+        m_root = NULL;
+    }
+
     m_selection.Clear();
     m_currentRow = (unsigned)-1;
+    m_count = 0;
 
     if (GetModel())
     {
         SortPrepare();
-        BuildTree( GetModel() );
-    }
-    else
-    {
-        m_count = 0;
+
+        if (!GetModel()->IsVirtualListModel())
+        {
+            if (!m_root)
+                m_root = wxDataViewTreeNode::CreateRootNode();
+
+            m_root->AlignTree(GetModel());
+        }
+
+        m_count = -1;
     }
 
     GetOwner()->InvalidateColBestWidths();
@@ -3184,13 +3165,6 @@ void wxDataViewMainWindow::Expand( unsigned int row )
 
         node->ToggleOpen();
 
-        // build the children of current node
-        if( node->GetChildNodes().empty() )
-        {
-            SortPrepare();
-            ::BuildTreeHelper(GetModel(), node->GetItem(), node);
-        }
-
         // By expanding the node all row indices that are currently in the selection list
         // and are greater than our node have become invalid. So we have to correct that now.
         const unsigned rowAdjustment = node->GetSubTreeCount();
@@ -3286,68 +3260,6 @@ void wxDataViewMainWindow::Collapse(unsigned int row)
             UpdateDisplay();
             SendExpanderEvent(wxEVT_DATAVIEW_ITEM_COLLAPSED,node->GetItem());
         }
-}
-
-wxDataViewTreeNode * wxDataViewMainWindow::FindNode( const wxDataViewItem & item )
-{
-    const wxDataViewModel * model = GetModel();
-    if( model == NULL )
-        return NULL;
-
-    if (!item.IsOk())
-        return m_root;
-
-    // Compose the parent-chain for the item we are looking for
-    wxVector<wxDataViewItem> parentChain;
-    wxDataViewItem it( item );
-    while( it.IsOk() )
-    {
-        parentChain.push_back(it);
-        it = model->GetParent(it);
-    }
-
-    // Find the item along the parent-chain.
-    // This algorithm is designed to speed up the node-finding method
-    wxDataViewTreeNode* node = m_root;
-    for( unsigned iter = parentChain.size()-1; ; --iter )
-    {
-        if( node->HasChildren() )
-        {
-            if( node->GetChildNodes().empty() )
-            {
-                // Even though the item is a container, it doesn't have any
-                // child nodes in the control's representation yet. We have
-                // to realize its subtree now.
-                SortPrepare();
-                ::BuildTreeHelper(model, node->GetItem(), node);
-            }
-
-            const wxDataViewTreeNodes& nodes = node->GetChildNodes();
-            bool found = false;
-
-            for (unsigned i = 0; i < nodes.GetCount(); ++i)
-            {
-                wxDataViewTreeNode* currentNode = nodes[i];
-                if (currentNode->GetItem() == parentChain[iter])
-                {
-                    if (currentNode->GetItem() == item)
-                        return currentNode;
-
-                    node = currentNode;
-                    found = true;
-                    break;
-                }
-            }
-            if (!found)
-                return NULL;
-        }
-        else
-            return NULL;
-
-        if ( !iter )
-            break;
-    }
-    return NULL;
 }
 
 void wxDataViewMainWindow::HitTest( const wxPoint & point, wxDataViewItem & item,
@@ -3527,48 +3439,6 @@ int wxDataViewMainWindow::GetRowByItem(const wxDataViewItem & item) const
         Walker( m_root, job );
         return job.GetResult();
     }
-}
-
-static void BuildTreeHelper( const wxDataViewModel * model,  const wxDataViewItem & item,
-                             wxDataViewTreeNode * node)
-{
-    if( !model->IsContainer( item ) )
-        return;
-
-    wxDataViewItemArray children;
-    unsigned int num = model->GetChildren( item, children);
-
-    for ( unsigned int index = 0; index < num; index++ )
-    {
-        wxDataViewTreeNode *n = new wxDataViewTreeNode(node, children[index]);
-
-        if( model->IsContainer(children[index]) )
-            n->SetHasChildren( true );
-
-        node->InsertChild(n, index);
-    }
-
-    wxASSERT( node->IsOpen() );
-    node->ChangeSubTreeCount(+num);
-}
-
-void wxDataViewMainWindow::BuildTree(wxDataViewModel * model)
-{
-    DestroyTree();
-
-    if (GetModel()->IsVirtualListModel())
-    {
-        m_count = -1;
-        return;
-    }
-
-    m_root = wxDataViewTreeNode::CreateRootNode();
-
-    // First we define a invalid item to fetch the top-level elements
-    wxDataViewItem item;
-    SortPrepare();
-    BuildTreeHelper( model, item, m_root);
-    m_count = -1;
 }
 
 void wxDataViewMainWindow::DestroyTree()
@@ -4684,14 +4554,7 @@ bool wxDataViewCtrl::AssociateModel( wxDataViewModel *model )
         m_notifier = NULL;
     }
 
-    m_clientArea->DestroyTree();
-
-    if (model)
-    {
-        m_clientArea->BuildTree(model);
-    }
-
-    m_clientArea->UpdateDisplay();
+    m_clientArea->Cleared();
 
     return true;
 }
