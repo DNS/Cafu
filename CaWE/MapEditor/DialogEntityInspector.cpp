@@ -155,7 +155,10 @@ void EntityInspectorDialogT::Notify_EntChanged(SubjectT* Subject, const ArrayT< 
 
         case EMD_HIERARCHY:
         {
-            // The entity hierarchy doesn't affect the Entity Inspector dialog.
+            // Changes to the entity hierarchy will usually keep the world-space transfrom constant, and thus
+            // update the entity's parent-space origin and orientation accordingly, so we have to update the
+            // property grid to reflect these changes.
+            RefreshPropGrid();
             break;
         }
     }

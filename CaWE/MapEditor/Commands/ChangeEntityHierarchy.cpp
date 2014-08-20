@@ -31,6 +31,8 @@ using namespace MapEditor;
 CommandChangeEntityHierarchyT::CommandChangeEntityHierarchyT(MapDocumentT* MapDoc, IntrusivePtrT<cf::GameSys::EntityT> Entity, IntrusivePtrT<cf::GameSys::EntityT> NewParent, unsigned long NewPosition)
     : m_MapDoc(MapDoc),
       m_Entity(Entity),
+      m_OriginWS(Entity->GetTransform()->GetOriginWS()),
+      m_QuatWS(Entity->GetTransform()->GetQuatWS()),
       m_NewParent(NewParent),
       m_NewPosition(NewPosition),
       m_OldParent(Entity->GetParent()),
@@ -63,6 +65,10 @@ bool CommandChangeEntityHierarchyT::Do()
     if (!m_OldParent.IsNull()) m_OldParent->RemoveChild(m_Entity);
     if (!m_NewParent.IsNull()) m_NewParent->AddChild(m_Entity, m_NewPosition);
 
+    // Despite the changed parent, keep the world-space transform unchanged.
+    m_Entity->GetTransform()->SetOriginWS(m_OriginWS);
+    m_Entity->GetTransform()->SetQuatWS(m_QuatWS);
+
     m_MapDoc->UpdateAllObservers_EntChanged(m_Entity, EMD_HIERARCHY);
     m_Done = true;
     return true;
@@ -80,6 +86,10 @@ void CommandChangeEntityHierarchyT::Undo()
     // The call to AddChild() in Do() might have modified the name of the m_Entity as a side-effect.
     // Now that we have restored the previous hierarchy, restore the previous name as well.
     m_Entity->GetBasics()->SetEntityName(m_OldName);
+
+    // Despite the changed parent, keep the world-space transform unchanged.
+    m_Entity->GetTransform()->SetOriginWS(m_OriginWS);
+    m_Entity->GetTransform()->SetQuatWS(m_QuatWS);
 
     m_MapDoc->UpdateAllObservers_EntChanged(m_Entity, EMD_HIERARCHY);
     m_Done = false;

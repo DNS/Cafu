@@ -23,6 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_MAPEDITOR_COMMAND_CHANGE_ENTITY_HIERARCHY_HPP_INCLUDED
 
 #include "../../CommandPattern.hpp"
+
+#include "Math3D/Quaternion.hpp"
 #include "Templates/Pointer.hpp"
 
 
@@ -48,10 +50,12 @@ namespace MapEditor
 
         MapDocumentT*                       m_MapDoc;
         IntrusivePtrT<cf::GameSys::EntityT> m_Entity;
+        const Vector3fT                     m_OriginWS;
+        const cf::math::QuaternionfT        m_QuatWS;
         IntrusivePtrT<cf::GameSys::EntityT> m_NewParent;
         unsigned long                       m_NewPosition;
         IntrusivePtrT<cf::GameSys::EntityT> m_OldParent;
-        unsigned long                       m_OldPosition;
+        const unsigned long                 m_OldPosition;
         const std::string                   m_OldName;
     };
 }
