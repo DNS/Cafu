@@ -1222,11 +1222,11 @@ EntityHierarchyPanelT::EntityHierarchyPanelT(ChildFrameT* MainFrame, const wxSiz
 
     wxBoxSizer* item0 = new wxBoxSizer( wxVERTICAL );
 
-    m_OldTreeCtrl = new EntityHierarchyDialogT(m_MainFrame, this);
-    item0->Add(m_OldTreeCtrl, 1, wxEXPAND | wxALL, 5 );
+    // m_OldTreeCtrl = new EntityHierarchyDialogT(m_MainFrame, this);
+    // item0->Add(m_OldTreeCtrl, 1, wxEXPAND | wxALL, 5 );
 
     m_TreeCtrl = new EntityHierarchyCtrlT(m_MainFrame, this);
-    item0->Add(m_TreeCtrl, 1, wxEXPAND | wxALL, 5 );
+    item0->Add(m_TreeCtrl, 1, wxEXPAND | wxALL, 0 );
 
     this->SetSizer( item0 );
     item0->SetSizeHints(this);
