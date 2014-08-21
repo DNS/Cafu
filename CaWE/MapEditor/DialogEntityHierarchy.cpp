@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapDocument.hpp"
 #include "MapElement.hpp"
 #include "MapEntRepres.hpp"
+#include "MapPrimitive.hpp"
 
 #include "../SetCompVar.hpp"
 
@@ -671,9 +672,530 @@ void EntityHierarchyDialogT::OnEndDrag(wxTreeEvent& TE)
 }
 
 
+/*****************************/
+/*** EntityHierarchyModelT ***/
+/*****************************/
+
+EntityHierarchyModelT::EntityHierarchyModelT(IntrusivePtrT<cf::GameSys::EntityT> RootEntity)
+    : m_RootEntity(RootEntity)
+{
+    wxASSERT(m_RootEntity != NULL);
+    wxASSERT(m_RootEntity->GetParent() == NULL);
+}
+
+
+unsigned int EntityHierarchyModelT::GetColumnCount() const
+{
+    return NR_OF_COLUMNS;
+}
+
+
+wxString EntityHierarchyModelT::GetColumnType(unsigned int col) const
+{
+    switch (col)
+    {
+        case COLUMN_ENTITY_NAME:    return "string";
+        case COLUMN_NUM_PRIMITIVES: return "string";    // Not "long", because we use "" for "0".
+        case COLUMN_VISIBILITY:     return "wxBitmap";  // Would be a "bool" for "visibility".
+        case COLUMN_SELECTION_MODE: return "wxBitmap";  // Would be a "long" for "selection mode".
+        case NR_OF_COLUMNS: wxASSERT(false); break;
+    }
+
+    // Just a fallback, should never get here.
+    return "string";
+}
+
+
+void EntityHierarchyModelT::GetValue(wxVariant& Variant, const wxDataViewItem& Item, unsigned int col) const
+{
+    cf::GameSys::EntityT* Entity = static_cast<cf::GameSys::EntityT*>(Item.GetID());
+
+    if (!Entity) return;
+
+    wxString NumPrims;
+    NumPrims << GetMapEnt(Entity)->GetPrimitives().Size();
+
+    switch (col)
+    {
+        case COLUMN_ENTITY_NAME:    Variant = Entity->GetBasics()->GetEntityName(); break;
+        case COLUMN_NUM_PRIMITIVES: Variant = (NumPrims == "0") ? wxString("") : NumPrims; break;
+        case COLUMN_VISIBILITY:     Variant << wxArtProvider::GetBitmap("eye_open", wxART_MENU); break;
+        case COLUMN_SELECTION_MODE: Variant << wxBitmap("CaWE/res/GroupSelect-Indiv.png", wxBITMAP_TYPE_PNG); break;
+        case NR_OF_COLUMNS: wxASSERT(false); break;
+    }
+}
+
+
+bool EntityHierarchyModelT::SetValue(const wxVariant& Variant, const wxDataViewItem& Item, unsigned int col)
+{
+    return false;   // ??? TODO!!!
+}
+
+
+wxDataViewItem EntityHierarchyModelT::GetParent(const wxDataViewItem& Item) const
+{
+    cf::GameSys::EntityT* Entity = static_cast<cf::GameSys::EntityT*>(Item.GetID());
+
+    if (!Entity) return wxDataViewItem(NULL);
+
+    return wxDataViewItem(Entity->GetParent().get());
+}
+
+
+bool EntityHierarchyModelT::IsContainer(const wxDataViewItem& Item) const
+{
+    cf::GameSys::EntityT* Entity = static_cast<cf::GameSys::EntityT*>(Item.GetID());
+
+    // The wxDataViewCtrl's root item is always invisible and comes with `Item.GetID() == NULL`.
+    // It can have children (in our case, exactly one, namely the `m_RootEntity`), and thus we
+    // have to return `true` here.
+    if (!Entity) return true;
+
+    return Entity->GetChildren().Size() > 0;
+}
+
+
+bool EntityHierarchyModelT::HasContainerColumns(const wxDataViewItem& Item) const
+{
+    // Our "containers" are not only headlines or categories, but have the same set of
+    // detail columns as our "items" -- they're all entities.
+    return true;
+}
+
+
+unsigned int EntityHierarchyModelT::GetChildren(const wxDataViewItem& Item, wxDataViewItemArray& Children) const
+{
+    cf::GameSys::EntityT* Entity = static_cast<cf::GameSys::EntityT*>(Item.GetID());
+
+    if (!Entity)
+    {
+        Children.Add(wxDataViewItem(m_RootEntity.get()));
+    }
+    else
+    {
+        for (unsigned int ChildNr = 0; ChildNr < Entity->GetChildren().Size(); ChildNr++)
+            Children.Add(wxDataViewItem(Entity->GetChildren()[ChildNr].get()));
+    }
+
+    return Children.GetCount();
+}
+
+
 /****************************/
-/*** EntityHierarchyViewT ***/
+/*** EntityHierarchyCtrlT ***/
 /****************************/
+
+BEGIN_EVENT_TABLE(EntityHierarchyCtrlT, wxDataViewCtrl)
+//    EVT_KEY_DOWN             (EntityHierarchyCtrlT::OnKeyDown)    // not needed, as wxDataViewCtrl handles F2 already by itself
+//    EVT_LEFT_DOWN            (EntityHierarchyCtrlT::OnTreeLeftClick)
+//    EVT_LEFT_DCLICK          (EntityHierarchyCtrlT::OnTreeLeftClick)   // Handle double clicks like normal left clicks when it comes to clicks on tree item icons (otherwise double clicks are handled normally).
+
+//  EVT_TREE_SEL_CHANGED          (wxID_ANY, EntityHierarchyCtrlT::OnSelectionChanged)  // done, in method below
+    EVT_DATAVIEW_SELECTION_CHANGED(wxID_ANY, EntityHierarchyCtrlT::OnSelectionChanged)
+
+//    EVT_TREE_BEGIN_LABEL_EDIT(wxID_ANY, EntityHierarchyCtrlT::OnBeginLabelEdit)   // not needed with wxDataViewCtrl
+//    EVT_TREE_END_LABEL_EDIT  (wxID_ANY, EntityHierarchyCtrlT::OnEndLabelEdit)     // done, in method below
+    EVT_DATAVIEW_ITEM_EDITING_DONE(wxID_ANY, EntityHierarchyCtrlT::OnEndItemEdit)
+
+//    EVT_TREE_ITEM_RIGHT_CLICK(wxID_ANY, EntityHierarchyCtrlT::OnTreeItemRightClick)
+    EVT_DATAVIEW_ITEM_CONTEXT_MENU(wxID_ANY, EntityHierarchyCtrlT::OnTreeItemContextMenu)
+
+//    EVT_TREE_BEGIN_DRAG      (wxID_ANY, EntityHierarchyCtrlT::OnBeginDrag)
+    EVT_DATAVIEW_ITEM_BEGIN_DRAG(wxID_ANY, EntityHierarchyCtrlT::OnBeginDrag)
+    EVT_DATAVIEW_ITEM_DROP_POSSIBLE(wxID_ANY, EntityHierarchyCtrlT::OnCheckDrag)
+//    EVT_TREE_END_DRAG        (wxID_ANY, EntityHierarchyCtrlT::OnEndDrag)
+    EVT_DATAVIEW_ITEM_DROP(wxID_ANY, EntityHierarchyCtrlT::OnEndDrag)
+END_EVENT_TABLE()
+
+
+EntityHierarchyCtrlT::EntityHierarchyCtrlT(ChildFrameT* MainFrame, wxWindow* Parent)
+    : wxDataViewCtrl(Parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxDV_MULTIPLE | wxBORDER_NONE),
+      m_MainFrame(MainFrame),
+      m_MapDoc(MainFrame->GetDoc()),
+      m_IsRecursiveSelfNotify(false),
+      m_DraggedEntity(NULL)
+{
+    // Use wxObjectDataPtr<> as per http://docs.wxwidgets.org/trunk/classwx_data_view_model.html documentation.
+    wxObjectDataPtr<EntityHierarchyModelT> EntHierModel(new EntityHierarchyModelT(m_MapDoc->GetRootMapEntity()->GetEntity()));
+
+    AssociateModel(EntHierModel.get());
+
+    AppendTextColumn("Name",  EntityHierarchyModelT::COLUMN_ENTITY_NAME,    wxDATAVIEW_CELL_EDITABLE, 180);
+    AppendTextColumn("#P",    EntityHierarchyModelT::COLUMN_NUM_PRIMITIVES, wxDATAVIEW_CELL_INERT, wxDVC_DEFAULT_MINWIDTH, wxALIGN_RIGHT,  0);
+    AppendBitmapColumn("Vis", EntityHierarchyModelT::COLUMN_VISIBILITY,     wxDATAVIEW_CELL_INERT, wxDVC_DEFAULT_MINWIDTH, wxALIGN_CENTER, 0);
+    AppendBitmapColumn("SM",  EntityHierarchyModelT::COLUMN_SELECTION_MODE, wxDATAVIEW_CELL_INERT, wxDVC_DEFAULT_MINWIDTH, wxALIGN_CENTER, 0);
+
+    Expand(wxDataViewItem(m_MapDoc->GetRootMapEntity()->GetEntity()));
+
+    EnableDragSource(wxDF_UNICODETEXT);
+    EnableDropTarget(wxDF_UNICODETEXT);
+
+    m_MapDoc->RegisterObserver(this);
+}
+
+
+EntityHierarchyCtrlT::~EntityHierarchyCtrlT()
+{
+    if (m_MapDoc) m_MapDoc->UnregisterObserver(this);
+}
+
+
+void EntityHierarchyCtrlT::NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<MapElementT*>& OldSelection, const ArrayT<MapElementT*>& NewSelection)
+{
+    if (m_IsRecursiveSelfNotify) return;
+
+    // The following consideration was noted for wxTreeCtrl. It probably does not apply to wxDataViewCtrl,
+    // but keeping the code doesn't hurt:
+    //     Both UnselectAll() and SelectItem() result in EVT_TREE_SEL_CHANGED event,
+    //     see <http://thread.gmane.org/gmane.comp.lib.wxwidgets.general/72754> for details.
+    //     m_IsRecursiveSelfNotify makes sure that the tree isn't unintentionally updated recursively.
+    m_IsRecursiveSelfNotify = true;
+
+    wxDataViewItemArray SelectedItems;
+
+    for (unsigned long NewSelNr = 0; NewSelNr < NewSelection.Size(); NewSelNr++)
+    {
+        // If the selected element is something other than an entity representation
+        // (that is, a map primitive), don't consider it.
+        if (NewSelection[NewSelNr]->GetParent()->GetRepres() != NewSelection[NewSelNr]) continue;
+
+        SelectedItems.Add(wxDataViewItem(NewSelection[NewSelNr]->GetParent()->GetEntity()));
+    }
+
+    SetSelections(SelectedItems);
+
+    if (SelectedItems.GetCount() > 0)
+        EnsureVisible(SelectedItems.Last());
+
+    m_IsRecursiveSelfNotify = false;
+}
+
+
+void EntityHierarchyCtrlT::NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities)
+{
+    if (m_IsRecursiveSelfNotify) return;
+
+    GetModel()->Cleared();  // The control will re-read the data from the model.
+}
+
+
+void EntityHierarchyCtrlT::NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT<MapPrimitiveT*>& Primitives)
+{
+    if (m_IsRecursiveSelfNotify) return;
+
+    for (unsigned int PrimNr = 0; PrimNr < Primitives.Size(); PrimNr++)
+    {
+        wxASSERT(Primitives[PrimNr]->GetParent() != NULL);
+        GetModel()->ValueChanged(wxDataViewItem(Primitives[PrimNr]->GetParent()->GetEntity()), EntityHierarchyModelT::COLUMN_NUM_PRIMITIVES);
+    }
+}
+
+
+void EntityHierarchyCtrlT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities)
+{
+    if (m_IsRecursiveSelfNotify) return;
+
+    GetModel()->Cleared();  // The control will re-read the data from the model.
+}
+
+
+void EntityHierarchyCtrlT::NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT<MapPrimitiveT*>& Primitives)
+{
+    if (m_IsRecursiveSelfNotify) return;
+
+    // Unfortunately, the deleted primitives are no longer attached to their parent entity, that is,
+    // `Primitives[PrimNr]->GetParent() == NULL`, so (at this time) we have to update the entire hierarchy.
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
+
+    m_MapDoc->GetRootMapEntity()->GetEntity()->GetAll(AllEnts);
+
+    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
+        GetModel()->ValueChanged(wxDataViewItem(AllEnts[EntNr].get()), EntityHierarchyModelT::COLUMN_NUM_PRIMITIVES);
+}
+
+
+void EntityHierarchyCtrlT::NotifySubjectChanged_Modified(SubjectT* Subject, const ArrayT<MapElementT*>& MapElements, MapElemModDetailE Detail)
+{
+    if (m_IsRecursiveSelfNotify) return;
+
+    if (Detail == MEMD_ASSIGN_PRIM_TO_ENTITY)
+    {
+        for (unsigned int ElemNr = 0; ElemNr < MapElements.Size(); ElemNr++)
+        {
+            wxASSERT(MapElements[ElemNr]->GetParent() != NULL);
+            GetModel()->ValueChanged(wxDataViewItem(MapElements[ElemNr]->GetParent()->GetEntity()), EntityHierarchyModelT::COLUMN_NUM_PRIMITIVES);
+        }
+    }
+}
+
+
+void EntityHierarchyCtrlT::Notify_EntChanged(SubjectT* Subject, const ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> >& Entities, EntityModDetailE Detail)
+{
+    if (m_IsRecursiveSelfNotify) return;
+    if (Detail != EMD_HIERARCHY) return;
+
+    GetModel()->Cleared();  // The control will re-read the data from the model.
+
+    // After a completed drag-and-drop event (see OnEndDrag() below), the wxDataViewCtrl does not
+    // realize that the parent of the dragged entity should be expanded and the dragged entity is
+    // still selected. Thus, update the selection status here explicitly.
+    NotifySubjectChanged_Selection(Subject, ArrayT<MapElementT*>(), m_MapDoc->GetSelection());
+}
+
+
+void EntityHierarchyCtrlT::Notify_VarChanged(SubjectT* Subject, const cf::TypeSys::VarBaseT& Var)
+{
+    if (m_IsRecursiveSelfNotify) return;
+
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
+
+    m_MapDoc->GetRootMapEntity()->GetEntity()->GetAll(AllEnts);
+
+    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
+    {
+        IntrusivePtrT<cf::GameSys::ComponentBasicsT> Basics = AllEnts[EntNr]->GetBasics();
+
+        if (&Var == Basics->GetMemberVars().Find("Name"))
+        {
+            GetModel()->ValueChanged(wxDataViewItem(AllEnts[EntNr].get()), EntityHierarchyModelT::COLUMN_ENTITY_NAME);
+            return;
+        }
+
+        // TODO
+        if (&Var == Basics->GetMemberVars().Find("Show"))
+        {
+            // GetModel()->ValueChanged(wxDataViewItem(AllEnts[EntNr].get()), EntityHierarchyModelT::COLUMN_xxx);
+            // SetItemImage(TreeItems[ItemNr], Basics->IsShown() ? 0 : 1);   // Set the "is visible" or "is invisible" icon.
+            return;
+        }
+    }
+}
+
+
+void EntityHierarchyCtrlT::NotifySubjectDies(SubjectT* dyingSubject)
+{
+    wxASSERT(dyingSubject == m_MapDoc);
+
+    // AssociateModel(NULL);    // This is not possible (crashes).
+    // Should we instead set EntityHierarchyModelT::m_RootEntity to NULL, then call Cleared()?
+    // The above turns out to be a bug in wxWidgets: http://trac.wxwidgets.org/ticket/16249
+
+    m_MapDoc = NULL;
+}
+
+
+void EntityHierarchyCtrlT::OnSelectionChanged(wxDataViewEvent& Event)
+{
+    if (m_MapDoc == NULL || m_IsRecursiveSelfNotify) return;
+
+    m_IsRecursiveSelfNotify = true;
+
+    // Get the currently selected tree items and update the document selection accordingly.
+    wxDataViewItemArray SelectedItems;
+    GetSelections(SelectedItems);
+
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > NewSelection;
+
+    for (size_t SelNr = 0; SelNr < SelectedItems.GetCount(); SelNr++)
+    {
+        cf::GameSys::EntityT* Entity = static_cast<cf::GameSys::EntityT*>(SelectedItems[SelNr].GetID());
+
+        wxASSERT(Entity);
+        NewSelection.PushBack(Entity);
+    }
+
+    m_MainFrame->SubmitCommand(CommandSelectT::Set(m_MapDoc, NewSelection, false /*WithEntPrims*/));
+
+    m_IsRecursiveSelfNotify = false;
+}
+
+
+void EntityHierarchyCtrlT::OnEndItemEdit(wxDataViewEvent& Event)
+{
+    if (Event.GetColumn() != EntityHierarchyModelT::COLUMN_ENTITY_NAME) return;
+    if (Event.IsEditCancelled()) return;
+
+    cf::GameSys::EntityT* Entity = static_cast<cf::GameSys::EntityT*>(Event.GetItem().GetID());
+
+    if (!Entity) return;
+
+    cf::TypeSys::VarT<std::string>* Name = dynamic_cast<cf::TypeSys::VarT<std::string>*>(Entity->GetBasics()->GetMemberVars().Find("Name"));
+
+    m_IsRecursiveSelfNotify = true;
+
+    if (Name)
+    {
+        m_MainFrame->SubmitCommand(new CommandSetCompVarT<std::string>(m_MapDoc->GetAdapter(), *Name, std::string(Event.GetValue().GetString())));
+    }
+
+    m_IsRecursiveSelfNotify = false;
+
+    // The command may well have set a name different from Event.GetValue().
+    Event.Veto();
+    GetModel()->ValueChanged(Event.GetItem(), EntityHierarchyModelT::COLUMN_ENTITY_NAME);
+}
+
+
+void EntityHierarchyCtrlT::OnTreeItemContextMenu(wxDataViewEvent& Event)
+{
+    cf::GameSys::EntityT* Entity = static_cast<cf::GameSys::EntityT*>(Event.GetItem().GetID());
+
+    if (!Entity) return;
+
+    // Note that GetPopupMenuSelectionFromUser() temporarily disables UI updates for the entity,
+    // so our menu IDs used below should be doubly clash-free.
+    enum
+    {
+        ID_MENU_CREATE_ENTITY = wxID_HIGHEST + 1,
+        ID_MENU_RENAME
+    };
+
+    wxMenu Menu;
+
+    // Create context menus.
+    AppendMI(Menu, ID_MENU_CREATE_ENTITY, "Create Entity", "MapEditor/tool-new-entity");
+    AppendMI(Menu, ID_MENU_RENAME,        "Rename\tF2", "textfield_rename");
+    Menu.AppendSeparator();
+    AppendMI(Menu, wxID_CUT,                                  "Cut", wxART_CUT);
+    AppendMI(Menu, wxID_COPY,                                 "Copy", wxART_COPY);
+    AppendMI(Menu, wxID_PASTE,                                "Paste", wxART_PASTE);
+    AppendMI(Menu, ChildFrameT::ID_MENU_EDIT_PASTE_SPECIAL,   "Paste Special...", "");
+    AppendMI(Menu, ChildFrameT::ID_MENU_EDIT_DELETE,          "Delete", wxART_DELETE);
+    Menu.AppendSeparator();
+    AppendMI(Menu, ChildFrameT::ID_MENU_VIEW_CENTER_2D_VIEWS, "Center 2D Views on Selection", "");
+    AppendMI(Menu, ChildFrameT::ID_MENU_VIEW_CENTER_3D_VIEWS, "Center 3D Views on Selection", "");
+
+    Menu.UpdateUI(m_MainFrame);
+
+    const int MenuSelID = GetPopupMenuSelectionFromUser(Menu);
+
+    switch (MenuSelID)
+    {
+        case ID_MENU_CREATE_ENTITY:
+        {
+            IntrusivePtrT<cf::GameSys::EntityT> Parent = Entity;
+            IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(m_MapDoc->GetScriptWorld()));
+            IntrusivePtrT<CompMapEntityT>       MapEnt = new CompMapEntityT(*m_MapDoc);
+
+            if (Parent->GetParent() == NULL)
+            {
+                NewEnt->GetTransform()->SetOriginWS(m_MapDoc->SnapToGrid(m_MapDoc->GetMostRecentSelBB().GetCenter(), false /*Toggle*/, -1 /*AxisNoSnap*/));
+            }
+            else
+            {
+                // NewEnt->GetBasics()->SetMember("Static", true);
+                NewEnt->GetTransform()->SetOriginPS(Vector3fT(8, 8, 8));
+            }
+
+            NewEnt->SetApp(MapEnt);
+
+            m_MainFrame->SubmitCommand(new CommandNewEntityT(
+                *m_MapDoc,
+                NewEnt,
+                Parent,
+                true /*select the new entity*/));
+            break;
+        }
+
+        case ID_MENU_RENAME:
+            EditItem(Event.GetItem(), GetColumn(EntityHierarchyModelT::COLUMN_ENTITY_NAME));
+            break;
+
+        default:
+        {
+            // This is neither elegant nor entirely right.
+            //   - It is not elegant because of the awkward event forwarding to the ChildFrameT.
+            //   - It is not entirely right because the context menu should (primarily) act on the tree event's item,
+            //     i.e. `((EntityTreeItemT*)GetItemData(TE.GetItem()))->GetEntity()`, not on the general mapdoc's
+            //     selection, as the ChildFrameT's menus do.
+            //   - I'm not sure if duplicating functionality that is already in the ChildFrameT's main toolbars and
+            //     menus makes sense.
+            //     It seems better to only have functionality that is *specific* to the entity hierarchy here!
+            //   - Well, this *was* done because the "Entity Hierarchy" dialog is intended as a substitute for the old
+            //     (pre-component-system) "Entity Report", which had, beside several filter options, also buttons
+            //     "Go to" and "Delete", which we reproduce here in an attempt to preserve the old dialog's set of
+            //     features.
+            wxCommandEvent CE(wxEVT_COMMAND_MENU_SELECTED, MenuSelID);
+
+            m_MainFrame->GetEventHandler()->ProcessEvent(CE);
+            break;
+        }
+    }
+}
+
+
+void EntityHierarchyCtrlT::OnBeginDrag(wxDataViewEvent& Event)
+{
+    wxASSERT(m_DraggedEntity == NULL);
+
+    if (GetSelectedItemsCount() > 1)
+    {
+        wxMessageBox("Sorry, you can only drag one entity at a time.");
+        Event.Veto();
+        return;
+    }
+
+    cf::GameSys::EntityT* Entity = static_cast<cf::GameSys::EntityT*>(Event.GetItem().GetID());
+
+    if (!Entity)   // Should never happen.
+    {
+        wxMessageBox("This entity cannot be dragged.");
+        Event.Veto();
+        return;
+    }
+
+    if (Entity->GetParent() == NULL)
+    {
+        wxMessageBox("The root entity cannot be dragged.");
+        Event.Veto();
+        return;
+    }
+
+    Event.SetDataObject(new wxTextDataObject);
+    Event.SetDragFlags(wxDrag_DefaultMove);
+
+    m_DraggedEntity = Entity;
+}
+
+
+void EntityHierarchyCtrlT::OnCheckDrag(wxDataViewEvent& Event)
+{
+    if (Event.GetDataFormat() != wxDF_UNICODETEXT)
+        Event.Veto();
+}
+
+
+void EntityHierarchyCtrlT::OnEndDrag(wxDataViewEvent& Event)
+{
+    wxASSERT(!m_DraggedEntity.IsNull());
+    if (m_DraggedEntity.IsNull()) return;
+
+    IntrusivePtrT<cf::GameSys::EntityT> SourceEntity = m_DraggedEntity;
+    m_DraggedEntity = NULL;
+
+    IntrusivePtrT<cf::GameSys::EntityT> TargetEntity = static_cast<cf::GameSys::EntityT*>(Event.GetItem().GetID());
+    if (TargetEntity.IsNull()) return;
+
+    // If SourceEntity is already an immediate child of TargetEntity, do nothing.
+    if (SourceEntity->GetParent() == TargetEntity) return;
+
+    // If SourceEntity is dragged into its own subtree, do nothing.
+    // That is, make sure that TargetEntity is not in the subtree of SourceEntity (or else the reparenting
+    // would create invalid cycles).
+    // Note that the TargetEntity can still be a child in a different subtree of SourceEntity->Parent.
+    {
+        ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > SubTree;
+
+        SourceEntity->GetAll(SubTree);
+
+        if (SubTree.Find(TargetEntity) >= 0) return;
+    }
+
+    // Make SourceEntity a child of TargetEntity.
+    const unsigned long NewPos = TargetEntity->GetChildren().Size();
+
+    m_MainFrame->SubmitCommand(new CommandChangeEntityHierarchyT(m_MapDoc, SourceEntity, TargetEntity, NewPos));
+}
 
 
 /*****************************/
@@ -693,7 +1215,7 @@ EntityHierarchyPanelT::EntityHierarchyPanelT(ChildFrameT* MainFrame, const wxSiz
     : wxPanel(MainFrame, -1, wxDefaultPosition, Size),
       m_MainFrame(MainFrame),
       m_OldTreeCtrl(NULL),
-      m_TreeView(NULL)
+      m_TreeCtrl(NULL)
 {
     // As we are a wxAUI pane rather than a wxDialog, explicitly set that events are not propagated to our parent.
     SetExtraStyle(wxWS_EX_BLOCK_EVENTS);
@@ -703,8 +1225,8 @@ EntityHierarchyPanelT::EntityHierarchyPanelT(ChildFrameT* MainFrame, const wxSiz
     m_OldTreeCtrl = new EntityHierarchyDialogT(m_MainFrame, this);
     item0->Add(m_OldTreeCtrl, 1, wxEXPAND | wxALL, 5 );
 
-    // m_TreeView = new EntityHierarchyViewT(m_MainFrame, this);
-    // item0->Add(m_TreeView, 1, wxEXPAND, 0 );
+    m_TreeCtrl = new EntityHierarchyCtrlT(m_MainFrame, this);
+    item0->Add(m_TreeCtrl, 1, wxEXPAND | wxALL, 5 );
 
     this->SetSizer( item0 );
     item0->SetSizeHints(this);
