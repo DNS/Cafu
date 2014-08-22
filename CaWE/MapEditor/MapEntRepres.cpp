@@ -187,14 +187,13 @@ void MapEntRepresT::Render2D(Renderer2DT& Renderer) const
 
 void MapEntRepresT::Render3D(Renderer3DT& Renderer) const
 {
-    const float EntDist = length(m_Parent->GetEntity()->GetTransform()->GetOriginWS() - Renderer.GetViewWin3D().GetCamera().Pos);
+    IntrusivePtrT<cf::GameSys::EntityT> Ent = m_Parent->GetEntity();
+    const float EntDist = length(Ent->GetTransform()->GetOriginWS() - Renderer.GetViewWin3D().GetCamera().Pos);
     bool ComponentRendered = false;
 
     if (EntDist < float(Options.view3d.ModelDistance))
     {
         // Render the cf::GameSys::EntityT instance itself.
-        IntrusivePtrT<cf::GameSys::EntityT> Ent = m_Parent->GetEntity();
-
         MatSys::Renderer->SetCurrentAmbientLightColor(1.0f, 1.0f, 1.0f);
         MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
         MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, Ent->GetTransform()->GetEntityToWorld());
@@ -214,13 +213,13 @@ void MapEntRepresT::Render3D(Renderer3DT& Renderer) const
         {
             Renderer.RenderBox(BB,
                 IsSelected() ? Options.colors.Selection : GetColor(Options.view2d.UseGroupColors),
-                !ComponentRendered /*Solid?*/);
+                !ComponentRendered && Ent->GetComponents().Size() > 0 /*Solid?*/);
         }
     }
 
     // Render the coordinate axes of our local system.
     if (IsSelected())
-        Renderer.BasisVectors(m_Parent->GetEntity()->GetTransform()->GetOriginWS(), cf::math::Matrix3x3fT(m_Parent->GetEntity()->GetTransform()->GetQuatWS()));
+        Renderer.BasisVectors(Ent->GetTransform()->GetOriginWS(), cf::math::Matrix3x3fT(Ent->GetTransform()->GetQuatWS()));
 }
 
 
@@ -359,13 +358,21 @@ BoundingBox3fT MapEntRepresT::GetRepresBB() const
 {
     IntrusivePtrT<cf::GameSys::EntityT> Ent = m_Parent->GetEntity();
 
+#if 0   // No. Not having a visual representation at all it too confusing,
+        // because newly created entities seem to disappear when deselected,
+        // entities that are used for grouping seem not to exist, etc.
+        // (Simply render them as "wireframe" in the 3D views instead.)
     if (Ent->GetComponents().Size() == 0)
     {
         // An entity without any custom component won't have a visual representation in the map.
         return BoundingBox3fT();
     }
+#endif
 
-    BoundingBox3fT BB = Ent->GetComponents()[0]->GetEditorBB();
+    BoundingBox3fT BB = Ent->GetBasics()->GetEditorBB();
+
+    if (Ent->GetComponents().Size() > 0)
+        BB = Ent->GetComponents()[0]->GetEditorBB();
 
     wxASSERT(BB.IsInited());
 
