@@ -27,7 +27,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 class CommandDeleteT;
 class CommandSelectT;
-class GroupT;
 class MapBrushT;
 class MapDocumentT;
 class MapElementT;
@@ -53,7 +52,6 @@ class CommandMakeHollowT : public CommandT
     MapDocumentT&                m_MapDoc;
     ArrayT<MapBrushT*>           m_Brushes;     ///< The brushes that are to be hollowed by this command.
     ArrayT< ArrayT<MapBrushT*> > m_Hollows;     ///< For each brush, this keeps the resulting hollow (Hohlraum) created by this command. Each hollow in turn is defined by a set of "wall" brushes.
-    ArrayT<GroupT*>              m_NewGroups;   ///< One new group for the walls of each hollow, when the original brush was in no group before.
     CommandDeleteT*              m_CmdDelete;   ///< Subcommand to delete the m_Brushes.
     CommandSelectT*              m_CmdSelect;   ///< Subcommand to select the (walls of the) new hollows.
 };
