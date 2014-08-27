@@ -110,36 +110,20 @@ void ComponentBasicsT::EntityNameT::Set(const std::string& v)
 
 
 /*************************************/
-/*** ComponentBasicsT::EntityShowT ***/
+/*** ComponentBasicsT::VarSelModeT ***/
 /*************************************/
 
-ComponentBasicsT::EntityShowT::EntityShowT(const char* Name, const bool& Value, const char* Flags[], ComponentBasicsT& CompBasics)
-    : TypeSys::VarT<bool>(Name, Value, Flags),
-      m_CompBasics(CompBasics)
+ComponentBasicsT::VarSelModeT::VarSelModeT(const char* Name, const int& Value, const char* Flags[])
+    : cf::TypeSys::VarT<int>(Name, Value, Flags)
 {
 }
 
 
-// The compiler-written copy constructor would copy m_CompBasics from Var.m_CompBasics,
-// but we must obviously use the reference to the proper parent instance instead.
-ComponentBasicsT::EntityShowT::EntityShowT(const EntityShowT& Var, ComponentBasicsT& CompBasics)
-    : TypeSys::VarT<bool>(Var),
-      m_CompBasics(CompBasics)
+void ComponentBasicsT::VarSelModeT::GetChoices(ArrayT<std::string>& Strings, ArrayT<int>& Values) const
 {
-}
-
-
-void ComponentBasicsT::EntityShowT::Set(const bool& v)
-{
-    // Make sure that m_CompBasics actually refers to the ComponentBasicsT instance that contains us!
-    assert(this == &m_CompBasics.m_Show);
-
-    if (Get() == v) return;
-
-    TypeSys::VarT<bool>::Set(v);
-
-    // Call `OnShow()` only after the new value has been set.
-    m_CompBasics.CallLuaMethod("OnShow", 0);
+    Strings.PushBack("single"); Values.PushBack(SINGLE);
+    Strings.PushBack("group");  Values.PushBack(GROUP);
+    Strings.PushBack("locked"); Values.PushBack(LOCKED);
 }
 
 
@@ -148,14 +132,15 @@ void ComponentBasicsT::EntityShowT::Set(const bool& v)
 /************************/
 
 const char* ComponentBasicsT::DocClass =
-    "This component adds the basics of the entity (its name and the \"is shown?\" and \"is static?\" flags).";
+    "This component adds the basic details of the entity (its name, the \"is static?\" flag, Map Editor data).";
 
 
 const cf::TypeSys::VarsDocT ComponentBasicsT::DocVars[] =
 {
-    { "Name",   "The name of the entity. Entity names must be valid Lua script identifiers and unique among their siblings." },
-    { "Show",   "Is this entity currently shown?" },
-    { "Static", "Are the map primitives of this entity fixed and immovable, never moving around in the game world?" },
+    { "Name",      "The name of the entity. Entity names must be valid Lua script identifiers and unique among their siblings." },
+    { "Static",    "Are the map primitives of this entity fixed and immovable, never moving around in the game world?" },
+    { "Show",      "Is this entity currently shown or hidden in the Map Editor's 2D and 3D views?" },
+    { "Sel. Mode", "In the Map Editor, when the user clicks on an element of the entity, what elements are actually selected?" },
     { NULL, NULL }
 };
 
@@ -163,24 +148,28 @@ const cf::TypeSys::VarsDocT ComponentBasicsT::DocVars[] =
 ComponentBasicsT::ComponentBasicsT()
     : ComponentBaseT(),
       m_Name("Name", "Entity", NULL, *this),
-      m_Show("Show", true, NULL, *this),
-      m_Static("Static", false)
+      m_Static("Static", false),
+      m_Show("Show", true),
+      m_SelMode("Sel. Mode", SINGLE)
 {
     GetMemberVars().Add(&m_Name);
-    GetMemberVars().Add(&m_Show);
     GetMemberVars().Add(&m_Static);
+    GetMemberVars().Add(&m_Show);
+    GetMemberVars().Add(&m_SelMode);
 }
 
 
 ComponentBasicsT::ComponentBasicsT(const ComponentBasicsT& Comp)
     : ComponentBaseT(Comp),
       m_Name(Comp.m_Name, *this),
-      m_Show(Comp.m_Show, *this),
-      m_Static(Comp.m_Static)
+      m_Static(Comp.m_Static),
+      m_Show(Comp.m_Show),
+      m_SelMode(Comp.m_SelMode)
 {
     GetMemberVars().Add(&m_Name);
-    GetMemberVars().Add(&m_Show);
     GetMemberVars().Add(&m_Static);
+    GetMemberVars().Add(&m_Show);
+    GetMemberVars().Add(&m_SelMode);
 }
 
 

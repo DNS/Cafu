@@ -1203,11 +1203,13 @@ namespace
 
     void SaveComponents(std::ostream& OutFile, IntrusivePtrT<cf::GameSys::EntityT> Entity)
     {
+        if (Entity->GetBasics()->IsStatic())
+            OutFile << "    self:GetBasics():set(\"Static\", true)\n";
+
         if (!Entity->GetBasics()->IsShown())
             OutFile << "    self:GetBasics():set(\"Show\", false)\n";
 
-        if (Entity->GetBasics()->IsStatic())
-            OutFile << "    self:GetBasics():set(\"Static\", true)\n";
+        OutFile << "    self:GetBasics():set(\"Sel. Mode\", " << Entity->GetBasics()->GetSelMode() << ")\n";
 
         OutFile << "    self:GetTransform():set(\"Origin\", "
                 << Entity->GetTransform()->GetOriginPS().x << ", "
