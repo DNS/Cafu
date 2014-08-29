@@ -38,16 +38,6 @@ OptionsBar_SelectionToolT::OptionsBar_SelectionToolT(wxWindow* Parent)
 
     wxBoxSizer *item0 = new wxBoxSizer( wxHORIZONTAL );
 
-    wxStaticText *item1 = new wxStaticText(this, -1, wxT("When selecting:"), wxDefaultPosition, wxDefaultSize, 0 );
-    item0->Add( item1, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
-
-    m_AutoGroupEntities = new wxCheckBox(this, ChildFrameT::ID_MENU_TOOLS_IGNORE_GROUPS, wxT("auto-group entities"), wxDefaultPosition, wxDefaultSize, 0 );
-    m_AutoGroupEntities->SetToolTip( wxT("If checked, all primitives and children of an entity can be selected as a group.") );
-    item0->Add( m_AutoGroupEntities, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
-
-    wxStaticLine *item4 = new wxStaticLine(this, -1, wxDefaultPosition, wxSize(-1,20), wxLI_VERTICAL );
-    item0->Add( item4, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
-
     wxStaticText *item5 = new wxStaticText(this, -1, wxT("Current selection:"), wxDefaultPosition, wxDefaultSize, 0 );
     item0->Add( item5, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
 

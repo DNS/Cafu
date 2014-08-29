@@ -1046,66 +1046,84 @@ void ToolSelectionT::NudgeSelection(const AxesInfoT& AxesInfo, const wxKeyEvent&
 /// when the elements entity and group memberships are taken into account.
 void ToolSelectionT::GetToggleEffects(MapElementT* Elem, ArrayT<MapElementT*>& RemoveFromSel, ArrayT<MapElementT*>& AddToSel) const
 {
-    IntrusivePtrT<CompMapEntityT> Entity = Elem->GetParent();
+    IntrusivePtrT<CompMapEntityT> Top = NULL;
 
-    // If Prim belongs to a non-world entity, put all primitives of the entity into the appropriate lists.
-    if (!Entity->IsWorld() && m_OptionsBar->AutoGroupEntities())
+    // Bubble up to the topmost parent that is to be selected "as one" (as a group), if there is one.
+    for (IntrusivePtrT<cf::GameSys::EntityT> Ent = Elem->GetParent()->GetEntity(); Ent != NULL; Ent = Ent->GetParent())
+        if (Ent->GetBasics()->GetSelMode() == cf::GameSys::ComponentBasicsT::GROUP)
+            Top = GetMapEnt(Ent);
+
+    if (Top != NULL)
     {
-        MapEntRepresT* Repres = Entity->GetRepres();
-
-        // Toggle the Repres by inserting it into one of the lists, but only if it isn't mentioned there already.
-        if (RemoveFromSel.Find(Repres)==-1 && AddToSel.Find(Repres)==-1)
+        // If the element belongs to an entity that is to be selected "as one" (as a group),
+        // put all of the entity's parts into the appropriate lists.
+        GetToggleEffectsRecursive(Top, RemoveFromSel, AddToSel);
+    }
+    else
+    {
+        // If Elem is a member of a group, put all members of the group into the appropriate lists.
+        if (Elem->GetGroup() && Elem->GetGroup()->SelectAsGroup)
         {
-            if (Repres->IsSelected()) RemoveFromSel.PushBack(Repres);
-                                 else AddToSel.PushBack(Repres);
-        }
+            // Toggle each member of the group that Elem is in.
+            const ArrayT<MapElementT*> GroupMembers=Elem->GetGroup()->GetMembers(m_MapDoc);
 
-        // Toggle the entities primitives analogously.
-        for (unsigned long MemberNr = 0; MemberNr < Entity->GetPrimitives().Size(); MemberNr++)
-        {
-            MapElementT* Member = Entity->GetPrimitives()[MemberNr];
-
-            // Insert Member into one of the lists, but only if it isn't mentioned there already.
-            if (RemoveFromSel.Find(Member)==-1 && AddToSel.Find(Member)==-1)
+            for (unsigned long MemberNr=0; MemberNr<GroupMembers.Size(); MemberNr++)
             {
-                if (Member->IsSelected()) RemoveFromSel.PushBack(Member);
-                                     else AddToSel.PushBack(Member);
+                MapElementT* Member=GroupMembers[MemberNr];
+
+                // Insert Member into one of the lists, but only if it isn't mentioned there already.
+                if (RemoveFromSel.Find(Member)==-1 && AddToSel.Find(Member)==-1)
+                {
+                    if (Member->IsSelected()) RemoveFromSel.PushBack(Member);
+                                         else AddToSel.PushBack(Member);
+                }
             }
         }
 
-        // Recursively toggle the entity's children as well.
-        IntrusivePtrT<cf::GameSys::EntityT> Ent = Entity->GetEntity();
-
-        for (unsigned long ChildNr = 0; ChildNr < Ent->GetChildren().Size(); ChildNr++)
+        // Finally insert Elem itself into one of the lists, but only if it isn't mentioned there already.
+        if (RemoveFromSel.Find(Elem)==-1 && AddToSel.Find(Elem)==-1)
         {
-            GetToggleEffects(GetMapEnt(Ent->GetChildren()[ChildNr])->GetRepres(), RemoveFromSel, AddToSel);
+            if (Elem->IsSelected()) RemoveFromSel.PushBack(Elem);
+                               else AddToSel.PushBack(Elem);
+        }
+    }
+}
+
+
+/// An auxiliary method for GetToggleEffects().
+/// It computes the toggle effects for the given MapEnt, all its primitives and all its children recursively.
+void ToolSelectionT::GetToggleEffectsRecursive(IntrusivePtrT<CompMapEntityT> MapEnt, ArrayT<MapElementT*>& RemoveFromSel, ArrayT<MapElementT*>& AddToSel) const
+{
+    MapEntRepresT* Repres = MapEnt->GetRepres();
+
+    // TODO: If hidden (e.g. child entities), hierarchically force the whole MapEnt to be *visible*!
+
+    // Toggle the Repres by inserting it into one of the lists, but only if it isn't mentioned there already.
+    if (RemoveFromSel.Find(Repres) == -1 && AddToSel.Find(Repres) == -1)
+    {
+        if (Repres->IsSelected()) RemoveFromSel.PushBack(Repres);
+                             else AddToSel.PushBack(Repres);
+    }
+
+    // Toggle the entities primitives analogously.
+    for (unsigned long PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
+    {
+        MapPrimitiveT* Prim = MapEnt->GetPrimitives()[PrimNr];
+
+        // Insert Member into one of the lists, but only if it isn't mentioned there already.
+        if (RemoveFromSel.Find(Prim) == -1 && AddToSel.Find(Prim) == -1)
+        {
+            if (Prim->IsSelected()) RemoveFromSel.PushBack(Prim);
+                               else AddToSel.PushBack(Prim);
         }
     }
 
-    // If Elem is a member of a group, put all members of the group into the appropriate lists.
-    if (Elem->GetGroup() && Elem->GetGroup()->SelectAsGroup)
+    // Recursively toggle the entity's children as well.
+    IntrusivePtrT<cf::GameSys::EntityT> Ent = MapEnt->GetEntity();
+
+    for (unsigned long ChildNr = 0; ChildNr < Ent->GetChildren().Size(); ChildNr++)
     {
-        // Toggle each member of the group that Elem is in.
-        const ArrayT<MapElementT*> GroupMembers=Elem->GetGroup()->GetMembers(m_MapDoc);
-
-        for (unsigned long MemberNr=0; MemberNr<GroupMembers.Size(); MemberNr++)
-        {
-            MapElementT* Member=GroupMembers[MemberNr];
-
-            // Insert Member into one of the lists, but only if it isn't mentioned there already.
-            if (RemoveFromSel.Find(Member)==-1 && AddToSel.Find(Member)==-1)
-            {
-                if (Member->IsSelected()) RemoveFromSel.PushBack(Member);
-                                     else AddToSel.PushBack(Member);
-            }
-        }
-    }
-
-    // Finally insert Elem itself into one of the lists, but only if it isn't mentioned there already.
-    if (RemoveFromSel.Find(Elem)==-1 && AddToSel.Find(Elem)==-1)
-    {
-        if (Elem->IsSelected()) RemoveFromSel.PushBack(Elem);
-                           else AddToSel.PushBack(Elem);
+        GetToggleEffectsRecursive(GetMapEnt(Ent->GetChildren()[ChildNr]), RemoveFromSel, AddToSel);
     }
 }
 

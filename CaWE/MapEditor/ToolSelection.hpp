@@ -134,6 +134,7 @@ class ToolSelectionT : public ToolT, public ObserverT
     void CreatePlant(const Vector3fT& WorldPos);
     void NudgeSelection(const AxesInfoT& AxesInfo, const wxKeyEvent& KE);
     void GetToggleEffects(MapElementT* Elem, ArrayT<MapElementT*>& RemoveFromSel, ArrayT<MapElementT*>& AddToSel) const;
+    void GetToggleEffectsRecursive(IntrusivePtrT<MapEditor::CompMapEntityT> MapEnt, ArrayT<MapElementT*>& RemoveFromSel, ArrayT<MapElementT*>& AddToSel) const;
     void SetHitList(const ArrayT<MapElementT*>& NewHits, bool IsControlDown);
     void StepCurHitNr(int Step);
     void ToggleCurHitNr();
