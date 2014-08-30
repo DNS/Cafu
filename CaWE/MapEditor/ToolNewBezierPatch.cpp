@@ -35,12 +35,16 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../GameConfig.hpp"
 
 #include "Commands/AddPrim.hpp"
-#include "Commands/Group_Assign.hpp"
-#include "Commands/Group_New.hpp"
+#include "Commands/NewEntity.hpp"
+
+#include "GameSys/EntityCreateParams.hpp"
 
 #include "wx/wx.h"
 
 #undef Convex
+
+
+using namespace MapEditor;
 
 
 /*** Begin of TypeSys related definitions for this class. ***/
@@ -128,40 +132,21 @@ bool ToolNewBezierPatchT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& 
     }
     else
     {
-        ArrayT<CommandT*> SubCommands;
+        // Created the new Bezier patch parts "grouped" in a new entity.
+        IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(m_MapDoc.GetScriptWorld()));
+        IntrusivePtrT<CompMapEntityT>       MapEnt = new CompMapEntityT(m_MapDoc);
 
-        // 1. Add the bezier patches to the world.
-        ArrayT<MapElementT*>   BPsAsElems;
-        ArrayT<MapPrimitiveT*> BPsAsPrims;
+        NewEnt->GetBasics()->SetEntityName("new Bezier patch");
+        NewEnt->GetBasics()->SetMember("Static", true);
+        NewEnt->GetBasics()->SetMember("Sel. Mode", int(cf::GameSys::ComponentBasicsT::GROUP));
+        NewEnt->GetTransform()->SetOriginWS((m_DragBegin + m_DragCurrent) / 2.0f);
+        NewEnt->SetApp(MapEnt);
 
-        for (unsigned long BPNr=0; BPNr<m_NewBPs.Size(); BPNr++)
-        {
-            BPsAsElems.PushBack(m_NewBPs[BPNr]);
-            BPsAsPrims.PushBack(m_NewBPs[BPNr]);
-        }
+        for (unsigned long BPNr = 0; BPNr < m_NewBPs.Size(); BPNr++)
+            MapEnt->AddPrim(m_NewBPs[BPNr]);
 
-        CommandAddPrimT* CmdAddBPs=new CommandAddPrimT(m_MapDoc, BPsAsPrims, m_MapDoc.GetRootMapEntity(), "new bezier patch parts");
-
-        CmdAddBPs->Do();
-        SubCommands.PushBack(CmdAddBPs);
-
-        // 2. Create a new group.
-        CommandNewGroupT* CmdNewGroup=new CommandNewGroupT(m_MapDoc, wxString::Format("bezier patch (%lu parts)", m_NewBPs.Size()));
-        GroupT*              NewGroup=CmdNewGroup->GetGroup();
-
-        NewGroup->SelectAsGroup=true;
-
-        CmdNewGroup->Do();
-        SubCommands.PushBack(CmdNewGroup);
-
-        // 3. Put the BPsAsElems into the new group.
-        CommandAssignGroupT* CmdAssign=new CommandAssignGroupT(m_MapDoc, BPsAsElems, NewGroup);
-
-        CmdAssign->Do();
-        SubCommands.PushBack(CmdAssign);
-
-        // 4. Submit the composite macro command.
-        m_MapDoc.CompatSubmitCommand(new CommandMacroT(SubCommands, "new bezier patch"));
+        m_MapDoc.CompatSubmitCommand(new CommandNewEntityT(
+            m_MapDoc, NewEnt, m_MapDoc.GetRootMapEntity()->GetEntity(), true /*SetSel?*/));
     }
 
     // Instances are now "owned" by the command.
