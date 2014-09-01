@@ -37,7 +37,6 @@ class ConsoleDialogT;
 class EditSurfacePropsDialogT;
 class InspectorDialogT;
 class TerrainEditorDialogT;
-class GroupsToolbarT;
 class MapDocumentT;
 class MaterialsToolbarT;
 class ParentFrameT;
@@ -111,7 +110,6 @@ class ChildFrameT : public wxMDIChildFrame
         ID_MENU_VIEW_PANELS_ENTITY_HIERARCHY,
         ID_MENU_VIEW_PANELS_ENTITY_INSPECTOR,
         ID_MENU_VIEW_PANELS_MATERIALS,
-        ID_MENU_VIEW_PANELS_GROUPS,
         ID_MENU_VIEW_PANELS_CONSOLE,
         ID_MENU_VIEW_NEW_2D_VIEW,
         ID_MENU_VIEW_NEW_3D_VIEW,
@@ -218,7 +216,6 @@ class ChildFrameT : public wxMDIChildFrame
 
     ToolManagerT&            GetToolManager()         { return *m_ToolManager;        }  ///< Returns our tool manager.
     MaterialsToolbarT*       GetMaterialsToolbar()    { return m_MaterialsToolbar;    }  ///< Returns the Materials toolbar.
-    GroupsToolbarT*          GetGroupsToolbar()       { return m_GroupsToolbar;       }  ///< Returns the Groups toolbar.
     EditSurfacePropsDialogT* GetSurfacePropsDialog()  { return m_SurfacePropsDialog;  }  ///< Returns the Surface Properties dialog.
     TerrainEditorDialogT*    GetTerrainEditorDialog() { return m_TerrainEditorDialog; }  ///< Returns the Terrain Editor dialog.
     InspectorDialogT*        GetInspectorDialog()     { return m_InspectorDialog;     }  ///< Returns the Entity Inspector dialog.
@@ -239,7 +236,6 @@ class ChildFrameT : public wxMDIChildFrame
     ToolManagerT*            m_ToolManager;
     MapEditor::EntityHierarchyPanelT* m_EntityHierarchyDialog;
     MaterialsToolbarT*       m_MaterialsToolbar;
-    GroupsToolbarT*          m_GroupsToolbar;
     ConsoleDialogT*          m_ConsoleDialog;
     EditSurfacePropsDialogT* m_SurfacePropsDialog;
     TerrainEditorDialogT*    m_TerrainEditorDialog;
