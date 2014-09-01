@@ -48,9 +48,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Commands/AddComponent.hpp"
 #include "Commands/AddPrim.hpp"
 #include "Commands/Delete.hpp"
-#include "Commands/Group_Assign.hpp"
-#include "Commands/Group_Delete.hpp"
-#include "Commands/Group_New.hpp"
 #include "Commands/NewEntity.hpp"
 #include "Commands/Select.hpp"
 
@@ -1159,14 +1156,6 @@ void ChildFrameT::OnMenuEditDelete(wxCommandEvent& CE)
     {
         // Do the actual deletion of the selected elements.
         SubmitCommand(new CommandDeleteT(*m_Doc, m_Doc->GetSelection()));
-
-        // If there are any empty groups (usually as a result from the deletion), purge them now.
-        // We use an explicit command for deleting the groups (instead of putting everything into a macro command)
-        // so that the user has the option to undo the purge (separately from the deletion) if he wishes.
-        const ArrayT<GroupT*> EmptyGroups = m_Doc->GetAbandonedGroups();
-
-        if (EmptyGroups.Size() > 0)
-            SubmitCommand(new CommandDeleteGroupT(*m_Doc, EmptyGroups));
     }
 }
 
