@@ -56,6 +56,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "GameSys/AllComponents.hpp"
 #include "GameSys/Entity.hpp"
+#include "GameSys/EntityCreateParams.hpp"
 
 #include "wx/wx.h"
 #include "wx/artprov.h"
@@ -1382,10 +1383,30 @@ ArrayT<CommandT*> ChildFrameT::CreatePasteCommands(const Vector3fT& DeltaTransla
 
 
     ArrayT<CommandT*> SubCommands;
+    IntrusivePtrT<cf::GameSys::EntityT> PasteParent = m_Doc->GetRootMapEntity()->GetEntity();
+
+    if (PasteGrouped)
+    {
+        IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(m_Doc->GetScriptWorld()));
+        IntrusivePtrT<CompMapEntityT>       MapEnt = new CompMapEntityT(*m_Doc);
+
+        NewEnt->GetBasics()->SetEntityName("pasted objects");
+        NewEnt->GetBasics()->SetMember("Static", true);
+        NewEnt->GetBasics()->SetMember("Sel. Mode", int(cf::GameSys::ComponentBasicsT::GROUP));
+        NewEnt->GetTransform()->SetOriginWS(GuessUserVisiblePoint());
+        NewEnt->SetApp(MapEnt);
+
+        CommandNewEntityT* CmdNewEnt = new CommandNewEntityT(*m_Doc, NewEnt, m_Doc->GetRootMapEntity()->GetEntity(), false /*don't select*/);
+
+        CmdNewEnt->Do();
+        SubCommands.PushBack(CmdNewEnt);
+
+        PasteParent = NewEnt;
+    }
 
     if (NewEnts.Size() > 0)
     {
-        CommandNewEntityT* CmdNewEnt = new CommandNewEntityT(*m_Doc, NewEnts, false /*don't select*/);
+        CommandNewEntityT* CmdNewEnt = new CommandNewEntityT(*m_Doc, NewEnts, PasteParent, false /*don't select*/);
 
         CmdNewEnt->Do();
         SubCommands.PushBack(CmdNewEnt);
@@ -1393,7 +1414,7 @@ ArrayT<CommandT*> ChildFrameT::CreatePasteCommands(const Vector3fT& DeltaTransla
 
     if (NewPrims.Size() > 0)
     {
-        CommandAddPrimT* CmdAddPrim = new CommandAddPrimT(*m_Doc, NewPrims, m_Doc->GetRootMapEntity(), "insert prims", false /*don't select*/);
+        CommandAddPrimT* CmdAddPrim = new CommandAddPrimT(*m_Doc, NewPrims, GetMapEnt(PasteParent), "insert prims", false /*don't select*/);
 
         CmdAddPrim->Do();
         SubCommands.PushBack(CmdAddPrim);
@@ -1405,37 +1426,6 @@ ArrayT<CommandT*> ChildFrameT::CreatePasteCommands(const Vector3fT& DeltaTransla
 
         CmdSel->Do();
         SubCommands.PushBack(CmdSel);
-
-        if (PasteGrouped)
-        {
-            ArrayT<MapElementT*> NewElems;
-
-            for (unsigned long EntNr = 0; EntNr < NewEnts.Size(); EntNr++)
-            {
-                IntrusivePtrT<CompMapEntityT> NewEnt = GetMapEnt(NewEnts[EntNr]);
-
-                NewElems.PushBack(NewEnt->GetRepres());
-
-                for (unsigned long PrimNr = 0; PrimNr < NewEnt->GetPrimitives().Size(); PrimNr++)
-                    NewElems.PushBack(NewEnt->GetPrimitives()[PrimNr]);
-            }
-
-            for (unsigned long PrimNr = 0; PrimNr < NewPrims.Size(); PrimNr++)
-                NewElems.PushBack(NewPrims[PrimNr]);
-
-
-            CommandNewGroupT* CmdNewGroup = new CommandNewGroupT(*m_Doc,
-                wxString::Format("paste group (%lu element%s)", NewElems.Size(), NewElems.Size() == 1 ? "" : "s"));
-
-            CmdNewGroup->GetGroup()->SelectAsGroup = true;
-            CmdNewGroup->Do();
-            SubCommands.PushBack(CmdNewGroup);
-
-            CommandAssignGroupT* CmdAssignGroup = new CommandAssignGroupT(*m_Doc, NewElems, CmdNewGroup->GetGroup());
-
-            CmdAssignGroup->Do();
-            SubCommands.PushBack(CmdAssignGroup);
-        }
     }
 
     return SubCommands;
