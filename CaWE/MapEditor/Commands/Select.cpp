@@ -167,26 +167,19 @@ CommandSelectT* CommandSelectT::Set(MapDocumentT* MapDocument, const ArrayT< Int
 }
 
 
-// This function counts the individual elements in Selection - elements that were selected "as a group" are only counted once.
+// This function counts the individual elements in Selection -- elements that were selected "as a group" are only counted once.
 static int CountMouseClicks(const ArrayT<MapElementT*>& Selection)
 {
-    int Count=0;
+    int Count = 0;
 
-    for (unsigned long ElemNr=0; ElemNr<Selection.Size(); ElemNr++)
+    for (unsigned long ElemNr = 0; ElemNr < Selection.Size(); ElemNr++)
     {
-        GroupT* Group=Selection[ElemNr]->GetGroup();
+        MapElementT*                  Elem = Selection[ElemNr];
+        IntrusivePtrT<CompMapEntityT> Top  = Elem->GetTopmostGroupSel();
 
-        if (Group && Group->SelectAsGroup)
-        {
-            // Did this group occur earlier?
-            unsigned long CheckNr;
-
-            for (CheckNr=0; CheckNr<ElemNr; CheckNr++)
-                if (Selection[CheckNr]->GetGroup()==Group)
-                    break;
-
-            if (CheckNr<ElemNr) continue;
-        }
+        // Skip all Elems that are part of a group (Top != NULL)
+        // but are not the groups "repres" element (Top->GetRepres() != Elem).
+        if (Top != NULL && Top->GetRepres() != Elem) continue;
 
         Count++;
     }

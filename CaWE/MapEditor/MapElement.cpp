@@ -29,6 +29,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/wx.h"
 
 
+using namespace MapEditor;
+
+
 // Note that we cannot simply replace this method with a global TypeInfoManT instance,
 // because it is called during global static initialization time. The TIM instance being
 // embedded in the function guarantees that it is properly initialized before first use.
@@ -91,9 +94,22 @@ void MapElementT::Assign(const MapElementT* Elem)
 }
 
 
-void MapElementT::SetParent(const IntrusivePtrT<MapEditor::CompMapEntityT>& Ent)
+void MapElementT::SetParent(const IntrusivePtrT<CompMapEntityT>& Ent)
 {
     m_Parent = Ent;
+}
+
+
+IntrusivePtrT<CompMapEntityT> MapElementT::GetTopmostGroupSel() const
+{
+    IntrusivePtrT<CompMapEntityT> Top = NULL;
+
+    // Bubble up to the topmost parent that is to be selected "as one" (as a group), if there is one.
+    for (IntrusivePtrT<cf::GameSys::EntityT> Ent = GetParent()->GetEntity(); Ent != NULL; Ent = Ent->GetParent())
+        if (Ent->GetBasics()->GetSelMode() == cf::GameSys::ComponentBasicsT::GROUP)
+            Top = GetMapEnt(Ent);
+
+    return Top;
 }
 
 

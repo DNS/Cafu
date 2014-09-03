@@ -1046,12 +1046,7 @@ void ToolSelectionT::NudgeSelection(const AxesInfoT& AxesInfo, const wxKeyEvent&
 /// when the elements entity and group memberships are taken into account.
 void ToolSelectionT::GetToggleEffects(MapElementT* Elem, ArrayT<MapElementT*>& RemoveFromSel, ArrayT<MapElementT*>& AddToSel) const
 {
-    IntrusivePtrT<CompMapEntityT> Top = NULL;
-
-    // Bubble up to the topmost parent that is to be selected "as one" (as a group), if there is one.
-    for (IntrusivePtrT<cf::GameSys::EntityT> Ent = Elem->GetParent()->GetEntity(); Ent != NULL; Ent = Ent->GetParent())
-        if (Ent->GetBasics()->GetSelMode() == cf::GameSys::ComponentBasicsT::GROUP)
-            Top = GetMapEnt(Ent);
+    IntrusivePtrT<CompMapEntityT> Top = Elem->GetTopmostGroupSel();
 
     if (Top != NULL)
     {
@@ -1061,27 +1056,8 @@ void ToolSelectionT::GetToggleEffects(MapElementT* Elem, ArrayT<MapElementT*>& R
     }
     else
     {
-        // If Elem is a member of a group, put all members of the group into the appropriate lists.
-        if (Elem->GetGroup() && Elem->GetGroup()->SelectAsGroup)
-        {
-            // Toggle each member of the group that Elem is in.
-            const ArrayT<MapElementT*> GroupMembers=Elem->GetGroup()->GetMembers(m_MapDoc);
-
-            for (unsigned long MemberNr=0; MemberNr<GroupMembers.Size(); MemberNr++)
-            {
-                MapElementT* Member=GroupMembers[MemberNr];
-
-                // Insert Member into one of the lists, but only if it isn't mentioned there already.
-                if (RemoveFromSel.Find(Member)==-1 && AddToSel.Find(Member)==-1)
-                {
-                    if (Member->IsSelected()) RemoveFromSel.PushBack(Member);
-                                         else AddToSel.PushBack(Member);
-                }
-            }
-        }
-
-        // Finally insert Elem itself into one of the lists, but only if it isn't mentioned there already.
-        if (RemoveFromSel.Find(Elem)==-1 && AddToSel.Find(Elem)==-1)
+        // Insert Elem into one of the lists, but only if it isn't mentioned there already.
+        if (RemoveFromSel.Find(Elem) == -1 && AddToSel.Find(Elem) == -1)
         {
             if (Elem->IsSelected()) RemoveFromSel.PushBack(Elem);
                                else AddToSel.PushBack(Elem);

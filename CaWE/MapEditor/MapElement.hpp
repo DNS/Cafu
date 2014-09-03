@@ -146,6 +146,13 @@ class MapElementT
     void SetGroup(GroupT* Group) { m_Group=Group; } ///< Sets the group this element is a member of (use NULL for "no group").
     bool IsVisible() const { return !m_Group || m_Group->IsVisible; }   ///< Returns whether this map element is visible (in the 2D, 3D and other views). Note that the visibility does not depend on the visibility of the parent entity - in CaWE, map elements are mostly independent of their parents (and thus entities can also be "half visible" if the user wishes so).
 
+    /// Returns this element's topmost CompMapEntityT instance that is to be selected "as one" (as a group).
+    /// This may be
+    ///   - this element's entity as return by its GetParent() method,
+    ///   - any of its parents in the hierarchy,
+    ///   - or `NULL` for none (then this element is not part of a "group-selection" entity).
+    IntrusivePtrT<MapEditor::CompMapEntityT> GetTopmostGroupSel() const;
+
 
     /// This is periodically called in order to have the element advance its internal clock by t seconds.
     /// The typical use case is with elements that represent models for updating the current frame in their animation sequence.
