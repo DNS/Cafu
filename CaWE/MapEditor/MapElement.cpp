@@ -100,6 +100,17 @@ void MapElementT::SetParent(const IntrusivePtrT<CompMapEntityT>& Ent)
 }
 
 
+bool MapElementT::IsVisible() const
+{
+    IntrusivePtrT<CompMapEntityT> Top = GetTopmostGroupSel();
+
+    if (Top == NULL)
+        return GetParent()->GetEntity()->GetBasics()->IsShown();
+
+    return Top->GetEntity()->GetBasics()->IsShown();
+}
+
+
 IntrusivePtrT<CompMapEntityT> MapElementT::GetTopmostGroupSel() const
 {
     IntrusivePtrT<CompMapEntityT> Top = NULL;

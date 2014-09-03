@@ -144,7 +144,15 @@ class MapElementT
 
     GroupT* GetGroup() const { return m_Group; }    ///< Returns NULL when this map element is in no group, or the pionter to the group it is a member of otherwise.
     void SetGroup(GroupT* Group) { m_Group=Group; } ///< Sets the group this element is a member of (use NULL for "no group").
-    bool IsVisible() const { return !m_Group || m_Group->IsVisible; }   ///< Returns whether this map element is visible (in the 2D, 3D and other views). Note that the visibility does not depend on the visibility of the parent entity - in CaWE, map elements are mostly independent of their parents (and thus entities can also be "half visible" if the user wishes so).
+
+    /// Returns whether this map element is currently visible (in the 2D, 3D and other views).
+    ///
+    /// Note that the visibility status is normally not recursive, that is, it does not depend on the visibility of
+    /// any parent entity: it is perfectly possible to hide the parent and to only show its children.
+    ///
+    /// However, if the element is selected "as a group", then the entity that inflicts the grouping also defines the
+    /// visibility of all of its parts (including all of its children).
+    bool IsVisible() const;
 
     /// Returns this element's topmost CompMapEntityT instance that is to be selected "as one" (as a group).
     /// This may be
