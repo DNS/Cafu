@@ -111,6 +111,14 @@ bool MapElementT::IsVisible() const
 }
 
 
+bool MapElementT::CanSelect() const
+{
+    if (!IsVisible()) return false;
+
+    return GetParent()->GetEntity()->GetBasics()->GetSelMode() != cf::GameSys::ComponentBasicsT::LOCKED;
+}
+
+
 IntrusivePtrT<CompMapEntityT> MapElementT::GetTopmostGroupSel() const
 {
     IntrusivePtrT<CompMapEntityT> Top = NULL;

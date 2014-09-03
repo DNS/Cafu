@@ -154,6 +154,16 @@ class MapElementT
     /// visibility of all of its parts (including all of its children).
     bool IsVisible() const;
 
+    /// Returns whether this map element can currently be selected (in the 2D, 3D and other views).
+    /// An element can be selected if it is visible and the selection mode of its entity is "not locked".
+    ///
+    /// Note that selection mode "locked" is not recursive, that is, it does not depend on the "locked" status of
+    /// any parent entity: it is perfectly possible to lock the parent and to be able to select its children.
+    ///
+    /// However, if the element is selected "as a group", then the whole group (as returned by GetTopmostGroupSel()),
+    /// including the "locked" parts, can still be selected via a part that is "not locked".
+    bool CanSelect() const;
+
     /// Returns this element's topmost CompMapEntityT instance that is to be selected "as one" (as a group).
     /// This may be
     ///   - this element's entity as return by its GetParent() method,

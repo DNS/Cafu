@@ -219,14 +219,14 @@ bool ToolSelectionT::OnLMouseDown2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
 
     // Filter out any locked ("cannot select") elements.
     // (Invisible elements have already been filtered out by the GetElementsAt() method.)
-    for (unsigned long ElemNr=0; ElemNr<ClickedElems.Size(); ElemNr++)
-        if (ClickedElems[ElemNr]->GetGroup() && !ClickedElems[ElemNr]->GetGroup()->CanSelect)
+    for (unsigned long ElemNr = 0; ElemNr < ClickedElems.Size(); ElemNr++)
+        if (!ClickedElems[ElemNr]->CanSelect())
         {
             ClickedElems.RemoveAt(ElemNr);
             ElemNr--;
         }
 
-    if (ClickedElems.Size()==0)
+    if (ClickedElems.Size() == 0)
     {
         // Click was in empty space, but we don't know yet if it will become dragging a box/frame for selection,
         // or just a click to clear the selection.
@@ -367,8 +367,8 @@ bool ToolSelectionT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
                 // Skip hidden (invisible) elements.
                 if (!Elem->IsVisible()) continue;
 
-                // Skip locked ("cannot select") elements.
-                if (Elem->GetGroup() && !Elem->GetGroup()->CanSelect) continue;
+                // Skip locked ("cannot select") elements (redundantly checks IsVisible() again).
+                if (!Elem->CanSelect()) continue;
 
                 // Compute the consequences of toggling the element.
                 GetToggleEffects(Elem, RemoveFromSel, AddToSel);
@@ -519,7 +519,7 @@ bool ToolSelectionT::OnMouseMove2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
             bool                       CanSelect=false;
 
             for (unsigned long ElemNr=0; ElemNr<Elems.Size(); ElemNr++)
-                if (Elems[ElemNr]->GetGroup()==NULL || Elems[ElemNr]->GetGroup()->CanSelect)
+                if (Elems[ElemNr]->CanSelect())
                 {
                     CanSelect=true;
                     break;
@@ -696,7 +696,7 @@ bool ToolSelectionT::OnLMouseDown3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
     // (it could easily be re-enabled by deleting the following "if (...) return true;" clause).
     // This is because SetHitList() immediately clears the selection (when Control is not pressed),
     // and thus the user experiences a loss of the old selection when nothing at all should happen.
-    if (HitInfos.Size()>0 && HitInfos[0].Object->GetGroup() && !HitInfos[0].Object->GetGroup()->CanSelect) return true;
+    if (HitInfos.Size()>0 && !HitInfos[0].Object->CanSelect()) return true;
 
     // Note that locked ("cannot select") elements are *not* filtered out here.
     // (Invisible elements have already been filtered out by the GetElementsAt() method.)
@@ -1156,7 +1156,7 @@ void ToolSelectionT::ToggleCurHitNr()
     // Being able to also keep locked elements in the m_HitList is an important feature for 3D view selections.
     // Otherwise we had to filter locked elements out before calling SetHitList(), which subtly changes the
     // tools behaviour that in turn might give the user the impression that the tool is buggy.
-    if (Elem->GetGroup()!=NULL && !Elem->GetGroup()->CanSelect) return;
+    if (!Elem->CanSelect()) return;
 
 
     // Implement the toggle.
