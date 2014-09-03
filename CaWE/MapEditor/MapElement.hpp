@@ -22,20 +22,21 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_MAP_ELEMENT_HPP_INCLUDED
 #define CAFU_MAP_ELEMENT_HPP_INCLUDED
 
-#include "Group.hpp"
-
 #include "Math3D/Angles.hpp"
 #include "Math3D/BoundingBox.hpp"
 #include "Templates/Array.hpp"
 #include "Templates/Pointer.hpp"
 #include "TypeSys.hpp"
 
+#include "wx/colour.h"
+#include "wx/gdicmn.h"
 #include "wx/string.h"
 
 #include <ostream>
 
 
 namespace MapEditor { class CompMapEntityT; }
+class MapDocumentT;
 class Renderer2DT;
 class Renderer3DT;
 class TextParserT;
@@ -133,17 +134,13 @@ class MapElementT
     ///
     /// @param ConsiderGroup   Whether the map elements group color should be taken into account.
     /// @returns the "inherent" color of this map element.
-    ///   When the map element is in a group and ConsiderGroup is true, the group color is returned.
-    ///   When the map element is an entity, the color of the entity class is returned.
+    ///   When the map element is an entity and ConsiderGroup is true, the color of the entity class is returned.
     ///   Otherwise (the element is a primitive), when the map element is part of an entity, the entity color
     ///   is returned. Finally (it's a map primitive that is in the world), its native color is returned.
     virtual wxColour GetColor(bool ConsiderGroup=true) const = 0;
 
     virtual wxString GetDescription() const { return ""; }
 
-
-    GroupT* GetGroup() const { return m_Group; }    ///< Returns NULL when this map element is in no group, or the pionter to the group it is a member of otherwise.
-    void SetGroup(GroupT* Group) { m_Group=Group; } ///< Sets the group this element is a member of (use NULL for "no group").
 
     /// Returns whether this map element is currently visible (in the 2D, 3D and other views).
     ///
@@ -247,7 +244,6 @@ class MapElementT
 
     IntrusivePtrT<MapEditor::CompMapEntityT> m_Parent;      ///< The entity that this element is a part of.
     bool                                     m_IsSelected;  ///< Is this element currently selected in the map document?
-    GroupT*                                  m_Group;       ///< The group this element is in, NULL if in no group.
     unsigned int                             m_FrameCount;  ///< The number of the frame in which this element was last rendered in a 3D view, used in order to avoid processing/rendering it twice.
 };
 

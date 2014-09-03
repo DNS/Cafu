@@ -22,6 +22,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "OrthoBspTree.hpp"
 #include "MapElement.hpp"
 
+#include "wx/log.h"
+
 
 OrthoBspTreeT::NodeT::NodeT(const BoundingBox3fT& BB)
     : m_PlaneType(NONE),

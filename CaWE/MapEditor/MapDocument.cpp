@@ -38,7 +38,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "OrthoBspTree.hpp"
 #include "DialogReplaceMaterials.hpp"
 #include "DialogTransform.hpp"
-#include "Group.hpp"
 
 #include "../Camera.hpp"
 #include "../DialogOptions.hpp"
@@ -1145,9 +1144,6 @@ MapDocumentT::~MapDocumentT()
     delete m_BspTree;
     m_BspTree = NULL;
 
-    for (unsigned long GroupNr = 0; GroupNr < m_Groups.Size(); GroupNr++) delete m_Groups[GroupNr];
-    m_Groups.Clear();
-
     m_Selection.Clear();
 
     m_ScriptWorld = NULL;
@@ -1370,10 +1366,6 @@ bool MapDocumentT::OnSaveDocument(const wxString& cmapFileName, bool IsAutoSave)
                     << "// Written by CaWE, the Cafu World Editor.\n"
                     << "Version " << CMAP_FILE_VERSION << "\n"
                     << "\n";
-
-        // Save groups.
-        for (unsigned long GroupNr=0; GroupNr<m_Groups.Size(); GroupNr++)
-            m_Groups[GroupNr]->Save_cmap(cmapOutFile, GroupNr);
 
         // Save entities (in depth-first order, as in the .cent file).
         ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllScriptEnts;
@@ -1789,7 +1781,7 @@ void MapDocumentT::OnMapGotoPrimitive(wxCommandEvent& CE)
 
     if (!Prim->IsVisible())
     {
-        wxMessageBox("The primitive is currently invisible in group \""+Prim->GetGroup()->Name+"\".", "Goto Primitive");
+        wxMessageBox("The primitive is currently invisible in entity \"" + MapEntities[GotoPrimDialog.m_EntityNumber]->GetEntity()->GetBasics()->GetEntityName() + "\".", "Goto Primitive");
         return;
     }
 
@@ -2333,46 +2325,4 @@ const BoundingBox3fT& MapDocumentT::GetMostRecentSelBB() const
     }
 
     return m_SelectionBB;
-}
-
-
-ArrayT<GroupT*> MapDocumentT::GetAbandonedGroups() const
-{
-    const ArrayT< IntrusivePtrT<CompMapEntityT> >& MapEntities = GetEntities();
-    ArrayT<GroupT*> EmptyGroups;
-
-    for (unsigned long GroupNr=0; GroupNr<m_Groups.Size(); GroupNr++)
-    {
-        bool IsEmpty=true;
-
-        for (unsigned long EntNr = 0; EntNr < MapEntities.Size(); EntNr++)
-        {
-            // Check the entity first...
-            IntrusivePtrT<const CompMapEntityT> Ent = MapEntities[EntNr];
-
-            if (Ent->GetRepres()->GetGroup() == m_Groups[GroupNr])
-            {
-                IsEmpty=false;
-                break;
-            }
-
-            /// ... then all its primitives.
-            const ArrayT<MapPrimitiveT*>& Primitives=Ent->GetPrimitives();
-
-            for (unsigned long PrimNr=0; PrimNr<Primitives.Size(); PrimNr++)
-            {
-                if (Primitives[PrimNr]->GetGroup()==m_Groups[GroupNr])
-                {
-                    IsEmpty=false;
-                    break;
-                }
-            }
-
-            if (!IsEmpty) break;
-        }
-
-        if (IsEmpty) EmptyGroups.PushBack(m_Groups[GroupNr]);
-    }
-
-    return EmptyGroups;
 }

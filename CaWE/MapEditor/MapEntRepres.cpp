@@ -99,11 +99,8 @@ void MapEntRepresT::Assign(const MapElementT* Elem)
 }
 
 
-wxColour MapEntRepresT::GetColor(bool ConsiderGroup) const
+wxColour MapEntRepresT::GetColor(bool /*ConsiderGroup*/) const
 {
-    if (m_Group && ConsiderGroup)
-        return m_Group->Color;
-
     IntrusivePtrT<cf::GameSys::EntityT> Ent = m_Parent->GetEntity();
 
     if (Ent->GetComponents().Size() > 0)
