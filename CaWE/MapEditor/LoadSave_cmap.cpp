@@ -103,21 +103,15 @@ void MapElementT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc)
 {
     if (TP.PeekNextToken()=="Group")
     {
+        // Skip any old group definitions.
         TP.AssertAndSkipToken("Group");
-        const unsigned long GroupNr=TP.GetNextTokenAsInt();
-
-        if (GroupNr<MapDoc.GetGroups().Size())
-            SetGroup(MapDoc.GetGroups()[GroupNr]);
+        TP.GetNextTokenAsInt();
     }
 }
 
 
 void MapElementT::Save_cmap(std::ostream& OutFile, unsigned long ElemNr, const MapDocumentT& MapDoc) const
 {
-    const int GroupNr=MapDoc.GetGroups().Find(m_Group);
-
-    if (GroupNr!=-1)
-        OutFile << "    Group " << GroupNr << "\n";
 }
 
 
@@ -636,9 +630,12 @@ void CompMapEntityT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, wxProgress
             cmapVersion = MapFileVersion;
         }
 
-        while (TP.PeekNextToken()=="GroupDef")
+        // Skip any old group definitions.
+        while (TP.PeekNextToken() == "GroupDef")
         {
-            MapDoc.GetGroups().PushBack(new GroupT(GroupT::Create_cmap(TP)));
+            // Example line:
+            //   GroupDef 0 "control room" "rgb(189, 206, 184)" 1 1 0
+            for (unsigned int TokenNr = 0; TokenNr < 7; TokenNr++) TP.GetNextToken();
         }
     }
 

@@ -36,6 +36,8 @@ namespace cf
         {
             public:
 
+            enum SelModeT { SINGLE = 0, GROUP, LOCKED };
+
             /// The constructor.
             ComponentBasicsT();
 
@@ -54,11 +56,14 @@ namespace cf
             /// documentation of the side-effects.
             void SetEntityName(const std::string& Name) { m_Name.Set(Name); }
 
-            /// Returns `true` if the entity is currently shown. Returns `false` if the entity is currently hidden.
-            bool IsShown() const { return m_Show.Get(); }
-
             /// Returns `true` if the entity is declared as static. Returns `false` if (the primitives of) the entity can move.
             bool IsStatic() const { return m_Static.Get(); }
+
+            /// Returns `true` if the entity is currently shown in the Map Editor's 2D and 3D views, `false` if it is currently hidden.
+            bool IsShown() const { return m_Show.Get(); }
+
+            /// Returns the current selection mode of the entity in the Map Editor.
+            SelModeT GetSelMode() const { return SelModeT(m_SelMode.Get()); }
 
             // Base class overrides.
             ComponentBasicsT* Clone() const override;
@@ -102,28 +107,22 @@ namespace cf
                 ComponentBasicsT& m_CompBasics; ///< The parent ComponentBasicsT that contains this variable.
             };
 
-            /// A variable of type `bool`, indicating whether this entity is currently shown or hidden.
-            /// Besides keeping the boolean flag, this variable calls the `OnShow()` script callback whenever its value changes.
-            class EntityShowT : public TypeSys::VarT<bool>
+            /// A variable of type `int`, specifically for the selection mode of the entity in the Map Editor.
+            class VarSelModeT : public cf::TypeSys::VarT<int>
             {
                 public:
 
-                EntityShowT(const char* Name, const bool& Value, const char* Flags[], ComponentBasicsT& CompBasics);
-                EntityShowT(const EntityShowT& Var, ComponentBasicsT& CompBasics);
+                VarSelModeT(const char* Name, const int& Value, const char* Flags[]=NULL);
 
                 // Base class overrides.
-                void Set(const bool& v);
-
-
-                private:
-
-                ComponentBasicsT& m_CompBasics; ///< The parent ComponentBasicsT that contains this variable.
+                void GetChoices(ArrayT<std::string>& Strings, ArrayT<int>& Values) const override;
             };
 
 
             EntityNameT         m_Name;     ///< The name of the entity. Entity names must be valid Lua script identifiers and unique among their siblings.
-            EntityShowT         m_Show;     ///< Is this entity currently shown?
             TypeSys::VarT<bool> m_Static;   ///< Are the map primitives of this entity fixed and immovable, never moving around in the game world?
+            TypeSys::VarT<bool> m_Show;     ///< Is this entity currently shown or hidden in the Map Editor's 2D and 3D views?
+            VarSelModeT         m_SelMode;  ///< In the Map Editor, when the user clicks on an element of the entity, what elements are actually selected?
         };
     }
 }

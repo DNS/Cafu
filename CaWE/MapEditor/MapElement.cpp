@@ -29,6 +29,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/wx.h"
 
 
+using namespace MapEditor;
+
+
 // Note that we cannot simply replace this method with a global TypeInfoManT instance,
 // because it is called during global static initialization time. The TIM instance being
 // embedded in the function guarantees that it is properly initialized before first use.
@@ -55,7 +58,6 @@ const cf::TypeSys::TypeInfoT MapElementT::TypeInfo(GetMapElemTIM(), "MapElementT
 MapElementT::MapElementT()
     : m_Parent(NULL),
       m_IsSelected(false),
-      m_Group(NULL),
       m_FrameCount(0)
 {
 }
@@ -64,7 +66,6 @@ MapElementT::MapElementT()
 MapElementT::MapElementT(const MapElementT& Elem)
     : m_Parent(NULL),
       m_IsSelected(false),    // The copied element cannot initially be selected: It is not a member of the selection array (kept in the map document).
-      m_Group(NULL),
       m_FrameCount(Elem.m_FrameCount)
 {
 }
@@ -91,9 +92,41 @@ void MapElementT::Assign(const MapElementT* Elem)
 }
 
 
-void MapElementT::SetParent(const IntrusivePtrT<MapEditor::CompMapEntityT>& Ent)
+void MapElementT::SetParent(const IntrusivePtrT<CompMapEntityT>& Ent)
 {
     m_Parent = Ent;
+}
+
+
+bool MapElementT::IsVisible() const
+{
+    IntrusivePtrT<CompMapEntityT> Top = GetTopmostGroupSel();
+
+    if (Top == NULL)
+        return GetParent()->GetEntity()->GetBasics()->IsShown();
+
+    return Top->GetEntity()->GetBasics()->IsShown();
+}
+
+
+bool MapElementT::CanSelect() const
+{
+    if (!IsVisible()) return false;
+
+    return GetParent()->GetEntity()->GetBasics()->GetSelMode() != cf::GameSys::ComponentBasicsT::LOCKED;
+}
+
+
+IntrusivePtrT<CompMapEntityT> MapElementT::GetTopmostGroupSel() const
+{
+    IntrusivePtrT<CompMapEntityT> Top = NULL;
+
+    // Bubble up to the topmost parent that is to be selected "as one" (as a group), if there is one.
+    for (IntrusivePtrT<cf::GameSys::EntityT> Ent = GetParent()->GetEntity(); Ent != NULL; Ent = Ent->GetParent())
+        if (Ent->GetBasics()->GetSelMode() == cf::GameSys::ComponentBasicsT::GROUP)
+            Top = GetMapEnt(Ent);
+
+    return Top;
 }
 
 

@@ -219,14 +219,14 @@ bool ToolSelectionT::OnLMouseDown2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
 
     // Filter out any locked ("cannot select") elements.
     // (Invisible elements have already been filtered out by the GetElementsAt() method.)
-    for (unsigned long ElemNr=0; ElemNr<ClickedElems.Size(); ElemNr++)
-        if (ClickedElems[ElemNr]->GetGroup() && !ClickedElems[ElemNr]->GetGroup()->CanSelect)
+    for (unsigned long ElemNr = 0; ElemNr < ClickedElems.Size(); ElemNr++)
+        if (!ClickedElems[ElemNr]->CanSelect())
         {
             ClickedElems.RemoveAt(ElemNr);
             ElemNr--;
         }
 
-    if (ClickedElems.Size()==0)
+    if (ClickedElems.Size() == 0)
     {
         // Click was in empty space, but we don't know yet if it will become dragging a box/frame for selection,
         // or just a click to clear the selection.
@@ -367,8 +367,8 @@ bool ToolSelectionT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
                 // Skip hidden (invisible) elements.
                 if (!Elem->IsVisible()) continue;
 
-                // Skip locked ("cannot select") elements.
-                if (Elem->GetGroup() && !Elem->GetGroup()->CanSelect) continue;
+                // Skip locked ("cannot select") elements (redundantly checks IsVisible() again).
+                if (!Elem->CanSelect()) continue;
 
                 // Compute the consequences of toggling the element.
                 GetToggleEffects(Elem, RemoveFromSel, AddToSel);
@@ -519,7 +519,7 @@ bool ToolSelectionT::OnMouseMove2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
             bool                       CanSelect=false;
 
             for (unsigned long ElemNr=0; ElemNr<Elems.Size(); ElemNr++)
-                if (Elems[ElemNr]->GetGroup()==NULL || Elems[ElemNr]->GetGroup()->CanSelect)
+                if (Elems[ElemNr]->CanSelect())
                 {
                     CanSelect=true;
                     break;
@@ -696,7 +696,7 @@ bool ToolSelectionT::OnLMouseDown3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
     // (it could easily be re-enabled by deleting the following "if (...) return true;" clause).
     // This is because SetHitList() immediately clears the selection (when Control is not pressed),
     // and thus the user experiences a loss of the old selection when nothing at all should happen.
-    if (HitInfos.Size()>0 && HitInfos[0].Object->GetGroup() && !HitInfos[0].Object->GetGroup()->CanSelect) return true;
+    if (HitInfos.Size()>0 && !HitInfos[0].Object->CanSelect()) return true;
 
     // Note that locked ("cannot select") elements are *not* filtered out here.
     // (Invisible elements have already been filtered out by the GetElementsAt() method.)
@@ -1046,66 +1046,60 @@ void ToolSelectionT::NudgeSelection(const AxesInfoT& AxesInfo, const wxKeyEvent&
 /// when the elements entity and group memberships are taken into account.
 void ToolSelectionT::GetToggleEffects(MapElementT* Elem, ArrayT<MapElementT*>& RemoveFromSel, ArrayT<MapElementT*>& AddToSel) const
 {
-    IntrusivePtrT<CompMapEntityT> Entity = Elem->GetParent();
+    IntrusivePtrT<CompMapEntityT> Top = Elem->GetTopmostGroupSel();
 
-    // If Prim belongs to a non-world entity, put all primitives of the entity into the appropriate lists.
-    if (!Entity->IsWorld() && m_OptionsBar->AutoGroupEntities())
+    if (Top != NULL)
     {
-        MapEntRepresT* Repres = Entity->GetRepres();
-
-        // Toggle the Repres by inserting it into one of the lists, but only if it isn't mentioned there already.
-        if (RemoveFromSel.Find(Repres)==-1 && AddToSel.Find(Repres)==-1)
+        // If the element belongs to an entity that is to be selected "as one" (as a group),
+        // put all of the entity's parts into the appropriate lists.
+        GetToggleEffectsRecursive(Top, RemoveFromSel, AddToSel);
+    }
+    else
+    {
+        // Insert Elem into one of the lists, but only if it isn't mentioned there already.
+        if (RemoveFromSel.Find(Elem) == -1 && AddToSel.Find(Elem) == -1)
         {
-            if (Repres->IsSelected()) RemoveFromSel.PushBack(Repres);
-                                 else AddToSel.PushBack(Repres);
+            if (Elem->IsSelected()) RemoveFromSel.PushBack(Elem);
+                               else AddToSel.PushBack(Elem);
         }
+    }
+}
 
-        // Toggle the entities primitives analogously.
-        for (unsigned long MemberNr = 0; MemberNr < Entity->GetPrimitives().Size(); MemberNr++)
+
+/// An auxiliary method for GetToggleEffects().
+/// It computes the toggle effects for the given MapEnt, all its primitives and all its children recursively.
+void ToolSelectionT::GetToggleEffectsRecursive(IntrusivePtrT<CompMapEntityT> MapEnt, ArrayT<MapElementT*>& RemoveFromSel, ArrayT<MapElementT*>& AddToSel) const
+{
+    MapEntRepresT* Repres = MapEnt->GetRepres();
+
+    // TODO: If hidden (e.g. child entities), hierarchically force the whole MapEnt to be *visible*!
+
+    // Toggle the Repres by inserting it into one of the lists, but only if it isn't mentioned there already.
+    if (RemoveFromSel.Find(Repres) == -1 && AddToSel.Find(Repres) == -1)
+    {
+        if (Repres->IsSelected()) RemoveFromSel.PushBack(Repres);
+                             else AddToSel.PushBack(Repres);
+    }
+
+    // Toggle the entities primitives analogously.
+    for (unsigned long PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
+    {
+        MapPrimitiveT* Prim = MapEnt->GetPrimitives()[PrimNr];
+
+        // Insert Member into one of the lists, but only if it isn't mentioned there already.
+        if (RemoveFromSel.Find(Prim) == -1 && AddToSel.Find(Prim) == -1)
         {
-            MapElementT* Member = Entity->GetPrimitives()[MemberNr];
-
-            // Insert Member into one of the lists, but only if it isn't mentioned there already.
-            if (RemoveFromSel.Find(Member)==-1 && AddToSel.Find(Member)==-1)
-            {
-                if (Member->IsSelected()) RemoveFromSel.PushBack(Member);
-                                     else AddToSel.PushBack(Member);
-            }
-        }
-
-        // Recursively toggle the entity's children as well.
-        IntrusivePtrT<cf::GameSys::EntityT> Ent = Entity->GetEntity();
-
-        for (unsigned long ChildNr = 0; ChildNr < Ent->GetChildren().Size(); ChildNr++)
-        {
-            GetToggleEffects(GetMapEnt(Ent->GetChildren()[ChildNr])->GetRepres(), RemoveFromSel, AddToSel);
+            if (Prim->IsSelected()) RemoveFromSel.PushBack(Prim);
+                               else AddToSel.PushBack(Prim);
         }
     }
 
-    // If Elem is a member of a group, put all members of the group into the appropriate lists.
-    if (Elem->GetGroup() && Elem->GetGroup()->SelectAsGroup)
+    // Recursively toggle the entity's children as well.
+    IntrusivePtrT<cf::GameSys::EntityT> Ent = MapEnt->GetEntity();
+
+    for (unsigned long ChildNr = 0; ChildNr < Ent->GetChildren().Size(); ChildNr++)
     {
-        // Toggle each member of the group that Elem is in.
-        const ArrayT<MapElementT*> GroupMembers=Elem->GetGroup()->GetMembers(m_MapDoc);
-
-        for (unsigned long MemberNr=0; MemberNr<GroupMembers.Size(); MemberNr++)
-        {
-            MapElementT* Member=GroupMembers[MemberNr];
-
-            // Insert Member into one of the lists, but only if it isn't mentioned there already.
-            if (RemoveFromSel.Find(Member)==-1 && AddToSel.Find(Member)==-1)
-            {
-                if (Member->IsSelected()) RemoveFromSel.PushBack(Member);
-                                     else AddToSel.PushBack(Member);
-            }
-        }
-    }
-
-    // Finally insert Elem itself into one of the lists, but only if it isn't mentioned there already.
-    if (RemoveFromSel.Find(Elem)==-1 && AddToSel.Find(Elem)==-1)
-    {
-        if (Elem->IsSelected()) RemoveFromSel.PushBack(Elem);
-                           else AddToSel.PushBack(Elem);
+        GetToggleEffectsRecursive(GetMapEnt(Ent->GetChildren()[ChildNr]), RemoveFromSel, AddToSel);
     }
 }
 
@@ -1162,7 +1156,7 @@ void ToolSelectionT::ToggleCurHitNr()
     // Being able to also keep locked elements in the m_HitList is an important feature for 3D view selections.
     // Otherwise we had to filter locked elements out before calling SetHitList(), which subtly changes the
     // tools behaviour that in turn might give the user the impression that the tool is buggy.
-    if (Elem->GetGroup()!=NULL && !Elem->GetGroup()->CanSelect) return;
+    if (!Elem->CanSelect()) return;
 
 
     // Implement the toggle.

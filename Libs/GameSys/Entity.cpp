@@ -505,8 +505,6 @@ void EntityT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
 
 bool EntityT::RenderComponents(bool FirstPersonView, float LodDist) const
 {
-    if (!m_Basics->IsShown()) return false;
-
     bool b = false;
 
     // Render the "custom" components in the proper order -- bottom-up.

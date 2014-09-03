@@ -38,7 +38,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "OrthoBspTree.hpp"
 #include "DialogReplaceMaterials.hpp"
 #include "DialogTransform.hpp"
-#include "Group.hpp"
 
 #include "../Camera.hpp"
 #include "../DialogOptions.hpp"
@@ -59,10 +58,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Commands/MakeHollow.hpp"
 #include "Commands/NewEntity.hpp"
 #include "Commands/Select.hpp"
-#include "Commands/Group_Assign.hpp"
-#include "Commands/Group_Delete.hpp"
-#include "Commands/Group_New.hpp"
-#include "Commands/Group_SetVisibility.hpp"
 
 #include "ToolbarMaterials.hpp"     // Only needed for setting the ref to NULL in the dtor.
 #include "ToolCamera.hpp"
@@ -137,19 +132,12 @@ BEGIN_EVENT_TABLE(MapDocumentT, wxEvtHandler)
 
     EVT_MENU  (ChildFrameT::ID_MENU_VIEW_SHOW_ENTITY_INFO,        MapDocumentT::OnViewShowEntityInfo)
     EVT_MENU  (ChildFrameT::ID_MENU_VIEW_SHOW_ENTITY_TARGETS,     MapDocumentT::OnViewShowEntityTargets)
-    EVT_MENU  (ChildFrameT::ID_MENU_VIEW_HIDE_SELECTED_OBJECTS,   MapDocumentT::OnViewHideSelectedObjects)
-    EVT_BUTTON(ChildFrameT::ID_MENU_VIEW_HIDE_SELECTED_OBJECTS,   MapDocumentT::OnViewHideSelectedObjects)
-    EVT_MENU  (ChildFrameT::ID_MENU_VIEW_HIDE_UNSELECTED_OBJECTS, MapDocumentT::OnViewHideUnselectedObjects)
-    EVT_BUTTON(ChildFrameT::ID_MENU_VIEW_HIDE_UNSELECTED_OBJECTS, MapDocumentT::OnViewHideUnselectedObjects)
-    EVT_MENU  (ChildFrameT::ID_MENU_VIEW_SHOW_HIDDEN_OBJECTS,     MapDocumentT::OnViewShowHiddenObjects)
 
     EVT_UPDATE_UI(ChildFrameT::ID_MENU_VIEW_SHOW_ENTITY_INFO,     MapDocumentT::OnUpdateViewShowEntityInfo)
     EVT_UPDATE_UI(ChildFrameT::ID_MENU_VIEW_SHOW_ENTITY_TARGETS,  MapDocumentT::OnUpdateViewShowEntityTargets)
 
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_CARVE,                  MapDocumentT::OnToolsCarve)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_MAKE_HOLLOW,            MapDocumentT::OnToolsHollow)
-    EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_GROUP,                  MapDocumentT::OnViewHideSelectedObjects)
-    EVT_BUTTON(ChildFrameT::ID_MENU_TOOLS_GROUP,                  MapDocumentT::OnViewHideSelectedObjects)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_ASSIGN_PRIM_TO_ENTITY,  MapDocumentT::OnToolsAssignPrimToEntity)
     EVT_BUTTON(ChildFrameT::ID_MENU_TOOLS_ASSIGN_PRIM_TO_ENTITY,  MapDocumentT::OnToolsAssignPrimToEntity)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_REPLACE_MATERIALS,      MapDocumentT::OnToolsReplaceMaterials)
@@ -1156,9 +1144,6 @@ MapDocumentT::~MapDocumentT()
     delete m_BspTree;
     m_BspTree = NULL;
 
-    for (unsigned long GroupNr = 0; GroupNr < m_Groups.Size(); GroupNr++) delete m_Groups[GroupNr];
-    m_Groups.Clear();
-
     m_Selection.Clear();
 
     m_ScriptWorld = NULL;
@@ -1203,11 +1188,13 @@ namespace
 
     void SaveComponents(std::ostream& OutFile, IntrusivePtrT<cf::GameSys::EntityT> Entity)
     {
+        if (Entity->GetBasics()->IsStatic())
+            OutFile << "    self:GetBasics():set(\"Static\", true)\n";
+
         if (!Entity->GetBasics()->IsShown())
             OutFile << "    self:GetBasics():set(\"Show\", false)\n";
 
-        if (Entity->GetBasics()->IsStatic())
-            OutFile << "    self:GetBasics():set(\"Static\", true)\n";
+        OutFile << "    self:GetBasics():set(\"Sel. Mode\", " << Entity->GetBasics()->GetSelMode() << ")\n";
 
         OutFile << "    self:GetTransform():set(\"Origin\", "
                 << Entity->GetTransform()->GetOriginPS().x << ", "
@@ -1379,10 +1366,6 @@ bool MapDocumentT::OnSaveDocument(const wxString& cmapFileName, bool IsAutoSave)
                     << "// Written by CaWE, the Cafu World Editor.\n"
                     << "Version " << CMAP_FILE_VERSION << "\n"
                     << "\n";
-
-        // Save groups.
-        for (unsigned long GroupNr=0; GroupNr<m_Groups.Size(); GroupNr++)
-            m_Groups[GroupNr]->Save_cmap(cmapOutFile, GroupNr);
 
         // Save entities (in depth-first order, as in the .cent file).
         ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllScriptEnts;
@@ -1798,7 +1781,7 @@ void MapDocumentT::OnMapGotoPrimitive(wxCommandEvent& CE)
 
     if (!Prim->IsVisible())
     {
-        wxMessageBox("The primitive is currently invisible in group \""+Prim->GetGroup()->Name+"\".", "Goto Primitive");
+        wxMessageBox("The primitive is currently invisible in entity \"" + MapEntities[GotoPrimDialog.m_EntityNumber]->GetEntity()->GetBasics()->GetEntityName() + "\".", "Goto Primitive");
         return;
     }
 
@@ -1968,131 +1951,6 @@ void MapDocumentT::OnViewShowEntityTargets(wxCommandEvent& CE)
 }
 
 
-void MapDocumentT::OnViewHideSelectedObjects(wxCommandEvent& CE)
-{
-    if (m_Selection.Size()==0) return;
-
-    // Warn/inform the user when he tries to group elements with "mixed affiliation"?  (grouped or not, in entity or not)
-    // e.g. like "From N selected map elements, there are X in the world, Y in entities and Z in groups."
-    // This is pretty difficult to implement though, as there are many cases to distinguish, and might confuse the user.
-    // Alternatively, just warn when grouping here *partially* breaks an existing group??
-    ArrayT<CommandT*> SubCommands;
-
-    // 1. Create a new group.
-    CommandNewGroupT* CmdNewGroup=new CommandNewGroupT(*this, wxString::Format("%lu item%s", m_Selection.Size(), m_Selection.Size()==1 ? "" : "s"));
-    GroupT*              NewGroup=CmdNewGroup->GetGroup();
-
-    CmdNewGroup->Do();
-    SubCommands.PushBack(CmdNewGroup);
-
-    // 2. Put the m_Selection into the new group.
-    CommandAssignGroupT* CmdAssign=new CommandAssignGroupT(*this, m_Selection, NewGroup);
-
-    CmdAssign->Do();
-    SubCommands.PushBack(CmdAssign);
-
-    // 3. Hide the new group (set the visibility to false).
-    if (CE.GetId()==ChildFrameT::ID_MENU_VIEW_HIDE_SELECTED_OBJECTS)
-    {
-        CommandGroupSetVisibilityT* CmdVis=new CommandGroupSetVisibilityT(*this, NewGroup, false);
-
-        CmdVis->Do();
-        SubCommands.PushBack(CmdVis);
-    }
-
-    // 4. Purge all groups that became empty (abandoned) by the (re-)assignment of map elements in step 2.
-    CommandDeleteGroupT* CmdPurgeGroups=new CommandDeleteGroupT(*this, GetAbandonedGroups());
-
-    CmdPurgeGroups->Do();
-    SubCommands.PushBack(CmdPurgeGroups);
-
-    // 5. Submit the composite macro command.
-    CompatSubmitCommand(new CommandMacroT(SubCommands, "Hide "+NewGroup->Name));
-}
-
-
-void MapDocumentT::OnViewHideUnselectedObjects(wxCommandEvent& CE)
-{
-    // Find all unselected map elements that are not in a group already.
-    ArrayT<MapElementT*> HideElems;
-    ArrayT<MapElementT*> Elems;
-
-    GetAllElems(Elems);
-
-    for (unsigned int ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
-    {
-        MapElementT* Elem = Elems[ElemNr];
-
-        if (Elem->IsSelected() || Elem->GetGroup()) continue;
-
-        HideElems.PushBack(Elem);
-    }
-
-    // If no relevant elements were found, do nothing.
-    if (HideElems.Size()==0) return;
-
-
-    ArrayT<CommandT*> SubCommands;
-
-    // 1. Create a new group.
-    CommandNewGroupT* CmdNewGroup=new CommandNewGroupT(*this, wxString::Format("%lu item%s", HideElems.Size(), HideElems.Size()==1 ? "" : "s"));
-    GroupT*              NewGroup=CmdNewGroup->GetGroup();
-
-    CmdNewGroup->Do();
-    SubCommands.PushBack(CmdNewGroup);
-
-    // 2. Put the HideElems into the new group.
-    CommandAssignGroupT* CmdAssign=new CommandAssignGroupT(*this, HideElems, NewGroup);
-
-    CmdAssign->Do();
-    SubCommands.PushBack(CmdAssign);
-
-    // 3. Hide the new group (set the visibility to false).
-    CommandGroupSetVisibilityT* CmdVis=new CommandGroupSetVisibilityT(*this, NewGroup, false);
-
-    CmdVis->Do();
-    SubCommands.PushBack(CmdVis);
-
-    // 4. Purge all groups that became empty (abandoned) by the (re-)assignment of map elements in step 2.
-    CommandDeleteGroupT* CmdPurgeGroups=new CommandDeleteGroupT(*this, GetAbandonedGroups());
-
-    CmdPurgeGroups->Do();
-    SubCommands.PushBack(CmdPurgeGroups);
-
-    // 5. Submit the composite macro command.
-    CompatSubmitCommand(new CommandMacroT(SubCommands, "Hide "+NewGroup->Name));
-}
-
-
-void MapDocumentT::OnViewShowHiddenObjects(wxCommandEvent& CE)
-{
-    ArrayT<GroupT*> HiddenGroups;
-
-    for (unsigned long GroupNr=0; GroupNr<m_Groups.Size(); GroupNr++)
-        if (!m_Groups[GroupNr]->IsVisible)
-            HiddenGroups.PushBack(m_Groups[GroupNr]);
-
-    if (HiddenGroups.Size()==0)
-    {
-        // wxMessageBox("All groups are already visible.");    // Should be a status bar update.
-        return;
-    }
-
-    if (HiddenGroups.Size()==1)
-    {
-        CompatSubmitCommand(new CommandGroupSetVisibilityT(*this, HiddenGroups[0], true /*NewVis*/));
-        return;
-    }
-
-    ArrayT<CommandT*> SubCommands;
-
-    for (unsigned long GroupNr=0; GroupNr<HiddenGroups.Size(); GroupNr++)
-        SubCommands.PushBack(new CommandGroupSetVisibilityT(*this, HiddenGroups[GroupNr], true /*NewVis*/));
-
-    CompatSubmitCommand(new CommandMacroT(SubCommands, "Show all groups"));
-}
-
-
 void MapDocumentT::OnToolsCarve(wxCommandEvent& CE)
 {
     ArrayT<const MapBrushT*> Carvers;
@@ -2111,14 +1969,6 @@ void MapDocumentT::OnToolsCarve(wxCommandEvent& CE)
 
     // Do the actual carve.
     CompatSubmitCommand(new CommandCarveT(*this, Carvers));
-
-    // If there are any empty groups (usually as a result from an implicit deletion by the carve), purge them now.
-    // We use an explicit command for deleting the groups (instead of putting everything into a macro command)
-    // so that the user has the option to undo the purge (separately from the deletion) if he wishes.
-    const ArrayT<GroupT*> EmptyGroups=GetAbandonedGroups();
-
-    if (EmptyGroups.Size()>0)
-        CompatSubmitCommand(new CommandDeleteGroupT(*this, EmptyGroups));
 }
 
 
@@ -2289,18 +2139,6 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
 
     if (EmptyEntities.Size() > 0)
         CompatSubmitCommand(new CommandDeleteT(*this, EmptyEntities));
-
-    // Purge empty groups.
-    // This is very rare: it only fires when a parent entity became empty, was thus deleted above, and was the last element in its group:
-    // If there are any empty groups (usually as a result from the deletion), purge them now.
-    // We use an explicit command for deleting the groups (instead of putting everything into a macro command)
-    // so that the user has the option to undo the purge (separately from the deletion) if he wishes.
-    {
-        const ArrayT<GroupT*> EmptyGroups = GetAbandonedGroups();
-
-        if (EmptyGroups.Size() > 0)
-            CompatSubmitCommand(new CommandDeleteGroupT(*this, EmptyGroups));
-    }
 
     m_ChildFrame->GetToolManager().SetActiveTool(GetToolTIM().FindTypeInfoByName("ToolSelectionT"));
     m_ChildFrame->GetInspectorDialog()->ChangePage(1);
@@ -2487,46 +2325,4 @@ const BoundingBox3fT& MapDocumentT::GetMostRecentSelBB() const
     }
 
     return m_SelectionBB;
-}
-
-
-ArrayT<GroupT*> MapDocumentT::GetAbandonedGroups() const
-{
-    const ArrayT< IntrusivePtrT<CompMapEntityT> >& MapEntities = GetEntities();
-    ArrayT<GroupT*> EmptyGroups;
-
-    for (unsigned long GroupNr=0; GroupNr<m_Groups.Size(); GroupNr++)
-    {
-        bool IsEmpty=true;
-
-        for (unsigned long EntNr = 0; EntNr < MapEntities.Size(); EntNr++)
-        {
-            // Check the entity first...
-            IntrusivePtrT<const CompMapEntityT> Ent = MapEntities[EntNr];
-
-            if (Ent->GetRepres()->GetGroup() == m_Groups[GroupNr])
-            {
-                IsEmpty=false;
-                break;
-            }
-
-            /// ... then all its primitives.
-            const ArrayT<MapPrimitiveT*>& Primitives=Ent->GetPrimitives();
-
-            for (unsigned long PrimNr=0; PrimNr<Primitives.Size(); PrimNr++)
-            {
-                if (Primitives[PrimNr]->GetGroup()==m_Groups[GroupNr])
-                {
-                    IsEmpty=false;
-                    break;
-                }
-            }
-
-            if (!IsEmpty) break;
-        }
-
-        if (IsEmpty) EmptyGroups.PushBack(m_Groups[GroupNr]);
-    }
-
-    return EmptyGroups;
 }

@@ -36,10 +36,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../GameConfig.hpp"
 
 #include "Commands/AddPrim.hpp"
-#include "Commands/Group_Assign.hpp"
-#include "Commands/Group_New.hpp"
+#include "Commands/NewEntity.hpp"
+
+#include "GameSys/EntityCreateParams.hpp"
 
 #include "wx/wx.h"
+
+
+using namespace MapEditor;
 
 
 /*** Begin of TypeSys related definitions for this class. ***/
@@ -142,46 +146,32 @@ bool ToolNewBrushT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
     else
     {
         // It's an arch.
-        ArchDialogT ArchDlg(m_NewBrush->GetBB(), ViewWindow.GetAxesInfo());
+        const Vector3fT ArchCenter(m_NewBrush->GetBB().GetCenter());
+        ArchDialogT     ArchDlg(m_NewBrush->GetBB(), ViewWindow.GetAxesInfo());
 
         // We *must* delete the brush before ArchDlg is shown - event processing continues (e.g. incoming mouse move events)!
         delete m_NewBrush;
-        m_NewBrush=NULL;
+        m_NewBrush = NULL;
 
-        if (ArchDlg.ShowModal()==wxID_OK)
+        if (ArchDlg.ShowModal() == wxID_OK)
         {
-            const ArrayT<MapPrimitiveT*> ArchSegments=ArchDlg.GetArch(m_MapDoc.GetGameConfig()->GetMatMan().GetDefaultMaterial());
+            // Created the new arch segments "grouped" in a new entity.
+            IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(m_MapDoc.GetScriptWorld()));
+            IntrusivePtrT<CompMapEntityT>       MapEnt = new CompMapEntityT(m_MapDoc);
 
-            ArrayT<CommandT*> SubCommands;
+            NewEnt->GetBasics()->SetEntityName("new arch");
+            NewEnt->GetBasics()->SetMember("Static", true);
+            NewEnt->GetBasics()->SetMember("Sel. Mode", int(cf::GameSys::ComponentBasicsT::GROUP));
+            NewEnt->GetTransform()->SetOriginWS(ArchCenter);
+            NewEnt->SetApp(MapEnt);
 
-            // 1. Add the arch segments to the world.
-            CommandAddPrimT* CmdAddSegments=new CommandAddPrimT(m_MapDoc, ArchSegments, m_MapDoc.GetRootMapEntity(), "new arch segments");
+            const ArrayT<MapPrimitiveT*> ArchSegments = ArchDlg.GetArch(m_MapDoc.GetGameConfig()->GetMatMan().GetDefaultMaterial());
 
-            CmdAddSegments->Do();
-            SubCommands.PushBack(CmdAddSegments);
+            for (unsigned long SegNr = 0; SegNr < ArchSegments.Size(); SegNr++)
+                MapEnt->AddPrim(ArchSegments[SegNr]);
 
-            // 2. Create a new group.
-            CommandNewGroupT* CmdNewGroup=new CommandNewGroupT(m_MapDoc, wxString::Format("arch (%lu side%s)", ArchSegments.Size(), ArchSegments.Size()==1 ? "" : "s"));
-            GroupT*              NewGroup=CmdNewGroup->GetGroup();
-
-            NewGroup->SelectAsGroup=true;
-
-            CmdNewGroup->Do();
-            SubCommands.PushBack(CmdNewGroup);
-
-            // 3. Put the ArchSegments into the new group.
-            ArrayT<MapElementT*> ArchSegmentsAsElems;
-
-            for (unsigned long SegNr=0; SegNr<ArchSegments.Size(); SegNr++)
-                ArchSegmentsAsElems.PushBack(ArchSegments[SegNr]);
-
-            CommandAssignGroupT* CmdAssign=new CommandAssignGroupT(m_MapDoc, ArchSegmentsAsElems, NewGroup);
-
-            CmdAssign->Do();
-            SubCommands.PushBack(CmdAssign);
-
-            // 4. Submit the composite macro command.
-            m_MapDoc.CompatSubmitCommand(new CommandMacroT(SubCommands, "new arch"));
+            m_MapDoc.CompatSubmitCommand(new CommandNewEntityT(
+                m_MapDoc, NewEnt, m_MapDoc.GetRootMapEntity()->GetEntity(), true /*SetSel?*/));
         }
     }
 

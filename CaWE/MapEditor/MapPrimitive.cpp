@@ -67,10 +67,7 @@ void MapPrimitiveT::Assign(const MapElementT* Elem)
 
 wxColour MapPrimitiveT::GetColor(bool ConsiderGroup) const
 {
-    if (m_Group && ConsiderGroup)
-        return m_Group->Color;
-
-    if (m_Parent != NULL && !m_Parent->IsWorld())
+    if (m_Parent != NULL && !m_Parent->IsWorld() && ConsiderGroup)
         return m_Parent->GetRepres()->GetColor(false);
 
     // The primitive has no parent, or the parent is the world.

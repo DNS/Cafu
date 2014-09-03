@@ -34,7 +34,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapEntRepres.hpp"
 #include "Tool.hpp"
 #include "ToolbarMaterials.hpp"
-#include "ToolbarGroups.hpp"
 #include "ToolCamera.hpp"
 #include "ToolEditSurface.hpp"
 #include "ToolTerrainEdit.hpp"
@@ -48,14 +47,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Commands/AddComponent.hpp"
 #include "Commands/AddPrim.hpp"
 #include "Commands/Delete.hpp"
-#include "Commands/Group_Assign.hpp"
-#include "Commands/Group_Delete.hpp"
-#include "Commands/Group_New.hpp"
 #include "Commands/NewEntity.hpp"
 #include "Commands/Select.hpp"
 
 #include "GameSys/AllComponents.hpp"
 #include "GameSys/Entity.hpp"
+#include "GameSys/EntityCreateParams.hpp"
 
 #include "wx/wx.h"
 #include "wx/artprov.h"
@@ -289,7 +286,6 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
       m_ToolManager(NULL),
       m_EntityHierarchyDialog(NULL),
       m_MaterialsToolbar(NULL),
-      m_GroupsToolbar(NULL),
       m_ConsoleDialog(NULL),
       m_SurfacePropsDialog(NULL),
       m_TerrainEditorDialog(NULL),
@@ -387,7 +383,6 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item6->AppendCheckItem(ID_MENU_VIEW_PANELS_ENTITY_HIERARCHY, "Entity &Hierarchy", "Show/Hide the Entity Hierarchy");
     item6->AppendCheckItem(ID_MENU_VIEW_PANELS_ENTITY_INSPECTOR, "Entity &Inspector", "Show/Hide the Entity Inspector");
     item6->AppendCheckItem(ID_MENU_VIEW_PANELS_MATERIALS,        "&Materials", "");
-    item6->AppendCheckItem(ID_MENU_VIEW_PANELS_GROUPS,           "&Groups", "");
     item6->AppendCheckItem(ID_MENU_VIEW_PANELS_CONSOLE,          "&Console", "");
     item6->AppendSeparator();
 
@@ -404,9 +399,6 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item6->AppendSeparator();
     item6->Append(ID_MENU_VIEW_SHOW_ENTITY_INFO, wxT("Show Entity &Info"), wxT(""), wxITEM_CHECK);
     item6->Append(ID_MENU_VIEW_SHOW_ENTITY_TARGETS, wxT("Show Entity &Targets"), wxT(""), wxITEM_CHECK );
-    item6->AppendSeparator();
-    item6->Append(ID_MENU_VIEW_HIDE_SELECTED_OBJECTS, wxT("H&ide Selected Objects"), wxT("") );
-    item6->Append(ID_MENU_VIEW_SHOW_HIDDEN_OBJECTS, wxT("&Show Hidden Objects"), wxT("") );
     item0->Append( item6, wxT("&View") );
 
     wxMenu* item8 = new wxMenu;
@@ -424,8 +416,6 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item8->AppendSeparator();
     item8->Append(ID_MENU_TOOLS_CARVE, wxT("&Carve\tShift+Ctrl+C"), wxT("") );
     item8->Append(ID_MENU_TOOLS_MAKE_HOLLOW, wxT("Make Hollow\tCtrl+H"), wxT("") );
-    item8->AppendSeparator();
-    item8->Append(ID_MENU_TOOLS_GROUP, wxT("&Group\tCtrl+G"), wxT("") );
     item8->AppendSeparator();
     item8->Append(ID_MENU_TOOLS_ASSIGN_PRIM_TO_ENTITY, wxT("&Tie to Entity\tCtrl+T"), wxT("") );
     item8->AppendSeparator();
@@ -610,11 +600,6 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     m_AUIManager.AddPane(m_MaterialsToolbar, wxAuiPaneInfo().
                          Name("Materials").Caption("Materials").
                          Left().Position(1));
-
-    m_GroupsToolbar = new GroupsToolbarT(this, m_History);
-    m_AUIManager.AddPane(m_GroupsToolbar, wxAuiPaneInfo().
-                         Name("Groups").Caption("Groups").
-                         Left().Position(2));
 
     m_ConsoleDialog = new ConsoleDialogT(this);
     m_AUIManager.AddPane(m_ConsoleDialog, wxAuiPaneInfo().
@@ -1163,14 +1148,6 @@ void ChildFrameT::OnMenuEditDelete(wxCommandEvent& CE)
     {
         // Do the actual deletion of the selected elements.
         SubmitCommand(new CommandDeleteT(*m_Doc, m_Doc->GetSelection()));
-
-        // If there are any empty groups (usually as a result from the deletion), purge them now.
-        // We use an explicit command for deleting the groups (instead of putting everything into a macro command)
-        // so that the user has the option to undo the purge (separately from the deletion) if he wishes.
-        const ArrayT<GroupT*> EmptyGroups = m_Doc->GetAbandonedGroups();
-
-        if (EmptyGroups.Size() > 0)
-            SubmitCommand(new CommandDeleteGroupT(*m_Doc, EmptyGroups));
     }
 }
 
@@ -1387,10 +1364,30 @@ ArrayT<CommandT*> ChildFrameT::CreatePasteCommands(const Vector3fT& DeltaTransla
 
 
     ArrayT<CommandT*> SubCommands;
+    IntrusivePtrT<cf::GameSys::EntityT> PasteParent = m_Doc->GetRootMapEntity()->GetEntity();
+
+    if (PasteGrouped)
+    {
+        IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(m_Doc->GetScriptWorld()));
+        IntrusivePtrT<CompMapEntityT>       MapEnt = new CompMapEntityT(*m_Doc);
+
+        NewEnt->GetBasics()->SetEntityName("pasted objects");
+        NewEnt->GetBasics()->SetMember("Static", true);
+        NewEnt->GetBasics()->SetMember("Sel. Mode", int(cf::GameSys::ComponentBasicsT::GROUP));
+        NewEnt->GetTransform()->SetOriginWS(GuessUserVisiblePoint());
+        NewEnt->SetApp(MapEnt);
+
+        CommandNewEntityT* CmdNewEnt = new CommandNewEntityT(*m_Doc, NewEnt, m_Doc->GetRootMapEntity()->GetEntity(), false /*don't select*/);
+
+        CmdNewEnt->Do();
+        SubCommands.PushBack(CmdNewEnt);
+
+        PasteParent = NewEnt;
+    }
 
     if (NewEnts.Size() > 0)
     {
-        CommandNewEntityT* CmdNewEnt = new CommandNewEntityT(*m_Doc, NewEnts, false /*don't select*/);
+        CommandNewEntityT* CmdNewEnt = new CommandNewEntityT(*m_Doc, NewEnts, PasteParent, false /*don't select*/);
 
         CmdNewEnt->Do();
         SubCommands.PushBack(CmdNewEnt);
@@ -1398,7 +1395,7 @@ ArrayT<CommandT*> ChildFrameT::CreatePasteCommands(const Vector3fT& DeltaTransla
 
     if (NewPrims.Size() > 0)
     {
-        CommandAddPrimT* CmdAddPrim = new CommandAddPrimT(*m_Doc, NewPrims, m_Doc->GetRootMapEntity(), "insert prims", false /*don't select*/);
+        CommandAddPrimT* CmdAddPrim = new CommandAddPrimT(*m_Doc, NewPrims, GetMapEnt(PasteParent), "insert prims", false /*don't select*/);
 
         CmdAddPrim->Do();
         SubCommands.PushBack(CmdAddPrim);
@@ -1410,37 +1407,6 @@ ArrayT<CommandT*> ChildFrameT::CreatePasteCommands(const Vector3fT& DeltaTransla
 
         CmdSel->Do();
         SubCommands.PushBack(CmdSel);
-
-        if (PasteGrouped)
-        {
-            ArrayT<MapElementT*> NewElems;
-
-            for (unsigned long EntNr = 0; EntNr < NewEnts.Size(); EntNr++)
-            {
-                IntrusivePtrT<CompMapEntityT> NewEnt = GetMapEnt(NewEnts[EntNr]);
-
-                NewElems.PushBack(NewEnt->GetRepres());
-
-                for (unsigned long PrimNr = 0; PrimNr < NewEnt->GetPrimitives().Size(); PrimNr++)
-                    NewElems.PushBack(NewEnt->GetPrimitives()[PrimNr]);
-            }
-
-            for (unsigned long PrimNr = 0; PrimNr < NewPrims.Size(); PrimNr++)
-                NewElems.PushBack(NewPrims[PrimNr]);
-
-
-            CommandNewGroupT* CmdNewGroup = new CommandNewGroupT(*m_Doc,
-                wxString::Format("paste group (%lu element%s)", NewElems.Size(), NewElems.Size() == 1 ? "" : "s"));
-
-            CmdNewGroup->GetGroup()->SelectAsGroup = true;
-            CmdNewGroup->Do();
-            SubCommands.PushBack(CmdNewGroup);
-
-            CommandAssignGroupT* CmdAssignGroup = new CommandAssignGroupT(*m_Doc, NewElems, CmdNewGroup->GetGroup());
-
-            CmdAssignGroup->Do();
-            SubCommands.PushBack(CmdAssignGroup);
-        }
     }
 
     return SubCommands;
@@ -1473,10 +1439,6 @@ void ChildFrameT::OnMenuView(wxCommandEvent& CE)
 
         case ID_MENU_VIEW_PANELS_MATERIALS:
             PaneToggleShow(m_AUIManager.GetPane(m_MaterialsToolbar));
-            break;
-
-        case ID_MENU_VIEW_PANELS_GROUPS:
-            PaneToggleShow(m_AUIManager.GetPane(m_GroupsToolbar));
             break;
 
         case ID_MENU_VIEW_PANELS_CONSOLE:
@@ -1574,10 +1536,6 @@ void ChildFrameT::OnMenuViewUpdate(wxUpdateUIEvent& UE)
 
         case ID_MENU_VIEW_PANELS_MATERIALS:
             UE.Check(m_AUIManager.GetPane(m_MaterialsToolbar).IsShown());
-            break;
-
-        case ID_MENU_VIEW_PANELS_GROUPS:
-            UE.Check(m_AUIManager.GetPane(m_GroupsToolbar).IsShown());
             break;
 
         case ID_MENU_VIEW_PANELS_CONSOLE:
