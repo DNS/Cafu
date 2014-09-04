@@ -258,12 +258,6 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
 
     try
     {
-        IntrusivePtrT<CompMapEntityT> World = new CompMapEntityT(*this);
-
-        World->Load_cmap(TP, *this, ProgressDialog, 0, cmapFileVersion);
-        AllMapEnts.PushBack(World);
-
-        // Load the entities.
         while (!TP.IsAtEOF())
         {
             IntrusivePtrT<CompMapEntityT> Entity = new CompMapEntityT(*this);
@@ -309,20 +303,21 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     }
 #endif
 
+    m_ScriptWorld = new cf::GameSys::WorldT(
+        m_ScriptState,
+        m_GameConfig->GetModelMan(),
+        m_GameConfig->GetGuiResources(),
+        *cf::ClipSys::CollModelMan,   // TODO: The CollModelMan should not be a global, but rather be instantiated along with the ModelMan and GuiRes.
+        NULL,       // No clip world for this instance.
+        NULL);      // No physics world for this instance.
+
+
     if (cmapFileVersion >= 14)
     {
         wxString centFileName = FileName;
 
         if (centFileName.Replace(".cmap", ".cent") == 0)
             centFileName += ".cent";
-
-        m_ScriptWorld = new cf::GameSys::WorldT(
-            m_ScriptState,
-            m_GameConfig->GetModelMan(),
-            m_GameConfig->GetGuiResources(),
-            *cf::ClipSys::CollModelMan,   // TODO: The CollModelMan should not be a global, but rather be instantiated along with the ModelMan and GuiRes.
-            NULL,       // No clip world for this instance.
-            NULL);      // No physics world for this instance.
 
         cf::GameSys::WorldT::LoadScript(
             m_ScriptWorld,
@@ -332,14 +327,6 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     else
     {
         // Before `.cmap` file format version 14, related `.cent` files did not exist.
-        m_ScriptWorld = new cf::GameSys::WorldT(
-            m_ScriptState,
-            m_GameConfig->GetModelMan(),
-            m_GameConfig->GetGuiResources(),
-            *cf::ClipSys::CollModelMan,   // TODO: The CollModelMan should not be a global, but rather be instantiated along with the ModelMan and GuiRes.
-            NULL,       // No clip world for this instance.
-            NULL);      // No physics world for this instance.
-
         cf::GameSys::WorldT::LoadScript(
             m_ScriptWorld,
             "Map = world:new('EntityT', 'Map')\n"
@@ -372,12 +359,6 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
 
     try
     {
-        IntrusivePtrT<CompMapEntityT> World = new CompMapEntityT(*Doc);
-
-        World->Load_HL1_map(TP, *Doc, ProgressDialog, 0);
-        AllMapEnts.PushBack(World);
-
-        // Load the entities.
         while (!TP.IsAtEOF())
         {
             IntrusivePtrT<CompMapEntityT> Entity = new CompMapEntityT(*Doc);
@@ -432,16 +413,9 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         // Read all the chunks.
         while (!TP.IsAtEOF())
         {
-            const std::string ChunkName=TP.GetNextToken();
+            const std::string ChunkName = TP.GetNextToken();
 
-            if (ChunkName=="world")
-            {
-                IntrusivePtrT<CompMapEntityT> World = new CompMapEntityT(*Doc);
-
-                World->Load_HL2_vmf(TP, *Doc, ProgressDialog, 0);
-                AllMapEnts.PushBack(World);
-            }
-            else if (ChunkName=="entity")
+            if (ChunkName == "world" || ChunkName == "entity")
             {
                 IntrusivePtrT<CompMapEntityT> Entity = new CompMapEntityT(*Doc);
 
@@ -498,12 +472,6 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
 
     try
     {
-        IntrusivePtrT<CompMapEntityT> World = new CompMapEntityT(*Doc);
-
-        World->Load_D3_map(TP, *Doc, ProgressDialog, 0);
-        AllMapEnts.PushBack(World);
-
-        // Load the entities.
         while (!TP.IsAtEOF())
         {
             IntrusivePtrT<CompMapEntityT> Entity = new CompMapEntityT(*Doc);
