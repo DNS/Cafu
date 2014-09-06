@@ -170,6 +170,7 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     MapDocumentT(const MapDocumentT&);          ///< Use of the Copy    Constructor is not allowed.
     void operator = (const MapDocumentT&);      ///< Use of the Assignment Operator is not allowed.
 
+    void Init();
     void PostLoadEntityAlign(unsigned int cmapFileVersion, const ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> >& AllMapEnts);
 
     ChildFrameT*                       m_ChildFrame;          ///< The child frame within which this document lives.

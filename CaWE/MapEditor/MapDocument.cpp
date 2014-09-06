@@ -176,34 +176,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig)
       m_GridSpacing(Options.Grid.InitialSpacing),
       m_ShowGrid(true)
 {
-    cf::GameSys::WorldT::InitScriptState(m_ScriptState);
-
-#if 0
-    // We cannot use this method, which in fact is kind of obsolete:
-    // It would attempt to re-register the Console and ConsoleInterface libraries,
-    // which was already done above in cf::GameSys::WorldT::InitScriptState().
-    // (Both InitScriptState() methods should probably be removed / refactored.)
-    cf::GuiSys::GuiImplT::InitScriptState(m_ScriptState);
-#else
-    {
-        // For each class that the TypeInfoManTs know about, add a (meta-)table to the registry of the LuaState.
-        // The (meta-)table holds the Lua methods that the respective class implements in C++,
-        // and is to be used as metatable for instances of this class.
-        cf::ScriptBinderT Binder(m_ScriptState.GetLuaState());
-
-        Binder.Init(cf::GuiSys::GetGuiTIM());
-        Binder.Init(cf::GuiSys::GetWindowTIM());
-        Binder.Init(cf::GuiSys::GetComponentTIM());
-    }
-#endif
-
-    m_ScriptWorld = new cf::GameSys::WorldT(
-        m_ScriptState,
-        m_GameConfig->GetModelMan(),
-        m_GameConfig->GetGuiResources(),
-        *cf::ClipSys::CollModelMan,   // TODO: The CollModelMan should not be a global, but rather be instantiated along with the ModelMan and GuiRes.
-        NULL,       // No clip world for this instance.
-        NULL);      // No physics world for this instance.
+    Init();
 
     cf::GameSys::WorldT::LoadScript(
         m_ScriptWorld,
@@ -244,6 +217,8 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
       m_GridSpacing(Options.Grid.InitialSpacing),
       m_ShowGrid(true)
 {
+    Init();
+
     // This sets the cursor to the busy cursor in its ctor, and back to the default cursor in the dtor.
     wxBusyCursor BusyCursor;
     TextParserT  TP(FileName.c_str(), "({})");
@@ -281,37 +256,6 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         throw cf::GameSys::WorldT::InitErrorT("The file could not be parsed.");
     }
 
-
-    cf::GameSys::WorldT::InitScriptState(m_ScriptState);
-
-#if 0
-    // We cannot use this method, which in fact is kind of obsolete:
-    // It would attempt to re-register the Console and ConsoleInterface libraries,
-    // which was already done above in cf::GameSys::WorldT::InitScriptState().
-    // (Both InitScriptState() methods should probably be removed / refactored.)
-    cf::GuiSys::GuiImplT::InitScriptState(m_ScriptState);
-#else
-    {
-        // For each class that the TypeInfoManTs know about, add a (meta-)table to the registry of the LuaState.
-        // The (meta-)table holds the Lua methods that the respective class implements in C++,
-        // and is to be used as metatable for instances of this class.
-        cf::ScriptBinderT Binder(m_ScriptState.GetLuaState());
-
-        Binder.Init(cf::GuiSys::GetGuiTIM());
-        Binder.Init(cf::GuiSys::GetWindowTIM());
-        Binder.Init(cf::GuiSys::GetComponentTIM());
-    }
-#endif
-
-    m_ScriptWorld = new cf::GameSys::WorldT(
-        m_ScriptState,
-        m_GameConfig->GetModelMan(),
-        m_GameConfig->GetGuiResources(),
-        *cf::ClipSys::CollModelMan,   // TODO: The CollModelMan should not be a global, but rather be instantiated along with the ModelMan and GuiRes.
-        NULL,       // No clip world for this instance.
-        NULL);      // No physics world for this instance.
-
-
     if (cmapFileVersion >= 14)
     {
         wxString centFileName = FileName;
@@ -342,6 +286,39 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
     GetAllElems(AllElems);
 
     m_BspTree = new OrthoBspTreeT(AllElems, m_GameConfig->GetMaxMapBB());
+}
+
+
+void MapDocumentT::Init()
+{
+    cf::GameSys::WorldT::InitScriptState(m_ScriptState);
+
+#if 0
+    // We cannot use this method, which in fact is kind of obsolete:
+    // It would attempt to re-register the Console and ConsoleInterface libraries,
+    // which was already done above in cf::GameSys::WorldT::InitScriptState().
+    // (Both InitScriptState() methods should probably be removed / refactored.)
+    cf::GuiSys::GuiImplT::InitScriptState(m_ScriptState);
+#else
+    {
+        // For each class that the TypeInfoManTs know about, add a (meta-)table to the registry of the LuaState.
+        // The (meta-)table holds the Lua methods that the respective class implements in C++,
+        // and is to be used as metatable for instances of this class.
+        cf::ScriptBinderT Binder(m_ScriptState.GetLuaState());
+
+        Binder.Init(cf::GuiSys::GetGuiTIM());
+        Binder.Init(cf::GuiSys::GetWindowTIM());
+        Binder.Init(cf::GuiSys::GetComponentTIM());
+    }
+#endif
+
+    m_ScriptWorld = new cf::GameSys::WorldT(
+        m_ScriptState,
+        m_GameConfig->GetModelMan(),
+        m_GameConfig->GetGuiResources(),
+        *cf::ClipSys::CollModelMan,   // TODO: The CollModelMan should not be a global, but rather be instantiated along with the ModelMan and GuiRes.
+        NULL,       // No clip world for this instance.
+        NULL);      // No physics world for this instance.
 }
 
 
