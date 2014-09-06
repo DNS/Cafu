@@ -176,6 +176,7 @@ namespace cf
 
             // Methods called from Lua scripts on cf::GameSys::WorldT instances.
             static int CreateNew(lua_State* LuaState);      ///< Creates and returns a new entity or component.
+            static int GetRootEntity(lua_State* LuaState);  ///< Returns the root entity of this world.
             static int SetRootEntity(lua_State* LuaState);  ///< Sets the root entity for this world.
             static int TraceRay(lua_State* LuaState);       ///< Employs m_ClipWorld->TraceRay() to trace a ray through the (clip) world.
             static int Phys_TraceBB(lua_State* LuaState);   ///< Employs m_PhysicsWorld->TraceBoundingBox() to trace a bounding-box through the (physics) world.

@@ -1109,6 +1109,14 @@ namespace
     // Recursively saves the entity instantiation of the passed entity and all of its children.
     void SaveEntityInstantiation(std::ostream& OutFile, IntrusivePtrT<cf::GameSys::EntityT> Entity, const wxString& ParentName)
     {
+        if (ParentName == "")
+        {
+            // Don't modify the global script state, so that multiple maps can be loaded into the same world without
+            // interfering with each other (that is, without overwriting each other's global variables).
+            // This is especially useful with "prefabs", which we implement as small but normal map files.
+            OutFile << "local ";
+        }
+
         OutFile << ParentName << Entity->GetBasics()->GetEntityName() << " = world:new(\"" << StripNamespace(Entity->GetType()->ClassName) << "\", \"" << Entity->GetBasics()->GetEntityName() << "\")\n";
 
         const wxString NewParentName = ParentName + Entity->GetBasics()->GetEntityName() + ".";

@@ -314,6 +314,31 @@ int WorldT::CreateNew(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_GetRootEntity =
+{
+    "GetRootEntity",
+    "Returns the root entity of this world as previously set by SetRootEntity().",
+    "EntityT", "()"
+};
+
+int WorldT::GetRootEntity(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<WorldT> World = Binder.GetCheckedObjectParam< IntrusivePtrT<WorldT> >(1);
+
+    if (World->m_RootEntity.IsNull())
+    {
+        lua_pushnil(LuaState);
+    }
+    else
+    {
+        Binder.Push(World->m_RootEntity);
+    }
+
+    return 1;
+}
+
+
 static const cf::TypeSys::MethsDocT META_SetRootEntity =
 {
     "SetRootEntity",
@@ -460,6 +485,7 @@ void* WorldT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
 const luaL_Reg WorldT::MethodsList[] =
 {
     { "new",           CreateNew },
+    { "GetRootEntity", GetRootEntity },
     { "SetRootEntity", SetRootEntity },
     { "TraceRay",      TraceRay },
     { "Phys_TraceBB",  Phys_TraceBB },
@@ -470,6 +496,7 @@ const luaL_Reg WorldT::MethodsList[] =
 const cf::TypeSys::MethsDocT WorldT::DocMethods[] =
 {
     META_CreateNew,
+    META_GetRootEntity,
     META_SetRootEntity,
     META_TraceRay,
     META_Phys_TraceBB,

@@ -93,9 +93,12 @@ function Counter:OnMouseButtonDown()
     -- work with arbitrary target entities:
     --     gui.Entity:GetComponent("Target"):GetEntity():OnActivate()
 
-    -- For now, just work with well-known globals (this makes this code non-reusable, though...).
-    Map.MyFirstLift:GetComponent("Script"):OnActivate()
-    Map.MyLight:GetComponent("Script"):OnActivate()
+    -- Alternatively,
+    --     local TargetEnt = world:GetRootEntity():FindByName("myCustomTarget")
+    --     TargetEnt:GetComponent("Script"):OnActivate()
+    -- is a viable alternative that works, or simply this:
+    world:GetRootEntity().MyFirstLift:GetComponent("Script"):OnActivate()
+    world:GetRootEntity().MyLight:GetComponent("Script"):OnActivate()
 
     return true
 end
