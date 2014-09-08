@@ -79,11 +79,15 @@ WorldT::InitErrorT::InitErrorT(const std::string& Message)
 }
 
 
-/*static*/ void WorldT::LoadScript(IntrusivePtrT<WorldT> World, const std::string& ScriptName, int Flags)
+/*static*/ IntrusivePtrT<EntityT> WorldT::LoadScript(IntrusivePtrT<WorldT> World, const std::string& ScriptName, int Flags)
 {
     const std::string PrintScriptName((Flags & InitFlag_InlineCode) ? "<inline code>" : ScriptName);
     lua_State*        LuaState = World->GetScriptState().GetLuaState();
     ScriptBinderT     Binder(LuaState);
+
+    // Only the Map Editor should ever load prefabs (which don't have related `cw` world files).
+    if ((Flags & InitFlag_AsPrefab) && !(Flags & InitFlag_InMapEditor))
+        throw InitErrorT("Cannot load prefabs outside of the Map Editor.");
 
     // Add a global variable with name "world" to the Lua state.
     Binder.Push(World);
@@ -91,6 +95,9 @@ WorldT::InitErrorT::InitErrorT(const std::string& Message)
 
 
     // Load the user script!
+    IntrusivePtrT<EntityT> OrigRootEntity = World->m_RootEntity;
+    World->m_RootEntity = NULL;
+
     const int LoadResult = (Flags & InitFlag_InlineCode) ? luaL_loadstring(LuaState, ScriptName.c_str())
                                                          : luaL_loadfile  (LuaState, ScriptName.c_str());
 
@@ -98,6 +105,7 @@ WorldT::InitErrorT::InitErrorT(const std::string& Message)
     {
         const std::string Msg = "Could not load \"" + PrintScriptName + "\":\n" + lua_tostring(LuaState, -1);
 
+        World->m_RootEntity = OrigRootEntity;
         lua_pop(LuaState, 1);
         Console->Warning(Msg + "\n");
 
@@ -105,15 +113,21 @@ WorldT::InitErrorT::InitErrorT(const std::string& Message)
         throw InitErrorT(Msg);
     }
 
-    if (World->GetRootEntity() == NULL)
+    if (World->m_RootEntity == NULL)
     {
-        const std::string Msg = "No root entity set in world \"" + PrintScriptName + "\".";
+        const std::string Msg = "No root entity set in \"" + PrintScriptName + "\".";
 
+        World->m_RootEntity = OrigRootEntity;
         Console->Warning(Msg + "\n");
 
         // The LuaState will be closed by the m_ScriptState.
         throw InitErrorT(Msg);
     }
+
+    IntrusivePtrT<EntityT> LoadedRootEntity = World->m_RootEntity;
+
+    if (Flags & InitFlag_AsPrefab)
+        World->m_RootEntity = OrigRootEntity;
 
     // Make sure that everyone dealt properly with the Lua stack so far.
     assert(lua_gettop(LuaState) == 0);
@@ -121,7 +135,7 @@ WorldT::InitErrorT::InitErrorT(const std::string& Message)
 
     // Finally call the Lua OnInit() methods of each entity.
     ArrayT< IntrusivePtrT<EntityT> > AllEnts;
-    World->GetRootEntity()->GetAll(AllEnts);
+    LoadedRootEntity->GetAll(AllEnts);
 
     for (unsigned long EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
     {
@@ -129,7 +143,7 @@ WorldT::InitErrorT::InitErrorT(const std::string& Message)
         AllEnts[EntNr]->CallLuaMethod("OnInit", 0);
     }
 
-    for (unsigned long EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
+    if (!(Flags & InitFlag_AsPrefab))
     {
         // Script entities that are directly loaded from `.cent` files (as opposed to those that are created
         // dynamically throughout the game) are normally associated to static entity data from the related
@@ -143,16 +157,19 @@ WorldT::InitErrorT::InitErrorT(const std::string& Message)
         // number in a depth first traversal. Make sure here that this condition is actually met.
         // Note that the main motivation here is catching program bugs, like an assert() statement that is also checked
         // in release builds. Although not impossible, it's very unlikely that a user action will ever trigger this.
-        if (AllEnts[EntNr]->GetID() != EntNr)
+        for (unsigned long EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
         {
-            const std::string Msg = "ID of entity \"" + AllEnts[EntNr]->GetBasics()->GetEntityName() +
-                cf::va("\" is %u, expected %lu.\n", AllEnts[EntNr]->GetID(), EntNr) +
-                "(Are the entities in \"" + PrintScriptName + "\" created in depth-first order?)";
+            if (AllEnts[EntNr]->GetID() != EntNr)
+            {
+                const std::string Msg = "ID of entity \"" + AllEnts[EntNr]->GetBasics()->GetEntityName() +
+                    cf::va("\" is %u, expected %lu.\n", AllEnts[EntNr]->GetID(), EntNr) +
+                    "(Are the entities in \"" + PrintScriptName + "\" created in depth-first order?)";
 
-            Console->Warning(Msg + "\n");
+                Console->Warning(Msg + "\n");
 
-            // The LuaState will be closed by the m_ScriptState.
-            throw InitErrorT(Msg);
+                // The LuaState will be closed by the m_ScriptState.
+                throw InitErrorT(Msg);
+            }
         }
     }
 
@@ -182,6 +199,8 @@ WorldT::InitErrorT::InitErrorT(const std::string& Message)
 
     // Make sure that everyone dealt properly with the Lua stack so far.
     assert(lua_gettop(LuaState) == 0);
+
+    return LoadedRootEntity;
 }
 
 
