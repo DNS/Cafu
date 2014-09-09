@@ -1251,7 +1251,7 @@ namespace
 }
 
 
-bool MapDocumentT::OnSaveDocument(const wxString& cmapFileName, bool IsAutoSave)
+bool MapDocumentT::OnSaveDocument(const wxString& cmapFileName, bool IsAutoSave, IntrusivePtrT<cf::GameSys::EntityT> RootEntity)
 {
     // if (cmapFileName.Right(4).MakeLower() == ".map") ...;    // Export to different file format.
 
@@ -1313,6 +1313,9 @@ bool MapDocumentT::OnSaveDocument(const wxString& cmapFileName, bool IsAutoSave)
     // This sets the cursor to the busy cursor in its ctor, and back to the default cursor in the dtor.
     wxBusyCursor BusyCursor;
 
+    if (RootEntity == NULL)
+        RootEntity = m_ScriptWorld->GetRootEntity();
+
     // Save the `.cmap` file.
     {
         cmapOutFile << "// Cafu Map File\n"
@@ -1323,7 +1326,7 @@ bool MapDocumentT::OnSaveDocument(const wxString& cmapFileName, bool IsAutoSave)
         // Save entities (in depth-first order, as in the .cent file).
         ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllScriptEnts;
 
-        m_ScriptWorld->GetRootEntity()->GetAll(AllScriptEnts);
+        RootEntity->GetAll(AllScriptEnts);
 
         for (unsigned long EntNr = 0/*with world*/; EntNr < AllScriptEnts.Size(); EntNr++)
         {
@@ -1345,7 +1348,7 @@ bool MapDocumentT::OnSaveDocument(const wxString& cmapFileName, bool IsAutoSave)
 
     // Save the `.cent` file.
     {
-        SaveCafuEntities(centOutFile, m_ScriptWorld->GetRootEntity());
+        SaveCafuEntities(centOutFile, RootEntity);
 
         if (centOutFile.fail())
         {

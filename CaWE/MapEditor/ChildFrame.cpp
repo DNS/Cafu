@@ -1714,7 +1714,36 @@ void ChildFrameT::OnMenuPrefabs(wxCommandEvent& CE)
 
         case ID_MENU_PREFABS_SAVE:
         {
-            wxMessageBox("Sorry, not yet implemented.");
+            ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > SelEnts = m_Doc->GetSelectedEntities();
+
+            if (SelEnts.Size() != 1)
+            {
+                wxMessageBox(
+                    "Select exactly one entity.\n\n"
+                    "A prefab corresponds to exactly one entity (including all its components, primitives and child entities). "
+                    "Make sure that exactly one entity is selected (the one that is to be saved as a prefab), then try again.",
+                    "Save Prefab",
+                    wxOK | wxICON_INFORMATION);
+                break;
+            }
+
+            wxString FileName = wxFileSelector(
+                "Save Prefab",                      // Message.
+                m_Doc->GetGameConfig()->ModDir + "/Prefabs",    // The default directory.
+                SelEnts[0]->GetBasics()->GetEntityName(),       // The default file name.
+                "",                                 // The default extension.
+                "Cafu Prefabs (*.cmap)|*.cmap"      // The wildcard.
+                "|All files (*.*)|*.*",
+                wxFD_SAVE | wxFD_OVERWRITE_PROMPT,
+                this);
+
+            if (FileName == "")
+                break;
+
+            if (!wxFileName(FileName).HasExt())
+                FileName += ".cmap";
+
+            m_Doc->OnSaveDocument(FileName, false, SelEnts[0]);
             break;
         }
     }

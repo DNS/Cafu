@@ -1,0 +1,41 @@
+-- This is a Cafu Entities file, written by the CaWE Map Editor.
+-- The file defines the entity hierarchy and properties of the related game world;
+-- it is used both by the CaWE Map Editor as well as by the Cafu Engine.
+--
+-- You CAN edit this file manually, but note that CaWE may overwrite your changes.
+-- Also note that structural changes to the entity hierarchy will bring this file
+-- out of sync with the related map (cmap) and world (cw) files, effectively
+-- causing LOSS OF WORK (see the documentation for details).
+-- It is therefore recommended that you use CaWE for all changes to this file.
+
+
+-- Instantiation of all entities.
+-- ******************************
+
+local PlayerStart = world:new("EntityT", "PlayerStart")
+
+
+-- Set the worlds root entity.
+-- ***************************
+
+world:SetRootEntity(PlayerStart)
+
+
+-- Setup the entity hierarchy.
+-- ***************************
+
+
+
+-- Initialization of the entity contents ("constructors").
+-- *******************************************************
+
+function PlayerStart:OnInit()
+    self:GetBasics():set("Sel. Mode", 0)
+    self:GetTransform():set("Origin", -656, 416, 40)
+
+    local c1 = world:new("ComponentPlayerStartT")
+    c1:set("SinglePlayer", true)
+    c1:set("MultiPlayer", true)
+
+    self:AddComponent(c1)
+end
