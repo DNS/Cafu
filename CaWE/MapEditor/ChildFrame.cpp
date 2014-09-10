@@ -488,8 +488,8 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
 
 
     wxMenu* PrefabsMenu = new wxMenu;
-    PrefabsMenu->Append(ID_MENU_PREFABS_LOAD, "Load Prefab...", "");
-    PrefabsMenu->Append(ID_MENU_PREFABS_SAVE, "Save Prefab...", "");
+    PrefabsMenu->Append(ID_MENU_PREFABS_LOAD, "&Load Prefab...", "");
+    PrefabsMenu->Append(ID_MENU_PREFABS_SAVE, "&Save Prefab...", "");
     item0->Append(PrefabsMenu, "&Prefabs");
 
     CompileMenu=new wxMenu;
@@ -1620,11 +1620,11 @@ void ChildFrameT::OnMenuPrefabs(wxCommandEvent& CE)
         case ID_MENU_PREFABS_LOAD:
         {
             const wxString FileName = wxFileSelector(
-                "Open Prefab",      // Message.
-                "",                 // The default directory.
-                "",                 // The default file name.
-                "",                 // The default extension.
-                "Cafu Prefabs (*.cmap)|*.cmap"  // The wildcard.
+                "Open Prefab",                      // Message.
+                m_Doc->GetGameConfig()->ModDir + "/Prefabs",  // The default directory.
+                "",                                 // The default file name.
+                "",                                 // The default extension.
+                "Cafu Prefabs (*.cmap)|*.cmap"      // The wildcard.
                 "|All files (*.*)|*.*",
                 wxFD_OPEN | wxFD_FILE_MUST_EXIST,
                 this);
@@ -1693,16 +1693,27 @@ void ChildFrameT::OnMenuPrefabs(wxCommandEvent& CE)
                     }
                 }
 
-                // TODO: Leave the prefab's orientation alone, but set its origin to a reasonable/proper value?
-
                 // Insert the newly loaded prefab into the map.
-                ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > SelEnts = m_Doc->GetSelectedEntities();
+                IntrusivePtrT<cf::GameSys::EntityT>           PrefabParent = m_Doc->GetScriptWorld().GetRootEntity();
+                ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > SelEnts      = m_Doc->GetSelectedEntities();
 
-                SubmitCommand(new CommandNewEntityT(
-                    *m_Doc,
-                    PrefabRoot,
-                    SelEnts.Size() > 0 ? SelEnts[0] : m_Doc->GetScriptWorld().GetRootEntity(),
-                    true /*SetSel?*/));
+                // Leave the prefab's entity name and its orientation alone (the prefab author may have
+                // consciously set them), but (re-)set its origin to a reasonable value.
+                if (SelEnts.Size() > 0)
+                {
+                    const float Offset = m_Doc->GetGridSpacing() * 2.0f;
+
+                    PrefabParent = SelEnts[0];
+                    PrefabRoot->GetTransform()->SetOriginPS(Vector3fT(Offset, Offset, 0.0f));
+                }
+                else
+                {
+                    // This is not entirely right, because it assumes that the PrefabParent's
+                    // world-space origin is (0, 0, 0)...
+                    PrefabRoot->GetTransform()->SetOriginPS(GuessUserVisiblePoint());
+                }
+
+                SubmitCommand(new CommandNewEntityT(*m_Doc, PrefabRoot, PrefabParent, true /*SetSel?*/));
             }
             catch (const cf::GameSys::WorldT::InitErrorT& IE)
             {
