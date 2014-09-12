@@ -1312,6 +1312,7 @@ bool MapDocumentT::OnSaveDocument(const wxString& cmapFileName, bool IsAutoSave,
 
     // This sets the cursor to the busy cursor in its ctor, and back to the default cursor in the dtor.
     wxBusyCursor BusyCursor;
+    const bool   UpdateFileName = (RootEntity == NULL);     // We're saving a map if RootEntity == NULL, otherwise a prefab.
 
     if (RootEntity == NULL)
         RootEntity = m_ScriptWorld->GetRootEntity();
@@ -1359,6 +1360,9 @@ bool MapDocumentT::OnSaveDocument(const wxString& cmapFileName, bool IsAutoSave,
 
     // If this was an auto-save, do not change the filename (nor set the document as "not modified").
     if (IsAutoSave) return true;
+
+    // If we were saving a prefab, do not change the filename (nor set the document as "not modified").
+    if (!UpdateFileName) return true;
 
     m_FileName = cmapFileName;
     return true;
