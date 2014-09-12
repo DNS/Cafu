@@ -254,6 +254,9 @@ class ChildFrameT : public wxMDIChildFrame
     ArrayT<ViewWindowT*>     m_ViewWindows;             ///< The list of all (2D and 3D) view windows that are currently open in this frame. Managed/maintained by the ViewWindowTs themselves.
 
 
+    /// Loads the prefab with the given filename and adds it to the map.
+    void LoadPrefab(const wxString& FileName);
+
     /// Helper method that resets compile process and pending commands and prints a message into the console.
     /// Used to prevent code duplication.
     void EndCompiling(const wxString& ConsoleMessage, const wxColour* Colour=wxGREEN);

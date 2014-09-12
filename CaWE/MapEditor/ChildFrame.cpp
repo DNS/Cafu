@@ -1613,6 +1613,99 @@ void ChildFrameT::OnMenuComponents(wxCommandEvent& CE)
 }
 
 
+void ChildFrameT::LoadPrefab(const wxString& FileName)
+{
+    try
+    {
+        TextParserT TP(FileName.c_str(), "({})");
+
+        if (TP.IsAtEOF())
+            throw cf::GameSys::WorldT::InitErrorT("The file could not be opened.");
+
+        unsigned int cmapFileVersion = 0;
+        ArrayT< IntrusivePtrT<CompMapEntityT> > AllMapEnts;
+
+        try
+        {
+            while (!TP.IsAtEOF())
+            {
+                IntrusivePtrT<CompMapEntityT> Entity = new CompMapEntityT(*m_Doc);
+
+                Entity->Load_cmap(TP, *m_Doc, NULL, AllMapEnts.Size(), cmapFileVersion);
+                AllMapEnts.PushBack(Entity);
+            }
+        }
+        catch (const TextParserT::ParseError&)
+        {
+            wxMessageBox(wxString::Format(
+                "I'm sorry, but I was not able to load the map, due to a file error.\n"
+                "Worse, I cannot even say where the error occured, except near byte %lu (%.3f%%) of the file.\n"
+                "Later versions of CaWE will provide more detailed information.\n"
+                "Please use a text editor to make sure that the file you tried to open is a proper cmap file,\n"
+                "and/or post at the Cafu support forums.", TP.GetReadPosByte(), TP.GetReadPosPercent()*100.0),
+                wxString("Could not load ")+FileName, wxOK | wxICON_EXCLAMATION);
+
+            throw cf::GameSys::WorldT::InitErrorT("The file could not be parsed.");
+        }
+
+        if (cmapFileVersion < 14)
+            throw cf::GameSys::WorldT::InitErrorT("Bad prefab (map) file version.");
+
+        // Load the related `cent` file.
+        wxString centFileName = FileName;
+
+        if (centFileName.Replace(".cmap", ".cent") == 0)
+            centFileName += ".cent";
+
+        IntrusivePtrT<cf::GameSys::EntityT> PrefabRoot = cf::GameSys::WorldT::LoadScript(
+            &m_Doc->GetScriptWorld(),
+            centFileName.ToStdString(),     // Note the important "AsPrefab" flag in the line below!
+            cf::GameSys::WorldT::InitFlag_InMapEditor | cf::GameSys::WorldT::InitFlag_AsPrefab);
+
+        // Assign the "AllMapEnts" to the "AllScriptEnts".
+        {
+            ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllScriptEnts;
+            PrefabRoot->GetAll(AllScriptEnts);
+
+            if (AllScriptEnts.Size() != AllMapEnts.Size())
+                throw cf::GameSys::WorldT::InitErrorT("The entity definitions in the prefab's `cent` and `cmap` files don't match.");
+
+            for (unsigned int EntNr = 0; EntNr < AllScriptEnts.Size(); EntNr++)
+            {
+                wxASSERT(AllScriptEnts[EntNr]->GetApp().IsNull());
+                AllScriptEnts[EntNr]->SetApp(AllMapEnts[EntNr]);
+            }
+        }
+
+        // Insert the newly loaded prefab into the map.
+        IntrusivePtrT<cf::GameSys::EntityT>           PrefabParent = m_Doc->GetScriptWorld().GetRootEntity();
+        ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > SelEnts      = m_Doc->GetSelectedEntities();
+
+        // Leave the prefab's entity name and its orientation alone (the prefab author may have
+        // consciously set them), but (re-)set its origin to a reasonable value.
+        if (SelEnts.Size() > 0)
+        {
+            const float Offset = m_Doc->GetGridSpacing() * 2.0f;
+
+            PrefabParent = SelEnts[0];
+            PrefabRoot->GetTransform()->SetOriginPS(Vector3fT(Offset, Offset, 0.0f));
+        }
+        else
+        {
+            // This is not entirely right, because it assumes that the PrefabParent's
+            // world-space origin is (0, 0, 0)...
+            PrefabRoot->GetTransform()->SetOriginPS(GuessUserVisiblePoint());
+        }
+
+        SubmitCommand(new CommandNewEntityT(*m_Doc, PrefabRoot, PrefabParent, true /*SetSel?*/));
+    }
+    catch (const cf::GameSys::WorldT::InitErrorT& IE)
+    {
+        wxMessageBox(wxString("The prefab file \"") + FileName + "\" could not be loaded:\n" + IE.what(), "Couldn't load prefab file");
+    }
+}
+
+
 void ChildFrameT::OnMenuPrefabs(wxCommandEvent& CE)
 {
     switch (CE.GetId())
@@ -1629,96 +1722,8 @@ void ChildFrameT::OnMenuPrefabs(wxCommandEvent& CE)
                 wxFD_OPEN | wxFD_FILE_MUST_EXIST,
                 this);
 
-            if (FileName == "") break;
-
-            try
-            {
-                TextParserT TP(FileName.c_str(), "({})");
-
-                if (TP.IsAtEOF())
-                    throw cf::GameSys::WorldT::InitErrorT("The file could not be opened.");
-
-                unsigned int cmapFileVersion = 0;
-                ArrayT< IntrusivePtrT<CompMapEntityT> > AllMapEnts;
-
-                try
-                {
-                    while (!TP.IsAtEOF())
-                    {
-                        IntrusivePtrT<CompMapEntityT> Entity = new CompMapEntityT(*m_Doc);
-
-                        Entity->Load_cmap(TP, *m_Doc, NULL, AllMapEnts.Size(), cmapFileVersion);
-                        AllMapEnts.PushBack(Entity);
-                    }
-                }
-                catch (const TextParserT::ParseError&)
-                {
-                    wxMessageBox(wxString::Format(
-                        "I'm sorry, but I was not able to load the map, due to a file error.\n"
-                        "Worse, I cannot even say where the error occured, except near byte %lu (%.3f%%) of the file.\n"
-                        "Later versions of CaWE will provide more detailed information.\n"
-                        "Please use a text editor to make sure that the file you tried to open is a proper cmap file,\n"
-                        "and/or post at the Cafu support forums.", TP.GetReadPosByte(), TP.GetReadPosPercent()*100.0),
-                        wxString("Could not load ")+FileName, wxOK | wxICON_EXCLAMATION);
-
-                    throw cf::GameSys::WorldT::InitErrorT("The file could not be parsed.");
-                }
-
-                if (cmapFileVersion < 14)
-                    throw cf::GameSys::WorldT::InitErrorT("Bad prefab (map) file version.");
-
-                // Load the related `cent` file.
-                wxString centFileName = FileName;
-
-                if (centFileName.Replace(".cmap", ".cent") == 0)
-                    centFileName += ".cent";
-
-                IntrusivePtrT<cf::GameSys::EntityT> PrefabRoot = cf::GameSys::WorldT::LoadScript(
-                    &m_Doc->GetScriptWorld(),
-                    centFileName.ToStdString(),     // Note the important "AsPrefab" flag in the line below!
-                    cf::GameSys::WorldT::InitFlag_InMapEditor | cf::GameSys::WorldT::InitFlag_AsPrefab);
-
-                // Assign the "AllMapEnts" to the "AllScriptEnts".
-                {
-                    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllScriptEnts;
-                    PrefabRoot->GetAll(AllScriptEnts);
-
-                    if (AllScriptEnts.Size() != AllMapEnts.Size())
-                        throw cf::GameSys::WorldT::InitErrorT("The entity definitions in the prefab's `cent` and `cmap` files don't match.");
-
-                    for (unsigned int EntNr = 0; EntNr < AllScriptEnts.Size(); EntNr++)
-                    {
-                        wxASSERT(AllScriptEnts[EntNr]->GetApp().IsNull());
-                        AllScriptEnts[EntNr]->SetApp(AllMapEnts[EntNr]);
-                    }
-                }
-
-                // Insert the newly loaded prefab into the map.
-                IntrusivePtrT<cf::GameSys::EntityT>           PrefabParent = m_Doc->GetScriptWorld().GetRootEntity();
-                ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > SelEnts      = m_Doc->GetSelectedEntities();
-
-                // Leave the prefab's entity name and its orientation alone (the prefab author may have
-                // consciously set them), but (re-)set its origin to a reasonable value.
-                if (SelEnts.Size() > 0)
-                {
-                    const float Offset = m_Doc->GetGridSpacing() * 2.0f;
-
-                    PrefabParent = SelEnts[0];
-                    PrefabRoot->GetTransform()->SetOriginPS(Vector3fT(Offset, Offset, 0.0f));
-                }
-                else
-                {
-                    // This is not entirely right, because it assumes that the PrefabParent's
-                    // world-space origin is (0, 0, 0)...
-                    PrefabRoot->GetTransform()->SetOriginPS(GuessUserVisiblePoint());
-                }
-
-                SubmitCommand(new CommandNewEntityT(*m_Doc, PrefabRoot, PrefabParent, true /*SetSel?*/));
-            }
-            catch (const cf::GameSys::WorldT::InitErrorT& IE)
-            {
-                wxMessageBox(wxString("The prefab file \"") + FileName + "\" could not be loaded:\n" + IE.what(), "Couldn't load prefab file");
-            }
+            if (FileName != "")
+                LoadPrefab(FileName);
 
             break;
         }
