@@ -61,6 +61,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/artprov.h"
 #include "wx/aui/auibar.h"
 #include "wx/confbase.h"
+#include "wx/dir.h"
 #include "wx/filename.h"
 #include "wx/process.h"
 #include "wx/stdpaths.h"
@@ -257,7 +258,7 @@ BEGIN_EVENT_TABLE(ChildFrameT, wxMDIChildFrame)
     EVT_MENU_RANGE     (ID_MENU_TOOLS_TOOL_SELECTION,  ID_MENU_TOOLS_TOOL_EDITVERTICES, ChildFrameT::OnMenuTools)
     EVT_UPDATE_UI_RANGE(ID_MENU_TOOLS_TOOL_SELECTION,  ID_MENU_TOOLS_TOOL_EDITVERTICES, ChildFrameT::OnMenuToolsUpdate)
     EVT_MENU_RANGE     (ID_MENU_COMPONENTS_FIRST,      ID_MENU_COMPONENTS_MAX,          ChildFrameT::OnMenuComponents)
-    EVT_MENU_RANGE     (ID_MENU_PREFABS_LOAD,          ID_MENU_PREFABS_SAVE,            ChildFrameT::OnMenuPrefabs)
+    EVT_MENU_RANGE     (ID_MENU_PREFABS_LOAD,          ID_MENU_PREFABS_PATH_LAST,       ChildFrameT::OnMenuPrefabs)
     EVT_MENU_RANGE     (ID_MENU_COMPILE_FLAG_SAVE_MAP, ID_MENU_COMPILE_ABORT,           ChildFrameT::OnMenuCompile)
 
     EVT_ACTIVATE(ChildFrameT::OnWindowActivate)
@@ -296,6 +297,8 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
       m_Updater(NULL),
       FileMenu(NULL),
       m_ComponentsMenu(NULL),
+      m_PrefabsMenu(NULL),
+      m_PrefabsMenuPaths(),
       CompileMenu(NULL),
       CurrentProcess(NULL),
       CurrentProcessID(0),
@@ -487,10 +490,12 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item0->Append(m_ComponentsMenu, "&Components");
 
 
-    wxMenu* PrefabsMenu = new wxMenu;
-    PrefabsMenu->Append(ID_MENU_PREFABS_LOAD, "&Load Prefab...", "");
-    PrefabsMenu->Append(ID_MENU_PREFABS_SAVE, "&Save Prefab...", "");
-    item0->Append(PrefabsMenu, "&Prefabs");
+    m_PrefabsMenu = new wxMenu;
+    m_PrefabsMenu->Append(ID_MENU_PREFABS_LOAD, "&Load Prefab...", "");
+    m_PrefabsMenu->Append(ID_MENU_PREFABS_SAVE, "&Save Prefab...", "");
+    m_PrefabsMenu->AppendSeparator();
+    UpdatePrefabsMenu();
+    item0->Append(m_PrefabsMenu, "&Prefabs");
 
     CompileMenu=new wxMenu;
     CompileMenu->AppendCheckItem(ID_MENU_COMPILE_FLAG_SAVE_MAP,   "1. &Save Map",     ""); CompileMenu->Check(ID_MENU_COMPILE_FLAG_SAVE_MAP,   true);
@@ -1613,6 +1618,43 @@ void ChildFrameT::OnMenuComponents(wxCommandEvent& CE)
 }
 
 
+void ChildFrameT::UpdatePrefabsMenu()
+{
+    m_PrefabsMenuPaths.Overwrite();
+
+    for (int i = ID_MENU_PREFABS_PATH_FIRST; i <= ID_MENU_PREFABS_PATH_LAST; i++)
+    {
+        wxMenuItem* Item = m_PrefabsMenu->FindChildItem(i);
+
+        if (!Item) break;
+        m_PrefabsMenu->Destroy(Item);
+    }
+
+    const wxString BaseDir = m_Doc->GetGameConfig()->ModDir + "/Prefabs";
+    wxArrayString  AllPrefabs;
+
+    wxDir::GetAllFiles(BaseDir, &AllPrefabs, "*.cmap", wxDIR_FILES | wxDIR_DIRS /*but not wxDIR_HIDDEN*/);
+
+    for (size_t i = 0; i < AllPrefabs.GetCount(); i++)
+    {
+        const int MenuID = ID_MENU_PREFABS_PATH_FIRST + i;
+
+        // Limit the number of shown prefabs by the number of available menu IDs.
+        if (MenuID > ID_MENU_PREFABS_PATH_LAST) break;
+
+        // The returned AllPrefabs[i] are relative to the current working directory,
+        // e.g. "Games/DeathMatch/Prefabs/PlayerStart.cmap".
+        wxFileName Filename(AllPrefabs[i]);
+
+        Filename.MakeRelativeTo(BaseDir);
+        Filename.ClearExt();
+
+        m_PrefabsMenu->Append(MenuID, Filename.GetFullPath(wxPATH_UNIX), "Load and insert this prefab");
+        m_PrefabsMenuPaths.PushBack(AllPrefabs[i]);
+    }
+}
+
+
 void ChildFrameT::LoadPrefab(const wxString& FileName)
 {
     try
@@ -1708,6 +1750,16 @@ void ChildFrameT::LoadPrefab(const wxString& FileName)
 
 void ChildFrameT::OnMenuPrefabs(wxCommandEvent& CE)
 {
+    if (ID_MENU_PREFABS_PATH_FIRST <= CE.GetId() && CE.GetId() <= ID_MENU_PREFABS_PATH_LAST)
+    {
+        const unsigned int i = CE.GetId() - ID_MENU_PREFABS_PATH_FIRST;
+
+        if (i < m_PrefabsMenuPaths.Size())
+            LoadPrefab(m_PrefabsMenuPaths[i]);
+
+        return;
+    }
+
     switch (CE.GetId())
     {
         case ID_MENU_PREFABS_LOAD:
@@ -1759,7 +1811,9 @@ void ChildFrameT::OnMenuPrefabs(wxCommandEvent& CE)
             if (!wxFileName(FileName).HasExt())
                 FileName += ".cmap";
 
-            m_Doc->OnSaveDocument(FileName, false, SelEnts[0]);
+            if (m_Doc->OnSaveDocument(FileName, false, SelEnts[0]))
+                UpdatePrefabsMenu();
+
             break;
         }
     }
