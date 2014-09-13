@@ -1723,6 +1723,9 @@ void ChildFrameT::LoadPrefab(const wxString& FileName)
         IntrusivePtrT<cf::GameSys::EntityT>           PrefabParent = m_Doc->GetScriptWorld().GetRootEntity();
         ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > SelEnts      = m_Doc->GetSelectedEntities();
 
+        if (PrefabRoot->GetChildren().Size() > 0 || GetMapEnt(PrefabRoot)->GetPrimitives().Size() > 0)
+            PrefabRoot->GetBasics()->SetMember("Sel. Mode", int(cf::GameSys::ComponentBasicsT::GROUP));
+
         // Leave the prefab's entity name and its orientation alone (the prefab author may have
         // consciously set them), but (re-)set its origin to a reasonable value.
         if (SelEnts.Size() > 0)
