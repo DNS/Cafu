@@ -22,11 +22,14 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "NewEntity.hpp"
 #include "Select.hpp"
 
+#include "../CompMapEntity.hpp"
 #include "../MapDocument.hpp"
 #include "../MapEntRepres.hpp"
 
 #include "GameSys/Entity.hpp"
 #include "GameSys/World.hpp"
+
+using namespace MapEditor;
 
 
 CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, IntrusivePtrT<cf::GameSys::EntityT> Entity, IntrusivePtrT<cf::GameSys::EntityT> Parent, bool SetSel)
@@ -83,7 +86,14 @@ bool CommandNewEntityT::Do()
     m_MapDoc.UpdateAllObservers_Created(m_Entities);
 
     if (m_SetSel && !m_CommandSelect)
-        m_CommandSelect = CommandSelectT::Set(&m_MapDoc, m_Entities, true /*WithEntPrims*/);
+    {
+        ArrayT<MapElementT*> MapElems;
+
+        for (unsigned long EntNr = 0; EntNr < m_Entities.Size(); EntNr++)
+            MapElems.PushBack(GetMapEnt(m_Entities[EntNr])->GetAllMapElements());
+
+        m_CommandSelect = CommandSelectT::Set(&m_MapDoc, MapElems);
+    }
 
     if (m_CommandSelect)
         m_CommandSelect->Do();
