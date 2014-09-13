@@ -153,6 +153,11 @@ class ChildFrameT : public wxMDIChildFrame
         ID_MENU_COMPONENTS_FIRST,
         ID_MENU_COMPONENTS_MAX = ID_MENU_COMPONENTS_FIRST + 100,
 
+        ID_MENU_PREFABS_LOAD,
+        ID_MENU_PREFABS_SAVE,
+        ID_MENU_PREFABS_PATH_FIRST,
+        ID_MENU_PREFABS_PATH_LAST = ID_MENU_PREFABS_PATH_FIRST + 31,
+
         ID_MENU_COMPILE_FLAG_SAVE_MAP,
         ID_MENU_COMPILE_FLAG_RUN_BSP,
         ID_MENU_COMPILE_FLAG_RUN_PVS,
@@ -243,6 +248,8 @@ class ChildFrameT : public wxMDIChildFrame
     UpdaterT*                m_Updater;
     wxMenu*                  FileMenu;
     wxMenu*                  m_ComponentsMenu;
+    wxMenu*                  m_PrefabsMenu;
+    ArrayT<wxString>         m_PrefabsMenuPaths;        ///< The paths for the quick-load items in the "Prefabs" menu.
     wxMenu*                  CompileMenu;
 
     wxProcess*               CurrentProcess;            ///< The currently running process started from the Compile menu. NULL when there is no process running.
@@ -250,6 +257,12 @@ class ChildFrameT : public wxMDIChildFrame
     ArrayT<wxString>         PendingCompileCommands;    ///< Pending console commands for map compilation.
     ArrayT<ViewWindowT*>     m_ViewWindows;             ///< The list of all (2D and 3D) view windows that are currently open in this frame. Managed/maintained by the ViewWindowTs themselves.
 
+
+    /// Updates the quick-load items in the "Prefabs" menu.
+    void UpdatePrefabsMenu();
+
+    /// Loads the prefab with the given filename and adds it to the map.
+    void LoadPrefab(const wxString& FileName);
 
     /// Helper method that resets compile process and pending commands and prints a message into the console.
     /// Used to prevent code duplication.
@@ -290,6 +303,7 @@ class ChildFrameT : public wxMDIChildFrame
     void OnMenuTools      (wxCommandEvent&    CE);  ///< Event handler for Tools   menu events.
     void OnMenuToolsUpdate(wxUpdateUIEvent&   UE);  ///< Event handler for Tools   menu update events.
     void OnMenuComponents (wxCommandEvent&    CE);  ///< Event handler for Components menu events.
+    void OnMenuPrefabs    (wxCommandEvent&    CE);  ///< Event handler for Prefabs menu events.
     void OnMenuCompile    (wxCommandEvent&    CE);  ///< Event handler for Compile menu events.
     void OnWindowActivate (wxActivateEvent&   AE);
     void OnAuiPaneClose   (wxAuiManagerEvent& AE);

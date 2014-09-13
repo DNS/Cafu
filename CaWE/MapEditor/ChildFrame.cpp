@@ -53,11 +53,15 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameSys/AllComponents.hpp"
 #include "GameSys/Entity.hpp"
 #include "GameSys/EntityCreateParams.hpp"
+#include "GameSys/World.hpp"
+
+#include "TextParser/TextParser.hpp"
 
 #include "wx/wx.h"
 #include "wx/artprov.h"
 #include "wx/aui/auibar.h"
 #include "wx/confbase.h"
+#include "wx/dir.h"
 #include "wx/filename.h"
 #include "wx/process.h"
 #include "wx/stdpaths.h"
@@ -254,6 +258,7 @@ BEGIN_EVENT_TABLE(ChildFrameT, wxMDIChildFrame)
     EVT_MENU_RANGE     (ID_MENU_TOOLS_TOOL_SELECTION,  ID_MENU_TOOLS_TOOL_EDITVERTICES, ChildFrameT::OnMenuTools)
     EVT_UPDATE_UI_RANGE(ID_MENU_TOOLS_TOOL_SELECTION,  ID_MENU_TOOLS_TOOL_EDITVERTICES, ChildFrameT::OnMenuToolsUpdate)
     EVT_MENU_RANGE     (ID_MENU_COMPONENTS_FIRST,      ID_MENU_COMPONENTS_MAX,          ChildFrameT::OnMenuComponents)
+    EVT_MENU_RANGE     (ID_MENU_PREFABS_LOAD,          ID_MENU_PREFABS_PATH_LAST,       ChildFrameT::OnMenuPrefabs)
     EVT_MENU_RANGE     (ID_MENU_COMPILE_FLAG_SAVE_MAP, ID_MENU_COMPILE_ABORT,           ChildFrameT::OnMenuCompile)
 
     EVT_ACTIVATE(ChildFrameT::OnWindowActivate)
@@ -292,6 +297,8 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
       m_Updater(NULL),
       FileMenu(NULL),
       m_ComponentsMenu(NULL),
+      m_PrefabsMenu(NULL),
+      m_PrefabsMenuPaths(),
       CompileMenu(NULL),
       CurrentProcess(NULL),
       CurrentProcessID(0),
@@ -365,7 +372,7 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item3->AppendSeparator();
     item3->Append(ID_MENU_MAP_GOTO_PRIMITIVE, wxT("G&o to Primitive...\tShift+Ctrl+G"), wxT("") );
     item3->Append(ID_MENU_MAP_SHOW_INFO, wxT("Show &Information..."), wxT("") );
-    item3->Append(ID_MENU_MAP_CHECK_FOR_PROBLEMS, wxT("&Check for Problems...\tAlt+P"), wxT("") );
+    item3->Append(ID_MENU_MAP_CHECK_FOR_PROBLEMS, wxT("&Check for Problems..."), wxT("") );
     item3->AppendSeparator();
     item3->Append(ID_MENU_MAP_LOAD_POINTFILE, wxT("&Load Pointfile..."), wxT("") );
     item3->Append(ID_MENU_MAP_UNLOAD_POINTFILE, wxT("&Unload Pointfile"), wxT("") );
@@ -482,6 +489,13 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
 
     item0->Append(m_ComponentsMenu, "&Components");
 
+
+    m_PrefabsMenu = new wxMenu;
+    m_PrefabsMenu->Append(ID_MENU_PREFABS_LOAD, "&Load Prefab...", "");
+    m_PrefabsMenu->Append(ID_MENU_PREFABS_SAVE, "&Save Prefab...", "");
+    m_PrefabsMenu->AppendSeparator();
+    UpdatePrefabsMenu();
+    item0->Append(m_PrefabsMenu, "&Prefabs");
 
     CompileMenu=new wxMenu;
     CompileMenu->AppendCheckItem(ID_MENU_COMPILE_FLAG_SAVE_MAP,   "1. &Save Map",     ""); CompileMenu->Check(ID_MENU_COMPILE_FLAG_SAVE_MAP,   true);
@@ -1601,6 +1615,211 @@ void ChildFrameT::OnMenuComponents(wxCommandEvent& CE)
     }
 
     SubmitCommand(new MapEditor::CommandAddComponentT(m_Doc, Selection[0], Comp));
+}
+
+
+void ChildFrameT::UpdatePrefabsMenu()
+{
+    m_PrefabsMenuPaths.Overwrite();
+
+    for (int i = ID_MENU_PREFABS_PATH_FIRST; i <= ID_MENU_PREFABS_PATH_LAST; i++)
+    {
+        wxMenuItem* Item = m_PrefabsMenu->FindChildItem(i);
+
+        if (!Item) break;
+        m_PrefabsMenu->Destroy(Item);
+    }
+
+    const wxString BaseDir = m_Doc->GetGameConfig()->ModDir + "/Prefabs";
+    wxArrayString  AllPrefabs;
+
+    wxDir::GetAllFiles(BaseDir, &AllPrefabs, "*.cmap", wxDIR_FILES | wxDIR_DIRS /*but not wxDIR_HIDDEN*/);
+
+    for (size_t i = 0; i < AllPrefabs.GetCount(); i++)
+    {
+        const int MenuID = ID_MENU_PREFABS_PATH_FIRST + i;
+
+        // Limit the number of shown prefabs by the number of available menu IDs.
+        if (MenuID > ID_MENU_PREFABS_PATH_LAST) break;
+
+        // The returned AllPrefabs[i] are relative to the current working directory,
+        // e.g. "Games/DeathMatch/Prefabs/PlayerStart.cmap".
+        wxFileName Filename(AllPrefabs[i]);
+
+        Filename.MakeRelativeTo(BaseDir);
+        Filename.ClearExt();
+
+        m_PrefabsMenu->Append(MenuID, Filename.GetFullPath(wxPATH_UNIX), "Load and insert this prefab");
+        m_PrefabsMenuPaths.PushBack(AllPrefabs[i]);
+    }
+}
+
+
+void ChildFrameT::LoadPrefab(const wxString& FileName)
+{
+    try
+    {
+        TextParserT TP(FileName.c_str(), "({})");
+
+        if (TP.IsAtEOF())
+            throw cf::GameSys::WorldT::InitErrorT("The file could not be opened.");
+
+        unsigned int cmapFileVersion = 0;
+        ArrayT< IntrusivePtrT<CompMapEntityT> > AllMapEnts;
+
+        try
+        {
+            while (!TP.IsAtEOF())
+            {
+                IntrusivePtrT<CompMapEntityT> Entity = new CompMapEntityT(*m_Doc);
+
+                Entity->Load_cmap(TP, *m_Doc, NULL, AllMapEnts.Size(), cmapFileVersion);
+                AllMapEnts.PushBack(Entity);
+            }
+        }
+        catch (const TextParserT::ParseError&)
+        {
+            wxMessageBox(wxString::Format(
+                "I'm sorry, but I was not able to load the map, due to a file error.\n"
+                "Worse, I cannot even say where the error occured, except near byte %lu (%.3f%%) of the file.\n"
+                "Later versions of CaWE will provide more detailed information.\n"
+                "Please use a text editor to make sure that the file you tried to open is a proper cmap file,\n"
+                "and/or post at the Cafu support forums.", TP.GetReadPosByte(), TP.GetReadPosPercent()*100.0),
+                wxString("Could not load ")+FileName, wxOK | wxICON_EXCLAMATION);
+
+            throw cf::GameSys::WorldT::InitErrorT("The file could not be parsed.");
+        }
+
+        if (cmapFileVersion < 14)
+            throw cf::GameSys::WorldT::InitErrorT("Bad prefab (map) file version.");
+
+        // Load the related `cent` file.
+        wxString centFileName = FileName;
+
+        if (centFileName.Replace(".cmap", ".cent") == 0)
+            centFileName += ".cent";
+
+        IntrusivePtrT<cf::GameSys::EntityT> PrefabRoot = cf::GameSys::WorldT::LoadScript(
+            &m_Doc->GetScriptWorld(),
+            centFileName.ToStdString(),     // Note the important "AsPrefab" flag in the line below!
+            cf::GameSys::WorldT::InitFlag_InMapEditor | cf::GameSys::WorldT::InitFlag_AsPrefab);
+
+        // Assign the "AllMapEnts" to the "AllScriptEnts".
+        {
+            ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllScriptEnts;
+            PrefabRoot->GetAll(AllScriptEnts);
+
+            if (AllScriptEnts.Size() != AllMapEnts.Size())
+                throw cf::GameSys::WorldT::InitErrorT("The entity definitions in the prefab's `cent` and `cmap` files don't match.");
+
+            for (unsigned int EntNr = 0; EntNr < AllScriptEnts.Size(); EntNr++)
+            {
+                wxASSERT(AllScriptEnts[EntNr]->GetApp().IsNull());
+                AllScriptEnts[EntNr]->SetApp(AllMapEnts[EntNr]);
+            }
+        }
+
+        // Insert the newly loaded prefab into the map.
+        IntrusivePtrT<cf::GameSys::EntityT>           PrefabParent = m_Doc->GetScriptWorld().GetRootEntity();
+        ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > SelEnts      = m_Doc->GetSelectedEntities();
+
+        if (PrefabRoot->GetChildren().Size() > 0 || GetMapEnt(PrefabRoot)->GetPrimitives().Size() > 0)
+            PrefabRoot->GetBasics()->SetMember("Sel. Mode", int(cf::GameSys::ComponentBasicsT::GROUP));
+
+        // Leave the prefab's entity name and its orientation alone (the prefab author may have
+        // consciously set them), but (re-)set its origin to a reasonable value.
+        if (SelEnts.Size() > 0)
+        {
+            const float Offset = m_Doc->GetGridSpacing() * 2.0f;
+
+            PrefabParent = SelEnts[0];
+            PrefabRoot->GetTransform()->SetOriginPS(Vector3fT(Offset, Offset, 0.0f));
+        }
+        else
+        {
+            // This is not entirely right, because it assumes that the PrefabParent's
+            // world-space origin is (0, 0, 0)...
+            PrefabRoot->GetTransform()->SetOriginPS(GuessUserVisiblePoint());
+        }
+
+        SubmitCommand(new CommandNewEntityT(*m_Doc, PrefabRoot, PrefabParent, true /*SetSel?*/));
+    }
+    catch (const cf::GameSys::WorldT::InitErrorT& IE)
+    {
+        wxMessageBox(wxString("The prefab file \"") + FileName + "\" could not be loaded:\n" + IE.what(), "Couldn't load prefab file");
+    }
+}
+
+
+void ChildFrameT::OnMenuPrefabs(wxCommandEvent& CE)
+{
+    if (ID_MENU_PREFABS_PATH_FIRST <= CE.GetId() && CE.GetId() <= ID_MENU_PREFABS_PATH_LAST)
+    {
+        const unsigned int i = CE.GetId() - ID_MENU_PREFABS_PATH_FIRST;
+
+        if (i < m_PrefabsMenuPaths.Size())
+            LoadPrefab(m_PrefabsMenuPaths[i]);
+
+        return;
+    }
+
+    switch (CE.GetId())
+    {
+        case ID_MENU_PREFABS_LOAD:
+        {
+            const wxString FileName = wxFileSelector(
+                "Open Prefab",                      // Message.
+                m_Doc->GetGameConfig()->ModDir + "/Prefabs",  // The default directory.
+                "",                                 // The default file name.
+                "",                                 // The default extension.
+                "Cafu Prefabs (*.cmap)|*.cmap"      // The wildcard.
+                "|All files (*.*)|*.*",
+                wxFD_OPEN | wxFD_FILE_MUST_EXIST,
+                this);
+
+            if (FileName != "")
+                LoadPrefab(FileName);
+
+            break;
+        }
+
+        case ID_MENU_PREFABS_SAVE:
+        {
+            ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > SelEnts = m_Doc->GetSelectedEntities();
+
+            if (SelEnts.Size() != 1)
+            {
+                wxMessageBox(
+                    "Select exactly one entity.\n\n"
+                    "A prefab corresponds to exactly one entity (including all its components, primitives and child entities). "
+                    "Make sure that exactly one entity is selected (the one that is to be saved as a prefab), then try again.",
+                    "Save Prefab",
+                    wxOK | wxICON_INFORMATION);
+                break;
+            }
+
+            wxString FileName = wxFileSelector(
+                "Save Prefab",                      // Message.
+                m_Doc->GetGameConfig()->ModDir + "/Prefabs",    // The default directory.
+                SelEnts[0]->GetBasics()->GetEntityName(),       // The default file name.
+                "",                                 // The default extension.
+                "Cafu Prefabs (*.cmap)|*.cmap"      // The wildcard.
+                "|All files (*.*)|*.*",
+                wxFD_SAVE | wxFD_OVERWRITE_PROMPT,
+                this);
+
+            if (FileName == "")
+                break;
+
+            if (!wxFileName(FileName).HasExt())
+                FileName += ".cmap";
+
+            if (m_Doc->OnSaveDocument(FileName, false, SelEnts[0]))
+                UpdatePrefabsMenu();
+
+            break;
+        }
+    }
 }
 
 

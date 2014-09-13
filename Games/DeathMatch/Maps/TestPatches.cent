@@ -12,7 +12,7 @@
 -- Instantiation of all entities.
 -- ******************************
 
-Map = world:new("EntityT", "Map")
+local Map = world:new("EntityT", "Map")
 Map.info_player_start = world:new("EntityT", "info_player_start")
 Map.func_group = world:new("EntityT", "func_group")
 Map.func_group_1 = world:new("EntityT", "func_group_1")
@@ -55,25 +55,36 @@ Map:AddChild(Map.PointLightSource_001)
 
 function Map:OnInit()
     self:GetBasics():set("Static", true)
+    self:GetBasics():set("Sel. Mode", 0)
     self:GetTransform():set("Origin", 0, 0, 0)
 end
 
 function Map.info_player_start:OnInit()
+    self:GetBasics():set("Sel. Mode", 0)
     self:GetTransform():set("Origin", 16, -16, 56)
-    self:GetTransform():set("Orientation", 0, -0, 1)
+    self:GetTransform():set("Orientation", -0, 0, -1)
+
+    local c1 = world:new("ComponentPlayerStartT")
+    c1:set("SinglePlayer", true)
+    c1:set("MultiPlayer", true)
+
+    self:AddComponent(c1)
 end
 
 function Map.func_group:OnInit()
     self:GetBasics():set("Static", true)
+    self:GetBasics():set("Sel. Mode", 0)
     self:GetTransform():set("Origin", 84, -72, 40)
 end
 
 function Map.func_group_1:OnInit()
     self:GetBasics():set("Static", true)
+    self:GetBasics():set("Sel. Mode", 0)
     self:GetTransform():set("Origin", 108, -128, 40)
 end
 
 function Map.static_detail_model:OnInit()
+    self:GetBasics():set("Sel. Mode", 0)
     self:GetTransform():set("Origin", -48, 96, 0)
     self:GetTransform():set("Orientation", 0, 0, 0.104528494)
 
@@ -84,6 +95,8 @@ function Map.static_detail_model:OnInit()
     c1:set("Skin", -1)
     c1:set("Scale", 1)
     c1:set("Gui", "Games/DeathMatch/GUIs/Test_main.cgui")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_2.cmap")
@@ -92,6 +105,7 @@ function Map.static_detail_model:OnInit()
 end
 
 function Map.MyFirstLift:OnInit()
+    self:GetBasics():set("Sel. Mode", 0)
     self:GetTransform():set("Origin", -96, -8, 4)
 
     local c1 = world:new("ComponentScriptT")
@@ -139,6 +153,7 @@ end
 end
 
 function Map.MyLight:OnInit()
+    self:GetBasics():set("Sel. Mode", 0)
     self:GetTransform():set("Origin", -160, 40, 145.805313)
 
     local c1 = world:new("ComponentPointLightT")
@@ -227,6 +242,7 @@ end
 end
 
 function Map.LiftWeldTank:OnInit()
+    self:GetBasics():set("Sel. Mode", 0)
     self:GetTransform():set("Origin", -120, -30.9472237, 8)
 
     local c1 = world:new("ComponentModelT")
@@ -236,6 +252,8 @@ function Map.LiftWeldTank:OnInit()
     c1:set("Skin", -1)
     c1:set("Scale", 1)
     c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/Static/WeldTank.cmap")
@@ -244,6 +262,7 @@ function Map.LiftWeldTank:OnInit()
 end
 
 function Map.LiftLight:OnInit()
+    self:GetBasics():set("Sel. Mode", 0)
     self:GetTransform():set("Origin", -120, -16, 17)
 
     local c1 = world:new("ComponentPointLightT")
@@ -256,6 +275,7 @@ function Map.LiftLight:OnInit()
 end
 
 function Map.TestTrigger:OnInit()
+    self:GetBasics():set("Sel. Mode", 0)
     self:GetTransform():set("Origin", 40, -260, 60)
 
     local c1 = world:new("ComponentScriptT")
@@ -280,6 +300,7 @@ end
 end
 
 function Map.SoundTrigger:OnInit()
+    self:GetBasics():set("Sel. Mode", 0)
     self:GetTransform():set("Origin", -128, -400, 64)
 
     local c1 = world:new("ComponentScriptT")
@@ -306,8 +327,9 @@ end
 end
 
 function Map.TestSpeaker:OnInit()
+    self:GetBasics():set("Sel. Mode", 0)
     self:GetTransform():set("Origin", 48, -416, 72)
-    self:GetTransform():set("Orientation", 0, 0, 1)
+    self:GetTransform():set("Orientation", -0, -0, -1)
 
     local c1 = world:new("ComponentSoundT")
     c1:set("Name", "Ambient/Jungle")
@@ -318,6 +340,7 @@ function Map.TestSpeaker:OnInit()
 end
 
 function Map.PointLightSource_001:OnInit()
+    self:GetBasics():set("Sel. Mode", 0)
     self:GetTransform():set("Origin", -24, 88, 80)
 
     local c1 = world:new("ComponentPointLightT")

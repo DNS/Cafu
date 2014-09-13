@@ -96,9 +96,9 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
 
 
     // Inherited methods from the wxDocument base class.
-    bool OnSaveDocument(const wxString& FileName, bool IsAutoSave); ///< Saves the document. Non-const, as it updates the m_FileName member.
-    bool SaveAs();                                                  ///< Calls OnSaveDocument().
-    bool Save();                                                    ///< Calls OnSaveDocument().
+    bool OnSaveDocument(const wxString& FileName, bool IsAutoSave, IntrusivePtrT<cf::GameSys::EntityT> RootEntity = NULL);  ///< Saves the document. Non-const, as it updates the m_FileName member.
+    bool SaveAs();      ///< Calls OnSaveDocument().
+    bool Save();        ///< Calls OnSaveDocument().
 
     void                           SetChildFrame(ChildFrameT* ChildFrame) { m_ChildFrame=ChildFrame; }   // This should be in the ctor!
     ChildFrameT*                   GetChildFrame() const { return m_ChildFrame; }

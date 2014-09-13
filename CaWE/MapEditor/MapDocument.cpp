@@ -1109,6 +1109,14 @@ namespace
     // Recursively saves the entity instantiation of the passed entity and all of its children.
     void SaveEntityInstantiation(std::ostream& OutFile, IntrusivePtrT<cf::GameSys::EntityT> Entity, const wxString& ParentName)
     {
+        if (ParentName == "")
+        {
+            // Don't modify the global script state, so that multiple maps can be loaded into the same world without
+            // interfering with each other (that is, without overwriting each other's global variables).
+            // This is especially useful with "prefabs", which we implement as small but normal map files.
+            OutFile << "local ";
+        }
+
         OutFile << ParentName << Entity->GetBasics()->GetEntityName() << " = world:new(\"" << StripNamespace(Entity->GetType()->ClassName) << "\", \"" << Entity->GetBasics()->GetEntityName() << "\")\n";
 
         const wxString NewParentName = ParentName + Entity->GetBasics()->GetEntityName() + ".";
@@ -1243,7 +1251,7 @@ namespace
 }
 
 
-bool MapDocumentT::OnSaveDocument(const wxString& cmapFileName, bool IsAutoSave)
+bool MapDocumentT::OnSaveDocument(const wxString& cmapFileName, bool IsAutoSave, IntrusivePtrT<cf::GameSys::EntityT> RootEntity)
 {
     // if (cmapFileName.Right(4).MakeLower() == ".map") ...;    // Export to different file format.
 
@@ -1304,6 +1312,10 @@ bool MapDocumentT::OnSaveDocument(const wxString& cmapFileName, bool IsAutoSave)
 
     // This sets the cursor to the busy cursor in its ctor, and back to the default cursor in the dtor.
     wxBusyCursor BusyCursor;
+    const bool   UpdateFileName = (RootEntity == NULL);     // We're saving a map if RootEntity == NULL, otherwise a prefab.
+
+    if (RootEntity == NULL)
+        RootEntity = m_ScriptWorld->GetRootEntity();
 
     // Save the `.cmap` file.
     {
@@ -1315,7 +1327,7 @@ bool MapDocumentT::OnSaveDocument(const wxString& cmapFileName, bool IsAutoSave)
         // Save entities (in depth-first order, as in the .cent file).
         ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllScriptEnts;
 
-        m_ScriptWorld->GetRootEntity()->GetAll(AllScriptEnts);
+        RootEntity->GetAll(AllScriptEnts);
 
         for (unsigned long EntNr = 0/*with world*/; EntNr < AllScriptEnts.Size(); EntNr++)
         {
@@ -1337,7 +1349,7 @@ bool MapDocumentT::OnSaveDocument(const wxString& cmapFileName, bool IsAutoSave)
 
     // Save the `.cent` file.
     {
-        SaveCafuEntities(centOutFile, m_ScriptWorld->GetRootEntity());
+        SaveCafuEntities(centOutFile, RootEntity);
 
         if (centOutFile.fail())
         {
@@ -1348,6 +1360,9 @@ bool MapDocumentT::OnSaveDocument(const wxString& cmapFileName, bool IsAutoSave)
 
     // If this was an auto-save, do not change the filename (nor set the document as "not modified").
     if (IsAutoSave) return true;
+
+    // If we were saving a prefab, do not change the filename (nor set the document as "not modified").
+    if (!UpdateFileName) return true;
 
     m_FileName = cmapFileName;
     return true;

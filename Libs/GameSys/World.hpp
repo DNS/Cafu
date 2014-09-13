@@ -61,7 +61,8 @@ namespace cf
             enum InitFlagsT
             {
                 InitFlag_InlineCode  = 1,   ///< Normally, the `ScriptName` parameter to the WorldT ctor is a filename. If this is set, it is treated as inline script code.
-                InitFlag_InMapEditor = 2    ///< Whether the world is instantiated in the Map Editor. If set, only the static data will be loaded, initial behaviour is *not* run.
+                InitFlag_InMapEditor = 2,   ///< Whether the world is instantiated in the Map Editor. If set, only the static data will be loaded, initial behaviour is *not* run.
+                InitFlag_AsPrefab    = 4    ///< This must be set if the map script is loaded for use as a prefab. Can only be used if `InitFlag_InMapEditor` is set as well.
             };
 
             /// Initializes the given script state for use with WorldT instances.
@@ -71,8 +72,9 @@ namespace cf
             /// @param World        The world to init.
             /// @param ScriptName   The file name of the script to load.
             /// @param Flags        A combination of the flags in InitFlagsT.
-            /// @throws Throws an InitErrorT object on problems initializing the world.
-            static void LoadScript(IntrusivePtrT<WorldT> World, const std::string& ScriptName, int Flags = 0);
+            /// @throws Throws an InitErrorT object on problems loading the script.
+            /// @returns The root entity as loaded from the given script.
+            static IntrusivePtrT<EntityT> LoadScript(IntrusivePtrT<WorldT> World, const std::string& ScriptName, int Flags = 0);
 
 
             /// Constructor for creating an entity hierarchy (== "a world") from the given script file.
@@ -176,6 +178,7 @@ namespace cf
 
             // Methods called from Lua scripts on cf::GameSys::WorldT instances.
             static int CreateNew(lua_State* LuaState);      ///< Creates and returns a new entity or component.
+            static int GetRootEntity(lua_State* LuaState);  ///< Returns the root entity of this world.
             static int SetRootEntity(lua_State* LuaState);  ///< Sets the root entity for this world.
             static int TraceRay(lua_State* LuaState);       ///< Employs m_ClipWorld->TraceRay() to trace a ray through the (clip) world.
             static int Phys_TraceBB(lua_State* LuaState);   ///< Employs m_PhysicsWorld->TraceBoundingBox() to trace a bounding-box through the (physics) world.
