@@ -622,6 +622,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
 
 
     // Set door entities of the same team as children of a new "door controller" entity.
+    if (cmapFileVersion < 14)
     {
         AllScriptEnts.Overwrite();
         m_ScriptWorld->GetRootEntity()->GetAll(AllScriptEnts);
