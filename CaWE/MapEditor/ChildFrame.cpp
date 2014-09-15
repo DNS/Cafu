@@ -1719,29 +1719,86 @@ void ChildFrameT::LoadPrefab(const wxString& FileName)
             }
         }
 
-        // Insert the newly loaded prefab into the map.
-        IntrusivePtrT<cf::GameSys::EntityT>           PrefabParent = m_Doc->GetScriptWorld().GetRootEntity();
-        ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > SelEnts      = m_Doc->GetSelectedEntities();
-
         if (PrefabRoot->GetChildren().Size() > 0 || GetMapEnt(PrefabRoot)->GetPrimitives().Size() > 0)
             PrefabRoot->GetBasics()->SetMember("Sel. Mode", int(cf::GameSys::ComponentBasicsT::GROUP));
 
-        // Leave the prefab's entity name and its orientation alone (the prefab author may have
-        // consciously set them), but (re-)set its origin to a reasonable value.
+        // A prefab, as any other entity, can have primitives and child entities.
+        // If it is loaded into a map, it is attached to some entity (the PrefabParent, see below) as a child itself.
+        //
+        // An important consideration is that the PrefabParent may have any origin or orientation.
+        // For the prefab itself, this is not a problem, because its own transform is by definition given in
+        // parent-space, so that the mere act of attaching it to the PrefabParent is enough to cover all transform
+        // issues.
+        //
+        // The prefab's primitives, however, are not as easily dealt with:
+        // If a prefab is loaded *as a map*, we see that the map's world-space corresponds to the prefab's
+        // parent-space, that is, the local space of PrefabParent!
+        // This is also the space in which the prefab's primitives are given.
+        //
+        // Therefore, in order to attach the prefab to the PrefabParent, we must transform its primitives from the
+        // PrefabParent's local space to world space. [A]
+        //
+        // As another detail, we may wish to apply a translation offset to the newly inserted entity, in order to avoid
+        // that its origin perfectly aligns with the origin of the parent, or if the parent is the target map's root,
+        // to not instantiate it at the world origin, but at a reasonable (user visible) location.
+        // As can easily be seen from the above considerations, it is barely possible to apply such an offset in
+        // world-space. Instead, the offset must be applied in the space of the prefab's parent, and therefore,
+        // we must apply it *before* the transforms of [A] are actually done.
+        IntrusivePtrT<cf::GameSys::EntityT>           PrefabParent = m_Doc->GetScriptWorld().GetRootEntity();
+        Vector3fT                                     Offset       = GuessUserVisiblePoint();
+        ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > SelEnts      = m_Doc->GetSelectedEntities();
+
         if (SelEnts.Size() > 0)
         {
-            const float Offset = m_Doc->GetGridSpacing() * 2.0f;
+            const float gs = m_Doc->GetGridSpacing() * 2.0f;
 
             PrefabParent = SelEnts[0];
-            PrefabRoot->GetTransform()->SetOriginPS(Vector3fT(Offset, Offset, 0.0f));
+            Offset       = Vector3fT(gs, gs, 0.0f);
         }
         else
         {
-            // This is not entirely right, because it assumes that the PrefabParent's
-            // world-space origin is (0, 0, 0)...
-            PrefabRoot->GetTransform()->SetOriginPS(GuessUserVisiblePoint());
+            // PrefabParent is m_Doc->GetScriptWorld().GetRootEntity(), whose Transform component should always
+            // represent the identity transform. As Offset must be specified in the space of the prefab's parent
+            // entity, but GuessUserVisiblePoint() returns a point in world-space, we must apply the proper transform
+            // if IsIdentity() is false.
+            if (!PrefabParent->GetTransform()->IsIdentity())
+                Offset = PrefabParent->GetTransform()->GetEntityToWorld().InvXForm(Offset);
         }
 
+        ArrayT<MapElementT*> PrefabElems = GetMapEnt(PrefabRoot)->GetAllMapElements();
+
+        // Move the PrefabRoot by Offset (all child entities are implicitly moved as well).
+        PrefabRoot->GetTransform()->SetOriginPS(PrefabRoot->GetTransform()->GetOriginPS() + Offset);
+
+        // Move all primitives by Offset.
+        for (unsigned int ElemNr = 0; ElemNr < PrefabElems.Size(); ElemNr++)
+        {
+            MapPrimitiveT* Prim = dynamic_cast<MapPrimitiveT*>(PrefabElems[ElemNr]);
+
+            if (Prim) Prim->TrafoMove(Offset);
+        }
+
+        // Transform all primitives from parent-space to world-space.
+        // (The PrefabRoot and its children implicitly undergo the same transformation
+        //  by being attached to the PrefabParent below.)
+        bool IsIdent = true;
+
+        for (IntrusivePtrT<cf::GameSys::EntityT> Ent = PrefabParent; Ent != NULL; Ent = Ent->GetParent())
+            IsIdent = IsIdent && Ent->GetTransform()->IsIdentity();
+
+        if (!IsIdent)
+        {
+            const MatrixT PrefabToWorld = PrefabParent->GetTransform()->GetEntityToWorld();
+
+            for (unsigned int ElemNr = 0; ElemNr < PrefabElems.Size(); ElemNr++)
+            {
+                MapPrimitiveT* Prim = dynamic_cast<MapPrimitiveT*>(PrefabElems[ElemNr]);
+
+                if (Prim) Prim->Transform(PrefabToWorld);
+            }
+        }
+
+        // Insert the newly loaded prefab into the map.
         SubmitCommand(new CommandNewEntityT(*m_Doc, PrefabRoot, PrefabParent, true /*SetSel?*/));
     }
     catch (const cf::GameSys::WorldT::InitErrorT& IE)
