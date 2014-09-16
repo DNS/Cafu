@@ -1,0 +1,77 @@
+-- This is a Cafu Entities file, written by the CaWE Map Editor.
+-- The file defines the entity hierarchy and properties of the related game world;
+-- it is used both by the CaWE Map Editor as well as by the Cafu Engine.
+--
+-- You CAN edit this file manually, but note that CaWE may overwrite your changes.
+-- Also note that structural changes to the entity hierarchy will bring this file
+-- out of sync with the related map (cmap) and world (cw) files, effectively
+-- causing LOSS OF WORK (see the documentation for details).
+-- It is therefore recommended that you use CaWE for all changes to this file.
+
+
+-- Instantiation of all entities.
+-- ******************************
+
+local vertical_door = world:new("EntityT", "vertical_door")
+vertical_door.upper_half = world:new("EntityT", "upper_half")
+vertical_door.lower_half = world:new("EntityT", "lower_half")
+
+
+-- Set the worlds root entity.
+-- ***************************
+
+world:SetRootEntity(vertical_door)
+
+
+-- Setup the entity hierarchy.
+-- ***************************
+
+vertical_door:AddChild(vertical_door.upper_half)
+vertical_door:AddChild(vertical_door.lower_half)
+
+
+-- Initialization of the entity contents ("constructors").
+-- *******************************************************
+
+function vertical_door:OnInit()
+    self:GetBasics():set("Sel. Mode", 0)
+    self:GetTransform():set("Origin", 0, 0, 0)
+
+    local c1 = world:new("ComponentScriptT")
+    c1:set("Name", "Games/DeathMatch/Scripts/Door.lua")
+    c1:set("ScriptCode", [[
+local Door = ...
+Door.OpenTime = 0.5
+Door.MoveTime = 1
+]])
+
+    self:AddComponent(c1)
+end
+
+function vertical_door.upper_half:OnInit()
+    self:GetBasics():set("Sel. Mode", 0)
+    self:GetTransform():set("Origin", 0, 0, 96)
+
+    local c1 = world:new("ComponentScriptT")
+    c1:set("Name", "")
+    c1:set("ScriptCode", [[
+local Part = ...
+Part:GetEntity().MoveVec = { 0.0, 0.0, 62.0 }
+]])
+
+    self:AddComponent(c1)
+end
+
+function vertical_door.lower_half:OnInit()
+    self:GetBasics():set("Sel. Mode", 0)
+    self:GetTransform():set("Origin", 0, 0, 32)
+
+    local c1 = world:new("ComponentScriptT")
+    c1:set("Name", "")
+    c1:set("ScriptCode", [[
+local Part = ...
+Part:GetEntity().MoveVec = { 0.0, 0.0, -81.0 }
+]])
+
+    self:AddComponent(c1)
+end
