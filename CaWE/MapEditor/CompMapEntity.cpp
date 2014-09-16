@@ -159,13 +159,23 @@ std::string CompMapEntityT::GetAndRemove(const wxString& Key, const char* Defaul
 }
 
 
-void CompMapEntityT::CopyPrimitives(const CompMapEntityT& MapEnt)
+void CompMapEntityT::CopyPrimitives(const CompMapEntityT& MapEnt, bool Recursive)
 {
     for (unsigned long PrimNr = 0; PrimNr < MapEnt.m_Primitives.Size(); PrimNr++)
     {
         m_Primitives.PushBack(MapEnt.m_Primitives[PrimNr]->Clone());
         m_Primitives[PrimNr]->SetParent(this);
     }
+
+    if (!Recursive) return;
+
+    const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& ThisChildren  = GetEntity()->GetChildren();
+    const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& OtherChildren = MapEnt.GetEntity()->GetChildren();
+
+    wxASSERT(ThisChildren.Size() == OtherChildren.Size());
+
+    for (unsigned int EntNr = 0; EntNr < ThisChildren.Size() && EntNr < OtherChildren.Size(); EntNr++)
+        GetMapEnt(ThisChildren[EntNr])->CopyPrimitives(*GetMapEnt(OtherChildren[EntNr]), true);
 }
 
 

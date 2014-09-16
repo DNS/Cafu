@@ -97,7 +97,11 @@ namespace MapEditor
         MapEntRepresT* GetRepres() const { return m_Repres; }
 
         const ArrayT<MapPrimitiveT*>& GetPrimitives() const { return m_Primitives; }
-        void CopyPrimitives(const CompMapEntityT& MapEnt);  ///< Creates a copy of each primitive in MapEnt and adds it to this instance.
+
+        /// Creates a copy of each primitive in MapEnt and adds it to this instance.
+        /// If `Recursive` is true, the primitives of all child entities are copied recursively
+        /// (as far as the two entity hierarchies match).
+        void CopyPrimitives(const CompMapEntityT& MapEnt, bool Recursive = false);
 
         void AddPrim(MapPrimitiveT* Prim);
         void RemovePrim(MapPrimitiveT* Prim);
