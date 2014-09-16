@@ -1871,7 +1871,38 @@ void ChildFrameT::OnMenuPrefabs(wxCommandEvent& CE)
             if (!wxFileName(FileName).HasExt())
                 FileName += ".cmap";
 
-            if (m_Doc->OnSaveDocument(FileName, false, SelEnts[0]))
+            // It is not technically necessary, but reasonable and useful to save the prefab so that its local
+            // space in the "source" map file is mapped to world-space in the prefab's newly saved map file.
+            // For the prefab entity itself, which is saved as the root entity of its corresponding map file,
+            // it is enough to set its transform to the identity. This implicitly covers all child entities of
+            // the prefab as well.
+            // However, as all primitives in the prefab's hierarchy are defined in world-space, we must transform
+            // them explicitly into the new space.
+            // In order to achieve all this and to not accidentally modify something in the original source map,
+            // we clone the source prefab and make all adjustments and processing with the temporary clone.
+            IntrusivePtrT<cf::GameSys::EntityT> Prefab = SelEnts[0]->Clone(true /*Recursive*/);
+
+            GetMapEnt(Prefab)->CopyPrimitives(*GetMapEnt(SelEnts[0]), true /*Recursive*/);
+
+            Prefab->GetTransform()->SetOriginPS(Vector3fT());
+            Prefab->GetTransform()->SetQuatPS(cf::math::QuaternionfT());
+
+            bool          InvResult     = true;
+            const MatrixT WorldToEntity = SelEnts[0]->GetTransform()->GetEntityToWorld().GetInverse(&InvResult);
+
+            if (InvResult)
+            {
+                ArrayT<MapElementT*> PrefabElems = GetMapEnt(Prefab)->GetAllMapElements();
+
+                for (unsigned int ElemNr = 0; ElemNr < PrefabElems.Size(); ElemNr++)
+                {
+                    MapPrimitiveT* Prim = dynamic_cast<MapPrimitiveT*>(PrefabElems[ElemNr]);
+
+                    if (Prim) Prim->Transform(WorldToEntity);
+                }
+            }
+
+            if (m_Doc->OnSaveDocument(FileName, false, Prefab))
                 UpdatePrefabsMenu();
 
             break;

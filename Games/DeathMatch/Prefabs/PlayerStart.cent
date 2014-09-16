@@ -31,7 +31,7 @@ world:SetRootEntity(PlayerStart)
 
 function PlayerStart:OnInit()
     self:GetBasics():set("Sel. Mode", 0)
-    self:GetTransform():set("Origin", -656, 416, 40)
+    self:GetTransform():set("Origin", 0, 0, 0)
 
     local c1 = world:new("ComponentPlayerStartT")
     c1:set("SinglePlayer", true)
