@@ -60,22 +60,6 @@ CommandDeleteT::CommandDeleteT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>&
 }
 
 
-namespace
-{
-    bool IsEntInTree(IntrusivePtrT<cf::GameSys::EntityT> Entity, IntrusivePtrT<cf::GameSys::EntityT> Root)
-    {
-        while (Entity != NULL)
-        {
-            if (Entity == Root) return true;
-
-            Entity = Entity->GetParent();
-        }
-
-        return false;
-    }
-}
-
-
 void CommandDeleteT::Init(const ArrayT<MapElementT*>& DeleteElems)
 {
     // Split the list of elements into a list of primitives and a list of entities.
@@ -124,7 +108,7 @@ void CommandDeleteT::Init(const ArrayT<MapElementT*>& DeleteElems)
     {
         for (unsigned long TreeNr = 0; TreeNr < m_Entities.Size(); TreeNr++)
         {
-            if (EntNr != TreeNr && IsEntInTree(m_Entities[EntNr], m_Entities[TreeNr]))
+            if (EntNr != TreeNr && m_Entities[TreeNr]->Has(m_Entities[EntNr]))
             {
                 m_Entities.RemoveAt(EntNr);
                 m_EntityParents.RemoveAt(EntNr);
@@ -140,7 +124,7 @@ void CommandDeleteT::Init(const ArrayT<MapElementT*>& DeleteElems)
     {
         for (unsigned long TreeNr = 0; TreeNr < m_Entities.Size(); TreeNr++)
         {
-            if (IsEntInTree(m_DeletePrims[PrimNr]->GetParent()->GetEntity(), m_Entities[TreeNr]))
+            if (m_Entities[TreeNr]->Has(m_DeletePrims[PrimNr]->GetParent()->GetEntity()))
             {
                 m_DeletePrims.RemoveAt(PrimNr);
                 m_DeletePrimsParents.RemoveAt(PrimNr);

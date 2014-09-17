@@ -190,6 +190,9 @@ namespace cf
             /// @returns The pointer to the desired entity, or `NULL` if no entity with this name exists.
             IntrusivePtrT<EntityT> Find(const std::string& WantedName);   // Method cannot be const because return type is not const -- see implementation.
 
+            /// Returns whether the given entity is in the hierarchy (sub-tree) of this entity.
+            bool Has(IntrusivePtrT<EntityT> Ent) const;
+
             /// Returns a bounding-box that encloses the visual representation of this entity.
             /// It is used to determine if the entity is in the view-frustum of a camera, how large a region must be
             /// updated in the 2D views of a Map Editor, if the entity is in the potentially-visibility-set (PVS) of

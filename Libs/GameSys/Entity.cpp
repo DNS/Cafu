@@ -335,6 +335,19 @@ IntrusivePtrT<EntityT> EntityT::Find(const std::string& WantedName)
 }
 
 
+bool EntityT::Has(IntrusivePtrT<EntityT> Ent) const
+{
+    while (Ent != NULL)
+    {
+        if (Ent == this) return true;
+
+        Ent = Ent->GetParent();
+    }
+
+    return false;
+}
+
+
 BoundingBox3fT EntityT::GetCullingBB(bool WorldSpace) const
 {
     BoundingBox3fT BB;
