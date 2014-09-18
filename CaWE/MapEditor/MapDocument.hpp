@@ -162,6 +162,10 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     const ArrayT<MapElementT*>& GetSelection() const { return m_Selection; }
     ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > GetSelectedEntities() const;
     const BoundingBox3fT&       GetMostRecentSelBB() const;     ///< Returns the most recent bounding-box of the selection. That is, it returns the bounding-box of the current selection, or (if nothing is selected) the bounding-box of the previous selection.
+
+    /// Reduces the given set of map elements by removing each element whose parent is in the set as well.
+    /// This is an important helper method for operations such as delete, copy-to-clipboard, save-as-prefab, etc.
+    static void Reduce(ArrayT<MapElementT*>& Elems);
     //@}
 
 

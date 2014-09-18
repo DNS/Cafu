@@ -2287,3 +2287,40 @@ const BoundingBox3fT& MapDocumentT::GetMostRecentSelBB() const
 
     return m_SelectionBB;
 }
+
+
+/*static*/
+void MapDocumentT::Reduce(ArrayT<MapElementT*>& Elems)
+{
+    for (unsigned int ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
+    {
+        // If this element's entity is part of a tree, the element will be removed.
+        IntrusivePtrT<cf::GameSys::EntityT> Entity = Elems[ElemNr]->GetParent()->GetEntity();
+
+        for (unsigned int TreeNr = 0; TreeNr < Elems.Size(); TreeNr++)
+        {
+            // A tree can only be the entity of an element that is a MapEntRepresT
+            // and is different from the currently considered element itself.
+            if (TreeNr == ElemNr) continue;
+
+            MapElementT* TreeElem = Elems[TreeNr];
+
+            // There should never be any duplicates in Elems.
+            wxASSERT(TreeElem != Elems[ElemNr]);
+
+            if (TreeElem->GetType() != &MapEntRepresT::TypeInfo) continue;
+
+            // Double-check that this is really a MapEntRepresT.
+            wxASSERT(TreeElem->GetParent()->GetRepres() == TreeElem);
+
+            IntrusivePtrT<cf::GameSys::EntityT> Tree = TreeElem->GetParent()->GetEntity();
+
+            if (Tree->Has(Entity))
+            {
+                Elems.RemoveAt(ElemNr);
+                ElemNr--;
+                break;
+            }
+        }
+    }
+}

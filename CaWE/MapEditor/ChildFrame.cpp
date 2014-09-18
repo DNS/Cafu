@@ -1842,9 +1842,11 @@ void ChildFrameT::OnMenuPrefabs(wxCommandEvent& CE)
 
         case ID_MENU_PREFABS_SAVE:
         {
-            ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > SelEnts = m_Doc->GetSelectedEntities();
+            ArrayT<MapElementT*> Selection = m_Doc->GetSelection();
 
-            if (SelEnts.Size() != 1)
+            MapDocumentT::Reduce(Selection);
+
+            if (Selection.Size() != 1 || Selection[0]->GetType() != &MapEntRepresT::TypeInfo)
             {
                 wxMessageBox(
                     "Select exactly one entity.\n\n"
@@ -1855,10 +1857,12 @@ void ChildFrameT::OnMenuPrefabs(wxCommandEvent& CE)
                 break;
             }
 
+            IntrusivePtrT<cf::GameSys::EntityT> SelEnt = Selection[0]->GetParent()->GetEntity();
+
             wxString FileName = wxFileSelector(
                 "Save Prefab",                      // Message.
                 m_Doc->GetGameConfig()->ModDir + "/Prefabs",    // The default directory.
-                SelEnts[0]->GetBasics()->GetEntityName(),       // The default file name.
+                SelEnt->GetBasics()->GetEntityName(),           // The default file name.
                 "",                                 // The default extension.
                 "Cafu Prefabs (*.cmap)|*.cmap"      // The wildcard.
                 "|All files (*.*)|*.*",
@@ -1880,15 +1884,15 @@ void ChildFrameT::OnMenuPrefabs(wxCommandEvent& CE)
             // them explicitly into the new space.
             // In order to achieve all this and to not accidentally modify something in the original source map,
             // we clone the source prefab and make all adjustments and processing with the temporary clone.
-            IntrusivePtrT<cf::GameSys::EntityT> Prefab = SelEnts[0]->Clone(true /*Recursive*/);
+            IntrusivePtrT<cf::GameSys::EntityT> Prefab = SelEnt->Clone(true /*Recursive*/);
 
-            GetMapEnt(Prefab)->CopyPrimitives(*GetMapEnt(SelEnts[0]), true /*Recursive*/);
+            GetMapEnt(Prefab)->CopyPrimitives(*GetMapEnt(SelEnt), true /*Recursive*/);
 
             Prefab->GetTransform()->SetOriginPS(Vector3fT());
             Prefab->GetTransform()->SetQuatPS(cf::math::QuaternionfT());
 
             bool          InvResult     = true;
-            const MatrixT WorldToEntity = SelEnts[0]->GetTransform()->GetEntityToWorld().GetInverse(&InvResult);
+            const MatrixT WorldToEntity = SelEnt->GetTransform()->GetEntityToWorld().GetInverse(&InvResult);
 
             if (InvResult)
             {
