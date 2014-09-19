@@ -371,7 +371,7 @@ bool ToolSelectionT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
                 if (!Elem->CanSelect()) continue;
 
                 // Compute the consequences of toggling the element.
-                GetToggleEffects(Elem, RemoveFromSel, AddToSel);
+                Elem->GetToggleEffects(RemoveFromSel, AddToSel);
             }
 
             if (RemoveFromSel.Size()>0 || AddToSel.Size()>0)
@@ -1042,68 +1042,6 @@ void ToolSelectionT::NudgeSelection(const AxesInfoT& AxesInfo, const wxKeyEvent&
 }
 
 
-/// Computes how the selection must be changed in order to toggle the given element
-/// when the elements entity and group memberships are taken into account.
-void ToolSelectionT::GetToggleEffects(MapElementT* Elem, ArrayT<MapElementT*>& RemoveFromSel, ArrayT<MapElementT*>& AddToSel) const
-{
-    IntrusivePtrT<CompMapEntityT> Top = Elem->GetTopmostGroupSel();
-
-    if (Top != NULL)
-    {
-        // If the element belongs to an entity that is to be selected "as one" (as a group),
-        // put all of the entity's parts into the appropriate lists.
-        GetToggleEffectsRecursive(Top, RemoveFromSel, AddToSel);
-    }
-    else
-    {
-        // Insert Elem into one of the lists, but only if it isn't mentioned there already.
-        if (RemoveFromSel.Find(Elem) == -1 && AddToSel.Find(Elem) == -1)
-        {
-            if (Elem->IsSelected()) RemoveFromSel.PushBack(Elem);
-                               else AddToSel.PushBack(Elem);
-        }
-    }
-}
-
-
-/// An auxiliary method for GetToggleEffects().
-/// It computes the toggle effects for the given MapEnt, all its primitives and all its children recursively.
-void ToolSelectionT::GetToggleEffectsRecursive(IntrusivePtrT<CompMapEntityT> MapEnt, ArrayT<MapElementT*>& RemoveFromSel, ArrayT<MapElementT*>& AddToSel) const
-{
-    MapEntRepresT* Repres = MapEnt->GetRepres();
-
-    // TODO: If hidden (e.g. child entities), hierarchically force the whole MapEnt to be *visible*!
-
-    // Toggle the Repres by inserting it into one of the lists, but only if it isn't mentioned there already.
-    if (RemoveFromSel.Find(Repres) == -1 && AddToSel.Find(Repres) == -1)
-    {
-        if (Repres->IsSelected()) RemoveFromSel.PushBack(Repres);
-                             else AddToSel.PushBack(Repres);
-    }
-
-    // Toggle the entities primitives analogously.
-    for (unsigned long PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
-    {
-        MapPrimitiveT* Prim = MapEnt->GetPrimitives()[PrimNr];
-
-        // Insert Member into one of the lists, but only if it isn't mentioned there already.
-        if (RemoveFromSel.Find(Prim) == -1 && AddToSel.Find(Prim) == -1)
-        {
-            if (Prim->IsSelected()) RemoveFromSel.PushBack(Prim);
-                               else AddToSel.PushBack(Prim);
-        }
-    }
-
-    // Recursively toggle the entity's children as well.
-    IntrusivePtrT<cf::GameSys::EntityT> Ent = MapEnt->GetEntity();
-
-    for (unsigned long ChildNr = 0; ChildNr < Ent->GetChildren().Size(); ChildNr++)
-    {
-        GetToggleEffectsRecursive(GetMapEnt(Ent->GetChildren()[ChildNr]), RemoveFromSel, AddToSel);
-    }
-}
-
-
 void ToolSelectionT::SetHitList(const ArrayT<MapElementT*>& NewHits, bool IsControlDown)
 {
     // Clear the selection if the user isn't holding down the control (CTRL) key.
@@ -1165,7 +1103,7 @@ void ToolSelectionT::ToggleCurHitNr()
     ArrayT<MapElementT*> AddToSel;
 
     // Compute the consequences of toggling the element.
-    GetToggleEffects(Elem, RemoveFromSel, AddToSel);
+    Elem->GetToggleEffects(RemoveFromSel, AddToSel);
 
     if (RemoveFromSel.Size() > 0) m_MapDoc.CompatSubmitCommand(CommandSelectT::Remove(&m_MapDoc, RemoveFromSel));
     if (     AddToSel.Size() > 0) m_MapDoc.CompatSubmitCommand(CommandSelectT::   Add(&m_MapDoc,      AddToSel));

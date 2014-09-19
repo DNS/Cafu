@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CompMapEntity.hpp"
 #include "MapDocument.hpp"
 #include "MapEntRepres.hpp"
+#include "MapPrimitive.hpp"
 
 #include "TypeSys.hpp"
 #include "wx/wx.h"
@@ -127,6 +128,72 @@ IntrusivePtrT<CompMapEntityT> MapElementT::GetTopmostGroupSel() const
             Top = GetMapEnt(Ent);
 
     return Top;
+}
+
+
+namespace
+{
+    /// An auxiliary method for GetToggleEffects().
+    /// It computes the toggle effects for the given MapEnt, all its primitives and all its children recursively.
+    void GetToggleEffectsRecursive(IntrusivePtrT<CompMapEntityT> MapEnt, ArrayT<MapElementT*>& RemoveFromSel, ArrayT<MapElementT*>& AddToSel)
+    {
+        MapEntRepresT* Repres = MapEnt->GetRepres();
+
+        // TODO: This should not toggle piece-wise, but Repres->IsSelected() should be authoritative for all elements!
+        //       That is, either all pieces are added to or all pieces are removed from the selection.
+
+        // TODO: If hidden (e.g. child entities), hierarchically force the whole MapEnt to be *visible*!
+
+        // Toggle the Repres by inserting it into one of the lists, but only if it isn't mentioned there already.
+        if (RemoveFromSel.Find(Repres) == -1 && AddToSel.Find(Repres) == -1)
+        {
+            if (Repres->IsSelected()) RemoveFromSel.PushBack(Repres);
+                                 else AddToSel.PushBack(Repres);
+        }
+
+        // Toggle the entities primitives analogously.
+        for (unsigned long PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
+        {
+            MapPrimitiveT* Prim = MapEnt->GetPrimitives()[PrimNr];
+
+            // Insert Member into one of the lists, but only if it isn't mentioned there already.
+            if (RemoveFromSel.Find(Prim) == -1 && AddToSel.Find(Prim) == -1)
+            {
+                if (Prim->IsSelected()) RemoveFromSel.PushBack(Prim);
+                                   else AddToSel.PushBack(Prim);
+            }
+        }
+
+        // Recursively toggle the entity's children as well.
+        IntrusivePtrT<cf::GameSys::EntityT> Ent = MapEnt->GetEntity();
+
+        for (unsigned long ChildNr = 0; ChildNr < Ent->GetChildren().Size(); ChildNr++)
+        {
+            GetToggleEffectsRecursive(GetMapEnt(Ent->GetChildren()[ChildNr]), RemoveFromSel, AddToSel);
+        }
+    }
+}
+
+
+void MapElementT::GetToggleEffects(ArrayT<MapElementT*>& RemoveFromSel, ArrayT<MapElementT*>& AddToSel)
+{
+    IntrusivePtrT<CompMapEntityT> Top = GetTopmostGroupSel();
+
+    if (Top != NULL)
+    {
+        // If the element belongs to an entity that is to be selected "as one" (as a group),
+        // put all of the entity's parts into the appropriate lists.
+        GetToggleEffectsRecursive(Top, RemoveFromSel, AddToSel);
+    }
+    else
+    {
+        // Insert this element into one of the lists, but only if it isn't mentioned there already.
+        if (RemoveFromSel.Find(this) == -1 && AddToSel.Find(this) == -1)
+        {
+            if (IsSelected()) RemoveFromSel.PushBack(this);
+                         else AddToSel.PushBack(this);
+        }
+    }
 }
 
 

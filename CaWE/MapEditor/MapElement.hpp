@@ -163,10 +163,16 @@ class MapElementT
 
     /// Returns this element's topmost CompMapEntityT instance that is to be selected "as one" (as a group).
     /// This may be
-    ///   - this element's entity as return by its GetParent() method,
+    ///   - this element's entity as returned by its GetParent() method,
     ///   - any of its parents in the hierarchy,
     ///   - or `NULL` for none (then this element is not part of a "group-selection" entity).
     IntrusivePtrT<MapEditor::CompMapEntityT> GetTopmostGroupSel() const;
+
+    /// Computes how the selection must be changed in order to toggle the given element when the element's entity
+    /// and group memberships are taken into account.
+    /// Unfortunately, the method cannot be `const`, because `this` map element is possibly added to one of the given
+    /// arrays, whose elements are non-`const`.
+    void GetToggleEffects(ArrayT<MapElementT*>& RemoveFromSel, ArrayT<MapElementT*>& AddToSel);
 
 
     /// This is periodically called in order to have the element advance its internal clock by t seconds.
