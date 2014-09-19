@@ -549,6 +549,9 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
                 NewEnt->GetBasics()->SetEntityName(MapEnt->GetProperty("classname"));
         }
 
+        if (MapEnt->GetPrimitives().Size() > 0)
+            NewEnt->GetBasics()->SetMember("Sel. Mode", int(cf::GameSys::ComponentBasicsT::GROUP));
+
         if (MapEnt->GetProperty("classname") != "")
         {
             const std::string ClassName = MapEnt->GetProperty("classname");
@@ -669,6 +672,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             m_ScriptWorld->GetRootEntity()->AddChild(DoorEnt);
 
             DoorEnt->GetBasics()->SetEntityName("door");
+            DoorEnt->GetBasics()->SetMember("Sel. Mode", int(cf::GameSys::ComponentBasicsT::GROUP));
             DoorEnt->GetTransform()->SetOriginWS(Origin);
             DoorEnt->SetApp(MapEnt);
 
