@@ -139,9 +139,6 @@ namespace
     {
         MapEntRepresT* Repres = MapEnt->GetRepres();
 
-        // TODO: This should not toggle piece-wise, but Repres->IsSelected() should be authoritative for all elements!
-        //       That is, either all pieces are added to or all pieces are removed from the selection.
-
         // TODO: If hidden (e.g. child entities), hierarchically force the whole MapEnt to be *visible*!
 
         // Toggle the Repres by inserting it into one of the lists, but only if it isn't mentioned there already.
@@ -183,7 +180,25 @@ void MapElementT::GetToggleEffects(ArrayT<MapElementT*>& RemoveFromSel, ArrayT<M
     {
         // If the element belongs to an entity that is to be selected "as one" (as a group),
         // put all of the entity's parts into the appropriate lists.
-        GetToggleEffectsRecursive(Top, RemoveFromSel, AddToSel);
+        if (false)
+        {
+            // This works, but if Top is already partially selected, it would result is a piece-wise toggle.
+            GetToggleEffectsRecursive(Top, RemoveFromSel, AddToSel);
+        }
+        else
+        {
+            ArrayT<MapElementT*> Ignore;
+
+            // Don't toggle piece-wise, but rather put all parts of Top into the same new selection state as Top itself.
+            if (Top->GetRepres()->IsSelected())
+            {
+                GetToggleEffectsRecursive(Top, RemoveFromSel, Ignore);
+            }
+            else
+            {
+                GetToggleEffectsRecursive(Top, Ignore, AddToSel);
+            }
+        }
     }
     else
     {
