@@ -261,11 +261,24 @@ void EntityInspectorDialogT::RefreshPropGrid()
 
     ClearPage(0);
 
-    const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > Selection = m_MapDocument->GetSelectedEntities();
+    ArrayT<MapElementT*> Selection = m_MapDocument->GetSelection();
+
+    // Remove all entities (and primitives) whose parents are in the selection as well.
+    MapDocumentT::Reduce(Selection);
+
+    // Remove all remaining primitives from the Selection, keep only the entities.
+    for (unsigned int SelNr = 0; SelNr < Selection.Size(); SelNr++)
+    {
+        if (Selection[SelNr]->GetType() != &MapEntRepresT::TypeInfo)
+        {
+            Selection.RemoveAt(SelNr);
+            SelNr--;
+        }
+    }
 
     if (Selection.Size() == 1)
     {
-        m_SelectedEntity = Selection[0];
+        m_SelectedEntity = Selection[0]->GetParent()->GetEntity();
 
         AppendComponent(m_SelectedEntity->GetBasics());
         AppendComponent(m_SelectedEntity->GetTransform());
