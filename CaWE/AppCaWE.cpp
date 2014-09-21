@@ -56,6 +56,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/MaterialManagerImpl.hpp"
 #include "SoundSystem/SoundShaderManagerImpl.hpp"
 #include "SoundSystem/SoundSys.hpp"
+#include "String.hpp"
 #include "TypeSys.hpp"
 
 #include <fstream>
@@ -569,6 +570,16 @@ namespace
                 Out << "    ///\n";
             }
 
+            if (Var.GetName() != cf::String::ToLuaIdentifier(Var.GetName()))
+            {
+                // This is relevant because member names such as "Sel. Mode":
+                //   - will below generate output like `number Sel. Mode;`, which is not valid C++
+                //     (pseudo-)code so that Doxygen cannot produce the intended, proper documentation,
+                //   - can be used in Lua code such as `someObject:get("Sel. Mode")`, but achieving
+                //     the same by rewriting this as `someObject.Sel. Mode` will not possible.
+                Out << "    // WARNING: \"" << Var.GetName() << "\" is not a valid Lua identifier!\n";
+            }
+
             Out << "    " << "/// @cppType{" << Visitor.GetCppType() << "}\n";
             Out << "    " << Visitor.GetLuaType() << " " << Var.GetName() << ";\n";
         }
@@ -599,7 +610,7 @@ namespace
                 ClassName = ClassName.substr(ColonPos + 2);
             }
 
-            // Skip the CaWE implementation-specific component.
+            // Skip the Gui Editor's "app" component.
             if (Namespace == "GuiEditor")
                 continue;
 
