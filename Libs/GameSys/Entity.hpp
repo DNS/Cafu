@@ -180,15 +180,23 @@ namespace cf
 
             /// Finds the entity with the given ID in the hierachy tree of this entity.
             /// Use `GetRoot()->Find(xy)` in order to search the entire world for the entity with ID `xy`.
+            ///
+            /// Note that the method cannot be `const` because the return type is not `const` (see the implementation
+            /// for details).
+            ///
             /// @param WantedID   The ID of the entity that is to be found.
             /// @returns The pointer to the desired entity, or `NULL` if no entity with this ID exists.
-            IntrusivePtrT<EntityT> FindID(unsigned int WantedID);   // Method cannot be const because return type is not const -- see implementation.
+            IntrusivePtrT<EntityT> FindID(unsigned int WantedID);
 
             /// Finds the entity with the name WantedName in the hierachy tree of this entity.
             /// Use `GetRoot()->Find("xy")` in order to search the entire world for the entity with name `xy`.
+            ///
+            /// Note that the method cannot be `const` because the return type is not `const` (see the implementation
+            /// for details).
+            ///
             /// @param WantedName   The name of the entity that is to be found.
             /// @returns The pointer to the desired entity, or `NULL` if no entity with this name exists.
-            IntrusivePtrT<EntityT> Find(const std::string& WantedName);   // Method cannot be const because return type is not const -- see implementation.
+            IntrusivePtrT<EntityT> Find(const std::string& WantedName);
 
             /// Returns whether the given entity is in the hierarchy (sub-tree) of this entity.
             bool Has(IntrusivePtrT<EntityT> Ent) const;

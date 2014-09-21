@@ -812,7 +812,7 @@ static const cf::TypeSys::MethsDocT META_FindByName =
 {
     "FindByName",
     "Finds the entity with the given name in the hierachy tree of this entity.\n"
-    "Use `GetRoot()->Find(\"xy\")` in order to search the entire world for the entity with name `xy`.\n"
+    "Use `GetRoot():Find(\"xy\")` in order to search the entire world for the entity with name `xy`.\n"
     "@param Name   The name of the entity that is to be found.\n"
     "@returns The entity with the desired name, or `nil` if no entity with this name exists.\n",
     "EntityT", "(string Name)"
