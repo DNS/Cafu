@@ -335,6 +335,16 @@ IntrusivePtrT<EntityT> EntityT::Find(const std::string& WantedName)
 }
 
 
+void EntityT::FindByComponent(const std::string& TypeName, ArrayT< IntrusivePtrT<EntityT> >& Result)
+{
+    if (GetComponent(TypeName) != NULL)
+        Result.PushBack(this);
+
+    for (unsigned int ChildNr = 0; ChildNr < m_Children.Size(); ChildNr++)
+        m_Children[ChildNr]->FindByComponent(TypeName, Result);
+}
+
+
 bool EntityT::Has(IntrusivePtrT<EntityT> Ent) const
 {
     while (Ent != NULL)
@@ -837,6 +847,37 @@ int EntityT::FindByName(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_FindByComponent =
+{
+    "FindByComponent",
+    "Finds all entities in the hierachy tree of this entity that have at least one component of the given (type) name.\n"
+    "Use `GetRoot():FindByComponent(\"xy\")` in order to search the entire world for entities with component `xy`.\n"
+    "\n"
+    "@param TypeName   The type name of the component that found entities must have\n"
+    "@returns The array of entities that have a component of the desired type.\n",
+    "table", "(string TypeName)"
+};
+
+int EntityT::FindByComponent(lua_State* LuaState)
+{
+    ScriptBinderT Binder(LuaState);
+    IntrusivePtrT<EntityT> Ent = Binder.GetCheckedObjectParam< IntrusivePtrT<EntityT> >(1);
+
+    ArrayT< IntrusivePtrT<EntityT> > Result;
+    Ent->FindByComponent(luaL_checkstring(LuaState, 2), Result);
+
+    lua_newtable(LuaState);
+
+    for (unsigned long EntNr = 0; EntNr < Result.Size(); EntNr++)
+    {
+        Binder.Push(Result[EntNr]);
+        lua_rawseti(LuaState, -2, EntNr + 1);
+    }
+
+    return 1;
+}
+
+
 static const cf::TypeSys::MethsDocT META_GetBasics =
 {
     "GetBasics",
@@ -1010,6 +1051,7 @@ const luaL_Reg EntityT::MethodsList[]=
     { "GetChildren",     GetChildren },
     { "FindByID",        FindByID },
     { "FindByName",      FindByName },
+    { "FindByComponent", FindByComponent },
     { "GetBasics",       GetBasics },
     { "GetTransform",    GetTransform },
     { "AddComponent",    AddComponent },
@@ -1030,6 +1072,7 @@ const cf::TypeSys::MethsDocT EntityT::DocMethods[] =
     META_GetChildren,
     META_FindByID,
     META_FindByName,
+    META_FindByComponent,
     META_GetBasics,
     META_GetTransform,
     META_AddComponent,

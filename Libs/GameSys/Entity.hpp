@@ -198,6 +198,17 @@ namespace cf
             /// @returns The pointer to the desired entity, or `NULL` if no entity with this name exists.
             IntrusivePtrT<EntityT> Find(const std::string& WantedName);
 
+            /// Finds all entities in the hierachy tree of this entity that have at least one component of the given
+            /// (type) name. Use `GetRoot()->FindByComponent("xy")` in order to search the entire world for entities
+            /// with component `xy`.
+            ///
+            /// Note that the method cannot be `const` because the return type is not `const` (see the implementation
+            /// for details).
+            ///
+            /// @param TypeName   The type name of the component that found entities must have.
+            /// @param Result     All found entities are appended to this array.
+            void FindByComponent(const std::string& TypeName, ArrayT< IntrusivePtrT<EntityT> >& Result);
+
             /// Returns whether the given entity is in the hierarchy (sub-tree) of this entity.
             bool Has(IntrusivePtrT<EntityT> Ent) const;
 
@@ -306,6 +317,7 @@ namespace cf
             static int GetChildren(lua_State* LuaState);
             static int FindByID(lua_State* LuaState);
             static int FindByName(lua_State* LuaState);
+            static int FindByComponent(lua_State* LuaState);
             static int GetBasics(lua_State* LuaState);
             static int GetTransform(lua_State* LuaState);
             static int AddComponent(lua_State* LuaState);
