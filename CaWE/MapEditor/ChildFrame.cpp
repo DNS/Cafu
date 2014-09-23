@@ -406,17 +406,17 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item0->Append( item6, wxT("&View") );
 
     wxMenu* item8 = new wxMenu;
-    item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_SELECTION,             wxT("Selection\tShift+S"), wxT(""));
-    item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_CAMERA,                wxT("Camera\tShift+C"), wxT(""));
-    item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_NEWBRUSH,              wxT("New Brush\tShift+B"), wxT(""));
-    item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_NEWENTITY,             wxT("New Entity\tShift+E"), wxT(""));
-    item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_NEWBEZIERPATCH,        wxT("New Bezier Patch\tShift+P"), wxT(""));
-    item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_NEWTERRAIN,            wxT("New Terrain\tShift+T"), wxT(""));
-    item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_NEWDECAL,              wxT("New Decal\tShift+D"), wxT(""));
-    item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_EDITSURFACEPROPERTIES, wxT("Edit Surface Properties\tShift+A"), wxT(""));
-    item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_TERRAINEDITOR,         wxT("Terrain Editor\tShift+F"), wxT(""));
-    item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_CLIP,                  wxT("Clip Brushes\tShift+X"), wxT(""));
-    item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_EDITVERTICES,          wxT("Edit Brush Vertices\tShift+V"), wxT(""));
+    item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_SELECTION,             wxT("&Selection\tCtrl+1"), wxT(""));
+    item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_CAMERA,                wxT("&Camera\tCtrl+2"), wxT(""));
+    item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_NEWBRUSH,              wxT("New &Brush\tCtrl+3"), wxT(""));
+    item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_NEWENTITY,             wxT("New &Entity\tCtrl+4"), wxT(""));
+    item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_NEWBEZIERPATCH,        wxT("New Bezier &Patch\tCtrl+5"), wxT(""));
+    item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_NEWTERRAIN,            wxT("New &Terrain\tCtrl+6"), wxT(""));
+    item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_NEWDECAL,              wxT("New &Decal\tCtrl+7"), wxT(""));
+    item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_EDITSURFACEPROPERTIES, wxT("Edit Surf&ace Properties\tCtrl+Shift+A"), wxT(""));
+    item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_TERRAINEDITOR,         wxT("Edit Te&rrain\tCtrl+Shift+T"), wxT(""));
+    item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_CLIP,                  wxT("Clip Br&ushes\tCtrl+Shift+X"), wxT(""));
+    item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_EDITVERTICES,          wxT("Edit &Vertices\tCtrl+Shift+V"), wxT(""));
     item8->AppendSeparator();
     item8->Append(ID_MENU_TOOLS_CARVE, wxT("&Carve\tCtrl+Shift+C"), wxT("") );
     item8->Append(ID_MENU_TOOLS_MAKE_HOLLOW, wxT("Make Hollow\tCtrl+H"), wxT("") );
