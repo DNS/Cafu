@@ -175,11 +175,18 @@ void Generic3DWindowT::ProcessInput(float FrameTime)
     if (wxWindow::FindFocus()==this)
     {
         // Keyboard layout summary:
+        //
         //   1) WASD move and strafe (4 axes).
         //   2) POS1 and END move up/down (remaining 2 axes).
         //   3) Arrow keys rotate (heading and pitch).
         //   4) Ctrl + arrow keys == WASD (first 4 axes again).
-        // Note that "Shift + arrow keys" is used by the Selection and Edit Vertices tools for nudging objects and vertices.
+        //
+        // Note that:
+        //
+        //   - "Shift + arrow keys" is used by the Selection and Edit Vertices tools for nudging objects and vertices.
+        //   - WASD, POS1 and END cannot be used if Ctrl is down, because e.g. Ctrl+S is also used as a main menu
+        //     hotkey, and if such a hotkey is used, it should not inadvertently cause any camera movement.
+        //
         const bool ControlDown   =wxGetKeyState(WXK_CONTROL);
         const bool ShiftDown     =wxGetKeyState(WXK_SHIFT);
         const bool LeftArrowDown =wxGetKeyState(WXK_LEFT)  && !ShiftDown;
@@ -196,11 +203,11 @@ void Generic3DWindowT::ProcessInput(float FrameTime)
 
 
         // Strafe left / right.
-        if (wxGetKeyState(wxKeyCode('D')) || (ControlDown && RightArrowDown))
+        if ((!ControlDown && wxGetKeyState(wxKeyCode('D'))) || (ControlDown && RightArrowDown))
         {
             m_CameraVel.x=std::min(m_CameraVel.x+CameraAccel.x*FrameTime,  CameraMaxVel.x);
         }
-        else if (wxGetKeyState(wxKeyCode('A')) || (ControlDown && LeftArrowDown))
+        else if ((!ControlDown && wxGetKeyState(wxKeyCode('A'))) || (ControlDown && LeftArrowDown))
         {
             m_CameraVel.x=std::max(m_CameraVel.x-CameraAccel.x*FrameTime, -CameraMaxVel.x);
         }
@@ -212,11 +219,11 @@ void Generic3DWindowT::ProcessInput(float FrameTime)
         }
 
         // Move forward / backward.
-        if (wxGetKeyState(wxKeyCode('W')) || (ControlDown && UpArrowDown))
+        if ((!ControlDown && wxGetKeyState(wxKeyCode('W'))) || (ControlDown && UpArrowDown))
         {
             m_CameraVel.y=std::min(m_CameraVel.y+CameraAccel.y*FrameTime,  CameraMaxVel.y);
         }
-        else if (wxGetKeyState(wxKeyCode('S')) || (ControlDown && DownArrowDown))
+        else if ((!ControlDown && wxGetKeyState(wxKeyCode('S'))) || (ControlDown && DownArrowDown))
         {
             m_CameraVel.y=std::max(m_CameraVel.y-CameraAccel.y*FrameTime, -CameraMaxVel.y);
         }
@@ -228,11 +235,11 @@ void Generic3DWindowT::ProcessInput(float FrameTime)
         }
 
         // Hover up / down.
-        if (wxGetKeyState(WXK_HOME))
+        if (!ControlDown && wxGetKeyState(WXK_HOME))
         {
             m_CameraVel.z=std::min(m_CameraVel.z+CameraAccel.z*FrameTime,  CameraMaxVel.z);
         }
-        else if (wxGetKeyState(WXK_END))
+        else if (!ControlDown && wxGetKeyState(WXK_END))
         {
             m_CameraVel.z=std::max(m_CameraVel.z-CameraAccel.z*FrameTime, -CameraMaxVel.z);
         }
