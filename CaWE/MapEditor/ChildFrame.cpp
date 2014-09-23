@@ -245,12 +245,11 @@ BEGIN_EVENT_TABLE(ChildFrameT, wxMDIChildFrame)
     EVT_BUTTON(ID_MENU_EDIT_DELETE,                ChildFrameT::OnMenuEditDelete)       // This ID is re-used for a button in the "Entity Hierarchy" dialog.
     EVT_MENU  (ID_MENU_EDIT_SELECT_NONE,           ChildFrameT::OnMenuEditSelectNone)
     EVT_MENU  (wxID_SELECTALL,                     ChildFrameT::OnMenuEditSelectAll)
-    EVT_MENU  (ID_MENU_EDIT_ENTITY_INSPECTOR,      ChildFrameT::OnMenuEditPropsDialog)
 
-    EVT_UPDATE_UI_RANGE(wxID_UNDO,                  wxID_REDO,                     ChildFrameT::OnMenuEditUpdate)
-    EVT_UPDATE_UI_RANGE(wxID_CUT,                   wxID_PASTE,                    ChildFrameT::OnMenuEditUpdate)
-    EVT_UPDATE_UI_RANGE(ID_MENU_EDIT_PASTE_SPECIAL, ID_MENU_EDIT_ENTITY_INSPECTOR, ChildFrameT::OnMenuEditUpdate)
-    EVT_UPDATE_UI      (wxID_SELECTALL,                                            ChildFrameT::OnMenuEditUpdate)
+    EVT_UPDATE_UI_RANGE(wxID_UNDO,                  wxID_REDO,                ChildFrameT::OnMenuEditUpdate)
+    EVT_UPDATE_UI_RANGE(wxID_CUT,                   wxID_PASTE,               ChildFrameT::OnMenuEditUpdate)
+    EVT_UPDATE_UI_RANGE(ID_MENU_EDIT_PASTE_SPECIAL, ID_MENU_EDIT_SELECT_NONE, ChildFrameT::OnMenuEditUpdate)
+    EVT_UPDATE_UI      (wxID_SELECTALL,                                       ChildFrameT::OnMenuEditUpdate)
 
     EVT_MENU_RANGE     (ID_MENU_VIEW_TOOLBARS,         ID_MENU_VIEW_CENTER_3D_VIEWS,    ChildFrameT::OnMenuView)
     EVT_UPDATE_UI_RANGE(ID_MENU_VIEW_TOOLBARS,         ID_MENU_VIEW_CENTER_3D_VIEWS,    ChildFrameT::OnMenuViewUpdate)
@@ -351,12 +350,10 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item2->Append( wxID_COPY, wxT("&Copy\tCtrl+C"), wxT("") );
     item2->Append( wxID_PASTE, wxT("&Paste\tCtrl+V"), wxT("") );
     item2->Append(ID_MENU_EDIT_PASTE_SPECIAL, wxT("Paste &Special..."), wxT("") );
-    item2->Append(ID_MENU_EDIT_DELETE, wxT("&Delete\tShift+Del"), wxT("") );
+    item2->Append(ID_MENU_EDIT_DELETE, wxT("&Delete\tCtrl+Del"), wxT("") );
     item2->AppendSeparator();
     item2->Append(ID_MENU_EDIT_SELECT_NONE, wxT("Select &None\tCtrl+Q"), wxT("") );
     item2->Append( wxID_SELECTALL, wxT("Select &All"), wxT("") );
-    item2->AppendSeparator();
-    item2->AppendCheckItem(ID_MENU_EDIT_ENTITY_INSPECTOR, wxT("Object &Properties\tAlt+Enter"), wxT("") );
     item0->Append( item2, wxT("&Edit") );
 
     wxMenu* item3 = new wxMenu;
@@ -388,7 +385,7 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item6->AppendSeparator();
 
     item6->AppendCheckItem(ID_MENU_VIEW_PANELS_ENTITY_HIERARCHY, "Entity &Hierarchy", "Show/Hide the Entity Hierarchy");
-    item6->AppendCheckItem(ID_MENU_VIEW_PANELS_ENTITY_INSPECTOR, "Entity &Inspector", "Show/Hide the Entity Inspector");
+    item6->AppendCheckItem(ID_MENU_VIEW_PANELS_ENTITY_INSPECTOR, "Entity &Inspector\tAlt+Enter", "Show/Hide the Entity Inspector");
     item6->AppendCheckItem(ID_MENU_VIEW_PANELS_MATERIALS,        "&Materials", "");
     item6->AppendCheckItem(ID_MENU_VIEW_PANELS_CONSOLE,          "&Console", "");
     item6->AppendSeparator();
@@ -401,8 +398,8 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item6->Append(ID_MENU_VIEW_SAVE_USER_PERSPECTIVE, "&Save user window layout", "Saves the current window layout");
     item6->Append(ID_MENU_VIEW_LOAD_DEFAULT_PERSPECTIVE, "Load &default window layout", "Restores the default window layout");
     item6->AppendSeparator();
-    item6->Append(ID_MENU_VIEW_CENTER_2D_VIEWS, wxT("Center &2D Views on Selection\tCtrl+E"), wxT("") );
-    item6->Append(ID_MENU_VIEW_CENTER_3D_VIEWS, wxT("Center &3D Views on Selection"), wxT("") );
+    item6->Append(ID_MENU_VIEW_CENTER_2D_VIEWS, wxT("Center &2D Views on Sel.\tCtrl+E"), wxT("") );
+    item6->Append(ID_MENU_VIEW_CENTER_3D_VIEWS, wxT("Center &3D Views on Sel.\tCtrl+Shift+E"), wxT("") );
     item6->AppendSeparator();
     item6->Append(ID_MENU_VIEW_SHOW_ENTITY_INFO, wxT("Show Entity &Info"), wxT(""), wxITEM_CHECK);
     item6->Append(ID_MENU_VIEW_SHOW_ENTITY_TARGETS, wxT("Show Entity &Targets"), wxT(""), wxITEM_CHECK );
@@ -421,13 +418,13 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_CLIP,                  wxT("Clip Brushes\tShift+X"), wxT(""));
     item8->AppendRadioItem(ID_MENU_TOOLS_TOOL_EDITVERTICES,          wxT("Edit Brush Vertices\tShift+V"), wxT(""));
     item8->AppendSeparator();
-    item8->Append(ID_MENU_TOOLS_CARVE, wxT("&Carve\tShift+Ctrl+C"), wxT("") );
+    item8->Append(ID_MENU_TOOLS_CARVE, wxT("&Carve\tCtrl+Shift+C"), wxT("") );
     item8->Append(ID_MENU_TOOLS_MAKE_HOLLOW, wxT("Make Hollow\tCtrl+H"), wxT("") );
     item8->AppendSeparator();
     item8->Append(ID_MENU_TOOLS_ASSIGN_PRIM_TO_ENTITY, wxT("&Tie to Entity\tCtrl+T"), wxT("") );
     item8->AppendSeparator();
     item8->Append(ID_MENU_TOOLS_REPLACE_MATERIALS, wxT("R&eplace Materials"), wxT("") );
-    item8->AppendCheckItem(ID_MENU_TOOLS_MATERIAL_LOCK, wxT("Material &Lock\tShift+L"), wxT("") );
+    item8->AppendCheckItem(ID_MENU_TOOLS_MATERIAL_LOCK, wxT("Material &Lock\tCtrl+L"), wxT("") );
     item8->AppendSeparator();
     item8->Append(ID_MENU_TOOLS_SNAP_SELECTION_TO_GRID, wxT("Snap Selection to Grid\tCtrl+B"), wxT("") );
     item8->Append(ID_MENU_TOOLS_TRANSFORM, wxT("Transform\tCtrl+M"), wxT("") );
@@ -1204,21 +1201,6 @@ void ChildFrameT::OnMenuEditSelectAll(wxCommandEvent& CE)
 }
 
 
-void ChildFrameT::OnMenuEditPropsDialog(wxCommandEvent& CE)
-{
-    wxAuiPaneInfo& PaneInfo = m_AUIManager.GetPane(m_InspectorDialog);
-
-    if (!PaneInfo.IsShown())
-    {
-        const int BestPage = m_InspectorDialog->GetBestPage(m_Doc->GetSelection());
-
-        m_InspectorDialog->ChangePage(BestPage);
-    }
-
-    PaneToggleShow(PaneInfo);
-}
-
-
 void ChildFrameT::OnMenuEditUpdate(wxUpdateUIEvent& UE)
 {
     switch (UE.GetId())
@@ -1258,12 +1240,6 @@ void ChildFrameT::OnMenuEditUpdate(wxUpdateUIEvent& UE)
 
             UE.Enable((SrcEnts.Size() > 0 || SrcPrims.Size() > 0) &&
                       GetToolManager().GetActiveToolType() != &ToolEditSurfaceT::TypeInfo);
-            break;
-        }
-
-        case ID_MENU_EDIT_ENTITY_INSPECTOR:
-        {
-            UE.Check(m_AUIManager.GetPane(m_InspectorDialog).IsShown());
             break;
         }
     }

@@ -88,7 +88,6 @@ class ChildFrameT : public wxMDIChildFrame
         ID_MENU_EDIT_DELETE,
         ID_MENU_EDIT_SELECT_NONE,
      // ID_MENU_EDIT_SELECT_ALL,
-        ID_MENU_EDIT_ENTITY_INSPECTOR,
 
         ID_MENU_SELECTION_APPLY_MATERIAL,       // TODO: Review...
 
@@ -295,7 +294,6 @@ class ChildFrameT : public wxMDIChildFrame
     void OnMenuEditDelete        (wxCommandEvent&  CE);
     void OnMenuEditSelectNone    (wxCommandEvent&  CE);
     void OnMenuEditSelectAll     (wxCommandEvent&  CE);
-    void OnMenuEditPropsDialog   (wxCommandEvent&  CE);
     void OnMenuEditUpdate        (wxUpdateUIEvent& UE);
 
     void OnMenuView       (wxCommandEvent&    CE);  ///< Event handler for View    menu events.
