@@ -2106,7 +2106,6 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
         CompatSubmitCommand(new CommandDeleteT(*this, EmptyEntities));
 
     m_ChildFrame->GetToolManager().SetActiveTool(GetToolTIM().FindTypeInfoByName("ToolSelectionT"));
-    m_ChildFrame->GetInspectorDialog()->ChangePage(1);
     m_ChildFrame->ShowPane(m_ChildFrame->GetInspectorDialog());
 }
 

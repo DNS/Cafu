@@ -680,9 +680,6 @@ bool ToolSelectionT::OnLMouseDown3D(ViewWindow3DT& ViewWindow, wxMouseEvent& ME)
 
         if (!m_MapDoc.GetChildFrame()->IsPaneShown(Insp))
         {
-            const int BestPage=Insp->GetBestPage(m_MapDoc.GetSelection());
-
-            Insp->ChangePage(BestPage);
             m_MapDoc.GetChildFrame()->ShowPane(Insp);
         }
 

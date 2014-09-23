@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_DIALOG_INSPECTOR_HPP_INCLUDED
 #define CAFU_DIALOG_INSPECTOR_HPP_INCLUDED
 
+#include "ObserverPattern.hpp"
 #include "Templates/Array.hpp"
 #include "wx/panel.h"
 
@@ -33,21 +34,21 @@ class MapElementT;
 class wxNotebook;
 
 
-class InspectorDialogT : public wxPanel
+class InspectorDialogT : public wxPanel, public ObserverT
 {
     public:
 
     InspectorDialogT(wxWindow* Parent, MapDocumentT* MapDoc);
+    ~InspectorDialogT();
 
-    void ChangePage(int Tab);
-
-    /// Based on the current selection, (try to) make an intelligent guess on which page of the dialog
-    /// (scene graph, entity properties or primitive properties) should be shown.
-    int GetBestPage(const ArrayT<MapElementT*>& Selection) const;
+    // ObserverT implementation.
+    void NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<MapElementT*>& OldSelection, const ArrayT<MapElementT*>& NewSelection) override;
+    void NotifySubjectDies(SubjectT* dyingSubject) override;
 
 
     private:
 
+    MapDocumentT*                      m_MapDoc;
     wxNotebook*                        Notebook;
     MapEditor::EntityInspectorDialogT* m_EntityInspectorDialog;
     InspDlgPrimitivePropsT*            PrimitiveProps;

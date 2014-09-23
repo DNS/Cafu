@@ -33,6 +33,7 @@ using namespace MapEditor;
 
 InspectorDialogT::InspectorDialogT(wxWindow* Parent, MapDocumentT* MapDoc)
     : wxPanel(Parent, -1),
+      m_MapDoc(MapDoc),
       Notebook(NULL),
       m_EntityInspectorDialog(NULL)
 {
@@ -49,47 +50,56 @@ InspectorDialogT::InspectorDialogT(wxWindow* Parent, MapDocumentT* MapDoc)
 
     this->SetSizer(mainSizer);
     mainSizer->SetSizeHints(this);
+
+    m_MapDoc->RegisterObserver(this);
 }
 
 
-void InspectorDialogT::ChangePage(int Page)
+InspectorDialogT::~InspectorDialogT()
 {
-    Notebook->ChangeSelection(Page);
+    if (m_MapDoc) m_MapDoc->UnregisterObserver(this);
 }
 
 
-int InspectorDialogT::GetBestPage(const ArrayT<MapElementT*>& Selection) const
+void InspectorDialogT::NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<MapElementT*>& OldSelection, const ArrayT<MapElementT*>& NewSelection)
 {
-    if (Selection.Size()==0)
-    {
-        // Nothing is selected, so just show the scene graph.
-        return 0;
-    }
-    else if (Selection.Size()==1)
-    {
-        MapElementT* MapElement=Selection[0];
+    // If the new selection is empty, don't change the notebook page.
+    if (NewSelection.Size() == 0) return;
 
-        return (MapElement->GetType() == &MapEntRepresT::TypeInfo) ? 0 : 1;
-    }
-    else
-    {
-        // Multiple map elements are selected.
-        // If we have only map primitives, open the Primitive Properties tab
-        // (even though it doesn't make much sense - primitive properties can be edited for a single item only).
-        // One or more entities in the selection cause us to open the Entitiy Properties tab.
-        bool HaveEntities=false;
+    bool HaveEntities   = false;
+    bool HavePrimitives = false;
 
-        for (unsigned long SelNr=0; SelNr<Selection.Size(); SelNr++)
+    for (unsigned long SelNr = 0; SelNr < NewSelection.Size(); SelNr++)
+    {
+        if (NewSelection[SelNr]->GetType() == &MapEntRepresT::TypeInfo)
         {
-            MapElementT* MapElement=Selection[SelNr];
-
-            if (MapElement->GetType() == &MapEntRepresT::TypeInfo)
-            {
-                HaveEntities=true;
-                break;
-            }
+            HaveEntities = true;
         }
-
-        return HaveEntities ? 0 : 1;
+        else
+        {
+            HavePrimitives = true;
+        }
     }
+
+    // If the old selection was empty and the new selection has entities, then show the
+    // Entity Inspector (irrespective of whether the new selection has primitives as well).
+    if (OldSelection.Size() == 0 && HaveEntities)
+    {
+        Notebook->ChangeSelection(0);
+        return;
+    }
+
+    // If the new selection has both entities and primitives, don't change the notebook page.
+    if (HaveEntities && HavePrimitives) return;
+
+    // Show the notebook page that reflects the type of the selected elements.
+    Notebook->ChangeSelection(HaveEntities ? 0 : 1);
+}
+
+
+void InspectorDialogT::NotifySubjectDies(SubjectT* dyingSubject)
+{
+    wxASSERT(dyingSubject == m_MapDoc);
+
+    m_MapDoc = NULL;
 }
