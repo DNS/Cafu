@@ -166,6 +166,19 @@ class ComponentBasicsT : public ComponentBaseT
     /// Are the map primitives of this entity fixed and immovable, never moving around in the game world?
     /// @cppType{bool}
     boolean Static;
+
+    /// In the Map Editor, when the user clicks on an element of the entity, what elements are actually selected?
+    ///
+    /// @par Typical values:
+    /// <table>
+    /// <tr><th>Value</th><th>Description</th></tr>
+    /// <tr><td>0</td><td>single</td></tr>
+    /// <tr><td>1</td><td>group</td></tr>
+    /// <tr><td>2</td><td>locked</td></tr>
+    /// </table>
+    ///
+    /// @cppType{int}
+    number SelMode;
 };
 
 
