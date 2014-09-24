@@ -50,11 +50,19 @@ class EntityT
     EntityT FindByID(number ID);
 
     /// Finds the entity with the given name in the hierachy tree of this entity.
-    /// Use `GetRoot()->Find("xy")` in order to search the entire world for the entity with name `xy`.
+    /// Use `GetRoot():Find("xy")` in order to search the entire world for the entity with name `xy`.
     /// @param Name   The name of the entity that is to be found.
     /// @returns The entity with the desired name, or `nil` if no entity with this name exists.
     ///
     EntityT FindByName(string Name);
+
+    /// Finds all entities in the hierachy tree of this entity that have at least one component of the given (type) name.
+    /// Use `GetRoot():FindByComponent("xy")` in order to search the entire world for entities with component `xy`.
+    ///
+    /// @param TypeName   The type name of the component that found entities must have
+    /// @returns The array of entities that have a component of the desired type.
+    ///
+    table FindByComponent(string TypeName);
 
     /// This method returns the "Basics" component of this entity.
     ComponentBasicsT GetBasics();

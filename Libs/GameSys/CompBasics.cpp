@@ -137,10 +137,10 @@ const char* ComponentBasicsT::DocClass =
 
 const cf::TypeSys::VarsDocT ComponentBasicsT::DocVars[] =
 {
-    { "Name",      "The name of the entity. Entity names must be valid Lua script identifiers and unique among their siblings." },
-    { "Static",    "Are the map primitives of this entity fixed and immovable, never moving around in the game world?" },
-    { "Show",      "Is this entity currently shown or hidden in the Map Editor's 2D and 3D views?" },
-    { "Sel. Mode", "In the Map Editor, when the user clicks on an element of the entity, what elements are actually selected?" },
+    { "Name",    "The name of the entity. Entity names must be valid Lua script identifiers and unique among their siblings." },
+    { "Static",  "Are the map primitives of this entity fixed and immovable, never moving around in the game world?" },
+    { "Show",    "Is this entity currently shown or hidden in the Map Editor's 2D and 3D views?" },
+    { "SelMode", "In the Map Editor, when the user clicks on an element of the entity, what elements are actually selected?" },
     { NULL, NULL }
 };
 
@@ -150,12 +150,14 @@ ComponentBasicsT::ComponentBasicsT()
       m_Name("Name", "Entity", NULL, *this),
       m_Static("Static", false),
       m_Show("Show", true),
-      m_SelMode("Sel. Mode", SINGLE)
+      m_SelMode("SelMode", SINGLE)
 {
     GetMemberVars().Add(&m_Name);
     GetMemberVars().Add(&m_Static);
     GetMemberVars().Add(&m_Show);
     GetMemberVars().Add(&m_SelMode);
+
+    GetMemberVars().AddAlias("Sel. Mode", &m_SelMode);
 }
 
 
@@ -170,6 +172,8 @@ ComponentBasicsT::ComponentBasicsT(const ComponentBasicsT& Comp)
     GetMemberVars().Add(&m_Static);
     GetMemberVars().Add(&m_Show);
     GetMemberVars().Add(&m_SelMode);
+
+    GetMemberVars().AddAlias("Sel. Mode", &m_SelMode);
 }
 
 

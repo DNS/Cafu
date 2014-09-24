@@ -37,7 +37,7 @@ class WorldT
     ///     --// Create some components and add them to soldier1.
     ///     local c1 = gui:new("ComponentTextT")
     ///     c1:set("Text", "OK")
-    ///     c1:set("hor. Align", 0)
+    ///     c1:set("horAlign", 0)
     ///
     ///     local c2 = gui:new("ComponentBorderT")
     ///     c2:set("Width", 0.6)
@@ -65,6 +65,9 @@ class WorldT
     ///
     /// @returns The newly created object.
     object new(string ClassName, string InstanceName="");
+
+    /// Returns the root entity of this world as previously set by SetRootEntity().
+    EntityT GetRootEntity();
 
     /// Sets the root entity for this world.
     /// If you use the Map Editor that is part of the CaWE application, a proper call to this method is automatically included in the generated files.

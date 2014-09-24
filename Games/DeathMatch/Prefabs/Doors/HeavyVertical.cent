@@ -34,7 +34,7 @@ vertical_door:AddChild(vertical_door.lower_half)
 -- *******************************************************
 
 function vertical_door:OnInit()
-    self:GetBasics():set("Sel. Mode", 0)
+    self:GetBasics():set("SelMode", 0)
     self:GetTransform():set("Origin", 0, 0, 0)
 
     local c1 = world:new("ComponentScriptT")
@@ -49,7 +49,7 @@ Door.MoveTime = 1
 end
 
 function vertical_door.upper_half:OnInit()
-    self:GetBasics():set("Sel. Mode", 0)
+    self:GetBasics():set("SelMode", 0)
     self:GetTransform():set("Origin", 0, 0, 96)
 
     local c1 = world:new("ComponentScriptT")
@@ -63,7 +63,7 @@ Part:GetEntity().MoveVec = { 0.0, 0.0, 62.0 }
 end
 
 function vertical_door.lower_half:OnInit()
-    self:GetBasics():set("Sel. Mode", 0)
+    self:GetBasics():set("SelMode", 0)
     self:GetTransform():set("Origin", 0, 0, 32)
 
     local c1 = world:new("ComponentScriptT")

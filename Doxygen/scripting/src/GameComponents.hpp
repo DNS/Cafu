@@ -124,7 +124,7 @@ class ComponentBaseT
 };
 
 
-/// This component adds the basics of the entity (its name and the "is shown?" and "is static?" flags).
+/// This component adds the basic details of the entity (its name, the "is static?" flag, Map Editor data).
 ///
 /// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
 /// must be used with the get() and set() methods at this time -- see get() and set() for details.
@@ -159,13 +159,26 @@ class ComponentBasicsT : public ComponentBaseT
     /// @cppType{std::string}
     string Name;
 
-    /// Is this entity currently shown?
-    /// @cppType{bool}
-    boolean Show;
-
     /// Are the map primitives of this entity fixed and immovable, never moving around in the game world?
     /// @cppType{bool}
     boolean Static;
+
+    /// Is this entity currently shown or hidden in the Map Editor's 2D and 3D views?
+    /// @cppType{bool}
+    boolean Show;
+
+    /// In the Map Editor, when the user clicks on an element of the entity, what elements are actually selected?
+    ///
+    /// @par Typical values:
+    /// <table>
+    /// <tr><th>Value</th><th>Description</th></tr>
+    /// <tr><td>0</td><td>single</td></tr>
+    /// <tr><td>1</td><td>group</td></tr>
+    /// <tr><td>2</td><td>locked</td></tr>
+    /// </table>
+    ///
+    /// @cppType{int}
+    number SelMode;
 };
 
 

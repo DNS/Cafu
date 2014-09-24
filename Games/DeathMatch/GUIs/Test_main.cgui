@@ -18,12 +18,12 @@ end
 
 
 function ButtonToggleHor:OnMouseButtonDown()
-    local newAlign = TestGUI:GetComponent("Text"):get("hor. Align") + 1
+    local newAlign = TestGUI:GetComponent("Text"):get("horAlign") + 1
 
     if (newAlign > 1) then newAlign = -1 end
 
-    TestGUI:GetComponent("Text"):set("hor. Align", newAlign)
-    self:GetComponent("Text"):set("hor. Align", newAlign)
+    TestGUI:GetComponent("Text"):set("horAlign", newAlign)
+    self:GetComponent("Text"):set("horAlign", newAlign)
 
     self:GetTransform():interpolate("Rotation", 0, 360, 250)
     return true;
@@ -32,13 +32,13 @@ end
 
 
 function ButtonToggleVer:OnMouseButtonDown()
-    local newAlign=TestGUI:GetComponent("Text"):get("ver. Align") + 1
+    local newAlign=TestGUI:GetComponent("Text"):get("verAlign") + 1
 
     if (newAlign > 1) then newAlign = -1 end
 
-    TestGUI:GetComponent("Text"):set("ver. Align", newAlign)
-    ButtonQuit:GetComponent("Text"):set("ver. Align", newAlign)
-    self:GetComponent("Text"):set("ver. Align", newAlign)
+    TestGUI:GetComponent("Text"):set("verAlign", newAlign)
+    ButtonQuit:GetComponent("Text"):set("verAlign", newAlign)
+    self:GetComponent("Text"):set("verAlign", newAlign)
 
     self:GetTransform():interpolate("Pos.y", 380, 300, 500)
     self:GetTransform():interpolate("Pos.y", 300, 380, 500)

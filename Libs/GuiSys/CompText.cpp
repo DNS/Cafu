@@ -206,14 +206,14 @@ const char* ComponentTextT::DocClass =
 
 const cf::TypeSys::VarsDocT ComponentTextT::DocVars[] =
 {
-    { "Text",       "The text to show in this window." },
-    { "Font",       "The name of the font." },
-    { "Scale",      "The scale that is applied for rendering the text." },
-    { "Padding",    "Padding between text and window rectangle." },
-    { "Color",      "The text color." },
-    { "Alpha",      "The alpha component of the color." },
-    { "hor. Align", "How the text is aligned horizontally (left, center, right)." },
-    { "ver. Align", "How the text is aligned vertically (top, middle, bottom)." },
+    { "Text",     "The text to show in this window." },
+    { "Font",     "The name of the font." },
+    { "Scale",    "The scale that is applied for rendering the text." },
+    { "Padding",  "Padding between text and window rectangle." },
+    { "Color",    "The text color." },
+    { "Alpha",    "The alpha component of the color." },
+    { "horAlign", "How the text is aligned horizontally (left, center, right)." },
+    { "verAlign", "How the text is aligned vertically (top, middle, bottom)." },
     { NULL, NULL }
 };
 
@@ -227,8 +227,8 @@ ComponentTextT::ComponentTextT()
       m_Padding("Padding", Vector2fT(0.0f, 0.0f), FlagsPaddingLabels),
       m_Color("Color", Vector3fT(0.5f, 0.5f, 1.0f), FlagsIsColor),
       m_Alpha("Alpha", 1.0f),
-      m_AlignHor("hor. Align", VarTextAlignHorT::LEFT),
-      m_AlignVer("ver. Align", VarTextAlignVerT::TOP)
+      m_AlignHor("horAlign", VarTextAlignHorT::LEFT),
+      m_AlignVer("verAlign", VarTextAlignVerT::TOP)
 {
     FillMemberVars();
 }
@@ -260,6 +260,9 @@ void ComponentTextT::FillMemberVars()
     GetMemberVars().Add(&m_Alpha);
     GetMemberVars().Add(&m_AlignHor);
     GetMemberVars().Add(&m_AlignVer);
+
+    GetMemberVars().AddAlias("hor. Align", &m_AlignHor);
+    GetMemberVars().AddAlias("ver. Align", &m_AlignVer);
 }
 
 

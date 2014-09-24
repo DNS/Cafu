@@ -602,7 +602,7 @@ class ComponentTextT : public ComponentBaseT
     /// </table>
     ///
     /// @cppType{int}
-    number hor. Align;
+    number horAlign;
 
     /// How the text is aligned vertically (top, middle, bottom).
     ///
@@ -615,7 +615,7 @@ class ComponentTextT : public ComponentBaseT
     /// </table>
     ///
     /// @cppType{int}
-    number ver. Align;
+    number verAlign;
 };
 
 

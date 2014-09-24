@@ -354,9 +354,13 @@ namespace cf
 
             void Add(VarBaseT* Var);
 
-            const ArrayT<VarBaseT*>& GetArray() const { return m_VarsArray; }
+            /// Adds an alias name for the given variable so that a call to Find() will also find the variable
+            /// under the alias name.
+            /// The purpose of this method is to provide backwards-compatibility if variables must be renamed
+            /// after they have been introduced and became widely used, e.g. in custom user scripts.
+            void AddAlias(const char* Alias, VarBaseT* Var);
 
-            const MapVarBaseT& GetMap() const { return m_VarsMap; }
+            const ArrayT<VarBaseT*>& GetArray() const { return m_VarsArray; }
 
             VarBaseT* Find(const char* Name) const
             {

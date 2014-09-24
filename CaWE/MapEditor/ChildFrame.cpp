@@ -1363,7 +1363,7 @@ ArrayT<CommandT*> ChildFrameT::CreatePasteCommands(const Vector3fT& DeltaTransla
 
         NewEnt->GetBasics()->SetEntityName("pasted objects");
         NewEnt->GetBasics()->SetMember("Static", true);
-        NewEnt->GetBasics()->SetMember("Sel. Mode", int(cf::GameSys::ComponentBasicsT::GROUP));
+        NewEnt->GetBasics()->SetMember("SelMode", int(cf::GameSys::ComponentBasicsT::GROUP));
         NewEnt->GetTransform()->SetOriginWS(GuessUserVisiblePoint());
         NewEnt->SetApp(MapEnt);
 
@@ -1696,7 +1696,7 @@ void ChildFrameT::LoadPrefab(const wxString& FileName)
         }
 
         if (PrefabRoot->GetChildren().Size() > 0 || GetMapEnt(PrefabRoot)->GetPrimitives().Size() > 0)
-            PrefabRoot->GetBasics()->SetMember("Sel. Mode", int(cf::GameSys::ComponentBasicsT::GROUP));
+            PrefabRoot->GetBasics()->SetMember("SelMode", int(cf::GameSys::ComponentBasicsT::GROUP));
 
         // A prefab, as any other entity, can have primitives and child entities.
         // If it is loaded into a map, it is attached to some entity (the PrefabParent, see below) as a child itself.

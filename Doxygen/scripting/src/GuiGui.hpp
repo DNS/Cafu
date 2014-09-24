@@ -135,7 +135,7 @@ class GuiImplT
     ///     --// Create some components and add them to winOK.
     ///     local c1 = gui:new("ComponentTextT")
     ///     c1:set("Text", "OK")
-    ///     c1:set("hor. Align", 0)
+    ///     c1:set("horAlign", 0)
     ///
     ///     local c2 = gui:new("ComponentBorderT")
     ///     c2:set("Width", 0.6)

@@ -50,7 +50,7 @@ function BottomLine:OnMouseButtonDown()
         if (self.PageNr==1) then BottomLine:GetComponent("Text"):set("Text", BottomLine.String1)
                             else BottomLine:GetComponent("Text"):set("Text", BottomLine.String2) end
 
-        BottomLine:GetComponent("Text"):set("hor. Align", self.PageNr == 1 and 1 or -1)
+        BottomLine:GetComponent("Text"):set("horAlign", self.PageNr == 1 and 1 or -1)
     -- else
 
     -- end
