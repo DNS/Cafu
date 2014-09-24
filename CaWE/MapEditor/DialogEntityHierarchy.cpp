@@ -1000,7 +1000,7 @@ void EntityHierarchyCtrlT::Notify_VarChanged(SubjectT* Subject, const cf::TypeSy
             return;
         }
 
-        if (&Var == Basics->GetMemberVars().Find("Sel. Mode"))
+        if (&Var == Basics->GetMemberVars().Find("SelMode"))
         {
             GetModel()->ValueChanged(wxDataViewItem(AllEnts[EntNr].get()), EntityHierarchyModelT::COLUMN_SELECTION_MODE);
             return;
@@ -1044,7 +1044,7 @@ void EntityHierarchyCtrlT::OnItemActivated(wxDataViewEvent& Event)
 
         case EntityHierarchyModelT::COLUMN_SELECTION_MODE:
         {
-            cf::TypeSys::VarT<int>* SelMode = dynamic_cast<cf::TypeSys::VarT<int>*>(Entity->GetBasics()->GetMemberVars().Find("Sel. Mode"));
+            cf::TypeSys::VarT<int>* SelMode = dynamic_cast<cf::TypeSys::VarT<int>*>(Entity->GetBasics()->GetMemberVars().Find("SelMode"));
 
             if (SelMode)
             {

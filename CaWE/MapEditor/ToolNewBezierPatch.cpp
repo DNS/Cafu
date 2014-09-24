@@ -138,7 +138,7 @@ bool ToolNewBezierPatchT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& 
 
         NewEnt->GetBasics()->SetEntityName("new Bezier patch");
         NewEnt->GetBasics()->SetMember("Static", true);
-        NewEnt->GetBasics()->SetMember("Sel. Mode", int(cf::GameSys::ComponentBasicsT::GROUP));
+        NewEnt->GetBasics()->SetMember("SelMode", int(cf::GameSys::ComponentBasicsT::GROUP));
         NewEnt->GetTransform()->SetOriginWS((m_DragBegin + m_DragCurrent) / 2.0f);
         NewEnt->SetApp(MapEnt);
 

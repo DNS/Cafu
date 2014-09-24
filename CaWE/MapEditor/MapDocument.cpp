@@ -551,7 +551,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
         }
 
         if (MapEnt->GetPrimitives().Size() > 0)
-            NewEnt->GetBasics()->SetMember("Sel. Mode", int(cf::GameSys::ComponentBasicsT::GROUP));
+            NewEnt->GetBasics()->SetMember("SelMode", int(cf::GameSys::ComponentBasicsT::GROUP));
 
         if (MapEnt->GetProperty("classname") != "")
         {
@@ -673,7 +673,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             m_ScriptWorld->GetRootEntity()->AddChild(DoorEnt);
 
             DoorEnt->GetBasics()->SetEntityName("door");
-            DoorEnt->GetBasics()->SetMember("Sel. Mode", int(cf::GameSys::ComponentBasicsT::GROUP));
+            DoorEnt->GetBasics()->SetMember("SelMode", int(cf::GameSys::ComponentBasicsT::GROUP));
             DoorEnt->GetTransform()->SetOriginWS(Origin);
             DoorEnt->SetApp(MapEnt);
 
@@ -1153,7 +1153,7 @@ namespace
         if (!Entity->GetBasics()->IsShown())
             OutFile << "    self:GetBasics():set(\"Show\", false)\n";
 
-        OutFile << "    self:GetBasics():set(\"Sel. Mode\", " << Entity->GetBasics()->GetSelMode() << ")\n";
+        OutFile << "    self:GetBasics():set(\"SelMode\", " << Entity->GetBasics()->GetSelMode() << ")\n";
 
         OutFile << "    self:GetTransform():set(\"Origin\", "
                 << Entity->GetTransform()->GetOriginPS().x << ", "
