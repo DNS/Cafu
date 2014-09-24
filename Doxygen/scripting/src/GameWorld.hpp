@@ -66,6 +66,9 @@ class WorldT
     /// @returns The newly created object.
     object new(string ClassName, string InstanceName="");
 
+    /// Returns the root entity of this world as previously set by SetRootEntity().
+    EntityT GetRootEntity();
+
     /// Sets the root entity for this world.
     /// If you use the Map Editor that is part of the CaWE application, a proper call to this method is automatically included in the generated files.
     /// @param ent   The entity that is set as the root entity of this world.
