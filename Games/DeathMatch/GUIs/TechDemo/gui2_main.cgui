@@ -34,7 +34,7 @@ function CallRescueButton:OnMouseButtonDown()
     self:GetComponent("Image"):interpolate("Color.g", 0, 0.8, 500)
 
     CallRescueText:GetComponent("Text"):set("Text", "Opening connection to\nSAR center...")
-    CallRescueText:GetComponent("Text"):set("hor. Align", 0);
+    CallRescueText:GetComponent("Text"):set("horAlign", 0);
     CallRescueText:GetComponent("Border"):set("Color", 0.7, 0.9, 0.8)
     CallRescueText:GetComponent("Text"):set("Color", 0.51, 1.0, 0.8)
 

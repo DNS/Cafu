@@ -909,7 +909,7 @@ void GuiEditor::ChildFrameT::OnToolbar(wxCommandEvent& CE)
 
                 if (CompText != NULL)
                 {
-                    cf::GuiSys::ComponentTextT::VarTextAlignHorT* AlignHor = dynamic_cast<cf::GuiSys::ComponentTextT::VarTextAlignHorT*>(CompText->GetMemberVars().Find("hor. Align"));
+                    cf::GuiSys::ComponentTextT::VarTextAlignHorT* AlignHor = dynamic_cast<cf::GuiSys::ComponentTextT::VarTextAlignHorT*>(CompText->GetMemberVars().Find("horAlign"));
 
                     if (AlignHor)
                     {
