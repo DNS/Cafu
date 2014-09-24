@@ -86,6 +86,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/Misc.hpp"
 #include "Templates/Array.hpp"
 #include "TextParser/TextParser.hpp"
+#include "String.hpp"
 #include "VarVisitorsLua.hpp"
 
 #include "wx/wx.h"
@@ -1181,6 +1182,9 @@ namespace
             for (unsigned int VarNr = 0; VarNr < Vars.Size(); VarNr++)
             {
                 const cf::TypeSys::VarBaseT* Var = Vars[VarNr];
+
+                // This is the same test as in WriteDoxyVars() in AppCaWE.cpp, see there for details.
+                wxASSERT(Var->GetName() == cf::String::ToLuaIdentifier(Var->GetName()));
 
                 OutFile << "    c" << CompNr << ":set(\"" << Var->GetName() << "\", ";
                 Var->accept(ToLua);
