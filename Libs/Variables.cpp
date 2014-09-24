@@ -264,6 +264,12 @@ void cf::TypeSys::VarManT::Add(VarBaseT* Var)
 }
 
 
+void cf::TypeSys::VarManT::AddAlias(const char* Alias, VarBaseT* Var)
+{
+    m_VarsMap[Alias] = Var;
+}
+
+
 /*******************************/
 /*** Template Instantiations ***/
 /*******************************/
