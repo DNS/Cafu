@@ -1013,10 +1013,7 @@ void EntityHierarchyCtrlT::NotifySubjectDies(SubjectT* dyingSubject)
 {
     wxASSERT(dyingSubject == m_MapDoc);
 
-    // AssociateModel(NULL);    // This is not possible (crashes).
-    // Should we instead set EntityHierarchyModelT::m_RootEntity to NULL, then call Cleared()?
-    // The above turns out to be a bug in wxWidgets: http://trac.wxwidgets.org/ticket/16249
-
+    AssociateModel(NULL);
     m_MapDoc = NULL;
 }
 
