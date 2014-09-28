@@ -193,6 +193,8 @@ void InspDlgPrimitivePropsT::NotifySubjectDies(SubjectT* dyingSubject)
 
 void InspDlgPrimitivePropsT::UpdateGrid()
 {
+    if (!m_MapDoc) return;
+
     ArrayT<MapPrimitiveT*> SelectedPrimitives;
 
     // Find the map primitives in the selection (ignore all entities).
