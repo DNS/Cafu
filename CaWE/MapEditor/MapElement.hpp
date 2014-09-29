@@ -108,11 +108,11 @@ class MapElementT
 
     /// Returns the entity that this element is a part of, or `NULL` if the element has no parent entity.
     /// See the MapElementT class documentation for additional information.
-    const IntrusivePtrT<MapEditor::CompMapEntityT>& GetParent() const { return m_Parent; }
+    MapEditor::CompMapEntityT* GetParent() const { return m_Parent; }
 
     /// Sets the parent entity that is element is a part of.
     /// See the MapElementT class documentation for additional information.
-    void SetParent(const IntrusivePtrT<MapEditor::CompMapEntityT>& Ent);
+    void SetParent(MapEditor::CompMapEntityT* Ent);
 
 
     /// Returns whether this element is currently selected in the map document.
@@ -248,9 +248,9 @@ class MapElementT
 
     protected:
 
-    IntrusivePtrT<MapEditor::CompMapEntityT> m_Parent;      ///< The entity that this element is a part of.
-    bool                                     m_IsSelected;  ///< Is this element currently selected in the map document?
-    unsigned int                             m_FrameCount;  ///< The number of the frame in which this element was last rendered in a 3D view, used in order to avoid processing/rendering it twice.
+    MapEditor::CompMapEntityT* m_Parent;        ///< The entity that this element is a part of.
+    bool                       m_IsSelected;    ///< Is this element currently selected in the map document?
+    unsigned int               m_FrameCount;    ///< The number of the frame in which this element was last rendered in a 3D view, used in order to avoid processing/rendering it twice.
 };
 
 #endif

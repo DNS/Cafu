@@ -1483,7 +1483,7 @@ void MapDocumentT::Insert(MapPrimitiveT* Prim, IntrusivePtrT<CompMapEntityT> Par
     wxASSERT(ParentEnt->GetEntity()->GetRoot() == m_ScriptWorld->GetRootEntity());
 
     ParentEnt->AddPrim(Prim);
-    wxASSERT(Prim->GetParent() == ParentEnt);
+    wxASSERT(ParentEnt == Prim->GetParent());
 
     m_BspTree->Insert(Prim);
 }
@@ -2002,7 +2002,7 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
         unsigned long PrimNr = 0;
 
         for (PrimNr = 0; PrimNr < SelPrimitives.Size(); PrimNr++)
-            if (SelPrimitives[PrimNr]->GetParent() != SelEntities[0])
+            if (SelEntities[0] != SelPrimitives[PrimNr]->GetParent())
                 break;
 
         if (PrimNr >= SelPrimitives.Size())

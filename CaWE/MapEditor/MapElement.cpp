@@ -93,7 +93,7 @@ void MapElementT::Assign(const MapElementT* Elem)
 }
 
 
-void MapElementT::SetParent(const IntrusivePtrT<CompMapEntityT>& Ent)
+void MapElementT::SetParent(CompMapEntityT* Ent)
 {
     m_Parent = Ent;
 }

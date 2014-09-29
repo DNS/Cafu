@@ -49,7 +49,7 @@ const cf::TypeSys::TypeInfoT MapEntRepresT::TypeInfo(GetMapElemTIM(), "MapEntRep
 /*** End of TypeSys related definitions for this class. ***/
 
 
-MapEntRepresT::MapEntRepresT(IntrusivePtrT<MapEditor::CompMapEntityT> Parent)
+MapEntRepresT::MapEntRepresT(MapEditor::CompMapEntityT* Parent)
     : MapElementT(),
       m_Cloned(NULL)
 {
@@ -63,7 +63,7 @@ MapEntRepresT::MapEntRepresT(const MapEntRepresT& EntRepres)
       m_Cloned(NULL)
 {
     m_Cloned = EntRepres.GetParent()->GetEntity()->Clone(false /*Recursive?*/);
-    m_Parent = GetMapEnt(m_Cloned);
+    m_Parent = GetMapEnt(m_Cloned).get();
 
     // The entity was copied...
     wxASSERT(m_Cloned->GetChildren().Size() == 0);    /// ... non-recursively,
