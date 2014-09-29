@@ -153,20 +153,22 @@ void MapEntRepresT::Render2D(Renderer2DT& Renderer) const
 
             if (TargetProp!=NULL)
             {
-                const ArrayT< IntrusivePtrT<CompMapEntityT> >& Entities = Renderer.GetViewWin2D().GetMapDoc().GetEntities();
-                ArrayT< IntrusivePtrT<CompMapEntityT> >        FoundEntities;
+                ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > FoundEntities;
+                ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
 
-                for (unsigned long EntNr = 1/*skip world*/; EntNr < Entities.Size(); EntNr++)
+                GetParent()->GetEntity()->GetRoot()->GetAll(AllEnts);
+
+                for (unsigned long EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
                 {
-                    if (Entities[EntNr]->GetEntity()->GetBasics()->GetEntityName() == TargetProp->Value)
+                    if (AllEnts[EntNr]->GetBasics()->GetEntityName() == TargetProp->Value)
                     {
-                        FoundEntities.PushBack(Entities[EntNr]);
+                        FoundEntities.PushBack(AllEnts[EntNr]);
                     }
                 }
 
                 for (unsigned long EntNr = 0; EntNr < FoundEntities.Size(); EntNr++)
                 {
-                    const wxPoint OtherCenter = Renderer.GetViewWin2D().WorldToTool(FoundEntities[EntNr]->GetEntity()->GetTransform()->GetOriginWS());
+                    const wxPoint OtherCenter = Renderer.GetViewWin2D().WorldToTool(FoundEntities[EntNr]->GetTransform()->GetOriginWS());
 
                     Renderer.DrawLine(Center, OtherCenter);
                 }

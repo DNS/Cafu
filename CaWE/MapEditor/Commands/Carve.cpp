@@ -67,19 +67,17 @@ bool CommandCarveT::Do()
         // Build a list of every possibly affected brush in the world.
         ArrayT<MapBrushT*> WorldBrushes;
 
-        for (unsigned long EntNr=0; EntNr<m_MapDoc.GetEntities().Size(); EntNr++)
+        ArrayT<MapElementT*> Elems;
+        m_MapDoc.GetAllElems(Elems);
+
+        for (unsigned long ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
         {
-            IntrusivePtrT<const CompMapEntityT> Ent = m_MapDoc.GetEntities()[EntNr];
+            MapBrushT* Brush = dynamic_cast<MapBrushT*>(Elems[ElemNr]);
 
-            for (unsigned long PrimNr=0; PrimNr<Ent->GetPrimitives().Size(); PrimNr++)
-            {
-                MapBrushT* Brush=dynamic_cast<MapBrushT*>(Ent->GetPrimitives()[PrimNr]);
+            if (Brush == NULL) continue;                // Skip everything that is not a brush.
+            if (m_Carvers.Find(Brush) >= 0) continue;   // Skip brushes that are carvers.
 
-                if (Brush==NULL) continue;              // Skip everything that is not a brush.
-                if (m_Carvers.Find(Brush)>=0) continue; // Skip brushes that are carvers.
-
-                WorldBrushes.PushBack(Brush);
-            }
+            WorldBrushes.PushBack(Brush);
         }
 
         // Subtract the carvers from every brush in the world.

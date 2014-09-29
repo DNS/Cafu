@@ -109,9 +109,6 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     /// For compatibility only. This method should be removed.
     bool CompatSubmitCommand(CommandT* Command);
 
-    /// Returns all entities that exist in this map. The world entity is always first at index 0, followed by an arbitrary number of "regular" entities.
-    const ArrayT< IntrusivePtrT<MapEditor::CompMapEntityT> >& GetEntities() const;
-
     /// Returns the root "map" entity of the map.
     IntrusivePtrT<MapEditor::CompMapEntityT> GetRootMapEntity() const;
 

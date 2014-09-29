@@ -44,20 +44,11 @@ MapInfoDialogT::MapInfoDialogT(MapDocumentT& MapDoc)
 {
     std::map<const cf::TypeSys::TypeInfoT*, unsigned long> Stats;
 
-    for (unsigned long EntNr=0; EntNr<MapDoc.GetEntities().Size(); EntNr++)
-    {
-        IntrusivePtrT<const CompMapEntityT> Ent = MapDoc.GetEntities()[EntNr];
+    ArrayT<MapElementT*> Elems;
+    MapDoc.GetAllElems(Elems);
 
-        Stats[Ent->GetRepres()->GetType()]++;
-
-        for (unsigned long PrimNr=0; PrimNr<Ent->GetPrimitives().Size(); PrimNr++)
-        {
-            const MapPrimitiveT* Prim=Ent->GetPrimitives()[PrimNr];
-
-            Stats[Prim->GetType()]++;
-        }
-    }
-
+    for (unsigned long ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
+        Stats[Elems[ElemNr]->GetType()]++;
 
     // Assemble the dialog.
     // This code was created by wxDesigner, and brought here by copy'n'paste.

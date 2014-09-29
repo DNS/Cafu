@@ -53,7 +53,7 @@ enum MapElemModDetailE
 {
     MEMD_GENERIC,                   ///< Generic change of map elements (useful if the subject doesn't know what exactly has been changed).
     MEMD_TRANSFORM,                 ///< A map element has been transformed.
-    MEMD_PRIMITIVE_PROPS_CHANGED,   ///< The properties of a map primitve have been modified.
+    MEMD_PRIMITIVE_PROPS_CHANGED,   ///< The properties of a map primitive have been modified.
     MEMD_SURFACE_INFO_CHANGED,      ///< The surface info of a map element has changed. Note that surface info changes also include the selection of faces.
     MEMD_ASSIGN_PRIM_TO_ENTITY,     ///< A map primitive has been assigned to another entity (the world or any custom entity).
     MEMD_VISIBILITY                 ///< The visibility of a map element has changed.

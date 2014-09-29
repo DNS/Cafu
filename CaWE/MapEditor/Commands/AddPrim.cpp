@@ -70,8 +70,6 @@ bool CommandAddPrimT::Do()
     wxASSERT(!m_Done);
     if (m_Done) return false;
 
-    wxASSERT(m_MapDoc.GetEntities().Find(m_Parent)>=0);
-
     for (unsigned long PrimNr=0; PrimNr<m_AddPrims.Size(); PrimNr++)
     {
         wxASSERT(m_AddPrims[PrimNr]->GetParent()==NULL);

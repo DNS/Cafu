@@ -1431,30 +1431,6 @@ bool MapDocumentT::CompatSubmitCommand(CommandT* Command)
 }
 
 
-const ArrayT< IntrusivePtrT<CompMapEntityT> >& MapDocumentT::GetEntities() const
-{
-    /**************************************************************************************/
-    /*** TODO: This cannot stay like this!                                              ***/
-    /***   The method itself is obsolete (we have the m_ScriptWorld now instead),       ***/
-    /***   and the dangerous static variable below is only for backwards-compatibility! ***/
-    /**************************************************************************************/
-    static ArrayT< IntrusivePtrT<CompMapEntityT> > Entities;
-
-    Entities.Overwrite();
-
-    IntrusivePtrT<cf::GameSys::EntityT> ScriptRootEnt = m_ScriptWorld->GetRootEntity();
-    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllChildren;
-
-    AllChildren.PushBack(ScriptRootEnt);
-    ScriptRootEnt->GetChildren(AllChildren, true);
-
-    for (unsigned long ChildNr = 0; ChildNr < AllChildren.Size(); ChildNr++)
-        Entities.PushBack(GetMapEnt(AllChildren[ChildNr]));
-
-    return Entities;
-}
-
-
 IntrusivePtrT<MapEditor::CompMapEntityT> MapDocumentT::GetRootMapEntity() const
 {
     return GetMapEnt(m_ScriptWorld->GetRootEntity());
@@ -1463,11 +1439,12 @@ IntrusivePtrT<MapEditor::CompMapEntityT> MapDocumentT::GetRootMapEntity() const
 
 void MapDocumentT::GetAllElems(ArrayT<MapElementT*>& Elems) const
 {
-    const ArrayT< IntrusivePtrT<CompMapEntityT> >& MapEntities = GetEntities();
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
+    m_ScriptWorld->GetRootEntity()->GetAll(AllEnts);
 
-    for (unsigned int EntNr = 0; EntNr < MapEntities.Size(); EntNr++)
+    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
     {
-        IntrusivePtrT<CompMapEntityT> Ent = MapEntities[EntNr];
+        IntrusivePtrT<CompMapEntityT> Ent = GetMapEnt(AllEnts[EntNr]);
 
         // Add the entity representation...
         Elems.PushBack(Ent->GetRepres());
@@ -1561,12 +1538,14 @@ static bool IsElemInBox(const MapElementT* Elem, const BoundingBox3fT& Box, bool
 
 ArrayT<MapElementT*> MapDocumentT::GetElementsIn(const BoundingBox3fT& Box, bool InsideOnly, bool CenterOnly) const
 {
-    const ArrayT< IntrusivePtrT<CompMapEntityT> >& MapEntities = GetEntities();
     ArrayT<MapElementT*> Result;
 
-    for (unsigned int EntNr = 0; EntNr < MapEntities.Size(); EntNr++)
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
+    m_ScriptWorld->GetRootEntity()->GetAll(AllEnts);
+
+    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
     {
-        IntrusivePtrT<CompMapEntityT> Ent = MapEntities[EntNr];
+        IntrusivePtrT<CompMapEntityT> Ent = GetMapEnt(AllEnts[EntNr]);
 
         // Add the entity representation...
         if (IsElemInBox(Ent->GetRepres(), Box, InsideOnly, CenterOnly))
@@ -1614,12 +1593,14 @@ ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > MapDocumentT::GetSelectedEntities(
 
 void MapDocumentT::GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) const
 {
-    const ArrayT< IntrusivePtrT<CompMapEntityT> >& MapEntities = GetEntities();
     std::map<EditorMaterialI*, int> UsedMatMap;
 
-    for (unsigned long EntNr = 0; EntNr < MapEntities.Size(); EntNr++)
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
+    m_ScriptWorld->GetRootEntity()->GetAll(AllEnts);
+
+    for (unsigned long EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
     {
-        const ArrayT<MapPrimitiveT*>& Primitives = MapEntities[EntNr]->GetPrimitives();
+        const ArrayT<MapPrimitiveT*>& Primitives = GetMapEnt(AllEnts[EntNr])->GetPrimitives();
 
         for (unsigned long PrimNr = 0; PrimNr < Primitives.Size(); PrimNr++)
         {
@@ -1732,25 +1713,26 @@ void MapDocumentT::OnMapGotoPrimitive(wxCommandEvent& CE)
 
     if (GotoPrimDialog.ShowModal()!=wxID_OK) return;
 
-    const ArrayT< IntrusivePtrT<CompMapEntityT> >& MapEntities = GetEntities();
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
+    m_ScriptWorld->GetRootEntity()->GetAll(AllEnts);
 
-    if (GotoPrimDialog.m_EntityNumber >= int(MapEntities.Size()))
+    if (GotoPrimDialog.m_EntityNumber >= int(AllEnts.Size()))
     {
         wxMessageBox("The entity with the given index number does not exist.", "Goto Primitive");
         return;
     }
 
-    if (GotoPrimDialog.m_PrimitiveNumber >= int(MapEntities[GotoPrimDialog.m_EntityNumber]->GetPrimitives().Size()))
+    if (GotoPrimDialog.m_PrimitiveNumber >= int(GetMapEnt(AllEnts[GotoPrimDialog.m_EntityNumber])->GetPrimitives().Size()))
     {
         wxMessageBox("The primitive with the given index number does not exist (in the specified entity).", "Goto Primitive");
         return;
     }
 
-    MapPrimitiveT* Prim = MapEntities[GotoPrimDialog.m_EntityNumber]->GetPrimitives()[GotoPrimDialog.m_PrimitiveNumber];
+    MapPrimitiveT* Prim = GetMapEnt(AllEnts[GotoPrimDialog.m_EntityNumber])->GetPrimitives()[GotoPrimDialog.m_PrimitiveNumber];
 
     if (!Prim->IsVisible())
     {
-        wxMessageBox("The primitive is currently invisible in entity \"" + MapEntities[GotoPrimDialog.m_EntityNumber]->GetEntity()->GetBasics()->GetEntityName() + "\".", "Goto Primitive");
+        wxMessageBox("The primitive is currently invisible in entity \"" + AllEnts[GotoPrimDialog.m_EntityNumber]->GetBasics()->GetEntityName() + "\".", "Goto Primitive");
         return;
     }
 

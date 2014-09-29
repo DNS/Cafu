@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapEntRepres.hpp"
 #include "ChildFrame.hpp"
 
+#include "GameSys/World.hpp"
 #include "Commands/Select.hpp"
 
 
@@ -90,11 +91,10 @@ class MC_WorldHasPlayerStartT : public MapCheckerT
     {
         if (!m_Ent->IsWorld()) return false;
 
-        for (unsigned long EntNr = 1 /*skip world*/; EntNr < m_MapDoc.GetEntities().Size(); EntNr++)
-            if (m_MapDoc.GetEntities()[EntNr]->GetEntity()->GetComponent("PlayerStart") != NULL)
-                return false;
+        ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > Result;
+        m_Ent->GetEntity()->FindByComponent("PlayerStart", Result);
 
-        return true;
+        return Result.Size() == 0;
     }
 
     wxString GetInfo() const { return "No player start."; }
@@ -171,9 +171,12 @@ void MapCheckDialogT::UpdateProblems()
         delete m_Problems[ProblemNr];
     m_Problems.Overwrite();
 
-    for (unsigned long EntNr = 0; EntNr < m_MapDoc.GetEntities().Size(); EntNr++)
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
+    m_MapDoc.GetScriptWorld().GetRootEntity()->GetAll(AllEnts);
+
+    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
     {
-        IntrusivePtrT<CompMapEntityT> Ent = m_MapDoc.GetEntities()[EntNr];
+        IntrusivePtrT<CompMapEntityT> Ent = GetMapEnt(AllEnts[EntNr]);
 
         // IMPORTANT NOTE: Register at most ONE problem for each Ent.
         // This is supposed to avoid problems with CommandTs...
