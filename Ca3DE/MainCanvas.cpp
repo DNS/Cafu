@@ -338,6 +338,9 @@ void MainCanvasT::Initialize()
             "local gui = ...\n"
             "local Cl = gui:new('WindowT', 'Client')\n"
             "\n"
+            "Cl:GetTransform():set('Pos', 0, 0)\n"
+            "Cl:GetTransform():set('Size', 640, 480)\n"   // This must be done before gui:setMousePos() is called.
+            "\n"
             "gui:SetRootWindow(Cl)\n"
             "gui:showMouse(false)\n"
             "gui:setMousePos(320, 240)\n"
@@ -348,9 +351,6 @@ void MainCanvasT::Initialize()
         IntrusivePtrT<ComponentClientT>    CompClient   = new ComponentClientT;
 
         assert(ClientWindow != NULL);
-        ClientWindow->GetTransform()->SetPos(Vector2fT(0, 0));
-        ClientWindow->GetTransform()->SetSize(Vector2fT(640, 480));
-
         CompClient->SetClient(m_Client);
         ClientWindow->AddComponent(CompClient);
 
