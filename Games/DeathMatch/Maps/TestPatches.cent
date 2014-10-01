@@ -313,7 +313,9 @@ function Trigger:OnTrigger(Other)
     if self.IsBusy then return end
     self.IsBusy = true
 
+    local Map   = world:GetRootEntity()
     local Sound = Map.TestSpeaker:GetComponent("Sound")
+
     Sound:Play()
     Console.Print("Hello from Map.SoundTrigger's OnTrigger()!\n")
 
