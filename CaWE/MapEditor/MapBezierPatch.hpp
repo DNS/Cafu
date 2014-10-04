@@ -106,11 +106,11 @@ class MapBezierPatchT : public MapPrimitiveT
     bool TracePixel(const wxPoint& Pixel, int Radius, const ViewWindow2DT& ViewWin) const;
 
     // Implement the MapElementT transformation methods.
-    void TrafoMove(const Vector3fT& Delta);
-    void TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles);
-    void TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale);
-    void TrafoMirror(unsigned int NormalAxis, float Dist);
-    void Transform(const MatrixT& Matrix);
+    void TrafoMove(const Vector3fT& Delta) override;
+    void TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles) override;
+    void TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale) override;
+    void TrafoMirror(unsigned int NormalAxis, float Dist) override;
+    void Transform(const MatrixT& Matrix) override;
 
     void                        Load_D3_map(TextParserT& TP, unsigned long patchDef, EditorMatManT& MatMan);
     void                        Load_cmap(TextParserT& TP, MapDocumentT& MapDoc);

@@ -76,11 +76,11 @@ class MapBrushT : public MapPrimitiveT
     wxString       GetDescription() const;
 
     // Implement the MapElementT transformation methods.
-    void TrafoMove(const Vector3fT& Delta);
-    void TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles);
-    void TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale);
-    void TrafoMirror(unsigned int NormalAxis, float Dist);
-    void Transform(const MatrixT& Matrix);
+    void TrafoMove(const Vector3fT& Delta) override;
+    void TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles) override;
+    void TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale) override;
+    void TrafoMirror(unsigned int NormalAxis, float Dist) override;
+    void Transform(const MatrixT& Matrix) override;
 
     /// This method splits the brush along the given plane and returns the front piece, the back piece, or both.
     /// @param Plane   The plane along which to split this brush.

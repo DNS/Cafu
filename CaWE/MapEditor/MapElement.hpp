@@ -206,22 +206,22 @@ class MapElementT
     /// at the same pixel. Therefore, this method can be considered as the 2D analogue of the TraceRay() method.
     virtual bool TracePixel(const wxPoint& Pixel, int Radius, const ViewWindow2DT& ViewWin) const;
 
-    /// Translates this element by the given vector.
+    /// Translates this element by the given vector (in world-space).
     /// @param Delta   The offset by which to translate the element.
     virtual void TrafoMove(const Vector3fT& Delta) { }
 
-    /// Rotates this element about the given reference point.
+    /// Rotates this element about the given reference point (in world-space).
     /// @param RefPoint   The reference point (origin) for the rotation.
     /// @param Angles     The rotation angles for the three axes.
     virtual void TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles) { }
 
-    /// Scales this element about the given reference point.
+    /// Scales this element about the given reference point (in world-space).
     /// @param RefPoint   The reference point (origin) for the scale.
     /// @param Scale      The scale factors for the three axes.
     /// @throws DivisionByZeroE, e.g. when Scale is too small and the element becomes degenerate (e.g. a brush with too small faces).
     virtual void TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale) { }
 
-    /// Mirrors this element along the given mirror plane.
+    /// Mirrors this element along the given mirror plane (in world-space).
     /// @param NormalAxis   The number of the axis along which the normal vector of the mirror plane points: 0, 1 or 2 for the x-, y- or z-axis respectively.
     /// @param Dist         The position of the mirror plane along its normal vector, where it intersects the NormalAxis.
     /// Note that the mirroring is not necessarily "perfect", because for some elements like models or plants,

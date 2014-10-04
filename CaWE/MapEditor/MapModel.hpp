@@ -58,11 +58,11 @@ class MapModelT : public MapPrimitiveT
     wxString GetDescription() const { return "Model"; }
 
     // Implement the MapElementT transformation methods.
-    void TrafoMove(const Vector3fT& Delta);
-    void TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles);
-    void TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale);
-    void TrafoMirror(unsigned int NormalAxis, float Dist);
-    void Transform(const MatrixT& Matrix);
+    void TrafoMove(const Vector3fT& Delta) override;
+    void TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles) override;
+    void TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale) override;
+    void TrafoMirror(unsigned int NormalAxis, float Dist) override;
+    void Transform(const MatrixT& Matrix) override;
 
     void Load_cmap(TextParserT& TP, MapDocumentT& MapDoc);
     void Save_cmap(std::ostream& OutFile, unsigned long ModelNr, const MapDocumentT& MapDoc) const;
