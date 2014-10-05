@@ -58,6 +58,8 @@ class MapModelT : public MapPrimitiveT
     wxString GetDescription() const { return "Model"; }
 
     // Implement the MapElementT transformation methods.
+    TrafoMementoT* GetTrafoState() const override;
+    void RestoreTrafoState(const TrafoMementoT* TM) override;
     void TrafoMove(const Vector3fT& Delta) override;
     void TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles) override;
     void TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale) override;

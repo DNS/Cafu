@@ -195,6 +195,42 @@ bool MapPlantT::TracePixel(const wxPoint& Pixel, int Radius, const ViewWindow2DT
 }
 
 
+namespace
+{
+    class PlantTrafoMementoT : public TrafoMementoT
+    {
+        public:
+
+        PlantTrafoMementoT(const cf::math::AnglesfT& Angles, const Vector3fT& Pos)
+            : m_Angles(Angles),
+              m_Pos(Pos)
+        {
+        }
+
+        const cf::math::AnglesfT m_Angles;
+        const Vector3fT          m_Pos;
+    };
+}
+
+
+TrafoMementoT* MapPlantT::GetTrafoState() const
+{
+    return new PlantTrafoMementoT(m_Angles, m_Position);
+}
+
+
+void MapPlantT::RestoreTrafoState(const TrafoMementoT* TM)
+{
+    const PlantTrafoMementoT* PlantTM = dynamic_cast<const PlantTrafoMementoT*>(TM);
+
+    wxASSERT(PlantTM);
+    if (!PlantTM) return;
+
+    m_Angles   = PlantTM->m_Angles;
+    m_Position = PlantTM->m_Pos;
+}
+
+
 void MapPlantT::TrafoMove(const Vector3fT& delta)
 {
     m_Position+=delta;

@@ -48,6 +48,15 @@ class MatrixT;
 cf::TypeSys::TypeInfoManT& GetMapElemTIM();
 
 
+/// An instance of this class encapsulates the transform-related state of a MapElementT.
+class TrafoMementoT
+{
+    public:
+
+    virtual ~TrafoMementoT() { }
+};
+
+
 /// This is the base class for all elements ("objects") that can exist in a map.
 ///
 /// Generally, elements can exist stand-alone, without being assigned to a parent entity;
@@ -205,6 +214,14 @@ class MapElementT
     /// For example, the caller can learn by the result of this method whether the map element should respond to a mouse-click
     /// at the same pixel. Therefore, this method can be considered as the 2D analogue of the TraceRay() method.
     virtual bool TracePixel(const wxPoint& Pixel, int Radius, const ViewWindow2DT& ViewWin) const;
+
+    /// Returns a memento that encapsulates the transform-related state of this element.
+    /// The method saves all state in the memento that calls to the Trafo*() methods can possibly modify.
+    virtual TrafoMementoT* GetTrafoState() const { return NULL; }
+
+    /// Restores the transform-related state of this element from the given memento.
+    /// The method restores all state from the memento that calls to the Trafo*() methods have possibly modified.
+    virtual void RestoreTrafoState(const TrafoMementoT* TM) { }
 
     /// Translates this element by the given vector (in world-space).
     /// @param Delta   The offset by which to translate the element.

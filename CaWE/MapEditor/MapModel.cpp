@@ -236,6 +236,42 @@ bool MapModelT::TracePixel(const wxPoint& Pixel, int Radius, const ViewWindow2DT
 }
 
 
+namespace
+{
+    class ModelTrafoMementoT : public TrafoMementoT
+    {
+        public:
+
+        ModelTrafoMementoT(const Vector3fT& Origin, const cf::math::AnglesfT& Angles)
+            : m_Origin(Origin),
+              m_Angles(Angles)
+        {
+        }
+
+        const Vector3fT          m_Origin;
+        const cf::math::AnglesfT m_Angles;
+    };
+}
+
+
+TrafoMementoT* MapModelT::GetTrafoState() const
+{
+    return new ModelTrafoMementoT(m_Origin, m_Angles);
+}
+
+
+void MapModelT::RestoreTrafoState(const TrafoMementoT* TM)
+{
+    const ModelTrafoMementoT* ModelTM = dynamic_cast<const ModelTrafoMementoT*>(TM);
+
+    wxASSERT(ModelTM);
+    if (!ModelTM) return;
+
+    m_Origin = ModelTM->m_Origin;
+    m_Angles = ModelTM->m_Angles;
+}
+
+
 void MapModelT::TrafoMove(const Vector3fT& delta)
 {
     m_Origin+=delta;

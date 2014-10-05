@@ -923,6 +923,46 @@ void MapBezierPatchT::UpdateTextureSpace()
 }
 
 
+namespace
+{
+    class BezierPatchTrafoMementoT : public TrafoMementoT
+    {
+        public:
+
+        BezierPatchTrafoMementoT(const ArrayT<Vector3fT>& cv_Pos)
+            : m_cv_Pos(cv_Pos)
+        {
+        }
+
+        const ArrayT<Vector3fT> m_cv_Pos;
+    };
+}
+
+
+TrafoMementoT* MapBezierPatchT::GetTrafoState() const
+{
+    return new BezierPatchTrafoMementoT(cv_Pos);
+}
+
+
+void MapBezierPatchT::RestoreTrafoState(const TrafoMementoT* TM)
+{
+    const BezierPatchTrafoMementoT* BezierPatchTM = dynamic_cast<const BezierPatchTrafoMementoT*>(TM);
+
+    wxASSERT(BezierPatchTM);
+    if (!BezierPatchTM) return;
+
+    // Using ArrayT assignment would be shorter:
+    //     cv_Pos = BezierPatchTM->m_cv_Pos;
+    // but (as implemented at this time) also unnecessarily re-allocate all array elements as well.
+    wxASSERT(cv_Pos.Size() == BezierPatchTM->m_cv_Pos.Size());
+    for (unsigned int i = 0; i < cv_Pos.Size(); i++)
+        cv_Pos[i] = BezierPatchTM->m_cv_Pos[i];
+
+    NeedsUpdate = true;
+}
+
+
 void MapBezierPatchT::TrafoMove(const Vector3fT& Delta)
 {
     for (unsigned long y=0; y<cv_Height; y++)

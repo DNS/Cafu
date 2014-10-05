@@ -532,6 +532,44 @@ bool MapBrushT::Subtract(const MapBrushT* B, ArrayT<MapBrushT*>& Result) const
 }
 
 
+namespace
+{
+    class BrushTrafoMementoT : public TrafoMementoT
+    {
+        public:
+
+        BrushTrafoMementoT(const ArrayT<MapFaceT>& Faces)
+            : m_Faces(Faces)
+        {
+        }
+
+        const ArrayT<MapFaceT> m_Faces;
+    };
+}
+
+
+TrafoMementoT* MapBrushT::GetTrafoState() const
+{
+    return new BrushTrafoMementoT(m_Faces);
+}
+
+
+void MapBrushT::RestoreTrafoState(const TrafoMementoT* TM)
+{
+    const BrushTrafoMementoT* BrushTM = dynamic_cast<const BrushTrafoMementoT*>(TM);
+
+    wxASSERT(BrushTM);
+    if (!BrushTM) return;
+
+    // Using ArrayT assignment would be shorter:
+    //     m_Faces = BrushTM->m_Faces;
+    // but (as implemented at this time) also unnecessarily re-allocate all array elements as well.
+    wxASSERT(m_Faces.Size() == BrushTM->m_Faces.Size());
+    for (unsigned int i = 0; i < m_Faces.Size(); i++)
+        m_Faces[i] = BrushTM->m_Faces[i];
+}
+
+
 void MapBrushT::TrafoMove(const Vector3fT& Delta)
 {
     for (unsigned long FaceNr=0; FaceNr<m_Faces.Size(); FaceNr++)

@@ -106,6 +106,8 @@ class MapBezierPatchT : public MapPrimitiveT
     bool TracePixel(const wxPoint& Pixel, int Radius, const ViewWindow2DT& ViewWin) const;
 
     // Implement the MapElementT transformation methods.
+    TrafoMementoT* GetTrafoState() const override;
+    void RestoreTrafoState(const TrafoMementoT* TM) override;
     void TrafoMove(const Vector3fT& Delta) override;
     void TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles) override;
     void TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale) override;

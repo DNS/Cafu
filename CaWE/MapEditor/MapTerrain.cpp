@@ -571,6 +571,40 @@ const TerrainT& MapTerrainT::GetTerrain() const
 }
 
 
+namespace
+{
+    class TerrainTrafoMementoT : public TrafoMementoT
+    {
+        public:
+
+        TerrainTrafoMementoT(const BoundingBox3fT& BB)
+            : m_BB(BB)
+        {
+        }
+
+        const BoundingBox3fT m_BB;
+    };
+}
+
+
+TrafoMementoT* MapTerrainT::GetTrafoState() const
+{
+    return new TerrainTrafoMementoT(m_TerrainBounds);
+}
+
+
+void MapTerrainT::RestoreTrafoState(const TrafoMementoT* TM)
+{
+    const TerrainTrafoMementoT* TerrainTM = dynamic_cast<const TerrainTrafoMementoT*>(TM);
+
+    wxASSERT(TerrainTM);
+    if (!TerrainTM) return;
+
+    m_TerrainBounds = TerrainTM->m_BB;
+    m_NeedsUpdate = true;
+}
+
+
 void MapTerrainT::TrafoMove(const Vector3fT& delta)
 {
     m_TerrainBounds.Min+=delta;

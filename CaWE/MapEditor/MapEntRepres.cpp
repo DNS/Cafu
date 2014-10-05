@@ -286,6 +286,65 @@ bool MapEntRepresT::TracePixel(const wxPoint& Pixel, int Radius, const ViewWindo
 }
 
 
+namespace
+{
+    // This memento class encapsulates the transform-related state of a MapEntRepresT.
+    // It must cover the transform state of the related entity *and* of its immediate children:
+    // Per definition, the Map Editor's `MapElementT`s are independent of each other, and thus, `MapEntRepresT`s are
+    // independent of each other as well. As a consequence, when the selected map elements are transformed, *only* the
+    // *selected* map elements must be affected by the transform. That especially means that if a child of an entity
+    // is *not* selected, the child's world-space position must remain unchanged despite the transform of its parent!
+    // Therefore, when an entity is transformed, the transform of each child must be updated as well, because the
+    // children's transforms are kept in parent-space, but must remain unchanged in *world-space*. Note that it is
+    // not necessary to consider any grand-children, as dealing with the immediate children is sufficient.
+    class EntRepresTrafoMementoT : public TrafoMementoT
+    {
+        public:
+
+        EntRepresTrafoMementoT(IntrusivePtrT<cf::GameSys::EntityT> Ent)
+        {
+            m_Origins.PushBack(Ent->GetTransform()->GetOriginPS());
+            m_Quats.PushBack(Ent->GetTransform()->GetQuatPS());
+
+            for (unsigned int ChildNr = 0; ChildNr < Ent->GetChildren().Size(); ChildNr++)
+            {
+                m_Origins.PushBack(Ent->GetChildren()[ChildNr]->GetTransform()->GetOriginPS());
+                m_Quats.PushBack(Ent->GetChildren()[ChildNr]->GetTransform()->GetQuatPS());
+            }
+        }
+
+        ArrayT<Vector3fT>              m_Origins;
+        ArrayT<cf::math::QuaternionfT> m_Quats;
+    };
+}
+
+
+TrafoMementoT* MapEntRepresT::GetTrafoState() const
+{
+    return new EntRepresTrafoMementoT(m_Parent->GetEntity());
+}
+
+
+void MapEntRepresT::RestoreTrafoState(const TrafoMementoT* TM)
+{
+    const EntRepresTrafoMementoT* EntRepresTM = dynamic_cast<const EntRepresTrafoMementoT*>(TM);
+
+    wxASSERT(EntRepresTM);
+    if (!EntRepresTM) return;
+
+    IntrusivePtrT<cf::GameSys::EntityT> Ent = m_Parent->GetEntity();
+
+    Ent->GetTransform()->SetOriginPS(EntRepresTM->m_Origins[0]);
+    Ent->GetTransform()->SetQuatPS(EntRepresTM->m_Quats[0]);
+
+    for (unsigned int ChildNr = 0; ChildNr < Ent->GetChildren().Size(); ChildNr++)
+    {
+        Ent->GetChildren()[ChildNr]->GetTransform()->SetOriginPS(EntRepresTM->m_Origins[1 + ChildNr]);
+        Ent->GetChildren()[ChildNr]->GetTransform()->SetQuatPS(EntRepresTM->m_Quats[1 + ChildNr]);
+    }
+}
+
+
 void MapEntRepresT::TrafoMove(const Vector3fT& Delta)
 {
     const Vector3fT Origin = m_Parent->GetEntity()->GetTransform()->GetOriginWS();
