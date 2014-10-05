@@ -29,6 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 class MapDocumentT;
 class MapElementT;
+class TrafoMementoT;
 
 
 class CommandSnapToGridT : public CommandT
@@ -50,7 +51,7 @@ class CommandSnapToGridT : public CommandT
     private:
 
     const ArrayT<MapElementT*> SnapObjects;
-    ArrayT<MapElementT*>       OldStates;
+    ArrayT<TrafoMementoT*>     OldStates;
     MapDocumentT&              MapDoc;
     Vector3fT                  MoveOffset;
 };

@@ -59,14 +59,14 @@ CommandTransformT::CommandTransformT(MapDocumentT& MapDoc, const ArrayT<MapEleme
 void CommandTransformT::Init()
 {
     // The m_TransElems are directly modified, so keep a record of their old states.
-    for (unsigned long ElemNr=0; ElemNr<m_TransElems.Size(); ElemNr++)
-        m_OldStates.PushBack(m_TransElems[ElemNr]->Clone());
+    for (unsigned long ElemNr = 0; ElemNr < m_TransElems.Size(); ElemNr++)
+        m_OldStates.PushBack(m_TransElems[ElemNr]->GetTrafoState());
 }
 
 
 CommandTransformT::~CommandTransformT()
 {
-    for (unsigned long i=0; i<m_OldStates.Size(); i++)
+    for (unsigned long i = 0; i < m_OldStates.Size(); i++)
         delete m_OldStates[i];
 
     m_OldStates.Clear();
@@ -112,7 +112,7 @@ void CommandTransformT::Undo()
     for (unsigned long ElemNr=0; ElemNr<m_TransElems.Size(); ElemNr++)
     {
         OldBounds.PushBack(m_TransElems[ElemNr]->GetBB());
-        m_TransElems[ElemNr]->Assign(m_OldStates[ElemNr]);
+        m_TransElems[ElemNr]->RestoreTrafoState(m_OldStates[ElemNr]);
     }
 
     m_MapDoc.UpdateAllObservers_Modified(m_TransElems, MEMD_TRANSFORM, OldBounds);

@@ -32,14 +32,14 @@ CommandAlignT::CommandAlignT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>& E
       m_Box(Box),
       m_Mode(CorrectMode(Mode))
 {
-    for (unsigned long i=0; i<m_AlignElems.Size(); i++)
-        m_OldStates.PushBack(m_AlignElems[i]->Clone());
+    for (unsigned long i = 0; i < m_AlignElems.Size(); i++)
+        m_OldStates.PushBack(m_AlignElems[i]->GetTrafoState());
 }
 
 
 CommandAlignT::~CommandAlignT()
 {
-    for (unsigned long i=0; i<m_OldStates.Size(); i++)
+    for (unsigned long i = 0; i < m_OldStates.Size(); i++)
         delete m_OldStates[i];
 
     m_OldStates.Clear();
@@ -99,7 +99,7 @@ void CommandAlignT::Undo()
     for (unsigned long i=0; i<m_AlignElems.Size(); i++)
     {
         OldBounds.PushBack(m_AlignElems[i]->GetBB());
-        m_AlignElems[i]->Assign(m_OldStates[i]);
+        m_AlignElems[i]->RestoreTrafoState(m_OldStates[i]);
     }
 
     m_MapDoc.UpdateAllObservers_Modified(m_AlignElems, MEMD_TRANSFORM, OldBounds);

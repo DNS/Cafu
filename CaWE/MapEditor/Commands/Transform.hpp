@@ -29,6 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 class MapDocumentT;
 class MapElementT;
+class TrafoMementoT;
 
 
 /// Command to transform an object or a list of objects using a delta and a transform mode.
@@ -65,7 +66,7 @@ class CommandTransformT : public CommandT
 
     MapDocumentT&              m_MapDoc;        ///< The map document that is (whose elements are) modified.
     const ArrayT<MapElementT*> m_TransElems;    ///< The map elements (of m_MapDoc) that are to be transformed.
-    ArrayT<MapElementT*>       m_OldStates;     ///< The old states of the map elements, for the Undo() operation.
+    ArrayT<TrafoMementoT*>     m_OldStates;     ///< The old states of the map elements, for the Undo() operation.
     const TransModeT           m_Mode;          ///< The kind of transformation to apply to the m_TransElems.
     const Vector3fT            m_RefPoint;      ///< Ignored for translations, the reference point for scales and rotations.
     const Vector3fT            m_Amount;        ///< The delta for translations, the scale factors for scales, the angles for rotations.
