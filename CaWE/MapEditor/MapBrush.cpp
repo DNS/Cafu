@@ -523,7 +523,7 @@ bool MapBrushT::Subtract(const MapBrushT* B, ArrayT<MapBrushT*>& Result) const
         if (Back==NULL) return false;
 
         // Start the next iteration without the cut-away result portion (the front piece) of WorkA.
-        WorkA.Assign(Back);
+        WorkA.m_Faces = Back->m_Faces;      // WorkA = *Back;
         delete Back;
     }
 
