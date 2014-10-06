@@ -45,7 +45,6 @@ class MapPlantT : public MapPrimitiveT
 
     // Implementations and overrides for base class methods.
     MapPlantT* Clone() const;
-    void       Assign(const MapElementT* Elem);
 
 
     // MapElementT implementation.

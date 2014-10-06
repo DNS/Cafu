@@ -98,28 +98,6 @@ MapTerrainT* MapTerrainT::Clone() const
 }
 
 
-void MapTerrainT::Assign(const MapElementT* Elem)
-{
-    if (Elem==this) return;
-
-    MapPrimitiveT::Assign(Elem);
-
-    const MapTerrainT* Terrain=dynamic_cast<const MapTerrainT*>(Elem);
-    wxASSERT(Terrain!=NULL);
-    if (Terrain==NULL) return;
-
-    m_Resolution      =Terrain->m_Resolution;
-    m_HeightData      =Terrain->m_HeightData;
-    m_TerrainBounds   =Terrain->m_TerrainBounds;
-    m_Material        =Terrain->m_Material;
-    m_ToolBounds      =Terrain->m_ToolBounds;
-    m_RenderEyeDropper=false;
-    m_NeedsUpdate     =Terrain->m_NeedsUpdate;
-    m_Terrain         =Terrain->m_Terrain;
-    m_TerrainMesh     =Terrain->m_TerrainMesh;
-}
-
-
 void MapTerrainT::SetTerrainBounds(const BoundingBox3fT& Bounds)
 {
     m_TerrainBounds=Bounds;

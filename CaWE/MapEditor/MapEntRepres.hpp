@@ -55,7 +55,6 @@ class MapEntRepresT : public MapElementT
 
     // Implementations and overrides for base class methods.
     MapEntRepresT* Clone() const;
-    void           Assign(const MapElementT* Elem);
 
     wxColour       GetColor(bool ConsiderGroup=true) const;
     wxString       GetDescription() const;

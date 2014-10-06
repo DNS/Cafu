@@ -84,24 +84,6 @@ MapPlantT* MapPlantT::Clone() const
 }
 
 
-void MapPlantT::Assign(const MapElementT* Elem)
-{
-    if (Elem==this) return;
-
-    MapPrimitiveT::Assign(Elem);
-
-    const MapPlantT* Plant=dynamic_cast<const MapPlantT*>(Elem);
-    wxASSERT(Plant!=NULL);
-    if (Plant==NULL) return;
-
-    m_Tree         =Plant->m_Tree;
-    m_RandomSeed   =Plant->m_RandomSeed;
-    m_Angles       =Plant->m_Angles;
-    m_Position     =Plant->m_Position;
-    m_DescrFileName=Plant->m_DescrFileName;
-}
-
-
 BoundingBox3fT MapPlantT::GetBB() const
 {
     BoundingBox3fT BB=m_Tree.GetTreeBounds();

@@ -265,20 +265,6 @@ MapBrushT* MapBrushT::Clone() const
 }
 
 
-void MapBrushT::Assign(const MapElementT* Elem)
-{
-    if (Elem==this) return;
-
-    MapPrimitiveT::Assign(Elem);
-
-    const MapBrushT* Brush=dynamic_cast<const MapBrushT*>(Elem);
-    wxASSERT(Brush!=NULL);
-    if (Brush==NULL) return;
-
-    m_Faces=Brush->m_Faces;
-}
-
-
 void MapBrushT::Render2D(Renderer2DT& Renderer) const
 {
     const wxColour LineColor=IsSelected() ? Options.colors.Selection : GetColor(Options.view2d.UseGroupColors);

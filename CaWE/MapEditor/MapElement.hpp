@@ -94,22 +94,6 @@ class MapElementT
     /// via a base class pointer (the caller doesn't even need to know the exact derived class).
     virtual MapElementT* Clone() const=0;
 
-    /// Assigns the given element to this element.
-    ///
-    /// @param Elem   The element that is to be assigned to this element.
-    ///
-    /// Elem must be of the exact same type as this element (e.g. as obtained by the Clone() method),
-    /// or else the assignment will silently succeed only partially (or not at all),
-    /// without explicit notice of the failure (except for built-in debug asserts).
-    ///
-    /// Why did we not override operator = instead?
-    /// Having a virtual assignment operator is highly confusing and typically doesn't work as expected.
-    /// See http://www.icu-project.org/docs/papers/cpp_report/the_assignment_operator_revisited.html for details.
-    /// Among the many problems, note that the different semantics between this method (it just does a "best try")
-    /// and a true assignment operator (which makes the left object computationally equivalent to the right)
-    /// is the biggest one.
-    virtual void Assign(const MapElementT* Elem);
-
 
     virtual void Load_cmap(TextParserT& TP, MapDocumentT& MapDoc);
     virtual void Save_cmap(std::ostream& OutFile, unsigned long ElemNr, const MapDocumentT& MapDoc) const;

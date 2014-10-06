@@ -45,7 +45,6 @@ class MapModelT : public MapPrimitiveT
 
     // Implementations and overrides for base class methods.
     MapModelT* Clone() const;
-    void       Assign(const MapElementT* Elem);
 
 
     // MapElementT implementation.

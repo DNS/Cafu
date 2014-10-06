@@ -110,30 +110,6 @@ MapModelT* MapModelT::Clone() const
 }
 
 
-void MapModelT::Assign(const MapElementT* Elem)
-{
-    if (Elem==this) return;
-
-    MapPrimitiveT::Assign(Elem);
-
-    const MapModelT* Model=dynamic_cast<const MapModelT*>(Elem);
-    wxASSERT(Model!=NULL);
-    if (Model==NULL) return;
-
-    m_ModelFileName    =Model->m_ModelFileName;
-    m_Model            =Model->m_Model;
-    m_CollModelFileName=Model->m_CollModelFileName;
-    m_Label            =Model->m_Label;     // Although the value should be unique, we have to assign it anyway, or else copies e.g. for the undo/redo system won't work as expected. Uniqueness must be dealt with and established elsewhere, in a more global scope.
-    m_Angles           =Model->m_Angles;
-    m_Scale            =Model->m_Scale;
-    m_AnimExpr         =dynamic_cast<AnimExprStandardT*>(Model->m_AnimExpr->Clone().get());
-    m_FrameOffset      =Model->m_FrameOffset;
-    m_FrameTimeScale   =Model->m_FrameTimeScale;
-    m_Animated         =Model->m_Animated;
-    m_Timer            =Model->m_Timer;
-}
-
-
 BoundingBox3fT MapModelT::GetBB() const
 {
     // TODO: Cache!

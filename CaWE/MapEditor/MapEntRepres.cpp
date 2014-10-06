@@ -77,28 +77,6 @@ MapEntRepresT* MapEntRepresT::Clone() const
 }
 
 
-void MapEntRepresT::Assign(const MapElementT* Elem)
-{
-    if (Elem == this) return;
-
-    MapElementT::Assign(Elem);
-
-    const MapEntRepresT* MapRepres = dynamic_cast<const MapEntRepresT*>(Elem);
-    wxASSERT(MapRepres != NULL);
-    if (MapRepres == NULL) return;
-
-    IntrusivePtrT<CompMapEntityT> ThisEnt  = GetParent();
-    IntrusivePtrT<CompMapEntityT> OtherEnt = MapRepres->GetParent();
-
-    // Note that we're here concerned only with the entity itself, not with its primitives.
-    // This is intentional, because the primitives are handled explicitly elsewhere.
-    ThisEnt->GetProperties() = OtherEnt->GetProperties();
-
-    ThisEnt->GetEntity()->GetTransform()->SetOriginPS(OtherEnt->GetEntity()->GetTransform()->GetOriginPS());
-    ThisEnt->GetEntity()->GetTransform()->SetQuatPS(OtherEnt->GetEntity()->GetTransform()->GetQuatPS());
-}
-
-
 wxColour MapEntRepresT::GetColor(bool /*ConsiderGroup*/) const
 {
     IntrusivePtrT<cf::GameSys::EntityT> Ent = m_Parent->GetEntity();

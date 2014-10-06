@@ -608,32 +608,6 @@ MapBezierPatchT* MapBezierPatchT::Clone() const
 }
 
 
-void MapBezierPatchT::Assign(const MapElementT* Elem)
-{
-    if (Elem==this) return;
-
-    MapPrimitiveT::Assign(Elem);
-
-    const MapBezierPatchT* BP=dynamic_cast<const MapBezierPatchT*>(Elem);
-    wxASSERT(BP!=NULL);
-    if (BP==NULL) return;
-
-    cv_Pos      =BP->cv_Pos;
-    cv_UVs      =BP->cv_UVs;
-    cv_Width    =BP->cv_Width;
-    cv_Height   =BP->cv_Height;
-    SubdivsHorz =BP->SubdivsHorz;
-    SubdivsVert =BP->SubdivsVert;
-    NeedsUpdate =true;
-    SurfaceInfo =BP->SurfaceInfo;
- // BPRenderMesh=...;       // Properly dealt with in UpdateRenderMesh() below.
- // CollModel   =...;       // Properly dealt with in UpdateRenderMesh() below.
-    Material    =BP->Material;
-
-    UpdateRenderMesh();     // Could probably omit this here, deferring to the next implicit call.
-}
-
-
 BoundingBox3fT MapBezierPatchT::GetBB() const
 {
     BoundingBox3fT BB;
