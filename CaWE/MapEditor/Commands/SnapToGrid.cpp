@@ -54,14 +54,14 @@ CommandSnapToGridT::CommandSnapToGridT(MapDocumentT& MapDoc_, const ArrayT<MapEl
     MoveOffset=NewElemBB.Min-ElemBB.Min;
 
     // Create copies of all objects in their original state for Undo().
-    for (unsigned long i=0; i<SnapObjects.Size(); i++)
-        OldStates.PushBack(SnapObjects[i]->Clone());
+    for (unsigned long i = 0; i < SnapObjects.Size(); i++)
+        OldStates.PushBack(SnapObjects[i]->GetTrafoState());
 }
 
 
 CommandSnapToGridT::~CommandSnapToGridT()
 {
-    for (unsigned long i=0; i<OldStates.Size(); i++)
+    for (unsigned long i = 0; i < OldStates.Size(); i++)
         delete OldStates[i];
 
     OldStates.Clear();
@@ -102,7 +102,7 @@ void CommandSnapToGridT::Undo()
     for (unsigned long i=0; i<SnapObjects.Size(); i++)
     {
         OldBounds.PushBack(SnapObjects[i]->GetBB());
-        SnapObjects[i]->Assign(OldStates[i]);
+        SnapObjects[i]->RestoreTrafoState(OldStates[i]);
     }
 
     MapDoc.UpdateAllObservers_Modified(SnapObjects, MEMD_TRANSFORM, OldBounds);

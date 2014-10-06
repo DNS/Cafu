@@ -98,28 +98,6 @@ MapTerrainT* MapTerrainT::Clone() const
 }
 
 
-void MapTerrainT::Assign(const MapElementT* Elem)
-{
-    if (Elem==this) return;
-
-    MapPrimitiveT::Assign(Elem);
-
-    const MapTerrainT* Terrain=dynamic_cast<const MapTerrainT*>(Elem);
-    wxASSERT(Terrain!=NULL);
-    if (Terrain==NULL) return;
-
-    m_Resolution      =Terrain->m_Resolution;
-    m_HeightData      =Terrain->m_HeightData;
-    m_TerrainBounds   =Terrain->m_TerrainBounds;
-    m_Material        =Terrain->m_Material;
-    m_ToolBounds      =Terrain->m_ToolBounds;
-    m_RenderEyeDropper=false;
-    m_NeedsUpdate     =Terrain->m_NeedsUpdate;
-    m_Terrain         =Terrain->m_Terrain;
-    m_TerrainMesh     =Terrain->m_TerrainMesh;
-}
-
-
 void MapTerrainT::SetTerrainBounds(const BoundingBox3fT& Bounds)
 {
     m_TerrainBounds=Bounds;
@@ -568,6 +546,40 @@ const TerrainT& MapTerrainT::GetTerrain() const
     }
 
     return m_Terrain;
+}
+
+
+namespace
+{
+    class TerrainTrafoMementoT : public TrafoMementoT
+    {
+        public:
+
+        TerrainTrafoMementoT(const BoundingBox3fT& BB)
+            : m_BB(BB)
+        {
+        }
+
+        const BoundingBox3fT m_BB;
+    };
+}
+
+
+TrafoMementoT* MapTerrainT::GetTrafoState() const
+{
+    return new TerrainTrafoMementoT(m_TerrainBounds);
+}
+
+
+void MapTerrainT::RestoreTrafoState(const TrafoMementoT* TM)
+{
+    const TerrainTrafoMementoT* TerrainTM = dynamic_cast<const TerrainTrafoMementoT*>(TM);
+
+    wxASSERT(TerrainTM);
+    if (!TerrainTM) return;
+
+    m_TerrainBounds = TerrainTM->m_BB;
+    m_NeedsUpdate = true;
 }
 
 

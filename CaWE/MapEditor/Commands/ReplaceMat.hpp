@@ -25,6 +25,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../../CommandPattern.hpp"
 
 
+class EditorMaterialI;
+class MapBezierPatchT;
+class MapBrushT;
 class MapDocumentT;
 class MapElementT;
 class CommandSelectT;
@@ -70,8 +73,11 @@ class CommandReplaceMatT : public CommandT
 
     private:
 
-    ArrayT<MapElementT*> ReplaceMatObjects;
-    ArrayT<MapElementT*> OldStates;
+    ArrayT<MapBrushT*>                 m_Brushes;
+    ArrayT<MapBezierPatchT*>           m_BezierPatches;
+
+    ArrayT< ArrayT<EditorMaterialI*> > m_OldBrushMats;
+    ArrayT<EditorMaterialI*>           m_OldBezierPatchMats;
 
     MapDocumentT&        MapDoc;
     const wxString       Find;

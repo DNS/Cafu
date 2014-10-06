@@ -48,6 +48,15 @@ class MatrixT;
 cf::TypeSys::TypeInfoManT& GetMapElemTIM();
 
 
+/// An instance of this class encapsulates the transform-related state of a MapElementT.
+class TrafoMementoT
+{
+    public:
+
+    virtual ~TrafoMementoT() { }
+};
+
+
 /// This is the base class for all elements ("objects") that can exist in a map.
 ///
 /// Generally, elements can exist stand-alone, without being assigned to a parent entity;
@@ -84,22 +93,6 @@ class MapElementT
     /// Creates a copy of this element that is of the *same* class as the original, even when called
     /// via a base class pointer (the caller doesn't even need to know the exact derived class).
     virtual MapElementT* Clone() const=0;
-
-    /// Assigns the given element to this element.
-    ///
-    /// @param Elem   The element that is to be assigned to this element.
-    ///
-    /// Elem must be of the exact same type as this element (e.g. as obtained by the Clone() method),
-    /// or else the assignment will silently succeed only partially (or not at all),
-    /// without explicit notice of the failure (except for built-in debug asserts).
-    ///
-    /// Why did we not override operator = instead?
-    /// Having a virtual assignment operator is highly confusing and typically doesn't work as expected.
-    /// See http://www.icu-project.org/docs/papers/cpp_report/the_assignment_operator_revisited.html for details.
-    /// Among the many problems, note that the different semantics between this method (it just does a "best try")
-    /// and a true assignment operator (which makes the left object computationally equivalent to the right)
-    /// is the biggest one.
-    virtual void Assign(const MapElementT* Elem);
 
 
     virtual void Load_cmap(TextParserT& TP, MapDocumentT& MapDoc);
@@ -206,22 +199,30 @@ class MapElementT
     /// at the same pixel. Therefore, this method can be considered as the 2D analogue of the TraceRay() method.
     virtual bool TracePixel(const wxPoint& Pixel, int Radius, const ViewWindow2DT& ViewWin) const;
 
-    /// Translates this element by the given vector.
+    /// Returns a memento that encapsulates the transform-related state of this element.
+    /// The method saves all state in the memento that calls to the Trafo*() methods can possibly modify.
+    virtual TrafoMementoT* GetTrafoState() const { return NULL; }
+
+    /// Restores the transform-related state of this element from the given memento.
+    /// The method restores all state from the memento that calls to the Trafo*() methods have possibly modified.
+    virtual void RestoreTrafoState(const TrafoMementoT* TM) { }
+
+    /// Translates this element by the given vector (in world-space).
     /// @param Delta   The offset by which to translate the element.
     virtual void TrafoMove(const Vector3fT& Delta) { }
 
-    /// Rotates this element about the given reference point.
+    /// Rotates this element about the given reference point (in world-space).
     /// @param RefPoint   The reference point (origin) for the rotation.
     /// @param Angles     The rotation angles for the three axes.
     virtual void TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles) { }
 
-    /// Scales this element about the given reference point.
+    /// Scales this element about the given reference point (in world-space).
     /// @param RefPoint   The reference point (origin) for the scale.
     /// @param Scale      The scale factors for the three axes.
     /// @throws DivisionByZeroE, e.g. when Scale is too small and the element becomes degenerate (e.g. a brush with too small faces).
     virtual void TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale) { }
 
-    /// Mirrors this element along the given mirror plane.
+    /// Mirrors this element along the given mirror plane (in world-space).
     /// @param NormalAxis   The number of the axis along which the normal vector of the mirror plane points: 0, 1 or 2 for the x-, y- or z-axis respectively.
     /// @param Dist         The position of the mirror plane along its normal vector, where it intersects the NormalAxis.
     /// Note that the mirroring is not necessarily "perfect", because for some elements like models or plants,

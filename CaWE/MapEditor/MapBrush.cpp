@@ -265,20 +265,6 @@ MapBrushT* MapBrushT::Clone() const
 }
 
 
-void MapBrushT::Assign(const MapElementT* Elem)
-{
-    if (Elem==this) return;
-
-    MapPrimitiveT::Assign(Elem);
-
-    const MapBrushT* Brush=dynamic_cast<const MapBrushT*>(Elem);
-    wxASSERT(Brush!=NULL);
-    if (Brush==NULL) return;
-
-    m_Faces=Brush->m_Faces;
-}
-
-
 void MapBrushT::Render2D(Renderer2DT& Renderer) const
 {
     const wxColour LineColor=IsSelected() ? Options.colors.Selection : GetColor(Options.view2d.UseGroupColors);
@@ -523,12 +509,50 @@ bool MapBrushT::Subtract(const MapBrushT* B, ArrayT<MapBrushT*>& Result) const
         if (Back==NULL) return false;
 
         // Start the next iteration without the cut-away result portion (the front piece) of WorkA.
-        WorkA.Assign(Back);
+        WorkA.m_Faces = Back->m_Faces;      // WorkA = *Back;
         delete Back;
     }
 
     // The remaining WorkA is the union of this brush and B.
     return true;
+}
+
+
+namespace
+{
+    class BrushTrafoMementoT : public TrafoMementoT
+    {
+        public:
+
+        BrushTrafoMementoT(const ArrayT<MapFaceT>& Faces)
+            : m_Faces(Faces)
+        {
+        }
+
+        const ArrayT<MapFaceT> m_Faces;
+    };
+}
+
+
+TrafoMementoT* MapBrushT::GetTrafoState() const
+{
+    return new BrushTrafoMementoT(m_Faces);
+}
+
+
+void MapBrushT::RestoreTrafoState(const TrafoMementoT* TM)
+{
+    const BrushTrafoMementoT* BrushTM = dynamic_cast<const BrushTrafoMementoT*>(TM);
+
+    wxASSERT(BrushTM);
+    if (!BrushTM) return;
+
+    // Using ArrayT assignment would be shorter:
+    //     m_Faces = BrushTM->m_Faces;
+    // but (as implemented at this time) also unnecessarily re-allocate all array elements as well.
+    wxASSERT(m_Faces.Size() == BrushTM->m_Faces.Size());
+    for (unsigned int i = 0; i < m_Faces.Size(); i++)
+        m_Faces[i] = BrushTM->m_Faces[i];
 }
 
 

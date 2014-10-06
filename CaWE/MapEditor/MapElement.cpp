@@ -82,17 +82,6 @@ MapElementT::~MapElementT()
 }
 
 
-void MapElementT::Assign(const MapElementT* Elem)
-{
-    if (Elem == this) return;
-
- // m_Parent     = ...;                 // Not changed by this method, per definition.
- // m_IsSelected = Elem->m_IsSelected;  // The selection status cannot be changed by the assignment: It is kept in the map document and up to the caller to change.
- // m_Group      = ...;                 // Not changed by this method, it's up to the caller to change.
- // m_FrameCount = Elem->m_FrameCount;
-}
-
-
 void MapElementT::SetParent(CompMapEntityT* Ent)
 {
     m_Parent = Ent;

@@ -51,20 +51,6 @@ MapPrimitiveT::MapPrimitiveT(const MapPrimitiveT& Prim)
 }
 
 
-void MapPrimitiveT::Assign(const MapElementT* Elem)
-{
-    if (Elem == this) return;
-
-    MapElementT::Assign(Elem);
-
-    const MapPrimitiveT* Prim = dynamic_cast<const MapPrimitiveT*>(Elem);
-    wxASSERT(Prim != NULL);
-    if (Prim == NULL) return;
-
-    m_Color = Prim->m_Color;
-}
-
-
 wxColour MapPrimitiveT::GetColor(bool ConsiderGroup) const
 {
     if (m_Parent != NULL && !m_Parent->IsWorld() && ConsiderGroup)

@@ -84,24 +84,6 @@ MapPlantT* MapPlantT::Clone() const
 }
 
 
-void MapPlantT::Assign(const MapElementT* Elem)
-{
-    if (Elem==this) return;
-
-    MapPrimitiveT::Assign(Elem);
-
-    const MapPlantT* Plant=dynamic_cast<const MapPlantT*>(Elem);
-    wxASSERT(Plant!=NULL);
-    if (Plant==NULL) return;
-
-    m_Tree         =Plant->m_Tree;
-    m_RandomSeed   =Plant->m_RandomSeed;
-    m_Angles       =Plant->m_Angles;
-    m_Position     =Plant->m_Position;
-    m_DescrFileName=Plant->m_DescrFileName;
-}
-
-
 BoundingBox3fT MapPlantT::GetBB() const
 {
     BoundingBox3fT BB=m_Tree.GetTreeBounds();
@@ -192,6 +174,42 @@ bool MapPlantT::TracePixel(const wxPoint& Pixel, int Radius, const ViewWindow2DT
     if (Disc.Contains(ViewWin.WorldToWindow(BB.GetCenter()))) return true;
     if (Options.view2d.SelectByHandles) return false;
     return !Rect.Contains(Disc);
+}
+
+
+namespace
+{
+    class PlantTrafoMementoT : public TrafoMementoT
+    {
+        public:
+
+        PlantTrafoMementoT(const cf::math::AnglesfT& Angles, const Vector3fT& Pos)
+            : m_Angles(Angles),
+              m_Pos(Pos)
+        {
+        }
+
+        const cf::math::AnglesfT m_Angles;
+        const Vector3fT          m_Pos;
+    };
+}
+
+
+TrafoMementoT* MapPlantT::GetTrafoState() const
+{
+    return new PlantTrafoMementoT(m_Angles, m_Position);
+}
+
+
+void MapPlantT::RestoreTrafoState(const TrafoMementoT* TM)
+{
+    const PlantTrafoMementoT* PlantTM = dynamic_cast<const PlantTrafoMementoT*>(TM);
+
+    wxASSERT(PlantTM);
+    if (!PlantTM) return;
+
+    m_Angles   = PlantTM->m_Angles;
+    m_Position = PlantTM->m_Pos;
 }
 
 

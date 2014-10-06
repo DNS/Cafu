@@ -25,8 +25,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../../CommandPattern.hpp"
 
 
+class MapBrushT;
+class MapBezierPatchT;
 class MapDocumentT;
 class MapElementT;
+class MapTerrainT;
 class EditorMaterialI;
 
 
@@ -37,9 +40,6 @@ class CommandApplyMaterialT : public CommandT
     /// Constructor to apply the given material to an array of objects.
     CommandApplyMaterialT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>& Objects, EditorMaterialI* Material);
 
-    /// Destructor.
-    ~CommandApplyMaterialT();
-
     // Implementation of the CommandT interface.
     bool     Do();
     void     Undo();
@@ -48,10 +48,17 @@ class CommandApplyMaterialT : public CommandT
 
     private:
 
-    MapDocumentT&              m_MapDoc;
-    const ArrayT<MapElementT*> m_Objects;
-    ArrayT<MapElementT*>       m_OldStates;
-    EditorMaterialI*           m_Material;
+    MapDocumentT&                      m_MapDoc;
+    EditorMaterialI*                   m_Material;
+    ArrayT<MapElementT*>               m_Objects;
+
+    ArrayT<MapBrushT*>                 m_Brushes;
+    ArrayT<MapBezierPatchT*>           m_BezierPatches;
+    ArrayT<MapTerrainT*>               m_Terrains;
+
+    ArrayT< ArrayT<EditorMaterialI*> > m_OldBrushMats;
+    ArrayT<EditorMaterialI*>           m_OldBezierPatchMats;
+    ArrayT<EditorMaterialI*>           m_OldTerrainMats;
 };
 
 #endif

@@ -31,14 +31,14 @@ CommandMirrorT::CommandMirrorT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>&
       m_NormalAxis(NormalAxis),
       m_Dist(Dist)
 {
-    for (unsigned long i=0; i<m_MirrorElems.Size(); i++)
-        m_OldStates.PushBack(m_MirrorElems[i]->Clone());
+    for (unsigned long i = 0; i < m_MirrorElems.Size(); i++)
+        m_OldStates.PushBack(m_MirrorElems[i]->GetTrafoState());
 }
 
 
 CommandMirrorT::~CommandMirrorT()
 {
-    for (unsigned long i=0; i<m_OldStates.Size(); i++)
+    for (unsigned long i = 0; i < m_OldStates.Size(); i++)
         delete m_OldStates[i];
 
     m_OldStates.Clear();
@@ -78,7 +78,7 @@ void CommandMirrorT::Undo()
     for (unsigned long i=0; i<m_MirrorElems.Size(); i++)
     {
         OldBounds.PushBack(m_MirrorElems[i]->GetBB());
-        m_MirrorElems[i]->Assign(m_OldStates[i]);
+        m_MirrorElems[i]->RestoreTrafoState(m_OldStates[i]);
     }
 
     m_MapDoc.UpdateAllObservers_Modified(m_MirrorElems, MEMD_TRANSFORM, OldBounds);

@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 class MapDocumentT;
 class MapElementT;
+class TrafoMementoT;
 
 
 /// Command to mirror map elements along a given mirror plane.
@@ -50,7 +51,7 @@ class CommandMirrorT : public CommandT
 
     MapDocumentT&              m_MapDoc;
     const ArrayT<MapElementT*> m_MirrorElems;
-    ArrayT<MapElementT*>       m_OldStates;
+    ArrayT<TrafoMementoT*>     m_OldStates;
     const unsigned int         m_NormalAxis;    ///< The number of the axis along which the normal vector of the mirror plane points: 0, 1 or 2 for the x-, y- or z-axis respectively.
     const float                m_Dist;          ///< The position of the mirror plane along its normal vector, where it intersects the NormalAxis.
 };

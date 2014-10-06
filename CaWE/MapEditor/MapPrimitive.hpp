@@ -52,7 +52,6 @@ class MapPrimitiveT : public MapElementT
     MapPrimitiveT* Clone() const=0;
 
     // Implementations and overrides for base class methods.
-    void     Assign(const MapElementT* Elem);
     wxColour GetColor(bool ConsiderGroup=true) const;
 
 

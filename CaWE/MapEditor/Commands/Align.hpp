@@ -27,8 +27,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/BoundingBox.hpp"
 
 
-class MapElementT;
 class MapDocumentT;
+class MapElementT;
+class TrafoMementoT;
 
 
 /// Command to align objects inside a specified box using an align mode.
@@ -52,7 +53,7 @@ class CommandAlignT : public CommandT
 
     MapDocumentT&              m_MapDoc;
     const ArrayT<MapElementT*> m_AlignElems;
-    ArrayT<MapElementT*>       m_OldStates;
+    ArrayT<TrafoMementoT*>     m_OldStates;
     const AxesInfoT            m_RefAxes;       ///< Axes of the 2D view in which the alignment is performed.
     const BoundingBox3fT       m_Box;           ///< Box in which the objects are aligned.
     const int                  m_Mode;

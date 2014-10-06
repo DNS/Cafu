@@ -55,7 +55,6 @@ class MapEntRepresT : public MapElementT
 
     // Implementations and overrides for base class methods.
     MapEntRepresT* Clone() const;
-    void           Assign(const MapElementT* Elem);
 
     wxColour       GetColor(bool ConsiderGroup=true) const;
     wxString       GetDescription() const;
@@ -68,11 +67,13 @@ class MapEntRepresT : public MapElementT
     bool           TracePixel(const wxPoint& Pixel, int Radius, const ViewWindow2DT& ViewWin) const;
 
     // Implement the MapElementT transformation methods.
-    void TrafoMove(const Vector3fT& Delta);
-    void TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles);
-    void TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale);
-    void TrafoMirror(unsigned int NormalAxis, float Dist);
-    void Transform(const MatrixT& Matrix);
+    TrafoMementoT* GetTrafoState() const override;
+    void RestoreTrafoState(const TrafoMementoT* TM) override;
+    void TrafoMove(const Vector3fT& Delta) override;
+    void TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles) override;
+    void TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale) override;
+    void TrafoMirror(unsigned int NormalAxis, float Dist) override;
+    void Transform(const MatrixT& Matrix) override;
 
 
     // The TypeSys related declarations for this class.

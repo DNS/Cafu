@@ -608,32 +608,6 @@ MapBezierPatchT* MapBezierPatchT::Clone() const
 }
 
 
-void MapBezierPatchT::Assign(const MapElementT* Elem)
-{
-    if (Elem==this) return;
-
-    MapPrimitiveT::Assign(Elem);
-
-    const MapBezierPatchT* BP=dynamic_cast<const MapBezierPatchT*>(Elem);
-    wxASSERT(BP!=NULL);
-    if (BP==NULL) return;
-
-    cv_Pos      =BP->cv_Pos;
-    cv_UVs      =BP->cv_UVs;
-    cv_Width    =BP->cv_Width;
-    cv_Height   =BP->cv_Height;
-    SubdivsHorz =BP->SubdivsHorz;
-    SubdivsVert =BP->SubdivsVert;
-    NeedsUpdate =true;
-    SurfaceInfo =BP->SurfaceInfo;
- // BPRenderMesh=...;       // Properly dealt with in UpdateRenderMesh() below.
- // CollModel   =...;       // Properly dealt with in UpdateRenderMesh() below.
-    Material    =BP->Material;
-
-    UpdateRenderMesh();     // Could probably omit this here, deferring to the next implicit call.
-}
-
-
 BoundingBox3fT MapBezierPatchT::GetBB() const
 {
     BoundingBox3fT BB;
@@ -920,6 +894,46 @@ void MapBezierPatchT::UpdateTextureSpace()
         SurfaceInfo.UAxis=Vector3fT();
         SurfaceInfo.VAxis=Vector3fT();
     }
+}
+
+
+namespace
+{
+    class BezierPatchTrafoMementoT : public TrafoMementoT
+    {
+        public:
+
+        BezierPatchTrafoMementoT(const ArrayT<Vector3fT>& cv_Pos)
+            : m_cv_Pos(cv_Pos)
+        {
+        }
+
+        const ArrayT<Vector3fT> m_cv_Pos;
+    };
+}
+
+
+TrafoMementoT* MapBezierPatchT::GetTrafoState() const
+{
+    return new BezierPatchTrafoMementoT(cv_Pos);
+}
+
+
+void MapBezierPatchT::RestoreTrafoState(const TrafoMementoT* TM)
+{
+    const BezierPatchTrafoMementoT* BezierPatchTM = dynamic_cast<const BezierPatchTrafoMementoT*>(TM);
+
+    wxASSERT(BezierPatchTM);
+    if (!BezierPatchTM) return;
+
+    // Using ArrayT assignment would be shorter:
+    //     cv_Pos = BezierPatchTM->m_cv_Pos;
+    // but (as implemented at this time) also unnecessarily re-allocate all array elements as well.
+    wxASSERT(cv_Pos.Size() == BezierPatchTM->m_cv_Pos.Size());
+    for (unsigned int i = 0; i < cv_Pos.Size(); i++)
+        cv_Pos[i] = BezierPatchTM->m_cv_Pos[i];
+
+    NeedsUpdate = true;
 }
 
 
