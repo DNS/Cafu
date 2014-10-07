@@ -323,19 +323,64 @@ void MapEntRepresT::RestoreTrafoState(const TrafoMementoT* TM)
 }
 
 
+namespace
+{
+    // This is a helper class for properly implementing the Trafo*() methods of the MapEntRepresT.
+    // It records the world-space transforms of the immediate children before the MapEntRepresT itself is transformed,
+    // and restores them thereafter. This is necessary because regarding transforms, the MapElementTs are considered
+    // to be independent of each other. See the large comment at class EntRepresTrafoMementoT for details.
+    class ChildrenTransformHandlerT
+    {
+        public:
+
+        ChildrenTransformHandlerT(IntrusivePtrT<cf::GameSys::EntityT> Ent)
+            : m_Children(Ent->GetChildren())
+        {
+            // Record the world-space transforms of the immediate children.
+            for (unsigned int ChildNr = 0; ChildNr < m_Children.Size(); ChildNr++)
+            {
+                m_ChOriginsWS.PushBack(m_Children[ChildNr]->GetTransform()->GetOriginWS());
+                m_ChQuatsWS.PushBack(m_Children[ChildNr]->GetTransform()->GetQuatWS());
+            }
+        }
+
+        ~ChildrenTransformHandlerT()
+        {
+            // Restore the world-space transforms of the immediate children.
+            for (unsigned int ChildNr = 0; ChildNr < m_Children.Size(); ChildNr++)
+            {
+                m_Children[ChildNr]->GetTransform()->SetOriginWS(m_ChOriginsWS[ChildNr]);
+                m_Children[ChildNr]->GetTransform()->SetQuatWS(m_ChQuatsWS[ChildNr]);
+            }
+        }
+
+
+        private:
+
+        const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& m_Children;
+        ArrayT<Vector3fT>                                    m_ChOriginsWS;
+        ArrayT<cf::math::QuaternionfT>                       m_ChQuatsWS;
+    };
+}
+
+
 void MapEntRepresT::TrafoMove(const Vector3fT& Delta)
 {
-    const Vector3fT Origin = m_Parent->GetEntity()->GetTransform()->GetOriginWS();
+    IntrusivePtrT<cf::GameSys::EntityT> Ent = m_Parent->GetEntity();
+    const ChildrenTransformHandlerT     CTH(Ent);   // Important side-effects, don't remove!
 
-    m_Parent->GetEntity()->GetTransform()->SetOriginWS(Origin + Delta);
+    const Vector3fT Origin = Ent->GetTransform()->GetOriginWS();
 
-    MapElementT::TrafoMove(Delta);
+    Ent->GetTransform()->SetOriginWS(Origin + Delta);
 }
 
 
 void MapEntRepresT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles)
 {
-    Vector3fT Origin = m_Parent->GetEntity()->GetTransform()->GetOriginWS();
+    IntrusivePtrT<cf::GameSys::EntityT> Ent = m_Parent->GetEntity();
+    const ChildrenTransformHandlerT     CTH(Ent);   // Important side-effects, don't remove!
+
+    Vector3fT Origin = Ent->GetTransform()->GetOriginWS();
 
     // Rotate the origin.
     Origin -= RefPoint;
@@ -348,45 +393,46 @@ void MapEntRepresT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::Angle
 
     const cf::math::AnglesfT AngRad = Angles * (cf::math::AnglesfT::PI / 180.0);
 
-    const cf::math::QuaternionfT OldQuat = m_Parent->GetEntity()->GetTransform()->GetQuatWS();
+    const cf::math::QuaternionfT OldQuat = Ent->GetTransform()->GetQuatWS();
     const cf::math::QuaternionfT RotQuat = cf::math::QuaternionfT::Euler(-AngRad[1], AngRad[2], AngRad[0]);
 
-    m_Parent->GetEntity()->GetTransform()->SetOriginWS(Origin);
-    m_Parent->GetEntity()->GetTransform()->SetQuatWS(OldQuat * RotQuat);
-
-    MapElementT::TrafoRotate(RefPoint, Angles);
+    Ent->GetTransform()->SetOriginWS(Origin);
+    Ent->GetTransform()->SetQuatWS(OldQuat * RotQuat);
 }
 
 
 void MapEntRepresT::TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale)
 {
-    const Vector3fT Origin = m_Parent->GetEntity()->GetTransform()->GetOriginWS();
+    IntrusivePtrT<cf::GameSys::EntityT> Ent = m_Parent->GetEntity();
+    const ChildrenTransformHandlerT     CTH(Ent);   // Important side-effects, don't remove!
 
-    m_Parent->GetEntity()->GetTransform()->SetOriginWS(RefPoint + (Origin - RefPoint).GetScaled(Scale));
+    const Vector3fT Origin = Ent->GetTransform()->GetOriginWS();
 
-    MapElementT::TrafoScale(RefPoint, Scale);
+    Ent->GetTransform()->SetOriginWS(RefPoint + (Origin - RefPoint).GetScaled(Scale));
 }
 
 
 void MapEntRepresT::TrafoMirror(unsigned int NormalAxis, float Dist)
 {
-    Vector3fT Origin = m_Parent->GetEntity()->GetTransform()->GetOriginWS();
+    IntrusivePtrT<cf::GameSys::EntityT> Ent = m_Parent->GetEntity();
+    const ChildrenTransformHandlerT     CTH(Ent);   // Important side-effects, don't remove!
+
+    Vector3fT Origin = Ent->GetTransform()->GetOriginWS();
 
     Origin[NormalAxis] = Dist - (Origin[NormalAxis] - Dist);
 
-    m_Parent->GetEntity()->GetTransform()->SetOriginWS(Origin);
-
-    MapElementT::TrafoMirror(NormalAxis, Dist);
+    Ent->GetTransform()->SetOriginWS(Origin);
 }
 
 
 void MapEntRepresT::Transform(const MatrixT& Matrix)
 {
-    const Vector3fT Origin = m_Parent->GetEntity()->GetTransform()->GetOriginWS();
+    IntrusivePtrT<cf::GameSys::EntityT> Ent = m_Parent->GetEntity();
+    const ChildrenTransformHandlerT     CTH(Ent);   // Important side-effects, don't remove!
 
-    m_Parent->GetEntity()->GetTransform()->SetOriginWS(Matrix.Mul1(Origin));
+    const Vector3fT Origin = Ent->GetTransform()->GetOriginWS();
 
-    MapElementT::Transform(Matrix);
+    Ent->GetTransform()->SetOriginWS(Matrix.Mul1(Origin));
 }
 
 
