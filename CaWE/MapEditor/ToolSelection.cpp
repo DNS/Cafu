@@ -805,31 +805,20 @@ void ToolSelectionT::RenderTool2D(Renderer2DT& Renderer) const
 
             // If too many individual elements are selected, do not draw them, for performance reasons.
             // The user will then only see the transformed box rectangle as rendered above.
-            if (m_MapDoc.GetSelection().Size() > 32) return;
+            if (m_MapDoc.GetSelection().Size() > 64) return;
 
-            // Create copies of the currently selected elements, transform them, render them, then delete them again.
-            ArrayT<MapElementT*> Elems;
-
-            for (unsigned long SelNr = 0; SelNr < m_MapDoc.GetSelection().Size(); SelNr++)
+            for (unsigned int SelNr = 0; SelNr < m_MapDoc.GetSelection().Size(); SelNr++)
             {
-                Elems.PushBack(m_MapDoc.GetSelection()[SelNr]->Clone());
+                MapElementT*   Elem = m_MapDoc.GetSelection()[SelNr];
+                TrafoMementoT* Mem  = Elem->GetTrafoState();
+
+                m_TrafoBox.ApplyTrafo(Elem);
+                Elem->Render2D(Renderer);
+
+                Elem->RestoreTrafoState(Mem);
+                delete Mem;
             }
 
-            for (unsigned long ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
-            {
-                m_TrafoBox.ApplyTrafo(Elems[ElemNr]);
-
-                Elems[ElemNr]->SetSelected();
-                Elems[ElemNr]->Render2D(Renderer);
-            }
-
-            for (unsigned long ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
-            {
-                delete Elems[ElemNr];
-                Elems[ElemNr] = NULL;
-            }
-
-            Elems.Overwrite();
             break;
         }
     }
