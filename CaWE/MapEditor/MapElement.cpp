@@ -109,6 +109,8 @@ bool MapElementT::CanSelect() const
 
 IntrusivePtrT<CompMapEntityT> MapElementT::GetTopmostGroupSel() const
 {
+    if (!GetParent()) return NULL;
+
     IntrusivePtrT<CompMapEntityT> Top = NULL;
 
     // Bubble up to the topmost parent that is to be selected "as one" (as a group), if there is one.
