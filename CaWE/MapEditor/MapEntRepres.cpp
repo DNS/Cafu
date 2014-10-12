@@ -50,30 +50,10 @@ const cf::TypeSys::TypeInfoT MapEntRepresT::TypeInfo(GetMapElemTIM(), "MapEntRep
 
 
 MapEntRepresT::MapEntRepresT(MapEditor::CompMapEntityT* Parent)
-    : MapElementT(),
-      m_Cloned(NULL)
+    : MapElementT()
 {
     wxASSERT(Parent != NULL);
     m_Parent = Parent;
-}
-
-
-MapEntRepresT::MapEntRepresT(const MapEntRepresT& EntRepres)
-    : MapElementT(EntRepres),
-      m_Cloned(NULL)
-{
-    m_Cloned = EntRepres.GetParent()->GetEntity()->Clone(false /*Recursive?*/);
-    m_Parent = GetMapEnt(m_Cloned).get();
-
-    // The entity was copied...
-    wxASSERT(m_Cloned->GetChildren().Size() == 0);    /// ... non-recursively,
-    wxASSERT(m_Parent->GetPrimitives().Size() == 0);  /// ... without any primitives.
-}
-
-
-MapEntRepresT* MapEntRepresT::Clone() const
-{
-    return new MapEntRepresT(*this);
 }
 
 

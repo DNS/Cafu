@@ -44,7 +44,7 @@ class MapPlantT : public MapPrimitiveT
 
 
     // Implementations and overrides for base class methods.
-    MapPlantT* Clone() const;
+    MapPlantT* Clone() const override;
 
 
     // MapElementT implementation.

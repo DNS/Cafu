@@ -96,7 +96,7 @@ class MapBezierPatchT : public MapPrimitiveT
 
 
     // Implementations and overrides for base class methods.
-    MapBezierPatchT* Clone() const;
+    MapBezierPatchT* Clone() const override;
 
 
     // MapElementT functions

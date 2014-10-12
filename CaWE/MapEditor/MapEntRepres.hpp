@@ -39,23 +39,7 @@ class MapEntRepresT : public MapElementT
     /// The constructor.
     MapEntRepresT(MapEditor::CompMapEntityT* Parent);
 
-    /// The copy constructor.
-    ///
-    /// When a MapEntRepresT is copied, the entity that it represents is copied as well.
-    /// (Only the entity itself is copied, but not its primitives.)
-    ///
-    /// The new entity instance is held by the new MapEntRepresT, and can be obtained via GetParent() as expected.
-    /// As a result, the new entity has *two* representations:
-    /// This one (that holds it), and the one that is held by it (in its CompMapEntityT component).
-    /// It is OK to delete this instance and to keep the created entity.
-    ///
-    /// @param EntRepres   The entity representation to copy-construct the new instance from.
-    MapEntRepresT(const MapEntRepresT& EntRepres);
-
-
     // Implementations and overrides for base class methods.
-    MapEntRepresT* Clone() const;
-
     wxColour       GetColor(bool ConsiderGroup=true) const;
     wxString       GetDescription() const;
 
@@ -84,9 +68,10 @@ class MapEntRepresT : public MapElementT
 
     private:
 
-    BoundingBox3fT GetRepresBB() const;
+    MapEntRepresT(const MapEntRepresT&);        ///< Use of the Copy    Constructor is not allowed.
+    void operator = (const MapEntRepresT&);     ///< Use of the Assignment Operator is not allowed.
 
-    IntrusivePtrT<cf::GameSys::EntityT> m_Cloned;   ///< If the MapEntRepresT has been cloned, the related (cloned) entity instance is stored here. Note that we can *not* get rid of this variable by turning m_Parent into an IntrusivePtrT<>: Doing so would create a cycle and cause entity instances to never get freed, leaking memory.
+    BoundingBox3fT GetRepresBB() const;
 };
 
 #endif

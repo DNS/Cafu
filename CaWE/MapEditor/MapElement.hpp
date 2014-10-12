@@ -89,12 +89,6 @@ class MapElementT
     virtual ~MapElementT();
 
 
-    /// The virtual copy constructor.
-    /// Creates a copy of this element that is of the *same* class as the original, even when called
-    /// via a base class pointer (the caller doesn't even need to know the exact derived class).
-    virtual MapElementT* Clone() const=0;
-
-
     virtual void Load_cmap(TextParserT& TP, MapDocumentT& MapDoc);
     virtual void Save_cmap(std::ostream& OutFile, unsigned long ElemNr, const MapDocumentT& MapDoc) const;
 

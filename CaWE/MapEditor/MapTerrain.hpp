@@ -52,7 +52,7 @@ class MapTerrainT : public MapPrimitiveT
 
 
     // Implementations and overrides for base class methods.
-    MapTerrainT* Clone() const;
+    MapTerrainT* Clone() const override;
 
 
     /// Sets the bounds of the terrain.

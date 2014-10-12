@@ -64,7 +64,7 @@ class MapBrushT : public MapPrimitiveT
 
 
     // Implementations and overrides for base class methods.
-    MapBrushT*     Clone() const;
+    MapBrushT*     Clone() const override;
     void           Render2D(Renderer2DT& Renderer) const;
     void           Render3D(Renderer3DT& Renderer) const;
     bool           IsTranslucent() const;

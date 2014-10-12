@@ -44,12 +44,10 @@ class MapPrimitiveT : public MapElementT
     /// @param Prim   The primitive to copy-construct this primitive from.
     MapPrimitiveT(const MapPrimitiveT& Prim);
 
-    /// Explicitly declare the override for MapElementT::Clone().
-    /// Without this declaration, a statement like
-    ///     MapPrimitiveT* NewPrim = Prim->Clone();
-    /// would call the Clone() method of MapElementT, return a `MapElementT*`, and
-    /// thus fail to compile, because a `MapElementT*` cannot be assigned to `NewPrim`.
-    MapPrimitiveT* Clone() const=0;
+    /// The virtual copy constructor.
+    /// Creates a copy of this primitive that is of the *same* class as the original, even when
+    /// called via a base class pointer (the caller doesn't need to know the exact derived class).
+    virtual MapPrimitiveT* Clone() const = 0;
 
     // Implementations and overrides for base class methods.
     wxColour GetColor(bool ConsiderGroup=true) const;
