@@ -43,16 +43,6 @@ CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, IntrusivePtrT<cf::Gam
 }
 
 
-CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities, bool SetSel)
-    : m_MapDoc(MapDoc),
-      m_Entities(Entities),
-      m_Parent(MapDoc.GetScriptWorld().GetRootEntity()),
-      m_SetSel(SetSel),
-      m_CommandSelect(NULL)
-{
-}
-
-
 CommandNewEntityT::CommandNewEntityT(MapDocumentT& MapDoc, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities, IntrusivePtrT<cf::GameSys::EntityT> Parent, bool SetSel)
     : m_MapDoc(MapDoc),
       m_Entities(Entities),

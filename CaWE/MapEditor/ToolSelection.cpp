@@ -241,70 +241,6 @@ bool ToolSelectionT::OnLMouseDown2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
 }
 
 
-namespace
-{
-    void DeepCopy(const ArrayT<MapElementT*>& SourceElems, ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& NewEnts, ArrayT<MapPrimitiveT*>& NewPrims, ArrayT<MapElementT*>& NewElems)
-    {
-        ArrayT< IntrusivePtrT<CompMapEntityT> > SourceEnts;
-
-        // First pass: Consider the MapEntRepresT instances.
-        for (unsigned long ElemNr = 0; ElemNr < SourceElems.Size(); ElemNr++)
-        {
-            MapEntRepresT* Repres = dynamic_cast<MapEntRepresT*>(SourceElems[ElemNr]);
-
-            if (Repres)
-            {
-                SourceEnts.PushBack(Repres->GetParent());
-
-                // The new entity is referring to the same MapDoc as the source entity (ok),
-                // and to the same entity class (also ok).
-                IntrusivePtrT<cf::GameSys::EntityT> NewEnt = Repres->GetParent()->GetEntity()->Clone(false /*Recursive?*/);
-
-                // The entity was copied...
-                wxASSERT(NewEnt->GetChildren().Size() == 0);              /// ... non-recursively,
-                wxASSERT(GetMapEnt(NewEnt)->GetPrimitives().Size() == 0); /// ... without any primitives.
-
-                NewEnts.PushBack(NewEnt);
-            }
-        }
-
-        // Second pass: Consider the MapPrimitiveT instances.
-        for (unsigned long ElemNr = 0; ElemNr < SourceElems.Size(); ElemNr++)
-        {
-            MapPrimitiveT* Prim = dynamic_cast<MapPrimitiveT*>(SourceElems[ElemNr]);
-
-            if (Prim)
-            {
-                const int EntNr = SourceEnts.Find(Prim->GetParent());
-
-                if (EntNr >= 0)
-                {
-                    GetMapEnt(NewEnts[EntNr])->AddPrim(Prim->Clone());
-                }
-                else
-                {
-                    NewPrims.PushBack(Prim->Clone());
-                }
-            }
-        }
-
-        // For each element in NewEnts and NewPrims, add a pointer to NewElems.
-        for (unsigned long EntNr = 0; EntNr < NewEnts.Size(); EntNr++)
-        {
-            IntrusivePtrT<CompMapEntityT> MapEnt = GetMapEnt(NewEnts[EntNr]);
-
-            NewElems.PushBack(MapEnt->GetRepres());
-
-            for (unsigned long PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
-                NewElems.PushBack(MapEnt->GetPrimitives()[PrimNr]);
-        }
-
-        for (unsigned long PrimNr = 0; PrimNr < NewPrims.Size(); PrimNr++)
-            NewElems.PushBack(NewPrims[PrimNr]);
-    }
-}
-
-
 bool ToolSelectionT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
 {
     m_CycleHitsTimer.Stop();
@@ -414,14 +350,7 @@ bool ToolSelectionT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
 
             if (ME.ShiftDown())
             {
-                ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > NewEnts;
-                ArrayT<MapPrimitiveT*>                        NewPrims;
-                ArrayT<MapElementT*>                          NewElems;
-
-                DeepCopy(m_MapDoc.GetSelection(), NewEnts, NewPrims, NewElems);
-
-                for (unsigned long ElemNr = 0; ElemNr < NewElems.Size(); ElemNr++)
-                    m_TrafoBox.ApplyTrafo(NewElems[ElemNr]);
+                TrafoCmd = CloneDrag();
 
                 // Now finish the box transformation (makes m_TrafoBox.GetDragState() return TrafoBoxT::TH_NONE again).
                 m_TrafoBox.FinishTrafo();
@@ -432,34 +361,6 @@ bool ToolSelectionT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
                 // (mouse) events; so without the following line, we enter OnMouseMove2D() in m_ToolState TS_BOX_TRAFO while
                 // m_TrafoBox.GetDragState() yields the mismatching TH_NONE.
                 m_ToolState = TS_IDLE;
-
-                ArrayT<CommandT*> SubCommands;
-
-                if (NewEnts.Size() > 0)
-                {
-                    CommandNewEntityT* CmdNewEnt = new CommandNewEntityT(m_MapDoc, NewEnts, false /*don't select*/);
-
-                    CmdNewEnt->Do();
-                    SubCommands.PushBack(CmdNewEnt);
-                }
-
-                if (NewPrims.Size() > 0)
-                {
-                    CommandAddPrimT* CmdAddPrim = new CommandAddPrimT(m_MapDoc, NewPrims, m_MapDoc.GetRootMapEntity(), "insert prims", false /*don't select*/);
-
-                    CmdAddPrim->Do();
-                    SubCommands.PushBack(CmdAddPrim);
-                }
-
-                if (SubCommands.Size() > 0)
-                {
-                    CommandSelectT* CmdSel = CommandSelectT::Set(&m_MapDoc, NewEnts, true /*WithEntPrims*/, NewPrims);
-
-                    CmdSel->Do();
-                    SubCommands.PushBack(CmdSel);
-
-                    TrafoCmd = new CommandMacroT(SubCommands, "Clone");
-                }
             }
             else
             {
@@ -1093,4 +994,130 @@ void ToolSelectionT::ToggleCurHitNr()
 
     if (RemoveFromSel.Size() > 0) m_MapDoc.CompatSubmitCommand(CommandSelectT::Remove(&m_MapDoc, RemoveFromSel));
     if (     AddToSel.Size() > 0) m_MapDoc.CompatSubmitCommand(CommandSelectT::   Add(&m_MapDoc,      AddToSel));
+}
+
+
+/// This method creates a command that implements the clone-drag operation.
+///
+/// The main difficulty is that the selection (the source set of elements) can be a completely arbitrary subset
+/// of the world's entity hierarchy, and we still must get all hierarchical relationships and all transforms right.
+/// For example, consider an entity hierarchy like this:
+///
+///     ...---A---B---C---D
+///
+/// and assume that B and D are among the source elements, but C is not. Observe how that makes it very difficult
+/// to copy D, as its transform is defined in parent-space, that is, relative to entity C.
+/// In order to deal with the problem, we could
+///
+///   a) directly attach the copy of D to the copy of B, and either ignore that the world-space transform of D's
+///      copy will likely turn out wrong, or somehow "fix" the parent-space transform of D's copy to account for
+///      a lack of a copy of C,
+///
+///   b) figure out that C is a gap and forcibly copy it as well (but not necessarily any siblings of C),
+///
+///   c) copy the whole subtree rooted at B.
+///
+/// It turns out that both a) and b) are surprisingly difficult to implement! We have therefore opted for c), not
+/// only because it is relatively simple to implement, but also for consistency with the rest of the Map Editor:
+/// In the "Edit" menu, the "Cut (Ctrl+X)" operation involves a "Delete", and thus *requires* c)-like behaviour.
+/// Consequently, "Copy (Ctrl+C)" should work analogously, and using the same behaviour here seems only consistent.
+CommandT* ToolSelectionT::CloneDrag() const
+{
+    // Reduce, split, clone, attach
+    // ****************************
+
+    ArrayT<MapElementT*> SourceElems = m_MapDoc.GetSelection();
+
+    MapDocumentT::Reduce(SourceElems);
+
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > NewEnts;
+    ArrayT<MapPrimitiveT*>                        NewPrims;
+
+    // Split the reduced set of SourceElems into entities and primitives, clone them (fully recursively), and attach
+    // each clone to its respective parent. The last step is necessary because the transforms below work in world-
+    // space, and the world-space transform of an entity can only be determined while it is properly anchored in the
+    // world. (This is contrary to the primitives, which are always in world-space anyway.)
+    for (unsigned int ElemNr = 0; ElemNr < SourceElems.Size(); ElemNr++)
+    {
+        MapElementT* Elem = SourceElems[ElemNr];
+
+        if (Elem->GetType() == &MapEntRepresT::TypeInfo)
+        {
+            // Double-check that this is really a MapEntRepresT.
+            wxASSERT(Elem->GetParent()->GetRepres() == Elem);
+
+            IntrusivePtrT<cf::GameSys::EntityT> OldEnt = Elem->GetParent()->GetEntity();
+            IntrusivePtrT<cf::GameSys::EntityT> NewEnt = OldEnt->Clone(true /*Recursive*/);
+
+            GetMapEnt(NewEnt)->CopyPrimitives(*GetMapEnt(OldEnt), true /*Recursive*/);
+
+            NewEnts.PushBack(NewEnt);
+
+            if (OldEnt->GetParent() != NULL)
+                OldEnt->GetParent()->AddChild(NewEnt);
+            else
+                OldEnt->AddChild(NewEnt);   // Clone-dragging the world!
+        }
+        else
+        {
+            // Double-check that this is really *not* a MapEntRepresT.
+            wxASSERT(Elem->GetParent()->GetRepres() != Elem);
+
+            MapPrimitiveT* OldPrim = dynamic_cast<MapPrimitiveT*>(Elem);
+            MapPrimitiveT* NewPrim = OldPrim->Clone();
+
+            NewPrims.PushBack(NewPrim);
+
+            OldPrim->GetParent()->AddPrim(NewPrim);
+        }
+    }
+
+
+    // Transform all elements
+    // **********************
+
+    ArrayT<MapElementT*> AllNewElems;
+
+    for (unsigned int EntNr = 0; EntNr < NewEnts.Size(); EntNr++)
+    {
+        ArrayT<MapElementT*> Elems = GetMapEnt(NewEnts[EntNr])->GetAllMapElements();
+
+        for (unsigned int ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
+        {
+            m_TrafoBox.ApplyTrafo(Elems[ElemNr]);
+            AllNewElems.PushBack(Elems[ElemNr]);
+        }
+    }
+
+    for (unsigned int PrimNr = 0; PrimNr < NewPrims.Size(); PrimNr++)
+    {
+        m_TrafoBox.ApplyTrafo(NewPrims[PrimNr]);
+        AllNewElems.PushBack(NewPrims[PrimNr]);
+    }
+
+
+    // Detach from parents again, then re-attach with commands
+    // *******************************************************
+
+    ArrayT<CommandT*> SubCommands;
+
+    for (unsigned int EntNr = 0; EntNr < NewEnts.Size(); EntNr++)
+    {
+        IntrusivePtrT<cf::GameSys::EntityT> Parent = NewEnts[EntNr]->GetParent();
+
+        Parent->RemoveChild(NewEnts[EntNr]);
+        SubCommands.PushBack(new CommandNewEntityT(m_MapDoc, NewEnts[EntNr], Parent, false /*don't select*/));
+    }
+
+    for (unsigned int PrimNr = 0; PrimNr < NewPrims.Size(); PrimNr++)
+    {
+        IntrusivePtrT<CompMapEntityT> Parent = NewPrims[PrimNr]->GetParent();
+
+        Parent->RemovePrim(NewPrims[PrimNr]);
+        SubCommands.PushBack(new CommandAddPrimT(m_MapDoc, NewPrims[PrimNr], Parent, "add prims", false /*don't select*/));
+    }
+
+    SubCommands.PushBack(CommandSelectT::Set(&m_MapDoc, AllNewElems));
+
+    return new CommandMacroT(SubCommands, "Clone");
 }

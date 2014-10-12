@@ -136,6 +136,7 @@ class ToolSelectionT : public ToolT, public ObserverT
     void SetHitList(const ArrayT<MapElementT*>& NewHits, bool IsControlDown);
     void StepCurHitNr(int Step);
     void ToggleCurHitNr();
+    CommandT* CloneDrag() const;
 
 
     ToolStateT           m_ToolState;       ///< The main state of this tool.
