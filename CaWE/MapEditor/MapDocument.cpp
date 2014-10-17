@@ -1218,45 +1218,45 @@ namespace
         for (unsigned long ChildNr=0; ChildNr<Entity->GetChildren().Size(); ChildNr++)
             SaveEntityInitialization(OutFile, Entity->GetChildren()[ChildNr], NewParentName);
     }
+}
 
 
-    void SaveCafuEntities(std::ostream& OutFile, IntrusivePtrT<cf::GameSys::EntityT> RootEntity)
-    {
-        OutFile << "-- This is a Cafu Entities file, written by the CaWE Map Editor.\n";
-        OutFile << "-- The file defines the entity hierarchy and properties of the related game world;\n";
-        OutFile << "-- it is used both by the CaWE Map Editor as well as by the Cafu Engine.\n";
-        OutFile << "--\n";
-        OutFile << "-- You CAN edit this file manually, but note that CaWE may overwrite your changes.\n";
-        OutFile << "-- Also note that structural changes to the entity hierarchy will bring this file\n";
-        OutFile << "-- out of sync with the related map (cmap) and world (cw) files, effectively\n";
-        OutFile << "-- causing LOSS OF WORK (see the documentation for details).\n";
-        OutFile << "-- It is therefore recommended that you use CaWE for all changes to this file.\n";
-        OutFile << "\n\n";
-        OutFile << "-- Instantiation of all entities.\n";
-        OutFile << "-- ******************************\n";
-        OutFile << "\n";
+/*static*/ void MapDocumentT::SaveEntities(std::ostream& OutFile, IntrusivePtrT<cf::GameSys::EntityT> RootEntity)
+{
+    OutFile << "-- This is a Cafu Entities file, written by the CaWE Map Editor.\n";
+    OutFile << "-- The file defines the entity hierarchy and properties of the related game world;\n";
+    OutFile << "-- it is used both by the CaWE Map Editor as well as by the Cafu Engine.\n";
+    OutFile << "--\n";
+    OutFile << "-- You CAN edit this file manually, but note that CaWE may overwrite your changes.\n";
+    OutFile << "-- Also note that structural changes to the entity hierarchy will bring this file\n";
+    OutFile << "-- out of sync with the related map (cmap) and world (cw) files, effectively\n";
+    OutFile << "-- causing LOSS OF WORK (see the documentation for details).\n";
+    OutFile << "-- It is therefore recommended that you use CaWE for all changes to this file.\n";
+    OutFile << "\n\n";
+    OutFile << "-- Instantiation of all entities.\n";
+    OutFile << "-- ******************************\n";
+    OutFile << "\n";
 
-        SaveEntityInstantiation(OutFile, RootEntity, "");
+    SaveEntityInstantiation(OutFile, RootEntity, "");
 
-        OutFile << "\n\n";
-        OutFile << "-- Set the worlds root entity.\n";
-        OutFile << "-- ***************************\n";
-        OutFile << "\n";
-        OutFile << "world:SetRootEntity(" << RootEntity->GetBasics()->GetEntityName() << ")\n";
+    OutFile << "\n\n";
+    OutFile << "-- Set the worlds root entity.\n";
+    OutFile << "-- ***************************\n";
+    OutFile << "\n";
+    OutFile << "world:SetRootEntity(" << RootEntity->GetBasics()->GetEntityName() << ")\n";
 
-        OutFile << "\n\n";
-        OutFile << "-- Setup the entity hierarchy.\n";
-        OutFile << "-- ***************************\n";
-        OutFile << "\n";
+    OutFile << "\n\n";
+    OutFile << "-- Setup the entity hierarchy.\n";
+    OutFile << "-- ***************************\n";
+    OutFile << "\n";
 
-        SaveEntityHierarchy(OutFile, RootEntity, "");
+    SaveEntityHierarchy(OutFile, RootEntity, "");
 
-        OutFile << "\n\n";
-        OutFile << "-- Initialization of the entity contents (\"constructors\").\n";
-        OutFile << "-- *******************************************************\n";
+    OutFile << "\n\n";
+    OutFile << "-- Initialization of the entity contents (\"constructors\").\n";
+    OutFile << "-- *******************************************************\n";
 
-        SaveEntityInitialization(OutFile, RootEntity, "");
-    }
+    SaveEntityInitialization(OutFile, RootEntity, "");
 }
 
 
@@ -1358,7 +1358,7 @@ bool MapDocumentT::OnSaveDocument(const wxString& cmapFileName, bool IsAutoSave,
 
     // Save the `.cent` file.
     {
-        SaveCafuEntities(centOutFile, RootEntity);
+        SaveEntities(centOutFile, RootEntity);
 
         if (centOutFile.fail())
         {

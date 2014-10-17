@@ -96,6 +96,7 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
 
 
     // Inherited methods from the wxDocument base class.
+    static void SaveEntities(std::ostream& OutFile, IntrusivePtrT<cf::GameSys::EntityT> RootEntity);
     bool OnSaveDocument(const wxString& FileName, bool IsAutoSave, IntrusivePtrT<cf::GameSys::EntityT> RootEntity = NULL);  ///< Saves the document. Non-const, as it updates the m_FileName member.
     bool SaveAs();      ///< Calls OnSaveDocument().
     bool Save();        ///< Calls OnSaveDocument().
