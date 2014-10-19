@@ -1576,6 +1576,12 @@ void MapDocumentT::SetSelection(const ArrayT<MapElementT*>& NewSelection)
         m_Selection.PushBack(NewSelection[SelNr]);
         NewSelection[SelNr]->SetSelected();
     }
+
+    // Update the m_SelectionBB member whenever the selection is changed.
+    // Updating the value only when `GetMostRecentSelBB()` is called by the user is not enough, because selecting
+    // something, then clearing the selection again would not be accounted for if the m_SelectionBB member was not
+    // also updated immediately when a new selection is set.
+    GetMostRecentSelBB();
 }
 
 
