@@ -160,6 +160,7 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     const ArrayT<MapElementT*>& GetSelection() const { return m_Selection; }
     ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > GetSelectedEntities() const;
     const BoundingBox3fT&       GetMostRecentSelBB() const;     ///< Returns the most recent bounding-box of the selection. That is, it returns the bounding-box of the current selection, or (if nothing is selected) the bounding-box of the previous selection.
+    IntrusivePtrT<cf::GameSys::EntityT> GetPasteParent() const; ///< Returns a suitable parent entity into which new objects from the clipboard should be pasted.
 
     /// Reduces the given set of map elements by removing each element whose parent is in the set as well.
     /// This is an important helper method for operations such as delete, copy-to-clipboard, save-as-prefab, etc.
@@ -187,6 +188,7 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
 
     ArrayT<MapElementT*>               m_Selection;           ///< The currently selected map elements.
     mutable BoundingBox3fT             m_SelectionBB;         ///< The bounding-box of the current selection, or if there is no selection, the bounding-box of the previous selection.
+    unsigned int                       m_SelectionEntID;      ///< The ID of an entity that has been in (or associated to) the most recent selection. Used in the implementation of GetPasteParent().
     ArrayT<PtsPointT>                  m_PointFilePoints;     ///< The points of the currently loaded point file.
     ArrayT<wxColour>                   m_PointFileColors;     ///< The colors for items (columns) of a point in the pointfile. A color can be invalid if the associated column should not be visualized at all.
 

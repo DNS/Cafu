@@ -212,6 +212,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
       m_PlantDescrMan(std::string(m_GameConfig->ModDir)),
       m_Selection(),
       m_SelectionBB(Vector3fT(-64.0f, -64.0f, 0.0f), Vector3fT(64.0f, 64.0f, 64.0f)),
+      m_SelectionEntID(0),
       m_PointFilePoints(),
       m_PointFileColors(),
       m_SnapToGrid(true),
@@ -1582,6 +1583,10 @@ void MapDocumentT::SetSelection(const ArrayT<MapElementT*>& NewSelection)
     // something, then clearing the selection again would not be accounted for if the m_SelectionBB member was not
     // also updated immediately when a new selection is set.
     GetMostRecentSelBB();
+
+    // Update the ID of an entity in the most recent selection.
+    if (m_Selection.Size() > 0)
+        m_SelectionEntID = m_Selection[m_Selection.Size() - 1]->GetParent()->GetEntity()->GetID();
 }
 
 
@@ -2281,6 +2286,14 @@ const BoundingBox3fT& MapDocumentT::GetMostRecentSelBB() const
     }
 
     return m_SelectionBB;
+}
+
+
+IntrusivePtrT<cf::GameSys::EntityT> MapDocumentT::GetPasteParent() const
+{
+    IntrusivePtrT<cf::GameSys::EntityT> Ent = m_ScriptWorld->GetRootEntity()->FindID(m_SelectionEntID);
+
+    return (Ent != NULL) ? Ent : m_ScriptWorld->GetRootEntity();
 }
 
 
