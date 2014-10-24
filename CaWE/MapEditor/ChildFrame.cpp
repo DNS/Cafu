@@ -1085,29 +1085,132 @@ void ChildFrameT::OnMenuEditCut(wxCommandEvent& CE)
 }
 
 
-/// This method copies all selected map elements into the clipboard.
-///
-/// The main difficulty is that the selection (the source set of elements) can be a completely arbitrary subset
-/// of the world's entity hierarchy, and we still must get all hierarchical relationships and all transforms right.
-/// As explained in the comment at ToolSelectionT::CloneDrag(), we choose to recursively copy whole subtrees, as that
-/// approach is the easiest to implement and is in fact required when the "Copy" operation is immediately followed by
-/// a "Delete", as e.g. in a "Cut" command: With "Cut", we must copy exactly what is deleted, so that in fact we have
-/// to deal with whole subtrees. See the comment at ToolSelectionT::CloneDrag() for details.
-///
-/// Another difficulty is that, contrary to the Selection tool's clone-drag, we want to be able to "Paste" the objects
-/// into different parent entities, a different map document with possibly a different GameConfig, or even an entirely
-/// different Map Editor instance, which raises the question how we can deal with the resources (e.g. texture images)
-/// that are associated to the copied objects. The best solution seems to properly *serialize* the objects when they
-/// are copied, and to *unserialize* them when they are pasted. This:
-///
-///   - deals with each object's resources, properly re-associating them in the context of the target map,
-///   - allows to inspect or even modify the clipboard contents in a text editor, and
-///   - allows us to re-use much of the code that is already used for prefabs and normal map files.
-///
-/// Note that in some special cases, the behavior of this "Copy" operation is subtly different from the Selection
-/// tool's clone-drag: If there are multiple entities (e.g. lifts) and each entity has child entities (e.g. doors),
-/// and selected are not the lifts, but only the doors, then clone-dragging this selection will attach each cloned
-/// door to its proper parent lift, whereas "Copy" and "Paste" will attach all copied doors to a single entity.
+namespace
+{
+    IntrusivePtrT<cf::GameSys::EntityT> FindCommonAnchestor(ArrayT<MapElementT*>& Elems)
+    {
+        IntrusivePtrT<cf::GameSys::EntityT> Anchestor = NULL;
+
+        for (unsigned int ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
+        {
+            IntrusivePtrT<cf::GameSys::EntityT> Ent = Elems[ElemNr]->GetParent()->GetEntity();
+
+            if (Elems[ElemNr]->GetType() == &MapEntRepresT::TypeInfo)
+            {
+                // Double-check that this is really a MapEntRepresT.
+                wxASSERT(Elems[ElemNr]->GetParent()->GetRepres() == Elems[ElemNr]);
+
+                // An entity can never be its own anchestor (see OnMenuEditCopy() for details).
+                Ent = Ent->GetParent();
+            }
+
+            if (Ent == NULL)
+            {
+                return NULL;
+            }
+
+            if (ElemNr == 0)
+            {
+                Anchestor = Ent;
+                continue;
+            }
+
+            while (Ent != NULL && Ent != Anchestor)
+            {
+                Ent = Ent->GetParent();
+            }
+
+            if (Ent == NULL)    // Ent is not in the tree of Anchestor.
+            {
+                Anchestor = Anchestor->GetParent();
+
+                // All elements in Elems *must* be part of a single common tree!
+                wxASSERT(Anchestor != NULL);
+                if (Anchestor == NULL) return NULL;
+
+                ElemNr--;
+            }
+        }
+
+        return Anchestor;
+    }
+}
+
+
+/**
+This method copies all selected map elements into the clipboard.
+Thoughts about the proper copying of map elements:
+
+  - The main difficulty is that the selection (the source set of elements) can be a completely arbitrary subset
+    of the world's entity hierarchy, and we still must get all hierarchical relationships and all transforms right.
+    As explained in the comment at ToolSelectionT::CloneDrag(), we choose to recursively copy whole subtrees, as that
+    approach is the easiest to implement and is in fact required when the "Copy" operation is immediately followed by
+    a "Delete", as e.g. in a "Cut" command: With "Cut", we must copy exactly what is deleted, so that in fact we have
+    to deal with whole subtrees. See the comment at ToolSelectionT::CloneDrag() for details.
+
+  - Cross-document support with proper resource handling: Contrary to the Selection tool's clone-drag, we want to be
+    able to "Paste" the objects into different parent entities, a different map document with possibly a different
+    GameConfig, or even an entirely different Map Editor instance, which raises the question how we can deal with the
+    resources (e.g. texture images) that are associated to the copied objects. The best solution seems to properly
+    *serialize* the objects when they are copied, and to *unserialize* them when they are pasted. This:
+
+      - properly deals with each object's resources, re-associating them in the context of the target map,
+      - using the system clipboard, it allows us to inspect or even modify the clipboard contents in a text editor,
+      - and we can re-use much of the (de-)serialization code that is already used for prefabs and normal map files.
+
+  - Note that in some special cases, the behavior of this "Copy" operation is subtly different from the Selection
+    tool's clone-drag: If there are multiple entities (e.g. lifts) and each entity has child entities (e.g. doors),
+    and selected are not the lifts, but only the doors, then clone-dragging this selection will attach each cloned
+    door to its proper parent lift, whereas "Copy" and "Paste" will attach all copied doors to a single target entity.
+    Also, as we will see below, while the transforms of copied elements are left alone whenever possible, they *can*
+    be modified in order to compensate for "missing intermediary parents".
+
+  - It seems wise to keep all copied elements by attaching them to a common parent entity, the "ClipboardRoot":
+
+      - a single "atomic handle" / "natural grouping" for them all,
+      - "reflects" the target entity that the elements will be pasted into,
+      - a natural place for keeping a common transform, required when primitives are present (see below),
+      - already the right and required form to serialize and deserialize them like prefabs and maps.
+
+  - If only a single entity is selected, copying that single entity would be enough:
+    As the entity's (parent-space) transform is stored in the entity itself, at Paste time the mere act of attaching
+    the copy to the target entity is enough to correctly position the copy relative to the target entity.
+    If the copy is kept as a child of a ClipboardRoot entity, the ClipboardRoot's transform does not matter.
+    As a favorable side effect, this meets the user's expectations that the transform of the copy is unchanged,
+    that is, identical to that of the source entity.
+
+  - If siblings (multiple entities with the same parent) are selected, the situation is analogous:
+    As each entity's (parent-space) transform is stored in the entity itself, at Paste time the mere act of attaching
+    the copies to the target entity is enough to correctly position the copies relative to the target entity *and*
+    relative to each other.
+    If the copies are kept as children of a ClipboardRoot entity, the ClipboardRoot's transform does not matter.
+
+  - If an entity and the entity's nephew are selected (but not the nephew's parent), it is necessary to adjust the
+    nephew's transform in order to compensate for its missing parent (as if the nephew was, at the same world-space
+    position, a direct child of its grandparent) so that the copies can be correctly positioned both relative to the
+    target entity and to each other. Similar is true if cousins are involved.
+    If the copies are kept as children of a ClipboardRoot entity, the ClipboardRoot's transform does still not matter.
+
+  - In all cases, observe how the "nearest" common anchestor of the selected entities (this can never be one of the
+    selected entities itself, but is built from the *parents* of the selected entities!) corresponds to the future
+    target entity at Paste time and is used as the reference entity to compensate transforms for missing intermediary
+    parents as in the nephews and cousins example above. Therefore, it is this entity whose world-space transform the
+    ClipboardRoot should reflect. Although still not a technical neccessity (it will become one in the next considered
+    point), this is already well justified for the above reasons.
+
+  - If a single primitive is selected, things look a bit differently: Primitives are defined in world-space.
+    As such, if only the primitive was copied (and kept as a child of the ClipboardRoot), this would be enough to
+    recreate the primitive in world-space, but not to position it correctly relative to the target entity (and/or
+    relative to any entities that may be contained in the selection was well).
+    Therefore, we have to keep the (world-space) transform of the primitive's related ("parent") entity, storing it in
+    the ClipboardRoot. With that, the primitive can (at Paste time) be transformed into the space of its entity, and
+    from there into the space of the target entity, so that eventually the primitive is correctly positioned relative
+    to the target entity.
+
+  - If multiple primitives are selected, their "nearest" common anchestor must be used. Note that for primitives, the
+    finding of this anchestor starts at the entity that is directly related to (contains) the primitive, *not* at the
+    parent of a primitive's related entity (as it would with entities).
+*/
 void ChildFrameT::OnMenuEditCopy(wxCommandEvent& CE)
 {
     wxBusyCursor BusyCursor;
@@ -1123,10 +1226,16 @@ void ChildFrameT::OnMenuEditCopy(wxCommandEvent& CE)
 
     IntrusivePtrT<cf::GameSys::EntityT> ClipboardRoot   = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(m_Doc->GetScriptWorld()));
     IntrusivePtrT<CompMapEntityT>       ClipboardMapEnt = new CompMapEntityT(*m_Doc);
+    IntrusivePtrT<cf::GameSys::EntityT> CommonAnchestor = FindCommonAnchestor(SourceElems);
 
-    ClipboardRoot->GetBasics()->SetEntityName("Clipboard");
-    ClipboardRoot->GetTransform()->SetOriginWS(m_Doc->GetMostRecentSelBB().GetCenter());
     ClipboardRoot->SetApp(ClipboardMapEnt);
+    ClipboardRoot->GetBasics()->SetEntityName("Clipboard");
+
+    if (CommonAnchestor != NULL)
+    {
+        ClipboardRoot->GetTransform()->SetOriginWS(CommonAnchestor->GetTransform()->GetOriginWS());
+        ClipboardRoot->GetTransform()->SetQuatWS(CommonAnchestor->GetTransform()->GetQuatWS());
+    }
 
     for (unsigned int ElemNr = 0; ElemNr < SourceElems.Size(); ElemNr++)
     {
@@ -1144,11 +1253,13 @@ void ChildFrameT::OnMenuEditCopy(wxCommandEvent& CE)
 
             ClipboardRoot->AddChild(NewEnt);
 
-            // Note that each OldEnt may have a distinct parent, while each NewEnt is attached to ClipboardRoot.
-            // As this can inadvertently affect the transform of the NewEnts relative to each other, we have to
-            // make sure that the world-space transform of the NewEnts is preserved.
-            NewEnt->GetTransform()->SetOriginWS(OldEnt->GetTransform()->GetOriginWS());
-            NewEnt->GetTransform()->SetQuatWS(OldEnt->GetTransform()->GetQuatWS());
+            // As only the transforms of grandchildren of the common anchestor must be compensated,
+            // this leaves the transforms unmodified whenever possible.
+            if (OldEnt->GetParent() != CommonAnchestor)
+            {
+                NewEnt->GetTransform()->SetOriginWS(OldEnt->GetTransform()->GetOriginWS());
+                NewEnt->GetTransform()->SetQuatWS(OldEnt->GetTransform()->GetQuatWS());
+            }
         }
         else
         {
