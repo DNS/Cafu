@@ -1233,6 +1233,9 @@ void ChildFrameT::OnMenuEditCopy(wxCommandEvent& CE)
 
     if (CommonAnchestor != NULL)
     {
+        // Make sure that the common sequence "Ctrl+C, Ctrl+V" creates siblings, not descendants.
+        m_Doc->SetPasteParent(CommonAnchestor->GetID());
+
         ClipboardRoot->GetTransform()->SetOriginWS(CommonAnchestor->GetTransform()->GetOriginWS());
         ClipboardRoot->GetTransform()->SetQuatWS(CommonAnchestor->GetTransform()->GetQuatWS());
     }

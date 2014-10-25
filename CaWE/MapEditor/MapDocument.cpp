@@ -212,7 +212,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
       m_PlantDescrMan(std::string(m_GameConfig->ModDir)),
       m_Selection(),
       m_SelectionBB(Vector3fT(-64.0f, -64.0f, 0.0f), Vector3fT(64.0f, 64.0f, 64.0f)),
-      m_SelectionEntID(0),
+      m_PasteParentID(0),
       m_PointFilePoints(),
       m_PointFileColors(),
       m_SnapToGrid(true),
@@ -1584,9 +1584,15 @@ void MapDocumentT::SetSelection(const ArrayT<MapElementT*>& NewSelection)
     // also updated immediately when a new selection is set.
     GetMostRecentSelBB();
 
-    // Update the ID of an entity in the most recent selection.
     if (m_Selection.Size() > 0)
-        m_SelectionEntID = m_Selection[m_Selection.Size() - 1]->GetParent()->GetEntity()->GetID();
+    {
+        MapElementT* SelElem = m_Selection[m_Selection.Size() - 1];
+
+        // If the new selection is empty, the m_PasteParentID is (intentionally) not updated.
+        // If SelElem is a primitive, a "Paste" will insert the new objects *next* to it.
+        // If SelElem is an entity,   a "Paste" will insert the new objects *into* to it.
+        m_PasteParentID = SelElem->GetParent()->GetEntity()->GetID();
+    }
 }
 
 
@@ -2291,9 +2297,15 @@ const BoundingBox3fT& MapDocumentT::GetMostRecentSelBB() const
 
 IntrusivePtrT<cf::GameSys::EntityT> MapDocumentT::GetPasteParent() const
 {
-    IntrusivePtrT<cf::GameSys::EntityT> Ent = m_ScriptWorld->GetRootEntity()->FindID(m_SelectionEntID);
+    IntrusivePtrT<cf::GameSys::EntityT> Ent = m_ScriptWorld->GetRootEntity()->FindID(m_PasteParentID);
 
     return (Ent != NULL) ? Ent : m_ScriptWorld->GetRootEntity();
+}
+
+
+void MapDocumentT::SetPasteParent(unsigned int ID)
+{
+    m_PasteParentID = ID;
 }
 
 
