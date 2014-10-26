@@ -1404,6 +1404,19 @@ void ChildFrameT::OnMenuEditPaste(wxCommandEvent& CE)
 
     if (Clipboard == NULL) return;
 
+    // Primitives must be transformed from world-space into the local space of the clipboard,
+    // which happens to be the same as the local space of the PasteParent, and from there
+    // (relative to PasteParent) back into world-space.
+    bool          InvResult    = true;
+    const MatrixT WorldToWorld = Clipboard->GetTransform()->GetEntityToWorld().GetInverse(&InvResult) * PasteParent->GetTransform()->GetEntityToWorld();
+
+    if (WorldToWorld.IsEqual(MatrixT(), 0.001f))
+    {
+        // If WorldToWorld is (close to) the identity anyway, skip the Prim->Transform() calls below,
+        // both as a performance optimization but mostly in order to not negatively impact numerical precision.
+        InvResult = false;
+    }
+
     ArrayT<CommandT*>    SubCommands;
     ArrayT<MapElementT*> SelElems;
 
@@ -1412,7 +1425,20 @@ void ChildFrameT::OnMenuEditPaste(wxCommandEvent& CE)
         IntrusivePtrT<cf::GameSys::EntityT> Ent = Clipboard->GetChildren()[0];
 
         Clipboard->RemoveChild(Ent);
-        SelElems.PushBack(GetMapEnt(Ent)->GetAllMapElements());
+
+        const ArrayT<MapElementT*> Elems = GetMapEnt(Ent)->GetAllMapElements();
+
+        if (InvResult)
+        {
+            for (unsigned int ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
+            {
+                MapPrimitiveT* Prim = dynamic_cast<MapPrimitiveT*>(Elems[ElemNr]);
+
+                if (Prim) Prim->Transform(WorldToWorld);
+            }
+        }
+
+        SelElems.PushBack(Elems);
         SubCommands.PushBack(new CommandNewEntityT(*m_Doc, Ent, PasteParent, false /*don't select*/));
     }
 
@@ -1421,6 +1447,12 @@ void ChildFrameT::OnMenuEditPaste(wxCommandEvent& CE)
         MapPrimitiveT* Prim = GetMapEnt(Clipboard)->GetPrimitives()[0];
 
         GetMapEnt(Clipboard)->RemovePrim(Prim);
+
+        if (InvResult)
+        {
+            Prim->Transform(WorldToWorld);
+        }
+
         SelElems.PushBack(Prim);
         SubCommands.PushBack(new CommandAddPrimT(*m_Doc, Prim, GetMapEnt(PasteParent), "insert prims", false /*don't select*/));
     }
