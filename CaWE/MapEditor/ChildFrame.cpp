@@ -49,6 +49,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Commands/Delete.hpp"
 #include "Commands/NewEntity.hpp"
 #include "Commands/Select.hpp"
+#include "Commands/Transform.hpp"
 
 #include "GameSys/AllComponents.hpp"
 #include "GameSys/Entity.hpp"
@@ -1394,6 +1395,42 @@ namespace
 
         return NULL;
     }
+
+
+    BoundingBox3fT GetClipboardBB(IntrusivePtrT<cf::GameSys::EntityT> Clipboard, bool InvResult, const MatrixT& WorldToWorld)
+    {
+        BoundingBox3fT BB;
+
+        const ArrayT<MapElementT*> Elems = GetMapEnt(Clipboard)->GetAllMapElements();
+
+        for (unsigned int ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
+        {
+            const MapElementT* Elem = Elems[ElemNr];
+
+            if (ElemNr == 0)
+            {
+                wxASSERT(Elem == GetMapEnt(Clipboard)->GetRepres());
+                continue;
+            }
+
+            wxASSERT(Elem != GetMapEnt(Clipboard)->GetRepres());
+
+            BB.InsertValid(Elem->GetBB());
+        }
+
+        if (!BB.IsInited()) return BB;
+        if (!InvResult) return BB;
+
+        Vector3fT Corners[8];
+        BB.GetCornerVertices(Corners);
+
+        BB = BoundingBox3fT(WorldToWorld.Mul1(Corners[0]));
+
+        for (unsigned int i = 1; i < 8; i++)
+            BB += WorldToWorld.Mul1(Corners[i]);
+
+        return BB;
+    }
 }
 
 
@@ -1416,6 +1453,12 @@ void ChildFrameT::OnMenuEditPaste(wxCommandEvent& CE)
         // both as a performance optimization but mostly in order to not negatively impact numerical precision.
         InvResult = false;
     }
+
+    // Determine the bounding-box of the clipboard's contents, transformed to (target) world-space.
+    // Note that bounding-boxes can only be determined while the entities are attached to a proper parent.
+    // Once they have been detached from the Clipboard entity below, a bounding-box can only be determined
+    // again after the commands that attach them to the PasteParent have run.
+    const BoundingBox3fT ClipboardBB = GetClipboardBB(Clipboard, InvResult, WorldToWorld);
 
     ArrayT<CommandT*>    SubCommands;
     ArrayT<MapElementT*> SelElems;
@@ -1459,6 +1502,33 @@ void ChildFrameT::OnMenuEditPaste(wxCommandEvent& CE)
 
     if (SelElems.Size() > 0)
     {
+        if (ClipboardBB.IsInited())     // Translate to where the user can well see the pasted objects.
+        {
+            const Vector3fT GoodPastePos = GuessUserVisiblePoint();
+
+            static Vector3fT    LastPastePoint(0, 0, 0);
+            static unsigned int LastPasteCount = 0;
+
+            if (GoodPastePos != LastPastePoint)
+            {
+                LastPastePoint = GoodPastePos;
+                LastPasteCount = 0;
+            }
+
+            int PasteOffset = std::max(m_Doc->GetGridSpacing(), 1);
+
+            while (PasteOffset < 8)
+                PasteOffset *= 2;   // Make PasteOffset some multiple of the grid spacing larger than 8.0.
+
+            const Vector3fT TotalTranslation = m_Doc->SnapToGrid(
+                LastPastePoint
+                + Vector3fT(((LastPasteCount % 8)+(LastPasteCount/8)) * PasteOffset, (LastPasteCount % 8) * PasteOffset, 0.0f),
+                false, -1 /*Snap all axes.*/) - ClipboardBB.GetCenter();
+
+            SubCommands.PushBack(new CommandTransformT(*m_Doc, SelElems, CommandTransformT::MODE_TRANSLATE, Vector3fT(), TotalTranslation));
+            LastPasteCount++;
+        }
+
         SubCommands.PushBack(CommandSelectT::Set(m_Doc, SelElems));
     }
 
