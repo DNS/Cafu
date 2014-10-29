@@ -729,12 +729,6 @@ bool ChildFrameT::SubmitCommand(CommandT* Command)
 }
 
 
-MapEditor::ClipboardT& ChildFrameT::GetMapClipboard() const
-{
-    return m_Parent->m_MapClipboard;
-}
-
-
 Vector3fT ChildFrameT::GuessUserVisiblePoint() const
 {
     Vector3fT     Point(0, 0, 0);   // TODO: Init along the view dir of the MRU camera instead? Or m_SelectionBB.GetCenter()?
@@ -1214,11 +1208,6 @@ Thoughts about the proper copying of map elements:
 */
 void ChildFrameT::OnMenuEditCopy(wxCommandEvent& CE)
 {
-    wxBusyCursor BusyCursor;
-
-    GetMapClipboard().CopyFrom(m_Doc->GetSelection());
-    GetMapClipboard().SetOriginalCenter(m_Doc->GetMostRecentSelBB().GetCenter());
-
     ArrayT<MapElementT*> SourceElems = m_Doc->GetSelection();
 
     MapDocumentT::Reduce(SourceElems);
@@ -1644,11 +1633,14 @@ void ChildFrameT::OnMenuEditUpdate(wxUpdateUIEvent& UE)
         case wxID_PASTE:
         case ID_MENU_EDIT_PASTE_SPECIAL:
         {
-            const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& SrcEnts  = GetMapClipboard().GetEntities();
-            const ArrayT<MapPrimitiveT*>&                        SrcPrims = GetMapClipboard().GetPrimitives();
+            if (!wxTheClipboard->Open())
+            {
+                UE.Enable(false);
+                break;
+            }
 
-            UE.Enable((SrcEnts.Size() > 0 || SrcPrims.Size() > 0) &&
-                      GetToolManager().GetActiveToolType() != &ToolEditSurfaceT::TypeInfo);
+            UE.Enable(wxTheClipboard->IsSupported(wxDF_TEXT));
+            wxTheClipboard->Close();
             break;
         }
     }

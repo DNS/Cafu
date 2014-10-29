@@ -21,7 +21,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ChildFrame.hpp"
 #include "ChildFrameViewWin.hpp"
-#include "Clipboard.hpp"
 #include "CompMapEntity.hpp"
 #include "DialogEditSurfaceProps.hpp"
 #include "DialogInspector.hpp"
