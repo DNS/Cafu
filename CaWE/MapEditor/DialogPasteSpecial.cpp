@@ -38,6 +38,7 @@ END_EVENT_TABLE()
 
 PasteSpecialDialogT::PasteSpecialDialogT(const BoundingBox3fT& ObjectsBox)
     : wxDialog(NULL, -1, "Paste Special", wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE /*| wxRESIZE_BORDER*/),
+      m_PastePos(NULL),
       NrOfCopies      (wxConfigBase::Get()->Read("Paste Special Dialog/Number Of Copies"  , 1l)),
       CenterAtOriginal(wxConfigBase::Get()->Read("Paste Special Dialog/Center At Original", 1l)!=0),
       GroupCopies     (wxConfigBase::Get()->Read("Paste Special Dialog/Group Copies"      , 0l)!=0),
@@ -52,6 +53,19 @@ PasteSpecialDialogT::PasteSpecialDialogT(const BoundingBox3fT& ObjectsBox)
       ObjectsSizeZ((int)(ObjectsBox.Max[2]-ObjectsBox.Min[2]))
 {
     wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
+
+    wxString Choices[] =
+    {
+        "normally (at a well-visible location, e.g. centered in the 2D views)",
+        "with original parent-space transforms (pasted objects relate to the \n"
+        "new parent as they related to their original parent)"
+    };
+
+    m_PastePos = new wxRadioBox(this, wxID_ANY, "Position the pasted elements:",
+        wxDefaultPosition, wxDefaultSize, 2, Choices, 1);
+
+    item0->Add(m_PastePos, 0, wxEXPAND | wxALL, 5);
+
 
     wxBoxSizer *item1 = new wxBoxSizer( wxHORIZONTAL );
 
@@ -173,6 +187,12 @@ PasteSpecialDialogT::PasteSpecialDialogT(const BoundingBox3fT& ObjectsBox)
 
     this->SetSizer(item0);
     item0->SetSizeHints(this);
+}
+
+
+bool PasteSpecialDialogT::MakePastedElementsWellVisible() const
+{
+    return m_PastePos->GetSelection() == 0;
 }
 
 

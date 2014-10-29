@@ -242,7 +242,7 @@ BEGIN_EVENT_TABLE(ChildFrameT, wxMDIChildFrame)
     EVT_MENU  (wxID_CUT,                           ChildFrameT::OnMenuEditCut)
     EVT_MENU  (wxID_COPY,                          ChildFrameT::OnMenuEditCopy)
     EVT_MENU  (wxID_PASTE,                         ChildFrameT::OnMenuEditPaste)
-    EVT_MENU  (ID_MENU_EDIT_PASTE_SPECIAL,         ChildFrameT::OnMenuEditPasteSpecial)
+    EVT_MENU  (ID_MENU_EDIT_PASTE_SPECIAL,         ChildFrameT::OnMenuEditPaste)
     EVT_MENU  (ID_MENU_EDIT_DELETE,                ChildFrameT::OnMenuEditDelete)
     EVT_BUTTON(ID_MENU_EDIT_DELETE,                ChildFrameT::OnMenuEditDelete)       // This ID is re-used for a button in the "Entity Hierarchy" dialog.
     EVT_MENU  (ID_MENU_EDIT_SELECT_NONE,           ChildFrameT::OnMenuEditSelectNone)
@@ -351,7 +351,7 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item2->Append( wxID_CUT, wxT("Cu&t\tCtrl+X"), wxT("") );
     item2->Append( wxID_COPY, wxT("&Copy\tCtrl+C"), wxT("") );
     item2->Append( wxID_PASTE, wxT("&Paste\tCtrl+V"), wxT("") );
-    item2->Append(ID_MENU_EDIT_PASTE_SPECIAL, wxT("Paste &Special..."), wxT("") );
+    item2->Append(ID_MENU_EDIT_PASTE_SPECIAL, wxT("Paste &Special...\tShift+Ctrl+V"), wxT("") );
     item2->Append(ID_MENU_EDIT_DELETE, wxT("&Delete\tCtrl+Del"), wxT("") );
     item2->AppendSeparator();
     item2->Append(ID_MENU_EDIT_SELECT_NONE, wxT("Select &None\tCtrl+Q"), wxT("") );
@@ -1330,7 +1330,7 @@ namespace
             wxTheClipboard->Close();
 
             const std::string Delimiter = "-- -- -- End of `cent` file, begin of `cmap` file. -- -- --\n";
-            const std::string ClipboardString = TextData.GetText();
+            const std::string ClipboardString = TextData.GetText().ToStdString();   // g++ complains without the `.ToStdString()`.
             const std::size_t SplitPos = ClipboardString.find(Delimiter);
 
             if (SplitPos == std::string::npos)
@@ -1436,6 +1436,17 @@ namespace
 
 void ChildFrameT::OnMenuEditPaste(wxCommandEvent& CE)
 {
+    bool MakeWellVisible = true;
+
+    if (CE.GetId() == ID_MENU_EDIT_PASTE_SPECIAL)
+    {
+        PasteSpecialDialogT PSD;
+
+        if (PSD.ShowModal() == wxID_CANCEL) return;
+
+        MakeWellVisible = PSD.MakePastedElementsWellVisible();
+    }
+
     IntrusivePtrT<cf::GameSys::EntityT> PasteParent = m_Doc->GetPasteParent();
     IntrusivePtrT<cf::GameSys::EntityT> Clipboard   = GetClipboardEntity(*m_Doc);
 
@@ -1502,7 +1513,7 @@ void ChildFrameT::OnMenuEditPaste(wxCommandEvent& CE)
 
     if (SelElems.Size() > 0)
     {
-        if (ClipboardBB.IsInited())     // Translate to where the user can well see the pasted objects.
+        if (MakeWellVisible && ClipboardBB.IsInited())  // Translate to where the user can well see the pasted objects.
         {
             const Vector3fT GoodPastePos = GuessUserVisiblePoint();
 

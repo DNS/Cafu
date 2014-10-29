@@ -34,7 +34,9 @@ class PasteSpecialDialogT : public wxDialog
     public:
 
     // Constructor.
-    PasteSpecialDialogT(const BoundingBox3fT& ObjectsBox);
+    PasteSpecialDialogT(const BoundingBox3fT& ObjectsBox = BoundingBox3fT());
+
+    bool MakePastedElementsWellVisible() const;
 
     int  NrOfCopies;
     bool CenterAtOriginal;
@@ -48,6 +50,8 @@ class PasteSpecialDialogT : public wxDialog
 
 
     private:
+
+    wxRadioBox* m_PastePos;
 
     const int ObjectsSizeX;
     const int ObjectsSizeY;
