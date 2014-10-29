@@ -270,15 +270,6 @@ class ChildFrameT : public wxMDIChildFrame
     /// Shows or hides the given AUI pane.
     void PaneToggleShow(wxAuiPaneInfo& PaneInfo);
 
-    /// Helper function to paste the clipboard contents into the map.
-    /// @param DeltaTranslation    Translation offset for each pasted copy (only relevant if NumberOfCopies > 1).
-    /// @param DeltaRotation       Rotation offset for each pasted copy (only relevant if NumberOfCopies > 1).
-    /// @param NrOfCopies          Number of times the objects are pasted into the world.
-    /// @param PasteGrouped        Should all pasted objects be grouped?
-    /// @param CenterAtOriginals   Should pasted objects be centered at position of original objects?
-    ArrayT<CommandT*> CreatePasteCommands(const Vector3fT& DeltaTranslation = Vector3fT(), const cf::math::AnglesfT& DeltaRotation = cf::math::AnglesfT(),
-        unsigned int NrOfCopies = 1, bool PasteGrouped = false, bool CenterAtOriginals = false) const;
-
     // Event handlers.
     void OnClose          (wxCloseEvent&      CE);  ///< Event handler for close events, e.g. after a system close button or command or a call to Close() (also see ParentFrameT::OnClose()). See wx Window Deletion Overview for more details.
     void OnIdle           (wxIdleEvent&       IE);  ///< Idle event handler, for updating the console when an external compile process runs, update all 3D views and caching textures.
@@ -290,7 +281,6 @@ class ChildFrameT : public wxMDIChildFrame
     void OnMenuEditCut           (wxCommandEvent&  CE);
     void OnMenuEditCopy          (wxCommandEvent&  CE);
     void OnMenuEditPaste         (wxCommandEvent&  CE);
-    void OnMenuEditPasteSpecial  (wxCommandEvent&  CE);
     void OnMenuEditDelete        (wxCommandEvent&  CE);
     void OnMenuEditSelectNone    (wxCommandEvent&  CE);
     void OnMenuEditSelectAll     (wxCommandEvent&  CE);

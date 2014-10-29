@@ -22,60 +22,21 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #ifndef CAFU_DIALOG_PASTE_SPECIAL_HPP_INCLUDED
 #define CAFU_DIALOG_PASTE_SPECIAL_HPP_INCLUDED
 
-#include "Math3D/BoundingBox.hpp"
 #include "wx/wx.h"
-
-
-class wxSpinCtrl;
 
 
 class PasteSpecialDialogT : public wxDialog
 {
     public:
 
-    // Constructor.
-    PasteSpecialDialogT(const BoundingBox3fT& ObjectsBox = BoundingBox3fT());
+    PasteSpecialDialogT();
 
     bool MakePastedElementsWellVisible() const;
-
-    int  NrOfCopies;
-    bool CenterAtOriginal;
-    bool GroupCopies;
-    int  TranslateX;
-    int  TranslateY;
-    int  TranslateZ;
-    int  RotateX;
-    int  RotateY;
-    int  RotateZ;
 
 
     private:
 
     wxRadioBox* m_PastePos;
-
-    const int ObjectsSizeX;
-    const int ObjectsSizeY;
-    const int ObjectsSizeZ;
-
-    wxSpinCtrl* SpinCtrlTranslateX;
-    wxSpinCtrl* SpinCtrlTranslateY;
-    wxSpinCtrl* SpinCtrlTranslateZ;
-
-    // Event handlers.
-    void OnButtonGetWidth (wxCommandEvent& Event);
-    void OnButtonGetDepth (wxCommandEvent& Event);
-    void OnButtonGetHeight(wxCommandEvent& Event);
-    void OnButtonOK       (wxCommandEvent& Event);
-
-    // IDs for the controls in whose events we are interested.
-    enum
-    {
-        ID_BUTTON_GET_WIDTH=wxID_HIGHEST+1,
-        ID_BUTTON_GET_DEPTH,
-        ID_BUTTON_GET_HEIGHT
-    };
-
-    DECLARE_EVENT_TABLE()
 };
 
 #endif
