@@ -21,7 +21,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ChildFrame.hpp"
 #include "ChildFrameViewWin.hpp"
-#include "Clipboard.hpp"
 #include "CompMapEntity.hpp"
 #include "DialogEditSurfaceProps.hpp"
 #include "DialogInspector.hpp"
@@ -212,6 +211,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
       m_PlantDescrMan(std::string(m_GameConfig->ModDir)),
       m_Selection(),
       m_SelectionBB(Vector3fT(-64.0f, -64.0f, 0.0f), Vector3fT(64.0f, 64.0f, 64.0f)),
+      m_PasteParentID(0),
       m_PointFilePoints(),
       m_PointFileColors(),
       m_SnapToGrid(true),
@@ -1218,45 +1218,45 @@ namespace
         for (unsigned long ChildNr=0; ChildNr<Entity->GetChildren().Size(); ChildNr++)
             SaveEntityInitialization(OutFile, Entity->GetChildren()[ChildNr], NewParentName);
     }
+}
 
 
-    void SaveCafuEntities(std::ostream& OutFile, IntrusivePtrT<cf::GameSys::EntityT> RootEntity)
-    {
-        OutFile << "-- This is a Cafu Entities file, written by the CaWE Map Editor.\n";
-        OutFile << "-- The file defines the entity hierarchy and properties of the related game world;\n";
-        OutFile << "-- it is used both by the CaWE Map Editor as well as by the Cafu Engine.\n";
-        OutFile << "--\n";
-        OutFile << "-- You CAN edit this file manually, but note that CaWE may overwrite your changes.\n";
-        OutFile << "-- Also note that structural changes to the entity hierarchy will bring this file\n";
-        OutFile << "-- out of sync with the related map (cmap) and world (cw) files, effectively\n";
-        OutFile << "-- causing LOSS OF WORK (see the documentation for details).\n";
-        OutFile << "-- It is therefore recommended that you use CaWE for all changes to this file.\n";
-        OutFile << "\n\n";
-        OutFile << "-- Instantiation of all entities.\n";
-        OutFile << "-- ******************************\n";
-        OutFile << "\n";
+/*static*/ void MapDocumentT::SaveEntities(std::ostream& OutFile, IntrusivePtrT<cf::GameSys::EntityT> RootEntity)
+{
+    OutFile << "-- This is a Cafu Entities file, written by the CaWE Map Editor.\n";
+    OutFile << "-- The file defines the entity hierarchy and properties of the related game world;\n";
+    OutFile << "-- it is used both by the CaWE Map Editor as well as by the Cafu Engine.\n";
+    OutFile << "--\n";
+    OutFile << "-- You CAN edit this file manually, but note that CaWE may overwrite your changes.\n";
+    OutFile << "-- Also note that structural changes to the entity hierarchy will bring this file\n";
+    OutFile << "-- out of sync with the related map (cmap) and world (cw) files, effectively\n";
+    OutFile << "-- causing LOSS OF WORK (see the documentation for details).\n";
+    OutFile << "-- It is therefore recommended that you use CaWE for all changes to this file.\n";
+    OutFile << "\n\n";
+    OutFile << "-- Instantiation of all entities.\n";
+    OutFile << "-- ******************************\n";
+    OutFile << "\n";
 
-        SaveEntityInstantiation(OutFile, RootEntity, "");
+    SaveEntityInstantiation(OutFile, RootEntity, "");
 
-        OutFile << "\n\n";
-        OutFile << "-- Set the worlds root entity.\n";
-        OutFile << "-- ***************************\n";
-        OutFile << "\n";
-        OutFile << "world:SetRootEntity(" << RootEntity->GetBasics()->GetEntityName() << ")\n";
+    OutFile << "\n\n";
+    OutFile << "-- Set the worlds root entity.\n";
+    OutFile << "-- ***************************\n";
+    OutFile << "\n";
+    OutFile << "world:SetRootEntity(" << RootEntity->GetBasics()->GetEntityName() << ")\n";
 
-        OutFile << "\n\n";
-        OutFile << "-- Setup the entity hierarchy.\n";
-        OutFile << "-- ***************************\n";
-        OutFile << "\n";
+    OutFile << "\n\n";
+    OutFile << "-- Setup the entity hierarchy.\n";
+    OutFile << "-- ***************************\n";
+    OutFile << "\n";
 
-        SaveEntityHierarchy(OutFile, RootEntity, "");
+    SaveEntityHierarchy(OutFile, RootEntity, "");
 
-        OutFile << "\n\n";
-        OutFile << "-- Initialization of the entity contents (\"constructors\").\n";
-        OutFile << "-- *******************************************************\n";
+    OutFile << "\n\n";
+    OutFile << "-- Initialization of the entity contents (\"constructors\").\n";
+    OutFile << "-- *******************************************************\n";
 
-        SaveEntityInitialization(OutFile, RootEntity, "");
-    }
+    SaveEntityInitialization(OutFile, RootEntity, "");
 }
 
 
@@ -1358,7 +1358,7 @@ bool MapDocumentT::OnSaveDocument(const wxString& cmapFileName, bool IsAutoSave,
 
     // Save the `.cent` file.
     {
-        SaveCafuEntities(centOutFile, RootEntity);
+        SaveEntities(centOutFile, RootEntity);
 
         if (centOutFile.fail())
         {
@@ -1575,6 +1575,22 @@ void MapDocumentT::SetSelection(const ArrayT<MapElementT*>& NewSelection)
     {
         m_Selection.PushBack(NewSelection[SelNr]);
         NewSelection[SelNr]->SetSelected();
+    }
+
+    // Update the m_SelectionBB member whenever the selection is changed.
+    // Updating the value only when `GetMostRecentSelBB()` is called by the user is not enough, because selecting
+    // something, then clearing the selection again would not be accounted for if the m_SelectionBB member was not
+    // also updated immediately when a new selection is set.
+    GetMostRecentSelBB();
+
+    if (m_Selection.Size() > 0)
+    {
+        MapElementT* SelElem = m_Selection[m_Selection.Size() - 1];
+
+        // If the new selection is empty, the m_PasteParentID is (intentionally) not updated.
+        // If SelElem is a primitive, a "Paste" will insert the new objects *next* to it.
+        // If SelElem is an entity,   a "Paste" will insert the new objects *into* to it.
+        m_PasteParentID = SelElem->GetParent()->GetEntity()->GetID();
     }
 }
 
@@ -2275,6 +2291,20 @@ const BoundingBox3fT& MapDocumentT::GetMostRecentSelBB() const
     }
 
     return m_SelectionBB;
+}
+
+
+IntrusivePtrT<cf::GameSys::EntityT> MapDocumentT::GetPasteParent() const
+{
+    IntrusivePtrT<cf::GameSys::EntityT> Ent = m_ScriptWorld->GetRootEntity()->FindID(m_PasteParentID);
+
+    return (Ent != NULL) ? Ent : m_ScriptWorld->GetRootEntity();
+}
+
+
+void MapDocumentT::SetPasteParent(unsigned int ID)
+{
+    m_PasteParentID = ID;
 }
 
 

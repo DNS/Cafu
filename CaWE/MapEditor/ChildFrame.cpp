@@ -49,6 +49,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Commands/Delete.hpp"
 #include "Commands/NewEntity.hpp"
 #include "Commands/Select.hpp"
+#include "Commands/Transform.hpp"
 
 #include "GameSys/AllComponents.hpp"
 #include "GameSys/Entity.hpp"
@@ -60,6 +61,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/wx.h"
 #include "wx/artprov.h"
 #include "wx/aui/auibar.h"
+#include "wx/clipbrd.h"
 #include "wx/confbase.h"
 #include "wx/dir.h"
 #include "wx/filename.h"
@@ -240,7 +242,7 @@ BEGIN_EVENT_TABLE(ChildFrameT, wxMDIChildFrame)
     EVT_MENU  (wxID_CUT,                           ChildFrameT::OnMenuEditCut)
     EVT_MENU  (wxID_COPY,                          ChildFrameT::OnMenuEditCopy)
     EVT_MENU  (wxID_PASTE,                         ChildFrameT::OnMenuEditPaste)
-    EVT_MENU  (ID_MENU_EDIT_PASTE_SPECIAL,         ChildFrameT::OnMenuEditPasteSpecial)
+    EVT_MENU  (ID_MENU_EDIT_PASTE_SPECIAL,         ChildFrameT::OnMenuEditPaste)
     EVT_MENU  (ID_MENU_EDIT_DELETE,                ChildFrameT::OnMenuEditDelete)
     EVT_BUTTON(ID_MENU_EDIT_DELETE,                ChildFrameT::OnMenuEditDelete)       // This ID is re-used for a button in the "Entity Hierarchy" dialog.
     EVT_MENU  (ID_MENU_EDIT_SELECT_NONE,           ChildFrameT::OnMenuEditSelectNone)
@@ -349,7 +351,7 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item2->Append( wxID_CUT, wxT("Cu&t\tCtrl+X"), wxT("") );
     item2->Append( wxID_COPY, wxT("&Copy\tCtrl+C"), wxT("") );
     item2->Append( wxID_PASTE, wxT("&Paste\tCtrl+V"), wxT("") );
-    item2->Append(ID_MENU_EDIT_PASTE_SPECIAL, wxT("Paste &Special..."), wxT("") );
+    item2->Append(ID_MENU_EDIT_PASTE_SPECIAL, wxT("Paste &Special...\tShift+Ctrl+V"), wxT("") );
     item2->Append(ID_MENU_EDIT_DELETE, wxT("&Delete\tCtrl+Del"), wxT("") );
     item2->AppendSeparator();
     item2->Append(ID_MENU_EDIT_SELECT_NONE, wxT("Select &None\tCtrl+Q"), wxT("") );
@@ -727,12 +729,6 @@ bool ChildFrameT::SubmitCommand(CommandT* Command)
 }
 
 
-MapEditor::ClipboardT& ChildFrameT::GetMapClipboard() const
-{
-    return m_Parent->m_MapClipboard;
-}
-
-
 Vector3fT ChildFrameT::GuessUserVisiblePoint() const
 {
     Vector3fT     Point(0, 0, 0);   // TODO: Init along the view dir of the MRU camera instead? Or m_SelectionBB.GetCenter()?
@@ -1084,60 +1080,462 @@ void ChildFrameT::OnMenuEditCut(wxCommandEvent& CE)
 }
 
 
+namespace
+{
+    IntrusivePtrT<cf::GameSys::EntityT> FindCommonAnchestor(ArrayT<MapElementT*>& Elems)
+    {
+        IntrusivePtrT<cf::GameSys::EntityT> Anchestor = NULL;
+
+        for (unsigned int ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
+        {
+            IntrusivePtrT<cf::GameSys::EntityT> Ent = Elems[ElemNr]->GetParent()->GetEntity();
+
+            if (Elems[ElemNr]->GetType() == &MapEntRepresT::TypeInfo)
+            {
+                // Double-check that this is really a MapEntRepresT.
+                wxASSERT(Elems[ElemNr]->GetParent()->GetRepres() == Elems[ElemNr]);
+
+                // An entity can never be its own anchestor (see OnMenuEditCopy() for details).
+                Ent = Ent->GetParent();
+            }
+
+            if (Ent == NULL)
+            {
+                return NULL;
+            }
+
+            if (ElemNr == 0)
+            {
+                Anchestor = Ent;
+                continue;
+            }
+
+            while (Ent != NULL && Ent != Anchestor)
+            {
+                Ent = Ent->GetParent();
+            }
+
+            if (Ent == NULL)    // Ent is not in the tree of Anchestor.
+            {
+                Anchestor = Anchestor->GetParent();
+
+                // All elements in Elems *must* be part of a single common tree!
+                wxASSERT(Anchestor != NULL);
+                if (Anchestor == NULL) return NULL;
+
+                ElemNr--;
+            }
+        }
+
+        return Anchestor;
+    }
+}
+
+
+/**
+This method copies all selected map elements into the clipboard.
+Thoughts about the proper copying of map elements:
+
+  - The main difficulty is that the selection (the source set of elements) can be a completely arbitrary subset
+    of the world's entity hierarchy, and we still must get all hierarchical relationships and all transforms right.
+    As explained in the comment at ToolSelectionT::CloneDrag(), we choose to recursively copy whole subtrees, as that
+    approach is the easiest to implement and is in fact required when the "Copy" operation is immediately followed by
+    a "Delete", as e.g. in a "Cut" command: With "Cut", we must copy exactly what is deleted, so that in fact we have
+    to deal with whole subtrees. See the comment at ToolSelectionT::CloneDrag() for details.
+
+  - Cross-document support with proper resource handling: Contrary to the Selection tool's clone-drag, we want to be
+    able to "Paste" the objects into different parent entities, a different map document with possibly a different
+    GameConfig, or even an entirely different Map Editor instance, which raises the question how we can deal with the
+    resources (e.g. texture images) that are associated to the copied objects. The best solution seems to properly
+    *serialize* the objects when they are copied, and to *unserialize* them when they are pasted. This:
+
+      - properly deals with each object's resources, re-associating them in the context of the target map,
+      - using the system clipboard, it allows us to inspect or even modify the clipboard contents in a text editor,
+      - and we can re-use much of the (de-)serialization code that is already used for prefabs and normal map files.
+
+  - Note that in some special cases, the behavior of this "Copy" operation is subtly different from the Selection
+    tool's clone-drag: If there are multiple entities (e.g. lifts) and each entity has child entities (e.g. doors),
+    and selected are not the lifts, but only the doors, then clone-dragging this selection will attach each cloned
+    door to its proper parent lift, whereas "Copy" and "Paste" will attach all copied doors to a single target entity.
+    Also, as we will see below, while the transforms of copied elements are left alone whenever possible, they *can*
+    be modified in order to compensate for "missing intermediary parents".
+
+  - It seems wise to keep all copied elements by attaching them to a common parent entity, the "ClipboardRoot":
+
+      - a single "atomic handle" / "natural grouping" for them all,
+      - "reflects" the target entity that the elements will be pasted into,
+      - a natural place for keeping a common transform, required when primitives are present (see below),
+      - already the right and required form to serialize and deserialize them like prefabs and maps.
+
+  - If only a single entity is selected, copying that single entity would be enough:
+    As the entity's (parent-space) transform is stored in the entity itself, at Paste time the mere act of attaching
+    the copy to the target entity is enough to correctly position the copy relative to the target entity.
+    If the copy is kept as a child of a ClipboardRoot entity, the ClipboardRoot's transform does not matter.
+    As a favorable side effect, this meets the user's expectations that the transform of the copy is unchanged,
+    that is, identical to that of the source entity.
+
+  - If siblings (multiple entities with the same parent) are selected, the situation is analogous:
+    As each entity's (parent-space) transform is stored in the entity itself, at Paste time the mere act of attaching
+    the copies to the target entity is enough to correctly position the copies relative to the target entity *and*
+    relative to each other.
+    If the copies are kept as children of a ClipboardRoot entity, the ClipboardRoot's transform does not matter.
+
+  - If an entity and the entity's nephew are selected (but not the nephew's parent), it is necessary to adjust the
+    nephew's transform in order to compensate for its missing parent (as if the nephew was, at the same world-space
+    position, a direct child of its grandparent) so that the copies can be correctly positioned both relative to the
+    target entity and to each other. Similar is true if cousins are involved.
+    If the copies are kept as children of a ClipboardRoot entity, the ClipboardRoot's transform does still not matter.
+
+  - In all cases, observe how the "nearest" common anchestor of the selected entities (this can never be one of the
+    selected entities itself, but is built from the *parents* of the selected entities!) corresponds to the future
+    target entity at Paste time and is used as the reference entity to compensate transforms for missing intermediary
+    parents as in the nephews and cousins example above. Therefore, it is this entity whose world-space transform the
+    ClipboardRoot should reflect. Although still not a technical neccessity (it will become one in the next considered
+    point), this is already well justified for the above reasons.
+
+  - If a single primitive is selected, things look a bit differently: Primitives are defined in world-space.
+    As such, if only the primitive was copied (and kept as a child of the ClipboardRoot), this would be enough to
+    recreate the primitive in world-space, but not to position it correctly relative to the target entity (and/or
+    relative to any entities that may be contained in the selection was well).
+    Therefore, we have to keep the (world-space) transform of the primitive's related ("parent") entity, storing it in
+    the ClipboardRoot. With that, the primitive can (at Paste time) be transformed into the space of its entity, and
+    from there into the space of the target entity, so that eventually the primitive is correctly positioned relative
+    to the target entity.
+
+  - If multiple primitives are selected, their "nearest" common anchestor must be used. Note that for primitives, the
+    finding of this anchestor starts at the entity that is directly related to (contains) the primitive, *not* at the
+    parent of a primitive's related entity (as it would with entities).
+*/
 void ChildFrameT::OnMenuEditCopy(wxCommandEvent& CE)
 {
-    wxBusyCursor BusyCursor;
+    ArrayT<MapElementT*> SourceElems = m_Doc->GetSelection();
 
-    GetMapClipboard().CopyFrom(m_Doc->GetSelection());
-    GetMapClipboard().SetOriginalCenter(m_Doc->GetMostRecentSelBB().GetCenter());
+    MapDocumentT::Reduce(SourceElems);
+
+    if (SourceElems.Size() == 0) return;
+
+    IntrusivePtrT<cf::GameSys::EntityT> ClipboardRoot   = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(m_Doc->GetScriptWorld()));
+    IntrusivePtrT<CompMapEntityT>       ClipboardMapEnt = new CompMapEntityT(*m_Doc);
+    IntrusivePtrT<cf::GameSys::EntityT> CommonAnchestor = FindCommonAnchestor(SourceElems);
+
+    ClipboardRoot->SetApp(ClipboardMapEnt);
+    ClipboardRoot->GetBasics()->SetEntityName("Clipboard");
+
+    if (CommonAnchestor != NULL)
+    {
+        // Make sure that the common sequence "Ctrl+C, Ctrl+V" creates siblings, not descendants.
+        m_Doc->SetPasteParent(CommonAnchestor->GetID());
+
+        ClipboardRoot->GetTransform()->SetOriginWS(CommonAnchestor->GetTransform()->GetOriginWS());
+        ClipboardRoot->GetTransform()->SetQuatWS(CommonAnchestor->GetTransform()->GetQuatWS());
+    }
+
+    for (unsigned int ElemNr = 0; ElemNr < SourceElems.Size(); ElemNr++)
+    {
+        MapElementT* Elem = SourceElems[ElemNr];
+
+        if (Elem->GetType() == &MapEntRepresT::TypeInfo)
+        {
+            // Double-check that this is really a MapEntRepresT.
+            wxASSERT(Elem->GetParent()->GetRepres() == Elem);
+
+            IntrusivePtrT<cf::GameSys::EntityT> OldEnt = Elem->GetParent()->GetEntity();
+            IntrusivePtrT<cf::GameSys::EntityT> NewEnt = OldEnt->Clone(true /*Recursive*/);
+
+            GetMapEnt(NewEnt)->CopyPrimitives(*GetMapEnt(OldEnt), true /*Recursive*/);
+
+            ClipboardRoot->AddChild(NewEnt);
+
+            // As only the transforms of grandchildren of the common anchestor must be compensated,
+            // this leaves the transforms unmodified whenever possible.
+            if (OldEnt->GetParent() != CommonAnchestor)
+            {
+                NewEnt->GetTransform()->SetOriginWS(OldEnt->GetTransform()->GetOriginWS());
+                NewEnt->GetTransform()->SetQuatWS(OldEnt->GetTransform()->GetQuatWS());
+            }
+        }
+        else
+        {
+            // Double-check that this is really *not* a MapEntRepresT.
+            wxASSERT(Elem->GetParent()->GetRepres() != Elem);
+
+            MapPrimitiveT* OldPrim = dynamic_cast<MapPrimitiveT*>(Elem);
+            MapPrimitiveT* NewPrim = OldPrim->Clone();
+
+            ClipboardMapEnt->AddPrim(NewPrim);
+        }
+    }
+
+
+    std::ostringstream out;
+
+    // From MSDN documentation: "digits10 returns the number of decimal digits that the type can represent without loss of precision."
+    // For floats, that's usually 6, for doubles, that's usually 15. However, we want to use the number of *significant* decimal digits here,
+    // that is, max_digits10. See http://www.open-std.org/JTC1/sc22/wg21/docs/papers/2006/n2005.pdf for details.
+    out.precision(std::numeric_limits<float>::digits10 + 3);
+
+    MapDocumentT::SaveEntities(out, ClipboardRoot);
+
+    out << "\n";
+    out << "-- -- -- End of `cent` file, begin of `cmap` file. -- -- --\n";
+    out << "\n";
+
+    out << "// Cafu Map File\n"
+        << "// Written by CaWE, the Cafu World Editor.\n"
+        << "Version " << MapDocumentT::CMAP_FILE_VERSION << "\n"
+        << "\n";
+
+    // Save entities (in depth-first order, as in the .cent file).
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllScriptEnts;
+    ClipboardRoot->GetAll(AllScriptEnts);
+
+    for (unsigned long EntNr = 0; EntNr < AllScriptEnts.Size(); EntNr++)
+        GetMapEnt(AllScriptEnts[EntNr])->Save_cmap(*m_Doc, out, EntNr, NULL);
+
+    if (wxTheClipboard->Open())
+    {
+        // The wxTextDataObject instance is owned (and deleted) by the clipboard.
+        wxTheClipboard->SetData(new wxTextDataObject(out.str()));
+        wxTheClipboard->Close();
+    }
+}
+
+
+namespace
+{
+    IntrusivePtrT<cf::GameSys::EntityT> GetClipboardEntity(MapDocumentT& MapDoc)
+    {
+        try
+        {
+            if (!wxTheClipboard->Open())
+                throw cf::GameSys::WorldT::InitErrorT("Could not open the clipboard.");
+
+            if (!wxTheClipboard->IsSupported(wxDF_TEXT))
+                throw cf::GameSys::WorldT::InitErrorT("The clipboard is empty.");
+
+            wxTextDataObject TextData;
+
+            wxTheClipboard->GetData(TextData);
+            wxTheClipboard->Close();
+
+            const std::string Delimiter = "-- -- -- End of `cent` file, begin of `cmap` file. -- -- --\n";
+            const std::string ClipboardString = TextData.GetText().ToStdString();   // g++ complains without the `.ToStdString()`.
+            const std::size_t SplitPos = ClipboardString.find(Delimiter);
+
+            if (SplitPos == std::string::npos)
+                throw cf::GameSys::WorldT::InitErrorT("Portions delimiter not found.");
+
+            const std::string Clipboard_cent = ClipboardString.substr(0, SplitPos);
+            const std::string Clipboard_cmap = ClipboardString.substr(SplitPos + Delimiter.length());
+
+            TextParserT TP(Clipboard_cmap.c_str(), "({})", false /*not a filename, but direct input*/);
+
+            if (TP.IsAtEOF())
+                throw cf::GameSys::WorldT::InitErrorT("The cmap portion is empty.");
+
+            unsigned int cmapFileVersion = 0;
+            ArrayT< IntrusivePtrT<CompMapEntityT> > AllMapEnts;
+
+            try
+            {
+                while (!TP.IsAtEOF())
+                {
+                    IntrusivePtrT<CompMapEntityT> Entity = new CompMapEntityT(MapDoc);
+
+                    Entity->Load_cmap(TP, MapDoc, NULL, AllMapEnts.Size(), cmapFileVersion);
+                    AllMapEnts.PushBack(Entity);
+                }
+            }
+            catch (const TextParserT::ParseError&)
+            {
+                throw cf::GameSys::WorldT::InitErrorT("Parse error in the cmap portion.");
+            }
+
+            if (cmapFileVersion < 14)
+                throw cf::GameSys::WorldT::InitErrorT("Bad version in the cmap portion.");
+
+            // Load the related `cent` file.
+            IntrusivePtrT<cf::GameSys::EntityT> ClipboardRoot = cf::GameSys::WorldT::LoadScript(
+                &MapDoc.GetScriptWorld(),
+                Clipboard_cent,   // Note the important "AsPrefab" flag in the line below!
+                cf::GameSys::WorldT::InitFlag_InlineCode | cf::GameSys::WorldT::InitFlag_InMapEditor | cf::GameSys::WorldT::InitFlag_AsPrefab);
+
+            // Assign the "AllMapEnts" to the "AllScriptEnts".
+            {
+                ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllScriptEnts;
+                ClipboardRoot->GetAll(AllScriptEnts);
+
+                if (AllScriptEnts.Size() != AllMapEnts.Size())
+                    throw cf::GameSys::WorldT::InitErrorT("The entity definitions in the `cent` and `cmap` portions don't match.");
+
+                for (unsigned int EntNr = 0; EntNr < AllScriptEnts.Size(); EntNr++)
+                {
+                    wxASSERT(AllScriptEnts[EntNr]->GetApp().IsNull());
+                    AllScriptEnts[EntNr]->SetApp(AllMapEnts[EntNr]);
+                }
+            }
+
+            return ClipboardRoot;
+        }
+        catch (const cf::GameSys::WorldT::InitErrorT& IE)
+        {
+            wxMessageBox(wxString("The clipboard contents could not be pasted:\n") + IE.what(), "Could not paste the clipboard contents");
+        }
+
+        return NULL;
+    }
+
+
+    BoundingBox3fT GetClipboardBB(IntrusivePtrT<cf::GameSys::EntityT> Clipboard, bool InvResult, const MatrixT& WorldToWorld)
+    {
+        BoundingBox3fT BB;
+
+        const ArrayT<MapElementT*> Elems = GetMapEnt(Clipboard)->GetAllMapElements();
+
+        for (unsigned int ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
+        {
+            const MapElementT* Elem = Elems[ElemNr];
+
+            if (ElemNr == 0)
+            {
+                wxASSERT(Elem == GetMapEnt(Clipboard)->GetRepres());
+                continue;
+            }
+
+            wxASSERT(Elem != GetMapEnt(Clipboard)->GetRepres());
+
+            BB.InsertValid(Elem->GetBB());
+        }
+
+        if (!BB.IsInited()) return BB;
+        if (!InvResult) return BB;
+
+        Vector3fT Corners[8];
+        BB.GetCornerVertices(Corners);
+
+        BB = BoundingBox3fT(WorldToWorld.Mul1(Corners[0]));
+
+        for (unsigned int i = 1; i < 8; i++)
+            BB += WorldToWorld.Mul1(Corners[i]);
+
+        return BB;
+    }
 }
 
 
 void ChildFrameT::OnMenuEditPaste(wxCommandEvent& CE)
 {
-    wxBusyCursor      BusyCursor;
-    ArrayT<CommandT*> SubCommands = CreatePasteCommands();
+    bool MakeWellVisible = true;
+
+    if (CE.GetId() == ID_MENU_EDIT_PASTE_SPECIAL)
+    {
+        PasteSpecialDialogT PSD;
+
+        if (PSD.ShowModal() == wxID_CANCEL) return;
+
+        MakeWellVisible = PSD.MakePastedElementsWellVisible();
+    }
+
+    IntrusivePtrT<cf::GameSys::EntityT> PasteParent = m_Doc->GetPasteParent();
+    IntrusivePtrT<cf::GameSys::EntityT> Clipboard   = GetClipboardEntity(*m_Doc);
+
+    if (Clipboard == NULL) return;
+
+    // Primitives must be transformed from world-space into the local space of the clipboard,
+    // which happens to be the same as the local space of the PasteParent, and from there
+    // (relative to PasteParent) back into world-space.
+    bool          InvResult    = true;
+    const MatrixT WorldToWorld = Clipboard->GetTransform()->GetEntityToWorld().GetInverse(&InvResult) * PasteParent->GetTransform()->GetEntityToWorld();
+
+    if (WorldToWorld.IsEqual(MatrixT(), 0.001f))
+    {
+        // If WorldToWorld is (close to) the identity anyway, skip the Prim->Transform() calls below,
+        // both as a performance optimization but mostly in order to not negatively impact numerical precision.
+        InvResult = false;
+    }
+
+    // Determine the bounding-box of the clipboard's contents, transformed to (target) world-space.
+    // Note that bounding-boxes can only be determined while the entities are attached to a proper parent.
+    // Once they have been detached from the Clipboard entity below, a bounding-box can only be determined
+    // again after the commands that attach them to the PasteParent have run.
+    const BoundingBox3fT ClipboardBB = GetClipboardBB(Clipboard, InvResult, WorldToWorld);
+
+    ArrayT<CommandT*>    SubCommands;
+    ArrayT<MapElementT*> SelElems;
+
+    while (Clipboard->GetChildren().Size() > 0)
+    {
+        IntrusivePtrT<cf::GameSys::EntityT> Ent = Clipboard->GetChildren()[0];
+
+        Clipboard->RemoveChild(Ent);
+
+        const ArrayT<MapElementT*> Elems = GetMapEnt(Ent)->GetAllMapElements();
+
+        if (InvResult)
+        {
+            for (unsigned int ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
+            {
+                MapPrimitiveT* Prim = dynamic_cast<MapPrimitiveT*>(Elems[ElemNr]);
+
+                if (Prim) Prim->Transform(WorldToWorld);
+            }
+        }
+
+        SelElems.PushBack(Elems);
+        SubCommands.PushBack(new CommandNewEntityT(*m_Doc, Ent, PasteParent, false /*don't select*/));
+    }
+
+    while (GetMapEnt(Clipboard)->GetPrimitives().Size() > 0)
+    {
+        MapPrimitiveT* Prim = GetMapEnt(Clipboard)->GetPrimitives()[0];
+
+        GetMapEnt(Clipboard)->RemovePrim(Prim);
+
+        if (InvResult)
+        {
+            Prim->Transform(WorldToWorld);
+        }
+
+        SelElems.PushBack(Prim);
+        SubCommands.PushBack(new CommandAddPrimT(*m_Doc, Prim, GetMapEnt(PasteParent), "insert prims", false /*don't select*/));
+    }
+
+    if (SelElems.Size() > 0)
+    {
+        if (MakeWellVisible && ClipboardBB.IsInited())  // Translate to where the user can well see the pasted objects.
+        {
+            const Vector3fT GoodPastePos = GuessUserVisiblePoint();
+
+            static Vector3fT    LastPastePoint(0, 0, 0);
+            static unsigned int LastPasteCount = 0;
+
+            if (GoodPastePos != LastPastePoint)
+            {
+                LastPastePoint = GoodPastePos;
+                LastPasteCount = 0;
+            }
+
+            int PasteOffset = std::max(m_Doc->GetGridSpacing(), 1);
+
+            while (PasteOffset < 8)
+                PasteOffset *= 2;   // Make PasteOffset some multiple of the grid spacing larger than 8.0.
+
+            const Vector3fT TotalTranslation = m_Doc->SnapToGrid(
+                LastPastePoint
+                + Vector3fT(((LastPasteCount % 8)+(LastPasteCount/8)) * PasteOffset, (LastPasteCount % 8) * PasteOffset, 0.0f),
+                false, -1 /*Snap all axes.*/) - ClipboardBB.GetCenter();
+
+            SubCommands.PushBack(new CommandTransformT(*m_Doc, SelElems, CommandTransformT::MODE_TRANSLATE, Vector3fT(), TotalTranslation));
+            LastPasteCount++;
+        }
+
+        SubCommands.PushBack(CommandSelectT::Set(m_Doc, SelElems));
+    }
 
     if (SubCommands.Size() > 0)
     {
         // Submit the composite macro command.
         SubmitCommand(new CommandMacroT(SubCommands, "Paste"));
-    }
-
-    GetToolManager().SetActiveTool(GetToolTIM().FindTypeInfoByName("ToolSelectionT"));
-}
-
-
-void ChildFrameT::OnMenuEditPasteSpecial(wxCommandEvent& CE)
-{
-    const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& SrcEnts  = GetMapClipboard().GetEntities();
-    const ArrayT<MapPrimitiveT*>&                        SrcPrims = GetMapClipboard().GetPrimitives();
-
-    BoundingBox3fT ClipboardBB;
-
-    for (unsigned long EntNr = 0; EntNr < SrcEnts.Size(); EntNr++)
-        ClipboardBB.InsertValid(GetMapEnt(SrcEnts[EntNr])->GetElemsBB());
-
-    for (unsigned long PrimNr = 0; PrimNr < SrcPrims.Size(); PrimNr++)
-        ClipboardBB.InsertValid(SrcPrims[PrimNr]->GetBB());
-
-    if (SrcEnts.Size() == 0 && SrcPrims.Size() == 0) return;
-    if (!ClipboardBB.IsInited()) return;
-
-    PasteSpecialDialogT PasteSpecialDialog(ClipboardBB);
-
-    if (PasteSpecialDialog.ShowModal() == wxID_CANCEL) return;
-
-    wxBusyCursor      BusyCursor;
-    const Vector3fT   Translation = Vector3fT(PasteSpecialDialog.TranslateX, PasteSpecialDialog.TranslateY, PasteSpecialDialog.TranslateZ);
-    const Vector3fT   Rotation    = Vector3fT(PasteSpecialDialog.RotateX,    PasteSpecialDialog.RotateY,    PasteSpecialDialog.RotateZ);
-    ArrayT<CommandT*> SubCommands = CreatePasteCommands(Translation, Rotation, PasteSpecialDialog.NrOfCopies,
-                                        PasteSpecialDialog.GroupCopies, PasteSpecialDialog.CenterAtOriginal);
-
-    if (SubCommands.Size() > 0)
-    {
-        // Submit the composite macro command.
-        SubmitCommand(new CommandMacroT(SubCommands, "Paste Special"));
     }
 
     GetToolManager().SetActiveTool(GetToolTIM().FindTypeInfoByName("ToolSelectionT"));
@@ -1235,11 +1633,14 @@ void ChildFrameT::OnMenuEditUpdate(wxUpdateUIEvent& UE)
         case wxID_PASTE:
         case ID_MENU_EDIT_PASTE_SPECIAL:
         {
-            const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& SrcEnts  = GetMapClipboard().GetEntities();
-            const ArrayT<MapPrimitiveT*>&                        SrcPrims = GetMapClipboard().GetPrimitives();
+            if (!wxTheClipboard->Open())
+            {
+                UE.Enable(false);
+                break;
+            }
 
-            UE.Enable((SrcEnts.Size() > 0 || SrcPrims.Size() > 0) &&
-                      GetToolManager().GetActiveToolType() != &ToolEditSurfaceT::TypeInfo);
+            UE.Enable(wxTheClipboard->IsSupported(wxDF_TEXT));
+            wxTheClipboard->Close();
             break;
         }
     }
@@ -1257,149 +1658,6 @@ void ChildFrameT::PaneToggleShow(wxAuiPaneInfo& PaneInfo)
         PaneInfo.FloatingPosition(ClientToScreen(wxPoint(20, 20)));
 
     m_AUIManager.Update();
-}
-
-
-ArrayT<CommandT*> ChildFrameT::CreatePasteCommands(const Vector3fT& DeltaTranslation, const cf::math::AnglesfT& DeltaRotation,
-    unsigned int NrOfCopies, bool PasteGrouped, bool CenterAtOriginals) const
-{
-    // Initialize the total translation and rotation for the first paste operation.
-    // Note that a TotalTranslation of zero pastes each object in the exact same place as its original.
-    Vector3fT          TotalTranslation = DeltaTranslation;
-    cf::math::AnglesfT TotalRotation    = DeltaRotation;
-
-    if (!CenterAtOriginals)
-    {
-        const Vector3fT GoodPastePos    = GuessUserVisiblePoint();
-        const Vector3fT OriginalsCenter = GetMapClipboard().GetOriginalCenter();
-
-        static Vector3fT    LastPastePoint(0, 0, 0);
-        static unsigned int LastPasteCount = 0;
-
-        if (GoodPastePos != LastPastePoint)
-        {
-            LastPastePoint = GoodPastePos;
-            LastPasteCount = 0;
-        }
-
-        int PasteOffset = std::max(m_Doc->GetGridSpacing(), 1);
-
-        while (PasteOffset < 8)
-            PasteOffset *= 2;   // Make PasteOffset some multiple of the grid spacing larger than 8.0.
-
-        TotalTranslation = m_Doc->SnapToGrid(LastPastePoint + Vector3fT(((LastPasteCount % 8)+(LastPasteCount/8))*PasteOffset, (LastPasteCount % 8)*PasteOffset, 0.0f) - OriginalsCenter, false, -1 /*Snap all axes.*/);
-
-        LastPasteCount++;
-    }
-
-
-    // FIXME: This should probably be a param to the Trafo*() methods, rather than having these methods query it from the global Options.general.LockingTextures.
-    const bool PrevLockMats = Options.general.LockingTextures;
-    Options.general.LockingTextures = true;
-
-    const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& SrcEnts  = GetMapClipboard().GetEntities();
-    const ArrayT<MapPrimitiveT*>&                        SrcPrims = GetMapClipboard().GetPrimitives();
-
-    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > NewEnts;
-    ArrayT<MapPrimitiveT*>                        NewPrims;
-
-    for (unsigned int CopyNr = 0; CopyNr < NrOfCopies; CopyNr++)
-    {
-        for (unsigned long EntNr = 0; EntNr < SrcEnts.Size(); EntNr++)
-        {
-            IntrusivePtrT<cf::GameSys::EntityT> NewEnt = SrcEnts[EntNr]->Clone(true /*Recursive?*/);
-            IntrusivePtrT<CompMapEntityT>       MapEnt = GetMapEnt(NewEnt);
-
-            // TODO: For MapEnt this works well, but it seems that we have to recurse into the children of NewEnt, too!
-            MapEnt->CopyPrimitives(*GetMapEnt(SrcEnts[EntNr]));
-
-            if (TotalTranslation != Vector3fT())
-            {
-                MapEnt->GetRepres()->TrafoMove(TotalTranslation);
-
-                for (unsigned long PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
-                    MapEnt->GetPrimitives()[PrimNr]->TrafoMove(TotalTranslation);
-            }
-
-            if (TotalRotation != cf::math::AnglesfT())
-            {
-                MapEnt->GetRepres()->TrafoRotate(MapEnt->GetRepres()->GetBB().GetCenter(), TotalRotation);
-
-                for (unsigned long PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
-                    MapEnt->GetPrimitives()[PrimNr]->TrafoRotate(MapEnt->GetPrimitives()[PrimNr]->GetBB().GetCenter(), TotalRotation);
-            }
-
-            NewEnts.PushBack(NewEnt);
-        }
-
-        for (unsigned long PrimNr = 0; PrimNr < SrcPrims.Size(); PrimNr++)
-        {
-            MapPrimitiveT* NewPrim = SrcPrims[PrimNr]->Clone();
-
-            if (TotalTranslation != Vector3fT())
-                NewPrim->TrafoMove(TotalTranslation);
-
-            if (TotalRotation != cf::math::AnglesfT())
-                NewPrim->TrafoRotate(NewPrim->GetBB().GetCenter(), TotalRotation);
-
-            NewPrims.PushBack(NewPrim);
-        }
-
-        // Advance the total translation and rotation.
-        TotalTranslation += DeltaTranslation;
-        TotalRotation    += DeltaRotation;
-    }
-
-    Options.general.LockingTextures = PrevLockMats;
-
-
-    ArrayT<CommandT*> SubCommands;
-    IntrusivePtrT<cf::GameSys::EntityT> PasteParent = m_Doc->GetRootMapEntity()->GetEntity();
-
-    if (PasteGrouped)
-    {
-        IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(m_Doc->GetScriptWorld()));
-        IntrusivePtrT<CompMapEntityT>       MapEnt = new CompMapEntityT(*m_Doc);
-
-        NewEnt->GetBasics()->SetEntityName("pasted objects");
-        NewEnt->GetBasics()->SetMember("Static", true);
-        NewEnt->GetBasics()->SetMember("SelMode", int(cf::GameSys::ComponentBasicsT::GROUP));
-        NewEnt->GetTransform()->SetOriginWS(GuessUserVisiblePoint());
-        NewEnt->SetApp(MapEnt);
-
-        CommandNewEntityT* CmdNewEnt = new CommandNewEntityT(*m_Doc, NewEnt, m_Doc->GetRootMapEntity()->GetEntity(), false /*don't select*/);
-
-        CmdNewEnt->Do();
-        SubCommands.PushBack(CmdNewEnt);
-
-        PasteParent = NewEnt;
-    }
-
-    if (NewEnts.Size() > 0)
-    {
-        CommandNewEntityT* CmdNewEnt = new CommandNewEntityT(*m_Doc, NewEnts, PasteParent, false /*don't select*/);
-
-        CmdNewEnt->Do();
-        SubCommands.PushBack(CmdNewEnt);
-    }
-
-    if (NewPrims.Size() > 0)
-    {
-        CommandAddPrimT* CmdAddPrim = new CommandAddPrimT(*m_Doc, NewPrims, GetMapEnt(PasteParent), "insert prims", false /*don't select*/);
-
-        CmdAddPrim->Do();
-        SubCommands.PushBack(CmdAddPrim);
-    }
-
-    if (SubCommands.Size() > 0)
-    {
-        CommandSelectT* CmdSel = CommandSelectT::Set(m_Doc, NewEnts, true /*WithEntPrims*/, NewPrims);
-
-        CmdSel->Do();
-        SubCommands.PushBack(CmdSel);
-    }
-
-    return SubCommands;
 }
 
 
