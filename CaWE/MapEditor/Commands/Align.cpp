@@ -25,12 +25,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../MapDocument.hpp"
 
 
-CommandAlignT::CommandAlignT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>& Elems, const AxesInfoT& RefAxes, const BoundingBox3fT& Box, int Mode)
+CommandAlignT::CommandAlignT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>& Elems, const AxesInfoT& RefAxes, const BoundingBox3fT& Box, int Mode, bool LockTexCoords)
     : m_MapDoc(MapDoc),
       m_AlignElems(Elems),
       m_RefAxes(RefAxes),
       m_Box(Box),
-      m_Mode(CorrectMode(Mode))
+      m_Mode(CorrectMode(Mode)),
+      m_LockTexCoords(LockTexCoords)
 {
     for (unsigned long i = 0; i < m_AlignElems.Size(); i++)
         m_OldStates.PushBack(m_AlignElems[i]->GetTrafoState());
@@ -78,7 +79,7 @@ bool CommandAlignT::Do()
             default /* ID_MENU_TOOLS_ALIGN_VERT_CENTER */:    MoveOffset[VertAxis] =(m_Box.Min[VertAxis]+m_Box.Max[VertAxis]-Mins[VertAxis]-Maxs[VertAxis])/2; break;
         }
 
-        Elem->TrafoMove(MoveOffset);
+        Elem->TrafoMove(MoveOffset, m_LockTexCoords);
     }
 
     m_MapDoc.UpdateAllObservers_Modified(m_AlignElems, MEMD_TRANSFORM, OldBounds);

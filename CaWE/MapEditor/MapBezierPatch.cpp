@@ -937,17 +937,17 @@ void MapBezierPatchT::RestoreTrafoState(const TrafoMementoT* TM)
 }
 
 
-void MapBezierPatchT::TrafoMove(const Vector3fT& Delta)
+void MapBezierPatchT::TrafoMove(const Vector3fT& Delta, bool LockTexCoords)
 {
     for (unsigned long y=0; y<cv_Height; y++)
         for (unsigned long x=0; x<cv_Width; x++)
             SetCvPos(x, y, GetCvPos(x, y)+Delta);
 
-    MapPrimitiveT::TrafoMove(Delta);
+    MapPrimitiveT::TrafoMove(Delta, LockTexCoords);
 }
 
 
-void MapBezierPatchT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles)
+void MapBezierPatchT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles, bool LockTexCoords)
 {
     for (unsigned long y=0; y<cv_Height; y++)
         for (unsigned long x=0; x<cv_Width; x++)
@@ -961,32 +961,32 @@ void MapBezierPatchT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::Ang
             SetCvPos(x, y, Vertex+RefPoint);
         }
 
-    MapPrimitiveT::TrafoRotate(RefPoint, Angles);
+    MapPrimitiveT::TrafoRotate(RefPoint, Angles, LockTexCoords);
 }
 
 
-void MapBezierPatchT::TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale)
+void MapBezierPatchT::TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale, bool LockTexCoords)
 {
     for (unsigned long y=0; y<cv_Height; y++)
         for (unsigned long x=0; x<cv_Width; x++)
             SetCvPos(x, y, RefPoint + (GetCvPos(x, y)-RefPoint).GetScaled(Scale));
 
-    MapPrimitiveT::TrafoScale(RefPoint, Scale);
+    MapPrimitiveT::TrafoScale(RefPoint, Scale, LockTexCoords);
 }
 
 
-void MapBezierPatchT::TrafoMirror(unsigned int NormalAxis, float Dist)
+void MapBezierPatchT::TrafoMirror(unsigned int NormalAxis, float Dist, bool LockTexCoords)
 {
 }
 
 
-void MapBezierPatchT::Transform(const MatrixT& Matrix)
+void MapBezierPatchT::Transform(const MatrixT& Matrix, bool LockTexCoords)
 {
     for (unsigned long y=0; y<cv_Height; y++)
         for (unsigned long x=0; x<cv_Width; x++)
             SetCvPos(x, y, Matrix.Mul1(GetCvPos(x, y)));
 
-    MapPrimitiveT::Transform(Matrix);
+    MapPrimitiveT::Transform(Matrix, LockTexCoords);
 }
 
 

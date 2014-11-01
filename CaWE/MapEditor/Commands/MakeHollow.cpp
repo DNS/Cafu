@@ -75,7 +75,7 @@ CommandMakeHollowT::CommandMakeHollowT(MapDocumentT& MapDoc, const float WallWid
 
         try
         {
-            ScaledCopy.TrafoScale(BB.GetCenter(), Scale);
+            ScaledCopy.TrafoScale(BB.GetCenter(), Scale, false /*LockTexCoords*/);
         }
         // If scaling ScaledCopy failed (e.g. because Scale was at or near 0), don't hollow the current brush.
         catch (const DivisionByZeroE&) { continue; }

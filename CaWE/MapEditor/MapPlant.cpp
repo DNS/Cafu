@@ -213,15 +213,15 @@ void MapPlantT::RestoreTrafoState(const TrafoMementoT* TM)
 }
 
 
-void MapPlantT::TrafoMove(const Vector3fT& delta)
+void MapPlantT::TrafoMove(const Vector3fT& delta, bool LockTexCoords)
 {
     m_Position+=delta;
 
-    MapPrimitiveT::TrafoMove(delta);
+    MapPrimitiveT::TrafoMove(delta, LockTexCoords);
 }
 
 
-void MapPlantT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles)
+void MapPlantT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles, bool LockTexCoords)
 {
     // Rotate the origin.
     m_Position-=RefPoint;
@@ -246,30 +246,30 @@ void MapPlantT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT&
     if (fabs(m_Angles[YAW  ])<0.001f) m_Angles[YAW  ]=0; if (m_Angles[YAW]<0) m_Angles[YAW]+=360.0f;
     if (fabs(m_Angles[ROLL ])<0.001f) m_Angles[ROLL ]=0;
 
-    MapPrimitiveT::TrafoRotate(RefPoint, Angles);
+    MapPrimitiveT::TrafoRotate(RefPoint, Angles, LockTexCoords);
 }
 
 
-void MapPlantT::TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale)
+void MapPlantT::TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale, bool LockTexCoords)
 {
     m_Position=RefPoint + (m_Position-RefPoint).GetScaled(Scale);
 
-    MapPrimitiveT::TrafoScale(RefPoint, Scale);
+    MapPrimitiveT::TrafoScale(RefPoint, Scale, LockTexCoords);
 }
 
 
-void MapPlantT::TrafoMirror(unsigned int NormalAxis, float Dist)
+void MapPlantT::TrafoMirror(unsigned int NormalAxis, float Dist, bool LockTexCoords)
 {
     // Unfortunately, there is no way to mirror the actual mesh of the model...
     m_Position[NormalAxis]=Dist-(m_Position[NormalAxis]-Dist);
 
-    MapPrimitiveT::TrafoMirror(NormalAxis, Dist);
+    MapPrimitiveT::TrafoMirror(NormalAxis, Dist, LockTexCoords);
 }
 
 
-void MapPlantT::Transform(const MatrixT& Matrix)
+void MapPlantT::Transform(const MatrixT& Matrix, bool LockTexCoords)
 {
     m_Position=Matrix.Mul1(m_Position);
 
-    MapPrimitiveT::Transform(Matrix);
+    MapPrimitiveT::Transform(Matrix, LockTexCoords);
 }

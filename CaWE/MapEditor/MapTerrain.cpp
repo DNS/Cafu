@@ -583,18 +583,18 @@ void MapTerrainT::RestoreTrafoState(const TrafoMementoT* TM)
 }
 
 
-void MapTerrainT::TrafoMove(const Vector3fT& delta)
+void MapTerrainT::TrafoMove(const Vector3fT& delta, bool LockTexCoords)
 {
     m_TerrainBounds.Min+=delta;
     m_TerrainBounds.Max+=delta;
 
     m_NeedsUpdate=true;
 
-    MapPrimitiveT::TrafoMove(delta);
+    MapPrimitiveT::TrafoMove(delta, LockTexCoords);
 }
 
 
-void MapTerrainT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles)
+void MapTerrainT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles, bool LockTexCoords)
 {
     Vector3fT Min=m_TerrainBounds.Min;
     Vector3fT Max=m_TerrainBounds.Max;
@@ -617,7 +617,7 @@ void MapTerrainT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::Anglesf
     if (NewBB.Max.x-NewBB.Min.x < 4.0f) return;
     if (NewBB.Max.y-NewBB.Min.y < 4.0f) return;
 
-    MapPrimitiveT::TrafoRotate(RefPoint, Angles);
+    MapPrimitiveT::TrafoRotate(RefPoint, Angles, LockTexCoords);
 
     // TODO: Restrict this to steps of 90 degrees around the z-axis, then also rotate the m_HeightData!!!
     // And/or: Terrains cannot be arbitrarily rotated. The user must rotate the terrain's entity instead.
@@ -627,7 +627,7 @@ void MapTerrainT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::Anglesf
 }
 
 
-void MapTerrainT::TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale)
+void MapTerrainT::TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale, bool LockTexCoords)
 {
     const BoundingBox3fT NewBB(RefPoint + (m_TerrainBounds.Min-RefPoint).GetScaled(Scale),
                                RefPoint + (m_TerrainBounds.Max-RefPoint).GetScaled(Scale));
@@ -636,14 +636,14 @@ void MapTerrainT::TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale)
     if (NewBB.Max.x-NewBB.Min.x < 4.0f) return;
     if (NewBB.Max.y-NewBB.Min.y < 4.0f) return;
 
-    MapPrimitiveT::TrafoScale(RefPoint, Scale);
+    MapPrimitiveT::TrafoScale(RefPoint, Scale, LockTexCoords);
 
     m_TerrainBounds=NewBB;
     m_NeedsUpdate=true;
 }
 
 
-void MapTerrainT::TrafoMirror(unsigned int NormalAxis, float Dist)
+void MapTerrainT::TrafoMirror(unsigned int NormalAxis, float Dist, bool LockTexCoords)
 {
     Vector3fT Min=m_TerrainBounds.Min;
     Vector3fT Max=m_TerrainBounds.Max;
@@ -657,7 +657,7 @@ void MapTerrainT::TrafoMirror(unsigned int NormalAxis, float Dist)
     if (NewBB.Max.x-NewBB.Min.x < 4.0f) return;
     if (NewBB.Max.y-NewBB.Min.y < 4.0f) return;
 
-    MapPrimitiveT::TrafoMirror(NormalAxis, Dist);
+    MapPrimitiveT::TrafoMirror(NormalAxis, Dist, LockTexCoords);
 
     // TODO: Mirror the m_HeightData!!!
 
@@ -666,7 +666,7 @@ void MapTerrainT::TrafoMirror(unsigned int NormalAxis, float Dist)
 }
 
 
-void MapTerrainT::Transform(const MatrixT& Matrix)
+void MapTerrainT::Transform(const MatrixT& Matrix, bool LockTexCoords)
 {
     const BoundingBox3fT NewBB(Matrix.Mul1(m_TerrainBounds.Min),
                                Matrix.Mul1(m_TerrainBounds.Max));
@@ -676,7 +676,7 @@ void MapTerrainT::Transform(const MatrixT& Matrix)
     if (NewBB.Max.x-NewBB.Min.x < 4.0f) return;
     if (NewBB.Max.y-NewBB.Min.y < 4.0f) return;
 
-    MapPrimitiveT::Transform(Matrix);
+    MapPrimitiveT::Transform(Matrix, LockTexCoords);
 
     m_TerrainBounds=NewBB;
     m_NeedsUpdate=true;

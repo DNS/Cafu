@@ -25,14 +25,15 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../MapPrimitive.hpp"
 
 
-CommandTransformT::CommandTransformT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>& TransElems, TransModeT Mode, const Vector3fT& RefPoint, const Vector3fT& Amount)
+CommandTransformT::CommandTransformT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>& TransElems, TransModeT Mode, const Vector3fT& RefPoint, const Vector3fT& Amount, bool LockTexCoords)
     : m_MapDoc(MapDoc),
       m_TransElems(TransElems),
       m_OldStates(),
       m_Mode(Mode),
       m_RefPoint(RefPoint),
       m_Amount(Amount),
-      m_Matrix()
+      m_Matrix(),
+      m_LockTexCoords(LockTexCoords)
 {
     wxASSERT(m_Mode!=MODE_MATRIX);
     wxASSERT(!(m_Mode==MODE_SCALE && m_Amount.x==0.0f));
@@ -43,14 +44,15 @@ CommandTransformT::CommandTransformT(MapDocumentT& MapDoc, const ArrayT<MapEleme
 }
 
 
-CommandTransformT::CommandTransformT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>& TransElems, const MatrixT& Matrix)
+CommandTransformT::CommandTransformT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>& TransElems, const MatrixT& Matrix, bool LockTexCoords)
     : m_MapDoc(MapDoc),
       m_TransElems(TransElems),
       m_OldStates(),
       m_Mode(MODE_MATRIX),
       m_RefPoint(),
       m_Amount(),
-      m_Matrix(Matrix)
+      m_Matrix(Matrix),
+      m_LockTexCoords(LockTexCoords)
 {
     Init();
 }
@@ -87,10 +89,10 @@ bool CommandTransformT::Do()
 
         switch (m_Mode)
         {
-            case MODE_TRANSLATE: m_TransElems[ElemNr]->TrafoMove(m_Amount);               break;
-            case MODE_ROTATE:    m_TransElems[ElemNr]->TrafoRotate(m_RefPoint, m_Amount); break;
-            case MODE_SCALE:     m_TransElems[ElemNr]->TrafoScale(m_RefPoint, m_Amount);  break;
-            case MODE_MATRIX:    m_TransElems[ElemNr]->Transform(m_Matrix);               break;
+            case MODE_TRANSLATE: m_TransElems[ElemNr]->TrafoMove(m_Amount, m_LockTexCoords);               break;
+            case MODE_ROTATE:    m_TransElems[ElemNr]->TrafoRotate(m_RefPoint, m_Amount, m_LockTexCoords); break;
+            case MODE_SCALE:     m_TransElems[ElemNr]->TrafoScale(m_RefPoint, m_Amount, m_LockTexCoords);  break;
+            case MODE_MATRIX:    m_TransElems[ElemNr]->Transform(m_Matrix, m_LockTexCoords);               break;
         }
     }
 

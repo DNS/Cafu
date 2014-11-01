@@ -344,7 +344,7 @@ namespace
 }
 
 
-void MapEntRepresT::TrafoMove(const Vector3fT& Delta)
+void MapEntRepresT::TrafoMove(const Vector3fT& Delta, bool LockTexCoords)
 {
     IntrusivePtrT<cf::GameSys::EntityT> Ent = m_Parent->GetEntity();
     const ChildrenTransformHandlerT     CTH(Ent);   // Important side-effects, don't remove!
@@ -355,7 +355,7 @@ void MapEntRepresT::TrafoMove(const Vector3fT& Delta)
 }
 
 
-void MapEntRepresT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles)
+void MapEntRepresT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles, bool LockTexCoords)
 {
     IntrusivePtrT<cf::GameSys::EntityT> Ent = m_Parent->GetEntity();
     const ChildrenTransformHandlerT     CTH(Ent);   // Important side-effects, don't remove!
@@ -381,7 +381,7 @@ void MapEntRepresT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::Angle
 }
 
 
-void MapEntRepresT::TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale)
+void MapEntRepresT::TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale, bool LockTexCoords)
 {
     IntrusivePtrT<cf::GameSys::EntityT> Ent = m_Parent->GetEntity();
     const ChildrenTransformHandlerT     CTH(Ent);   // Important side-effects, don't remove!
@@ -392,7 +392,7 @@ void MapEntRepresT::TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale
 }
 
 
-void MapEntRepresT::TrafoMirror(unsigned int NormalAxis, float Dist)
+void MapEntRepresT::TrafoMirror(unsigned int NormalAxis, float Dist, bool LockTexCoords)
 {
     IntrusivePtrT<cf::GameSys::EntityT> Ent = m_Parent->GetEntity();
     const ChildrenTransformHandlerT     CTH(Ent);   // Important side-effects, don't remove!
@@ -405,7 +405,7 @@ void MapEntRepresT::TrafoMirror(unsigned int NormalAxis, float Dist)
 }
 
 
-void MapEntRepresT::Transform(const MatrixT& Matrix)
+void MapEntRepresT::Transform(const MatrixT& Matrix, bool LockTexCoords)
 {
     IntrusivePtrT<cf::GameSys::EntityT> Ent = m_Parent->GetEntity();
     const ChildrenTransformHandlerT     CTH(Ent);   // Important side-effects, don't remove!

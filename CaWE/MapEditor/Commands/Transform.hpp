@@ -48,8 +48,8 @@ class CommandTransformT : public CommandT
 
 
     /// The constructor to transform an array of map elements using a delta and a transform mode.
-    CommandTransformT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>& TransElems, TransModeT Mode, const Vector3fT& RefPoint, const Vector3fT& Amount);
-    CommandTransformT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>& TransElems, const MatrixT& Matrix);
+    CommandTransformT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>& TransElems, TransModeT Mode, const Vector3fT& RefPoint, const Vector3fT& Amount, bool LockTexCoords);
+    CommandTransformT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>& TransElems, const MatrixT& Matrix, bool LockTexCoords);
 
     /// The destructor.
     ~CommandTransformT();
@@ -71,6 +71,7 @@ class CommandTransformT : public CommandT
     const Vector3fT            m_RefPoint;      ///< Ignored for translations, the reference point for scales and rotations.
     const Vector3fT            m_Amount;        ///< The delta for translations, the scale factors for scales, the angles for rotations.
     const MatrixT              m_Matrix;        ///< The matrix for generic matrix transformations.
+    const bool                 m_LockTexCoords; ///< Transform the texture-space along with the geometry?
 };
 
 #endif

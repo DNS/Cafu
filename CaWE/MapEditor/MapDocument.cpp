@@ -2133,7 +2133,7 @@ void MapDocumentT::OnToolsSnapSelectionToGrid(wxCommandEvent& CE)
 {
     if (!GetSelection().Size()) return;
 
-    CommandT* Command=new CommandSnapToGridT(*this, m_Selection);
+    CommandT* Command=new CommandSnapToGridT(*this, m_Selection, Options.general.LockingTextures);
 
     CompatSubmitCommand(Command);
 }
@@ -2185,7 +2185,7 @@ void MapDocumentT::OnToolsTransform(wxCommandEvent& CE)
         }
 
         CompatSubmitCommand(
-            new CommandTransformT(*this, m_Selection, Mode, RefPoint, Value));
+            new CommandTransformT(*this, m_Selection, Mode, RefPoint, Value, Options.general.LockingTextures));
     }
 }
 
@@ -2206,7 +2206,7 @@ void MapDocumentT::OnToolsAlign(wxCommandEvent& CE)
     }
 
     CompatSubmitCommand(
-        new CommandAlignT(*this, m_Selection, ViewWindows[0]->GetAxesInfo(), GetMostRecentSelBB(), CE.GetId()));
+        new CommandAlignT(*this, m_Selection, ViewWindows[0]->GetAxesInfo(), GetMostRecentSelBB(), CE.GetId(), Options.general.LockingTextures));
 }
 
 
@@ -2231,7 +2231,7 @@ void MapDocumentT::OnToolsMirror(wxCommandEvent& CE)
     const unsigned int NormalAxis=(CE.GetId()==ChildFrameT::ID_MENU_TOOLS_MIRROR_HOR) ? AxesInfo.HorzAxis : AxesInfo.VertAxis;
     const float        Dist      =GetMostRecentSelBB().GetCenter()[NormalAxis];
 
-    CompatSubmitCommand(new CommandMirrorT(*this, m_Selection, NormalAxis, Dist));
+    CompatSubmitCommand(new CommandMirrorT(*this, m_Selection, NormalAxis, Dist, Options.general.LockingTextures));
 }
 
 

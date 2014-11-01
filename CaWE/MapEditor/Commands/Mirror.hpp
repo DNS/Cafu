@@ -36,7 +36,7 @@ class CommandMirrorT : public CommandT
     public:
 
     /// The constructor.
-    CommandMirrorT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>& Elems, unsigned int NormalAxis, float Dist);
+    CommandMirrorT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>& Elems, unsigned int NormalAxis, float Dist, bool LockTexCoords);
 
     /// Destructor.
     ~CommandMirrorT();
@@ -54,6 +54,7 @@ class CommandMirrorT : public CommandT
     ArrayT<TrafoMementoT*>     m_OldStates;
     const unsigned int         m_NormalAxis;    ///< The number of the axis along which the normal vector of the mirror plane points: 0, 1 or 2 for the x-, y- or z-axis respectively.
     const float                m_Dist;          ///< The position of the mirror plane along its normal vector, where it intersects the NormalAxis.
+    const bool                 m_LockTexCoords;
 };
 
 #endif

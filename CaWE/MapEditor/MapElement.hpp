@@ -202,33 +202,39 @@ class MapElementT
     virtual void RestoreTrafoState(const TrafoMementoT* TM) { }
 
     /// Translates this element by the given vector (in world-space).
-    /// @param Delta   The offset by which to translate the element.
-    virtual void TrafoMove(const Vector3fT& Delta) { }
+    /// @param Delta           The offset by which to translate the element.
+    /// @param LockTexCoords   Transform the texture-space along with the geometry.
+    virtual void TrafoMove(const Vector3fT& Delta, bool LockTexCoords) { }
 
     /// Rotates this element about the given reference point (in world-space).
-    /// @param RefPoint   The reference point (origin) for the rotation.
-    /// @param Angles     The rotation angles for the three axes.
-    virtual void TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles) { }
+    /// @param RefPoint        The reference point (origin) for the rotation.
+    /// @param Angles          The rotation angles for the three axes.
+    /// @param LockTexCoords   Transform the texture-space along with the geometry.
+    virtual void TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles, bool LockTexCoords) { }
 
     /// Scales this element about the given reference point (in world-space).
-    /// @param RefPoint   The reference point (origin) for the scale.
-    /// @param Scale      The scale factors for the three axes.
+    /// @param RefPoint        The reference point (origin) for the scale.
+    /// @param Scale           The scale factors for the three axes.
+    /// @param LockTexCoords   Transform the texture-space along with the geometry.
     /// @throws DivisionByZeroE, e.g. when Scale is too small and the element becomes degenerate (e.g. a brush with too small faces).
-    virtual void TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale) { }
+    virtual void TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale, bool LockTexCoords) { }
 
     /// Mirrors this element along the given mirror plane (in world-space).
-    /// @param NormalAxis   The number of the axis along which the normal vector of the mirror plane points: 0, 1 or 2 for the x-, y- or z-axis respectively.
-    /// @param Dist         The position of the mirror plane along its normal vector, where it intersects the NormalAxis.
+    /// @param NormalAxis      The number of the axis along which the normal vector of the mirror plane points: 0, 1 or 2 for the x-, y- or z-axis respectively.
+    /// @param Dist            The position of the mirror plane along its normal vector, where it intersects the NormalAxis.
+    /// @param LockTexCoords   Transform the texture-space along with the geometry.
     /// Note that the mirroring is not necessarily "perfect", because for some elements like models or plants,
     /// only their point of origin can be mirrored, but not their mesh.
-    virtual void TrafoMirror(unsigned int NormalAxis, float Dist) { }
+    virtual void TrafoMirror(unsigned int NormalAxis, float Dist, bool LockTexCoords) { }
 
     /// Why does this method not replace all the other Trafo*() methods?
     /// This method is the most generic, allowing transformations that e.g. are non-orthogonal (like shears or non-uniform scales).
     /// This in turn conflicts with map primitives that can only store and deal with a restricted fixed set of transformations,
     /// e.g. an origin, a rotation and a uniform scale. These values cannot properly be re-computed from a general matrix with
     /// non-orthogonal basis vectors.
-    virtual void Transform(const MatrixT& Matrix) { }
+    /// @param Matrix          The matrix that describes the transform to be applied.
+    /// @param LockTexCoords   Transform the texture-space along with the geometry.
+    virtual void Transform(const MatrixT& Matrix, bool LockTexCoords) { }
 
 
     unsigned int GetFrameCount() const { return m_FrameCount; }

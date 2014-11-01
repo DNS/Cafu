@@ -364,7 +364,7 @@ bool ToolSelectionT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
             }
             else
             {
-                TrafoCmd = m_TrafoBox.GetTrafoCommand(m_MapDoc);
+                TrafoCmd = m_TrafoBox.GetTrafoCommand(m_MapDoc, Options.general.LockingTextures);
 
                 // Now finish the box transformation (makes m_TrafoBox.GetDragState() return TrafoBoxT::TH_NONE again).
                 m_TrafoBox.FinishTrafo();
@@ -713,7 +713,7 @@ void ToolSelectionT::RenderTool2D(Renderer2DT& Renderer) const
                 MapElementT*   Elem = m_MapDoc.GetSelection()[SelNr];
                 TrafoMementoT* Mem  = Elem->GetTrafoState();
 
-                m_TrafoBox.ApplyTrafo(Elem);
+                m_TrafoBox.ApplyTrafo(Elem, Options.general.LockingTextures);
                 Elem->Render2D(Renderer);
 
                 Elem->RestoreTrafoState(Mem);
@@ -925,7 +925,7 @@ void ToolSelectionT::NudgeSelection(const AxesInfoT& AxesInfo, const wxKeyEvent&
     }
 
     m_MapDoc.CompatSubmitCommand(
-        new CommandTransformT(m_MapDoc, m_MapDoc.GetSelection(), CommandTransformT::MODE_TRANSLATE, Vector3fT(), NudgeVec));
+        new CommandTransformT(m_MapDoc, m_MapDoc.GetSelection(), CommandTransformT::MODE_TRANSLATE, Vector3fT(), NudgeVec, Options.general.LockingTextures));
 }
 
 
@@ -1084,14 +1084,14 @@ CommandT* ToolSelectionT::CloneDrag() const
 
         for (unsigned int ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
         {
-            m_TrafoBox.ApplyTrafo(Elems[ElemNr]);
+            m_TrafoBox.ApplyTrafo(Elems[ElemNr], Options.general.LockingTextures);
             AllNewElems.PushBack(Elems[ElemNr]);
         }
     }
 
     for (unsigned int PrimNr = 0; PrimNr < NewPrims.Size(); PrimNr++)
     {
-        m_TrafoBox.ApplyTrafo(NewPrims[PrimNr]);
+        m_TrafoBox.ApplyTrafo(NewPrims[PrimNr], Options.general.LockingTextures);
         AllNewElems.PushBack(NewPrims[PrimNr]);
     }
 

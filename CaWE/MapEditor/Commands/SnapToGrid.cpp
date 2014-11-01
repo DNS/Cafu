@@ -38,9 +38,10 @@ static void SnapToGrid(BoundingBox3fT& BB, int GridSize)
 }
 
 
-CommandSnapToGridT::CommandSnapToGridT(MapDocumentT& MapDoc_, const ArrayT<MapElementT*>& Objects_)
+CommandSnapToGridT::CommandSnapToGridT(MapDocumentT& MapDoc_, const ArrayT<MapElementT*>& Objects_, bool LockTexCoords)
     : SnapObjects(Objects_),
-      MapDoc(MapDoc_)
+      MapDoc(MapDoc_),
+      m_LockTexCoords(LockTexCoords)
 {
     // Get bounding box of the map elements to snap to the grid.
     BoundingBox3fT ElemBB;
@@ -80,7 +81,7 @@ bool CommandSnapToGridT::Do()
     for (unsigned long i=0; i<SnapObjects.Size(); i++)
     {
         OldBounds.PushBack(SnapObjects[i]->GetBB());
-        SnapObjects[i]->TrafoMove(MoveOffset);
+        SnapObjects[i]->TrafoMove(MoveOffset, m_LockTexCoords);
     }
 
     MapDoc.UpdateAllObservers_Modified(SnapObjects, MEMD_TRANSFORM, OldBounds);

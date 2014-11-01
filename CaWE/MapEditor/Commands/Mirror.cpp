@@ -24,12 +24,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../MapDocument.hpp"
 
 
-CommandMirrorT::CommandMirrorT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>& Elems, unsigned int NormalAxis, float Dist)
+CommandMirrorT::CommandMirrorT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>& Elems, unsigned int NormalAxis, float Dist, bool LockTexCoords)
     : m_MapDoc(MapDoc),
       m_MirrorElems(Elems),
       m_OldStates(),
       m_NormalAxis(NormalAxis),
-      m_Dist(Dist)
+      m_Dist(Dist),
+      m_LockTexCoords(LockTexCoords)
 {
     for (unsigned long i = 0; i < m_MirrorElems.Size(); i++)
         m_OldStates.PushBack(m_MirrorElems[i]->GetTrafoState());
@@ -57,7 +58,7 @@ bool CommandMirrorT::Do()
     for (unsigned long i=0; i<m_MirrorElems.Size(); i++)
     {
         OldBounds.PushBack(m_MirrorElems[i]->GetBB());
-        m_MirrorElems[i]->TrafoMirror(m_NormalAxis, m_Dist);
+        m_MirrorElems[i]->TrafoMirror(m_NormalAxis, m_Dist, m_LockTexCoords);
     }
 
     m_MapDoc.UpdateAllObservers_Modified(m_MirrorElems, MEMD_TRANSFORM, OldBounds);

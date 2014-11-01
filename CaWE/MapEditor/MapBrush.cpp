@@ -556,7 +556,7 @@ void MapBrushT::RestoreTrafoState(const TrafoMementoT* TM)
 }
 
 
-void MapBrushT::TrafoMove(const Vector3fT& Delta)
+void MapBrushT::TrafoMove(const Vector3fT& Delta, bool LockTexCoords)
 {
     for (unsigned long FaceNr=0; FaceNr<m_Faces.Size(); FaceNr++)
     {
@@ -568,7 +568,7 @@ void MapBrushT::TrafoMove(const Vector3fT& Delta)
         for (unsigned long VertexNr=0; VertexNr<Face.m_Vertices.Size(); VertexNr++)
             Face.m_Vertices[VertexNr]+=Delta;
 
-        if (Options.general.LockingTextures)
+        if (LockTexCoords)
         {
             SurfaceInfoT& SI=Face.m_SurfaceInfo;
             wxASSERT(SI.TexCoordGenMode==PlaneProj);
@@ -587,11 +587,11 @@ void MapBrushT::TrafoMove(const Vector3fT& Delta)
         Face.UpdateTextureSpace();
     }
 
-    MapPrimitiveT::TrafoMove(Delta);
+    MapPrimitiveT::TrafoMove(Delta, LockTexCoords);
 }
 
 
-void MapBrushT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles)
+void MapBrushT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles, bool LockTexCoords)
 {
     for (unsigned long FaceNr=0; FaceNr<m_Faces.Size(); FaceNr++)
     {
@@ -623,7 +623,7 @@ void MapBrushT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT&
             Vertex+=RefPoint;
         }
 
-        if (Options.general.LockingTextures)
+        if (LockTexCoords)
         {
             SurfaceInfoT& SI=Face.m_SurfaceInfo;
 
@@ -657,11 +657,11 @@ void MapBrushT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT&
         Face.UpdateTextureSpace();
     }
 
-    MapPrimitiveT::TrafoRotate(RefPoint, Angles);
+    MapPrimitiveT::TrafoRotate(RefPoint, Angles, LockTexCoords);
 }
 
 
-void MapBrushT::TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale)
+void MapBrushT::TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale, bool LockTexCoords)
 {
     for (unsigned long FaceNr=0; FaceNr<m_Faces.Size(); FaceNr++)
     {
@@ -673,7 +673,7 @@ void MapBrushT::TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale)
         for (unsigned long VertexNr=0; VertexNr<Face.m_Vertices.Size(); VertexNr++)
             Face.m_Vertices[VertexNr]=(Face.m_Vertices[VertexNr]-RefPoint).GetScaled(Scale) + RefPoint;
 
-        if (Options.general.LockingTextures && Face.m_Vertices.Size()>0)
+        if (LockTexCoords && Face.m_Vertices.Size()>0)
         {
             SurfaceInfoT& SI=Face.m_SurfaceInfo;
 
@@ -713,7 +713,7 @@ void MapBrushT::TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale)
         Face.UpdateTextureSpace();
     }
 
-    MapPrimitiveT::TrafoScale(RefPoint, Scale);
+    MapPrimitiveT::TrafoScale(RefPoint, Scale, LockTexCoords);
 }
 
 
@@ -736,7 +736,7 @@ static void MirrorVertices(ArrayT<Vector3fT>& Vertices, unsigned int NormalAxis,
 }
 
 
-void MapBrushT::TrafoMirror(unsigned int NormalAxis, float Dist)
+void MapBrushT::TrafoMirror(unsigned int NormalAxis, float Dist, bool LockTexCoords)
 {
     for (unsigned long FaceNr=0; FaceNr<m_Faces.Size(); FaceNr++)
     {
@@ -746,7 +746,7 @@ void MapBrushT::TrafoMirror(unsigned int NormalAxis, float Dist)
         MirrorVertices(Face.m_Vertices,    NormalAxis, Dist);
 
         // If texture locking is enabled, also mirror the texture-space U/V axes.
-        if (Options.general.LockingTextures)
+        if (LockTexCoords)
         {
             SurfaceInfoT& SI=Face.m_SurfaceInfo;
 
@@ -767,11 +767,11 @@ void MapBrushT::TrafoMirror(unsigned int NormalAxis, float Dist)
         Face.UpdateTextureSpace();
     }
 
-    MapPrimitiveT::TrafoMirror(NormalAxis, Dist);
+    MapPrimitiveT::TrafoMirror(NormalAxis, Dist, LockTexCoords);
 }
 
 
-void MapBrushT::Transform(const MatrixT& Matrix)
+void MapBrushT::Transform(const MatrixT& Matrix, bool LockTexCoords)
 {
     for (unsigned long FaceNr=0; FaceNr<m_Faces.Size(); FaceNr++)
     {
@@ -799,7 +799,7 @@ void MapBrushT::Transform(const MatrixT& Matrix)
         Face.UpdateTextureSpace();
     }
 
-    MapPrimitiveT::Transform(Matrix);
+    MapPrimitiveT::Transform(Matrix, LockTexCoords);
 }
 
 

@@ -413,7 +413,7 @@ bool TrafoBoxT::UpdateTrafo(const ViewWindow2DT& ViewWindow, const wxPoint& Poin
 }
 
 
-CommandTransformT* TrafoBoxT::GetTrafoCommand(MapDocumentT& MapDoc) const
+CommandTransformT* TrafoBoxT::GetTrafoCommand(MapDocumentT& MapDoc, bool LockTexCoords) const
 {
     const int HorzAxis  = m_DragAxes.HorzAxis;
     const int VertAxis  = m_DragAxes.VertAxis;
@@ -426,7 +426,7 @@ CommandTransformT* TrafoBoxT::GetTrafoCommand(MapDocumentT& MapDoc) const
         wxASSERT(m_Translate[ThirdAxis] == 0.0f);   // Don't change anything along the third axis.
 
         if (m_Translate[HorzAxis] != 0 || m_Translate[VertAxis] != 0)
-            return new CommandTransformT(MapDoc, MapDoc.GetSelection(), CommandTransformT::MODE_TRANSLATE, Vector3fT(), m_Translate);
+            return new CommandTransformT(MapDoc, MapDoc.GetSelection(), CommandTransformT::MODE_TRANSLATE, Vector3fT(), m_Translate, LockTexCoords);
     }
     else
     {
@@ -439,7 +439,7 @@ CommandTransformT* TrafoBoxT::GetTrafoCommand(MapDocumentT& MapDoc) const
                 wxASSERT(m_Scale[ThirdAxis] == 1.0f);
 
                 if (m_Scale[HorzAxis] != 1.0f || m_Scale[VertAxis] != 1.0f)
-                    return new CommandTransformT(MapDoc, MapDoc.GetSelection(), CommandTransformT::MODE_SCALE, m_RefPos, m_Scale);
+                    return new CommandTransformT(MapDoc, MapDoc.GetSelection(), CommandTransformT::MODE_SCALE, m_RefPos, m_Scale, LockTexCoords);
                 break;
             }
 
@@ -449,7 +449,7 @@ CommandTransformT* TrafoBoxT::GetTrafoCommand(MapDocumentT& MapDoc) const
                 Angles[ThirdAxis]=m_RotAngle;
 
                 if (Angles[ThirdAxis] != 0)
-                    return new CommandTransformT(MapDoc, MapDoc.GetSelection(), CommandTransformT::MODE_ROTATE, m_RefPos, Angles);
+                    return new CommandTransformT(MapDoc, MapDoc.GetSelection(), CommandTransformT::MODE_ROTATE, m_RefPos, Angles, LockTexCoords);
                 break;
             }
 
@@ -458,7 +458,7 @@ CommandTransformT* TrafoBoxT::GetTrafoCommand(MapDocumentT& MapDoc) const
                 MatrixT ShearMatrix;
 
                 if (GetShearMatrix(ShearMatrix))
-                    return new CommandTransformT(MapDoc, MapDoc.GetSelection(), ShearMatrix);
+                    return new CommandTransformT(MapDoc, MapDoc.GetSelection(), ShearMatrix, LockTexCoords);
                 break;
             }
         }
@@ -468,7 +468,7 @@ CommandTransformT* TrafoBoxT::GetTrafoCommand(MapDocumentT& MapDoc) const
 }
 
 
-void TrafoBoxT::ApplyTrafo(MapElementT* Elem) const
+void TrafoBoxT::ApplyTrafo(MapElementT* Elem, bool LockTexCoords) const
 {
     const int HorzAxis  = m_DragAxes.HorzAxis;
     const int VertAxis  = m_DragAxes.VertAxis;
@@ -481,7 +481,7 @@ void TrafoBoxT::ApplyTrafo(MapElementT* Elem) const
         wxASSERT(m_Translate[ThirdAxis] == 0.0f);   // Don't change anything along the third axis.
 
         if (m_Translate[HorzAxis] != 0 || m_Translate[VertAxis] != 0)
-            Elem->TrafoMove(m_Translate);
+            Elem->TrafoMove(m_Translate, LockTexCoords);
     }
     else
     {
@@ -494,7 +494,7 @@ void TrafoBoxT::ApplyTrafo(MapElementT* Elem) const
                 wxASSERT(m_Scale[ThirdAxis] == 1.0f);
 
                 if (m_Scale[HorzAxis] != 1.0f || m_Scale[VertAxis] != 1.0f)
-                    Elem->TrafoScale(m_RefPos, m_Scale);
+                    Elem->TrafoScale(m_RefPos, m_Scale, LockTexCoords);
                 break;
             }
 
@@ -504,7 +504,7 @@ void TrafoBoxT::ApplyTrafo(MapElementT* Elem) const
                 Angles[ThirdAxis]=m_RotAngle;
 
                 if (Angles[ThirdAxis] != 0)
-                    Elem->TrafoRotate(m_RefPos, Angles);
+                    Elem->TrafoRotate(m_RefPos, Angles, LockTexCoords);
                 break;
             }
 
@@ -513,7 +513,7 @@ void TrafoBoxT::ApplyTrafo(MapElementT* Elem) const
                 MatrixT ShearMatrix;
 
                 if (GetShearMatrix(ShearMatrix))
-                    Elem->Transform(ShearMatrix);
+                    Elem->Transform(ShearMatrix, LockTexCoords);
                 break;
             }
         }

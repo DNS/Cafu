@@ -692,7 +692,7 @@ void ModelEditor::SceneView3DT::OnPaint(wxPaintEvent& PE)
             : ScenePropGrid->m_GroundPlane_PosZ) - Ground->GetBB().Max.z;
 
         if (fabs(DeltaZ) > 0.0001f)
-            Ground->TrafoMove(Vector3fT(0, 0, DeltaZ));
+            Ground->TrafoMove(Vector3fT(0, 0, DeltaZ), true /*LockTexCoords*/);
     }
 
     // Render the world axes. They're great for technical and emotional reassurance.

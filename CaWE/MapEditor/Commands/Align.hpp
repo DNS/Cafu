@@ -38,7 +38,7 @@ class CommandAlignT : public CommandT
     public:
 
     /// Constructor to align an array of map elements.
-    CommandAlignT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>& Elems, const AxesInfoT& RefAxes, const BoundingBox3fT& Box, int Mode);
+    CommandAlignT(MapDocumentT& MapDoc, const ArrayT<MapElementT*>& Elems, const AxesInfoT& RefAxes, const BoundingBox3fT& Box, int Mode, bool LockTexCoords);
 
     /// Destructor.
     ~CommandAlignT();
@@ -57,6 +57,7 @@ class CommandAlignT : public CommandT
     const AxesInfoT            m_RefAxes;       ///< Axes of the 2D view in which the alignment is performed.
     const BoundingBox3fT       m_Box;           ///< Box in which the objects are aligned.
     const int                  m_Mode;
+    const bool                 m_LockTexCoords;
 
     /// Corrects the mode according to reference 2D view.
     int CorrectMode(int Mode) const;

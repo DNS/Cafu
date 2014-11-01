@@ -37,7 +37,7 @@ class CommandSnapToGridT : public CommandT
     public:
 
     /// Constructor to snap an array of objects to the map grid.
-    CommandSnapToGridT(MapDocumentT& MapDoc_, const ArrayT<MapElementT*>& Objects_);
+    CommandSnapToGridT(MapDocumentT& MapDoc_, const ArrayT<MapElementT*>& Objects_, bool LockTexCoords);
 
     /// Destructor.
     ~CommandSnapToGridT();
@@ -54,6 +54,7 @@ class CommandSnapToGridT : public CommandT
     ArrayT<TrafoMementoT*>     OldStates;
     MapDocumentT&              MapDoc;
     Vector3fT                  MoveOffset;
+    const bool                 m_LockTexCoords;
 };
 
 #endif

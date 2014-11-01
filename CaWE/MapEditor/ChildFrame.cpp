@@ -1477,7 +1477,7 @@ void ChildFrameT::OnMenuEditPaste(wxCommandEvent& CE)
             {
                 MapPrimitiveT* Prim = dynamic_cast<MapPrimitiveT*>(Elems[ElemNr]);
 
-                if (Prim) Prim->Transform(WorldToWorld);
+                if (Prim) Prim->Transform(WorldToWorld, Options.general.LockingTextures);
             }
         }
 
@@ -1493,7 +1493,7 @@ void ChildFrameT::OnMenuEditPaste(wxCommandEvent& CE)
 
         if (InvResult)
         {
-            Prim->Transform(WorldToWorld);
+            Prim->Transform(WorldToWorld, Options.general.LockingTextures);
         }
 
         SelElems.PushBack(Prim);
@@ -1525,7 +1525,7 @@ void ChildFrameT::OnMenuEditPaste(wxCommandEvent& CE)
                 + Vector3fT(((LastPasteCount % 8)+(LastPasteCount/8)) * PasteOffset, (LastPasteCount % 8) * PasteOffset, 0.0f),
                 false, -1 /*Snap all axes.*/) - ClipboardBB.GetCenter();
 
-            SubCommands.PushBack(new CommandTransformT(*m_Doc, SelElems, CommandTransformT::MODE_TRANSLATE, Vector3fT(), TotalTranslation));
+            SubCommands.PushBack(new CommandTransformT(*m_Doc, SelElems, CommandTransformT::MODE_TRANSLATE, Vector3fT(), TotalTranslation, Options.general.LockingTextures));
             LastPasteCount++;
         }
 
@@ -2009,7 +2009,7 @@ void ChildFrameT::LoadPrefab(const wxString& FileName)
         {
             MapPrimitiveT* Prim = dynamic_cast<MapPrimitiveT*>(PrefabElems[ElemNr]);
 
-            if (Prim) Prim->TrafoMove(Offset);
+            if (Prim) Prim->TrafoMove(Offset, true /*LockTexCoords*/);
         }
 
         // Transform all primitives from parent-space to world-space.
@@ -2028,7 +2028,7 @@ void ChildFrameT::LoadPrefab(const wxString& FileName)
             {
                 MapPrimitiveT* Prim = dynamic_cast<MapPrimitiveT*>(PrefabElems[ElemNr]);
 
-                if (Prim) Prim->Transform(PrefabToWorld);
+                if (Prim) Prim->Transform(PrefabToWorld, true /*LockTexCoords*/);
             }
         }
 
@@ -2136,7 +2136,7 @@ void ChildFrameT::OnMenuPrefabs(wxCommandEvent& CE)
                 {
                     MapPrimitiveT* Prim = dynamic_cast<MapPrimitiveT*>(PrefabElems[ElemNr]);
 
-                    if (Prim) Prim->Transform(WorldToEntity);
+                    if (Prim) Prim->Transform(WorldToEntity, true /*LockTexCoords*/);
                 }
             }
 
