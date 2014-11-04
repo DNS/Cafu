@@ -377,7 +377,7 @@ void MapEntRepresT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::Angle
     const cf::math::QuaternionfT RotQuat = cf::math::QuaternionfT::Euler(-AngRad[1], AngRad[2], AngRad[0]);
 
     Ent->GetTransform()->SetOriginWS(Origin);
-    Ent->GetTransform()->SetQuatWS(OldQuat * RotQuat);
+    Ent->GetTransform()->SetQuatWS(RotQuat * OldQuat);
 }
 
 
