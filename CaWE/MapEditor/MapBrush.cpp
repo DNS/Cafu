@@ -795,6 +795,44 @@ void MapBrushT::Transform(const MatrixT& Matrix, bool LockTexCoords)
             Vertex=Matrix.Mul1(Vertex);
         }
 
+        if (LockTexCoords)
+        {
+            SurfaceInfoT& SI = Face.m_SurfaceInfo;
+
+            // The key idea for updating the SI is simple, and analogous to that in the other Trafo*() methods:
+            // In MapFaceT::UpdateTextureSpace(), we have
+            //
+            //     (UAxis dot Vertex) * s + t
+            //
+            // We easily find a new proper UAxis' and new scale s' by transforming the old (UAxis*s) vector just like
+            // the face vertices (but as UAxis is a directional vector, Mul0() is used rather than Mul1()).
+            // The leaves us with equation
+            //
+            //     (UAxis dot Vertex) * s + t == (UAxis' dot Matrix.Mul1(Vertex)) * s' + t'
+            //
+            // to solve for the unknown t'. As we already know UAxis' and s', there is fortunately no need to consider
+            // the equation generically for all possible values of Vertex. Instead, we fathom that the equation must
+            // yield the same value t' for *any* value of Vertex. Exploiting this, we arbitrarily choose (0, 0, 0) as
+            // its value, which makes solving for t' very easy.
+            const Vector3fT NewU = Matrix.Mul0(SI.UAxis) * SI.Scale[0];
+            const Vector3fT NewV = Matrix.Mul0(SI.VAxis) * SI.Scale[1];
+            const float     LenU = length(NewU);
+            const float     LenV = length(NewV);
+
+            if (LenU > 0.0001f && LenV > 0.0001f)
+            {
+                SI.UAxis = NewU/LenU;
+                SI.VAxis = NewV/LenV;
+
+                SI.Scale[0] = LenU;
+                SI.Scale[1] = LenV;
+
+                SI.Trans[0] -= dot(SI.UAxis, Vector3fT(Matrix[0][3], Matrix[1][3], Matrix[2][3])) * SI.Scale[0];
+                SI.Trans[1] -= dot(SI.VAxis, Vector3fT(Matrix[0][3], Matrix[1][3], Matrix[2][3])) * SI.Scale[1];
+                SI.WrapTranslations();
+            }
+        }
+
         Face.m_Plane=Plane3T<float>(Face.m_PlanePoints[0], Face.m_PlanePoints[1], Face.m_PlanePoints[2], 0.1f);
         Face.UpdateTextureSpace();
     }
