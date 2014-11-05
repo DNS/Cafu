@@ -977,6 +977,19 @@ void MapBezierPatchT::TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Sca
 
 void MapBezierPatchT::TrafoMirror(unsigned int NormalAxis, float Dist, bool LockTexCoords)
 {
+    for (unsigned long y = 0; y < cv_Height; y++)
+        for (unsigned long x = 0; x < cv_Width; x++)
+        {
+            Vector3fT v = GetCvPos(x, y);
+
+            v[NormalAxis] = Dist - (v[NormalAxis] - Dist);
+
+            SetCvPos(x, y, v);
+        }
+
+    InvertPatch();  // Need this so that textures don't get turned "inside out".
+
+    MapPrimitiveT::TrafoMirror(NormalAxis, Dist, LockTexCoords);
 }
 
 
