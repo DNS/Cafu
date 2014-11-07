@@ -413,6 +413,19 @@ void MapEntRepresT::Transform(const MatrixT& Matrix, bool LockTexCoords)
     const Vector3fT Origin = Ent->GetTransform()->GetOriginWS();
 
     Ent->GetTransform()->SetOriginWS(Matrix.Mul1(Origin));
+
+    // TODO: Transform the orientation!
+    //
+    // cf::math::Matrix3x3T Mat;
+    //
+    // for (unsigned int i = 0; i < 3; i++)
+    //     for (unsigned int j = 0; j < 3; j++)
+    //         Mat[i][j] = Matrix[i][j];
+    //
+    // Mat = Mat * cf::math::Matrix3x3T(Ent->GetTransform()->GetQuatWS());  // order?
+    // Mat = Mat.GetOrthonormal();
+    //
+    // Ent->GetTransform()->SetQuatWS(Mat);
 }
 
 
