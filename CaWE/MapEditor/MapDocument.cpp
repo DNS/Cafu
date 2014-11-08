@@ -1147,6 +1147,8 @@ namespace
 
     void SaveComponents(std::ostream& OutFile, IntrusivePtrT<cf::GameSys::EntityT> Entity)
     {
+        cf::TypeSys::VarVisitorToLuaCodeT ToLua(OutFile);
+
         if (Entity->GetBasics()->IsStatic())
             OutFile << "    self:GetBasics():set(\"Static\", true)\n";
 
@@ -1155,28 +1157,24 @@ namespace
 
         OutFile << "    self:GetBasics():set(\"SelMode\", " << Entity->GetBasics()->GetSelMode() << ")\n";
 
-        OutFile << "    self:GetTransform():set(\"Origin\", "
-                << Entity->GetTransform()->GetOriginPS().x << ", "
-                << Entity->GetTransform()->GetOriginPS().y << ", "
-                << Entity->GetTransform()->GetOriginPS().z << ")\n";
+        const ArrayT<cf::TypeSys::VarBaseT*>& TrafoVars = Entity->GetTransform()->GetMemberVars().GetArray();
 
-        const Vector3fT QuatXYZ = Entity->GetTransform()->GetQuatPS().GetXYZ();
-        if (QuatXYZ != Vector3fT(0, 0, 0))
-            OutFile << "    self:GetTransform():set(\"Orientation\", " << QuatXYZ.x << ", " << QuatXYZ.y << ", " << QuatXYZ.z << ")\n";
-
+        for (unsigned int VarNr = 0; VarNr < TrafoVars.Size(); VarNr++)
+        {
+            OutFile << "    self:GetTransform():set(\"" << TrafoVars[VarNr]->GetName() << "\", ";
+            TrafoVars[VarNr]->accept(ToLua);
+            OutFile << ")\n";
+        }
 
         if (Entity->GetComponents().Size() == 0)
             return;
-
-        cf::TypeSys::VarVisitorToLuaCodeT ToLua(OutFile);
-
-        OutFile << "\n";
 
         for (unsigned int CompNr = 1; CompNr <= Entity->GetComponents().Size(); CompNr++)
         {
             IntrusivePtrT<cf::GameSys::ComponentBaseT> Comp = Entity->GetComponents()[CompNr - 1];
             const ArrayT<cf::TypeSys::VarBaseT*>&      Vars = Comp->GetMemberVars().GetArray();
 
+            OutFile << "\n";
             OutFile << "    local c" << CompNr << " = world:new(\"" << StripNamespace(Comp->GetType()->ClassName) << "\")\n";
 
             for (unsigned int VarNr = 0; VarNr < Vars.Size(); VarNr++)
@@ -1190,10 +1188,9 @@ namespace
                 Var->accept(ToLua);
                 OutFile << ")\n";
             }
-
-            OutFile << "\n";
         }
 
+        OutFile << "\n";
         OutFile << "    self:AddComponent(";
         for (unsigned int CompNr = 1; CompNr <= Entity->GetComponents().Size(); CompNr++)
         {

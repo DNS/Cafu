@@ -167,28 +167,29 @@ static void SaveWindowHierarchy(std::ostream& OutFile, IntrusivePtrT<cf::GuiSys:
 
 static void SaveComponents(std::ostream& OutFile, IntrusivePtrT<cf::GuiSys::WindowT> Window)
 {
+    cf::TypeSys::VarVisitorToLuaCodeT ToLua(OutFile);
+
     if (!Window->GetBasics()->IsShown())
         OutFile << "    self:GetBasics():set(\"Show\", false)\n";
 
-    OutFile << "    self:GetTransform():set(\"Pos\", " << Window->GetTransform()->GetPos().x << ", " << Window->GetTransform()->GetPos().y << ")\n";
-    OutFile << "    self:GetTransform():set(\"Size\", " << Window->GetTransform()->GetSize().x << ", " << Window->GetTransform()->GetSize().y << ")\n";
+    const ArrayT<cf::TypeSys::VarBaseT*>& TrafoVars = Window->GetTransform()->GetMemberVars().GetArray();
 
-    if (Window->GetTransform()->GetRotAngle() != 0.0f)
-        OutFile << "    self:GetTransform():set(\"Rotation\", " << Window->GetTransform()->GetRotAngle() << ")\n";
-
+    for (unsigned int VarNr = 0; VarNr < TrafoVars.Size(); VarNr++)
+    {
+        OutFile << "    self:GetTransform():set(\"" << TrafoVars[VarNr]->GetName() << "\", ";
+        TrafoVars[VarNr]->accept(ToLua);
+        OutFile << ")\n";
+    }
 
     if (Window->GetComponents().Size() == 0)
         return;
-
-    cf::TypeSys::VarVisitorToLuaCodeT ToLua(OutFile);
-
-    OutFile << "\n";
 
     for (unsigned int CompNr = 1; CompNr <= Window->GetComponents().Size(); CompNr++)
     {
         IntrusivePtrT<cf::GuiSys::ComponentBaseT> Comp = Window->GetComponents()[CompNr - 1];
         const ArrayT<cf::TypeSys::VarBaseT*>&     Vars = Comp->GetMemberVars().GetArray();
 
+        OutFile << "\n";
         OutFile << "    local c" << CompNr << " = gui:new(\"" << StripNamespace(Comp->GetType()->ClassName) << "\")\n";
 
         for (unsigned int VarNr = 0; VarNr < Vars.Size(); VarNr++)
@@ -202,10 +203,9 @@ static void SaveComponents(std::ostream& OutFile, IntrusivePtrT<cf::GuiSys::Wind
             Var->accept(ToLua);
             OutFile << ")\n";
         }
-
-        OutFile << "\n";
     }
 
+    OutFile << "\n";
     OutFile << "    self:AddComponent(";
     for (unsigned int CompNr = 1; CompNr <= Window->GetComponents().Size(); CompNr++)
     {
