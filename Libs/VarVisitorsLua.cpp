@@ -486,6 +486,48 @@ void VarVisitorSetFloatT::visit(cf::TypeSys::VarArrayT<std::string>& Var) { }
 /*** VarVisitorToLuaCodeT ***/
 /****************************/
 
+namespace
+{
+    /// This function serializes a given float f1 to a string s, such that:
+    ///   - s is minimal (uses the least number of decimal digits required),
+    ///   - unserializing s back to a float f2 yields f1 == f2.
+    /// See my post "float to string to float, with first float == second float"
+    /// to comp.lang.c++ on 2009-10-06 for additional details.
+    template<class T> std::string serialize(const T f1)
+    {
+        // Make sure that if f1 is -0, "0" instead of "-0" is returned.
+        if (f1 == 0.0f) return "0";
+
+        // From MSDN documentation: "digits10 returns the number of decimal digits that the type can represent without loss of precision."
+        // For floats, that's usually 6, for doubles, that's usually 15. However, we want to use the number of *significant* decimal digits here,
+        // that is, max_digits10. See http://www.open-std.org/JTC1/sc22/wg21/docs/papers/2006/n2005.pdf for details.
+        const unsigned int DIGITS10     = std::numeric_limits<T>::digits10;
+        const unsigned int MAX_DIGITS10 = DIGITS10 + 3;
+
+        std::string  s;
+        unsigned int prec;
+
+        for (prec = DIGITS10; prec <= MAX_DIGITS10; prec++)
+        {
+            std::stringstream ss;
+
+            ss.precision(prec);
+            ss << f1;
+
+            s = ss.str();
+
+            float f2;
+            ss >> f2;
+
+            if (f2 == f1) break;
+        }
+
+        assert(prec <= MAX_DIGITS10);
+        return s;
+    }
+}
+
+
 VarVisitorToLuaCodeT::VarVisitorToLuaCodeT(std::ostream& Out)
     : m_Out(Out)
 {
@@ -494,13 +536,13 @@ VarVisitorToLuaCodeT::VarVisitorToLuaCodeT(std::ostream& Out)
 
 void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<float>& Var)
 {
-    m_Out << Var.Get();
+    m_Out << serialize(Var.Get());
 }
 
 
 void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<double>& Var)
 {
-    m_Out << Var.Get();
+    m_Out << serialize(Var.Get());
 }
 
 
@@ -542,26 +584,26 @@ void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<std::string>& Var)
 
 void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<Vector2fT>& Var)
 {
-    m_Out << Var.Get().x << ", " << Var.Get().y;
+    m_Out << serialize(Var.Get().x) << ", " << serialize(Var.Get().y);
 }
 
 
 void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<Vector3fT>& Var)
 {
-    m_Out << Var.Get().x << ", " << Var.Get().y << ", " << Var.Get().z;
+    m_Out << serialize(Var.Get().x) << ", " << serialize(Var.Get().y) << ", " << serialize(Var.Get().z);
 }
 
 
 void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<Vector3dT>& Var)
 {
-    m_Out << Var.Get().x << ", " << Var.Get().y << ", " << Var.Get().z;
+    m_Out << serialize(Var.Get().x) << ", " << serialize(Var.Get().y) << ", " << serialize(Var.Get().z);
 }
 
 
 void VarVisitorToLuaCodeT::visit(const cf::TypeSys::VarT<BoundingBox3dT>& Var)
 {
-    m_Out << Var.Get().Min.x << ", " << Var.Get().Min.y << ", " << Var.Get().Min.z << ", ";
-    m_Out << Var.Get().Max.x << ", " << Var.Get().Max.y << ", " << Var.Get().Max.z;
+    m_Out << serialize(Var.Get().Min.x) << ", " << serialize(Var.Get().Min.y) << ", " << serialize(Var.Get().Min.z) << ", ";
+    m_Out << serialize(Var.Get().Max.x) << ", " << serialize(Var.Get().Max.y) << ", " << serialize(Var.Get().Max.z);
 }
 
 

@@ -1269,11 +1269,6 @@ void ChildFrameT::OnMenuEditCopy(wxCommandEvent& CE)
 
     std::ostringstream out;
 
-    // From MSDN documentation: "digits10 returns the number of decimal digits that the type can represent without loss of precision."
-    // For floats, that's usually 6, for doubles, that's usually 15. However, we want to use the number of *significant* decimal digits here,
-    // that is, max_digits10. See http://www.open-std.org/JTC1/sc22/wg21/docs/papers/2006/n2005.pdf for details.
-    out.precision(std::numeric_limits<float>::digits10 + 3);
-
     MapDocumentT::SaveEntities(out, ClipboardRoot);
 
     out << "\n";

@@ -1310,12 +1310,6 @@ bool MapDocumentT::OnSaveDocument(const wxString& cmapFileName, bool IsAutoSave,
         return false;
     }
 
-    // From MSDN documentation: "digits10 returns the number of decimal digits that the type can represent without loss of precision."
-    // For floats, that's usually 6, for doubles, that's usually 15. However, we want to use the number of *significant* decimal digits here,
-    // that is, max_digits10. See http://www.open-std.org/JTC1/sc22/wg21/docs/papers/2006/n2005.pdf for details.
-    cmapOutFile.precision(std::numeric_limits<float>::digits10 + 3);
-    centOutFile.precision(std::numeric_limits<float>::digits10 + 3);
-
     // This sets the cursor to the busy cursor in its ctor, and back to the default cursor in the dtor.
     wxBusyCursor BusyCursor;
     const bool   UpdateFileName = (RootEntity == NULL);     // We're saving a map if RootEntity == NULL, otherwise a prefab.
