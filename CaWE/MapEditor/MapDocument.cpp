@@ -1375,12 +1375,13 @@ bool MapDocumentT::SaveAs()
     const wxFileName FN(m_FileName);
 
     wxFileDialog SaveFileDialog(NULL,                               // parent
-                                "Save (or Export) File",            // message
+                                "Save (or Export) Cafu Map File",   // message
                                 (FN.IsOk() && wxDirExists(FN.GetPath())) ? FN.GetPath() : LastUsedDir, // default dir
-                                "",                                 // default file
-                                "Cafu Map Files (*.cmap)|*.cmap",   // wildcard
+                                (FN.IsOk() && FN.GetExt() == "cmap") ? FN.GetFullName() : "", // default file
+                                "Cafu Map Files (*.cmap)|*.cmap"    // wildcard
                              // "|Export Hammer (HL1) Maps (*.map)|*.map"
                              // "|Export Hammer RMFs (*.rmf)|*.rmf"
+                                "|All Files (*.*)|*.*",
                                 wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 
     if (SaveFileDialog.ShowModal()!=wxID_OK) return false;

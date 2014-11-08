@@ -409,7 +409,8 @@ bool GuiEditor::ChildFrameT::Save(bool AskForFileName)
                                     "Save Cafu GUI File",               // message
                                     (FN.IsOk() && wxDirExists(FN.GetPath())) ? FN.GetPath() : LastUsedDir, // default dir
                                     (FN.IsOk() && FN.GetExt() == "cgui") ? FN.GetFullName() : "", // default file
-                                    "Cafu GUI Files (*.cgui)|*.cgui",   // wildcard
+                                    "Cafu GUI Files (*.cgui)|*.cgui"    // wildcard
+                                    "|All Files (*.*)|*.*",
                                     wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 
         if (SaveFileDialog.ShowModal()!=wxID_OK) return false;
