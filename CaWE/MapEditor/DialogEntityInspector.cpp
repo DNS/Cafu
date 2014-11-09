@@ -230,6 +230,7 @@ void EntityInspectorDialogT::NotifySubjectDies(SubjectT* dyingSubject)
 {
     wxASSERT(dyingSubject == m_MapDocument);
 
+    m_SelectedEntity = NULL;
     m_MapDocument = NULL;
 
     ClearPage(0);
