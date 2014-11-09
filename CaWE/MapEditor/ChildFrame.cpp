@@ -287,6 +287,7 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
       m_AUIManager(this),
       m_AUIDefaultPerspective(""),
       m_Doc(Document),
+      m_History(new CommandHistoryT()),
       m_LastSavedAtCommandNr(0),
       m_AutoSaveTimer(m_Doc, Parent->m_ChildFrames.Size()),
       m_ToolManager(NULL),
@@ -711,6 +712,13 @@ ChildFrameT::~ChildFrameT()
     // Uninit the AUI manager.
     m_AUIManager.UnInit();
 
+    // Delete the history.
+    // This must be done *before* the MapDocumentT is deleted, because the history may contain commands that contain
+    // entities that contain components. The destructors of these components need access to the (still existing)
+    // world in order to release any shared resources (see ComponentCollisionModelT::CleanUp() for an example).
+    delete m_History;
+    m_History = NULL;
+
     // Delete the document.
     delete m_Doc;
     m_Doc = NULL;
@@ -719,7 +727,7 @@ ChildFrameT::~ChildFrameT()
 
 bool ChildFrameT::SubmitCommand(CommandT* Command)
 {
-    if (m_History.SubmitCommand(Command))
+    if (m_History->SubmitCommand(Command))
     {
         if (Command->SuggestsSave()) SetTitle(m_Doc->GetFileName() + "*");
         return true;
@@ -839,7 +847,7 @@ void ChildFrameT::OnClose(wxCloseEvent& CE)
         return;
     }
 
-    if (m_LastSavedAtCommandNr == m_History.GetLastSaveSuggestedCommandID())
+    if (m_LastSavedAtCommandNr == m_History->GetLastSaveSuggestedCommandID())
     {
         // Our document has not been modified since the last save - close this window.
         Destroy();
@@ -863,7 +871,7 @@ void ChildFrameT::OnClose(wxCloseEvent& CE)
                 return;
             }
 
-            if (m_LastSavedAtCommandNr != m_History.GetLastSaveSuggestedCommandID())
+            if (m_LastSavedAtCommandNr != m_History->GetLastSaveSuggestedCommandID())
             {
                 // The save was successful, but maybe it was a map export rather than a native cmap save.
                 // In this case, also keep the window open.
@@ -1039,7 +1047,7 @@ void ChildFrameT::OnMenuFile(wxCommandEvent& CE)
         // Thus data loss may occur if the document is only saved in an exported, but not in cmap file format.
         // Considering file *exports* not as file *saves* (that mark the document as "not modified" when successful)
         // makes sure that on application exit, the user is warned about possible data loss in such cases.
-        m_LastSavedAtCommandNr = m_History.GetLastSaveSuggestedCommandID();
+        m_LastSavedAtCommandNr = m_History->GetLastSaveSuggestedCommandID();
         // m_FileName = FileName;   // A member of the document, updated in its Save() and SaveAs() methods.
 
         SetTitle(m_Doc->GetFileName());
@@ -1053,7 +1061,7 @@ void ChildFrameT::OnMenuFileUpdate(wxUpdateUIEvent& UE)
     switch (UE.GetId())
     {
         case ID_MENU_FILE_SAVE:
-            UE.Enable(m_History.GetLastSaveSuggestedCommandID() != m_LastSavedAtCommandNr);
+            UE.Enable(m_History->GetLastSaveSuggestedCommandID() != m_LastSavedAtCommandNr);
             break;
     }
 }
@@ -1066,10 +1074,10 @@ void ChildFrameT::OnMenuEditUndoRedo(wxCommandEvent& CE)
         GetSurfacePropsDialog()->ClearSelection();
 
     // Step forward or backward in the command history.
-    if (CE.GetId() == wxID_UNDO) m_History.Undo();
-                            else m_History.Redo();
+    if (CE.GetId() == wxID_UNDO) m_History->Undo();
+                            else m_History->Redo();
 
-    SetTitle(m_Doc->GetFileName() + (m_History.GetLastSaveSuggestedCommandID() == m_LastSavedAtCommandNr ? "" : "*"));
+    SetTitle(m_Doc->GetFileName() + (m_History->GetLastSaveSuggestedCommandID() == m_LastSavedAtCommandNr ? "" : "*"));
 }
 
 
@@ -1590,7 +1598,7 @@ void ChildFrameT::OnMenuEditSelectAll(wxCommandEvent& CE)
             ElemNr--;
         }
 
-    m_History.SubmitCommand(CommandSelectT::Add(m_Doc, NewSelection));
+    m_History->SubmitCommand(CommandSelectT::Add(m_Doc, NewSelection));
 }
 
 
@@ -1600,7 +1608,7 @@ void ChildFrameT::OnMenuEditUpdate(wxUpdateUIEvent& UE)
     {
         case wxID_UNDO:
         {
-            const CommandT* Cmd = m_History.GetUndoCommand();
+            const CommandT* Cmd = m_History->GetUndoCommand();
 
             UE.SetText(Cmd != NULL ? "Undo " + Cmd->GetName() + "\tCtrl+Z" : "Cannot Undo\tCtrl+Z");
             UE.Enable(Cmd != NULL);
@@ -1609,7 +1617,7 @@ void ChildFrameT::OnMenuEditUpdate(wxUpdateUIEvent& UE)
 
         case wxID_REDO:
         {
-            const CommandT* Cmd = m_History.GetRedoCommand();
+            const CommandT* Cmd = m_History->GetRedoCommand();
 
             UE.SetText(Cmd != NULL ? "Redo " + Cmd->GetName() + "\tCtrl+Y" : "Cannot Redo\tCtrl+Y");
             UE.Enable(Cmd != NULL);

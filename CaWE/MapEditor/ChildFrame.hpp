@@ -230,7 +230,7 @@ class ChildFrameT : public wxMDIChildFrame
     wxAuiManager             m_AUIManager;
     wxString                 m_AUIDefaultPerspective;
     MapDocumentT*            m_Doc;
-    CommandHistoryT          m_History;                 ///< The command history.
+    CommandHistoryT*         m_History;                 ///< The command history.
     unsigned long            m_LastSavedAtCommandNr;    ///< The ID of the command after which the document was last saved. If the current command ID from the history differs from this, the document contains unsaved changes.
     AutoSaveTimerT           m_AutoSaveTimer;
     ToolManagerT*            m_ToolManager;
