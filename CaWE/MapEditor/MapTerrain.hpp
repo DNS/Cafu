@@ -136,7 +136,7 @@ class MapTerrainT : public MapPrimitiveT
 
     unsigned long          m_Resolution;    ///< The resolution (side length) of the terrains height data.
     ArrayT<unsigned short> m_HeightData;    ///< Height data of this terrain.
-    BoundingBox3fT         m_TerrainBounds; ///< The terrains bounds (in contrary to the bounding box of the terrain and its children!).
+    BoundingBox3fT         m_TerrainBounds; ///< The bounding-box that describes the spatial dimensions of the terrain.
     EditorMaterialI*       m_Material;      ///< The material applied to this terrain.
 
     BoundingBox3fT         m_ToolBounds;       ///< Bounding box of the editor tool being rendered onto the terrain.

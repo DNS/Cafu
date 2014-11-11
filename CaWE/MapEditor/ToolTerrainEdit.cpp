@@ -268,11 +268,19 @@ void ToolTerrainEditorT::ImportHeightMap(const wxString& FileName)
     // We could create and use a map command to load the heigth data from file. Instead we load the height data into the copy
     // and then alter resolution and heigth data of the original terrain. This makes sure that the command will even work if
     // the file containing the new height data is deleted.
-    wxFileName HeightmapName(FileName);
-
-    //XXX Why not   m_TerrainCopy->LoadHeightData(HeightmapNameStr);  ??
-    HeightmapName.MakeRelativeTo(m_MapDoc.GetGameConfig()->ModDir);
-    m_TerrainCopy->LoadHeightData(m_MapDoc.GetGameConfig()->ModDir+"/"+HeightmapName.GetFullPath());
+    try
+    {
+        m_TerrainCopy->LoadHeightData(FileName);
+    }
+    catch (const BitmapT::LoadErrorT&)
+    {
+        wxMessageBox(
+            "There was a problem importing the selected heightmap.\n\n"
+            "Please make sure that your heightmap is 2^n+1 pixels wide and high,\n"
+            "for example: ..., 129*129, 257*257, 513*513, 1025*1025, ...",
+            "Could not load the heightmap", wxICON_ERROR);
+        return;
+    }
 
     ArrayT<CommandT*> Commands;
 

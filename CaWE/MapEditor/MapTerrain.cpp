@@ -313,7 +313,7 @@ static size_t fread_no_warn(void* buffer, size_t size, size_t items, FILE* file)
 #endif
 
 
-void MapTerrainT::LoadHeightData(const wxString& FileName)
+void LoadHeightmap(const wxString& FileName, unsigned long& Resolution, ArrayT<unsigned short>& HeightData)
 {
     if (FileName.EndsWith(".ter"))
     {
@@ -392,18 +392,18 @@ void MapTerrainT::LoadHeightData(const wxString& FileName)
 
                 if (SizeX!=SizeY) throw BitmapT::LoadErrorT();
 
-                m_Resolution=SizeX;
+                Resolution=SizeX;
 
-                m_HeightData.Clear();
-                m_HeightData.PushBackEmpty(m_Resolution*m_Resolution);
+                HeightData.Clear();
+                HeightData.PushBackEmpty(Resolution*Resolution);
 
-                for (unsigned long y=0; y<m_Resolution; y++)
-                    for (unsigned long x=0; x<m_Resolution; x++)
+                for (unsigned long y=0; y<Resolution; y++)
+                    for (unsigned long x=0; x<Resolution; x++)
                     {
                         short int Elevation;
                         fread(&Elevation, sizeof(Elevation), 1, FilePtr);
 
-                        m_HeightData[y*m_Resolution+x]=(unsigned short)(int(Elevation)+32768);
+                        HeightData[y*Resolution+x]=(unsigned short)(int(Elevation)+32768);
                     }
 
                 // Break here, because we're done *and* unspecified chunks like the THMB thumbnail-chunk might follow.
@@ -439,17 +439,17 @@ void MapTerrainT::LoadHeightData(const wxString& FileName)
 
             if (SizeX!=SizeY) throw BitmapT::LoadErrorT();
 
-            m_Resolution=SizeX;
+            Resolution=SizeX;
 
-            m_HeightData.Clear();
-            m_HeightData.PushBackEmpty(m_Resolution*m_Resolution);
+            HeightData.Clear();
+            HeightData.PushBackEmpty(Resolution*Resolution);
 
             if (IsAscii)
             {
                 // It's the P2 ascii type.
-                for (unsigned long y=0; y<m_Resolution; y++)
-                    for (unsigned long x=0; x<m_Resolution; x++)
-                        m_HeightData[(m_Resolution-y-1)*m_Resolution+x]=(unsigned short)((TP.GetNextTokenAsFloat()/MaxVal)*65535.0);
+                for (unsigned long y=0; y<Resolution; y++)
+                    for (unsigned long x=0; x<Resolution; x++)
+                        HeightData[(Resolution-y-1)*Resolution+x]=(unsigned short)((TP.GetNextTokenAsFloat()/MaxVal)*65535.0);
             }
             else
             {
@@ -460,13 +460,13 @@ void MapTerrainT::LoadHeightData(const wxString& FileName)
                 // Assume that after the last text token (the maximum value) exactly *one* byte of white-space (e.g. '\r' or '\n') follows.
                 fseek(FilePtr, TP.GetReadPosByte()+1, SEEK_SET);
 
-                for (unsigned long y=0; y<m_Resolution; y++)
-                    for (unsigned long x=0; x<m_Resolution; x++)
+                for (unsigned long y=0; y<Resolution; y++)
+                    for (unsigned long x=0; x<Resolution; x++)
                     {
                         unsigned char Value;
                         fread(&Value, sizeof(Value), 1, FilePtr);   // This probably slow as hell, but alas! Who cares?
 
-                        m_HeightData[(m_Resolution-y-1)*m_Resolution+x]=(unsigned short)((Value/MaxVal)*65535.0);
+                        HeightData[(Resolution-y-1)*Resolution+x]=(unsigned short)((Value/MaxVal)*65535.0);
                     }
 
                 fclose(FilePtr);
@@ -484,20 +484,45 @@ void MapTerrainT::LoadHeightData(const wxString& FileName)
 
         if (HeightMap.SizeX!=HeightMap.SizeY) throw BitmapT::LoadErrorT();
 
-        m_Resolution=HeightMap.SizeX;
+        Resolution=HeightMap.SizeX;
 
-        m_HeightData.Clear();
-        m_HeightData.PushBackEmpty(m_Resolution*m_Resolution);
+        HeightData.Clear();
+        HeightData.PushBackEmpty(Resolution*Resolution);
 
         // Note that we pick the red channel of the RBG HeightMap.Data as the relevant channel.
         // Moreover, note that the y-axis of the HeightMap.Data points down in screen-space and thus towards us in world space.
         // Our world-space y-axis points opposite (away from us), though, and therefore we access the HeightMap.Data at (i, Size-j-1).
-        for (unsigned long y=0; y<m_Resolution; y++)
-            for (unsigned long x=0; x<m_Resolution; x++)
-                m_HeightData[y*m_Resolution+x]=(unsigned short)((double(HeightMap.Data[(m_Resolution-y-1)*m_Resolution+x] & 0xFF)/255.0)*65535);
+        for (unsigned long y=0; y<Resolution; y++)
+            for (unsigned long x=0; x<Resolution; x++)
+                HeightData[y*Resolution+x]=(unsigned short)((double(HeightMap.Data[(Resolution-y-1)*Resolution+x] & 0xFF)/255.0)*65535);
     }
 
-    m_NeedsUpdate=true;
+
+    // Repeat the check from TerrainT::Init() here.
+    // This is quite cumbersome though, we should probably move and combine this into a common a HeightmapT class...
+    if (Resolution < 3) throw BitmapT::LoadErrorT();
+    if (Resolution > (1UL << 30/2) + 1) throw BitmapT::LoadErrorT();
+
+    unsigned long Levels = 1;
+    while ((1UL << Levels) + 1 < Resolution) Levels++;
+    Levels *= 2;
+
+    const unsigned long Size = (1UL << (Levels/2)) + 1;
+
+    if (Size != Resolution) throw BitmapT::LoadErrorT();
+}
+
+
+void MapTerrainT::LoadHeightData(const wxString& FileName)
+{
+    unsigned long          NewResolution;
+    ArrayT<unsigned short> NewHeightData;
+
+    LoadHeightmap(FileName, NewResolution, NewHeightData);
+
+    m_Resolution = NewResolution;
+    m_HeightData = NewHeightData;
+    m_NeedsUpdate = true;
 }
 
 
