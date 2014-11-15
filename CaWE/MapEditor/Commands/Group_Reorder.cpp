@@ -19,47 +19,48 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "MapPrimitive.hpp"
-#include "CompMapEntity.hpp"
-#include "Group.hpp"
-#include "MapEntRepres.hpp"
-#include "TypeSys.hpp"
+#include "Group_Reorder.hpp"
+#include "../MapDocument.hpp"
 
 
-/*** Begin of TypeSys related definitions for this class. ***/
-
-void* MapPrimitiveT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
-{
-    return NULL;
-}
-
-const cf::TypeSys::TypeInfoT MapPrimitiveT::TypeInfo(GetMapElemTIM(), "MapPrimitiveT", "MapElementT", MapPrimitiveT::CreateInstance, NULL);
-
-/*** End of TypeSys related definitions for this class. ***/
-
-
-MapPrimitiveT::MapPrimitiveT(const wxColour& Color)
-    : MapElementT(),
-      m_Color(Color)
+CommandReorderGroupsT::CommandReorderGroupsT(MapDocumentT& MapDoc, const ArrayT<GroupT*>& NewOrder)
+    : m_MapDoc(MapDoc),
+      m_OldOrder(MapDoc.GetGroups()),
+      m_NewOrder(NewOrder)
 {
 }
 
 
-MapPrimitiveT::MapPrimitiveT(const MapPrimitiveT& Prim)
-    : MapElementT(Prim),
-      m_Color(Prim.m_Color)
+bool CommandReorderGroupsT::Do()
 {
+    wxASSERT(!m_Done);
+    if (m_Done) return false;
+
+    // Set the new groups order in the map document
+    // and notify all observers that our groups inventory changed.
+    m_MapDoc.GetGroups()=m_NewOrder;
+    m_MapDoc.UpdateAllObservers_GroupsChanged();
+
+    m_Done=true;
+    return true;
 }
 
 
-wxColour MapPrimitiveT::GetColor(bool ConsiderGroup) const
+void CommandReorderGroupsT::Undo()
 {
-    if (m_Group && ConsiderGroup)
-        return m_Group->Color;
+    wxASSERT(m_Done);
+    if (!m_Done) return;
 
-    if (m_Parent != NULL && !m_Parent->IsWorld())
-        return m_Parent->GetRepres()->GetColor(false);
+    // Restore the old groups order in the map document
+    // and notify all observers that our groups inventory changed.
+    m_MapDoc.GetGroups()=m_OldOrder;
+    m_MapDoc.UpdateAllObservers_GroupsChanged();
 
-    // The primitive has no parent, or the parent is the world.
-    return m_Color;
+    m_Done=false;
+}
+
+
+wxString CommandReorderGroupsT::GetName() const
+{
+    return "Reorder groups";
 }

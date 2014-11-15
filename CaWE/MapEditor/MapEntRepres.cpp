@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ChildFrameViewWin2D.hpp"
 #include "ChildFrameViewWin3D.hpp"
 #include "CompMapEntity.hpp"
+#include "Group.hpp"
 #include "LuaAux.hpp"
 #include "MapDocument.hpp"
 #include "Renderer2D.hpp"
@@ -57,8 +58,11 @@ MapEntRepresT::MapEntRepresT(MapEditor::CompMapEntityT* Parent)
 }
 
 
-wxColour MapEntRepresT::GetColor(bool /*ConsiderGroup*/) const
+wxColour MapEntRepresT::GetColor(bool ConsiderGroup) const
 {
+    if (m_Group && ConsiderGroup)
+        return m_Group->Color;
+
     IntrusivePtrT<cf::GameSys::EntityT> Ent = m_Parent->GetEntity();
 
     if (Ent->GetComponents().Size() > 0)

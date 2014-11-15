@@ -94,6 +94,10 @@ class ObserverT
     /// @param NewSelection Array of the new selected objects.
     virtual void NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<MapElementT*>& OldSelection, const ArrayT<MapElementT*>& NewSelection) { }
 
+    /// Notifies the observer that the groups in the current subject have been changed (new group added, group deleted, visibility changed, anything).
+    /// @param Subject The map document in which the group inventory has been changed.
+    virtual void NotifySubjectChanged_Groups(SubjectT* Subject) { }
+
     /// Notifies the observer that one or more entities have been created.
     /// @param Subject    The map document in which the entities have been created.
     /// @param Entities   List of created entities.
@@ -185,6 +189,7 @@ class SubjectT
     //###################################################################################################################################
     void UpdateAllObservers(MapDocOtherDetailT OtherDetail);
     void UpdateAllObservers_SelectionChanged(const ArrayT<MapElementT*>& OldSelection, const ArrayT<MapElementT*>& NewSelection);
+    void UpdateAllObservers_GroupsChanged();
     void UpdateAllObservers_Created(const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities);
     void UpdateAllObservers_Created(const ArrayT<MapPrimitiveT*>& Primitives);
     void UpdateAllObservers_Deleted(const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entites);

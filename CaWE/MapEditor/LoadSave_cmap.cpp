@@ -21,6 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "CompMapEntity.hpp"
 #include "LuaAux.hpp"
+#include "Group.hpp"
 #include "MapBezierPatch.hpp"
 #include "MapBrush.hpp"
 #include "MapDocument.hpp"
@@ -101,17 +102,23 @@ static std::string serialize(const Vector3fT& v)
 
 void MapElementT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc)
 {
-    if (TP.PeekNextToken()=="Group")
+    if (TP.PeekNextToken() == "Group")
     {
-        // Skip any old group definitions.
         TP.AssertAndSkipToken("Group");
-        TP.GetNextTokenAsInt();
+        const unsigned long GroupNr = TP.GetNextTokenAsInt();
+
+        if (GroupNr < MapDoc.GetGroups().Size())
+            SetGroup(MapDoc.GetGroups()[GroupNr]);
     }
 }
 
 
 void MapElementT::Save_cmap(std::ostream& OutFile, unsigned long ElemNr, const MapDocumentT& MapDoc) const
 {
+    const int GroupNr = MapDoc.GetGroups().Find(m_Group);
+
+    if (GroupNr != -1)
+        OutFile << "    Group " << GroupNr << "\n";
 }
 
 
@@ -630,12 +637,9 @@ void CompMapEntityT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, wxProgress
             cmapVersion = MapFileVersion;
         }
 
-        // Skip any old group definitions.
         while (TP.PeekNextToken() == "GroupDef")
         {
-            // Example line:
-            //   GroupDef 0 "control room" "rgb(189, 206, 184)" 1 1 0
-            for (unsigned int TokenNr = 0; TokenNr < 7; TokenNr++) TP.GetNextToken();
+            MapDoc.GetGroups().PushBack(new GroupT(MapDoc, TP));
         }
     }
 

@@ -34,6 +34,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapEntRepres.hpp"
 #include "Tool.hpp"
 #include "ToolbarMaterials.hpp"
+#include "ToolbarGroups.hpp"
 #include "ToolCamera.hpp"
 #include "ToolEditSurface.hpp"
 #include "ToolTerrainEdit.hpp"
@@ -293,6 +294,7 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
       m_ToolManager(NULL),
       m_EntityHierarchyDialog(NULL),
       m_MaterialsToolbar(NULL),
+      m_GroupsToolbar(NULL),
       m_ConsoleDialog(NULL),
       m_SurfacePropsDialog(NULL),
       m_TerrainEditorDialog(NULL),
@@ -390,6 +392,7 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item6->AppendCheckItem(ID_MENU_VIEW_PANELS_ENTITY_HIERARCHY, "Entity &Hierarchy", "Show/Hide the Entity Hierarchy");
     item6->AppendCheckItem(ID_MENU_VIEW_PANELS_ENTITY_INSPECTOR, "Entity &Inspector\tAlt+Enter", "Show/Hide the Entity Inspector");
     item6->AppendCheckItem(ID_MENU_VIEW_PANELS_MATERIALS,        "&Materials", "");
+    item6->AppendCheckItem(ID_MENU_VIEW_PANELS_GROUPS,           "&Groups", "");
     item6->AppendCheckItem(ID_MENU_VIEW_PANELS_CONSOLE,          "&Console", "");
     item6->AppendSeparator();
 
@@ -614,6 +617,11 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     m_AUIManager.AddPane(m_MaterialsToolbar, wxAuiPaneInfo().
                          Name("Materials").Caption("Materials").
                          Left().Position(1));
+
+    m_GroupsToolbar = new GroupsToolbarT(this, m_History);
+    m_AUIManager.AddPane(m_GroupsToolbar, wxAuiPaneInfo().
+                         Name("Groups").Caption("Groups").
+                         Left().Position(2));
 
     m_ConsoleDialog = new ConsoleDialogT(this);
     m_AUIManager.AddPane(m_ConsoleDialog, wxAuiPaneInfo().
@@ -1692,6 +1700,10 @@ void ChildFrameT::OnMenuView(wxCommandEvent& CE)
             PaneToggleShow(m_AUIManager.GetPane(m_MaterialsToolbar));
             break;
 
+        case ID_MENU_VIEW_PANELS_GROUPS:
+            PaneToggleShow(m_AUIManager.GetPane(m_GroupsToolbar));
+            break;
+
         case ID_MENU_VIEW_PANELS_CONSOLE:
             PaneToggleShow(m_AUIManager.GetPane(m_ConsoleDialog));
             break;
@@ -1787,6 +1799,10 @@ void ChildFrameT::OnMenuViewUpdate(wxUpdateUIEvent& UE)
 
         case ID_MENU_VIEW_PANELS_MATERIALS:
             UE.Check(m_AUIManager.GetPane(m_MaterialsToolbar).IsShown());
+            break;
+
+        case ID_MENU_VIEW_PANELS_GROUPS:
+            UE.Check(m_AUIManager.GetPane(m_GroupsToolbar).IsShown());
             break;
 
         case ID_MENU_VIEW_PANELS_CONSOLE:

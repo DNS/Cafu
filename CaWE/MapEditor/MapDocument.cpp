@@ -37,6 +37,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "OrthoBspTree.hpp"
 #include "DialogReplaceMaterials.hpp"
 #include "DialogTransform.hpp"
+#include "Group.hpp"
 
 #include "../Camera.hpp"
 #include "../DialogOptions.hpp"
@@ -1095,6 +1096,9 @@ MapDocumentT::~MapDocumentT()
     delete m_BspTree;
     m_BspTree = NULL;
 
+    for (unsigned long GroupNr = 0; GroupNr < m_Groups.Size(); GroupNr++) delete m_Groups[GroupNr];
+    m_Groups.Clear();
+
     m_Selection.Clear();
 
     m_ScriptWorld = NULL;
@@ -1323,6 +1327,10 @@ bool MapDocumentT::OnSaveDocument(const wxString& cmapFileName, bool IsAutoSave,
                     << "// Written by CaWE, the Cafu World Editor.\n"
                     << "Version " << CMAP_FILE_VERSION << "\n"
                     << "\n";
+
+        // Save groups.
+        for (unsigned long GroupNr=0; GroupNr<m_Groups.Size(); GroupNr++)
+            m_Groups[GroupNr]->Save_cmap(cmapOutFile, GroupNr);
 
         // Save entities (in depth-first order, as in the .cent file).
         ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllScriptEnts;
@@ -1740,7 +1748,7 @@ void MapDocumentT::OnMapGotoPrimitive(wxCommandEvent& CE)
 
     if (!Prim->IsVisible())
     {
-        wxMessageBox("The primitive is currently invisible in entity \"" + AllEnts[GotoPrimDialog.m_EntityNumber]->GetBasics()->GetEntityName() + "\".", "Goto Primitive");
+        wxMessageBox("The primitive is currently invisible in group \"" + Prim->GetGroup()->Name + "\".", "Goto Primitive");
         return;
     }
 
@@ -2334,4 +2342,31 @@ void MapDocumentT::Reduce(ArrayT<MapElementT*>& Elems)
             }
         }
     }
+}
+
+
+ArrayT<GroupT*> MapDocumentT::GetAbandonedGroups() const
+{
+    ArrayT<GroupT*>      EmptyGroups;
+    ArrayT<MapElementT*> AllElems;
+
+    GetAllElems(AllElems);
+
+    for (unsigned long GroupNr = 0; GroupNr < m_Groups.Size(); GroupNr++)
+    {
+        bool IsEmpty = true;
+
+        for (unsigned int ElemNr = 0; ElemNr < AllElems.Size(); ElemNr++)
+        {
+            if (AllElems[ElemNr]->GetGroup() == m_Groups[GroupNr])
+            {
+                IsEmpty = false;
+                break;
+            }
+        }
+
+        if (IsEmpty) EmptyGroups.PushBack(m_Groups[GroupNr]);
+    }
+
+    return EmptyGroups;
 }

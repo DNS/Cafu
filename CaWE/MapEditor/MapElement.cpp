@@ -59,6 +59,7 @@ const cf::TypeSys::TypeInfoT MapElementT::TypeInfo(GetMapElemTIM(), "MapElementT
 MapElementT::MapElementT()
     : m_Parent(NULL),
       m_IsSelected(false),
+      m_Group(NULL),
       m_FrameCount(0)
 {
 }
@@ -67,6 +68,7 @@ MapElementT::MapElementT()
 MapElementT::MapElementT(const MapElementT& Elem)
     : m_Parent(NULL),
       m_IsSelected(false),    // The copied element cannot initially be selected: It is not a member of the selection array (kept in the map document).
+      m_Group(NULL),
       m_FrameCount(Elem.m_FrameCount)
 {
 }

@@ -19,47 +19,37 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#include "MapPrimitive.hpp"
-#include "CompMapEntity.hpp"
-#include "Group.hpp"
-#include "MapEntRepres.hpp"
-#include "TypeSys.hpp"
+#ifndef CAFU_COMMAND_REORDER_GROUPS_HPP_INCLUDED
+#define CAFU_COMMAND_REORDER_GROUPS_HPP_INCLUDED
+
+#include "../../CommandPattern.hpp"
 
 
-/*** Begin of TypeSys related definitions for this class. ***/
+class GroupT;
+class MapDocumentT;
 
-void* MapPrimitiveT::CreateInstance(const cf::TypeSys::CreateParamsT& Params)
+
+/// This class implements a command for changing the order of the groups in the map document.
+class CommandReorderGroupsT : public CommandT
 {
-    return NULL;
-}
+    public:
 
-const cf::TypeSys::TypeInfoT MapPrimitiveT::TypeInfo(GetMapElemTIM(), "MapPrimitiveT", "MapElementT", MapPrimitiveT::CreateInstance, NULL);
+    /// The constructor for reordering the groups.
+    /// @param MapDoc     The map document to reorder the groups in.
+    /// @param NewOrder   The new order for the groups (a permutation of the MapDoc.GetGroups() array).
+    CommandReorderGroupsT(MapDocumentT& MapDoc, const ArrayT<GroupT*>& NewOrder);
 
-/*** End of TypeSys related definitions for this class. ***/
-
-
-MapPrimitiveT::MapPrimitiveT(const wxColour& Color)
-    : MapElementT(),
-      m_Color(Color)
-{
-}
+    // Implementation of the CommandT interface.
+    bool Do();
+    void Undo();
+    wxString GetName() const;
 
 
-MapPrimitiveT::MapPrimitiveT(const MapPrimitiveT& Prim)
-    : MapElementT(Prim),
-      m_Color(Prim.m_Color)
-{
-}
+    private:
 
+    MapDocumentT&         m_MapDoc;     ///< The map document to reorder the groups in.
+    const ArrayT<GroupT*> m_OldOrder;   ///< The list of groups in previous order.
+    const ArrayT<GroupT*> m_NewOrder;   ///< The list of groups in new order.
+};
 
-wxColour MapPrimitiveT::GetColor(bool ConsiderGroup) const
-{
-    if (m_Group && ConsiderGroup)
-        return m_Group->Color;
-
-    if (m_Parent != NULL && !m_Parent->IsWorld())
-        return m_Parent->GetRepres()->GetColor(false);
-
-    // The primitive has no parent, or the parent is the world.
-    return m_Color;
-}
+#endif
