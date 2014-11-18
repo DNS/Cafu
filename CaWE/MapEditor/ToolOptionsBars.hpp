@@ -52,6 +52,13 @@ class OptionsBar_SelectionToolT : public wxPanel
     /// The constructor.
     /// @param Parent is the parent window of this panel.
     OptionsBar_SelectionToolT(wxWindow* Parent);
+
+    bool AutoGroupEntities() const { return m_AutoGroupEntities->IsChecked(); }
+
+
+    private:
+
+    wxCheckBox* m_AutoGroupEntities; ///< The "auto-group entities" checkbox.
 };
 
 

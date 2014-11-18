@@ -303,11 +303,11 @@ bool ToolSelectionT::OnLMouseUp2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
                 // Skip hidden (invisible) elements.
                 if (!Elem->IsVisible()) continue;
 
-                // Skip locked ("cannot select") elements (redundantly checks IsVisible() again).
+                // Skip locked ("cannot select") elements.
                 if (!Elem->CanSelect()) continue;
 
                 // Compute the consequences of toggling the element.
-                Elem->GetToggleEffects(RemoveFromSel, AddToSel);
+                Elem->GetToggleEffects(RemoveFromSel, AddToSel, m_OptionsBar->AutoGroupEntities());
             }
 
             if (RemoveFromSel.Size()>0 || AddToSel.Size()>0)
@@ -990,7 +990,7 @@ void ToolSelectionT::ToggleCurHitNr()
     ArrayT<MapElementT*> AddToSel;
 
     // Compute the consequences of toggling the element.
-    Elem->GetToggleEffects(RemoveFromSel, AddToSel);
+    Elem->GetToggleEffects(RemoveFromSel, AddToSel, m_OptionsBar->AutoGroupEntities());
 
     if (RemoveFromSel.Size() > 0) m_MapDoc.CompatSubmitCommand(CommandSelectT::Remove(&m_MapDoc, RemoveFromSel));
     if (     AddToSel.Size() > 0) m_MapDoc.CompatSubmitCommand(CommandSelectT::   Add(&m_MapDoc,      AddToSel));

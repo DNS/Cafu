@@ -135,36 +135,19 @@ class MapElementT
     void SetGroup(GroupT* Group) { m_Group = Group; }   ///< Sets the group this element is a member of (use NULL for "no group").
 
     /// Returns whether this map element is currently visible (in the 2D, 3D and other views).
-    ///
-    /// Note that the visibility status is normally not recursive, that is, it does not depend on the visibility of
-    /// any parent entity: it is perfectly possible to hide the parent and to only show its children.
-    ///
-    /// However, if the element is selected "as a group", then the entity that inflicts the grouping also defines the
-    /// visibility of all of its parts (including all of its children).
+    /// Note that the visibility does not depend on the visibility of the parent entity -- in CaWE, map elements are
+    /// mostly independent of their parents (and thus entities can also be "half visible" if the user wishes so).
     bool IsVisible() const;
 
     /// Returns whether this map element can currently be selected (in the 2D, 3D and other views).
-    /// An element can be selected if it is visible and the selection mode of its entity is "not locked".
-    ///
-    /// Note that selection mode "locked" is not recursive, that is, it does not depend on the "locked" status of
-    /// any parent entity: it is perfectly possible to lock the parent and to be able to select its children.
-    ///
-    /// However, if the element is selected "as a group", then the whole group (as returned by GetTopmostGroupSel()),
-    /// including the "locked" parts, can still be selected via a part that is "not locked".
+    /// Note that as with IsVisible(), the "can select" status is independent of that of the parent entity.
     bool CanSelect() const;
-
-    /// Returns this element's topmost CompMapEntityT instance that is to be selected "as one" (as a group).
-    /// This may be
-    ///   - this element's entity as returned by its GetParent() method,
-    ///   - any of its parents in the hierarchy,
-    ///   - or `NULL` for none (then this element is not part of a "group-selection" entity).
-    IntrusivePtrT<MapEditor::CompMapEntityT> GetTopmostGroupSel() const;
 
     /// Computes how the selection must be changed in order to toggle the given element when the element's entity
     /// and group memberships are taken into account.
     /// Unfortunately, the method cannot be `const`, because `this` map element is possibly added to one of the given
     /// arrays, whose elements are non-`const`.
-    void GetToggleEffects(ArrayT<MapElementT*>& RemoveFromSel, ArrayT<MapElementT*>& AddToSel);
+    void GetToggleEffects(ArrayT<MapElementT*>& RemoveFromSel, ArrayT<MapElementT*>& AddToSel, bool AutoGroupEntities);
 
 
     /// This is periodically called in order to have the element advance its internal clock by t seconds.
