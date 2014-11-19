@@ -58,6 +58,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Commands/MakeHollow.hpp"
 #include "Commands/NewEntity.hpp"
 #include "Commands/Select.hpp"
+#include "Commands/Group_Delete.hpp"
 
 #include "ToolbarMaterials.hpp"     // Only needed for setting the ref to NULL in the dtor.
 #include "ToolCamera.hpp"
@@ -1936,6 +1937,14 @@ void MapDocumentT::OnToolsCarve(wxCommandEvent& CE)
 
     // Do the actual carve.
     CompatSubmitCommand(new CommandCarveT(*this, Carvers));
+
+    // If there are any empty groups (usually as a result from an implicit deletion by the carve), purge them now.
+    // We use an explicit command for deleting the groups (instead of putting everything into a macro command)
+    // so that the user has the option to undo the purge (separately from the deletion) if he wishes.
+    const ArrayT<GroupT*> EmptyGroups = GetAbandonedGroups();
+
+    if (EmptyGroups.Size() > 0)
+        CompatSubmitCommand(new CommandDeleteGroupT(*this, EmptyGroups));
 }
 
 
@@ -2106,6 +2115,18 @@ void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
 
     if (EmptyEntities.Size() > 0)
         CompatSubmitCommand(new CommandDeleteT(*this, EmptyEntities));
+
+    // Purge empty groups.
+    // This is very rare: it only fires when a parent entity became empty, was thus deleted above, and was the last element in its group:
+    // If there are any empty groups (usually as a result from the deletion), purge them now.
+    // We use an explicit command for deleting the groups (instead of putting everything into a macro command)
+    // so that the user has the option to undo the purge (separately from the deletion) if he wishes.
+    {
+        const ArrayT<GroupT*> EmptyGroups = GetAbandonedGroups();
+
+        if (EmptyGroups.Size() > 0)
+            CompatSubmitCommand(new CommandDeleteGroupT(*this, EmptyGroups));
+    }
 
     m_ChildFrame->GetToolManager().SetActiveTool(GetToolTIM().FindTypeInfoByName("ToolSelectionT"));
     m_ChildFrame->ShowPane(m_ChildFrame->GetInspectorDialog());
