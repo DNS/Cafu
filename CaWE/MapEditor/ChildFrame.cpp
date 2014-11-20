@@ -30,6 +30,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "DialogInspector.hpp"
 #include "DialogPasteSpecial.hpp"
 #include "DialogTerrainEdit.hpp"
+#include "Group.hpp"
 #include "MapDocument.hpp"
 #include "MapEntRepres.hpp"
 #include "Tool.hpp"
@@ -48,7 +49,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Commands/AddComponent.hpp"
 #include "Commands/AddPrim.hpp"
 #include "Commands/Delete.hpp"
+#include "Commands/Group_Assign.hpp"
 #include "Commands/Group_Delete.hpp"
+#include "Commands/Group_New.hpp"
 #include "Commands/NewEntity.hpp"
 #include "Commands/Select.hpp"
 #include "Commands/Transform.hpp"
@@ -1471,6 +1474,7 @@ void ChildFrameT::OnMenuEditPaste(wxCommandEvent& CE)
     // Once they have been detached from the Clipboard entity below, a bounding-box can only be determined
     // again after the commands that attach them to the PasteParent have run.
     const BoundingBox3fT ClipboardBB = GetClipboardBB(Clipboard, InvResult, WorldToWorld);
+    const unsigned long  NumToplevel = Clipboard->GetChildren().Size() + GetMapEnt(Clipboard)->GetPrimitives().Size();
 
     ArrayT<CommandT*>    SubCommands;
     ArrayT<MapElementT*> SelElems;
@@ -1540,7 +1544,25 @@ void ChildFrameT::OnMenuEditPaste(wxCommandEvent& CE)
             SubCommands.PushBack(new CommandTransformT(*m_Doc, SelElems, CommandTransformT::MODE_TRANSLATE, Vector3fT(), TotalTranslation, Options.general.LockingTextures));
             LastPasteCount++;
         }
+    }
 
+    if (NumToplevel > 1 /*&& Options.general.AutoGroupNewElements*/)
+    {
+        // TODO: We probably should have an Options.general.AutoGroupNewElements option that is accounted for
+        // wherever new map elements are possibly auto-grouped: in the Carve and MakeHollow commands, the
+        // "New Brush" and "New Bezier Patch" tools, and for Pasting objects from the clipboard.
+        CommandNewGroupT* CmdNewGroup = new CommandNewGroupT(*m_Doc, "pasted elements");
+
+        CmdNewGroup->GetGroup()->SelectAsGroup = true;
+        SubCommands.PushBack(CmdNewGroup);
+
+        CommandAssignGroupT* CmdAssignGroup = new CommandAssignGroupT(*m_Doc, SelElems, CmdNewGroup->GetGroup());
+
+        SubCommands.PushBack(CmdAssignGroup);
+    }
+
+    if (SelElems.Size() > 0)
+    {
         SubCommands.PushBack(CommandSelectT::Set(m_Doc, SelElems));
     }
 
