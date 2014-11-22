@@ -562,9 +562,6 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
                 NewEnt->GetBasics()->SetEntityName(MapEnt->GetProperty("classname"));
         }
 
-        if (MapEnt->GetPrimitives().Size() > 0)
-            NewEnt->GetBasics()->SetMember("SelMode", int(cf::GameSys::ComponentBasicsT::GROUP));
-
         if (MapEnt->GetProperty("classname") != "")
         {
             const std::string ClassName = MapEnt->GetProperty("classname");
@@ -685,7 +682,6 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             m_ScriptWorld->GetRootEntity()->AddChild(DoorEnt);
 
             DoorEnt->GetBasics()->SetEntityName("door");
-            DoorEnt->GetBasics()->SetMember("SelMode", int(cf::GameSys::ComponentBasicsT::GROUP));
             DoorEnt->GetTransform()->SetOriginWS(Origin);
             DoorEnt->SetApp(MapEnt);
 
@@ -1166,11 +1162,6 @@ namespace
 
         if (Entity->GetBasics()->IsStatic())
             OutFile << "    self:GetBasics():set(\"Static\", true)\n";
-
-        if (!Entity->GetBasics()->IsShown())
-            OutFile << "    self:GetBasics():set(\"Show\", false)\n";
-
-        OutFile << "    self:GetBasics():set(\"SelMode\", " << Entity->GetBasics()->GetSelMode() << ")\n";
 
         const ArrayT<cf::TypeSys::VarBaseT*>& TrafoVars = Entity->GetTransform()->GetMemberVars().GetArray();
 

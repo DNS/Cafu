@@ -55,14 +55,13 @@ Map:AddChild(Map.PointLightSource_001)
 
 function Map:OnInit()
     self:GetBasics():set("Static", true)
-    self:GetBasics():set("SelMode", 0)
     self:GetTransform():set("Origin", 0, 0, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
 function Map.info_player_start:OnInit()
-    self:GetBasics():set("SelMode", 0)
     self:GetTransform():set("Origin", 16, -16, 56)
-    self:GetTransform():set("Orientation", -0, 0, -1)
+    self:GetTransform():set("Orientation", 0, 0, -1)
 
     local c1 = world:new("ComponentPlayerStartT")
     c1:set("SinglePlayer", true)
@@ -73,18 +72,17 @@ end
 
 function Map.func_group:OnInit()
     self:GetBasics():set("Static", true)
-    self:GetBasics():set("SelMode", 0)
     self:GetTransform():set("Origin", 84, -72, 40)
+    self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
 function Map.func_group_1:OnInit()
     self:GetBasics():set("Static", true)
-    self:GetBasics():set("SelMode", 0)
     self:GetTransform():set("Origin", 108, -128, 40)
+    self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
 function Map.static_detail_model:OnInit()
-    self:GetBasics():set("SelMode", 0)
     self:GetTransform():set("Origin", -48, 96, 0)
     self:GetTransform():set("Orientation", 0, 0, 0.104528494)
 
@@ -105,8 +103,8 @@ function Map.static_detail_model:OnInit()
 end
 
 function Map.MyFirstLift:OnInit()
-    self:GetBasics():set("SelMode", 0)
     self:GetTransform():set("Origin", -96, -8, 4)
+    self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentScriptT")
     c1:set("Name", "Games/DeathMatch/Scripts/Mover.lua")
@@ -153,12 +151,12 @@ end
 end
 
 function Map.MyLight:OnInit()
-    self:GetBasics():set("SelMode", 0)
-    self:GetTransform():set("Origin", -160, 40, 145.805313)
+    self:GetTransform():set("Origin", -160, 40, 145.80531)
+    self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentPointLightT")
     c1:set("On", true)
-    c1:set("Color", 0, 0.501960814, 1)
+    c1:set("Color", 0, 0.5019608, 1)
     c1:set("Radius", 125)
     c1:set("ShadowType", 1)
 
@@ -242,8 +240,8 @@ end
 end
 
 function Map.LiftWeldTank:OnInit()
-    self:GetBasics():set("SelMode", 0)
-    self:GetTransform():set("Origin", -120, -30.9472237, 8)
+    self:GetTransform():set("Origin", -120, -30.947224, 8)
+    self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentModelT")
     c1:set("Show", true)
@@ -262,12 +260,12 @@ function Map.LiftWeldTank:OnInit()
 end
 
 function Map.LiftLight:OnInit()
-    self:GetBasics():set("SelMode", 0)
     self:GetTransform():set("Origin", -120, -16, 17)
+    self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentPointLightT")
     c1:set("On", true)
-    c1:set("Color", 1, 0.501960814, 0.250980407)
+    c1:set("Color", 1, 0.5019608, 0.2509804)
     c1:set("Radius", 30)
     c1:set("ShadowType", 1)
 
@@ -275,8 +273,8 @@ function Map.LiftLight:OnInit()
 end
 
 function Map.TestTrigger:OnInit()
-    self:GetBasics():set("SelMode", 0)
     self:GetTransform():set("Origin", 40, -260, 60)
+    self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentScriptT")
     c1:set("Name", "")
@@ -300,8 +298,8 @@ end
 end
 
 function Map.SoundTrigger:OnInit()
-    self:GetBasics():set("SelMode", 0)
     self:GetTransform():set("Origin", -128, -400, 64)
+    self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentScriptT")
     c1:set("Name", "")
@@ -329,25 +327,24 @@ end
 end
 
 function Map.TestSpeaker:OnInit()
-    self:GetBasics():set("SelMode", 0)
     self:GetTransform():set("Origin", 48, -416, 72)
-    self:GetTransform():set("Orientation", -0, -0, -1)
+    self:GetTransform():set("Orientation", 0, 0, -1)
 
     local c1 = world:new("ComponentSoundT")
     c1:set("Name", "Ambient/Jungle")
     c1:set("AutoPlay", false)
-    c1:set("Interval", 2.0999999)
+    c1:set("Interval", 2.1)
 
     self:AddComponent(c1)
 end
 
 function Map.PointLightSource_001:OnInit()
-    self:GetBasics():set("SelMode", 0)
     self:GetTransform():set("Origin", -24, 88, 80)
+    self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentPointLightT")
     c1:set("On", true)
-    c1:set("Color", 1, 0.501960814, 0.250980407)
+    c1:set("Color", 1, 0.5019608, 0.2509804)
     c1:set("Radius", 120)
     c1:set("ShadowType", 1)
 

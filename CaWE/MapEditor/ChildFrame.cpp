@@ -2009,9 +2009,6 @@ void ChildFrameT::LoadPrefab(const wxString& FileName)
             }
         }
 
-        if (PrefabRoot->GetChildren().Size() > 0 || GetMapEnt(PrefabRoot)->GetPrimitives().Size() > 0)
-            PrefabRoot->GetBasics()->SetMember("SelMode", int(cf::GameSys::ComponentBasicsT::GROUP));
-
         // A prefab, as any other entity, can have primitives and child entities.
         // If it is loaded into a map, it is attached to some entity (the PrefabParent, see below) as a child itself.
         //

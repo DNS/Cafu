@@ -109,24 +109,6 @@ void ComponentBasicsT::EntityNameT::Set(const std::string& v)
 }
 
 
-/*************************************/
-/*** ComponentBasicsT::VarSelModeT ***/
-/*************************************/
-
-ComponentBasicsT::VarSelModeT::VarSelModeT(const char* Name, const int& Value, const char* Flags[])
-    : cf::TypeSys::VarT<int>(Name, Value, Flags)
-{
-}
-
-
-void ComponentBasicsT::VarSelModeT::GetChoices(ArrayT<std::string>& Strings, ArrayT<int>& Values) const
-{
-    Strings.PushBack("single"); Values.PushBack(SINGLE);
-    Strings.PushBack("group");  Values.PushBack(GROUP);
-    Strings.PushBack("locked"); Values.PushBack(LOCKED);
-}
-
-
 /************************/
 /*** ComponentBasicsT ***/
 /************************/
@@ -139,8 +121,6 @@ const cf::TypeSys::VarsDocT ComponentBasicsT::DocVars[] =
 {
     { "Name",    "The name of the entity. Entity names must be valid Lua script identifiers and unique among their siblings." },
     { "Static",  "Are the map primitives of this entity fixed and immovable, never moving around in the game world?" },
-    { "Show",    "Is this entity currently shown or hidden in the Map Editor's 2D and 3D views?" },
-    { "SelMode", "In the Map Editor, when the user clicks on an element of the entity, what elements are actually selected?" },
     { NULL, NULL }
 };
 
@@ -148,32 +128,20 @@ const cf::TypeSys::VarsDocT ComponentBasicsT::DocVars[] =
 ComponentBasicsT::ComponentBasicsT()
     : ComponentBaseT(),
       m_Name("Name", "Entity", NULL, *this),
-      m_Static("Static", false),
-      m_Show("Show", true),
-      m_SelMode("SelMode", SINGLE)
+      m_Static("Static", false)
 {
     GetMemberVars().Add(&m_Name);
     GetMemberVars().Add(&m_Static);
-    GetMemberVars().Add(&m_Show);
-    GetMemberVars().Add(&m_SelMode);
-
-    GetMemberVars().AddAlias("Sel. Mode", &m_SelMode);
 }
 
 
 ComponentBasicsT::ComponentBasicsT(const ComponentBasicsT& Comp)
     : ComponentBaseT(Comp),
       m_Name(Comp.m_Name, *this),
-      m_Static(Comp.m_Static),
-      m_Show(Comp.m_Show),
-      m_SelMode(Comp.m_SelMode)
+      m_Static(Comp.m_Static)
 {
     GetMemberVars().Add(&m_Name);
     GetMemberVars().Add(&m_Static);
-    GetMemberVars().Add(&m_Show);
-    GetMemberVars().Add(&m_SelMode);
-
-    GetMemberVars().AddAlias("Sel. Mode", &m_SelMode);
 }
 
 
