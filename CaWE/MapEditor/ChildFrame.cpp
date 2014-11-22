@@ -413,6 +413,10 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item6->AppendSeparator();
     item6->Append(ID_MENU_VIEW_SHOW_ENTITY_INFO, wxT("Show Entity &Info"), wxT(""), wxITEM_CHECK);
     item6->Append(ID_MENU_VIEW_SHOW_ENTITY_TARGETS, wxT("Show Entity &Targets"), wxT(""), wxITEM_CHECK );
+    item6->AppendSeparator();
+    item6->Append(ID_MENU_VIEW_HIDE_SELECTED_OBJECTS, wxT("H&ide selected objects"), wxT("") );
+    item6->Append(ID_MENU_VIEW_HIDE_UNSELECTED_OBJECTS, wxT("Hide &other (unselected) objects"), wxT("") );
+    item6->Append(ID_MENU_VIEW_SHOW_HIDDEN_OBJECTS, wxT("&Show all hidden objects"), wxT("") );
     item0->Append( item6, wxT("&View") );
 
     wxMenu* item8 = new wxMenu;
@@ -430,6 +434,8 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item8->AppendSeparator();
     item8->Append(ID_MENU_TOOLS_CARVE, wxT("&Carve\tCtrl+Shift+C"), wxT("") );
     item8->Append(ID_MENU_TOOLS_MAKE_HOLLOW, wxT("Make Hollow\tCtrl+H"), wxT("") );
+    item8->AppendSeparator();
+    item8->Append(ID_MENU_TOOLS_GROUP, wxT("&Group\tCtrl+G"), wxT("") );
     item8->AppendSeparator();
     item8->Append(ID_MENU_TOOLS_ASSIGN_PRIM_TO_ENTITY, wxT("&Tie to Entity\tCtrl+T"), wxT("") );
     item8->AppendSeparator();

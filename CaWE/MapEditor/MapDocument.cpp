@@ -53,6 +53,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Commands/ReparentPrimitive.hpp"
 #include "Commands/Carve.hpp"
 #include "Commands/Delete.hpp"
+#include "Commands/Group_Assign.hpp"
+#include "Commands/Group_New.hpp"
+#include "Commands/Group_SetVisibility.hpp"
 #include "Commands/Mirror.hpp"
 #include "Commands/SnapToGrid.hpp"
 #include "Commands/MakeHollow.hpp"
@@ -134,12 +137,19 @@ BEGIN_EVENT_TABLE(MapDocumentT, wxEvtHandler)
 
     EVT_MENU  (ChildFrameT::ID_MENU_VIEW_SHOW_ENTITY_INFO,        MapDocumentT::OnViewShowEntityInfo)
     EVT_MENU  (ChildFrameT::ID_MENU_VIEW_SHOW_ENTITY_TARGETS,     MapDocumentT::OnViewShowEntityTargets)
+    EVT_MENU  (ChildFrameT::ID_MENU_VIEW_HIDE_SELECTED_OBJECTS,   MapDocumentT::OnViewHideSelectedObjects)
+    EVT_BUTTON(ChildFrameT::ID_MENU_VIEW_HIDE_SELECTED_OBJECTS,   MapDocumentT::OnViewHideSelectedObjects)
+    EVT_MENU  (ChildFrameT::ID_MENU_VIEW_HIDE_UNSELECTED_OBJECTS, MapDocumentT::OnViewHideUnselectedObjects)
+    EVT_BUTTON(ChildFrameT::ID_MENU_VIEW_HIDE_UNSELECTED_OBJECTS, MapDocumentT::OnViewHideUnselectedObjects)
+    EVT_MENU  (ChildFrameT::ID_MENU_VIEW_SHOW_HIDDEN_OBJECTS,     MapDocumentT::OnViewShowHiddenObjects)
 
     EVT_UPDATE_UI(ChildFrameT::ID_MENU_VIEW_SHOW_ENTITY_INFO,     MapDocumentT::OnUpdateViewShowEntityInfo)
     EVT_UPDATE_UI(ChildFrameT::ID_MENU_VIEW_SHOW_ENTITY_TARGETS,  MapDocumentT::OnUpdateViewShowEntityTargets)
 
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_CARVE,                  MapDocumentT::OnToolsCarve)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_MAKE_HOLLOW,            MapDocumentT::OnToolsHollow)
+    EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_GROUP,                  MapDocumentT::OnViewHideSelectedObjects)
+    EVT_BUTTON(ChildFrameT::ID_MENU_TOOLS_GROUP,                  MapDocumentT::OnViewHideSelectedObjects)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_ASSIGN_PRIM_TO_ENTITY,  MapDocumentT::OnToolsAssignPrimToEntity)
     EVT_BUTTON(ChildFrameT::ID_MENU_TOOLS_ASSIGN_PRIM_TO_ENTITY,  MapDocumentT::OnToolsAssignPrimToEntity)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_REPLACE_MATERIALS,      MapDocumentT::OnToolsReplaceMaterials)
@@ -1916,6 +1926,131 @@ void MapDocumentT::OnViewShowEntityTargets(wxCommandEvent& CE)
 {
     Options.view2d.ShowEntityTargets=!Options.view2d.ShowEntityTargets;
     UpdateAllObservers(UPDATE_GLOBALOPTIONS);
+}
+
+
+void MapDocumentT::OnViewHideSelectedObjects(wxCommandEvent& CE)
+{
+    if (m_Selection.Size()==0) return;
+
+    // Warn/inform the user when he tries to group elements with "mixed affiliation"?  (grouped or not, in entity or not)
+    // e.g. like "From N selected map elements, there are X in the world, Y in entities and Z in groups."
+    // This is pretty difficult to implement though, as there are many cases to distinguish, and might confuse the user.
+    // Alternatively, just warn when grouping here *partially* breaks an existing group??
+    ArrayT<CommandT*> SubCommands;
+
+    // 1. Create a new group.
+    CommandNewGroupT* CmdNewGroup = new CommandNewGroupT(*this, wxString::Format("%lu item%s", m_Selection.Size(), m_Selection.Size()==1 ? "" : "s"));
+    GroupT*              NewGroup = CmdNewGroup->GetGroup();
+
+    CmdNewGroup->Do();
+    SubCommands.PushBack(CmdNewGroup);
+
+    // 2. Put the m_Selection into the new group.
+    CommandAssignGroupT* CmdAssign = new CommandAssignGroupT(*this, m_Selection, NewGroup);
+
+    CmdAssign->Do();
+    SubCommands.PushBack(CmdAssign);
+
+    // 3. Hide the new group (set the visibility to false).
+    if (CE.GetId() == ChildFrameT::ID_MENU_VIEW_HIDE_SELECTED_OBJECTS)
+    {
+        CommandGroupSetVisibilityT* CmdVis = new CommandGroupSetVisibilityT(*this, NewGroup, false);
+
+        CmdVis->Do();
+        SubCommands.PushBack(CmdVis);
+    }
+
+    // 4. Purge all groups that became empty (abandoned) by the (re-)assignment of map elements in step 2.
+    CommandDeleteGroupT* CmdPurgeGroups = new CommandDeleteGroupT(*this, GetAbandonedGroups());
+
+    CmdPurgeGroups->Do();
+    SubCommands.PushBack(CmdPurgeGroups);
+
+    // 5. Submit the composite macro command.
+    CompatSubmitCommand(new CommandMacroT(SubCommands, "Hide "+NewGroup->Name));
+}
+
+
+void MapDocumentT::OnViewHideUnselectedObjects(wxCommandEvent& CE)
+{
+    // Find all unselected map elements that are not in a group already.
+    ArrayT<MapElementT*> HideElems;
+    ArrayT<MapElementT*> Elems;
+
+    GetAllElems(Elems);
+
+    for (unsigned int ElemNr = 0; ElemNr < Elems.Size(); ElemNr++)
+    {
+        MapElementT* Elem = Elems[ElemNr];
+
+        if (Elem->IsSelected() || Elem->GetGroup()) continue;
+
+        HideElems.PushBack(Elem);
+    }
+
+    // If no relevant elements were found, do nothing.
+    if (HideElems.Size() == 0) return;
+
+
+    ArrayT<CommandT*> SubCommands;
+
+    // 1. Create a new group.
+    CommandNewGroupT* CmdNewGroup = new CommandNewGroupT(*this, wxString::Format("%lu item%s", HideElems.Size(), HideElems.Size() == 1 ? "" : "s"));
+    GroupT*              NewGroup = CmdNewGroup->GetGroup();
+
+    CmdNewGroup->Do();
+    SubCommands.PushBack(CmdNewGroup);
+
+    // 2. Put the HideElems into the new group.
+    CommandAssignGroupT* CmdAssign = new CommandAssignGroupT(*this, HideElems, NewGroup);
+
+    CmdAssign->Do();
+    SubCommands.PushBack(CmdAssign);
+
+    // 3. Hide the new group (set the visibility to false).
+    CommandGroupSetVisibilityT* CmdVis = new CommandGroupSetVisibilityT(*this, NewGroup, false);
+
+    CmdVis->Do();
+    SubCommands.PushBack(CmdVis);
+
+    // 4. Purge all groups that became empty (abandoned) by the (re-)assignment of map elements in step 2.
+    CommandDeleteGroupT* CmdPurgeGroups = new CommandDeleteGroupT(*this, GetAbandonedGroups());
+
+    CmdPurgeGroups->Do();
+    SubCommands.PushBack(CmdPurgeGroups);
+
+    // 5. Submit the composite macro command.
+    CompatSubmitCommand(new CommandMacroT(SubCommands, "Hide "+NewGroup->Name));
+}
+
+
+void MapDocumentT::OnViewShowHiddenObjects(wxCommandEvent& CE)
+{
+    ArrayT<GroupT*> HiddenGroups;
+
+    for (unsigned long GroupNr=0; GroupNr<m_Groups.Size(); GroupNr++)
+        if (!m_Groups[GroupNr]->IsVisible)
+            HiddenGroups.PushBack(m_Groups[GroupNr]);
+
+    if (HiddenGroups.Size()==0)
+    {
+        // wxMessageBox("All groups are already visible.");    // Should be a status bar update.
+        return;
+    }
+
+    if (HiddenGroups.Size()==1)
+    {
+        CompatSubmitCommand(new CommandGroupSetVisibilityT(*this, HiddenGroups[0], true /*NewVis*/));
+        return;
+    }
+
+    ArrayT<CommandT*> SubCommands;
+
+    for (unsigned long GroupNr=0; GroupNr<HiddenGroups.Size(); GroupNr++)
+        SubCommands.PushBack(new CommandGroupSetVisibilityT(*this, HiddenGroups[GroupNr], true /*NewVis*/));
+
+    CompatSubmitCommand(new CommandMacroT(SubCommands, "Show all groups"));
 }
 
 

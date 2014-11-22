@@ -226,6 +226,9 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
 
     void OnViewShowEntityInfo          (wxCommandEvent& CE);
     void OnViewShowEntityTargets       (wxCommandEvent& CE);
+    void OnViewHideSelectedObjects     (wxCommandEvent& CE);
+    void OnViewHideUnselectedObjects   (wxCommandEvent& CE);
+    void OnViewShowHiddenObjects       (wxCommandEvent& CE);
 
     void OnUpdateViewShowEntityInfo    (wxUpdateUIEvent& UE);
     void OnUpdateViewShowEntityTargets (wxUpdateUIEvent& UE);

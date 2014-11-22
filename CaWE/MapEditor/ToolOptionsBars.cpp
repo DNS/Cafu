@@ -51,6 +51,18 @@ OptionsBar_SelectionToolT::OptionsBar_SelectionToolT(wxWindow* Parent)
     wxStaticText *item5 = new wxStaticText(this, -1, wxT("Current selection:"), wxDefaultPosition, wxDefaultSize, 0 );
     item0->Add( item5, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
 
+    wxButton *item6 = new wxButton(this, ChildFrameT::ID_MENU_TOOLS_GROUP, wxT("Group"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+    item6->SetToolTip( wxT("Group selected objects.") );
+    item0->Add( item6, 0, wxALIGN_CENTER|wxLEFT, 5 );
+
+    wxButton *item8 = new wxButton(this, ChildFrameT::ID_MENU_VIEW_HIDE_SELECTED_OBJECTS, wxT("Hide"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+    item8->SetToolTip( wxT("Hide current selection in a new group.") );
+    item0->Add( item8, 0, wxALIGN_CENTER|wxLEFT, 5 );
+
+    wxButton *item9 = new wxButton(this, ChildFrameT::ID_MENU_VIEW_HIDE_UNSELECTED_OBJECTS, wxT("Hide Other"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+    item9->SetToolTip( wxT("Hide all unselected objects in a new group.") );
+    item0->Add( item9, 0, wxALIGN_CENTER|wxRIGHT, 5 );
+
     wxButton *item10 = new wxButton(this, ChildFrameT::ID_MENU_SELECTION_APPLY_MATERIAL, wxT("Apply Material"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
     item10->SetToolTip( wxT("Apply the current material to the selected objects.") );
     item0->Add( item10, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
