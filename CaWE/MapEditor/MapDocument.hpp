@@ -38,6 +38,7 @@ class ChildFrameT;
 class CommandT;
 class EditorMaterialI;
 class GameConfigT;
+class GroupT;
 class MapPrimitiveT;
 class OrthoBspTreeT;
 class wxProgressDialog;
@@ -168,6 +169,13 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     static void Reduce(ArrayT<MapElementT*>& Elems);
     //@}
 
+    /// Methods for managing the groups.
+    //@{
+    const ArrayT<GroupT*>& GetGroups() const { return m_Groups; }
+    ArrayT<GroupT*>& GetGroups() { return m_Groups; }
+    ArrayT<GroupT*> GetAbandonedGroups() const; ///< Returns only the groups that are empty (have no members).
+    //@}
+
 
     private:
 
@@ -190,6 +198,7 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     ArrayT<MapElementT*>               m_Selection;           ///< The currently selected map elements.
     mutable BoundingBox3fT             m_SelectionBB;         ///< The bounding-box of the current selection, or if there is no selection, the bounding-box of the previous selection.
     unsigned int                       m_PasteParentID;       ///< The ID of a suitable parent entity into which new objects from the clipboard should be pasted.
+    ArrayT<GroupT*>                    m_Groups;              ///< The list of groups in this document.
     ArrayT<PtsPointT>                  m_PointFilePoints;     ///< The points of the currently loaded point file.
     ArrayT<wxColour>                   m_PointFileColors;     ///< The colors for items (columns) of a point in the pointfile. A color can be invalid if the associated column should not be visualized at all.
 
@@ -217,6 +226,9 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
 
     void OnViewShowEntityInfo          (wxCommandEvent& CE);
     void OnViewShowEntityTargets       (wxCommandEvent& CE);
+    void OnViewHideSelectedObjects     (wxCommandEvent& CE);
+    void OnViewHideUnselectedObjects   (wxCommandEvent& CE);
+    void OnViewShowHiddenObjects       (wxCommandEvent& CE);
 
     void OnUpdateViewShowEntityInfo    (wxUpdateUIEvent& UE);
     void OnUpdateViewShowEntityTargets (wxUpdateUIEvent& UE);

@@ -36,6 +36,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "../Options.hpp"
 
 #include "Commands/Clip.hpp"             // Includes struct ClipResultT.
+#include "Commands/Group_Delete.hpp"     // For purging the groups after a clip operation.
 
 #include "wx/wx.h"
 
@@ -372,6 +373,14 @@ bool ToolClipT::OnKeyDown(ViewWindowT& ViewWindow, wxKeyEvent& KE)
             if (m_ClipResults.Size()==0) return true;
 
             m_MapDoc.CompatSubmitCommand(new CommandClipT(m_MapDoc, m_ClipResults));
+
+            // If there are any empty groups (usually as a result from an implicit deletion by the clip), purge them now.
+            // We use an explicit command for deleting the groups (instead of putting everything into a macro command)
+            // so that the user has the option to undo the purge (separately from the deletion) if he wishes.
+            const ArrayT<GroupT*> EmptyGroups = m_MapDoc.GetAbandonedGroups();
+
+            if (EmptyGroups.Size() > 0)
+                m_MapDoc.CompatSubmitCommand(new CommandDeleteGroupT(m_MapDoc, EmptyGroups));
 
             // Just clear the clip results without deleting them (they are now owned by the command).
             m_ClipResults.Overwrite();

@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Select.hpp"
 
 #include "../CompMapEntity.hpp"
+#include "../Group.hpp"
 #include "../MapBrush.hpp"
 #include "../MapDocument.hpp"
 
@@ -110,6 +111,30 @@ CommandMakeHollowT::CommandMakeHollowT(MapDocumentT& MapDoc, const float WallWid
             BrushNr--;
         }
     }
+
+    // Assign the proper groups to the new hollows.
+    for (unsigned long BrushNr=0; BrushNr<m_Brushes.Size(); BrushNr++)
+    {
+        const MapBrushT*          Brush = m_Brushes[BrushNr];
+        const ArrayT<MapBrushT*>& Walls = m_Hollows[BrushNr];
+
+        if (Brush->GetGroup())
+        {
+            // If the original brush was in a group, make sure that all the hollow walls are in the same group.
+            for (unsigned long WallNr = 0; WallNr < Walls.Size(); WallNr++)
+                Walls[WallNr]->SetGroup(Brush->GetGroup());
+        }
+        else
+        {
+            GroupT* Group = new GroupT(m_MapDoc, "hollowed brush");
+            Group->SelectAsGroup = true;
+
+            for (unsigned long WallNr = 0; WallNr < Walls.Size(); WallNr++)
+                Walls[WallNr]->SetGroup(Group);
+
+            m_NewGroups.PushBack(Group);
+        }
+    }
 }
 
 
@@ -124,6 +149,9 @@ CommandMakeHollowT::~CommandMakeHollowT()
             for (unsigned long WallNr=0; WallNr<Walls.Size(); WallNr++)
                 delete Walls[WallNr];
         }
+
+        for (unsigned long GroupNr=0; GroupNr<m_NewGroups.Size(); GroupNr++)
+            delete m_NewGroups[GroupNr];
     }
 
     delete m_CmdDelete;
@@ -138,6 +166,14 @@ bool CommandMakeHollowT::Do()
 
     wxASSERT(m_Brushes.Size()==m_Hollows.Size());
     if (m_Brushes.Size()==0) return false;
+
+    // Add the new groups (if any),
+    // and notify all observers that our groups inventory changed.
+    if (m_NewGroups.Size()>0)
+    {
+        m_MapDoc.GetGroups().PushBack(m_NewGroups);
+        m_MapDoc.UpdateAllObservers_GroupsChanged();
+    }
 
     // Replace the brushes with the (walls of the) hollows.
     ArrayT<MapElementT*>   BrushElems;
@@ -195,6 +231,14 @@ void CommandMakeHollowT::Undo()
     }
 
     m_MapDoc.UpdateAllObservers_Deleted(WallElems);
+
+    // Remove the new groups again (if any),
+    // and notify all observers that our groups inventory changed.
+    if (m_NewGroups.Size()>0)
+    {
+        m_MapDoc.GetGroups().DeleteBack(m_NewGroups.Size());
+        m_MapDoc.UpdateAllObservers_GroupsChanged();
+    }
 
     m_Done=false;
 }

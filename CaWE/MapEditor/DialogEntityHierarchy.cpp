@@ -127,7 +127,8 @@ void EntityHierarchyDialogT::AddChildren(const wxTreeItemId& Item, bool Recursiv
     {
         wxTreeItemId ID = AppendItem(Item, GetEntityLabel(Children[i]), -1, -1, new EntityTreeItemT(Children[i]));
 
-        SetItemImage(ID, Children[i]->GetBasics()->IsShown() ? 0 : 1);  // Set the "is visible" or "is invisible" icon.
+        // TODO: This should rather be an entity-specific icon, e.g. one that represents the entity's first/topmost component:
+        // SetItemImage(ID, Children[i]->GetBasics()->IsShown() ? 0 : 1);  // Set the "is visible" or "is invisible" icon.
 
         if (Recursive) AddChildren(ID, true);
     }
@@ -298,11 +299,11 @@ void EntityHierarchyDialogT::Notify_VarChanged(SubjectT* Subject, const cf::Type
             return;
         }
 
-        if (&Var == Basics->GetMemberVars().Find("Show"))
-        {
-            SetItemImage(TreeItems[ItemNr], Basics->IsShown() ? 0 : 1);   // Set the "is visible" or "is invisible" icon.
-            return;
-        }
+        // if (&Var == Basics->GetMemberVars().Find("Show"))
+        // {
+        //     SetItemImage(TreeItems[ItemNr], Basics->IsShown() ? 0 : 1);   // Set the "is visible" or "is invisible" icon.
+        //     return;
+        // }
     }
 }
 
@@ -342,7 +343,8 @@ void EntityHierarchyDialogT::RefreshTree()
     IntrusivePtrT<cf::GameSys::EntityT> RootEntity = m_MapDoc->GetRootMapEntity()->GetEntity();
     wxTreeItemId ID = AddRoot(GetEntityLabel(RootEntity), -1, -1, new EntityTreeItemT(RootEntity));
 
-    SetItemImage(ID, RootEntity->GetBasics()->IsShown() ? 0 : 1);   // Set the "is visible" or "is invisible" icon.
+    // TODO: This should rather be an entity-specific icon, e.g. one that represents the entity's first/topmost component:
+    // SetItemImage(ID, RootEntity->GetBasics()->IsShown() ? 0 : 1);   // Set the "is visible" or "is invisible" icon.
 
     // Add all children of root recursively to the tree.
     AddChildren(ID, true);
@@ -696,8 +698,6 @@ wxString EntityHierarchyModelT::GetColumnType(unsigned int col) const
     {
         case COLUMN_ENTITY_NAME:    return "string";
         case COLUMN_NUM_PRIMITIVES: return "string";    // Not "long", because we use "" for "0".
-        case COLUMN_VISIBILITY:     return "wxBitmap";  // Would be a "bool" for "visibility".
-        case COLUMN_SELECTION_MODE: return "wxBitmap";  // Would be a "long" for "selection mode".
         case NR_OF_COLUMNS: wxASSERT(false); break;
     }
 
@@ -726,26 +726,6 @@ void EntityHierarchyModelT::GetValue(wxVariant& Variant, const wxDataViewItem& I
             NumPrims << GetMapEnt(Entity)->GetPrimitives().Size();
 
             Variant = (NumPrims == "0") ? wxString("") : NumPrims;
-            break;
-        }
-
-        case COLUMN_VISIBILITY:
-        {
-            Variant << wxArtProvider::GetBitmap(Entity->GetBasics()->IsShown() ? "eye_open" : "eye_grey", wxART_MENU);
-            break;
-        }
-
-        case COLUMN_SELECTION_MODE:
-        {
-            using namespace cf::GameSys;
-
-            switch (Entity->GetBasics()->GetSelMode())
-            {
-                case ComponentBasicsT::SINGLE: Variant << wxBitmap("CaWE/res/GroupSelect-Indiv.png", wxBITMAP_TYPE_PNG); break;
-                case ComponentBasicsT::GROUP:  Variant << wxBitmap("CaWE/res/GroupSelect-AsOne.png", wxBITMAP_TYPE_PNG); break;
-                case ComponentBasicsT::LOCKED: Variant << wxArtProvider::GetBitmap("changes-prevent", wxART_MENU); break;
-            }
-
             break;
         }
 
@@ -821,7 +801,6 @@ BEGIN_EVENT_TABLE(EntityHierarchyCtrlT, wxDataViewCtrl)
 //    EVT_KEY_DOWN             (EntityHierarchyCtrlT::OnKeyDown)    // not needed, as wxDataViewCtrl handles F2 already by itself
 //    EVT_LEFT_DOWN            (EntityHierarchyCtrlT::OnTreeLeftClick)
 //    EVT_LEFT_DCLICK          (EntityHierarchyCtrlT::OnTreeLeftClick)   // Handle double clicks like normal left clicks when it comes to clicks on tree item icons (otherwise double clicks are handled normally).
-    EVT_DATAVIEW_ITEM_ACTIVATED(wxID_ANY, EntityHierarchyCtrlT::OnItemActivated)
 
 //  EVT_TREE_SEL_CHANGED          (wxID_ANY, EntityHierarchyCtrlT::OnSelectionChanged)  // done, in method below
     EVT_DATAVIEW_SELECTION_CHANGED(wxID_ANY, EntityHierarchyCtrlT::OnSelectionChanged)
@@ -855,8 +834,6 @@ EntityHierarchyCtrlT::EntityHierarchyCtrlT(ChildFrameT* MainFrame, wxWindow* Par
 
     AppendTextColumn("Name",  EntityHierarchyModelT::COLUMN_ENTITY_NAME,    wxDATAVIEW_CELL_EDITABLE, 180);
     AppendTextColumn("#P",    EntityHierarchyModelT::COLUMN_NUM_PRIMITIVES, wxDATAVIEW_CELL_INERT, wxDVC_DEFAULT_MINWIDTH, wxALIGN_RIGHT,  0);
-    AppendBitmapColumn("Vis", EntityHierarchyModelT::COLUMN_VISIBILITY,     wxDATAVIEW_CELL_INERT, wxDVC_DEFAULT_MINWIDTH, wxALIGN_CENTER, 0);
-    AppendBitmapColumn("SM",  EntityHierarchyModelT::COLUMN_SELECTION_MODE, wxDATAVIEW_CELL_INERT, wxDVC_DEFAULT_MINWIDTH, wxALIGN_CENTER, 0);
 
     Expand(wxDataViewItem(m_MapDoc->GetRootMapEntity()->GetEntity()));
 
@@ -993,18 +970,6 @@ void EntityHierarchyCtrlT::Notify_VarChanged(SubjectT* Subject, const cf::TypeSy
             GetModel()->ValueChanged(wxDataViewItem(AllEnts[EntNr].get()), EntityHierarchyModelT::COLUMN_ENTITY_NAME);
             return;
         }
-
-        if (&Var == Basics->GetMemberVars().Find("Show"))
-        {
-            GetModel()->ValueChanged(wxDataViewItem(AllEnts[EntNr].get()), EntityHierarchyModelT::COLUMN_VISIBILITY);
-            return;
-        }
-
-        if (&Var == Basics->GetMemberVars().Find("SelMode"))
-        {
-            GetModel()->ValueChanged(wxDataViewItem(AllEnts[EntNr].get()), EntityHierarchyModelT::COLUMN_SELECTION_MODE);
-            return;
-        }
     }
 }
 
@@ -1015,47 +980,6 @@ void EntityHierarchyCtrlT::NotifySubjectDies(SubjectT* dyingSubject)
 
     AssociateModel(NULL);
     m_MapDoc = NULL;
-}
-
-
-void EntityHierarchyCtrlT::OnItemActivated(wxDataViewEvent& Event)
-{
-    // wxMessageBox(wxString::Format("Item activated, col %i", Event.GetColumn()));
-    cf::GameSys::EntityT* Entity = static_cast<cf::GameSys::EntityT*>(Event.GetItem().GetID());
-
-    if (!Entity) return;
-
-    switch (Event.GetColumn())
-    {
-        case EntityHierarchyModelT::COLUMN_VISIBILITY:
-        {
-            cf::TypeSys::VarT<bool>* Show = dynamic_cast<cf::TypeSys::VarT<bool>*>(Entity->GetBasics()->GetMemberVars().Find("Show"));
-
-            if (Show)
-            {
-                m_MainFrame->SubmitCommand(new CommandSetCompVarT<bool>(m_MapDoc->GetAdapter(), *Show, !Show->Get()));
-            }
-
-            break;
-        }
-
-        case EntityHierarchyModelT::COLUMN_SELECTION_MODE:
-        {
-            cf::TypeSys::VarT<int>* SelMode = dynamic_cast<cf::TypeSys::VarT<int>*>(Entity->GetBasics()->GetMemberVars().Find("SelMode"));
-
-            if (SelMode)
-            {
-                using namespace cf::GameSys;
-
-                m_MainFrame->SubmitCommand(new CommandSetCompVarT<int>(m_MapDoc->GetAdapter(), *SelMode,
-                    SelMode->Get() == ComponentBasicsT::SINGLE ? ComponentBasicsT::GROUP :
-                    SelMode->Get() == ComponentBasicsT::GROUP  ? ComponentBasicsT::LOCKED :
-                                                                 ComponentBasicsT::SINGLE));
-            }
-
-            break;
-        }
-    }
 }
 
 

@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Delete.hpp"
 
 #include "../CompMapEntity.hpp"
+#include "../Group.hpp"
 #include "../MapBrush.hpp"
 #include "../MapDocument.hpp"
 
@@ -49,6 +50,9 @@ CommandCarveT::~CommandCarveT()
             for (unsigned long PieceNr=0; PieceNr<Pieces.Size(); PieceNr++)
                 delete Pieces[PieceNr];
         }
+
+        for (unsigned long GroupNr=0; GroupNr<m_NewCarveGroups.Size(); GroupNr++)
+            delete m_NewCarveGroups[GroupNr];
     }
 
     // Note: The delete command also deletes the original brushes if they have been removed from the world.
@@ -124,6 +128,31 @@ bool CommandCarveT::Do()
             }
 
 
+            // Put the resulting pieces of the carve into proper groups.
+            // (It's somewhat unfortunate here that we don't have the concept of hierarchical or sub-groups.)
+            if (WorldBrushes[BrushNr]->GetGroup())
+            {
+                // If the world brush was in a group, make sure that all its pieces are in the same group.
+                for (unsigned long PieceNr = 0; PieceNr < Pieces.Size(); PieceNr++)
+                    Pieces[PieceNr]->SetGroup(WorldBrushes[BrushNr]->GetGroup());
+            }
+            else
+            {
+                // The world brush was not in a group before. If it was carved into at least two pieces,
+                // put them into their own new group.
+                if (Pieces.Size() > 1)
+                {
+                    GroupT* Group = new GroupT(m_MapDoc, "carved brush");
+                    Group->SelectAsGroup = true;
+
+                    for (unsigned long PieceNr = 0; PieceNr < Pieces.Size(); PieceNr++)
+                        Pieces[PieceNr]->SetGroup(Group);
+
+                    m_NewCarveGroups.PushBack(Group);
+                }
+            }
+
+
             m_OriginalBrushes.PushBack(WorldBrushes[BrushNr]);          // The carve operation replaced this brush by...
             m_Parents.PushBack(WorldBrushes[BrushNr]->GetParent());
             m_CarvedBrushes.PushBack(Pieces);                           // ... this set of pieces (zero, one or many).
@@ -141,6 +170,14 @@ bool CommandCarveT::Do()
     if (!m_DeleteCommand) m_DeleteCommand=new CommandDeleteT(m_MapDoc, m_OriginalBrushes);
 
     m_DeleteCommand->Do();
+
+    // Add the new groups (if any),
+    // and notify all observers that our groups inventory changed.
+    if (m_NewCarveGroups.Size()>0)
+    {
+        m_MapDoc.GetGroups().PushBack(m_NewCarveGroups);
+        m_MapDoc.UpdateAllObservers_GroupsChanged();
+    }
 
     // Replace affected brushes by the results of the carve operation.
     ArrayT<MapPrimitiveT*> AllPieces;
@@ -185,6 +222,14 @@ void CommandCarveT::Undo()
     }
 
     m_MapDoc.UpdateAllObservers_Deleted(AllPieces);
+
+    // Remove the new groups again (if any),
+    // and notify all observers that our groups inventory changed.
+    if (m_NewCarveGroups.Size()>0)
+    {
+        m_MapDoc.GetGroups().DeleteBack(m_NewCarveGroups.Size());
+        m_MapDoc.UpdateAllObservers_GroupsChanged();
+    }
 
     // Restore original brushes.
     m_DeleteCommand->Undo();

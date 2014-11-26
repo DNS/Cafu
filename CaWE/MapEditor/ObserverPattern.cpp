@@ -73,6 +73,12 @@ void SubjectT::UpdateAllObservers_SelectionChanged(const ArrayT<MapElementT*>& O
         m_Observers[ObsNr]->NotifySubjectChanged_Selection(this, OldSelection, NewSelection);
 }
 
+void SubjectT::UpdateAllObservers_GroupsChanged()
+{
+    for (unsigned long ObsNr=0; ObsNr<m_Observers.Size(); ObsNr++)
+        m_Observers[ObsNr]->NotifySubjectChanged_Groups(this);
+}
+
 void SubjectT::UpdateAllObservers_Created(const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities)
 {
     for (unsigned long ObsNr = 0; ObsNr < m_Observers.Size(); ObsNr++)

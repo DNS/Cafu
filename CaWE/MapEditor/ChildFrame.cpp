@@ -30,10 +30,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "DialogInspector.hpp"
 #include "DialogPasteSpecial.hpp"
 #include "DialogTerrainEdit.hpp"
+#include "Group.hpp"
 #include "MapDocument.hpp"
 #include "MapEntRepres.hpp"
 #include "Tool.hpp"
 #include "ToolbarMaterials.hpp"
+#include "ToolbarGroups.hpp"
 #include "ToolCamera.hpp"
 #include "ToolEditSurface.hpp"
 #include "ToolTerrainEdit.hpp"
@@ -47,6 +49,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Commands/AddComponent.hpp"
 #include "Commands/AddPrim.hpp"
 #include "Commands/Delete.hpp"
+#include "Commands/Group_Assign.hpp"
+#include "Commands/Group_Delete.hpp"
+#include "Commands/Group_New.hpp"
 #include "Commands/NewEntity.hpp"
 #include "Commands/Select.hpp"
 #include "Commands/Transform.hpp"
@@ -293,6 +298,7 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
       m_ToolManager(NULL),
       m_EntityHierarchyDialog(NULL),
       m_MaterialsToolbar(NULL),
+      m_GroupsToolbar(NULL),
       m_ConsoleDialog(NULL),
       m_SurfacePropsDialog(NULL),
       m_TerrainEditorDialog(NULL),
@@ -390,6 +396,7 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item6->AppendCheckItem(ID_MENU_VIEW_PANELS_ENTITY_HIERARCHY, "Entity &Hierarchy", "Show/Hide the Entity Hierarchy");
     item6->AppendCheckItem(ID_MENU_VIEW_PANELS_ENTITY_INSPECTOR, "Entity &Inspector\tAlt+Enter", "Show/Hide the Entity Inspector");
     item6->AppendCheckItem(ID_MENU_VIEW_PANELS_MATERIALS,        "&Materials", "");
+    item6->AppendCheckItem(ID_MENU_VIEW_PANELS_GROUPS,           "&Groups", "");
     item6->AppendCheckItem(ID_MENU_VIEW_PANELS_CONSOLE,          "&Console", "");
     item6->AppendSeparator();
 
@@ -406,6 +413,10 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item6->AppendSeparator();
     item6->Append(ID_MENU_VIEW_SHOW_ENTITY_INFO, wxT("Show Entity &Info"), wxT(""), wxITEM_CHECK);
     item6->Append(ID_MENU_VIEW_SHOW_ENTITY_TARGETS, wxT("Show Entity &Targets"), wxT(""), wxITEM_CHECK );
+    item6->AppendSeparator();
+    item6->Append(ID_MENU_VIEW_HIDE_SELECTED_OBJECTS, wxT("H&ide selected objects"), wxT("") );
+    item6->Append(ID_MENU_VIEW_HIDE_UNSELECTED_OBJECTS, wxT("Hide &other (unselected) objects"), wxT("") );
+    item6->Append(ID_MENU_VIEW_SHOW_HIDDEN_OBJECTS, wxT("&Show all hidden objects"), wxT("") );
     item0->Append( item6, wxT("&View") );
 
     wxMenu* item8 = new wxMenu;
@@ -423,6 +434,8 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item8->AppendSeparator();
     item8->Append(ID_MENU_TOOLS_CARVE, wxT("&Carve\tCtrl+Shift+C"), wxT("") );
     item8->Append(ID_MENU_TOOLS_MAKE_HOLLOW, wxT("Make Hollow\tCtrl+H"), wxT("") );
+    item8->AppendSeparator();
+    item8->Append(ID_MENU_TOOLS_GROUP, wxT("&Group\tCtrl+G"), wxT("") );
     item8->AppendSeparator();
     item8->Append(ID_MENU_TOOLS_ASSIGN_PRIM_TO_ENTITY, wxT("&Tie to Entity\tCtrl+T"), wxT("") );
     item8->AppendSeparator();
@@ -614,6 +627,11 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     m_AUIManager.AddPane(m_MaterialsToolbar, wxAuiPaneInfo().
                          Name("Materials").Caption("Materials").
                          Left().Position(1));
+
+    m_GroupsToolbar = new GroupsToolbarT(this, m_History);
+    m_AUIManager.AddPane(m_GroupsToolbar, wxAuiPaneInfo().
+                         Name("Groups").Caption("Groups").
+                         Left().Position(2));
 
     m_ConsoleDialog = new ConsoleDialogT(this);
     m_AUIManager.AddPane(m_ConsoleDialog, wxAuiPaneInfo().
@@ -1462,6 +1480,7 @@ void ChildFrameT::OnMenuEditPaste(wxCommandEvent& CE)
     // Once they have been detached from the Clipboard entity below, a bounding-box can only be determined
     // again after the commands that attach them to the PasteParent have run.
     const BoundingBox3fT ClipboardBB = GetClipboardBB(Clipboard, InvResult, WorldToWorld);
+    const unsigned long  NumToplevel = Clipboard->GetChildren().Size() + GetMapEnt(Clipboard)->GetPrimitives().Size();
 
     ArrayT<CommandT*>    SubCommands;
     ArrayT<MapElementT*> SelElems;
@@ -1531,7 +1550,25 @@ void ChildFrameT::OnMenuEditPaste(wxCommandEvent& CE)
             SubCommands.PushBack(new CommandTransformT(*m_Doc, SelElems, CommandTransformT::MODE_TRANSLATE, Vector3fT(), TotalTranslation, Options.general.LockingTextures));
             LastPasteCount++;
         }
+    }
 
+    if (NumToplevel > 1 /*&& Options.general.AutoGroupNewElements*/)
+    {
+        // TODO: We probably should have an Options.general.AutoGroupNewElements option that is accounted for
+        // wherever new map elements are possibly auto-grouped: in the Carve and MakeHollow commands, the
+        // "New Brush" and "New Bezier Patch" tools, and for Pasting objects from the clipboard.
+        CommandNewGroupT* CmdNewGroup = new CommandNewGroupT(*m_Doc, "pasted elements");
+
+        CmdNewGroup->GetGroup()->SelectAsGroup = true;
+        SubCommands.PushBack(CmdNewGroup);
+
+        CommandAssignGroupT* CmdAssignGroup = new CommandAssignGroupT(*m_Doc, SelElems, CmdNewGroup->GetGroup());
+
+        SubCommands.PushBack(CmdAssignGroup);
+    }
+
+    if (SelElems.Size() > 0)
+    {
         SubCommands.PushBack(CommandSelectT::Set(m_Doc, SelElems));
     }
 
@@ -1560,6 +1597,14 @@ void ChildFrameT::OnMenuEditDelete(wxCommandEvent& CE)
     {
         // Do the actual deletion of the selected elements.
         SubmitCommand(new CommandDeleteT(*m_Doc, m_Doc->GetSelection()));
+
+        // If there are any empty groups (usually as a result from the deletion), purge them now.
+        // We use an explicit command for deleting the groups (instead of putting everything into a macro command)
+        // so that the user has the option to undo the purge (separately from the deletion) if he wishes.
+        const ArrayT<GroupT*> EmptyGroups = m_Doc->GetAbandonedGroups();
+
+        if (EmptyGroups.Size() > 0)
+            SubmitCommand(new CommandDeleteGroupT(*m_Doc, EmptyGroups));
     }
 }
 
@@ -1692,6 +1737,10 @@ void ChildFrameT::OnMenuView(wxCommandEvent& CE)
             PaneToggleShow(m_AUIManager.GetPane(m_MaterialsToolbar));
             break;
 
+        case ID_MENU_VIEW_PANELS_GROUPS:
+            PaneToggleShow(m_AUIManager.GetPane(m_GroupsToolbar));
+            break;
+
         case ID_MENU_VIEW_PANELS_CONSOLE:
             PaneToggleShow(m_AUIManager.GetPane(m_ConsoleDialog));
             break;
@@ -1787,6 +1836,10 @@ void ChildFrameT::OnMenuViewUpdate(wxUpdateUIEvent& UE)
 
         case ID_MENU_VIEW_PANELS_MATERIALS:
             UE.Check(m_AUIManager.GetPane(m_MaterialsToolbar).IsShown());
+            break;
+
+        case ID_MENU_VIEW_PANELS_GROUPS:
+            UE.Check(m_AUIManager.GetPane(m_GroupsToolbar).IsShown());
             break;
 
         case ID_MENU_VIEW_PANELS_CONSOLE:
@@ -1955,9 +2008,6 @@ void ChildFrameT::LoadPrefab(const wxString& FileName)
                 AllScriptEnts[EntNr]->SetApp(AllMapEnts[EntNr]);
             }
         }
-
-        if (PrefabRoot->GetChildren().Size() > 0 || GetMapEnt(PrefabRoot)->GetPrimitives().Size() > 0)
-            PrefabRoot->GetBasics()->SetMember("SelMode", int(cf::GameSys::ComponentBasicsT::GROUP));
 
         // A prefab, as any other entity, can have primitives and child entities.
         // If it is loaded into a map, it is attached to some entity (the PrefabParent, see below) as a child itself.

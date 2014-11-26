@@ -333,7 +333,17 @@ int ComponentBaseT::Set(lua_State* LuaState)
     cf::TypeSys::VarBaseT*             Var     = Comp->m_MemberVars.Find(VarName);
 
     if (!Var)
+    {
+        // For backwards-compatibility, ignore calls to this method for variables that have been removed,
+        // so that `cent` map files can still be loaded without errors.
+        if (strcmp(Comp->GetName(), "Basics") == 0)
+        {
+            if (strcmp(VarName, "Show"   ) == 0) return 0;
+            if (strcmp(VarName, "SelMode") == 0) return 0;
+        }
+
         return luaL_argerror(LuaState, 2, (std::string("unknown variable \"") + VarName + "\"").c_str());
+    }
 
     Var->accept(SetFromLua);
     return 0;

@@ -19,43 +19,47 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef CAFU_COMMAND_MAKE_HOLLOW_HPP_INCLUDED
-#define CAFU_COMMAND_MAKE_HOLLOW_HPP_INCLUDED
+#ifndef CAFU_COMMAND_NEW_GROUP_HPP_INCLUDED
+#define CAFU_COMMAND_NEW_GROUP_HPP_INCLUDED
 
 #include "../../CommandPattern.hpp"
 
 
-class CommandDeleteT;
-class CommandSelectT;
 class GroupT;
-class MapBrushT;
 class MapDocumentT;
 class MapElementT;
 
 
-class CommandMakeHollowT : public CommandT
+/// This class implements a command for adding a new group to the map document.
+/// The newly added group initially has no members: it's up to the caller to put map elements into the new group.
+/// Having no members means that the new group initially doesn't affect (the visibility of) any map elements,
+/// but also that it is possibly subject to auto-pruning if no members are added to it soon.
+/// The counterpart to this class is CommandDeleteGroupT.
+class CommandNewGroupT : public CommandT
 {
     public:
 
-    /// Constructor to hollow the brushes that are among the map elements in the given list.
-    CommandMakeHollowT(MapDocumentT& MapDoc, const float WallWidth, const ArrayT<MapElementT*>& Elems);
+    /// The constructor.
+    /// @param MapDoc   The map document to add the new group to.
+    /// @param Name     The name for the new group.
+    CommandNewGroupT(MapDocumentT& MapDoc, const wxString& Name);
 
-    ~CommandMakeHollowT();
+    /// The destructor.
+    ~CommandNewGroupT();
+
+    /// Returns the new group.
+    GroupT* GetGroup() { return m_Group; }
 
     // Implementation of the CommandT interface.
-    bool Do();
-    void Undo();
+    bool     Do();
+    void     Undo();
     wxString GetName() const;
 
 
     private:
 
-    MapDocumentT&                m_MapDoc;
-    ArrayT<MapBrushT*>           m_Brushes;     ///< The brushes that are to be hollowed by this command.
-    ArrayT< ArrayT<MapBrushT*> > m_Hollows;     ///< For each brush, this keeps the resulting hollow (Hohlraum) created by this command. Each hollow in turn is defined by a set of "wall" brushes.
-    ArrayT<GroupT*>              m_NewGroups;   ///< One new group for the walls of each hollow, when the original brush was in no group before.
-    CommandDeleteT*              m_CmdDelete;   ///< Subcommand to delete the m_Brushes.
-    CommandSelectT*              m_CmdSelect;   ///< Subcommand to select the (walls of the) new hollows.
+    MapDocumentT& m_MapDoc;
+    GroupT*       m_Group;
 };
 
 #endif

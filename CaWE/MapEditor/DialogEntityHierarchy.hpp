@@ -98,8 +98,6 @@ namespace MapEditor
         {
             COLUMN_ENTITY_NAME = 0,
             COLUMN_NUM_PRIMITIVES,
-            COLUMN_VISIBILITY,
-            COLUMN_SELECTION_MODE,
             NR_OF_COLUMNS
         };
 
@@ -150,7 +148,6 @@ namespace MapEditor
         bool                                m_IsRecursiveSelfNotify;
         IntrusivePtrT<cf::GameSys::EntityT> m_DraggedEntity;
 
-        void OnItemActivated(wxDataViewEvent& Event);
         void OnSelectionChanged(wxDataViewEvent& Event);
         void OnEndItemEdit(wxDataViewEvent& Event);
         void OnTreeItemContextMenu(wxDataViewEvent& Event);

@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Select.hpp"
 
 #include "../CompMapEntity.hpp"
+#include "../Group.hpp"
 #include "../MapDocument.hpp"
 #include "../MapEntRepres.hpp"
 #include "../MapPrimitive.hpp"
@@ -174,12 +175,19 @@ static int CountMouseClicks(const ArrayT<MapElementT*>& Selection)
 
     for (unsigned long ElemNr = 0; ElemNr < Selection.Size(); ElemNr++)
     {
-        MapElementT*                  Elem = Selection[ElemNr];
-        IntrusivePtrT<CompMapEntityT> Top  = Elem->GetTopmostGroupSel();
+        GroupT* Group = Selection[ElemNr]->GetGroup();
 
-        // Skip all Elems that are part of a group (Top != NULL)
-        // but are not the groups "repres" element (Top->GetRepres() != Elem).
-        if (Top != NULL && Top->GetRepres() != Elem) continue;
+        if (Group && Group->SelectAsGroup)
+        {
+            // Did this group occur earlier?
+            unsigned long CheckNr;
+
+            for (CheckNr = 0; CheckNr < ElemNr; CheckNr++)
+                if (Selection[CheckNr]->GetGroup() == Group)
+                    break;
+
+            if (CheckNr < ElemNr) continue;
+        }
 
         Count++;
     }
