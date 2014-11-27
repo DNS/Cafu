@@ -362,7 +362,9 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item2->Append(ID_MENU_EDIT_DELETE, wxT("&Delete\tCtrl+Del"), wxT("") );
     item2->AppendSeparator();
     item2->Append(ID_MENU_EDIT_SELECT_NONE, wxT("Select &None\tCtrl+Q"), wxT("") );
-    item2->Append( wxID_SELECTALL, wxT("Select &All"), wxT("") );
+    item2->Append( wxID_SELECTALL, wxT("Select All"), wxT("") );
+    item2->AppendSeparator();
+    item2->Append(ID_MENU_SELECTION_ASSIGN_TO_ENTITY, wxT("&Assign to Entity\tCtrl+A"), wxT("") );
     item0->Append( item2, wxT("&Edit") );
 
     wxMenu* item3 = new wxMenu;
@@ -437,13 +439,11 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item8->AppendSeparator();
     item8->Append(ID_MENU_TOOLS_GROUP, wxT("&Group\tCtrl+G"), wxT("") );
     item8->AppendSeparator();
-    item8->Append(ID_MENU_TOOLS_ASSIGN_PRIM_TO_ENTITY, wxT("&Tie to Entity\tCtrl+T"), wxT("") );
-    item8->AppendSeparator();
     item8->Append(ID_MENU_TOOLS_REPLACE_MATERIALS, wxT("R&eplace Materials"), wxT("") );
     item8->AppendCheckItem(ID_MENU_TOOLS_MATERIAL_LOCK, wxT("Material &Lock\tCtrl+L"), wxT("") );
     item8->AppendSeparator();
     item8->Append(ID_MENU_TOOLS_SNAP_SELECTION_TO_GRID, wxT("Snap Selection to Grid\tCtrl+B"), wxT("") );
-    item8->Append(ID_MENU_TOOLS_TRANSFORM, wxT("Transform\tCtrl+M"), wxT("") );
+    item8->Append(ID_MENU_TOOLS_TRANSFORM, wxT("Transform\tCtrl+T"), wxT("") );
 
     wxMenu* item9 = new wxMenu;
     item9->Append(ID_MENU_TOOLS_ALIGN_LEFT, wxT("to &Left"), wxT("") );

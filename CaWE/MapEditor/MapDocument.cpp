@@ -120,6 +120,9 @@ using namespace MapEditor;
 
 
 BEGIN_EVENT_TABLE(MapDocumentT, wxEvtHandler)
+    EVT_MENU  (ChildFrameT::ID_MENU_SELECTION_ASSIGN_TO_ENTITY,  MapDocumentT::OnSelectionAssignToEntity)
+    EVT_BUTTON(ChildFrameT::ID_MENU_SELECTION_ASSIGN_TO_ENTITY,  MapDocumentT::OnSelectionAssignToEntity)
+
     EVT_MENU  (ChildFrameT::ID_MENU_SELECTION_APPLY_MATERIAL,   MapDocumentT::OnSelectionApplyMaterial)
     EVT_BUTTON(ChildFrameT::ID_MENU_SELECTION_APPLY_MATERIAL,   MapDocumentT::OnSelectionApplyMaterial)
 
@@ -150,8 +153,6 @@ BEGIN_EVENT_TABLE(MapDocumentT, wxEvtHandler)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_MAKE_HOLLOW,            MapDocumentT::OnToolsHollow)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_GROUP,                  MapDocumentT::OnViewHideSelectedObjects)
     EVT_BUTTON(ChildFrameT::ID_MENU_TOOLS_GROUP,                  MapDocumentT::OnViewHideSelectedObjects)
-    EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_ASSIGN_PRIM_TO_ENTITY,  MapDocumentT::OnToolsAssignPrimToEntity)
-    EVT_BUTTON(ChildFrameT::ID_MENU_TOOLS_ASSIGN_PRIM_TO_ENTITY,  MapDocumentT::OnToolsAssignPrimToEntity)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_REPLACE_MATERIALS,      MapDocumentT::OnToolsReplaceMaterials)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_MATERIAL_LOCK,          MapDocumentT::OnToolsMaterialLock)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_SNAP_SELECTION_TO_GRID, MapDocumentT::OnToolsSnapSelectionToGrid)
@@ -2113,7 +2114,7 @@ void MapDocumentT::OnToolsHollow(wxCommandEvent& CE)
 }
 
 
-void MapDocumentT::OnToolsAssignPrimToEntity(wxCommandEvent& CE)
+void MapDocumentT::OnSelectionAssignToEntity(wxCommandEvent& CE)
 {
     // Split the selection into entities and primitives.
     ArrayT< IntrusivePtrT<CompMapEntityT> > SelEntities;    // All entities   that are in the selection.

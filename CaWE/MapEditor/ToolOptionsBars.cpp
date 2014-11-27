@@ -178,8 +178,8 @@ OptionsBar_NewEntityToolT::OptionsBar_NewEntityToolT(wxWindow* Parent, MapDocume
     wxStaticText *item3_ = new wxStaticText(this, -1, wxT("Current selection:"), wxDefaultPosition, wxDefaultSize, 0 );
     item0->Add( item3_, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
 
-    wxButton *item4 = new wxButton(this, ChildFrameT::ID_MENU_TOOLS_ASSIGN_PRIM_TO_ENTITY, wxT("Turn into (solid) entity type:"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-    item4->SetToolTip("If you press this button, the selected objects will be turned into a solid entity of the chosen type.");
+    wxButton *item4 = new wxButton(this, ChildFrameT::ID_MENU_SELECTION_ASSIGN_TO_ENTITY, wxT("Assign to Entity"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+    item4->SetToolTip("Assigns the selected elements to a single (new or existing) entity.");
     item0->Add( item4, 0, wxALIGN_CENTER|wxLEFT, 5 );
 
     this->SetSizer(item0);
