@@ -122,6 +122,8 @@ using namespace MapEditor;
 BEGIN_EVENT_TABLE(MapDocumentT, wxEvtHandler)
     EVT_MENU  (ChildFrameT::ID_MENU_SELECTION_ASSIGN_TO_ENTITY,  MapDocumentT::OnSelectionAssignToEntity)
     EVT_BUTTON(ChildFrameT::ID_MENU_SELECTION_ASSIGN_TO_ENTITY,  MapDocumentT::OnSelectionAssignToEntity)
+    EVT_MENU  (ChildFrameT::ID_MENU_SELECTION_GROUP,             MapDocumentT::OnSelectionGroup)
+    EVT_BUTTON(ChildFrameT::ID_MENU_SELECTION_GROUP,             MapDocumentT::OnSelectionGroup)
 
     EVT_MENU  (ChildFrameT::ID_MENU_SELECTION_APPLY_MATERIAL,   MapDocumentT::OnSelectionApplyMaterial)
     EVT_BUTTON(ChildFrameT::ID_MENU_SELECTION_APPLY_MATERIAL,   MapDocumentT::OnSelectionApplyMaterial)
@@ -140,8 +142,8 @@ BEGIN_EVENT_TABLE(MapDocumentT, wxEvtHandler)
 
     EVT_MENU  (ChildFrameT::ID_MENU_VIEW_SHOW_ENTITY_INFO,        MapDocumentT::OnViewShowEntityInfo)
     EVT_MENU  (ChildFrameT::ID_MENU_VIEW_SHOW_ENTITY_TARGETS,     MapDocumentT::OnViewShowEntityTargets)
-    EVT_MENU  (ChildFrameT::ID_MENU_VIEW_HIDE_SELECTED_OBJECTS,   MapDocumentT::OnViewHideSelectedObjects)
-    EVT_BUTTON(ChildFrameT::ID_MENU_VIEW_HIDE_SELECTED_OBJECTS,   MapDocumentT::OnViewHideSelectedObjects)
+    EVT_MENU  (ChildFrameT::ID_MENU_VIEW_HIDE_SELECTED_OBJECTS,   MapDocumentT::OnSelectionGroup)
+    EVT_BUTTON(ChildFrameT::ID_MENU_VIEW_HIDE_SELECTED_OBJECTS,   MapDocumentT::OnSelectionGroup)
     EVT_MENU  (ChildFrameT::ID_MENU_VIEW_HIDE_UNSELECTED_OBJECTS, MapDocumentT::OnViewHideUnselectedObjects)
     EVT_BUTTON(ChildFrameT::ID_MENU_VIEW_HIDE_UNSELECTED_OBJECTS, MapDocumentT::OnViewHideUnselectedObjects)
     EVT_MENU  (ChildFrameT::ID_MENU_VIEW_SHOW_HIDDEN_OBJECTS,     MapDocumentT::OnViewShowHiddenObjects)
@@ -151,8 +153,6 @@ BEGIN_EVENT_TABLE(MapDocumentT, wxEvtHandler)
 
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_CARVE,                  MapDocumentT::OnToolsCarve)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_MAKE_HOLLOW,            MapDocumentT::OnToolsHollow)
-    EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_GROUP,                  MapDocumentT::OnViewHideSelectedObjects)
-    EVT_BUTTON(ChildFrameT::ID_MENU_TOOLS_GROUP,                  MapDocumentT::OnViewHideSelectedObjects)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_REPLACE_MATERIALS,      MapDocumentT::OnToolsReplaceMaterials)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_MATERIAL_LOCK,          MapDocumentT::OnToolsMaterialLock)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_SNAP_SELECTION_TO_GRID, MapDocumentT::OnToolsSnapSelectionToGrid)
@@ -1921,7 +1921,7 @@ void MapDocumentT::OnViewShowEntityTargets(wxCommandEvent& CE)
 }
 
 
-void MapDocumentT::OnViewHideSelectedObjects(wxCommandEvent& CE)
+void MapDocumentT::OnSelectionGroup(wxCommandEvent& CE)
 {
     if (m_Selection.Size()==0) return;
 

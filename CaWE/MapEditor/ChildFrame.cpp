@@ -365,6 +365,8 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item2->Append( wxID_SELECTALL, wxT("Select All"), wxT("") );
     item2->AppendSeparator();
     item2->Append(ID_MENU_SELECTION_ASSIGN_TO_ENTITY, wxT("&Assign to Entity\tCtrl+A"), wxT("") );
+    item2->AppendSeparator();
+    item2->Append(ID_MENU_SELECTION_GROUP, wxT("&Group\tCtrl+G"), wxT("") );
     item0->Append( item2, wxT("&Edit") );
 
     wxMenu* item3 = new wxMenu;
@@ -436,8 +438,6 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item8->AppendSeparator();
     item8->Append(ID_MENU_TOOLS_CARVE, wxT("&Carve\tCtrl+Shift+C"), wxT("") );
     item8->Append(ID_MENU_TOOLS_MAKE_HOLLOW, wxT("Make Hollow\tCtrl+H"), wxT("") );
-    item8->AppendSeparator();
-    item8->Append(ID_MENU_TOOLS_GROUP, wxT("&Group\tCtrl+G"), wxT("") );
     item8->AppendSeparator();
     item8->Append(ID_MENU_TOOLS_REPLACE_MATERIALS, wxT("R&eplace Materials"), wxT("") );
     item8->AppendCheckItem(ID_MENU_TOOLS_MATERIAL_LOCK, wxT("Material &Lock\tCtrl+L"), wxT("") );

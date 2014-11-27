@@ -51,7 +51,7 @@ OptionsBar_SelectionToolT::OptionsBar_SelectionToolT(wxWindow* Parent)
     wxStaticText *item5 = new wxStaticText(this, -1, wxT("Current selection:"), wxDefaultPosition, wxDefaultSize, 0 );
     item0->Add( item5, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
 
-    wxButton *item6 = new wxButton(this, ChildFrameT::ID_MENU_TOOLS_GROUP, wxT("Group"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+    wxButton *item6 = new wxButton(this, ChildFrameT::ID_MENU_SELECTION_GROUP, wxT("Group"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
     item6->SetToolTip( wxT("Group selected objects.") );
     item0->Add( item6, 0, wxALIGN_CENTER|wxLEFT, 5 );
 
