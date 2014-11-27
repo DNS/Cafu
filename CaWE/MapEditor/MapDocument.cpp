@@ -124,6 +124,10 @@ BEGIN_EVENT_TABLE(MapDocumentT, wxEvtHandler)
     EVT_BUTTON(ChildFrameT::ID_MENU_SELECTION_ASSIGN_TO_ENTITY,  MapDocumentT::OnSelectionAssignToEntity)
     EVT_MENU  (ChildFrameT::ID_MENU_SELECTION_GROUP,             MapDocumentT::OnSelectionGroup)
     EVT_BUTTON(ChildFrameT::ID_MENU_SELECTION_GROUP,             MapDocumentT::OnSelectionGroup)
+    EVT_MENU  (ChildFrameT::ID_MENU_SELECTION_HIDE,              MapDocumentT::OnSelectionGroup)
+    EVT_BUTTON(ChildFrameT::ID_MENU_SELECTION_HIDE,              MapDocumentT::OnSelectionGroup)
+    EVT_MENU  (ChildFrameT::ID_MENU_SELECTION_HIDE_OTHER,        MapDocumentT::OnSelectionHideOther)
+    EVT_BUTTON(ChildFrameT::ID_MENU_SELECTION_HIDE_OTHER,        MapDocumentT::OnSelectionHideOther)
 
     EVT_MENU  (ChildFrameT::ID_MENU_SELECTION_APPLY_MATERIAL,   MapDocumentT::OnSelectionApplyMaterial)
     EVT_BUTTON(ChildFrameT::ID_MENU_SELECTION_APPLY_MATERIAL,   MapDocumentT::OnSelectionApplyMaterial)
@@ -142,10 +146,6 @@ BEGIN_EVENT_TABLE(MapDocumentT, wxEvtHandler)
 
     EVT_MENU  (ChildFrameT::ID_MENU_VIEW_SHOW_ENTITY_INFO,        MapDocumentT::OnViewShowEntityInfo)
     EVT_MENU  (ChildFrameT::ID_MENU_VIEW_SHOW_ENTITY_TARGETS,     MapDocumentT::OnViewShowEntityTargets)
-    EVT_MENU  (ChildFrameT::ID_MENU_VIEW_HIDE_SELECTED_OBJECTS,   MapDocumentT::OnSelectionGroup)
-    EVT_BUTTON(ChildFrameT::ID_MENU_VIEW_HIDE_SELECTED_OBJECTS,   MapDocumentT::OnSelectionGroup)
-    EVT_MENU  (ChildFrameT::ID_MENU_VIEW_HIDE_UNSELECTED_OBJECTS, MapDocumentT::OnViewHideUnselectedObjects)
-    EVT_BUTTON(ChildFrameT::ID_MENU_VIEW_HIDE_UNSELECTED_OBJECTS, MapDocumentT::OnViewHideUnselectedObjects)
     EVT_MENU  (ChildFrameT::ID_MENU_VIEW_SHOW_HIDDEN_OBJECTS,     MapDocumentT::OnViewShowHiddenObjects)
 
     EVT_UPDATE_UI(ChildFrameT::ID_MENU_VIEW_SHOW_ENTITY_INFO,     MapDocumentT::OnUpdateViewShowEntityInfo)
@@ -1945,7 +1945,7 @@ void MapDocumentT::OnSelectionGroup(wxCommandEvent& CE)
     SubCommands.PushBack(CmdAssign);
 
     // 3. Hide the new group (set the visibility to false).
-    if (CE.GetId() == ChildFrameT::ID_MENU_VIEW_HIDE_SELECTED_OBJECTS)
+    if (CE.GetId() == ChildFrameT::ID_MENU_SELECTION_HIDE)
     {
         CommandGroupSetVisibilityT* CmdVis = new CommandGroupSetVisibilityT(*this, NewGroup, false);
 
@@ -1964,7 +1964,7 @@ void MapDocumentT::OnSelectionGroup(wxCommandEvent& CE)
 }
 
 
-void MapDocumentT::OnViewHideUnselectedObjects(wxCommandEvent& CE)
+void MapDocumentT::OnSelectionHideOther(wxCommandEvent& CE)
 {
     // Find all unselected map elements that are not in a group already.
     ArrayT<MapElementT*> HideElems;

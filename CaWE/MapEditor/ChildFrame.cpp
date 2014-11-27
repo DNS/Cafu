@@ -367,6 +367,8 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item2->Append(ID_MENU_SELECTION_ASSIGN_TO_ENTITY, wxT("&Assign to Entity\tCtrl+A"), wxT("") );
     item2->AppendSeparator();
     item2->Append(ID_MENU_SELECTION_GROUP, wxT("&Group\tCtrl+G"), wxT("") );
+    item2->Append(ID_MENU_SELECTION_HIDE, wxT("H&ide"), wxT("") );
+    item2->Append(ID_MENU_SELECTION_HIDE_OTHER, wxT("Hide &Other"), wxT("") );
     item0->Append( item2, wxT("&Edit") );
 
     wxMenu* item3 = new wxMenu;
@@ -418,8 +420,6 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item6->Append(ID_MENU_VIEW_SHOW_ENTITY_INFO, wxT("Show Entity &Info"), wxT(""), wxITEM_CHECK);
     item6->Append(ID_MENU_VIEW_SHOW_ENTITY_TARGETS, wxT("Show Entity &Targets"), wxT(""), wxITEM_CHECK );
     item6->AppendSeparator();
-    item6->Append(ID_MENU_VIEW_HIDE_SELECTED_OBJECTS, wxT("H&ide selected objects"), wxT("") );
-    item6->Append(ID_MENU_VIEW_HIDE_UNSELECTED_OBJECTS, wxT("Hide &other (unselected) objects"), wxT("") );
     item6->Append(ID_MENU_VIEW_SHOW_HIDDEN_OBJECTS, wxT("&Show all hidden objects"), wxT("") );
     item0->Append( item6, wxT("&View") );
 
