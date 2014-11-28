@@ -419,8 +419,6 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item6->AppendSeparator();
     item6->Append(ID_MENU_VIEW_SHOW_ENTITY_INFO, wxT("Show Entity &Info"), wxT(""), wxITEM_CHECK);
     item6->Append(ID_MENU_VIEW_SHOW_ENTITY_TARGETS, wxT("Show Entity &Targets"), wxT(""), wxITEM_CHECK );
-    item6->AppendSeparator();
-    item6->Append(ID_MENU_VIEW_SHOW_HIDDEN_OBJECTS, wxT("&Show all hidden objects"), wxT("") );
     item0->Append( item6, wxT("&View") );
 
     wxMenu* item8 = new wxMenu;

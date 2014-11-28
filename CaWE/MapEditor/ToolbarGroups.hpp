@@ -84,7 +84,8 @@ class GroupsToolbarT : public wxPanel, public ObserverT
         ID_MENU_DELETE,
         ID_MENU_MERGE,
         ID_MENU_MOVEUP,
-        ID_MENU_MOVEDOWN
+        ID_MENU_MOVEDOWN,
+        ID_MENU_SHOW_ALL
     };
 
     DECLARE_EVENT_TABLE()

@@ -146,7 +146,6 @@ BEGIN_EVENT_TABLE(MapDocumentT, wxEvtHandler)
 
     EVT_MENU  (ChildFrameT::ID_MENU_VIEW_SHOW_ENTITY_INFO,        MapDocumentT::OnViewShowEntityInfo)
     EVT_MENU  (ChildFrameT::ID_MENU_VIEW_SHOW_ENTITY_TARGETS,     MapDocumentT::OnViewShowEntityTargets)
-    EVT_MENU  (ChildFrameT::ID_MENU_VIEW_SHOW_HIDDEN_OBJECTS,     MapDocumentT::OnViewShowHiddenObjects)
 
     EVT_UPDATE_UI(ChildFrameT::ID_MENU_VIEW_SHOW_ENTITY_INFO,     MapDocumentT::OnUpdateViewShowEntityInfo)
     EVT_UPDATE_UI(ChildFrameT::ID_MENU_VIEW_SHOW_ENTITY_TARGETS,  MapDocumentT::OnUpdateViewShowEntityTargets)
@@ -2014,35 +2013,6 @@ void MapDocumentT::OnSelectionHideOther(wxCommandEvent& CE)
 
     // 5. Submit the composite macro command.
     CompatSubmitCommand(new CommandMacroT(SubCommands, "Hide "+NewGroup->Name));
-}
-
-
-void MapDocumentT::OnViewShowHiddenObjects(wxCommandEvent& CE)
-{
-    ArrayT<GroupT*> HiddenGroups;
-
-    for (unsigned long GroupNr=0; GroupNr<m_Groups.Size(); GroupNr++)
-        if (!m_Groups[GroupNr]->IsVisible)
-            HiddenGroups.PushBack(m_Groups[GroupNr]);
-
-    if (HiddenGroups.Size()==0)
-    {
-        // wxMessageBox("All groups are already visible.");    // Should be a status bar update.
-        return;
-    }
-
-    if (HiddenGroups.Size()==1)
-    {
-        CompatSubmitCommand(new CommandGroupSetVisibilityT(*this, HiddenGroups[0], true /*NewVis*/));
-        return;
-    }
-
-    ArrayT<CommandT*> SubCommands;
-
-    for (unsigned long GroupNr=0; GroupNr<HiddenGroups.Size(); GroupNr++)
-        SubCommands.PushBack(new CommandGroupSetVisibilityT(*this, HiddenGroups[GroupNr], true /*NewVis*/));
-
-    CompatSubmitCommand(new CommandMacroT(SubCommands, "Show all groups"));
 }
 
 

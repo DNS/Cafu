@@ -282,6 +282,8 @@ void GroupsListViewT::OnContextMenu(wxContextMenuEvent& CE)
     GroupsPopupMenu.AppendSeparator();
     GroupsPopupMenu.Append(GetMI(&GroupsPopupMenu, GroupsToolbarT::ID_MENU_MOVEUP,   "Move &up", "Moves the group up in the list.", wxArtProvider::GetBitmap("list-selection-up", wxART_MENU)));
     GroupsPopupMenu.Append(GetMI(&GroupsPopupMenu, GroupsToolbarT::ID_MENU_MOVEDOWN, "Move &down", "Moves the group down in the list.", wxArtProvider::GetBitmap("list-selection-down", wxART_MENU)));
+    GroupsPopupMenu.AppendSeparator();
+    GroupsPopupMenu.Append(GroupsToolbarT::ID_MENU_SHOW_ALL, "Show &All", "Make all hidden groups visible.");
 
     PopupMenu(&GroupsPopupMenu);
 }
@@ -314,8 +316,8 @@ void GroupsListViewT::OnEndLabelEdit(wxListEvent& LE)
 
 
 BEGIN_EVENT_TABLE(GroupsToolbarT, wxPanel)
-    EVT_MENU_RANGE     (GroupsToolbarT::ID_MENU_SELECT, GroupsToolbarT::ID_MENU_MOVEDOWN, GroupsToolbarT::OnMenu)
-    EVT_UPDATE_UI_RANGE(GroupsToolbarT::ID_MENU_SELECT, GroupsToolbarT::ID_MENU_MOVEDOWN, GroupsToolbarT::OnMenuUpdate)
+    EVT_MENU_RANGE     (GroupsToolbarT::ID_MENU_SELECT, GroupsToolbarT::ID_MENU_SHOW_ALL, GroupsToolbarT::OnMenu)
+    EVT_UPDATE_UI_RANGE(GroupsToolbarT::ID_MENU_SELECT, GroupsToolbarT::ID_MENU_SHOW_ALL, GroupsToolbarT::OnMenuUpdate)
 END_EVENT_TABLE()
 
 
@@ -484,13 +486,13 @@ void GroupsToolbarT::OnMenu(wxCommandEvent& CE)
     const ArrayT<GroupT*> SelGroups=m_ListView->GetSelectedGroups();
 
     if (!m_MapDoc) return;
-    if (SelGroups.Size()==0) return;
-
 
     switch (CE.GetId())
     {
         case ID_MENU_SELECT:
         {
+            if (SelGroups.Size() == 0) break;
+
             // Note that SelGroups contains both visible and invisible groups. That's perfectly fine with us, there is
             // no need to filter out the invisible groups: if only invisible groups are selected, the selection gets cleared.
             ArrayT<MapElementT*> Elems;
@@ -515,6 +517,8 @@ void GroupsToolbarT::OnMenu(wxCommandEvent& CE)
 
         case ID_MENU_EDIT_RENAME:
         {
+            if (SelGroups.Size() == 0) break;
+
             const wxString NewName=wxGetTextFromUser("Please enter the new name for the group.", "Rename group", SelGroups[0]->Name, this);
             if (NewName=="") break;
 
@@ -528,6 +532,8 @@ void GroupsToolbarT::OnMenu(wxCommandEvent& CE)
 
         case ID_MENU_EDIT_SETCOLOR:
         {
+            if (SelGroups.Size() == 0) break;
+
             const wxColour NewColor=wxGetColourFromUser(this, SelGroups[0]->Color, "Choose new group color");
             if (!NewColor.Ok()) break;
 
@@ -588,7 +594,8 @@ void GroupsToolbarT::OnMenu(wxCommandEvent& CE)
 
         case ID_MENU_DELETE:
         {
-            m_ChildFrame->SubmitCommand(new CommandDeleteGroupT(*m_MapDoc, SelGroups));
+            if (SelGroups.Size() > 0)
+                m_ChildFrame->SubmitCommand(new CommandDeleteGroupT(*m_MapDoc, SelGroups));
             break;
         }
 
@@ -637,6 +644,8 @@ void GroupsToolbarT::OnMenu(wxCommandEvent& CE)
 
         case ID_MENU_MOVEUP:
         {
+            if (SelGroups.Size() == 0) break;
+
             // Move all selected groups up one step.
             ArrayT<GroupT*> NewOrder=m_MapDoc->GetGroups();
             unsigned long   PosNr=1;
@@ -655,6 +664,8 @@ void GroupsToolbarT::OnMenu(wxCommandEvent& CE)
 
         case ID_MENU_MOVEDOWN:
         {
+            if (SelGroups.Size() == 0) break;
+
             // Move all selected groups down one step.
             // In order to avoid having to use signed integers for the loop variables,
             // we simply "imagine" that the arrays were indexed/numbered "the other way round".
@@ -672,6 +683,35 @@ void GroupsToolbarT::OnMenu(wxCommandEvent& CE)
                 m_ChildFrame->SubmitCommand(new CommandReorderGroupsT(*m_MapDoc, NewOrder));
             break;
         }
+
+        case ID_MENU_SHOW_ALL:
+        {
+            const ArrayT<GroupT*>& AllGroups = m_MapDoc->GetGroups();
+            ArrayT<GroupT*>        HiddenGroups;
+
+            for (unsigned long GroupNr = 0; GroupNr < AllGroups.Size(); GroupNr++)
+                if (!AllGroups[GroupNr]->IsVisible)
+                    HiddenGroups.PushBack(AllGroups[GroupNr]);
+
+            if (HiddenGroups.Size() == 0)
+            {
+                // wxMessageBox("All groups are already visible.");    // Should be a status bar update.
+                break;
+            }
+
+            if (HiddenGroups.Size() == 1)
+            {
+                m_ChildFrame->SubmitCommand(new CommandGroupSetVisibilityT(*m_MapDoc, HiddenGroups[0], true /*NewVis*/));
+                break;
+            }
+
+            ArrayT<CommandT*> SubCommands;
+
+            for (unsigned long GroupNr = 0; GroupNr < HiddenGroups.Size(); GroupNr++)
+                SubCommands.PushBack(new CommandGroupSetVisibilityT(*m_MapDoc, HiddenGroups[GroupNr], true /*NewVis*/));
+
+            m_ChildFrame->SubmitCommand(new CommandMacroT(SubCommands, "Show all groups"));
+        }
     }
 }
 
@@ -684,6 +724,10 @@ void GroupsToolbarT::OnMenuUpdate(wxUpdateUIEvent& UE)
     {
         case ID_MENU_MERGE:
             UE.Enable(SelCount>1);
+            break;
+
+        case ID_MENU_SHOW_ALL:
+            UE.Enable(m_ListView->GetItemCount() > 0);
             break;
 
         default:
