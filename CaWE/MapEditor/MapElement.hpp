@@ -239,8 +239,8 @@ class MapElementT
 
     MapEditor::CompMapEntityT* m_Parent;        ///< The entity that this element is a part of.
     bool                       m_IsSelected;    ///< Is this element currently selected in the map document?
-    unsigned int               m_FrameCount;    ///< The number of the frame in which this element was last rendered in a 3D view, used in order to avoid processing/rendering it twice.
     GroupT*                    m_Group;         ///< The group this element is in, NULL if in no group.
+    unsigned int               m_FrameCount;    ///< The number of the frame in which this element was last rendered in a 3D view, used in order to avoid processing/rendering it twice.
 };
 
 #endif
