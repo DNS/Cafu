@@ -57,7 +57,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Commands/Group_New.hpp"
 #include "Commands/Group_SetVisibility.hpp"
 #include "Commands/Mirror.hpp"
-#include "Commands/SnapToGrid.hpp"
 #include "Commands/MakeHollow.hpp"
 #include "Commands/NewEntity.hpp"
 #include "Commands/Select.hpp"
@@ -154,7 +153,6 @@ BEGIN_EVENT_TABLE(MapDocumentT, wxEvtHandler)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_MAKE_HOLLOW,            MapDocumentT::OnToolsHollow)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_REPLACE_MATERIALS,      MapDocumentT::OnToolsReplaceMaterials)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_MATERIAL_LOCK,          MapDocumentT::OnToolsMaterialLock)
-    EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_SNAP_SELECTION_TO_GRID, MapDocumentT::OnToolsSnapSelectionToGrid)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_TRANSFORM,              MapDocumentT::OnToolsTransform)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_ALIGN_LEFT,             MapDocumentT::OnToolsAlign)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_ALIGN_RIGHT,            MapDocumentT::OnToolsAlign)
@@ -2244,16 +2242,6 @@ void MapDocumentT::OnToolsMaterialLock(wxCommandEvent& CE)
     Options.general.LockingTextures=!Options.general.LockingTextures;
 
     m_ChildFrame->SetStatusText(Options.general.LockingTextures ? "Texture locking on" : "Texture locking off", ChildFrameT::SBP_MENU_HELP);
-}
-
-
-void MapDocumentT::OnToolsSnapSelectionToGrid(wxCommandEvent& CE)
-{
-    if (!GetSelection().Size()) return;
-
-    CommandT* Command=new CommandSnapToGridT(*this, m_Selection, Options.general.LockingTextures);
-
-    CompatSubmitCommand(Command);
 }
 
 

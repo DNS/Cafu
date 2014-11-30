@@ -237,7 +237,6 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     void OnSelectionAssignToEntity     (wxCommandEvent& CE);
     void OnToolsReplaceMaterials       (wxCommandEvent& CE);
     void OnToolsMaterialLock           (wxCommandEvent& CE);
-    void OnToolsSnapSelectionToGrid    (wxCommandEvent& CE);
     void OnToolsTransform              (wxCommandEvent& CE);
     void OnToolsAlign                  (wxCommandEvent& CE);
     void OnToolsMirror                 (wxCommandEvent& CE);
