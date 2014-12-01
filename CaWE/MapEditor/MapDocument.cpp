@@ -128,11 +128,6 @@ BEGIN_EVENT_TABLE(MapDocumentT, wxEvtHandler)
     EVT_MENU  (ChildFrameT::ID_MENU_SELECTION_HIDE_OTHER,        MapDocumentT::OnSelectionHideOther)
     EVT_BUTTON(ChildFrameT::ID_MENU_SELECTION_HIDE_OTHER,        MapDocumentT::OnSelectionHideOther)
 
-    EVT_MENU  (ChildFrameT::ID_MENU_SELECTION_APPLY_MATERIAL,   MapDocumentT::OnSelectionApplyMaterial)
-    EVT_BUTTON(ChildFrameT::ID_MENU_SELECTION_APPLY_MATERIAL,   MapDocumentT::OnSelectionApplyMaterial)
-
-    EVT_UPDATE_UI(ChildFrameT::ID_MENU_SELECTION_APPLY_MATERIAL, MapDocumentT::OnUpdateSelectionApplyMaterial)
-
     EVT_MENU(ChildFrameT::ID_MENU_MAP_SNAP_TO_GRID,             MapDocumentT::OnMapSnapToGrid)
     EVT_MENU(ChildFrameT::ID_MENU_MAP_SHOW_GRID_2D,             MapDocumentT::OnMapToggleGrid2D)
     EVT_MENU(ChildFrameT::ID_MENU_MAP_FINER_GRID,               MapDocumentT::OnMapFinerGrid)
@@ -151,6 +146,7 @@ BEGIN_EVENT_TABLE(MapDocumentT, wxEvtHandler)
 
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_CARVE,                  MapDocumentT::OnToolsCarve)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_MAKE_HOLLOW,            MapDocumentT::OnToolsHollow)
+    EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_APPLY_MATERIAL,         MapDocumentT::OnToolsApplyMaterial)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_REPLACE_MATERIALS,      MapDocumentT::OnToolsReplaceMaterials)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_MATERIAL_LOCK,          MapDocumentT::OnToolsMaterialLock)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_TRANSFORM,              MapDocumentT::OnToolsTransform)
@@ -163,7 +159,8 @@ BEGIN_EVENT_TABLE(MapDocumentT, wxEvtHandler)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_MIRROR_HOR,             MapDocumentT::OnToolsMirror)
     EVT_MENU  (ChildFrameT::ID_MENU_TOOLS_MIRROR_VERT,            MapDocumentT::OnToolsMirror)
 
-    EVT_UPDATE_UI(ChildFrameT::ID_MENU_TOOLS_MATERIAL_LOCK, MapDocumentT::OnUpdateToolsMaterialLock)
+    EVT_UPDATE_UI(ChildFrameT::ID_MENU_TOOLS_APPLY_MATERIAL, MapDocumentT::OnUpdateToolsApplyMaterial)
+    EVT_UPDATE_UI(ChildFrameT::ID_MENU_TOOLS_MATERIAL_LOCK,  MapDocumentT::OnUpdateToolsMaterialLock)
 END_EVENT_TABLE()
 
 
@@ -1670,20 +1667,6 @@ void MapDocumentT::GetUsedMaterials(ArrayT<EditorMaterialI*>& UsedMaterials) con
 /*** Event Handlers ***/
 /**********************/
 
-void MapDocumentT::OnUpdateSelectionApplyMaterial(wxUpdateUIEvent& UE)
-{
-    UE.Enable(m_ChildFrame->GetToolManager().GetActiveToolType()!=&ToolEditSurfaceT::TypeInfo);
-}
-
-
-void MapDocumentT::OnSelectionApplyMaterial(wxCommandEvent& CE)
-{
-    CommandT* Command=new CommandApplyMaterialT(*this, m_Selection, m_GameConfig->GetMatMan().GetDefaultMaterial());
-
-    CompatSubmitCommand(Command);
-}
-
-
 void MapDocumentT::OnMapSnapToGrid(wxCommandEvent& CE)
 {
     m_SnapToGrid=CE.IsChecked();
@@ -2225,6 +2208,20 @@ void MapDocumentT::OnSelectionAssignToEntity(wxCommandEvent& CE)
 
     m_ChildFrame->GetToolManager().SetActiveTool(GetToolTIM().FindTypeInfoByName("ToolSelectionT"));
     m_ChildFrame->ShowPane(m_ChildFrame->GetInspectorDialog());
+}
+
+
+void MapDocumentT::OnUpdateToolsApplyMaterial(wxUpdateUIEvent& UE)
+{
+    UE.Enable(m_ChildFrame->GetToolManager().GetActiveToolType() != &ToolEditSurfaceT::TypeInfo);
+}
+
+
+void MapDocumentT::OnToolsApplyMaterial(wxCommandEvent& CE)
+{
+    CommandT* Command = new CommandApplyMaterialT(*this, m_Selection, m_GameConfig->GetMatMan().GetDefaultMaterial());
+
+    CompatSubmitCommand(Command);
 }
 
 

@@ -64,6 +64,7 @@ class MaterialsToolbarT : public wxPanel, public ObserverT
     /// The event handlers.
     void OnSelChangeCurrentMat(wxCommandEvent&  Event);
     void OnButtonBrowse       (wxCommandEvent&  Event);
+    void OnButtonApply        (wxCommandEvent&  Event);
     void OnButtonReplace      (wxCommandEvent&  Event);
     void OnUpdateUI           (wxUpdateUIEvent& Event);
 
@@ -72,6 +73,7 @@ class MaterialsToolbarT : public wxPanel, public ObserverT
     {
         ID_CHOICE_CURRENT_MAT=wxID_HIGHEST+1,
         ID_BUTTON_BROWSE_MATS,
+        ID_BUTTON_APPLY,
         ID_BUTTON_REPLACE_MATS
     };
 

@@ -25,6 +25,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MapDocument.hpp"
 #include "DialogReplaceMaterials.hpp"
 #include "DialogEditSurfaceProps.hpp"
+#include "Commands/ApplyMaterial.hpp"
 
 #include "../DocumentAdapter.hpp"
 #include "../EditorMaterial.hpp"
@@ -45,6 +46,7 @@ static const int PREVIEW_BITMAP_SIZE=128;
 BEGIN_EVENT_TABLE(MaterialsToolbarT, wxPanel)
     EVT_CHOICE(MaterialsToolbarT::ID_CHOICE_CURRENT_MAT,  MaterialsToolbarT::OnSelChangeCurrentMat)
     EVT_BUTTON(MaterialsToolbarT::ID_BUTTON_BROWSE_MATS,  MaterialsToolbarT::OnButtonBrowse)
+    EVT_BUTTON(MaterialsToolbarT::ID_BUTTON_APPLY,        MaterialsToolbarT::OnButtonApply)
     EVT_BUTTON(MaterialsToolbarT::ID_BUTTON_REPLACE_MATS, MaterialsToolbarT::OnButtonReplace)
     EVT_UPDATE_UI_RANGE(MaterialsToolbarT::ID_CHOICE_CURRENT_MAT, MaterialsToolbarT::ID_BUTTON_REPLACE_MATS, MaterialsToolbarT::OnUpdateUI)
 END_EVENT_TABLE()
@@ -84,7 +86,7 @@ MaterialsToolbarT::MaterialsToolbarT(wxWindow* Parent, MapDocumentT* MapDoc)
 
     wxBoxSizer *item7 = new wxBoxSizer( wxHORIZONTAL );
 
-    wxButton *item8 = new wxButton(this, ID_BUTTON_BROWSE_MATS, wxT("Browse"), wxDefaultPosition, wxSize(50,-1), 0 );
+    wxButton *item8 = new wxButton(this, ID_BUTTON_APPLY, wxT("Apply"), wxDefaultPosition, wxSize(50,-1), 0 );
     item7->Add( item8, 1, wxALIGN_CENTER|wxLEFT|wxRIGHT|wxBOTTOM, 5 );
 
     wxButton *item9 = new wxButton(this, ID_BUTTON_REPLACE_MATS, wxT("Replace"), wxDefaultPosition, wxSize(50,-1), 0 );
@@ -265,6 +267,14 @@ void MaterialsToolbarT::OnButtonBrowse(wxCommandEvent& Event)
     // The new material is inserted at the end of the list, OnSelChangeCurrentMat() makes sure that it is moved to the top of the list.
     ChoiceCurrentMat->SetSelection(Index);
     wxCommandEvent CE; OnSelChangeCurrentMat(CE);
+}
+
+
+void MaterialsToolbarT::OnButtonApply(wxCommandEvent& Event)
+{
+    CommandT* Command = new CommandApplyMaterialT(*m_MapDoc, m_MapDoc->GetSelection(), m_MapDoc->GetGameConfig()->GetMatMan().GetDefaultMaterial());
+
+    m_MapDoc->GetChildFrame()->SubmitCommand(Command);
 }
 
 

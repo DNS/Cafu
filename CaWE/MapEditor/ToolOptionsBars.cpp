@@ -63,10 +63,6 @@ OptionsBar_SelectionToolT::OptionsBar_SelectionToolT(wxWindow* Parent)
     item9->SetToolTip( wxT("Hide all unselected objects in a new group.") );
     item0->Add( item9, 0, wxALIGN_CENTER|wxLEFT, 5 );
 
-    wxButton *item10 = new wxButton(this, ChildFrameT::ID_MENU_SELECTION_APPLY_MATERIAL, wxT("Apply Material"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-    item10->SetToolTip( wxT("Apply the current material to the selected objects.") );
-    item0->Add( item10, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
-
     this->SetSizer(item0);
     item0->SetSizeHints(this);
 }

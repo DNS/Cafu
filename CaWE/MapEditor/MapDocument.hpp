@@ -211,9 +211,6 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     /*** Event handlers for >>document specific<< menu events. ***/
     /*************************************************************/
 
-    void OnSelectionApplyMaterial      (wxCommandEvent& CE);
-    void OnUpdateSelectionApplyMaterial(wxUpdateUIEvent& UE);
-
     void OnMapSnapToGrid               (wxCommandEvent& CE);
     void OnMapToggleGrid2D             (wxCommandEvent& CE);
     void OnMapFinerGrid                (wxCommandEvent& CE);
@@ -235,12 +232,14 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     void OnToolsCarve                  (wxCommandEvent& CE);
     void OnToolsHollow                 (wxCommandEvent& CE);
     void OnSelectionAssignToEntity     (wxCommandEvent& CE);
+    void OnToolsApplyMaterial          (wxCommandEvent& CE);
     void OnToolsReplaceMaterials       (wxCommandEvent& CE);
     void OnToolsMaterialLock           (wxCommandEvent& CE);
     void OnToolsTransform              (wxCommandEvent& CE);
     void OnToolsAlign                  (wxCommandEvent& CE);
     void OnToolsMirror                 (wxCommandEvent& CE);
 
+    void OnUpdateToolsApplyMaterial    (wxUpdateUIEvent& UE);
     void OnUpdateToolsMaterialLock     (wxUpdateUIEvent& UE);
 
     DECLARE_EVENT_TABLE()

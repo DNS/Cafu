@@ -437,7 +437,8 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item8->Append(ID_MENU_TOOLS_CARVE, wxT("&Carve\tCtrl+Shift+C"), wxT("") );
     item8->Append(ID_MENU_TOOLS_MAKE_HOLLOW, wxT("Make Hollow\tCtrl+H"), wxT("") );
     item8->AppendSeparator();
-    item8->Append(ID_MENU_TOOLS_REPLACE_MATERIALS, wxT("R&eplace Materials"), wxT("") );
+    item8->Append(ID_MENU_TOOLS_APPLY_MATERIAL, wxT("Apply &Material"), "Apply the current material to the selected elements.");
+    item8->Append(ID_MENU_TOOLS_REPLACE_MATERIALS, wxT("R&eplace Materials..."), wxT("") );
     item8->AppendCheckItem(ID_MENU_TOOLS_MATERIAL_LOCK, wxT("Material &Lock\tCtrl+L"), wxT("") );
     item8->AppendSeparator();
     item8->Append(ID_MENU_TOOLS_TRANSFORM, wxT("Transform\tCtrl+T"), wxT("") );
