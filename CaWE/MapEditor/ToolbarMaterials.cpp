@@ -66,8 +66,15 @@ MaterialsToolbarT::MaterialsToolbarT(wxWindow* Parent, MapDocumentT* MapDoc)
     // wxStaticText *item3 = new wxStaticText(this, -1, wxT("Current Material (MRUs):"), wxDefaultPosition, wxDefaultSize, 0 );
     // item0->Add( item3, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP, 5 );
 
-    ChoiceCurrentMat= new wxChoice(this, ID_CHOICE_CURRENT_MAT, wxDefaultPosition, wxSize(100,-1), 0, NULL, 0 );
-    item0->Add(ChoiceCurrentMat, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP, 5 );
+    wxBoxSizer* ChoiceSizer = new wxBoxSizer( wxHORIZONTAL );
+
+    ChoiceCurrentMat = new wxChoice(this, ID_CHOICE_CURRENT_MAT, wxDefaultPosition, wxSize(100, -1), 0, NULL, 0 );
+    ChoiceSizer->Add(ChoiceCurrentMat, 1, wxALIGN_CENTER_VERTICAL, 0);
+
+    wxButton* BrowseButton = new wxButton(this, ID_BUTTON_BROWSE_MATS, wxT("..."), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+    ChoiceSizer->Add(BrowseButton, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 3);
+
+    item0->Add(ChoiceSizer, 0, wxGROW | wxLEFT | wxRIGHT | wxTOP, 5);
 
     StaticTextCurrentMatSize=new wxStaticText(this, -1, wxT("Size: a x b"), wxDefaultPosition, wxDefaultSize, wxST_NO_AUTORESIZE );
     item0->Add(StaticTextCurrentMatSize, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT, 5 );
