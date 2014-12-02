@@ -41,8 +41,8 @@ OptionsBar_SelectionToolT::OptionsBar_SelectionToolT(wxWindow* Parent)
     wxStaticText *item1 = new wxStaticText(this, -1, wxT("When selecting:"), wxDefaultPosition, wxDefaultSize, 0 );
     item0->Add( item1, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
 
-    m_AutoGroupEntities = new wxCheckBox(this, ChildFrameT::ID_MENU_TOOLS_IGNORE_GROUPS, wxT("auto-group entities"), wxDefaultPosition, wxDefaultSize, 0 );
-    m_AutoGroupEntities->SetToolTip( wxT("If checked, all primitives and children of an entity can be selected as a group.") );
+    m_AutoGroupEntities = new wxCheckBox(this, wxID_ANY, wxT("Auto-Group Entities"), wxDefaultPosition, wxDefaultSize, 0 );
+    m_AutoGroupEntities->SetToolTip( wxT("If checked, all primitives and children of an entity are selected as a group.") );
     item0->Add( m_AutoGroupEntities, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
 
     wxStaticLine *item4 = new wxStaticLine(this, -1, wxDefaultPosition, wxSize(-1,20), wxLI_VERTICAL );
@@ -52,15 +52,15 @@ OptionsBar_SelectionToolT::OptionsBar_SelectionToolT(wxWindow* Parent)
     item0->Add( item5, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
 
     wxButton *item6 = new wxButton(this, ChildFrameT::ID_MENU_SELECTION_GROUP, wxT("Group"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-    item6->SetToolTip( wxT("Group selected objects.") );
+    item6->SetToolTip( wxT("Group the selected items.") );
     item0->Add( item6, 0, wxALIGN_CENTER|wxLEFT, 5 );
 
     wxButton *item8 = new wxButton(this, ChildFrameT::ID_MENU_SELECTION_HIDE, wxT("Hide"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-    item8->SetToolTip( wxT("Hide current selection in a new group.") );
+    item8->SetToolTip( wxT("Hide the selected items in a new group.") );
     item0->Add( item8, 0, wxALIGN_CENTER|wxLEFT, 5 );
 
     wxButton *item9 = new wxButton(this, ChildFrameT::ID_MENU_SELECTION_HIDE_OTHER, wxT("Hide Other"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-    item9->SetToolTip( wxT("Hide all unselected objects in a new group.") );
+    item9->SetToolTip( wxT("Hide all unselected items in a new group (only those that are not in a group already).") );
     item0->Add( item9, 0, wxALIGN_CENTER|wxLEFT, 5 );
 
     this->SetSizer(item0);

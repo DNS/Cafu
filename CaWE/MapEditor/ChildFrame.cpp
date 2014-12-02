@@ -366,9 +366,9 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item2->AppendSeparator();
     item2->Append(ID_MENU_SELECTION_ASSIGN_TO_ENTITY, wxT("&Assign to Entity\tCtrl+A"), wxT("") );
     item2->AppendSeparator();
-    item2->Append(ID_MENU_SELECTION_GROUP, wxT("&Group\tCtrl+G"), wxT("") );
-    item2->Append(ID_MENU_SELECTION_HIDE, wxT("H&ide"), wxT("") );
-    item2->Append(ID_MENU_SELECTION_HIDE_OTHER, wxT("Hide &Other"), wxT("") );
+    item2->Append(ID_MENU_SELECTION_GROUP, wxT("&Group\tCtrl+G"), "Group the selected items.");
+    item2->Append(ID_MENU_SELECTION_HIDE, wxT("H&ide"), "Hide the selected items in a new group.");
+    item2->Append(ID_MENU_SELECTION_HIDE_OTHER, wxT("Hide &Other"), "Hide all unselected items in a new group (only those that are not in a group already).");
     item0->Append( item2, wxT("&Edit") );
 
     wxMenu* item3 = new wxMenu;

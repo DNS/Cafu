@@ -95,7 +95,7 @@ END_EVENT_TABLE()
 
 
 GroupsListViewT::GroupsListViewT(GroupsToolbarT* Parent, ChildFrameT* ChildFrame, wxWindowID ID)
-    : wxListView(Parent, ID, wxDefaultPosition, wxDefaultSize, wxLC_REPORT | wxLC_NO_HEADER | wxLC_EDIT_LABELS),
+    : wxListView(Parent, ID, wxDefaultPosition, wxSize(180, -1), wxLC_REPORT | wxLC_NO_HEADER | wxLC_EDIT_LABELS),
       m_Parent(Parent),
       m_ChildFrame(ChildFrame)
 {
