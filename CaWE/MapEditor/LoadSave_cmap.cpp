@@ -100,14 +100,14 @@ static std::string serialize(const Vector3fT& v)
 /*** Load/Save functions ***/
 /***************************/
 
-void MapElementT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc)
+void MapElementT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, bool IgnoreGroups)
 {
     if (TP.PeekNextToken() == "Group")
     {
         TP.AssertAndSkipToken("Group");
         const unsigned long GroupNr = TP.GetNextTokenAsInt();
 
-        if (GroupNr < MapDoc.GetGroups().Size())
+        if (GroupNr < MapDoc.GetGroups().Size() && !IgnoreGroups)
             SetGroup(MapDoc.GetGroups()[GroupNr]);
     }
 }
@@ -249,13 +249,13 @@ void MapFaceT::Save_cmap(std::ostream& OutFile) const
 }
 
 
-MapBrushT* MapBrushT::Create_cmap(TextParserT& TP, MapDocumentT& MapDoc, unsigned long EntityNr, unsigned long BrushNr)
+MapBrushT* MapBrushT::Create_cmap(TextParserT& TP, MapDocumentT& MapDoc, unsigned long EntityNr, unsigned long BrushNr, bool IgnoreGroups)
 {
     MapBrushT* Brush=new MapBrushT();
 
     TP.AssertAndSkipToken("{");
 
-    Brush->Load_cmap(TP, MapDoc);   // The method of the MapElementT base class.
+    Brush->Load_cmap(TP, MapDoc, IgnoreGroups);   // The method of the MapElementT base class.
     Brush->m_Faces.Clear();
 
     while (true)
@@ -300,12 +300,12 @@ void MapBrushT::Save_cmap(std::ostream& OutFile, unsigned long PrimitiveNr, cons
 }
 
 
-void MapBezierPatchT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc)
+void MapBezierPatchT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, bool IgnoreGroups)
 {
     TP.AssertAndSkipToken("PatchDef");
     TP.AssertAndSkipToken("{");
 
-    MapElementT::Load_cmap(TP, MapDoc);
+    MapElementT::Load_cmap(TP, MapDoc, IgnoreGroups);
 
     wxString texname=TP.GetNextToken();
     SetMaterial(MapDoc.GetGameConfig()->GetMatMan().FindMaterial(texname, true /*Create dummy if not found.*/));
@@ -394,12 +394,12 @@ void MapBezierPatchT::Save_cmap(std::ostream& OutFile, unsigned long PrimitiveNr
 }
 
 
-void MapTerrainT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc)
+void MapTerrainT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, bool IgnoreGroups)
 {
     TP.AssertAndSkipToken("TerrainDef");
     TP.AssertAndSkipToken("{");
 
-    MapElementT::Load_cmap(TP, MapDoc);
+    MapElementT::Load_cmap(TP, MapDoc, IgnoreGroups);
 
     SetMaterial(MapDoc.GetGameConfig()->GetMatMan().FindMaterial(TP.GetNextToken(), true));
 
@@ -459,12 +459,12 @@ void MapTerrainT::Save_cmap(std::ostream& OutFile, unsigned long PrimitiveNr, co
 }
 
 
-void MapPlantT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc)
+void MapPlantT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, bool IgnoreGroups)
 {
     TP.AssertAndSkipToken("PlantDef");
     TP.AssertAndSkipToken("{");
 
-    MapElementT::Load_cmap(TP, MapDoc);
+    MapElementT::Load_cmap(TP, MapDoc, IgnoreGroups);
 
     m_DescrFileName=TP.GetNextToken();
     m_RandomSeed   =TP.GetNextTokenAsInt();
@@ -501,12 +501,12 @@ void MapPlantT::Save_cmap(std::ostream& OutFile, unsigned long PlantNr, const Ma
 }
 
 
-void MapModelT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc)
+void MapModelT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, bool IgnoreGroups)
 {
     TP.AssertAndSkipToken("ModelDef");
     TP.AssertAndSkipToken("{");
 
-    MapElementT::Load_cmap(TP, MapDoc);
+    MapElementT::Load_cmap(TP, MapDoc, IgnoreGroups);
 
     m_ModelFileName    =TP.GetNextToken();
     m_Model            =MapDoc.GetGameConfig()->GetModel(m_ModelFileName);
@@ -621,7 +621,7 @@ namespace
 }
 
 
-void CompMapEntityT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, wxProgressDialog* ProgressDialog, unsigned long EntityNr, unsigned int& cmapVersion)
+void CompMapEntityT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, wxProgressDialog* ProgressDialog, unsigned long EntityNr, unsigned int& cmapVersion, bool IgnoreGroups)
 {
     if (EntityNr==0)
     {
@@ -639,7 +639,15 @@ void CompMapEntityT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, wxProgress
 
         while (TP.PeekNextToken() == "GroupDef")
         {
-            MapDoc.GetGroups().PushBack(new GroupT(MapDoc, TP));
+            if (IgnoreGroups)
+            {
+                // We must properly read the group definition, even if it is immediately discarded.
+                GroupT DummyGroup(MapDoc, TP);
+            }
+            else
+            {
+                MapDoc.GetGroups().PushBack(new GroupT(MapDoc, TP));
+            }
         }
     }
 
@@ -648,7 +656,7 @@ void CompMapEntityT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, wxProgress
     TP.AssertAndSkipToken("{");
 
     // Load the groups info.
-    m_Repres->Load_cmap(TP, MapDoc);
+    m_Repres->Load_cmap(TP, MapDoc, IgnoreGroups);
 
     while (true)
     {
@@ -663,7 +671,7 @@ void CompMapEntityT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, wxProgress
         else if (Token=="{")
         {
             // A brush definition.
-            AddPrim(MapBrushT::Create_cmap(TP, MapDoc, EntityNr, NrOfPrimitives));
+            AddPrim(MapBrushT::Create_cmap(TP, MapDoc, EntityNr, NrOfPrimitives, IgnoreGroups));
             NrOfPrimitives++;
         }
         else if (Token=="PatchDef")
@@ -671,7 +679,7 @@ void CompMapEntityT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, wxProgress
             // A patch definition.
             MapBezierPatchT* BP=new MapBezierPatchT(MapDoc.GetGameConfig()->GetMatMan().GetDefaultMaterial(), MapDoc.GetLightMapMan());
 
-            BP->Load_cmap(TP, MapDoc);
+            BP->Load_cmap(TP, MapDoc, IgnoreGroups);
             AddPrim(BP);
             NrOfPrimitives++;
         }
@@ -680,7 +688,7 @@ void CompMapEntityT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, wxProgress
             // A terrain definition.
             MapTerrainT* Terrain=new MapTerrainT();
 
-            Terrain->Load_cmap(TP, MapDoc);
+            Terrain->Load_cmap(TP, MapDoc, IgnoreGroups);
             AddPrim(Terrain);
             NrOfPrimitives++;
         }
@@ -689,7 +697,7 @@ void CompMapEntityT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, wxProgress
             // A plant definition.
             MapPlantT* Plant=new MapPlantT();
 
-            Plant->Load_cmap(TP, MapDoc);
+            Plant->Load_cmap(TP, MapDoc, IgnoreGroups);
             AddPrim(Plant);
             NrOfPrimitives++;
         }
@@ -698,7 +706,7 @@ void CompMapEntityT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, wxProgress
             // A model definition.
             MapModelT* Model=new MapModelT(MapDoc, "dummy", Vector3fT());
 
-            Model->Load_cmap(TP, MapDoc);
+            Model->Load_cmap(TP, MapDoc, IgnoreGroups);
             AddPrim(Model);
             NrOfPrimitives++;
         }

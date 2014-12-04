@@ -245,7 +245,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         {
             IntrusivePtrT<CompMapEntityT> Entity = new CompMapEntityT(*this);
 
-            Entity->Load_cmap(TP, *this, ProgressDialog, AllMapEnts.Size(), cmapFileVersion);
+            Entity->Load_cmap(TP, *this, ProgressDialog, AllMapEnts.Size(), cmapFileVersion, false /*IgnoreGroups?*/);
             AllMapEnts.PushBack(Entity);
         }
     }

@@ -1361,7 +1361,7 @@ namespace
                 {
                     IntrusivePtrT<CompMapEntityT> Entity = new CompMapEntityT(MapDoc);
 
-                    Entity->Load_cmap(TP, MapDoc, NULL, AllMapEnts.Size(), cmapFileVersion);
+                    Entity->Load_cmap(TP, MapDoc, NULL, AllMapEnts.Size(), cmapFileVersion, true /*IgnoreGroups?*/);
                     AllMapEnts.PushBack(Entity);
                 }
             }
@@ -1961,7 +1961,7 @@ void ChildFrameT::LoadPrefab(const wxString& FileName)
             {
                 IntrusivePtrT<CompMapEntityT> Entity = new CompMapEntityT(*m_Doc);
 
-                Entity->Load_cmap(TP, *m_Doc, NULL, AllMapEnts.Size(), cmapFileVersion);
+                Entity->Load_cmap(TP, *m_Doc, NULL, AllMapEnts.Size(), cmapFileVersion, true /*IgnoreGroups?*/);
                 AllMapEnts.PushBack(Entity);
             }
         }

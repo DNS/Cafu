@@ -65,7 +65,7 @@ class MapModelT : public MapPrimitiveT
     void TrafoMirror(unsigned int NormalAxis, float Dist, bool LockTexCoords) override;
     void Transform(const MatrixT& Matrix, bool LockTexCoords) override;
 
-    void Load_cmap(TextParserT& TP, MapDocumentT& MapDoc);
+    void Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, bool IgnoreGroups) override;
     void Save_cmap(std::ostream& OutFile, unsigned long ModelNr, const MapDocumentT& MapDoc) const;
 
     // The TypeSys related declarations for this class.

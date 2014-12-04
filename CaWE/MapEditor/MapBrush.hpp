@@ -50,7 +50,7 @@ class MapBrushT : public MapPrimitiveT
     MapBrushT(const MapBrushT& Brush);
 
     // Named constructors for loading brushes from map files.
-    static MapBrushT* Create_cmap(TextParserT& TP, MapDocumentT& MapDoc, unsigned long EntityNr, unsigned long BrushNr);        ///< EntityNr and BrushNr are provided by the caller, just for better error reporting.
+    static MapBrushT* Create_cmap(TextParserT& TP, MapDocumentT& MapDoc, unsigned long EntityNr, unsigned long BrushNr, bool IgnoreGroups);   ///< EntityNr and BrushNr are provided by the caller, just for better error reporting.
     static MapBrushT* Create_D3_map(TextParserT& TP, const Vector3fT& Origin, unsigned long EntityNr, unsigned long PrimitiveNr, EditorMatManT& MatMan);    ///< EntityNr and PrimitiveNr are provided by the caller, just for better error reporting.
     static MapBrushT* Create_HL1_map(TextParserT& TP, unsigned long EntityNr, unsigned long BrushNr, EditorMatManT& MatMan);    ///< EntityNr and BrushNr are provided by the caller, just for better error reporting.
     static MapBrushT* Create_HL2_vmf(TextParserT& TP, EditorMatManT& MatMan);

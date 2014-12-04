@@ -90,7 +90,7 @@ class MapElementT
     virtual ~MapElementT();
 
 
-    virtual void Load_cmap(TextParserT& TP, MapDocumentT& MapDoc);
+    virtual void Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, bool IgnoreGroups);
     virtual void Save_cmap(std::ostream& OutFile, unsigned long ElemNr, const MapDocumentT& MapDoc) const;
 
 

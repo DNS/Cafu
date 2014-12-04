@@ -114,7 +114,7 @@ class MapTerrainT : public MapPrimitiveT
 
     wxString GetDescription() const { return "Terrain"; }
 
-    void Load_cmap(TextParserT& TP, MapDocumentT& MapDoc);
+    void Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, bool IgnoreGroups) override;
     void Save_cmap(std::ostream& OutFile, unsigned long TerrainNr, const MapDocumentT& MapDoc) const;
 
     // The TypeSys related declarations for this class.

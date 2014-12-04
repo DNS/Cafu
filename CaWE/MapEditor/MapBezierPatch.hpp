@@ -114,7 +114,7 @@ class MapBezierPatchT : public MapPrimitiveT
     void Transform(const MatrixT& Matrix, bool LockTexCoords) override;
 
     void                        Load_D3_map(TextParserT& TP, unsigned long patchDef, EditorMatManT& MatMan);
-    void                        Load_cmap(TextParserT& TP, MapDocumentT& MapDoc);
+    void                        Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, bool IgnoreGroups) override;
     void                        Save_cmap(std::ostream& OutFile, unsigned long PatchNr, const MapDocumentT& MapDoc) const;
 
     bool                        IsTranslucent() const;
