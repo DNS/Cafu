@@ -103,29 +103,26 @@ bool MapElementT::CanSelect() const
 }
 
 
+namespace
+{
+    bool CanToggleAll(const ArrayT<MapElementT*>& AllElems)
+    {
+        for (unsigned long ElemNr = 0; ElemNr < AllElems.Size(); ElemNr++)
+            if (!AllElems[ElemNr]->IsVisible() || !AllElems[ElemNr]->CanSelect())
+                return false;
+
+        return true;
+    }
+}
+
+
 void MapElementT::GetToggleEffects(ArrayT<MapElementT*>& RemoveFromSel, ArrayT<MapElementT*>& AddToSel, bool AutoGroupEntities)
 {
-    IntrusivePtrT<CompMapEntityT> Entity = GetParent();
-
-    // If this element belongs to a non-world entity, put all elements of the entity into the appropriate lists.
-    if (!Entity->IsWorld() && AutoGroupEntities)
-    {
-        const ArrayT<MapElementT*> AllElems = Entity->GetAllMapElements();
-
-        for (unsigned long ElemNr = 0; ElemNr < AllElems.Size(); ElemNr++)
-        {
-            MapElementT* Elem = AllElems[ElemNr];
-
-            // Insert Elem into one of the lists, but only if it isn't mentioned there already.
-            if (RemoveFromSel.Find(Elem) == -1 && AddToSel.Find(Elem) == -1)
-            {
-                if (Elem->IsSelected()) RemoveFromSel.PushBack(Elem);
-                                   else AddToSel.PushBack(Elem);
-            }
-        }
-    }
+    IntrusivePtrT<CompMapEntityT> MapEnt = GetParent();
 
     // If this element is a member of a group, put all members of the group into the appropriate lists.
+    bool AllInThisEntity = true;
+
     if (m_Group && m_Group->SelectAsGroup)
     {
         const ArrayT<MapElementT*> GroupMembers = m_Group->GetMembers();
@@ -134,11 +131,44 @@ void MapElementT::GetToggleEffects(ArrayT<MapElementT*>& RemoveFromSel, ArrayT<M
         {
             MapElementT* Member = GroupMembers[MemberNr];
 
+            if (!MapEnt->GetEntity()->Has(Member->GetParent()->GetEntity()))
+                AllInThisEntity = false;
+
             // Insert Member into one of the lists, but only if it isn't mentioned there already.
             if (RemoveFromSel.Find(Member) == -1 && AddToSel.Find(Member) == -1)
             {
                 if (Member->IsSelected()) RemoveFromSel.PushBack(Member);
                                      else AddToSel.PushBack(Member);
+            }
+        }
+    }
+
+    // If
+    //   - auto-grouping is enabled,
+    //   - this element belongs to a non-world entity,
+    //   - the previous group-selection did not toggle elements in other entities and
+    //   - the entity does not contain elements that are (in groups that are) invisible or locked,
+    // put all elements of the entity into the appropriate lists.
+    //
+    // Note that we don't "recurse": If the entity contains elements that are in another group
+    // (other than m_Group) with group-selection enabled, the selection is not extended to cover
+    // the other group as well, as this would probably be unexpected and confusing for the user.
+    if (AutoGroupEntities && !MapEnt->IsWorld() && AllInThisEntity)
+    {
+        const ArrayT<MapElementT*> AllElems = MapEnt->GetAllMapElements();
+
+        if (CanToggleAll(AllElems))
+        {
+            for (unsigned long ElemNr = 0; ElemNr < AllElems.Size(); ElemNr++)
+            {
+                MapElementT* Elem = AllElems[ElemNr];
+
+                // Insert Elem into one of the lists, but only if it isn't mentioned there already.
+                if (RemoveFromSel.Find(Elem) == -1 && AddToSel.Find(Elem) == -1)
+                {
+                    if (Elem->IsSelected()) RemoveFromSel.PushBack(Elem);
+                                       else AddToSel.PushBack(Elem);
+                }
             }
         }
     }
