@@ -413,7 +413,7 @@ void EntityHierarchyDialogT::OnTreeLeftClick(wxMouseEvent& ME)
 
     wxTreeItemId ClickedItem = HitTest(ME.GetPosition(), HitFlag);
 
-    // If a icon was hit, toggle visibility of the associated entity.
+    // If an icon was hit, toggle visibility of the associated entity.
     if (HitFlag & wxTREE_HITTEST_ONITEMICON)
     {
         IntrusivePtrT<cf::GameSys::EntityT> ClickedEntity = ((EntityTreeItemT*)GetItemData(ClickedItem))->GetEntity();

@@ -346,7 +346,7 @@ void WindowHierarchyT::OnTreeLeftClick(wxMouseEvent& ME)
 
     wxTreeItemId ClickedItem=HitTest(ME.GetPosition(), HitFlag);
 
-    // If a icon was hit, toggle visibility of the associated gui window.
+    // If an icon was hit, toggle visibility of the associated gui window.
     if (HitFlag & wxTREE_HITTEST_ONITEMICON)
     {
         IntrusivePtrT<cf::GuiSys::WindowT> ClickedWindow = ((WindowTreeItemT*)GetItemData(ClickedItem))->GetWindow();
