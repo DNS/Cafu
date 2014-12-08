@@ -93,13 +93,13 @@ EntityHierarchyDialogT::EntityHierarchyDialogT(ChildFrameT* Parent, wxWindow* Wi
       m_IsRecursiveSelfNotify(false),
       m_DraggedEntity(NULL)
 {
-    // Build list of entity hierarchy icons.
-    wxImageList* TreeIcons = new wxImageList(16, 16);
-
-    TreeIcons->Add(wxBitmap("CaWE/res/checked.png", wxBITMAP_TYPE_PNG));
-    TreeIcons->Add(wxBitmap("CaWE/res/unchecked.png", wxBITMAP_TYPE_PNG));
-
-    AssignImageList(TreeIcons);   // Note: wxTreeCtrl takes ownership of this list and deletes it on window destroy.
+    // // Build list of entity hierarchy icons.
+    // wxImageList* TreeIcons = new wxImageList(16, 16);
+    //
+    // TreeIcons->Add(wxBitmap("CaWE/res/checked.png", wxBITMAP_TYPE_PNG));
+    // TreeIcons->Add(wxBitmap("CaWE/res/unchecked.png", wxBITMAP_TYPE_PNG));
+    //
+    // AssignImageList(TreeIcons);   // Note: wxTreeCtrl takes ownership of this list and deletes it on window destroy.
 
     m_MapDoc->RegisterObserver(this);
     RefreshTree();
@@ -424,7 +424,7 @@ void EntityHierarchyDialogT::OnTreeLeftClick(wxMouseEvent& ME)
         if (Show)
         {
             m_Parent->SubmitCommand(new CommandSetCompVarT<bool>(m_MapDoc->GetAdapter(), *Show, !Show->Get()));
-            SetItemImage(ClickedItem, Show->Get() ? 0 : 1);   // Set the "is visible" or "is invisible" icon.
+            // SetItemImage(ClickedItem, Show->Get() ? 0 : 1);   // Set the "is visible" or "is invisible" icon.
         }
 
         m_IsRecursiveSelfNotify = false;
@@ -1221,11 +1221,11 @@ EntityHierarchyPanelT::EntityHierarchyPanelT(ChildFrameT* MainFrame, const wxSiz
 
     wxBoxSizer* item0 = new wxBoxSizer( wxVERTICAL );
 
-    // m_OldTreeCtrl = new EntityHierarchyDialogT(m_MainFrame, this);
-    // item0->Add(m_OldTreeCtrl, 1, wxEXPAND | wxALL, 5 );
+    m_OldTreeCtrl = new EntityHierarchyDialogT(m_MainFrame, this);
+    item0->Add(m_OldTreeCtrl, 1, wxEXPAND | wxALL, 0 );
 
-    m_TreeCtrl = new EntityHierarchyCtrlT(m_MainFrame, this);
-    item0->Add(m_TreeCtrl, 1, wxEXPAND | wxALL, 0 );
+    // m_TreeCtrl = new EntityHierarchyCtrlT(m_MainFrame, this);
+    // item0->Add(m_TreeCtrl, 1, wxEXPAND | wxALL, 5 );
 
     this->SetSizer( item0 );
     item0->SetSizeHints(this);
