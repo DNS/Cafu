@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "DialogEntityHierarchy.hpp"
 #include "ChildFrame.hpp"
 #include "CompMapEntity.hpp"
+#include "Group.hpp"
 #include "MapDocument.hpp"
 #include "MapElement.hpp"
 #include "MapEntRepres.hpp"
@@ -77,9 +78,11 @@ BEGIN_EVENT_TABLE(EntityHierarchyDialogT, wxTreeCtrl)
     EVT_KEY_DOWN             (EntityHierarchyDialogT::OnKeyDown)
     EVT_LEFT_DOWN            (EntityHierarchyDialogT::OnTreeLeftClick)
     EVT_LEFT_DCLICK          (EntityHierarchyDialogT::OnTreeLeftClick)   // Handle double clicks like normal left clicks when it comes to clicks on tree item icons (otherwise double clicks are handled normally).
+    EVT_TREE_SEL_CHANGING    (wxID_ANY, EntityHierarchyDialogT::OnSelectionChanging)
     EVT_TREE_SEL_CHANGED     (wxID_ANY, EntityHierarchyDialogT::OnSelectionChanged)
     EVT_TREE_BEGIN_LABEL_EDIT(wxID_ANY, EntityHierarchyDialogT::OnBeginLabelEdit)
     EVT_TREE_END_LABEL_EDIT  (wxID_ANY, EntityHierarchyDialogT::OnEndLabelEdit)
+    EVT_TREE_ITEM_GETTOOLTIP (wxID_ANY, EntityHierarchyDialogT::OnGetTooltip)
     EVT_TREE_ITEM_RIGHT_CLICK(wxID_ANY, EntityHierarchyDialogT::OnTreeItemRightClick)
     EVT_TREE_BEGIN_DRAG      (wxID_ANY, EntityHierarchyDialogT::OnBeginDrag)
     EVT_TREE_END_DRAG        (wxID_ANY, EntityHierarchyDialogT::OnEndDrag)
@@ -437,6 +440,20 @@ void EntityHierarchyDialogT::OnTreeLeftClick(wxMouseEvent& ME)
 }
 
 
+void EntityHierarchyDialogT::OnSelectionChanging(wxTreeEvent& TE)
+{
+    if (!TE.GetItem().IsOk()) return;
+
+    IntrusivePtrT<cf::GameSys::EntityT> Entity = ((EntityTreeItemT*)GetItemData(TE.GetItem()))->GetEntity();
+    MapEntRepresT* Repres = GetMapEnt(Entity)->GetRepres();
+
+    if (!Repres->IsVisible() || !Repres->CanSelect())
+    {
+        TE.Veto();
+    }
+}
+
+
 void EntityHierarchyDialogT::OnSelectionChanged(wxTreeEvent& TE)
 {
     if (m_MapDoc == NULL || m_IsRecursiveSelfNotify) return;
@@ -489,6 +506,30 @@ void EntityHierarchyDialogT::OnEndLabelEdit(wxTreeEvent& TE)
     // The command may well have set a name different from TE.GetLabel().
     TE.Veto();
     SetItemText(TE.GetItem(), GetEntityLabel(Entity));
+}
+
+
+void EntityHierarchyDialogT::OnGetTooltip(wxTreeEvent& TE)
+{
+    if (!TE.GetItem().IsOk()) return;
+
+    IntrusivePtrT<cf::GameSys::EntityT> Entity = ((EntityTreeItemT*)GetItemData(TE.GetItem()))->GetEntity();
+    MapEntRepresT* Repres = GetMapEnt(Entity)->GetRepres();
+
+    if (!Repres->IsVisible() || !Repres->CanSelect())
+    {
+        GroupT*  Group   = Repres->GetGroup();
+        wxString Tooltip = wxString::Format("This entity is in group \"%s\", which is currently", Group ? Group->Name : "???");
+
+        if (!Repres->IsVisible()) Tooltip += " hidden";
+        if (!Repres->IsVisible() && !Repres->CanSelect()) Tooltip += " and";
+        if (!Repres->CanSelect()) Tooltip += " locked";
+
+        Tooltip += ".\n";
+        Tooltip += "Update the group settings in order to select the entity.";
+
+        TE.SetToolTip(Tooltip);
+    }
 }
 
 

@@ -79,9 +79,11 @@ namespace MapEditor
 
         void OnKeyDown           (wxKeyEvent&   KE);
         void OnTreeLeftClick     (wxMouseEvent& ME);
+        void OnSelectionChanging (wxTreeEvent&  TE);
         void OnSelectionChanged  (wxTreeEvent&  TE);
         void OnBeginLabelEdit    (wxTreeEvent&  TE);
         void OnEndLabelEdit      (wxTreeEvent&  TE);
+        void OnGetTooltip        (wxTreeEvent&  TE);
         void OnTreeItemRightClick(wxTreeEvent&  TE);
         void OnBeginDrag         (wxTreeEvent&  TE);
         void OnEndDrag           (wxTreeEvent&  TE);
