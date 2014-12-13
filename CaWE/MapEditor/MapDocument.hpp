@@ -155,6 +155,8 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     float     SnapToGrid(float f, bool Toggle) const;                               ///< Returns the given number f   snapped to the grid if the grid is active, rounded to the nearest integer otherwise. If Toggle is true, the grid activity is considered toggled.
     Vector3fT SnapToGrid(const Vector3fT& Pos, bool Toggle, int AxisNoSnap) const;  ///< Returns the given vector Pos snapped to the grid if the grid is active, rounded to the nearest integer otherwise. If Toggle is true, the grid activity is considered toggled. If AxisNoSnap is -1, all components of Pos are snapped to the grid. If AxisNoSnap is 0, 1 or 2, the corresponding component of Pos is returned unchanged.
 
+    bool GetAutoGroupEntities() const { return m_AutoGroupEntities; }
+
     /// Methods for managing the set of currently selected map elements.
     //@{
     void                        SetSelection(const ArrayT<MapElementT*>& NewSelection);
@@ -202,9 +204,13 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     ArrayT<PtsPointT>                  m_PointFilePoints;     ///< The points of the currently loaded point file.
     ArrayT<wxColour>                   m_PointFileColors;     ///< The colors for items (columns) of a point in the pointfile. A color can be invalid if the associated column should not be visualized at all.
 
-    bool                               m_SnapToGrid;          ///< Snap things to grid.      Kept here because the other two are kept here as well. ;-)
-    int                                m_GridSpacing;         ///< The spacing of the grid.  Could also be kept in the related ChildFrameT, but as the observers depent on it, its properly stored here in the MapDocumentT.
-    bool                               m_ShowGrid;            ///< Show or hide the 2D grid. Could also be kept in the related ChildFrameT, but as the observers depent on it, its properly stored here in the MapDocumentT.
+    // General settings that are not specific to a particular tool.
+    // It would make sense to serialize these settings along with the map's geometry.
+    bool                               m_SnapToGrid;          ///< Whether transforms should snap the map elements to the grid.
+    int                                m_GridSpacing;         ///< The spacing between the grid lines.
+    bool                               m_ShowGrid;            ///< Whether the grid is shown (in the 2D views).
+
+    bool                               m_AutoGroupEntities;   ///< Whether the selection of entities should select their primitives and children as well.
 
 
     /*************************************************************/
@@ -215,11 +221,14 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     void OnMapToggleGrid2D             (wxCommandEvent& CE);
     void OnMapFinerGrid                (wxCommandEvent& CE);
     void OnMapCoarserGrid              (wxCommandEvent& CE);
+    void OnMapAutoGroupEntities        (wxCommandEvent& CE);
     void OnMapGotoPrimitive            (wxCommandEvent& CE);
     void OnMapShowInfo                 (wxCommandEvent& CE);
     void OnMapCheckForProblems         (wxCommandEvent& CE);
     void OnMapLoadPointFile            (wxCommandEvent& CE);
     void OnMapUnloadPointFile          (wxCommandEvent& CE);
+
+    void OnUpdateMapAutoGroupEntities  (wxUpdateUIEvent& UE);
 
     void OnViewShowEntityInfo          (wxCommandEvent& CE);
     void OnViewShowEntityTargets       (wxCommandEvent& CE);

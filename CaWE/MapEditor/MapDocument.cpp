@@ -128,15 +128,19 @@ BEGIN_EVENT_TABLE(MapDocumentT, wxEvtHandler)
     EVT_MENU  (ChildFrameT::ID_MENU_SELECTION_HIDE_OTHER,        MapDocumentT::OnSelectionHideOther)
     EVT_BUTTON(ChildFrameT::ID_MENU_SELECTION_HIDE_OTHER,        MapDocumentT::OnSelectionHideOther)
 
-    EVT_MENU(ChildFrameT::ID_MENU_MAP_SNAP_TO_GRID,             MapDocumentT::OnMapSnapToGrid)
-    EVT_MENU(ChildFrameT::ID_MENU_MAP_SHOW_GRID_2D,             MapDocumentT::OnMapToggleGrid2D)
-    EVT_MENU(ChildFrameT::ID_MENU_MAP_FINER_GRID,               MapDocumentT::OnMapFinerGrid)
-    EVT_MENU(ChildFrameT::ID_MENU_MAP_COARSER_GRID,             MapDocumentT::OnMapCoarserGrid)
-    EVT_MENU(ChildFrameT::ID_MENU_MAP_GOTO_PRIMITIVE,           MapDocumentT::OnMapGotoPrimitive)
-    EVT_MENU(ChildFrameT::ID_MENU_MAP_SHOW_INFO,                MapDocumentT::OnMapShowInfo)
-    EVT_MENU(ChildFrameT::ID_MENU_MAP_CHECK_FOR_PROBLEMS,       MapDocumentT::OnMapCheckForProblems)
-    EVT_MENU(ChildFrameT::ID_MENU_MAP_LOAD_POINTFILE,           MapDocumentT::OnMapLoadPointFile)
-    EVT_MENU(ChildFrameT::ID_MENU_MAP_UNLOAD_POINTFILE,         MapDocumentT::OnMapUnloadPointFile)
+    EVT_MENU    (ChildFrameT::ID_MENU_MAP_SNAP_TO_GRID,          MapDocumentT::OnMapSnapToGrid)
+    EVT_MENU    (ChildFrameT::ID_MENU_MAP_SHOW_GRID_2D,          MapDocumentT::OnMapToggleGrid2D)
+    EVT_MENU    (ChildFrameT::ID_MENU_MAP_FINER_GRID,            MapDocumentT::OnMapFinerGrid)
+    EVT_MENU    (ChildFrameT::ID_MENU_MAP_COARSER_GRID,          MapDocumentT::OnMapCoarserGrid)
+    EVT_MENU    (ChildFrameT::ID_MENU_MAP_AUTO_GROUP_ENTITIES,   MapDocumentT::OnMapAutoGroupEntities)
+    EVT_CHECKBOX(ChildFrameT::ID_MENU_MAP_AUTO_GROUP_ENTITIES,   MapDocumentT::OnMapAutoGroupEntities)
+    EVT_MENU    (ChildFrameT::ID_MENU_MAP_GOTO_PRIMITIVE,        MapDocumentT::OnMapGotoPrimitive)
+    EVT_MENU    (ChildFrameT::ID_MENU_MAP_SHOW_INFO,             MapDocumentT::OnMapShowInfo)
+    EVT_MENU    (ChildFrameT::ID_MENU_MAP_CHECK_FOR_PROBLEMS,    MapDocumentT::OnMapCheckForProblems)
+    EVT_MENU    (ChildFrameT::ID_MENU_MAP_LOAD_POINTFILE,        MapDocumentT::OnMapLoadPointFile)
+    EVT_MENU    (ChildFrameT::ID_MENU_MAP_UNLOAD_POINTFILE,      MapDocumentT::OnMapUnloadPointFile)
+
+    EVT_UPDATE_UI(ChildFrameT::ID_MENU_MAP_AUTO_GROUP_ENTITIES,   MapDocumentT::OnUpdateMapAutoGroupEntities)
 
     EVT_MENU  (ChildFrameT::ID_MENU_VIEW_SHOW_ENTITY_INFO,        MapDocumentT::OnViewShowEntityInfo)
     EVT_MENU  (ChildFrameT::ID_MENU_VIEW_SHOW_ENTITY_TARGETS,     MapDocumentT::OnViewShowEntityTargets)
@@ -181,7 +185,8 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig)
       m_PointFileColors(),
       m_SnapToGrid(true),
       m_GridSpacing(Options.Grid.InitialSpacing),
-      m_ShowGrid(true)
+      m_ShowGrid(true),
+      m_AutoGroupEntities(true)
 {
     Init();
 
@@ -223,7 +228,8 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
       m_PointFileColors(),
       m_SnapToGrid(true),
       m_GridSpacing(Options.Grid.InitialSpacing),
-      m_ShowGrid(true)
+      m_ShowGrid(true),
+      m_AutoGroupEntities(true)
 {
     Init();
 
@@ -1703,6 +1709,18 @@ void MapDocumentT::OnMapCoarserGrid(wxCommandEvent& CE)
     if (m_GridSpacing<1) m_GridSpacing=1;   // Just in case it was 0 before.
 
     UpdateAllObservers(UPDATE_GRID);
+}
+
+
+void MapDocumentT::OnMapAutoGroupEntities(wxCommandEvent& CE)
+{
+    m_AutoGroupEntities = !m_AutoGroupEntities;
+}
+
+
+void MapDocumentT::OnUpdateMapAutoGroupEntities(wxUpdateUIEvent& UE)
+{
+    UE.Check(m_AutoGroupEntities);
 }
 
 

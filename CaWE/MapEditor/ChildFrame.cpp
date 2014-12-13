@@ -382,6 +382,8 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item3->Append(ID_MENU_MAP_GRID_SETTINGS, wxT("&Grid settings"), item4 );
 
     item3->AppendSeparator();
+    item3->AppendCheckItem(ID_MENU_MAP_AUTO_GROUP_ENTITIES, wxT("Auto-Group Entities"), wxT("") );
+    item3->AppendSeparator();
     item3->Append(ID_MENU_MAP_GOTO_PRIMITIVE, wxT("G&o to Primitive...\tShift+Ctrl+G"), wxT("") );
     item3->Append(ID_MENU_MAP_SHOW_INFO, wxT("Show &Information..."), wxT("") );
     item3->Append(ID_MENU_MAP_CHECK_FOR_PROBLEMS, wxT("&Check for Problems..."), wxT("") );
@@ -450,12 +452,12 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
     item9->Append(ID_MENU_TOOLS_ALIGN_TOP, wxT("to &Top"), wxT("") );
     item9->Append(ID_MENU_TOOLS_ALIGN_BOTTOM, wxT("to &Bottom"), wxT("") );
     item9->Append(ID_MENU_TOOLS_ALIGN_VERT_CENTER, wxT("to &vert. Center"), wxT("") );
-    item8->Append(ID_MENU_TOOLS_ALIGN, wxT("&Align Objects"), item9 );
+    item8->Append(ID_MENU_TOOLS_ALIGN, wxT("&Align"), item9 );
 
     wxMenu* item10 = new wxMenu;
-    item10->Append(ID_MENU_TOOLS_MIRROR_HOR, wxT("&Horizontally\tCtrl+L"), wxT("") );
-    item10->Append(ID_MENU_TOOLS_MIRROR_VERT, wxT("&Vertically\tCtrl+I"), wxT("") );
-    item8->Append(ID_MENU_TOOLS_MIRROR, wxT("M&irror Objects"), item10 );
+    item10->Append(ID_MENU_TOOLS_MIRROR_HOR, wxT("&Horizontally"), wxT("") );
+    item10->Append(ID_MENU_TOOLS_MIRROR_VERT, wxT("&Vertically"), wxT("") );
+    item8->Append(ID_MENU_TOOLS_MIRROR, wxT("M&irror"), item10 );
 
     item0->Append( item8, wxT("&Tools") );
 

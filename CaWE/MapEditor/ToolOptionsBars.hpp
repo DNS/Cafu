@@ -53,8 +53,6 @@ class OptionsBar_SelectionToolT : public wxPanel
     /// @param Parent is the parent window of this panel.
     OptionsBar_SelectionToolT(wxWindow* Parent);
 
-    bool AutoGroupEntities() const { return m_AutoGroupEntities->IsChecked(); }
-
 
     private:
 

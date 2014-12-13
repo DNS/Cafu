@@ -41,7 +41,7 @@ OptionsBar_SelectionToolT::OptionsBar_SelectionToolT(wxWindow* Parent)
     wxStaticText *item1 = new wxStaticText(this, -1, wxT("When selecting:"), wxDefaultPosition, wxDefaultSize, 0 );
     item0->Add( item1, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
 
-    m_AutoGroupEntities = new wxCheckBox(this, wxID_ANY, wxT("Auto-Group Entities"), wxDefaultPosition, wxDefaultSize, 0 );
+    m_AutoGroupEntities = new wxCheckBox(this, ChildFrameT::ID_MENU_MAP_AUTO_GROUP_ENTITIES, wxT("Auto-Group Entities"), wxDefaultPosition, wxDefaultSize, 0 );
     m_AutoGroupEntities->SetToolTip( wxT("If checked, all primitives and children of an entity are selected as a group.") );
     item0->Add( m_AutoGroupEntities, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT, 5 );
 
