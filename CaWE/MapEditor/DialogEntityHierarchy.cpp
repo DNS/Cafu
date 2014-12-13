@@ -464,12 +464,62 @@ void EntityHierarchyDialogT::OnSelectionChanged(wxTreeEvent& TE)
     wxArrayTreeItemIds SelectedItems;
     GetSelections(SelectedItems);
 
-    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > NewSelection;
+    ArrayT<MapElementT*> RemoveFromSel;
+    ArrayT<MapElementT*> AddToSel;
 
-    for (size_t SelNr = 0; SelNr < SelectedItems.GetCount(); SelNr++)
-        NewSelection.PushBack(((EntityTreeItemT*)GetItemData(SelectedItems[SelNr]))->GetEntity());
+    // What we do here is quite good, but still not perfect. This is mostly due to the Shift key,
+    // which enables "range selections" in the tree control, which are difficult to handle:
+    //   - it can select hidden or locked entities despite our check in OnSelectionChanging(),
+    //   - it creates a complex situation if Control is pressed as well.
+    //
+    // Possible solutions:
+    //   - tell the user to not use the Shift key,
+    //   - try to consume or veto the Shift key in OnKeyDown(),
+    //   - re-implement the entire selection handling "manually" in OnTreeLeftClick().
+    if (!wxGetKeyState(WXK_CONTROL))    // TE.GetKeyEvent() seems not to be available.
+    {
+        // Control is not down, so we're free to re-set the selection from scratch.
+        // This is roughly analogous to the Selection tool's "dragged rectangle" selection.
+        for (size_t SelNr = 0; SelNr < SelectedItems.GetCount(); SelNr++)
+        {
+            IntrusivePtrT<cf::GameSys::EntityT> Entity = ((EntityTreeItemT*)GetItemData(SelectedItems[SelNr]))->GetEntity();
+            MapEntRepresT*                      Repres = GetMapEnt(Entity)->GetRepres();
 
-    m_Parent->SubmitCommand(CommandSelectT::Set(m_MapDoc, NewSelection, false /*WithEntPrims*/));
+            if (!Repres->IsVisible() || !Repres->CanSelect())
+            {
+                // This is already checked for in OnSelectionChanging(), but as it doesn't cover multiple selections
+                // as are possible with the Shift key, we have to repeat the check here. As an unfortunate consequence,
+                // our wxTreeCtrl will show a different selection than what is actually selected in the m_MapDoc.
+                continue;
+            }
+
+            Repres->GetToggleEffects(RemoveFromSel, AddToSel, m_MapDoc->GetAutoGroupEntities());
+        }
+
+        // Set a new selection from scratch (Control is not down).
+        AddToSel.PushBack(RemoveFromSel);
+
+        m_Parent->SubmitCommand(CommandSelectT::Set(m_MapDoc, AddToSel));
+    }
+    else
+    {
+        // Only toggle the item returned by TE.GetItem().
+        // Handling the general case, the toggling of multiple items, might be possible by analyzing the difference
+        // between the previous selection (m_MapDoc->GetSelectedEntities()) and the new selection (SelectedItems),
+        // and toggling only the entities that are found to have changed. Alas, this seems to be very complicated and
+        // cumbersome for a case that probably never occurs in practice...
+        IntrusivePtrT<cf::GameSys::EntityT> Entity = ((EntityTreeItemT*)GetItemData(TE.GetItem()))->GetEntity();
+        MapEntRepresT*                      Repres = GetMapEnt(Entity)->GetRepres();
+
+        wxASSERT(IsSelected(TE.GetItem()) != Repres->IsSelected());
+
+        Repres->GetToggleEffects(RemoveFromSel, AddToSel, m_MapDoc->GetAutoGroupEntities());
+
+        if (RemoveFromSel.Size() > 0) m_Parent->SubmitCommand(CommandSelectT::Remove(m_MapDoc, RemoveFromSel));
+        if (AddToSel.Size()      > 0) m_Parent->SubmitCommand(CommandSelectT::Add   (m_MapDoc, AddToSel));
+
+        wxASSERT(IsSelected(TE.GetItem()) == Repres->IsSelected());
+    }
 
     m_IsRecursiveSelfNotify = false;
 }
