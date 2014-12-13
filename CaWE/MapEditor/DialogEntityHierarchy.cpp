@@ -1094,7 +1094,8 @@ void EntityHierarchyCtrlT::OnSelectionChanged(wxDataViewEvent& Event)
         NewSelection.PushBack(Entity);
     }
 
-    m_MainFrame->SubmitCommand(CommandSelectT::Set(m_MapDoc, NewSelection, false /*WithEntPrims*/));
+    // TODO: See EntityHierarchyDialogT::OnSelectionChanged() for a proper implementation!
+    // m_MainFrame->SubmitCommand(CommandSelectT::Set(m_MapDoc, NewSelection, false /*WithEntPrims*/));
 
     m_IsRecursiveSelfNotify = false;
 }

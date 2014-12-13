@@ -116,50 +116,9 @@ CommandSelectT* CommandSelectT::Set(MapDocumentT* MapDocument, MapElementT* MapE
 }
 
 
-CommandSelectT* CommandSelectT::Set(MapDocumentT* MapDocument, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities, bool WithEntPrims)
-{
-    ArrayT<MapElementT*> Elems;
-
-    for (unsigned long EntNr = 0; EntNr < Entities.Size(); EntNr++)
-    {
-        IntrusivePtrT<CompMapEntityT> MapEnt = GetMapEnt(Entities[EntNr]);
-
-        Elems.PushBack(MapEnt->GetRepres());
-
-        if (WithEntPrims)
-            for (unsigned long PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
-                Elems.PushBack(MapEnt->GetPrimitives()[PrimNr]);
-    }
-
-    return CommandSelectT::Set(MapDocument, Elems);
-}
-
-
 CommandSelectT* CommandSelectT::Set(MapDocumentT* MapDocument, const ArrayT<MapPrimitiveT*>& Primitives)
 {
     ArrayT<MapElementT*> Elems;
-
-    for (unsigned long PrimNr = 0; PrimNr < Primitives.Size(); PrimNr++)
-        Elems.PushBack(Primitives[PrimNr]);
-
-    return CommandSelectT::Set(MapDocument, Elems);
-}
-
-
-CommandSelectT* CommandSelectT::Set(MapDocumentT* MapDocument, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities, bool WithEntPrims, const ArrayT<MapPrimitiveT*>& Primitives)
-{
-    ArrayT<MapElementT*> Elems;
-
-    for (unsigned long EntNr = 0; EntNr < Entities.Size(); EntNr++)
-    {
-        IntrusivePtrT<CompMapEntityT> MapEnt = GetMapEnt(Entities[EntNr]);
-
-        Elems.PushBack(MapEnt->GetRepres());
-
-        if (WithEntPrims)
-            for (unsigned long PrimNr = 0; PrimNr < MapEnt->GetPrimitives().Size(); PrimNr++)
-                Elems.PushBack(MapEnt->GetPrimitives()[PrimNr]);
-    }
 
     for (unsigned long PrimNr = 0; PrimNr < Primitives.Size(); PrimNr++)
         Elems.PushBack(Primitives[PrimNr]);

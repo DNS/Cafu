@@ -23,10 +23,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_COMMAND_SELECT_HPP_INCLUDED
 
 #include "../../CommandPattern.hpp"
-#include "Templates/Pointer.hpp"
 
 
-namespace cf { namespace GameSys { class EntityT; } }
 class MapDocumentT;
 class MapElementT;
 class MapPrimitiveT;
@@ -44,9 +42,7 @@ class CommandSelectT : public CommandT
     static CommandSelectT* Remove(MapDocumentT* MapDocument, MapElementT* MapElement);
     static CommandSelectT* Set   (MapDocumentT* MapDocument, const ArrayT<MapElementT*>& MapElements);
     static CommandSelectT* Set   (MapDocumentT* MapDocument, MapElementT* MapElement);
-    static CommandSelectT* Set   (MapDocumentT* MapDocument, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities, bool WithEntPrims);
     static CommandSelectT* Set   (MapDocumentT* MapDocument, const ArrayT<MapPrimitiveT*>& Primitives);
-    static CommandSelectT* Set   (MapDocumentT* MapDocument, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities, bool WithEntPrims, const ArrayT<MapPrimitiveT*>& Primitives);
 
     ~CommandSelectT();
 
