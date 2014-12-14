@@ -44,6 +44,7 @@ namespace MapEditor
 
         // Implementation of the ObserverT interface.
         void NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<MapElementT*>& OldSelection, const ArrayT<MapElementT*>& NewSelection) override;
+        void NotifySubjectChanged_Groups(SubjectT* Subject) override;
         void NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities) override;
         void NotifySubjectChanged_Created(SubjectT* Subject, const ArrayT<MapPrimitiveT*>& Primitives) override;
         void NotifySubjectChanged_Deleted(SubjectT* Subject, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& Entities) override;
@@ -71,6 +72,9 @@ namespace MapEditor
 
         /// Updates the labels of all items in the tree.
         void UpdateAllLabels();
+
+        /// Updates the colors of all items in the tree.
+        void UpdateAllGroupColors();
 
         MapDocumentT*                       m_MapDoc;
         ChildFrameT*                        m_Parent;

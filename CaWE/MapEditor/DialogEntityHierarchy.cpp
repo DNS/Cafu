@@ -200,6 +200,34 @@ void EntityHierarchyDialogT::UpdateAllLabels()
 }
 
 
+void EntityHierarchyDialogT::UpdateAllGroupColors()
+{
+    ArrayT<wxTreeItemId> TreeItems;
+
+    GetTreeItems(GetRootItem(), TreeItems);
+
+ // const wxColour DefaultBack = wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX);
+    const wxColour DefaultText = wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT);
+    const wxColour GrayText    = wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT);
+
+    for (unsigned long ItemNr = 0; ItemNr < TreeItems.Size(); ItemNr++)
+    {
+        IntrusivePtrT<cf::GameSys::EntityT> Entity = ((EntityTreeItemT*)GetItemData(TreeItems[ItemNr]))->GetEntity();
+        MapEntRepresT*                      Repres = GetMapEnt(Entity)->GetRepres();
+        GroupT*                             Group  = Repres->GetGroup();
+
+        if (!Repres->IsVisible() || !Repres->CanSelect())
+        {
+            SetItemTextColour(TreeItems[ItemNr], GrayText);
+        }
+        else
+        {
+            SetItemTextColour(TreeItems[ItemNr], Group ? Group->Color : DefaultText);
+        }
+    }
+}
+
+
 void EntityHierarchyDialogT::NotifySubjectChanged_Selection(SubjectT* Subject, const ArrayT<MapElementT*>& OldSelection, const ArrayT<MapElementT*>& NewSelection)
 {
     if (m_IsRecursiveSelfNotify) return;
@@ -228,6 +256,12 @@ void EntityHierarchyDialogT::NotifySubjectChanged_Selection(SubjectT* Subject, c
     }
 
     m_IsRecursiveSelfNotify = false;
+}
+
+
+void EntityHierarchyDialogT::NotifySubjectChanged_Groups(SubjectT* Subject)
+{
+    UpdateAllGroupColors();
 }
 
 
@@ -351,6 +385,9 @@ void EntityHierarchyDialogT::RefreshTree()
 
     // Add all children of root recursively to the tree.
     AddChildren(ID, true);
+
+    // And properly initialize their group colors.
+    UpdateAllGroupColors();
 
     // Re-select selected entities in the tree.
     const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > Selection = m_MapDoc->GetSelectedEntities();
