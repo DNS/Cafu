@@ -2083,6 +2083,11 @@ void MapDocumentT::OnToolsHollow(wxCommandEvent& CE)
 }
 
 
+// This method assigns all selected primitives (brushes, Bezier patches, ...) to a single entity.
+// If along with the primitives
+//   - *no* entity is selected, a new entity is created;
+//   - exactly *one* entity is selected, all primitives are assigned to this entity;
+//   - *multiple* entities are selected, the user is asked to choose the desired target entity.
 void MapDocumentT::OnSelectionAssignToEntity(wxCommandEvent& CE)
 {
     // Split the selection into entities and primitives.
@@ -2111,7 +2116,7 @@ void MapDocumentT::OnSelectionAssignToEntity(wxCommandEvent& CE)
         wxMessageBox(
             "No map primitives are currently selected.\n\n"
             "Select at least one map primitive (and optionally the desired target entity) "
-            "in order to have the selected map primitives re-assigned.",
+            "in order to have the selected map primitives re-assigned to a new or existing entity.",
             "Assignment is empty");
 
         return;
@@ -2157,6 +2162,11 @@ void MapDocumentT::OnSelectionAssignToEntity(wxCommandEvent& CE)
 
         CmdNewEnt->Do();
         SubCommands.PushBack(CmdNewEnt);
+
+        CommandSelectT* CmdAddSel = CommandSelectT::Add(this, MapEnt->GetRepres());
+
+        CmdAddSel->Do();
+        SubCommands.PushBack(CmdAddSel);
 
         TargetEntity = MapEnt;
     }
