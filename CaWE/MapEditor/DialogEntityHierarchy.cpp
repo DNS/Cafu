@@ -495,7 +495,17 @@ void EntityHierarchyDialogT::OnSelectionChanged(wxTreeEvent& TE)
 {
     if (m_MapDoc == NULL || m_IsRecursiveSelfNotify) return;
 
-    m_IsRecursiveSelfNotify = true;
+    // Note that the code below may well come up with a selection that is *different* from the
+    // given selection in this control. For example,
+    //   - if "Auto-Group Entities" is enabled, more entities, or
+    //   - if a range of entities has been selected with a Shift-click and some of
+    //     them are hidden or locked, fewer entities
+    // may actually be selected than have been clicked and are currently highlighted by this
+    // control.
+    // Therefore, we *want* to have the CommandSelectTs below cause calls back to
+    // NotifySubjectChanged_Selection() in order to have the control's selection updated
+    // according to the true selection in the m_MapDoc.
+    // m_IsRecursiveSelfNotify = true;      // Intentionally not used here.
 
     // Get the currently selected tree items and update the document selection accordingly.
     wxArrayTreeItemIds SelectedItems;
@@ -512,7 +522,12 @@ void EntityHierarchyDialogT::OnSelectionChanged(wxTreeEvent& TE)
     // Possible solutions:
     //   - tell the user to not use the Shift key,
     //   - try to consume or veto the Shift key in OnKeyDown(),
-    //   - re-implement the entire selection handling "manually" in OnTreeLeftClick().
+    //   - re-implement the entire selection handling "manually" in OnTreeLeftClick(),
+    //   - don't take the control's selection as authoritative, but have it updated to reflect
+    //     the "true" selection by a subsequent call to NotifySubjectChanged_Selection().
+    //
+    // As it happens, the last item is already implemented, also for other reasons as explained
+    // above, and seems to solve the problem quite thoroughly and well.
     if (!wxGetKeyState(WXK_CONTROL))    // TE.GetKeyEvent() seems not to be available.
     {
         // Control is not down, so we're free to re-set the selection from scratch.
@@ -525,8 +540,8 @@ void EntityHierarchyDialogT::OnSelectionChanged(wxTreeEvent& TE)
             if (!Repres->IsVisible() || !Repres->CanSelect())
             {
                 // This is already checked for in OnSelectionChanging(), but as it doesn't cover multiple selections
-                // as are possible with the Shift key, we have to repeat the check here. As an unfortunate consequence,
-                // our wxTreeCtrl will show a different selection than what is actually selected in the m_MapDoc.
+                // as are possible with the Shift key, we have to repeat the check here. The subsequent call to
+                // NotifySubjectChanged_Selection() will update our wxTreeCtrl to reflect the true selection.
                 continue;
             }
 
@@ -558,7 +573,7 @@ void EntityHierarchyDialogT::OnSelectionChanged(wxTreeEvent& TE)
         wxASSERT(IsSelected(TE.GetItem()) == Repres->IsSelected());
     }
 
-    m_IsRecursiveSelfNotify = false;
+    // m_IsRecursiveSelfNotify = false;     // See above.
 }
 
 
