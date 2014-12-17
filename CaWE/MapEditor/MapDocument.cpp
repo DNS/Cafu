@@ -2216,7 +2216,9 @@ void MapDocumentT::OnSelectionAssignToEntity(wxCommandEvent& CE)
     ArrayT<MapElementT*> EmptyEntities;
 
     for (unsigned long EntNr = 0; EntNr < SelEntities.Size(); EntNr++)
-        if (SelEntities[EntNr]->GetPrimitives().Size() == 0 && SelEntities[EntNr]->GetEntity()->GetComponents().Size() == 0)
+        if (SelEntities[EntNr]->GetPrimitives().Size() == 0 &&
+            SelEntities[EntNr]->GetEntity()->GetComponents().Size() == 0 &&
+            !SelEntities[EntNr]->GetEntity()->Has(TargetEntity->GetEntity()))
             EmptyEntities.PushBack(SelEntities[EntNr]->GetRepres());
 
     if (EmptyEntities.Size() > 0)
