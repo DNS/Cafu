@@ -2214,15 +2214,38 @@ void MapDocumentT::OnSelectionAssignToEntity(wxCommandEvent& CE)
     // This is intentionally not submitted along with the macro command above, so that the user
     // has the option to undo the purge (separately from the assignment) if he wishes.
     ArrayT<MapElementT*> EmptyEntities;
+    wxString Msg = "Delete empty entities?\n\nThe following entities don't have any primitives:\n\n";
 
     for (unsigned long EntNr = 0; EntNr < SelEntities.Size(); EntNr++)
-        if (SelEntities[EntNr]->GetPrimitives().Size() == 0 &&
-            SelEntities[EntNr]->GetEntity()->GetComponents().Size() == 0 &&
-            !SelEntities[EntNr]->GetEntity()->Has(TargetEntity->GetEntity()))
+    {
+        IntrusivePtrT<cf::GameSys::EntityT> SelEnt = SelEntities[EntNr]->GetEntity();
+
+        if (SelEntities[EntNr]->GetPrimitives().Size() == 0 && !SelEnt->Has(TargetEntity->GetEntity()))
+        {
             EmptyEntities.PushBack(SelEntities[EntNr]->GetRepres());
 
+            Msg += SelEnt->GetBasics()->GetEntityName();
+
+            for (unsigned int CompNr = 0; CompNr < SelEnt->GetComponents().Size(); CompNr++)
+            {
+                Msg += (CompNr == 0) ? " (": "";
+                Msg += SelEnt->GetComponents()[CompNr]->GetName();
+                Msg += (CompNr+1 < SelEnt->GetComponents().Size()) ? ", " : ")";
+            }
+
+            Msg += "\n";
+        }
+    }
+
     if (EmptyEntities.Size() > 0)
-        CompatSubmitCommand(new CommandDeleteT(*this, EmptyEntities));
+    {
+        Msg += "\nShould these entities be deleted now?";
+
+        if (wxMessageBox(Msg, "Assignment left entities without primitives", wxYES_NO) == wxYES)
+        {
+            CompatSubmitCommand(new CommandDeleteT(*this, EmptyEntities));
+        }
+    }
 
     // Purge empty groups.
     // This is very rare: it only fires when a parent entity became empty, was thus deleted above, and was the last element in its group:
