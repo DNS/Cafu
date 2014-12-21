@@ -36,6 +36,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CompPlayerStart.hpp"
 #include "CompScript.hpp"
 #include "CompSound.hpp"
+#include "CompTarget.hpp"
 #include "CompTransform.hpp"
 
 
@@ -118,6 +119,7 @@ namespace cf
             &ComponentRadiosityLightT::TypeInfo,
             &ComponentScriptT::TypeInfo,
             &ComponentSoundT::TypeInfo,
+            &ComponentTargetT::TypeInfo,
             &ComponentTransformT::TypeInfo,
         };
     }
