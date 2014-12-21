@@ -99,7 +99,13 @@ function Map.Call_Lift_Screen:OnInit()
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_2.cmap")
 
-    self:AddComponent(c1, c2)
+    local c3 = world:new("ComponentTargetT")
+    c3:set("Target", "MyFirstLift")
+
+    local c4 = world:new("ComponentTargetT")
+    c4:set("Target", "Hall_Light")
+
+    self:AddComponent(c1, c2, c3, c4)
 end
 
 function Map.MyFirstLift:OnInit()

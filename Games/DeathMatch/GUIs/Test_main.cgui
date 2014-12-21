@@ -84,21 +84,49 @@ function Counter:OnMouseButtonDown()
     self.count = self.count + 1
     self:GetComponent("Text"):set("Text", "Counter\n" .. self.count)
 
-    -- gui.Model  is the model (component) that this GUI is attached to.
-    -- gui.Entity is the entity that holds the model that holds this GUI.
-    -- This, if we wanted to call a script that is attached to "our" entity:
-    --     gui.Entity:OnActivate()
+    -- `gui.Model`  is the Model component that holds this GUI.
+    -- `gui.Entity` is the entity that holds the `gui.Model` that holds this GUI.
+    --
+    -- Thus, if we wanted to call a script function of "our" entity, this would work:
+    --     gui.Entity:GetComponent("Script"):OnActivate()
+    --
+    -- However, for the general case, the `gui.Entity` also has Target components that specify which
+    -- entities should be "activated" (or acted upon) when this GUI is "activated" (e.g. when a button
+    -- has been pressed).
+    -- Therefore, for each target entity specified in `gui.Entity`, the following code calls the
+    -- `OnActivate()` method in the target entity's Script component.
+    -- TODO: This should be generalized and be put into a module, so that other GUIs can use it as well!
+    for i = 0, 99 do
+        local TargetComp = gui.Entity:GetComponent("Target", i)
 
-    -- This is not yet implemented, but something like this is how a reusable GUI might flexibly
-    -- work with arbitrary target entities:
-    --     gui.Entity:GetComponent("Target"):GetEntity():OnActivate()
+        -- If there are no more Target components in this entity, we're done.
+        if not TargetComp then break end
 
-    -- Alternatively,
-    --     local TargetEnt = world:GetRootEntity():FindByName("myCustomTarget")
-    --     TargetEnt:GetComponent("Script"):OnActivate()
-    -- is a viable alternative that works, or simply this:
-    world:GetRootEntity().MyFirstLift:GetComponent("Script"):OnActivate()
-    world:GetRootEntity().MyLight:GetComponent("Script"):OnActivate()
+        local TargetName = TargetComp:get("Target")
+        local TargetEnt  = world:GetRootEntity():FindByName(TargetName)     -- ... = TargetComp:GetTargetEntity()
+
+        if not TargetEnt then
+            Console.Warning(string.format("%s's target entity %s not found!\n", gui.Entity:GetBasics():get("Name"), TargetName))
+            goto continue
+        end
+
+        local TargetScript = TargetEnt:GetComponent("Script")
+
+        if not TargetScript then
+            Console.Warning(string.format("%s's target entity %s has no Script component!\n", gui.Entity:GetBasics():get("Name"), TargetName))
+            goto continue
+        end
+
+        if not TargetScript.OnActivate then
+            Console.Warning(string.format("%s's target entity %s has no OnActivate() method in its Script component!\n", gui.Entity:GetBasics():get("Name"), TargetName))
+            goto continue
+        end
+
+        -- Console.Print(string.format("Calling `%s:GetComponent(\"Script\"):OnActivate(%s)`\n", TargetName, gui.Entity:GetBasics():get("Name")))
+        TargetScript:OnActivate(gui.Entity)
+
+        ::continue::
+    end
 
     return true
 end
