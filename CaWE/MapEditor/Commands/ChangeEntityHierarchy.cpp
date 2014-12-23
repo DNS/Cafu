@@ -66,8 +66,11 @@ bool CommandChangeEntityHierarchyT::Do()
     if (!m_NewParent.IsNull()) m_NewParent->AddChild(m_Entity, m_NewPosition);
 
     // Despite the changed parent, keep the world-space transform unchanged.
-    m_Entity->GetTransform()->SetOriginWS(m_OriginWS);
-    m_Entity->GetTransform()->SetQuatWS(m_QuatWS);
+    if (m_NewParent != m_OldParent)
+    {
+        m_Entity->GetTransform()->SetOriginWS(m_OriginWS);
+        m_Entity->GetTransform()->SetQuatWS(m_QuatWS);
+    }
 
     m_MapDoc->UpdateAllObservers_EntChanged(m_Entity, EMD_HIERARCHY);
     m_Done = true;
@@ -88,8 +91,11 @@ void CommandChangeEntityHierarchyT::Undo()
     m_Entity->GetBasics()->SetEntityName(m_OldName);
 
     // Despite the changed parent, keep the world-space transform unchanged.
-    m_Entity->GetTransform()->SetOriginWS(m_OriginWS);
-    m_Entity->GetTransform()->SetQuatWS(m_QuatWS);
+    if (m_NewParent != m_OldParent)
+    {
+        m_Entity->GetTransform()->SetOriginWS(m_OriginWS);
+        m_Entity->GetTransform()->SetQuatWS(m_QuatWS);
+    }
 
     m_MapDoc->UpdateAllObservers_EntChanged(m_Entity, EMD_HIERARCHY);
     m_Done = false;
