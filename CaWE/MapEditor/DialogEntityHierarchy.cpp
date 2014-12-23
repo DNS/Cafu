@@ -757,13 +757,22 @@ void EntityHierarchyDialogT::OnBeginDrag(wxTreeEvent& TE)
         return;
     }
 
-    if (TE.GetItem() == GetRootItem())
+    // There is no need for this check, because entities can generally not be dragged "into" their children.
+    // if (TE.GetItem() == GetRootItem())
+    // {
+    //     wxMessageBox("Sorry, the root entity cannot be dragged.");
+    //     return;
+    // }
+
+    IntrusivePtrT<cf::GameSys::EntityT> Entity = ((EntityTreeItemT*)GetItemData(TE.GetItem()))->GetEntity();
+    MapEntRepresT*                      Repres = GetMapEnt(Entity)->GetRepres();
+
+    if (!Repres->CanSelect())
     {
-        wxMessageBox("Sorry, the root entity cannot be dragged.");
         return;
     }
 
-    m_DraggedEntity = ((EntityTreeItemT*)GetItemData(TE.GetItem()))->GetEntity();
+    m_DraggedEntity = Entity;
     TE.Allow();
 }
 
@@ -777,7 +786,10 @@ void EntityHierarchyDialogT::OnEndDrag(wxTreeEvent& TE)
 
     if (!TE.GetItem().IsOk()) return;
     IntrusivePtrT<cf::GameSys::EntityT> TargetEntity = ((EntityTreeItemT*)GetItemData(TE.GetItem()))->GetEntity();
+    MapEntRepresT*                      TargetRepres = GetMapEnt(TargetEntity)->GetRepres();
 
+    // If the target entity is locked, don't modify it.
+    if (!TargetRepres->CanSelect()) return;
 
     // If SourceEntity is already an immediate child of TargetEntity, do nothing.
     if (SourceEntity->GetParent() == TargetEntity) return;
@@ -785,35 +797,12 @@ void EntityHierarchyDialogT::OnEndDrag(wxTreeEvent& TE)
     // Make sure that TargetEntity is not in the subtree of SourceEntity (or else the reparenting would create invalid cycles).
     // Although the command below does the same check redundantly again, we also want to have it here for clarity.
     // Note that the TargetEntity can still be a child in a different subtree of SourceEntity->Parent.
-    {
-        ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > SubTree;
+    if (SourceEntity->Has(TargetEntity)) return;
 
-        SubTree.PushBack(SourceEntity);
-        SourceEntity->GetChildren(SubTree, true /*recurse*/);
+    // Make SourceEntity a child of TargetEntity.
+    const unsigned long NewPos = TargetEntity->GetChildren().Size();
 
-        if (SubTree.Find(TargetEntity) >= 0) return;
-    }
-
-
-    // Note that the "|| TargetEntity->Parent == NULL" half of the if-condition is actually only for safety,
-    // because TargetEntity->Parent == NULL only if TargetEntity is the root, but the root entity always has children.
-    // If it hadn't, then SourceEntity == TargetEntity, and we had not gotten here.
-    if (TargetEntity->GetChildren().Size() > 0 || TargetEntity->GetParent() == NULL)
-    {
-        // Make SourceEntity a child of TargetEntity.
-        const unsigned long NewPos = TargetEntity->GetChildren().Size();
-
-        m_Parent->SubmitCommand(new CommandChangeEntityHierarchyT(m_MapDoc, SourceEntity, TargetEntity, NewPos));
-    }
-    else
-    {
-        wxASSERT(!TargetEntity->GetParent().IsNull());   // This condition has been established in the if-branch above.
-
-        // Make SourceEntity a sibling of TargetEntity.
-        const unsigned long NewPos = TargetEntity->GetParent()->GetChildren().Find(TargetEntity);
-
-        m_Parent->SubmitCommand(new CommandChangeEntityHierarchyT(m_MapDoc, SourceEntity, TargetEntity->GetParent(), NewPos));
-    }
+    m_Parent->SubmitCommand(new CommandChangeEntityHierarchyT(m_MapDoc, SourceEntity, TargetEntity, NewPos));
 }
 
 
