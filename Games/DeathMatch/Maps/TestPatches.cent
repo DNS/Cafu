@@ -114,44 +114,7 @@ function Map.MyFirstLift:OnInit()
 
     local c1 = world:new("ComponentScriptT")
     c1:set("Name", "Games/DeathMatch/Scripts/Mover.lua")
-    c1:set("ScriptCode", [[
-local ScriptComp = ...
-
-ScriptComp.isMoving = false
-ScriptComp.isHome   = true
-ScriptComp.Origin   = { ScriptComp:GetEntity():GetTransform():get("Origin") }
-
-function ScriptComp:OnActivate(Other)
-    Console.Print("Hello from Map.MyFirstLift's OnActivate()!\n")
-
-    if self.isMoving then
-        -- If we're moving already, do nothing else until we're done.
-        return
-    end
-
-    self.isMoving = true
-    local variant = 2
-
-    if variant == 1 then
-        self:LinearPushMove(self.Origin[1], self.Origin[2], self.Origin[3] + 80.0, 1.5)
-        coroutine.yield(1.5 + 1.0)
-
-        self:LinearPushMove(self.Origin[1], self.Origin[2], self.Origin[3], 1.5)
-        coroutine.yield(1.5)
-    else
-        if self.isHome then
-            self:LinearPushMove(self.Origin[1], self.Origin[2], self.Origin[3] + 120.0, 1.5)
-        else
-            self:LinearPushMove(self.Origin[1], self.Origin[2], self.Origin[3], 1.5)
-        end
-
-        coroutine.yield(1.5)
-        self.isHome = not self.isHome
-    end
-
-    self.isMoving = false
-end
-]])
+    c1:set("ScriptCode", "")
 
     self:AddComponent(c1)
 end

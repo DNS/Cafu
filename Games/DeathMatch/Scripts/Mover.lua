@@ -12,9 +12,46 @@ Mover.Trafo:InitClientApprox("Origin")
 -- Mover.Trafo:InitClientApprox("Orientation")
 
 
+Mover.isMoving = false
+Mover.isHome   = true
+Mover.Origin   = { Mover.Trafo:get("Origin") }
+
+
+function Mover:OnActivate(OtherEnt)
+    Console.Print("Hello from " .. self:GetEntity():GetBasics():get("Name") .. "'s OnActivate(), called by " .. OtherEnt:GetBasics():get("Name") .. "!\n")
+
+    if self.isMoving then
+        -- If we're moving already, do nothing else until we're done.
+        return
+    end
+
+    self.isMoving = true
+    local variant = 2
+
+    if variant == 1 then
+        self:LinearPushMove(self.Origin[1], self.Origin[2], self.Origin[3] + 80.0, 1.5)
+        coroutine.yield(1.5 + 1.0)
+
+        self:LinearPushMove(self.Origin[1], self.Origin[2], self.Origin[3], 1.5)
+        coroutine.yield(1.5)
+    else
+        if self.isHome then
+            self:LinearPushMove(self.Origin[1], self.Origin[2], self.Origin[3] + 120.0, 1.5)
+        else
+            self:LinearPushMove(self.Origin[1], self.Origin[2], self.Origin[3], 1.5)
+        end
+
+        coroutine.yield(1.5)
+        self.isHome = not self.isHome
+    end
+
+    self.isMoving = false
+end
+
+
 function Mover:Think(FrameTime)
     if self.LinPushMove_TimeLeft > 0.0 then
-        FrameTime = math.min(FrameTime, self.LinPushMove_TimeLeft)
+        local FrameTime = math.min(FrameTime, self.LinPushMove_TimeLeft)
 
         self.LinPushMove_TimeLeft = self.LinPushMove_TimeLeft - FrameTime
 
