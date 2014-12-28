@@ -101,15 +101,13 @@ void ComponentPlayerPhysicsT::MoveHuman(float FrameTime, const Vector3fT& WishVe
 
     IntrusivePtrT<ComponentCollisionModelT> CompCollMdl = dynamic_pointer_cast<ComponentCollisionModelT>(GetEntity()->GetComponent("CollisionModel"));
 
-    const unsigned short Heading = 0;   // TODO!
-
     if (CompCollMdl != NULL)
         m_IgnoreClipModel = CompCollMdl->GetClipModel();
 
     m_Origin = GetEntity()->GetTransform()->GetOriginWS().AsVectorOfDouble();
     m_Vel    = m_Velocity.Get();
 
-    MoveHuman(FrameTime, Heading, WishVelocity.AsVectorOfDouble(), WishVelLadder.AsVectorOfDouble(), WishJump);
+    MoveHuman(FrameTime, WishVelocity.AsVectorOfDouble(), WishVelLadder.AsVectorOfDouble(), WishJump);
 
     m_IgnoreClipModel = NULL;
     GetEntity()->GetTransform()->SetOriginWS(m_Origin.AsVectorOfFloat());
@@ -411,7 +409,7 @@ void ComponentPlayerPhysicsT::GroundMove(double FrameTime)
 }
 
 
-void ComponentPlayerPhysicsT::MoveHuman(float FrameTime, unsigned short Heading, const Vector3dT& WishVelocity, const Vector3dT& WishVelLadder, bool WishJump)
+void ComponentPlayerPhysicsT::MoveHuman(float FrameTime, const Vector3dT& WishVelocity, const Vector3dT& WishVelLadder, bool WishJump)
 {
     // 1. Die Positions-Kategorie des MassChunks bestimmen:
     //    Wir können uns in der Luft befinden (im Flug/freien Fall oder schwebend im Wasser),
@@ -421,11 +419,12 @@ void ComponentPlayerPhysicsT::MoveHuman(float FrameTime, unsigned short Heading,
 
 
     // 2. Determine if we are on a ladder.
-    // ViewDir should probably be perpendicular to the gravity vector...
-    const Vector3dT ViewDir = Vector3dT(0, 0, 1);   // TODO: (LookupTables::Angle16ToSin[Heading], LookupTables::Angle16ToCos[Heading], 0.0);
+    // BodyDir does not take the player's actual view dir into account (from its camera entity),
+    // but only its heading (from the orientation of its body).
+    const Vector3dT BodyDir = cf::math::Matrix3x3fT(GetEntity()->GetTransform()->GetQuatWS()).GetAxis(0).AsVectorOfDouble();
     cf::ClipSys::TraceResultT LadderResult(1.0);
 
-    m_ClipWorld->TraceBoundingBox(m_Dimensions.Get(), m_Origin, ViewDir * 6.0, MaterialT::Clip_Players, m_IgnoreClipModel, LadderResult);
+    m_ClipWorld->TraceBoundingBox(m_Dimensions.Get(), m_Origin, BodyDir * 6.0, MaterialT::Clip_Players, m_IgnoreClipModel, LadderResult);
 
     const bool OnLadder = LadderResult.Fraction < 1.0 && LadderResult.Material && ((LadderResult.Material->ClipFlags & MaterialT::SP_Ladder) != 0);
 

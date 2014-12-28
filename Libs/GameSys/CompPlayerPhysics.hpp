@@ -96,7 +96,7 @@ namespace cf
             void ApplyGravity(double FrameTime, PosCatT PosCat);
             void FlyMove(double TimeLeft);
             void GroundMove(double FrameTime);
-            void MoveHuman(float FrameTime, unsigned short Heading, const Vector3dT& WishVelocity, const VectorT& WishVelLadder, bool WishJump);
+            void MoveHuman(float FrameTime, const Vector3dT& WishVelocity, const VectorT& WishVelLadder, bool WishJump);
 
             TypeSys::VarT<Vector3dT>       m_Velocity;      ///< The current velocity of the entity.
             TypeSys::VarT<BoundingBox3dT>  m_Dimensions;    ///< The bounding box of the entity (relative to the origin).
