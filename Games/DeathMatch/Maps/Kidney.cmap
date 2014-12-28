@@ -1,6 +1,6 @@
 // Cafu Map File
 // Written by CaWE, the Cafu World Editor.
-Version 13
+Version 14
 
 
 {
@@ -8423,20 +8423,14 @@ Version 13
 
 {
   classname "weapon_357handgun"
-  angles "0 90 0"
-  origin "-544 -192 128"
 }
 
 {
   classname "item_armor_green"
-  angles "0 90 0"
-  origin "-416 -352 0"
 }
 
 {
   classname "item_armor_green"
-  angles "0 90 0"
-  origin "-416 -288 0"
 }
 
 {
@@ -8703,32 +8697,22 @@ Version 13
 
 {
   classname "weapon_egon"
-  angles "0 90 0"
-  origin "192 448 16"
 }
 
 {
   classname "ammo_357"
-  angles "0 90 0"
-  origin "-544 64 128"
 }
 
 {
   classname "weapon_shotgun"
-  angles "0 183 0"
-  origin "160 -832 -112"
 }
 
 {
   classname "weapon_tripmine"
-  angles "0 1 0"
-  origin "-752 -880 -112"
 }
 
 {
   classname "weapon_tripmine"
-  angles "0 1 0"
-  origin "-704 -880 -112"
 }
 
 {
@@ -8825,8 +8809,6 @@ Version 13
 
 {
   classname "info_player_start"
-  angles "0 90 0"
-  origin "-1424 -464 -88"
 }
 
 {
@@ -9015,32 +8997,22 @@ Version 13
 
 {
   classname "weapon_gauss"
-  angles "0 90 0"
-  origin "-1664 1088 -112"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 90 0"
-  origin "-1248 864 64"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 90 0"
-  origin "-1248 928 64"
 }
 
 {
   classname "weapon_9mmAR"
-  angles "0 32 0"
-  origin "-2016 928 96"
 }
 
 {
   classname "item_healthkit_small"
-  angles "0 133 0"
-  origin "-1760 608 -128"
 }
 
 {
@@ -9059,14 +9031,10 @@ Version 13
 
 {
   classname "item_healthkit_small"
-  angles "0 32 0"
-  origin "160 -288 32"
 }
 
 {
   classname "item_healthkit_small"
-  angles "0 133 0"
-  origin "-1760 672 -128"
 }
 
 {
@@ -9156,188 +9124,126 @@ Version 13
 
 {
   classname "weapon_facehugger"
-  angles "0 90 0"
-  origin "-1624 384 144"
 }
 
 {
   classname "weapon_facehugger"
-  angles "0 90 0"
-  origin "-1576 384 144"
 }
 
 {
   classname "info_player_start"
-  angles "0 225 0"
-  origin "-1184 -480 -96"
 }
 
 {
   classname "info_player_start"
-  angles "0 225 0"
-  origin "-1216 128 -96"
 }
 
 {
   classname "info_player_start"
-  angles "0 270 0"
-  origin "96 -832 -88"
 }
 
 {
   classname "info_player_start"
-  angles "0 90 0"
-  origin "-656 416 40"
 }
 
 {
   classname "info_player_start"
-  angles "0 315 0"
-  origin "-416 -992 168"
 }
 
 {
   classname "info_player_start"
-  angles "0 315 0"
-  origin "488 -552 120"
 }
 
 {
   classname "weapon_crossbow"
-  angles "0 42 0"
-  origin "-832 168 136"
 }
 
 {
   classname "info_player_start"
-  angles "0 140 0"
-  origin "-1032 480 128"
 }
 
 {
   classname "info_player_start"
-  angles "0 251 0"
-  origin "-1320 1184 -88"
 }
 
 {
   classname "info_player_start"
-  angles "0 225 0"
-  origin "-1696 480 40"
 }
 
 {
   classname "weapon_357handgun"
-  angles "0 90 0"
-  origin "-1280 -640 24"
 }
 
 {
   classname "ammo_357"
-  angles "0 202 0"
-  origin "-1192 -608 24"
 }
 
 {
   classname "ammo_357"
-  angles "0 141 0"
-  origin "-1216 -640 24"
 }
 
 {
   classname "weapon_9mmAR"
-  angles "0 141 0"
-  origin "-1520 -136 -128"
 }
 
 {
   classname "ammo_9mmAR"
-  angles "0 212 0"
-  origin "-1600 64 -128"
 }
 
 {
   classname "ammo_9mmAR"
-  angles "0 212 0"
-  origin "-1600 16 -128"
 }
 
 {
   classname "item_healthkit_small"
-  angles "0 269 0"
-  origin "-1192 -792 -128"
 }
 
 {
   classname "ammo_ARgrenades"
-  angles "0 117 0"
-  origin "-656 744 0"
 }
 
 {
   classname "ammo_ARgrenades"
-  angles "0 229 0"
-  origin "-656 696 0"
 }
 
 {
   classname "weapon_9mmAR"
-  angles "0 229 0"
-  origin "-232 760 0"
 }
 
 {
   classname "item_armor_green"
-  angles "0 174 0"
-  origin "-408 -792 144"
 }
 
 {
   classname "ammo_gausscells"
-  angles "0 174 0"
-  origin "-448 -792 144"
 }
 
 {
   classname "ammo_crossbow_arrows"
-  angles "0 269 0"
-  origin "-1240 -792 -128"
 }
 
 {
   classname "ammo_crossbow_arrows"
-  angles "0 214 0"
-  origin "-1280 -792 -128"
 }
 
 {
   classname "ammo_shotgun_shells"
-  angles "0 90 0"
-  origin "-2016 -32 16"
 }
 
 {
   classname "ammo_shotgun_shells"
-  angles "0 219 0"
-  origin "-2016 16 16"
 }
 
 {
   classname "weapon_shotgun"
-  angles "0 90 0"
-  origin "-2016 64 16"
 }
 
 {
   classname "weapon_shotgun"
-  angles "0 225 0"
-  origin "-864 672 -128"
 }
 
 {
   classname "ammo_shotgun_shells"
-  angles "0 151 0"
-  origin "-896 672 -128"
 }
 
 {
@@ -9413,13 +9319,118 @@ Version 13
 }
 
 {
+  classname "Rigid Body"
+
+  {
+    ( -1912 288 40 ) ( -1872 288 40 ) ( -1872 248 40 ) "Textures/Frank/djcrate01" ( 2 0.799999 0.2 0 ( 40 0 0 ) ( 0 -40 0 ) )
+    ( -1912 248 0 ) ( -1872 248 0 ) ( -1872 288 0 ) "Textures/Frank/djcrate01" ( 2 0.799999 0.2 0 ( 40 0 0 ) ( 0 -40 0 ) )
+    ( -1912 288 40 ) ( -1912 248 40 ) ( -1912 248 0 ) "Textures/Frank/djcrate02" ( 2 0.2 0 0 ( 0 -40 0 ) ( 0 0 -40 ) )
+    ( -1872 288 0 ) ( -1872 248 0 ) ( -1872 248 40 ) "Textures/Frank/djcrate02" ( 2 -0.2 0 0 ( 0 40 0 ) ( 0 0 -40 ) )
+    ( -1872 288 40 ) ( -1912 288 40 ) ( -1912 288 0 ) "Textures/Frank/djcrate01" ( 2 0.799999 0 0 ( 40 0 0 ) ( 0 0 -40 ) )
+    ( -1872 248 0 ) ( -1912 248 0 ) ( -1912 248 40 ) "Textures/Frank/djcrate01" ( 2 0.799999 0 0 ( 40 0 0 ) ( 0 0 -40 ) )
+  }
+}
+
+{
+  classname "static_detail_model"
+}
+
+{
+  classname "static_detail_model"
+}
+
+{
+
+  {
+    ( -1228 576 -128 ) ( -1228 704 -128 ) ( -1228 576 0 ) "Textures/meta/trigger" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
+    ( -1228 576 -128 ) ( -1228 576 0 ) ( -1092 576 -128 ) "Textures/meta/trigger" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( -1228 576 -128 ) ( -1092 576 -128 ) ( -1228 704 -128 ) "Textures/meta/trigger" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( -1228 576 0 ) ( -1228 704 0 ) ( -1092 576 0 ) "Textures/meta/trigger" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( -1228 704 -128 ) ( -1092 704 -128 ) ( -1228 704 0 ) "Textures/meta/trigger" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( -1092 576 -128 ) ( -1092 576 0 ) ( -1092 704 -128 ) "Textures/meta/trigger" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
+  }
+}
+
+{
   classname "func_door"
-  triggerPadding "60"
-  moveDir "0 1 0"
-  openTime "3"
-  lip "18"
-  moveTime "5"
-  name "door1_left"
+  team "Doors Team 1"
+
+  {
+    ( -1168 576 -37 ) ( -1168 -424 -37 ) ( -2168 575.9999 -37 ) "Textures/TechDemo/doors/Heavy" ( 2 0.28125 -0.875 0 ( 512 0 0 ) ( 0 -512 0 ) )
+    ( -1168 568.4866 -120.186035 ) ( -2168 568.4866 -120.186035 ) ( -1168 -152.34644 -813.2948 ) "TechDemo/caves/wardoortrim" ( 2 0.25 -0.594757 0 ( 64 0 0 ) ( 0 -16 0 ) )
+    ( -1168 576 -128 ) ( -1168 -424 -128 ) ( -1168 576 -1128 ) "Textures/TechDemo/doors/Heavy" ( 2 0.503784 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
+    ( -1152 576 -128 ) ( -1152 1576 -128 ) ( -1152 576 -1128 ) "Textures/TechDemo/doors/Heavy" ( 2 0.5 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
+    ( -1168 576 -128 ) ( -168 576 -128 ) ( -1168 576 -1128 ) "Textures/meta/caulk" ( 2 0.25 -0.21875 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( -1168 576 -62 ) ( -1168 1576 -62 ) ( -2168 576 -62 ) "TechDemo/caves/wardoortrim" ( 2 0.25 -0.594757 0 ( 64 0 0 ) ( 0 -16 0 ) )
+  }
+
+  {
+    ( -1168 601 -62 ) ( -1152 601 -62 ) ( -1152 576 -62 ) "Textures/TechDemo/doors/Heavy" ( 2 0.28125 -0.875 0 ( 512 0 0 ) ( 0 -512 0 ) )
+    ( -1168 576 -72 ) ( -1152 576 -72 ) ( -1152 601 -72 ) "TechDemo/caves/wardoortrim" ( 2 0.25 -0.594757 0 ( 64 0 0 ) ( 0 -16 0 ) )
+    ( -1168 601 -62 ) ( -1168 576 -62 ) ( -1168 576 -72 ) "Textures/TechDemo/doors/Heavy" ( 2 0.503784 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
+    ( -1152 601 -72 ) ( -1152 576 -72 ) ( -1152 576 -62 ) "Textures/TechDemo/doors/Heavy" ( 2 0.5 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
+    ( -1152 601 -62 ) ( -1168 601 -62 ) ( -1168 601 -72 ) "TechDemo/caves/wardoortrim" ( 2 0.25 0.03125 0 ( 64 0 0 ) ( 0 0 -16 ) )
+    ( -1152 576 -72 ) ( -1168 576 -72 ) ( -1168 576 -62 ) "Textures/meta/caulk" ( 2 0.25 -0.21875 0 ( 64 0 0 ) ( 0 0 -64 ) )
+  }
+
+  {
+    ( -1168 704 0 ) ( -1152 704 0 ) ( -1152 576 0 ) "Textures/meta/caulk" ( 2 0.25 -0.392365 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( -1168 576 -37 ) ( -1152 576 -37 ) ( -1152 704 -37 ) "TechDemo/caves/wardoortrim" ( 2 0.25 -0.594757 0 ( 64 0 0 ) ( 0 -16 0 ) )
+    ( -1168 704 0 ) ( -1168 576 0 ) ( -1168 576 -37 ) "Textures/TechDemo/doors/Heavy" ( 2 0.501831 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
+    ( -1152 704 -37 ) ( -1152 576 -37 ) ( -1152 576 0 ) "Textures/TechDemo/doors/Heavy" ( 2 0.5 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
+    ( -1152 704 0 ) ( -1168 704 0 ) ( -1168 704 -37 ) "Textures/meta/caulk" ( 2 0.25 -0.21875 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( -1152 576 -37 ) ( -1168 576 -37 ) ( -1168 576 0 ) "Textures/meta/caulk" ( 2 0.25 -0.21875 0 ( 64 0 0 ) ( 0 0 -64 ) )
+  }
+}
+
+{
+  classname "func_door"
+  openTime "0.5"
+  moveTime "1"
+  team "Doors Team 1"
+
+  {
+    ( -1168 704 -72 ) ( -1152 704 -72 ) ( -1152 576 -72 ) "TechDemo/caves/wardoortrim" ( 2 0.25 -0.594757 0 ( 64 0 0 ) ( 0 -16 0 ) )
+    ( -1168 576 -128 ) ( -1152 576 -128 ) ( -1152 704 -128 ) "Textures/meta/caulk" ( 2 0.25 -0.392365 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( -1168 704 -72 ) ( -1168 576 -72 ) ( -1168 576 -128 ) "Textures/TechDemo/doors/Heavy" ( 2 0.503784 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
+    ( -1152 704 -128 ) ( -1152 576 -128 ) ( -1152 576 -72 ) "Textures/TechDemo/doors/Heavy" ( 2 0.5 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
+    ( -1152 704 -72 ) ( -1168 704 -72 ) ( -1168 704 -128 ) "Textures/meta/caulk" ( 2 0.25 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( -1152 576 -128 ) ( -1168 576 -128 ) ( -1168 576 -72 ) "Textures/meta/caulk" ( 2 0.25 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
+  }
+
+  {
+    ( -1168 704 -62 ) ( -1152 704 -62 ) ( -1152 601 -62 ) "TechDemo/caves/wardoortrim" ( 2 0.25 -0.594757 0 ( 64 0 0 ) ( 0 -16 0 ) )
+    ( -1168 601 -72 ) ( -1152 601 -72 ) ( -1152 704 -72 ) "Textures/TechDemo/doors/Heavy" ( 2 0.28125 -0.875 0 ( 512 0 0 ) ( 0 -512 0 ) )
+    ( -1168 704 -62 ) ( -1168 601 -62 ) ( -1168 601 -72 ) "Textures/TechDemo/doors/Heavy" ( 2 0.503784 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
+    ( -1152 704 -72 ) ( -1152 601 -72 ) ( -1152 601 -62 ) "Textures/TechDemo/doors/Heavy" ( 2 0.5 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
+    ( -1152 704 -62 ) ( -1168 704 -62 ) ( -1168 704 -72 ) "Textures/meta/caulk" ( 2 0.25 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( -1152 601 -72 ) ( -1168 601 -72 ) ( -1168 601 -62 ) "TechDemo/caves/wardoortrim" ( 2 0.25 0 0 ( 64 0 0 ) ( 0 0 -16 ) )
+  }
+
+  {
+    ( -1168 576 -37 ) ( -1168 -424 -37 ) ( -2168 575.9999 -37 ) "TechDemo/caves/wardoortrim" ( 2 0.25 -0.594757 0 ( 64 0 0 ) ( 0 -16 0 ) )
+    ( -1168 704 -128 ) ( -2168 704 -128 ) ( -1168 704 -1128 ) "Textures/meta/caulk" ( 2 0.25 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( -1168 576 -128 ) ( -1168 -424 -128 ) ( -1168 576 -1128 ) "Textures/TechDemo/doors/Heavy" ( 2 0.503784 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
+    ( -1152 576 -128 ) ( -1152 1576 -128 ) ( -1152 576 -1128 ) "Textures/TechDemo/doors/Heavy" ( 2 0.5 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
+    ( -1168 568.4866 -120.186035 ) ( -168 568.4866 -120.186035 ) ( -1168 -152.34644 -813.2948 ) "TechDemo/caves/wardoortrim" ( 2 0.25 -0.594757 0 ( 64 0 0 ) ( 0 -16 0 ) )
+    ( -1168 576 -62 ) ( -1168 1576 -62 ) ( -2168 576 -62 ) "Textures/TechDemo/doors/Heavy" ( 2 0.28125 -0.875 0 ( 512 0 0 ) ( 0 -512 0 ) )
+  }
+}
+
+{
+
+  {
+    ( -1142 -377 -125 ) ( -1142 -263 -125 ) ( -1142 -377 -3 ) "Textures/meta/trigger" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
+    ( -1142 -377 -125 ) ( -1142 -377 -3 ) ( -1018 -377 -125 ) "Textures/meta/trigger" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( -1142 -377 -125 ) ( -1018 -377 -125 ) ( -1142 -263 -125 ) "Textures/meta/trigger" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( -1142 -377 -3 ) ( -1142 -263 -3 ) ( -1018 -377 -3 ) "Textures/meta/trigger" ( 2 0 0 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( -1142 -263 -125 ) ( -1018 -263 -125 ) ( -1142 -263 -3 ) "Textures/meta/trigger" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
+    ( -1018 -377 -125 ) ( -1018 -377 -3 ) ( -1018 -263 -125 ) "Textures/meta/trigger" ( 2 0 0 0 ( 0 64 0 ) ( 0 0 -64 ) )
+  }
+}
+
+{
+  classname "func_door"
   team "Double Door 1"
 
   {
@@ -9470,12 +9481,8 @@ Version 13
 
 {
   classname "func_door"
-  triggerPadding "60"
-  moveDir "0 -1 0"
   openTime "3"
-  lip "18"
   moveTime "5"
-  name "door1_right"
   team "Double Door 1"
 
   {
@@ -9522,111 +9529,4 @@ Version 13
     ( -1078 -312 -16 ) ( -1082 -312 -16 ) ( -1082 -312 -28 ) "TechDemo/walls/panel-trim1" ( 2 0.5 0 0 ( 4 0 0 ) ( 0 0 -64 ) )
     ( -1078 -320 -28 ) ( -1082 -320 -28 ) ( -1082 -320 -16 ) "Textures/TechDemo/doors/Light" ( 2 0.117188 -0.25 0 ( 512 0 0 ) ( 0 0 -512 ) )
   }
-}
-
-{
-  classname "func_door"
-  triggerPadding "60"
-  moveDir "0 0 1"
-  openTime "0.5"
-  lip "10"
-  moveTime "1"
-  team "Doors Team 1"
-
-  {
-    ( -1168 576 -37 ) ( -1168 -424 -37 ) ( -2168 575.9999 -37 ) "Textures/TechDemo/doors/Heavy" ( 2 0.28125 -0.875 0 ( 512 0 0 ) ( 0 -512 0 ) )
-    ( -1168 568.4866 -120.186035 ) ( -2168 568.4866 -120.186035 ) ( -1168 -152.34644 -813.2948 ) "TechDemo/caves/wardoortrim" ( 2 0.25 -0.594757 0 ( 64 0 0 ) ( 0 -16 0 ) )
-    ( -1168 576 -128 ) ( -1168 -424 -128 ) ( -1168 576 -1128 ) "Textures/TechDemo/doors/Heavy" ( 2 0.503784 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
-    ( -1152 576 -128 ) ( -1152 1576 -128 ) ( -1152 576 -1128 ) "Textures/TechDemo/doors/Heavy" ( 2 0.5 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
-    ( -1168 576 -128 ) ( -168 576 -128 ) ( -1168 576 -1128 ) "Textures/meta/caulk" ( 2 0.25 -0.21875 0 ( 64 0 0 ) ( 0 0 -64 ) )
-    ( -1168 576 -62 ) ( -1168 1576 -62 ) ( -2168 576 -62 ) "TechDemo/caves/wardoortrim" ( 2 0.25 -0.594757 0 ( 64 0 0 ) ( 0 -16 0 ) )
-  }
-
-  {
-    ( -1168 601 -62 ) ( -1152 601 -62 ) ( -1152 576 -62 ) "Textures/TechDemo/doors/Heavy" ( 2 0.28125 -0.875 0 ( 512 0 0 ) ( 0 -512 0 ) )
-    ( -1168 576 -72 ) ( -1152 576 -72 ) ( -1152 601 -72 ) "TechDemo/caves/wardoortrim" ( 2 0.25 -0.594757 0 ( 64 0 0 ) ( 0 -16 0 ) )
-    ( -1168 601 -62 ) ( -1168 576 -62 ) ( -1168 576 -72 ) "Textures/TechDemo/doors/Heavy" ( 2 0.503784 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
-    ( -1152 601 -72 ) ( -1152 576 -72 ) ( -1152 576 -62 ) "Textures/TechDemo/doors/Heavy" ( 2 0.5 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
-    ( -1152 601 -62 ) ( -1168 601 -62 ) ( -1168 601 -72 ) "TechDemo/caves/wardoortrim" ( 2 0.25 0.03125 0 ( 64 0 0 ) ( 0 0 -16 ) )
-    ( -1152 576 -72 ) ( -1168 576 -72 ) ( -1168 576 -62 ) "Textures/meta/caulk" ( 2 0.25 -0.21875 0 ( 64 0 0 ) ( 0 0 -64 ) )
-  }
-
-  {
-    ( -1168 704 0 ) ( -1152 704 0 ) ( -1152 576 0 ) "Textures/meta/caulk" ( 2 0.25 -0.392365 0 ( 64 0 0 ) ( 0 -64 0 ) )
-    ( -1168 576 -37 ) ( -1152 576 -37 ) ( -1152 704 -37 ) "TechDemo/caves/wardoortrim" ( 2 0.25 -0.594757 0 ( 64 0 0 ) ( 0 -16 0 ) )
-    ( -1168 704 0 ) ( -1168 576 0 ) ( -1168 576 -37 ) "Textures/TechDemo/doors/Heavy" ( 2 0.501831 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
-    ( -1152 704 -37 ) ( -1152 576 -37 ) ( -1152 576 0 ) "Textures/TechDemo/doors/Heavy" ( 2 0.5 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
-    ( -1152 704 0 ) ( -1168 704 0 ) ( -1168 704 -37 ) "Textures/meta/caulk" ( 2 0.25 -0.21875 0 ( 64 0 0 ) ( 0 0 -64 ) )
-    ( -1152 576 -37 ) ( -1168 576 -37 ) ( -1168 576 0 ) "Textures/meta/caulk" ( 2 0.25 -0.21875 0 ( 64 0 0 ) ( 0 0 -64 ) )
-  }
-}
-
-{
-  classname "func_door"
-  triggerPadding "60"
-  moveDir "0 0 -1"
-  openTime "0.5"
-  lip "10"
-  moveTime "1"
-  team "Doors Team 1"
-
-  {
-    ( -1168 704 -72 ) ( -1152 704 -72 ) ( -1152 576 -72 ) "TechDemo/caves/wardoortrim" ( 2 0.25 -0.594757 0 ( 64 0 0 ) ( 0 -16 0 ) )
-    ( -1168 576 -128 ) ( -1152 576 -128 ) ( -1152 704 -128 ) "Textures/meta/caulk" ( 2 0.25 -0.392365 0 ( 64 0 0 ) ( 0 -64 0 ) )
-    ( -1168 704 -72 ) ( -1168 576 -72 ) ( -1168 576 -128 ) "Textures/TechDemo/doors/Heavy" ( 2 0.503784 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
-    ( -1152 704 -128 ) ( -1152 576 -128 ) ( -1152 576 -72 ) "Textures/TechDemo/doors/Heavy" ( 2 0.5 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
-    ( -1152 704 -72 ) ( -1168 704 -72 ) ( -1168 704 -128 ) "Textures/meta/caulk" ( 2 0.25 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
-    ( -1152 576 -128 ) ( -1168 576 -128 ) ( -1168 576 -72 ) "Textures/meta/caulk" ( 2 0.25 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
-  }
-
-  {
-    ( -1168 704 -62 ) ( -1152 704 -62 ) ( -1152 601 -62 ) "TechDemo/caves/wardoortrim" ( 2 0.25 -0.594757 0 ( 64 0 0 ) ( 0 -16 0 ) )
-    ( -1168 601 -72 ) ( -1152 601 -72 ) ( -1152 704 -72 ) "Textures/TechDemo/doors/Heavy" ( 2 0.28125 -0.875 0 ( 512 0 0 ) ( 0 -512 0 ) )
-    ( -1168 704 -62 ) ( -1168 601 -62 ) ( -1168 601 -72 ) "Textures/TechDemo/doors/Heavy" ( 2 0.503784 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
-    ( -1152 704 -72 ) ( -1152 601 -72 ) ( -1152 601 -62 ) "Textures/TechDemo/doors/Heavy" ( 2 0.5 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
-    ( -1152 704 -62 ) ( -1168 704 -62 ) ( -1168 704 -72 ) "Textures/meta/caulk" ( 2 0.25 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
-    ( -1152 601 -72 ) ( -1168 601 -72 ) ( -1168 601 -62 ) "TechDemo/caves/wardoortrim" ( 2 0.25 0 0 ( 64 0 0 ) ( 0 0 -16 ) )
-  }
-
-  {
-    ( -1168 576 -37 ) ( -1168 -424 -37 ) ( -2168 575.9999 -37 ) "TechDemo/caves/wardoortrim" ( 2 0.25 -0.594757 0 ( 64 0 0 ) ( 0 -16 0 ) )
-    ( -1168 704 -128 ) ( -2168 704 -128 ) ( -1168 704 -1128 ) "Textures/meta/caulk" ( 2 0.25 0 0 ( 64 0 0 ) ( 0 0 -64 ) )
-    ( -1168 576 -128 ) ( -1168 -424 -128 ) ( -1168 576 -1128 ) "Textures/TechDemo/doors/Heavy" ( 2 0.503784 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
-    ( -1152 576 -128 ) ( -1152 1576 -128 ) ( -1152 576 -1128 ) "Textures/TechDemo/doors/Heavy" ( 2 0.5 0 0 ( 0 128 0 ) ( 0 0 -128 ) )
-    ( -1168 568.4866 -120.186035 ) ( -168 568.4866 -120.186035 ) ( -1168 -152.34644 -813.2948 ) "TechDemo/caves/wardoortrim" ( 2 0.25 -0.594757 0 ( 64 0 0 ) ( 0 -16 0 ) )
-    ( -1168 576 -62 ) ( -1168 1576 -62 ) ( -2168 576 -62 ) "Textures/TechDemo/doors/Heavy" ( 2 0.28125 -0.875 0 ( 512 0 0 ) ( 0 -512 0 ) )
-  }
-}
-
-{
-  classname "Rigid Body"
-  Mass "10"
-  name "Rigid_Body_001"
-
-  {
-    ( -1912 288 40 ) ( -1872 288 40 ) ( -1872 248 40 ) "Textures/Frank/djcrate01" ( 2 0.799999 0.2 0 ( 40 0 0 ) ( 0 -40 0 ) )
-    ( -1912 248 0 ) ( -1872 248 0 ) ( -1872 288 0 ) "Textures/Frank/djcrate01" ( 2 0.799999 0.2 0 ( 40 0 0 ) ( 0 -40 0 ) )
-    ( -1912 288 40 ) ( -1912 248 40 ) ( -1912 248 0 ) "Textures/Frank/djcrate02" ( 2 0.2 0 0 ( 0 -40 0 ) ( 0 0 -40 ) )
-    ( -1872 288 0 ) ( -1872 248 0 ) ( -1872 248 40 ) "Textures/Frank/djcrate02" ( 2 -0.2 0 0 ( 0 40 0 ) ( 0 0 -40 ) )
-    ( -1872 288 40 ) ( -1912 288 40 ) ( -1912 288 0 ) "Textures/Frank/djcrate01" ( 2 0.799999 0 0 ( 40 0 0 ) ( 0 0 -40 ) )
-    ( -1872 248 0 ) ( -1912 248 0 ) ( -1912 248 40 ) "Textures/Frank/djcrate01" ( 2 0.799999 0 0 ( 40 0 0 ) ( 0 0 -40 ) )
-  }
-}
-
-{
-  classname "static_detail_model"
-  angles "-0 120 -0"
-  name "FaceHugger"
-  model "Models/LifeForms/FaceHugger/FaceHugger.cmdl"
-  scale "1.0"
-  origin "-63 445 -8"
-}
-
-{
-  classname "static_detail_model"
-  angles "-0 180 -0"
-  name "Skeleton"
-  model "Models/Players/Skeleton/Skeleton.cmdl"
-  scale "1.0"
-  origin "-324 450 28"
 }
