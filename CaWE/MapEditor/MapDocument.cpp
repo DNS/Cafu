@@ -2122,27 +2122,6 @@ void MapDocumentT::OnSelectionAssignToEntity(wxCommandEvent& CE)
         return;
     }
 
-    // If exactly one entity is selected and all primitives are already assigned to that entity, quit here.
-    if (SelEntities.Size() == 1)
-    {
-        unsigned long PrimNr = 0;
-
-        for (PrimNr = 0; PrimNr < SelPrimitives.Size(); PrimNr++)
-            if (SelEntities[0] != SelPrimitives[PrimNr]->GetParent())
-                break;
-
-        if (PrimNr >= SelPrimitives.Size())
-        {
-            wxMessageBox(
-                "All selected map primitives are assigned to the selected entity already.\n\n"
-                "Select a different entity (or none, in order to have automatically created a new one) "
-                "in order to have the selected map primitives re-assigned.",
-                "Assignment has no effect");
-
-            return;
-        }
-    }
-
     // Determine the target entity.
     ArrayT<CommandT*>             SubCommands;
     IntrusivePtrT<CompMapEntityT> TargetEntity = NULL;
@@ -2173,6 +2152,43 @@ void MapDocumentT::OnSelectionAssignToEntity(wxCommandEvent& CE)
     else if (SelEntities.Size() == 1)
     {
         TargetEntity = SelEntities[0];
+
+        // Check if all map primitives are assigned to the single selected entity already.
+        // If so, extra considerations are warranted.
+        unsigned long PrimNr = 0;
+
+        for (PrimNr = 0; PrimNr < SelPrimitives.Size(); PrimNr++)
+            if (SelEntities[0] != SelPrimitives[PrimNr]->GetParent())
+                break;
+
+        if (PrimNr >= SelPrimitives.Size())
+        {
+            if (SelEntities[0] == GetRootMapEntity())
+            {
+                wxMessageBox(
+                    "All selected map primitives are assigned to the selected entity already.\n\n"
+                    "Select a different entity (or none, in order to have automatically created a new one) "
+                    "in order to have the selected map primitives re-assigned.",
+                    "Assignment has no effect");
+
+                return;
+            }
+
+            if (wxMessageBox(
+                "Assign to root entity \"" + GetRootMapEntity()->GetEntity()->GetBasics()->GetEntityName() + "\" instead?\n\n"
+                "All selected map primitives are assigned to the selected entity already, "
+                "so the assignment as-is has no effect.\n\n"
+                "Click \"Yes\" in order to assign the selected map primitives to the map's root entity \"" + GetRootMapEntity()->GetEntity()->GetBasics()->GetEntityName() + "\" instead.\n\n"
+                "Click \"No\" to cancel. You can then select a different entity "
+                "(or none, in order to have automatically created a new one) "
+                "in order to have the selected map primitives re-assigned.",
+                "Assignment has no effect", wxYES_NO | wxCENTRE) != wxYES)
+            {
+                return;
+            }
+
+            TargetEntity = GetRootMapEntity();
+        }
     }
     else
     {
