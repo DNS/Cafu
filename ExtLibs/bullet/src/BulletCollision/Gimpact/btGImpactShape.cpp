@@ -25,6 +25,7 @@ subject to the following restrictions:
 
 #define CALC_EXACT_INERTIA 1
 
+
 void btGImpactCompoundShape::calculateLocalInertia(btScalar mass,btVector3& inertia) const
 {
 	lockChildShapes();
@@ -144,6 +145,31 @@ void btGImpactMeshShape::rayTest(const btVector3& rayFrom, const btVector3& rayT
 {
 }
 
+void btGImpactMeshShapePart::processAllTrianglesRay(btTriangleCallback* callback,const btVector3& rayFrom, const btVector3& rayTo) const
+{
+	lockChildShapes();
+
+	btAlignedObjectArray<int> collided;
+	btVector3 rayDir(rayTo - rayFrom);
+	rayDir.normalize();
+	m_box_set.rayQuery(rayDir, rayFrom, collided);
+
+	if(collided.size()==0)
+	{
+		unlockChildShapes();
+		return;
+	}
+
+	int part = (int)getPart();
+	btPrimitiveTriangle triangle;
+	int i = collided.size();
+	while(i--)
+	{
+		getPrimitiveTriangle(collided[i],triangle);
+		callback->processTriangle(triangle.m_vertices,part,collided[i]);
+	}
+	unlockChildShapes();
+}
 
 void btGImpactMeshShapePart::processAllTriangles(btTriangleCallback* callback,const btVector3& aabbMin,const btVector3& aabbMax) const
 {
@@ -181,3 +207,32 @@ void btGImpactMeshShape::processAllTriangles(btTriangleCallback* callback,const 
 		m_mesh_parts[i]->processAllTriangles(callback,aabbMin,aabbMax);
 	}
 }
+
+void btGImpactMeshShape::processAllTrianglesRay(btTriangleCallback* callback,const btVector3& rayFrom, const btVector3& rayTo) const
+{
+	int i = m_mesh_parts.size();
+	while(i--)
+	{
+		m_mesh_parts[i]->processAllTrianglesRay(callback, rayFrom, rayTo);
+	}
+}
+
+
+///fills the dataBuffer and returns the struct name (and 0 on failure)
+const char*	btGImpactMeshShape::serialize(void* dataBuffer, btSerializer* serializer) const
+{
+	btGImpactMeshShapeData* trimeshData = (btGImpactMeshShapeData*) dataBuffer;
+
+	btCollisionShape::serialize(&trimeshData->m_collisionShapeData,serializer);
+
+	m_meshInterface->serialize(&trimeshData->m_meshInterface, serializer);
+
+	trimeshData->m_collisionMargin = float(m_collisionMargin);
+
+	localScaling.serializeFloat(trimeshData->m_localScaling);
+
+	trimeshData->m_gimpactSubType = int(getGImpactShapeType());
+
+	return "btGImpactMeshShapeData";
+}
+

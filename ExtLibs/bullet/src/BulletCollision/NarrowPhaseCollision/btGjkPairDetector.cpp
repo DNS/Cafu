@@ -50,7 +50,8 @@ m_marginA(objectA->getMargin()),
 m_marginB(objectB->getMargin()),
 m_ignoreMargin(false),
 m_lastUsedMethod(-1),
-m_catchDegeneracies(1)
+m_catchDegeneracies(1),
+m_fixContactNormalDirection(1)
 {
 }
 btGjkPairDetector::btGjkPairDetector(const btConvexShape* objectA,const btConvexShape* objectB,int shapeTypeA,int shapeTypeB,btScalar marginA, btScalar marginB, btSimplexSolverInterface* simplexSolver,btConvexPenetrationDepthSolver*	penetrationDepthSolver)
@@ -65,7 +66,8 @@ m_marginA(marginA),
 m_marginB(marginB),
 m_ignoreMargin(false),
 m_lastUsedMethod(-1),
-m_catchDegeneracies(1)
+m_catchDegeneracies(1),
+m_fixContactNormalDirection(1)
 {
 }
 
@@ -254,19 +256,20 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput& inpu
 			}
 #endif //
 			
-			m_cachedSeparatingAxis = newCachedSeparatingAxis;
 
 			//redundant m_simplexSolver->compute_points(pointOnA, pointOnB);
 
 			//are we getting any closer ?
 			if (previousSquaredDistance - squaredDistance <= SIMD_EPSILON * previousSquaredDistance) 
 			{ 
-				m_simplexSolver->backup_closest(m_cachedSeparatingAxis);
+//				m_simplexSolver->backup_closest(m_cachedSeparatingAxis);
 				checkSimplex = true;
 				m_degenerateSimplex = 12;
 				
 				break;
 			}
+
+			m_cachedSeparatingAxis = newCachedSeparatingAxis;
 
 			  //degeneracy, this is typically due to invalid/uninitialized worldtransforms for a btCollisionObject   
               if (m_curIter++ > gGjkMaxIter)   
@@ -294,7 +297,7 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput& inpu
 			if (!check)
 			{
 				//do we need this backup_closest here ?
-				m_simplexSolver->backup_closest(m_cachedSeparatingAxis);
+//				m_simplexSolver->backup_closest(m_cachedSeparatingAxis);
 				m_degenerateSimplex = 13;
 				break;
 			}
@@ -303,7 +306,7 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput& inpu
 		if (checkSimplex)
 		{
 			m_simplexSolver->compute_points(pointOnA, pointOnB);
-			normalInB = pointOnA-pointOnB;
+			normalInB = m_cachedSeparatingAxis;
 			btScalar lenSqr =m_cachedSeparatingAxis.length2();
 			
 			//valid normal
@@ -352,7 +355,7 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput& inpu
 					m_minkowskiA,m_minkowskiB,
 					localTransA,localTransB,
 					m_cachedSeparatingAxis, tmpPointOnA, tmpPointOnB,
-					debugDraw,input.m_stackAlloc
+					debugDraw
 					);
 
 
@@ -437,6 +440,27 @@ void btGjkPairDetector::getClosestPointsNonVirtual(const ClosestPointInput& inpu
 		}
 #endif 
 
+		if (m_fixContactNormalDirection)
+		{
+			///@workaround for sticky convex collisions
+			//in some degenerate cases (usually when the use uses very small margins) 
+			//the contact normal is pointing the wrong direction
+			//so fix it now (until we can deal with all degenerate cases in GJK and EPA)
+			//contact normals need to point from B to A in all cases, so we can simply check if the contact normal really points from B to A
+			//We like to use a dot product of the normal against the difference of the centroids, 
+			//once the centroid is available in the API
+			//until then we use the center of the aabb to approximate the centroid
+			btVector3 aabbMin,aabbMax;
+			m_minkowskiA->getAabb(localTransA,aabbMin,aabbMax);
+			btVector3 posA  = (aabbMax+aabbMin)*btScalar(0.5);
+		
+			m_minkowskiB->getAabb(localTransB,aabbMin,aabbMax);
+			btVector3 posB = (aabbMin+aabbMax)*btScalar(0.5);
+
+			btVector3 diff = posA-posB;
+			if (diff.dot(normalInB) < 0.f)
+				normalInB *= -1.f;
+		}
 		m_cachedSeparatingAxis = normalInB;
 		m_cachedSeparatingDistance = distance;
 
