@@ -334,6 +334,12 @@ inline __m128 operator * (const __m128 A, const __m128 B)
 #else//BT_USE_NEON
 
 	#ifndef BT_INFINITY
+    #ifndef _MSC_VER
+        // See these two threads for details:
+        //   - http://www.cafu.de/forum/viewtopic.php?f=6&t=1674
+        //   - http://bulletphysics.org/Bullet/phpBB3/viewtopic.php?t=9537
+        __attribute((__unused__))
+    #endif
 	static  int btInfinityMask = 0x7F800000;
 	#define BT_INFINITY (*(float*)&btInfinityMask)
 	#endif
