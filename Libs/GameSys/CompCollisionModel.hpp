@@ -62,7 +62,7 @@ namespace cf
             const char* GetName() const { return "CollisionModel"; }
             void UpdateDependencies(EntityT* Entity);
             unsigned int GetEditorColor() const { return 0xAAAAAA; }
-            void GetCollisionBB(BoundingBox3fT& BB) const;
+            BoundingBox3fT GetCollisionBB() const override;
 
 
             // The TypeSys related declarations for this class.

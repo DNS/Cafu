@@ -233,6 +233,20 @@ namespace cf
             ///     doesn't have a visual representation.
             BoundingBox3fT GetCullingBB(bool WorldSpace) const;
 
+            /// Returns a bounding-box of the collision model(s) of this entity.
+            ///
+            /// This method does *not* recurse: The returned bounding-box covers this entity, but not its children.
+            ///
+            /// @param WorldSpace   If `true`, the bounding-box is returned in world-space coordinates.
+            ///                     If `false`, the bounding-box is returned in local entity-space.
+            ///                     Note that due to the transformation, the volume of the bounding-box in world-space
+            ///                     may be larger than the volume of the bounding-box in entity-space.
+            ///
+            /// @return The bounding-box of the collision model(s) of this entity.
+            /// If the entity does not contribute to collision detection (it does not have any collision models),
+            /// the returned bounding-box is uninitialized (`!IsInited()`).
+            BoundingBox3fT GetCollisionBB(bool WorldSpace) const;
+
             /// Writes the current state of this entity into the given stream.
             /// This method is called to send the state of the entity over the network, to save it to disk,
             /// or to store it in the clipboard.

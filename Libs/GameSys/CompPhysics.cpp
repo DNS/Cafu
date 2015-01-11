@@ -125,13 +125,7 @@ void ComponentPhysicsT::UpdateDependencies(EntityT* Entity)
         if (GetEntity()->GetApp().IsNull()) return;   // Skip this if the "app" component has not been assigned yet!
         if (GetEntity()->GetID() == 0) return;        // The world itself should really not have dynamic physics.
 
-        BoundingBox3fT BB;
-        const ArrayT< IntrusivePtrT<ComponentBaseT> >& Components = GetEntity()->GetComponents();
-
-        GetEntity()->GetApp()->GetCollisionBB(BB);
-
-        for (unsigned int CompNr = 0; CompNr < Components.Size(); CompNr++)
-            Components[CompNr]->GetCollisionBB(BB);
+        const BoundingBox3fT BB = GetEntity()->GetCollisionBB(false /*WorldSpace?*/);
 
         if (!BB.IsInited()) return;
 

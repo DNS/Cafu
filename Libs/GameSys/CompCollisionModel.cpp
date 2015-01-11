@@ -133,13 +133,16 @@ void ComponentCollisionModelT::UpdateDependencies(EntityT* Entity)
 }
 
 
-void ComponentCollisionModelT::GetCollisionBB(BoundingBox3fT& BB) const
+BoundingBox3fT ComponentCollisionModelT::GetCollisionBB() const
 {
     if (m_ClipModel && m_ClipModel->GetCollisionModel())
     {
         assert(m_ClipModel->GetCollisionModel()->GetBoundingBox().IsInited());
-        BB.Insert(m_ClipModel->GetCollisionModel()->GetBoundingBox().AsBoxOfFloat());
+
+        return m_ClipModel->GetCollisionModel()->GetBoundingBox().AsBoxOfFloat();
     }
+
+    return BoundingBox3fT();
 }
 
 

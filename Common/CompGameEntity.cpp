@@ -100,13 +100,16 @@ BoundingBox3fT CompGameEntityT::GetCullingBB() const
 }
 
 
-void CompGameEntityT::GetCollisionBB(BoundingBox3fT& BB) const
+BoundingBox3fT CompGameEntityT::GetCollisionBB() const
 {
     if (m_ClipModel && m_ClipModel->GetCollisionModel())
     {
         assert(m_ClipModel->GetCollisionModel()->GetBoundingBox().IsInited());
-        BB.Insert(m_ClipModel->GetCollisionModel()->GetBoundingBox().AsBoxOfFloat());
+
+        return m_ClipModel->GetCollisionModel()->GetBoundingBox().AsBoxOfFloat();
     }
+
+    return BoundingBox3fT();
 }
 
 
