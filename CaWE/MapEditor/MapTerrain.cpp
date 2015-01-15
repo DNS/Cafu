@@ -515,7 +515,7 @@ void LoadHeightmap(const wxString& FileName, unsigned long& Resolution, ArrayT<u
 
 void MapTerrainT::LoadHeightData(const wxString& FileName)
 {
-    unsigned long          NewResolution;
+    unsigned long          NewResolution = 0;
     ArrayT<unsigned short> NewHeightData;
 
     LoadHeightmap(FileName, NewResolution, NewHeightData);
