@@ -30,6 +30,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #undef CurrentTime
 
 
+namespace cf { namespace ClipSys { class ClipModelT; } }
 namespace cf { namespace TypeSys { class TypeInfoT; } }
 namespace cf { namespace TypeSys { class CreateParamsT; } }
 namespace cf { namespace TypeSys { class MethsDocT; } }
@@ -198,6 +199,9 @@ namespace cf
             /// If the component does not contribute to collision detection (it does not have a collision model),
             /// the returned bounding-box is uninitialized (`!IsInited()`).
             virtual BoundingBox3fT GetCollisionBB() const { return BoundingBox3fT(); }
+
+            /// This method returns the clip model of this component, if any.
+            virtual const cf::ClipSys::ClipModelT* GetClipModel() { return NULL; }
 
             /// This method implements the graphical output of this component.
             /// @param FirstPersonView   If the world is rendered from the perspective of this component's entity.
