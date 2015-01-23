@@ -102,11 +102,12 @@ BoundingBox3fT CompGameEntityT::GetCullingBB() const
 
 BoundingBox3fT CompGameEntityT::GetCollisionBB() const
 {
-    if (m_ClipModel && m_ClipModel->GetCollisionModel())
+    // We're only referring to the collision model here, not the clip model.
+    if (m_StaticEntityData->m_CollModel)
     {
-        assert(m_ClipModel->GetCollisionModel()->GetBoundingBox().IsInited());
+        assert(m_StaticEntityData->m_CollModel->GetBoundingBox().IsInited());
 
-        return m_ClipModel->GetCollisionModel()->GetBoundingBox().AsBoxOfFloat();
+        return m_StaticEntityData->m_CollModel->GetBoundingBox().AsBoxOfFloat();
     }
 
     return BoundingBox3fT();

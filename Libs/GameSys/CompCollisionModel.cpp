@@ -135,11 +135,17 @@ void ComponentCollisionModelT::UpdateDependencies(EntityT* Entity)
 
 BoundingBox3fT ComponentCollisionModelT::GetCollisionBB() const
 {
-    if (m_ClipModel && m_ClipModel->GetCollisionModel())
-    {
-        assert(m_ClipModel->GetCollisionModel()->GetBoundingBox().IsInited());
+#if 0   // Unfortunately, this cannot easily be activated, because UpdateClipModel() is non-const...
+    // This is still needed here, even though we're only referring to the collision model
+    // below, because UpdateClipModel() also loads the collision model.
+    UpdateClipModel();
+#endif
 
-        return m_ClipModel->GetCollisionModel()->GetBoundingBox().AsBoxOfFloat();
+    if (m_CollisionModel)
+    {
+        assert(m_CollisionModel->GetBoundingBox().IsInited());
+
+        return m_CollisionModel->GetBoundingBox().AsBoxOfFloat();
     }
 
     return BoundingBox3fT();
