@@ -56,7 +56,6 @@ class CompGameEntityT : public cf::GameSys::ComponentBaseT
     const char* GetName() const { return "GameEntity"; }
     void UpdateDependencies(cf::GameSys::EntityT* Entity);
     BoundingBox3fT GetCullingBB() const;
-    BoundingBox3fT GetCollisionBB() const override;
     const cf::ClipSys::ClipModelT* GetClipModel() override { UpdateClipModel(); return m_ClipModel; }
 
 

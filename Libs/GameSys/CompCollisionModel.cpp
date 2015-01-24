@@ -133,25 +133,6 @@ void ComponentCollisionModelT::UpdateDependencies(EntityT* Entity)
 }
 
 
-BoundingBox3fT ComponentCollisionModelT::GetCollisionBB() const
-{
-#if 0   // Unfortunately, this cannot easily be activated, because UpdateClipModel() is non-const...
-    // This is still needed here, even though we're only referring to the collision model
-    // below, because UpdateClipModel() also loads the collision model.
-    UpdateClipModel();
-#endif
-
-    if (m_CollisionModel)
-    {
-        assert(m_CollisionModel->GetBoundingBox().IsInited());
-
-        return m_CollisionModel->GetBoundingBox().AsBoxOfFloat();
-    }
-
-    return BoundingBox3fT();
-}
-
-
 void ComponentCollisionModelT::DoDeserialize(cf::Network::InStreamT& Stream, bool IsIniting)
 {
     // Deserialization may have updated our origin or orientation,

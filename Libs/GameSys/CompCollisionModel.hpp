@@ -60,7 +60,6 @@ namespace cf
             const char* GetName() const { return "CollisionModel"; }
             void UpdateDependencies(EntityT* Entity);
             unsigned int GetEditorColor() const { return 0xAAAAAA; }
-            BoundingBox3fT GetCollisionBB() const override;
             const cf::ClipSys::ClipModelT* GetClipModel() override { UpdateClipModel(); return m_ClipModel; }
 
 

@@ -194,12 +194,6 @@ namespace cf
             /// (`!IsInited()`). Also see EntityT::GetCullingBB() for additional details.
             virtual BoundingBox3fT GetCullingBB() const { return BoundingBox3fT(); }
 
-            /// This method returns a bounding-box of the collision model of this component.
-            /// The returned bounding-box is in local entity-space, i.e. relative to the entity origin (0, 0, 0).
-            /// If the component does not contribute to collision detection (it does not have a collision model),
-            /// the returned bounding-box is uninitialized (`!IsInited()`).
-            virtual BoundingBox3fT GetCollisionBB() const { return BoundingBox3fT(); }
-
             /// This method returns the clip model of this component, if any.
             virtual const cf::ClipSys::ClipModelT* GetClipModel() { return NULL; }
 

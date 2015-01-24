@@ -100,20 +100,6 @@ BoundingBox3fT CompGameEntityT::GetCullingBB() const
 }
 
 
-BoundingBox3fT CompGameEntityT::GetCollisionBB() const
-{
-    // We're only referring to the collision model here, not the clip model.
-    if (m_StaticEntityData->m_CollModel)
-    {
-        assert(m_StaticEntityData->m_CollModel->GetBoundingBox().IsInited());
-
-        return m_StaticEntityData->m_CollModel->GetBoundingBox().AsBoxOfFloat();
-    }
-
-    return BoundingBox3fT();
-}
-
-
 void CompGameEntityT::DoDeserialize(cf::Network::InStreamT& Stream, bool IsIniting)
 {
     // Deserialization may have updated our origin or orientation,

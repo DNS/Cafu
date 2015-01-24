@@ -396,44 +396,6 @@ BoundingBox3fT EntityT::GetCullingBB(bool WorldSpace) const
 }
 
 
-BoundingBox3fT EntityT::GetCollisionBB(bool WorldSpace) const
-{
-    BoundingBox3fT BB;
-
-    // We know that m_Basics and m_Transform have no collision models, but m_App may have.
-    if (m_App != NULL)
-    {
-        const BoundingBox3fT CompBB = m_App->GetCollisionBB();
-
-        if (CompBB.IsInited())
-            BB += CompBB;
-    }
-
-    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
-    {
-        const BoundingBox3fT CompBB = m_Components[CompNr]->GetCollisionBB();
-
-        if (CompBB.IsInited())
-            BB += CompBB;
-    }
-
-    if (!WorldSpace) return BB;
-    if (!BB.IsInited()) return BB;
-
-    // Transform BB from entity-space to world-space.
-    Vector3fT     Corners[8];
-    const MatrixT etw = m_Transform->GetEntityToWorld();
-
-    BB.GetCornerVertices(Corners);
-    BB = BoundingBox3fT(etw.Mul1(Corners[0]));
-
-    for (unsigned int i = 1; i < 8; i++)
-        BB += etw.Mul1(Corners[i]);
-
-    return BB;
-}
-
-
 // Note that this method is the twin of Deserialize(), whose implementation it must match.
 void EntityT::Serialize(cf::Network::OutStreamT& Stream, bool WithChildren) const
 {
