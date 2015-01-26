@@ -1,84 +1,91 @@
 dofile("Games/DeathMatch/Scripts/Vector3.lua")
 
-local Mover = ...   -- Retrieve the ComponentScriptT instance that is responsible for this script.
+local Script = ...      -- Retrieve the ComponentScriptT instance that is responsible for this script.
+local Mover  = Script:GetEntity():GetComponent("Mover")
+local Trafo  = Script:GetEntity():GetTransform()
 
-Mover.Trafo   = Mover:GetEntity():GetTransform()
-Mover.CollMdl = Mover:GetEntity():GetComponent("CollisionModel")
+local STATE_AT_HOME        = 0
+local STATE_MOVING_TO_DEST = 1
+local STATE_AT_DEST        = 2
+local STATE_MOVING_BACK    = 3
 
-Mover.LinPushMove_TimeLeft = 0.0
+Script.State    = STATE_AT_HOME     -- Initial state is in the home rest position.
+Script.Progress = 0.0               -- How far along the way to the "dest" position?
+Script.Duration = 3.0               -- How long will a move take?  This should be configurable!
+
+Script.ORIGIN_HOME = Vector3T(Trafo:get("Origin"))
+Script.ORIGIN_DEST = Script.ORIGIN_HOME + Vector3T(0.0, 0.0, 80.0)
 
 -- TODO: Call InitClientApprox() in some client-init (e.g. OnClientInit()) only?
-Mover.Trafo:InitClientApprox("Origin")
--- Mover.Trafo:InitClientApprox("Orientation")
+Trafo:InitClientApprox("Origin")
+-- Trafo:InitClientApprox("Orientation")
 
 
-Mover.isMoving = false
-Mover.isHome   = true
-Mover.Origin   = { Mover.Trafo:get("Origin") }
-
-
-function Mover:OnActivate(OtherEnt)
+function Script:OnActivate(OtherEnt)
     Console.Print("Hello from " .. self:GetEntity():GetBasics():get("Name") .. "'s OnActivate(), called by " .. OtherEnt:GetBasics():get("Name") .. "!\n")
 
-    if self.isMoving then
+    if self.State ~= STATE_AT_HOME then
         -- If we're moving already, do nothing else until we're done.
         return
     end
 
-    self.isMoving = true
-    local variant = 2
+    self.State    = STATE_MOVING_TO_DEST
+    self.Progress = 0.0
+end
 
-    if variant == 1 then
-        self:LinearPushMove(self.Origin[1], self.Origin[2], self.Origin[3] + 80.0, 1.5)
-        coroutine.yield(1.5 + 1.0)
 
-        self:LinearPushMove(self.Origin[1], self.Origin[2], self.Origin[3], 1.5)
-        coroutine.yield(1.5)
+function Script:GetMove(PartNr, FrameTime)
+    if self.State == STATE_AT_HOME or
+       self.State == STATE_AT_DEST then
+        return
+    end
+
+    if PartNr ~= 0 then
+        return
+    end
+
+    local p
+
+    if self.State == STATE_MOVING_TO_DEST then
+        p = math.min(self.Progress + FrameTime / self.Duration, 1.0)
+    elseif self.State == STATE_MOVING_BACK then
+        p = math.max(self.Progress - FrameTime / self.Duration, 0.0)
+    end
+
+    local NewPos = self.ORIGIN_HOME * (1.0 - p) + self.ORIGIN_DEST * p
+    local Delta  = NewPos - Vector3T(Trafo:get("Origin"))
+
+    return self:GetEntity():GetID(), Delta[1], Delta[2], Delta[3]
+end
+
+
+function Script:Think(FrameTime)
+    if self.State == STATE_MOVING_TO_DEST then
+        if Mover:HandleMove(FrameTime) then
+            self.Progress = self.Progress + FrameTime / self.Duration
+
+            if self.Progress >= 1.0 then
+                self.State    = STATE_AT_DEST
+                self.Progress = 1.0
+
+                -- Auto-activation: Wait a moment at "dest", then move back.
+                coroutine.yield(2.5)
+
+                self.State    = STATE_MOVING_BACK
+                self.Progress = 1.0
+            end
+        end
+    elseif self.State == STATE_MOVING_BACK then
+        if Mover:HandleMove(FrameTime) then
+            self.Progress = self.Progress - FrameTime / self.Duration
+
+            if self.Progress <= 0.0 then
+                self.State    = STATE_AT_HOME
+                self.Progress = 0.0
+            end
+        end
     else
-        if self.isHome then
-            self:LinearPushMove(self.Origin[1], self.Origin[2], self.Origin[3] + 120.0, 1.5)
-        else
-            self:LinearPushMove(self.Origin[1], self.Origin[2], self.Origin[3], 1.5)
-        end
-
-        coroutine.yield(1.5)
-        self.isHome = not self.isHome
+        -- self.State is STATE_AT_HOME or STATE_AT_DEST, so there is
+        -- nothing to do but to wait for being activated again.
     end
-
-    self.isMoving = false
-end
-
-
-function Mover:Think(FrameTime)
-    if self.LinPushMove_TimeLeft > 0.0 then
-        local FrameTime = math.min(FrameTime, self.LinPushMove_TimeLeft)
-
-        self.LinPushMove_TimeLeft = self.LinPushMove_TimeLeft - FrameTime
-
-
-        -- Drag all entities touched by us further along our path as well.
---[[
-        local Ray = (self.LinPushMove_Dest - self.LinPushMove_Source) * (FrameTime / self.LinPushMove_TimeTotal)
-
-        local Contacts = CollMdl:GetContacts(self.Trafo:get("Origin"), Ray)
-
-        for Ent in pairs(Contacts) do
-        end
---]]
-
-
-        -- Move this entity to its new place along the path as well.
-        local frac = self.LinPushMove_TimeLeft / self.LinPushMove_TimeTotal
-
-        self.Trafo:set("Origin",
-            self.LinPushMove_Source*frac + self.LinPushMove_Dest*(1.0 - frac))
-    end
-end
-
-
-function Mover:LinearPushMove(dx, dy, dz, t)
-    self.LinPushMove_Source    = Vector3T(self:GetEntity():GetTransform():get("Origin"))
-    self.LinPushMove_Dest      = Vector3T(dx, dy, dz)
-    self.LinPushMove_TimeTotal = t
-    self.LinPushMove_TimeLeft  = t
 end

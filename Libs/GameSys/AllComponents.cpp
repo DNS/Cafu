@@ -30,6 +30,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CompLightPoint.hpp"
 #include "CompLightRadiosity.hpp"
 #include "CompModel.hpp"
+#include "CompMover.hpp"
 #include "CompParticleSystemOld.hpp"
 #include "CompPhysics.hpp"
 #include "CompPlayerPhysics.hpp"
@@ -111,6 +112,7 @@ namespace cf
             &ComponentInventoryT::TypeInfo,
             &ComponentLightT::TypeInfo,
             &ComponentModelT::TypeInfo,
+            &ComponentMoverT::TypeInfo,
             &ComponentParticleSystemOldT::TypeInfo,
             &ComponentPhysicsT::TypeInfo,
             &ComponentPlayerPhysicsT::TypeInfo,

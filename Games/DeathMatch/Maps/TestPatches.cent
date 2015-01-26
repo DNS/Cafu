@@ -116,7 +116,10 @@ function Map.MyFirstLift:OnInit()
     c1:set("Name", "Games/DeathMatch/Scripts/Mover.lua")
     c1:set("ScriptCode", "")
 
-    self:AddComponent(c1)
+    local c2 = world:new("ComponentMoverT")
+    c2:set("CanPush", true)
+
+    self:AddComponent(c1, c2)
 end
 
 function Map.Hall_Light:OnInit()
