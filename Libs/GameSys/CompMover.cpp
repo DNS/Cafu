@@ -40,12 +40,6 @@ using namespace cf::math;
 using namespace cf::GameSys;
 
 
-namespace
-{
-    const char* FlagsIsEntityName[] = { "IsEntityName", NULL };
-}
-
-
 const char* ComponentMoverT::DocClass =
     "This component controls the movement of one or more entities and implements the related effects.\n"
     "\n"
