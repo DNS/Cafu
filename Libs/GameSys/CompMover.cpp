@@ -268,7 +268,7 @@ bool ComponentMoverT::HandleMove(float t) const
     // Declared here in order to minimize memory allocs.
     ArrayT<const cf::ClipSys::ClipModelT*> PartClipModels;
 
-    for (unsigned int PartNr = 0; PartNr < 128; PartNr++)
+    for (unsigned int PartNr = 1; PartNr < 128; PartNr++)   // PartNr is used as Lua array index, so start at 1.
     {
         int       PartID = 0;
         Vector3fT Offset;
@@ -353,8 +353,20 @@ bool ComponentMoverT::HandleMove(float t) const
         {
             IntrusivePtrT<EntityT> Ent = NearbyEntities[EntNr];
 
+            // Part never interacts with the world entity.
+            assert(Ent->GetID() != 0);
+            assert(Ent->GetRoot() != Ent);
+
+            // Part never interacts with itself or any of its children.
             if (Part->Has(Ent)) continue;
+
+            // Part never interacts with any of its parents (we might handle the
+            // pushing of a parent as a special case, but for now let's just ignore it).
             if (Ent->Has(Part)) continue;
+
+            // Part never interacts with MoverEnt or any of its children
+            // (which are typically the siblings and team members of Part).
+            if (MoverEnt->Has(Ent)) continue;
 
          // if (Ent is not something we want to push) continue;
 

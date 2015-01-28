@@ -40,7 +40,7 @@ function Script:GetMove(PartNr, FrameTime)
         return
     end
 
-    if PartNr ~= 0 then
+    if PartNr ~= 1 then
         return
     end
 
