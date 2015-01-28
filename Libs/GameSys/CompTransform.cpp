@@ -288,6 +288,26 @@ ComponentTransformT* ComponentTransformT::Clone() const
 }
 
 
+static const cf::TypeSys::MethsDocT META_GetOriginWS =
+{
+    "GetOriginWS",
+    "Returns the origin of the transform (in world-space).",
+    "tuple", "()"
+};
+
+int ComponentTransformT::GetOriginWS(lua_State* LuaState)
+{
+    ScriptBinderT                      Binder(LuaState);
+    IntrusivePtrT<ComponentTransformT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentTransformT> >(1);
+    const Vector3fT                    OriginWS(Comp->GetOriginWS());
+
+    lua_pushnumber(LuaState, OriginWS.x);
+    lua_pushnumber(LuaState, OriginWS.y);
+    lua_pushnumber(LuaState, OriginWS.z);
+    return 3;
+}
+
+
 static const cf::TypeSys::MethsDocT META_GetAngles =
 {
     "GetAngles",
@@ -477,18 +497,20 @@ void* ComponentTransformT::CreateInstance(const cf::TypeSys::CreateParamsT& Para
 
 const luaL_Reg ComponentTransformT::MethodsList[] =
 {
-    { "GetAngles",  GetAngles },
-    { "SetAngles",  SetAngles },
-    { "GetAxisX",   GetAxisX },
-    { "GetAxisY",   GetAxisY },
-    { "GetAxisZ",   GetAxisZ },
-    { "LookAt",     LookAt },
-    { "__tostring", toString },
+    { "GetOriginWS", GetOriginWS },
+    { "GetAngles",   GetAngles },
+    { "SetAngles",   SetAngles },
+    { "GetAxisX",    GetAxisX },
+    { "GetAxisY",    GetAxisY },
+    { "GetAxisZ",    GetAxisZ },
+    { "LookAt",      LookAt },
+    { "__tostring",  toString },
     { NULL, NULL }
 };
 
 const cf::TypeSys::MethsDocT ComponentTransformT::DocMethods[] =
 {
+    META_GetOriginWS,
     META_GetAngles,
     META_SetAngles,
     META_GetAxisX,
