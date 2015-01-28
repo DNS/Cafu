@@ -1,3 +1,15 @@
+--[[
+The MoverBinary.lua script is intended for use with "binary" movers, that is, with movers that
+move between a "home" and "destination" position on a straight line.
+
+A mover can consist of multiple parts, e.g. the wings of a door. Each part must be defined as a
+child entity of "this" entity (i.e. the entity that holds the Script and Mover components).
+In the Map Editor, all parts are modelled at their initial "home" position. Each part must also
+have a child entity of its own (a grandchild of "this" entity). This child entity defines the
+"destination" position, i.e. the opposite end of the move at which part will halt after it has
+left the "home" position.
+--]]
+
 dofile("Games/DeathMatch/Scripts/Vector3.lua")
 
 local Script = ...      -- Retrieve the ComponentScriptT instance that is responsible for this script.
@@ -13,21 +25,48 @@ Script.State    = STATE_AT_HOME     -- Initial state is in the home rest positio
 Script.Progress = 0.0               -- How far along the way to the "dest" position?
 Script.Duration = 3.0               -- How long will a move take?  This should be configurable!
 
-Script.ORIGIN_HOME = Vector3T(Trafo:get("Origin"))
-Script.ORIGIN_DEST = Script.ORIGIN_HOME + Vector3T(0.0, 0.0, 80.0)
-
 -- TODO: Call InitClientApprox() in some client-init (e.g. OnClientInit()) only?
 Trafo:InitClientApprox("Origin")
 -- Trafo:InitClientApprox("Orientation")
 
 
-function Script:OnActivate(OtherEnt)
-    Console.Print("Hello from " .. self:GetEntity():GetBasics():get("Name") .. "'s OnActivate(), called by " .. OtherEnt:GetBasics():get("Name") .. "!\n")
+function Script:OnInit()
+    self.Parts = self:GetEntity():GetChildren()
+    self.HOME_ORIGINS = {}
+    self.DEST_ORIGINS = {}
 
+    for i, Part in ipairs(self.Parts) do
+        local DestMarker = Part:GetChildren()[1]
+
+        if DestMarker then
+            -- The home and dest origins must be determined while Part is still at its home position.
+            self.HOME_ORIGINS[i] = Vector3T(Part:GetTransform():GetOriginWS())
+            self.DEST_ORIGINS[i] = Vector3T(DestMarker:GetTransform():GetOriginWS())
+        end
+    end
+end
+
+
+function Script:OnActivate(OtherEnt)
     if self.State ~= STATE_AT_HOME then
         -- If we're moving already, do nothing else until we're done.
         return
     end
+
+    Console.Print("Hello from " .. self:GetEntity():GetBasics():get("Name") .. "'s OnActivate(), called by " .. OtherEnt:GetBasics():get("Name") .. "!\n")
+
+    self.State    = STATE_MOVING_TO_DEST
+    self.Progress = 0.0
+end
+
+
+function Script:OnTrigger(OtherEnt)
+    if self.State ~= STATE_AT_HOME then
+        -- If we're moving already, do nothing else until we're done.
+        return
+    end
+
+    Console.Print("Hello from " .. self:GetEntity():GetBasics():get("Name") .. "'s OnTrigger(), triggered by " .. OtherEnt:GetBasics():get("Name") .. "!\n")
 
     self.State    = STATE_MOVING_TO_DEST
     self.Progress = 0.0
@@ -40,7 +79,7 @@ function Script:GetMove(PartNr, FrameTime)
         return
     end
 
-    if PartNr ~= 1 then
+    if not self.HOME_ORIGINS[PartNr] then
         return
     end
 
@@ -52,10 +91,11 @@ function Script:GetMove(PartNr, FrameTime)
         p = math.max(self.Progress - FrameTime / self.Duration, 0.0)
     end
 
-    local NewPos = self.ORIGIN_HOME * (1.0 - p) + self.ORIGIN_DEST * p
-    local Delta  = NewPos - Vector3T(Trafo:get("Origin"))
+    local Part   = self.Parts[PartNr]
+    local NewPos = self.HOME_ORIGINS[PartNr] * (1.0 - p) + self.DEST_ORIGINS[PartNr] * p
+    local Delta  = NewPos - Vector3T(Part:GetTransform():GetOriginWS())
 
-    return self:GetEntity():GetID(), Delta[1], Delta[2], Delta[3]
+    return Part:GetID(), Delta[1], Delta[2], Delta[3]
 end
 
 

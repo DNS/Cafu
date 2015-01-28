@@ -9460,6 +9460,9 @@ Version 14
 }
 
 {
+}
+
+{
   classname "func_door"
   openTime "3"
   moveTime "5"
@@ -9509,4 +9512,7 @@ Version 14
     ( -1078 -312 -16 ) ( -1082 -312 -16 ) ( -1082 -312 -28 ) "TechDemo/walls/panel-trim1" ( 2 0.5 0 0 ( 4 0 0 ) ( 0 0 -64 ) )
     ( -1078 -320 -28 ) ( -1082 -320 -28 ) ( -1082 -320 -16 ) "Textures/TechDemo/doors/Light" ( 2 0.117188 -0.25 0 ( 512 0 0 ) ( 0 0 -512 ) )
   }
+}
+
+{
 }

@@ -104,8 +104,10 @@ Map.door = world:new("EntityT", "door")
 Map.door.func_door = world:new("EntityT", "func_door")
 Map.door.func_door_1 = world:new("EntityT", "func_door_1")
 Map.door_1 = world:new("EntityT", "door_1")
-Map.door_1.door1_left = world:new("EntityT", "door1_left")
-Map.door_1.door1_right = world:new("EntityT", "door1_right")
+Map.door_1.left_wing = world:new("EntityT", "left_wing")
+Map.door_1.left_wing.move_dest = world:new("EntityT", "move_dest")
+Map.door_1.right_wing = world:new("EntityT", "right_wing")
+Map.door_1.right_wing.move_dest = world:new("EntityT", "move_dest")
 
 
 -- Set the worlds root entity.
@@ -208,8 +210,10 @@ Map:AddChild(Map.door)
 Map.door:AddChild(Map.door.func_door)
 Map.door:AddChild(Map.door.func_door_1)
 Map:AddChild(Map.door_1)
-Map.door_1:AddChild(Map.door_1.door1_left)
-Map.door_1:AddChild(Map.door_1.door1_right)
+Map.door_1:AddChild(Map.door_1.left_wing)
+Map.door_1.left_wing:AddChild(Map.door_1.left_wing.move_dest)
+Map.door_1:AddChild(Map.door_1.right_wing)
+Map.door_1.right_wing:AddChild(Map.door_1.right_wing.move_dest)
 
 
 -- Initialization of the entity contents ("constructors").
@@ -1792,44 +1796,35 @@ Part:GetEntity().MoveVec = { 0.0, 0.0, -81.0 }
 end
 
 function Map.door_1:OnInit()
-    self:GetTransform():set("Origin", -1080, -320, -64)
+    self:GetTransform():set("Origin", -1080, -320, -128)
     self:GetTransform():set("Orientation", 0, 0, 0)
 
-    local c1 = world:new("ComponentScriptT")
-    c1:set("Name", "Games/DeathMatch/Scripts/Door.lua")
-    c1:set("ScriptCode", [[
-local Door = ...
-Door.OpenTime = 3
-Door.MoveTime = 5
-]])
+    local c1 = world:new("ComponentMoverT")
+    c1:set("CanPush", true)
 
-    self:AddComponent(c1)
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/MoverBinary.lua")
+    c2:set("ScriptCode", "")
+
+    self:AddComponent(c1, c2)
 end
 
-function Map.door_1.door1_left:OnInit()
-    self:GetTransform():set("Origin", 0, 24.5, 0)
+function Map.door_1.left_wing:OnInit()
+    self:GetTransform():set("Origin", 0, 8, 40)
     self:GetTransform():set("Orientation", 0, 0, 0)
-
-    local c1 = world:new("ComponentScriptT")
-    c1:set("Name", "")
-    c1:set("ScriptCode", [[
-local Part = ...
-Part:GetEntity().MoveVec = { 0.0, 47.0, 0.0 }
-]])
-
-    self:AddComponent(c1)
 end
 
-function Map.door_1.door1_right:OnInit()
-    self:GetTransform():set("Origin", 0, -24.5, 0)
+function Map.door_1.left_wing.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, 47, 0)
     self:GetTransform():set("Orientation", 0, 0, 0)
+end
 
-    local c1 = world:new("ComponentScriptT")
-    c1:set("Name", "")
-    c1:set("ScriptCode", [[
-local Part = ...
-Part:GetEntity().MoveVec = { 0.0, -47.0, 0.0 }
-]])
+function Map.door_1.right_wing:OnInit()
+    self:GetTransform():set("Origin", 0, -8, 88)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
 
-    self:AddComponent(c1)
+function Map.door_1.right_wing.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, -47, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
 end
