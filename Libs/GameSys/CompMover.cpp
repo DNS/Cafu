@@ -40,6 +40,64 @@ using namespace cf::math;
 using namespace cf::GameSys;
 
 
+/******************************************/
+/*** ComponentMoverT::VarDestActivatedT ***/
+/******************************************/
+
+ComponentMoverT::VarDestActivatedT::VarDestActivatedT(const char* Name, const int& Value, const char* Flags[])
+    : TypeSys::VarT<int>(Name, Value, Flags)
+{
+}
+
+
+void ComponentMoverT::VarDestActivatedT::GetChoices(ArrayT<std::string>& Strings, ArrayT<int>& Values) const
+{
+    Strings.PushBack("move home");     Values.PushBack(MOVE_HOME);
+    Strings.PushBack("reset timeout"); Values.PushBack(RESET_TIMEOUT);
+    Strings.PushBack("ignore");        Values.PushBack(IGNORE);
+}
+
+
+/******************************************/
+/*** ComponentMoverT::VarOtherEntitiesT ***/
+/******************************************/
+
+ComponentMoverT::VarOtherEntitiesT::VarOtherEntitiesT(const char* Name, const int& Value, const char* Flags[])
+    : TypeSys::VarT<int>(Name, Value, Flags)
+{
+}
+
+
+void ComponentMoverT::VarOtherEntitiesT::GetChoices(ArrayT<std::string>& Strings, ArrayT<int>& Values) const
+{
+    Strings.PushBack("ignore");         Values.PushBack(IGNORE);
+    Strings.PushBack("cannot push");    Values.PushBack(CANNOT_PUSH);
+    Strings.PushBack("can push");       Values.PushBack(CAN_PUSH);
+    Strings.PushBack("can force-push"); Values.PushBack(CAN_FORCE_PUSH);
+}
+
+
+/*************************************/
+/*** ComponentMoverT::VarTrajFuncT ***/
+/*************************************/
+
+ComponentMoverT::VarTrajFuncT::VarTrajFuncT(const char* Name, const int& Value, const char* Flags[])
+    : TypeSys::VarT<int>(Name, Value, Flags)
+{
+}
+
+
+void ComponentMoverT::VarTrajFuncT::GetChoices(ArrayT<std::string>& Strings, ArrayT<int>& Values) const
+{
+    Strings.PushBack("linear"); Values.PushBack(LINEAR);
+    Strings.PushBack("sine");   Values.PushBack(SINE);
+}
+
+
+/***********************/
+/*** ComponentMoverT ***/
+/***********************/
+
 const char* ComponentMoverT::DocClass =
     "This component controls the movement of one or more entities and implements the related effects.\n"
     "\n"
@@ -55,24 +113,49 @@ const char* ComponentMoverT::DocClass =
 
 const cf::TypeSys::VarsDocT ComponentMoverT::DocVars[] =
 {
-    { "CanPush", "Can we push other entities?" },
+    { "moveDuration",  "The time in seconds that it takes to move each part from one endpoint to the other." },
+    { "destActivated", "Describes the mover's behavior when it is activated at the \"dest\" position." },
+    { "destTimeout",   "The timeout in seconds after which the parts move back to their \"home\" position. A negative value to disables the timeout." },
+    { "otherEntities", "Describes the mover's behavior regarding other entities." },
+    { "trajFunc",      "Describes the base function that is used to compute the mover's trajectory." },
+    { "trajExp",       "The exponent that is applied to `trajFunc`." },
     { NULL, NULL }
 };
 
 
 ComponentMoverT::ComponentMoverT()
     : ComponentBaseT(),
-      m_CanPush("CanPush", true)
+      m_MoveDuration("moveDuration", 3.0f),
+      m_DestActivated("destActivated", VarDestActivatedT::MOVE_HOME),
+      m_DestTimeout("destTimeout", -1.0f),
+      m_OtherEntities("otherEntities", VarOtherEntitiesT::CAN_PUSH),
+      m_TrajFunc("trajFunc", VarTrajFuncT::LINEAR),
+      m_TrajExp("trajExp", 1.0f)
 {
-    GetMemberVars().Add(&m_CanPush);
+    GetMemberVars().Add(&m_MoveDuration);
+    GetMemberVars().Add(&m_DestActivated);
+    GetMemberVars().Add(&m_DestTimeout);
+    GetMemberVars().Add(&m_OtherEntities);
+    GetMemberVars().Add(&m_TrajFunc);
+    GetMemberVars().Add(&m_TrajExp);
 }
 
 
 ComponentMoverT::ComponentMoverT(const ComponentMoverT& Comp)
     : ComponentBaseT(Comp),
-      m_CanPush(Comp.m_CanPush)
+      m_MoveDuration(Comp.m_MoveDuration),
+      m_DestActivated(Comp.m_DestActivated),
+      m_DestTimeout(Comp.m_DestTimeout),
+      m_OtherEntities(Comp.m_OtherEntities),
+      m_TrajFunc(Comp.m_TrajFunc),
+      m_TrajExp(Comp.m_TrajExp)
 {
-    GetMemberVars().Add(&m_CanPush);
+    GetMemberVars().Add(&m_MoveDuration);
+    GetMemberVars().Add(&m_DestActivated);
+    GetMemberVars().Add(&m_DestTimeout);
+    GetMemberVars().Add(&m_OtherEntities);
+    GetMemberVars().Add(&m_TrajFunc);
+    GetMemberVars().Add(&m_TrajExp);
 }
 
 
@@ -284,6 +367,19 @@ bool ComponentMoverT::HandleMove(float t) const
         if (Part == NULL) Part = MoverEnt->GetRoot()->FindID(PartID);
         if (Part == NULL) break;
 
+        // Special case: If we are supposed to ignore other entities, only Part needs to be moved.
+        // The move is unconditional and cannot fail (thus, even OriginalTransforms can be ignored).
+        if (m_OtherEntities.Get() == VarOtherEntitiesT::IGNORE)
+        {
+            if (Offset != Vector3fT(0, 0, 0))
+                Part->GetTransform()->SetOriginWS(Part->GetTransform()->GetOriginWS() + Offset);
+
+            // if (Angles != Angles3fT(0, 0, 0))
+            //     ...;
+
+            continue;
+        }
+
 
         // The code below works in three steps:
         //
@@ -381,7 +477,7 @@ bool ComponentMoverT::HandleMove(float t) const
             // move "restores" the standing on Part, the move was proper, otherwise Ent's move
             // is undone.
 
-            if (OldPosCat == POSCAT_IN_SOLID && !m_CanPush.Get())
+            if (OldPosCat == POSCAT_IN_SOLID && m_OtherEntities.Get() == VarOtherEntitiesT::CANNOT_PUSH)
             {
                 // The move is blocked and thus cannot be completed. The transform of each entity that has already
                 // been moved will automatically be restored by the destructor of the OriginalTransforms instance.
@@ -422,6 +518,12 @@ bool ComponentMoverT::HandleMove(float t) const
 
             if (NewPosCat == POSCAT_IN_SOLID && OldPosCat == POSCAT_IN_SOLID)
             {
+                if (m_OtherEntities.Get() == VarOtherEntitiesT::CAN_FORCE_PUSH)
+                {
+                    // Moving Ent was ok!
+                    continue;
+                }
+
                 // The move is blocked and thus cannot be completed. The transform of each entity that has already
                 // been moved will automatically be restored by the destructor of the OriginalTransforms instance.
                 return false;

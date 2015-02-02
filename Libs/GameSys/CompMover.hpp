@@ -78,9 +78,54 @@ namespace cf
 
             private:
 
+            /// A variable of type `int` that describes the mover's behavior when it is activated at the "dest" position.
+            class VarDestActivatedT : public TypeSys::VarT<int>
+            {
+                public:
+
+                enum { MOVE_HOME = 0, RESET_TIMEOUT, IGNORE };
+
+                VarDestActivatedT(const char* Name, const int& Value, const char* Flags[]=NULL);
+
+                // Base class overrides.
+                void GetChoices(ArrayT<std::string>& Strings, ArrayT<int>& Values) const override;
+            };
+
+            /// A variable of type `int` that describes the mover's behavior regarding other entities.
+            class VarOtherEntitiesT : public TypeSys::VarT<int>
+            {
+                public:
+
+                enum { IGNORE = 0, CANNOT_PUSH, CAN_PUSH, CAN_FORCE_PUSH };
+
+                VarOtherEntitiesT(const char* Name, const int& Value, const char* Flags[]=NULL);
+
+                // Base class overrides.
+                void GetChoices(ArrayT<std::string>& Strings, ArrayT<int>& Values) const override;
+            };
+
+            /// A variable of type `int` that describes the base function that is used to compute the mover's trajectory.
+            class VarTrajFuncT : public TypeSys::VarT<int>
+            {
+                public:
+
+                enum { LINEAR = 0, SINE };
+
+                VarTrajFuncT(const char* Name, const int& Value, const char* Flags[]=NULL);
+
+                // Base class overrides.
+                void GetChoices(ArrayT<std::string>& Strings, ArrayT<int>& Values) const override;
+            };
+
+
             bool HandleMove(float t) const;
 
-            TypeSys::VarT<bool> m_CanPush;
+            TypeSys::VarT<float> m_MoveDuration;    ///< The time in seconds that it takes to move each part from one endpoint to the other.
+            VarDestActivatedT    m_DestActivated;   ///< Describes the mover's behavior when it is activated at the "dest" position.
+            TypeSys::VarT<float> m_DestTimeout;     ///< The timeout in seconds after which the parts move back to their "home" position. A negative value to disables the timeout.
+            VarOtherEntitiesT    m_OtherEntities;   ///< Describes the mover's behavior regarding other entities.
+            VarTrajFuncT         m_TrajFunc;        ///< Describes the base function that is used to compute the mover's trajectory.
+            TypeSys::VarT<float> m_TrajExp;         ///< The exponent that is applied to `trajFunc`.
         };
     }
 }

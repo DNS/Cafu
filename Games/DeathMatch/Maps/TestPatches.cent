@@ -318,7 +318,12 @@ function Map.SimpleLift:OnInit()
     self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentMoverT")
-    c1:set("CanPush", true)
+    c1:set("moveDuration", 3)
+    c1:set("destActivated", 2)
+    c1:set("destTimeout", 5)
+    c1:set("otherEntities", 2)
+    c1:set("trajFunc", 0)
+    c1:set("trajExp", 1)
 
     local c2 = world:new("ComponentScriptT")
     c2:set("Name", "Games/DeathMatch/Scripts/MoverBinary.lua")
