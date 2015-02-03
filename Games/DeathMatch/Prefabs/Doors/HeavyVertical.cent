@@ -14,7 +14,9 @@
 
 local vertical_door = world:new("EntityT", "vertical_door")
 vertical_door.upper_half = world:new("EntityT", "upper_half")
+vertical_door.upper_half.move_dest = world:new("EntityT", "move_dest")
 vertical_door.lower_half = world:new("EntityT", "lower_half")
+vertical_door.lower_half.move_dest = world:new("EntityT", "move_dest")
 
 
 -- Set the worlds root entity.
@@ -27,51 +29,49 @@ world:SetRootEntity(vertical_door)
 -- ***************************
 
 vertical_door:AddChild(vertical_door.upper_half)
+vertical_door.upper_half:AddChild(vertical_door.upper_half.move_dest)
 vertical_door:AddChild(vertical_door.lower_half)
+vertical_door.lower_half:AddChild(vertical_door.lower_half.move_dest)
 
 
 -- Initialization of the entity contents ("constructors").
 -- *******************************************************
 
 function vertical_door:OnInit()
-    self:GetBasics():set("SelMode", 0)
     self:GetTransform():set("Origin", 0, 0, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
 
-    local c1 = world:new("ComponentScriptT")
-    c1:set("Name", "Games/DeathMatch/Scripts/Door.lua")
-    c1:set("ScriptCode", [[
-local Door = ...
-Door.OpenTime = 0.5
-Door.MoveTime = 1
-]])
+    local c1 = world:new("ComponentMoverT")
+    c1:set("moveDuration", 3)
+    c1:set("destActivated", 2)
+    c1:set("destTimeout", 3)
+    c1:set("otherEntities", 1)
+    c1:set("trajFunc", 0)
+    c1:set("trajExp", 2)
 
-    self:AddComponent(c1)
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/MoverBinary.lua")
+    c2:set("ScriptCode", "")
+
+    self:AddComponent(c1, c2)
 end
 
 function vertical_door.upper_half:OnInit()
-    self:GetBasics():set("SelMode", 0)
-    self:GetTransform():set("Origin", 0, 0, 96)
+    self:GetTransform():set("Origin", 0, -24, 64)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
 
-    local c1 = world:new("ComponentScriptT")
-    c1:set("Name", "")
-    c1:set("ScriptCode", [[
-local Part = ...
-Part:GetEntity().MoveVec = { 0.0, 0.0, 62.0 }
-]])
-
-    self:AddComponent(c1)
+function vertical_door.upper_half.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, 0, 56)
+    self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
 function vertical_door.lower_half:OnInit()
-    self:GetBasics():set("SelMode", 0)
-    self:GetTransform():set("Origin", 0, 0, 32)
+    self:GetTransform():set("Origin", 0, 32, 72)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
 
-    local c1 = world:new("ComponentScriptT")
-    c1:set("Name", "")
-    c1:set("ScriptCode", [[
-local Part = ...
-Part:GetEntity().MoveVec = { 0.0, 0.0, -81.0 }
-]])
-
-    self:AddComponent(c1)
+function vertical_door.lower_half.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, 0, -80)
+    self:GetTransform():set("Orientation", 0, 0, 0)
 end

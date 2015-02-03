@@ -100,9 +100,11 @@ Map.func_wall_37 = world:new("EntityT", "func_wall_37")
 Map.Rigid_Body_001 = world:new("EntityT", "Rigid_Body_001")
 Map.FaceHugger = world:new("EntityT", "FaceHugger")
 Map.Skeleton = world:new("EntityT", "Skeleton")
-Map.door = world:new("EntityT", "door")
-Map.door.func_door = world:new("EntityT", "func_door")
-Map.door.func_door_1 = world:new("EntityT", "func_door_1")
+Map.vertical_door = world:new("EntityT", "vertical_door")
+Map.vertical_door.upper_half = world:new("EntityT", "upper_half")
+Map.vertical_door.upper_half.move_dest = world:new("EntityT", "move_dest")
+Map.vertical_door.lower_half = world:new("EntityT", "lower_half")
+Map.vertical_door.lower_half.move_dest = world:new("EntityT", "move_dest")
 Map.door_1 = world:new("EntityT", "door_1")
 Map.door_1.left_wing = world:new("EntityT", "left_wing")
 Map.door_1.left_wing.move_dest = world:new("EntityT", "move_dest")
@@ -206,9 +208,11 @@ Map:AddChild(Map.func_wall_37)
 Map:AddChild(Map.Rigid_Body_001)
 Map:AddChild(Map.FaceHugger)
 Map:AddChild(Map.Skeleton)
-Map:AddChild(Map.door)
-Map.door:AddChild(Map.door.func_door)
-Map.door:AddChild(Map.door.func_door_1)
+Map:AddChild(Map.vertical_door)
+Map.vertical_door:AddChild(Map.vertical_door.upper_half)
+Map.vertical_door.upper_half:AddChild(Map.vertical_door.upper_half.move_dest)
+Map.vertical_door:AddChild(Map.vertical_door.lower_half)
+Map.vertical_door.lower_half:AddChild(Map.vertical_door.lower_half.move_dest)
 Map:AddChild(Map.door_1)
 Map.door_1:AddChild(Map.door_1.left_wing)
 Map.door_1.left_wing:AddChild(Map.door_1.left_wing.move_dest)
@@ -1752,47 +1756,43 @@ function Map.Skeleton:OnInit()
     self:AddComponent(c1)
 end
 
-function Map.door:OnInit()
-    self:GetTransform():set("Origin", -1160, 640, -59.25)
+function Map.vertical_door:OnInit()
+    self:GetTransform():set("Origin", -1168, 640, -120)
     self:GetTransform():set("Orientation", 0, 0, 0)
 
-    local c1 = world:new("ComponentScriptT")
-    c1:set("Name", "Games/DeathMatch/Scripts/Door.lua")
-    c1:set("ScriptCode", [[
-local Door = ...
-Door.OpenTime = 0.5
-Door.MoveTime = 1
-]])
+    local c1 = world:new("ComponentMoverT")
+    c1:set("moveDuration", 3)
+    c1:set("destActivated", 2)
+    c1:set("destTimeout", 3)
+    c1:set("otherEntities", 1)
+    c1:set("trajFunc", 0)
+    c1:set("trajExp", 2)
 
-    self:AddComponent(c1)
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/MoverBinary.lua")
+    c2:set("ScriptCode", "")
+
+    self:AddComponent(c1, c2)
 end
 
-function Map.door.func_door:OnInit()
-    self:GetTransform():set("Origin", 0, 0, 23.25)
+function Map.vertical_door.upper_half:OnInit()
+    self:GetTransform():set("Origin", 0, -24, 64)
     self:GetTransform():set("Orientation", 0, 0, 0)
-
-    local c1 = world:new("ComponentScriptT")
-    c1:set("Name", "")
-    c1:set("ScriptCode", [[
-local Part = ...
-Part:GetEntity().MoveVec = { 0.0, 0.0, 62.0 }
-]])
-
-    self:AddComponent(c1)
 end
 
-function Map.door.func_door_1:OnInit()
-    self:GetTransform():set("Origin", 0, 0, -23.25)
+function Map.vertical_door.upper_half.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, 0, 56)
     self:GetTransform():set("Orientation", 0, 0, 0)
+end
 
-    local c1 = world:new("ComponentScriptT")
-    c1:set("Name", "")
-    c1:set("ScriptCode", [[
-local Part = ...
-Part:GetEntity().MoveVec = { 0.0, 0.0, -81.0 }
-]])
+function Map.vertical_door.lower_half:OnInit()
+    self:GetTransform():set("Origin", 0, 32, 72)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
 
-    self:AddComponent(c1)
+function Map.vertical_door.lower_half.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, 0, -80)
+    self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
 function Map.door_1:OnInit()
