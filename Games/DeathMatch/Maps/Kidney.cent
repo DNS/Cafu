@@ -110,6 +110,9 @@ Map.door_1.left_wing = world:new("EntityT", "left_wing")
 Map.door_1.left_wing.move_dest = world:new("EntityT", "move_dest")
 Map.door_1.right_wing = world:new("EntityT", "right_wing")
 Map.door_1.right_wing.move_dest = world:new("EntityT", "move_dest")
+Map.push_lift = world:new("EntityT", "push_lift")
+Map.push_lift.platform = world:new("EntityT", "platform")
+Map.push_lift.platform.move_dest = world:new("EntityT", "move_dest")
 
 
 -- Set the worlds root entity.
@@ -218,6 +221,9 @@ Map.door_1:AddChild(Map.door_1.left_wing)
 Map.door_1.left_wing:AddChild(Map.door_1.left_wing.move_dest)
 Map.door_1:AddChild(Map.door_1.right_wing)
 Map.door_1.right_wing:AddChild(Map.door_1.right_wing.move_dest)
+Map:AddChild(Map.push_lift)
+Map.push_lift:AddChild(Map.push_lift.platform)
+Map.push_lift.platform:AddChild(Map.push_lift.platform.move_dest)
 
 
 -- Initialization of the entity contents ("constructors").
@@ -1831,5 +1837,34 @@ end
 
 function Map.door_1.right_wing.move_dest:OnInit()
     self:GetTransform():set("Origin", 0, -47, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.push_lift:OnInit()
+    self:GetTransform():set("Origin", -612, 576, -68)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentMoverT")
+    c1:set("moveDuration", 1)
+    c1:set("destActivated", 1)
+    c1:set("destTimeout", 2)
+    c1:set("otherEntities", 2)
+    c1:set("trajFunc", 0)
+    c1:set("trajExp", 2.5)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/MoverBinary.lua")
+    c2:set("ScriptCode", "")
+
+    self:AddComponent(c1, c2)
+end
+
+function Map.push_lift.platform:OnInit()
+    self:GetTransform():set("Origin", 0, 0, -60)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.push_lift.platform.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, 0, 128)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
