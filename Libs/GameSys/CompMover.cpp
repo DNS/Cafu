@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClipSys/ClipModel.hpp"
 #include "ClipSys/ClipWorld.hpp"
 #include "ClipSys/TraceResult.hpp"
+#include "ConsoleCommands/Console.hpp"
 #include "MaterialSystem/Material.hpp"
 
 extern "C"
@@ -366,6 +367,16 @@ bool ComponentMoverT::HandleMove(float t) const
 
         if (Part == NULL) Part = MoverEnt->GetRoot()->FindID(PartID);
         if (Part == NULL) break;
+
+        if (Part->GetBasics()->IsStatic())
+        {
+            // Parts should not be static, because CaBSP moves the brushes of static entities
+            // into the world. That is, unless Part comes with explicit Model and CollisionModel
+            // components, moving Parts that are static likely won't work as expected.
+            Console->Warning(cf::va("Mover \"%s\" attempts to move part \"%s\", which is static (as per its Basics component).\n",
+                MoverEnt->GetBasics()->GetEntityName().c_str(),
+                Part->GetBasics()->GetEntityName().c_str()));
+        }
 
         // Special case: If we are supposed to ignore other entities, only Part needs to be moved.
         // The move is unconditional and cannot fail (thus, even OriginalTransforms can be ignored).
