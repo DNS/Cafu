@@ -140,7 +140,7 @@ void EntityHierarchyDialogT::AddChildren(const wxTreeItemId& Item, bool Recursiv
 
 const wxTreeItemId EntityHierarchyDialogT::FindTreeItem(const wxTreeItemId& StartingItem, IntrusivePtrT<cf::GameSys::EntityT> Entity) const
 {
-    // If the item to start with is invalid, return it so the result of this function call is invalid too.
+    // If the item to start with is invalid, return it so the result of this function call is invalid, too.
     if (!StartingItem.IsOk()) return StartingItem;
 
     // Starting item is valid, so check if it is related to the Entity.
@@ -148,23 +148,19 @@ const wxTreeItemId EntityHierarchyDialogT::FindTreeItem(const wxTreeItemId& Star
 
     if (EntityItem->GetEntity() == Entity) return StartingItem;
 
-    // No match, so recursively check all children of the starting item.
-    wxTreeItemIdValue Cookie; // This cookie is needed for iteration over a trees children.
+    // No match, so recursively check all the children.
+    wxTreeItemIdValue Cookie;
+    wxTreeItemId      ChildItem;
 
-    wxTreeItemId Result = FindTreeItem(GetFirstChild(StartingItem, Cookie), Entity); // If there is no first child (the TreeItemId passed to FindTreeItem is invalid).
-
-    if (Result.IsOk()) return Result; // If we found a match, return it.
-
-    for (unsigned long i = 1; i < GetChildrenCount(StartingItem); i++)
+    for (ChildItem = GetFirstChild(StartingItem, Cookie); ChildItem.IsOk(); ChildItem = GetNextChild(StartingItem, Cookie))
     {
-        Result = FindTreeItem(GetNextChild(StartingItem, Cookie), Entity);
+        const wxTreeItemId Result = FindTreeItem(ChildItem, Entity);
 
-        if (Result.IsOk()) return Result; // If we found a match, return it.
+        if (Result.IsOk()) return Result;
     }
 
-    wxASSERT(!Result.IsOk());
-
-    return Result; // No match for this item and its children, so return the invalid result.
+    wxASSERT(!ChildItem.IsOk());
+    return ChildItem;
 }
 
 
@@ -174,14 +170,13 @@ void EntityHierarchyDialogT::GetTreeItems(const wxTreeItemId& StartingItem, Arra
 
     Items.PushBack(StartingItem);
 
-    if (!ItemHasChildren(StartingItem)) return;
+    wxTreeItemIdValue Cookie;
+    wxTreeItemId      ChildItem;
 
-    wxTreeItemIdValue Cookie;   // This cookie is needed for the iteration over a tree's children.
-
-    GetTreeItems(GetFirstChild(StartingItem, Cookie), Items);
-
-    for (unsigned long i = 1; i < GetChildrenCount(StartingItem); i++)
-        GetTreeItems(GetNextChild(StartingItem, Cookie), Items);
+    for (ChildItem = GetFirstChild(StartingItem, Cookie); ChildItem.IsOk(); ChildItem = GetNextChild(StartingItem, Cookie))
+    {
+        GetTreeItems(ChildItem, Items);
+    }
 }
 
 
