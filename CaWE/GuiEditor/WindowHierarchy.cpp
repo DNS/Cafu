@@ -117,31 +117,27 @@ void WindowHierarchyT::AddChildren(const wxTreeItemId& Item, bool Recursive)
 
 const wxTreeItemId WindowHierarchyT::FindTreeItem(const wxTreeItemId& StartingItem, IntrusivePtrT<cf::GuiSys::WindowT> Window) const
 {
-    // If the item to start with is invalid, return it so the result of this function call is invalid too.
+    // If the item to start with is invalid, return it so the result of this function call is invalid, too.
     if (!StartingItem.IsOk()) return StartingItem;
 
     // Starting item is valid, so check if it is related to the Window.
-    WindowTreeItemT* WindowItem=(WindowTreeItemT*)GetItemData(StartingItem);
+    WindowTreeItemT* WindowItem = (WindowTreeItemT*)GetItemData(StartingItem);
 
-    if (WindowItem->GetWindow()==Window) return StartingItem;
+    if (WindowItem->GetWindow() == Window) return StartingItem;
 
-    // No match, so recursively check all children of the starting item.
-    wxTreeItemIdValue Cookie; // This cookie is needed for iteration over a trees children.
+    // No match, so recursively check all the children.
+    wxTreeItemIdValue Cookie;
+    wxTreeItemId      ChildItem;
 
-    wxTreeItemId Result=FindTreeItem(GetFirstChild(StartingItem, Cookie), Window); // If there is no first child (the TreeItemId passed to FindTreeItem is invalid).
-
-    if (Result.IsOk()) return Result; // If we found a match, return it.
-
-    for (unsigned long i=1; i<GetChildrenCount(StartingItem); i++)
+    for (ChildItem = GetFirstChild(StartingItem, Cookie); ChildItem.IsOk(); ChildItem = GetNextChild(StartingItem, Cookie))
     {
-        Result=FindTreeItem(GetNextChild(StartingItem, Cookie), Window);
+        const wxTreeItemId Result = FindTreeItem(ChildItem, Window);
 
-        if (Result.IsOk()) return Result; // If we found a match, return it.
+        if (Result.IsOk()) return Result;
     }
 
-    wxASSERT(!Result.IsOk());
-
-    return Result; // No match for this item and its children, so return the invalid result.
+    wxASSERT(!ChildItem.IsOk());
+    return ChildItem;
 }
 
 
@@ -151,14 +147,13 @@ void WindowHierarchyT::GetTreeItems(const wxTreeItemId& StartingItem, ArrayT<wxT
 
     Items.PushBack(StartingItem);
 
-    if (!ItemHasChildren(StartingItem)) return;
+    wxTreeItemIdValue Cookie;
+    wxTreeItemId      ChildItem;
 
-    wxTreeItemIdValue Cookie; // This cookie is needed for iteration over a trees children.
-
-    GetTreeItems(GetFirstChild(StartingItem, Cookie), Items);
-
-    for (unsigned long i=1; i<GetChildrenCount(StartingItem); i++)
-        GetTreeItems(GetNextChild(StartingItem, Cookie), Items);
+    for (ChildItem = GetFirstChild(StartingItem, Cookie); ChildItem.IsOk(); ChildItem = GetNextChild(StartingItem, Cookie))
+    {
+        GetTreeItems(ChildItem, Items);
+    }
 }
 
 
