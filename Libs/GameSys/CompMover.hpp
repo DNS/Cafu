@@ -43,6 +43,46 @@ namespace cf
         {
             public:
 
+            /// A variable of type `int` that describes the mover's behavior when it is activated at the "dest" position.
+            class VarDestActivatedT : public TypeSys::VarT<int>
+            {
+                public:
+
+                enum { DESTACT_MOVE_HOME = 0, DESTACT_RESET_TIMEOUT, DESTACT_IGNORE };
+
+                VarDestActivatedT(const char* Name, const int& Value, const char* Flags[]=NULL);
+
+                // Base class overrides.
+                void GetChoices(ArrayT<std::string>& Strings, ArrayT<int>& Values) const override;
+            };
+
+            /// A variable of type `int` that describes the mover's behavior regarding other entities.
+            class VarOtherEntitiesT : public TypeSys::VarT<int>
+            {
+                public:
+
+                enum { OTHERENTS_IGNORE = 0, OTHERENTS_CANNOT_PUSH, OTHERENTS_CAN_PUSH, OTHERENTS_CAN_FORCE_PUSH };
+
+                VarOtherEntitiesT(const char* Name, const int& Value, const char* Flags[]=NULL);
+
+                // Base class overrides.
+                void GetChoices(ArrayT<std::string>& Strings, ArrayT<int>& Values) const override;
+            };
+
+            /// A variable of type `int` that describes the base function that is used to compute the mover's trajectory.
+            class VarTrajFuncT : public TypeSys::VarT<int>
+            {
+                public:
+
+                enum { TRAJFUNC_LINEAR = 0, TRAJFUNC_SINE };
+
+                VarTrajFuncT(const char* Name, const int& Value, const char* Flags[]=NULL);
+
+                // Base class overrides.
+                void GetChoices(ArrayT<std::string>& Strings, ArrayT<int>& Values) const override;
+            };
+
+
             /// The constructor.
             ComponentMoverT();
 
@@ -77,46 +117,6 @@ namespace cf
 
 
             private:
-
-            /// A variable of type `int` that describes the mover's behavior when it is activated at the "dest" position.
-            class VarDestActivatedT : public TypeSys::VarT<int>
-            {
-                public:
-
-                enum { MOVE_HOME = 0, RESET_TIMEOUT, IGNORE };
-
-                VarDestActivatedT(const char* Name, const int& Value, const char* Flags[]=NULL);
-
-                // Base class overrides.
-                void GetChoices(ArrayT<std::string>& Strings, ArrayT<int>& Values) const override;
-            };
-
-            /// A variable of type `int` that describes the mover's behavior regarding other entities.
-            class VarOtherEntitiesT : public TypeSys::VarT<int>
-            {
-                public:
-
-                enum { IGNORE = 0, CANNOT_PUSH, CAN_PUSH, CAN_FORCE_PUSH };
-
-                VarOtherEntitiesT(const char* Name, const int& Value, const char* Flags[]=NULL);
-
-                // Base class overrides.
-                void GetChoices(ArrayT<std::string>& Strings, ArrayT<int>& Values) const override;
-            };
-
-            /// A variable of type `int` that describes the base function that is used to compute the mover's trajectory.
-            class VarTrajFuncT : public TypeSys::VarT<int>
-            {
-                public:
-
-                enum { LINEAR = 0, SINE };
-
-                VarTrajFuncT(const char* Name, const int& Value, const char* Flags[]=NULL);
-
-                // Base class overrides.
-                void GetChoices(ArrayT<std::string>& Strings, ArrayT<int>& Values) const override;
-            };
-
 
             bool HandleMove(float t) const;
 
