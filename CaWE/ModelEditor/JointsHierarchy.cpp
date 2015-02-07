@@ -98,31 +98,27 @@ JointsHierarchyT::~JointsHierarchyT()
 
 const wxTreeItemId JointsHierarchyT::FindTreeItem(const wxTreeItemId& StartingItem, unsigned int JointNr) const
 {
-    // If the item to start with is invalid, return it so the result of this function call is invalid too.
+    // If the item to start with is invalid, return it so the result of this function call is invalid, too.
     if (!StartingItem.IsOk()) return StartingItem;
 
     // Starting item is valid, so check if it is related to the Window.
-    JointsTreeItemT* Data=(JointsTreeItemT*)GetItemData(StartingItem);
+    JointsTreeItemT* Data = (JointsTreeItemT*)GetItemData(StartingItem);
 
-    if (Data && Data->GetJointNr()==JointNr) return StartingItem;
+    if (Data && Data->GetJointNr() == JointNr) return StartingItem;
 
-    // No match, so recursively check all children of the starting item.
-    wxTreeItemIdValue Cookie; // This cookie is needed for iteration over a trees children.
+    // No match, so recursively check all the children.
+    wxTreeItemIdValue Cookie;
+    wxTreeItemId      ChildItem;
 
-    wxTreeItemId Result=FindTreeItem(GetFirstChild(StartingItem, Cookie), JointNr); // If there is no first child (the TreeItemId passed to FindTreeItem is invalid).
-
-    if (Result.IsOk()) return Result; // If we found a match, return it.
-
-    for (unsigned long i=1; i<GetChildrenCount(StartingItem); i++)
+    for (ChildItem = GetFirstChild(StartingItem, Cookie); ChildItem.IsOk(); ChildItem = GetNextChild(StartingItem, Cookie))
     {
-        Result=FindTreeItem(GetNextChild(StartingItem, Cookie), JointNr);
+        const wxTreeItemId Result = FindTreeItem(ChildItem, JointNr);
 
-        if (Result.IsOk()) return Result; // If we found a match, return it.
+        if (Result.IsOk()) return Result;
     }
 
-    wxASSERT(!Result.IsOk());
-
-    return Result; // No match for this item and its children, so return the invalid result.
+    wxASSERT(!ChildItem.IsOk());
+    return ChildItem;
 }
 
 
@@ -132,14 +128,13 @@ void JointsHierarchyT::GetTreeItems(const wxTreeItemId& StartingItem, ArrayT<wxT
 
     Items.PushBack(StartingItem);
 
-    if (!ItemHasChildren(StartingItem)) return;
+    wxTreeItemIdValue Cookie;
+    wxTreeItemId      ChildItem;
 
-    wxTreeItemIdValue Cookie; // This cookie is needed for iteration over a trees children.
-
-    GetTreeItems(GetFirstChild(StartingItem, Cookie), Items);
-
-    for (unsigned long i=1; i<GetChildrenCount(StartingItem); i++)
-        GetTreeItems(GetNextChild(StartingItem, Cookie), Items);
+    for (ChildItem = GetFirstChild(StartingItem, Cookie); ChildItem.IsOk(); ChildItem = GetNextChild(StartingItem, Cookie))
+    {
+        GetTreeItems(ChildItem, Items);
+    }
 }
 
 
