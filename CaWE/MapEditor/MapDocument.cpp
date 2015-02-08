@@ -74,6 +74,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameSys/CompLightPoint.hpp"
 #include "GameSys/CompLightRadiosity.hpp"
 #include "GameSys/CompModel.hpp"
+#include "GameSys/CompMover.hpp"
 #include "GameSys/CompPhysics.hpp"
 #include "GameSys/CompPlayerPhysics.hpp"
 #include "GameSys/CompPlayerStart.hpp"
@@ -700,9 +701,7 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
                 // The part is now positioned relative to DoorEnt, but we want to keep its origin unchanged in world-space:
                 Part->GetTransform()->SetOriginWS(PartPosWS);
 
-                // Configure the part for the main Door script.
-                IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
-
+                // Add a "move_dest" child entity for the part.
                 std::istringstream iss(GetMapEnt(Part)->GetAndRemove("moveDir"));
                 Vector3fT          MoveDir;
 
@@ -715,10 +714,16 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
                 const double         Lip        = float(wxAtof(GetMapEnt(Part)->GetAndRemove("lip", "0.0")));
 
                 MoveDir *= dot(PartSize, AbsMoveDir) - Lip;
+                if (length(MoveDir) < 1.0f) MoveDir = Vector3fT(0.0f, 0.0f, 32.0f);
 
-                ScriptComp->SetMember("ScriptCode", wxString::Format(
-                    "local Part = ...\nPart:GetEntity().MoveVec = { %.1f, %.1f, %.1f }\n", MoveDir.x, MoveDir.y, MoveDir.z).ToStdString());
-                Part->AddComponent(ScriptComp);
+                IntrusivePtrT<cf::GameSys::EntityT> MoveDestEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
+
+                const bool Result3 = Part->AddChild(MoveDestEnt);
+                wxASSERT(Result3);
+
+                MoveDestEnt->GetBasics()->SetEntityName("move_dest");
+                MoveDestEnt->GetTransform()->SetOriginPS(MoveDir);
+                MoveDestEnt->SetApp(new CompMapEntityT(*this));
             }
 
             // Add an explicit trigger brush to the DoorEnt.
@@ -737,13 +742,18 @@ void MapDocumentT::PostLoadEntityAlign(unsigned int cmapFileVersion, const Array
             MapEnt->AddPrim(MapBrushT::CreateBlock(BB,
                 m_GameConfig->GetMatMan().FindMaterial("Textures/meta/trigger", true)));
 
-            // Add a script component to the DoorEnt.
+            // Add a Mover component to the DoorEnt.
+            IntrusivePtrT<cf::GameSys::ComponentMoverT> MoverComp = new cf::GameSys::ComponentMoverT();
+
+            MoverComp->SetMember("destActivated", int(cf::GameSys::ComponentMoverT::VarDestActivatedT::DESTACT_RESET_TIMEOUT));
+            MoverComp->SetMember("destTimeout", 2.0f);
+            MoverComp->SetMember("trajExp", 2.0f);
+            DoorEnt->AddComponent(MoverComp);
+
+            // Add a Script component to the DoorEnt.
             IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
 
-            ScriptComp->SetMember("Name", std::string(m_GameConfig->ModDir + "/Scripts/Door.lua"));
-            ScriptComp->SetMember("ScriptCode", std::string("local Door = ...\n") +
-                "Door.OpenTime = " + GetMapEnt(It->second[0])->GetAndRemove("openTime", "1.0") + "\n" +
-                "Door.MoveTime = " + GetMapEnt(It->second[0])->GetAndRemove("moveTime", "1.0") + "\n");
+            ScriptComp->SetMember("Name", std::string(m_GameConfig->ModDir + "/Scripts/MoverBinary.lua"));
             DoorEnt->AddComponent(ScriptComp);
         }
     }
