@@ -1,6 +1,6 @@
 // Cafu Map File
 // Written by CaWE, the Cafu World Editor.
-Version 13
+Version 14
 
 GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
 
@@ -8752,158 +8752,106 @@ TerrainDef
 
 {
   classname "info_player_start"
-  angles "0 0 0"
-  origin "384 -1344 72"
 }
 
 {
   classname "info_player_start"
-  angles "0 315 0"
-  origin "1864 -344 -211"
 }
 
 {
   classname "info_player_start"
-  angles "0 335 0"
-  origin "-532 -62 65"
 }
 
 {
   classname "info_player_start"
-  angles "0 90 0"
-  origin "976 616 81"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 90 0"
-  origin "-296 186 4"
 }
 
 {
   classname "weapon_9mmAR"
-  angles "0 141 0"
-  origin "61 -608 105"
 }
 
 {
   classname "ammo_9mmAR"
-  angles "0 90 0"
-  origin "64 -661 105"
 }
 
 {
   classname "ammo_ARgrenades"
-  angles "0 270 0"
-  origin "748 -967 146"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 90 0"
-  origin "709 -304 187"
 }
 
 {
   classname "weapon_shotgun"
-  angles "0 45 0"
-  origin "1208 -409 -124"
 }
 
 {
   classname "ammo_buckshot"
-  angles "0 45 0"
-  origin "1257 -426 -124"
 }
 
 {
   classname "weapon_hornetgun"
-  angles "0 106 0"
-  origin "1515 377 -269"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 90 0"
-  origin "1659 -428 -284"
 }
 
 {
   classname "info_player_start"
-  angles "0 90 0"
-  origin "0 -1392 104"
 }
 
 {
   classname "info_player_start"
-  angles "0 90 0"
-  origin "840 824 -14"
 }
 
 {
   classname "info_player_start"
-  angles "0 270 0"
-  origin "272 560 -296"
 }
 
 {
   classname "info_player_start"
-  angles "0 90 0"
-  origin "872 -784 72"
 }
 
 {
   classname "info_player_start"
-  angles "0 90 0"
-  origin "32 -296 136"
 }
 
 {
   classname "ammo_9mmAR"
-  angles "0 100 0"
-  origin "1076 -1400 41"
 }
 
 {
   classname "ammo_rpgclip"
-  angles "0 90 0"
-  origin "784 336 -60"
 }
 
 {
   classname "ammo_ARgrenades"
-  angles "0 90 0"
-  origin "400 256 -363"
 }
 
 {
   classname "ammo_9mmAR"
-  angles "0 90 0"
-  origin "996 792 -120"
 }
 
 {
   classname "weapon_shotgun"
-  angles "0 333 0"
-  origin "-504 -240 4"
 }
 
 {
   classname "ammo_buckshot"
-  angles "0 285 0"
-  origin "-504 -300 4"
 }
 
 {
   classname "weapon_9mmAR"
-  angles "0 78 0"
-  origin "1048 792 -120"
 }
 
 {
   classname "ammo_rpgclip"
-  angles "0 90 0"
-  origin "896 -640 48"
 }
 
 {
@@ -9420,680 +9368,412 @@ TerrainDef
 
 {
   classname "monster_eagle"
-  angles "0 41 0"
-  origin "-384 -3456 424"
 }
 
 {
   classname "weapon_rpg"
-  angles "0 60 0"
-  origin "-1208 -1632 192"
 }
 
 {
   classname "weapon_9mmAR"
-  angles "0 155 0"
-  origin "-1240 -3928 224"
 }
 
 {
   classname "monster_butterfly"
-  angles "0 90 0"
-  origin "-1264 -1984 224"
 }
 
 {
   classname "monster_butterfly"
-  angles "0 90 0"
-  origin "-1296 -2064 160"
 }
 
 {
   classname "monster_butterfly"
-  angles "0 90 0"
-  origin "-104 -2624 168"
 }
 
 {
   classname "monster_butterfly"
-  angles "0 90 0"
-  origin "144 -2376 216"
 }
 
 {
   classname "monster_butterfly"
-  angles "0 90 0"
-  origin "672 -3648 232"
 }
 
 {
   classname "weapon_facehugger"
-  angles "0 68 0"
-  origin "-368 -3776 88"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 90 0"
-  origin "512 -1568 64"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "644 -1046 96"
 }
 
 {
   classname "static_detail_model"
-  angles "15 27 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/WeldTank_blue.mdl"
-  origin "-267 713 -63"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/WeldTank_red.mdl"
-  origin "-268 688 -64"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/WeldTank_blue.mdl"
-  origin "-264 672 -64"
 }
 
 {
   classname "static_detail_model"
-  angles "0 120 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Palette01.mdl"
-  origin "108 412 -64"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Pipe_medium.mdl"
-  origin "754 721 83"
 }
 
 {
   classname "static_detail_model"
-  angles "270 180 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Bend.mdl"
-  origin "830 581 133"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Bend.mdl"
-  origin "785 585 124"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Pipe_medium.mdl"
-  origin "780 669 125"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 270"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Pipe_medium.mdl"
-  origin "834 593 217"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Pipe_long.mdl"
-  origin "245 722 83"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Pipe_medium.mdl"
-  origin "1215 721 83"
 }
 
 {
   classname "static_detail_model"
-  angles "90 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_T-Junction.mdl"
-  origin "972 716 89"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Pipe_medium.mdl"
-  origin "1049 721 83"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Pipe_medium.mdl"
-  origin "891 721 83"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Pipe_long.mdl"
-  origin "528 722 83"
 }
 
 {
   classname "static_detail_model"
-  angles "90 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_T-Junction.mdl"
-  origin "677 716 89"
 }
 
 {
   classname "static_detail_model"
-  angles "0 180 180"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_T-Junction.mdl"
-  origin "98 722 94"
 }
 
 {
   classname "static_detail_model"
-  angles "0 180 270"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Pipe_medium.mdl"
-  origin "104 722 7"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "644 -848 96"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "644 -914 96"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "644 -980 96"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "644 -1112 96"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "123 -1120 96"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "123 -1056 96"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "123 -992 96"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "123 -928 96"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "123 -864 96"
 }
 
 {
   classname "static_detail_model"
-  angles "0 270 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "0 -117 0"
 }
 
 {
   classname "static_detail_model"
-  angles "0 270 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "64 -117 0"
 }
 
 {
   classname "static_detail_model"
-  angles "0 270 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "128 -117 0"
 }
 
 {
   classname "static_detail_model"
-  angles "0 270 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "192 -117 0"
 }
 
 {
   classname "static_detail_model"
-  angles "0 270 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "256 -117 0"
 }
 
 {
   classname "static_detail_model"
-  angles "0 270 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "320 -117 0"
 }
 
 {
   classname "static_detail_model"
-  angles "0 270 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "800 -117 0"
 }
 
 {
   classname "static_detail_model"
-  angles "0 270 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "736 -117 0"
 }
 
 {
   classname "static_detail_model"
-  angles "0 270 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "672 -117 0"
 }
 
 {
   classname "static_detail_model"
-  angles "0 270 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "608 -117 0"
 }
 
 {
   classname "static_detail_model"
-  angles "0 270 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "544 -117 0"
 }
 
 {
   classname "static_detail_model"
-  angles "0 270 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "480 -117 0"
 }
 
 {
   classname "static_detail_model"
-  angles "0 270 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "416 -117 0"
 }
 
 {
   classname "static_detail_model"
-  angles "0 300 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "1436 -308 -128"
 }
 
 {
   classname "static_detail_model"
-  angles "0 225 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "-357 613 0"
 }
 
 {
   classname "static_detail_model"
-  angles "0 180 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "1276 312 -128"
 }
 
 {
   classname "static_detail_model"
-  angles "0 180 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "1276 186 -128"
 }
 
 {
   classname "static_detail_model"
-  angles "0 180 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "1276 122 -128"
 }
 
 {
   classname "static_detail_model"
-  angles "0 180 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "1276 58 -128"
 }
 
 {
   classname "static_detail_model"
-  angles "0 180 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "1276 -6 -128"
 }
 
 {
   classname "static_detail_model"
-  angles "0 180 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "1276 -70 -128"
 }
 
 {
   classname "static_detail_model"
-  angles "0 180 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "1276 -134 -128"
 }
 
 {
   classname "static_detail_model"
-  angles "0 180 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "1276 -262 -128"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "1312 -292 -128"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "1376 -292 -128"
 }
 
 {
   classname "static_detail_model"
-  angles "0 180 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "1276 -198 -128"
 }
 
 {
   classname "static_detail_model"
-  angles "0 270 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "-296 636 0"
 }
 
 {
   classname "static_detail_model"
-  angles "0 180 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "-380 550 0"
 }
 
 {
   classname "static_detail_model"
-  angles "0 180 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "-380 480 0"
 }
 
 {
   classname "static_detail_model"
-  angles "0 180 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "-380 410 0"
 }
 
 {
   classname "static_detail_model"
-  angles "0 180 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "-380 340 0"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "-534 252 0"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "-464 252 0"
 }
 
 {
   classname "static_detail_model"
-  angles "0 45 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Gelaender01.mdl"
-  scale "1.0"
-  origin "-405 277 0"
 }

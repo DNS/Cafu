@@ -1,0 +1,2025 @@
+-- This is a Cafu Entities file, written by the CaWE Map Editor.
+-- The file defines the entity hierarchy and properties of the related game world;
+-- it is used both by the CaWE Map Editor as well as by the Cafu Engine.
+--
+-- You CAN edit this file manually, but note that CaWE may overwrite your changes.
+-- Also note that structural changes to the entity hierarchy will bring this file
+-- out of sync with the related map (cmap) and world (cw) files, effectively
+-- causing LOSS OF WORK (see the documentation for details).
+-- It is therefore recommended that you use CaWE for all changes to this file.
+
+
+-- Instantiation of all entities.
+-- ******************************
+
+local Map = world:new("EntityT", "Map")
+Map.ammo_rpg_rocket = world:new("EntityT", "ammo_rpg_rocket")
+Map.weapon_rpg = world:new("EntityT", "weapon_rpg")
+Map.weapon_shotgun = world:new("EntityT", "weapon_shotgun")
+Map.ammo_shotgun_shells = world:new("EntityT", "ammo_shotgun_shells")
+Map.weapon_9mmAR = world:new("EntityT", "weapon_9mmAR")
+Map.ammo_rpg_rocket_1 = world:new("EntityT", "ammo_rpg_rocket_1")
+Map.ammo_9mmAR = world:new("EntityT", "ammo_9mmAR")
+Map.info_player_start = world:new("EntityT", "info_player_start")
+Map.info_player_start_1 = world:new("EntityT", "info_player_start_1")
+Map.weapon_hornetgun = world:new("EntityT", "weapon_hornetgun")
+Map.ammo_rpg_rocket_2 = world:new("EntityT", "ammo_rpg_rocket_2")
+Map.ammo_rpg_rocket_3 = world:new("EntityT", "ammo_rpg_rocket_3")
+Map.info_player_start_2 = world:new("EntityT", "info_player_start_2")
+Map.info_player_start_3 = world:new("EntityT", "info_player_start_3")
+Map.info_player_start_4 = world:new("EntityT", "info_player_start_4")
+Map.info_player_start_5 = world:new("EntityT", "info_player_start_5")
+Map.info_player_start_6 = world:new("EntityT", "info_player_start_6")
+Map.info_player_start_7 = world:new("EntityT", "info_player_start_7")
+Map.weapon_handgrenade = world:new("EntityT", "weapon_handgrenade")
+Map.info_player_start_8 = world:new("EntityT", "info_player_start_8")
+Map.weapon_handgrenade_1 = world:new("EntityT", "weapon_handgrenade_1")
+Map.ammo_9mmAR_1 = world:new("EntityT", "ammo_9mmAR_1")
+Map.weapon_9mmAR_1 = world:new("EntityT", "weapon_9mmAR_1")
+Map.weapon_handgrenade_2 = world:new("EntityT", "weapon_handgrenade_2")
+Map.ammo_9mmclip = world:new("EntityT", "ammo_9mmclip")
+Map.weapon_handgrenade_3 = world:new("EntityT", "weapon_handgrenade_3")
+Map.weapon_shotgun_1 = world:new("EntityT", "weapon_shotgun_1")
+Map.ammo_ARgrenades = world:new("EntityT", "ammo_ARgrenades")
+Map.ammo_9mmclip_1 = world:new("EntityT", "ammo_9mmclip_1")
+Map.weapon_9mmAR_2 = world:new("EntityT", "weapon_9mmAR_2")
+Map.weapon_rpg_1 = world:new("EntityT", "weapon_rpg_1")
+Map.ammo_ARgrenades_1 = world:new("EntityT", "ammo_ARgrenades_1")
+Map.info_player_start_9 = world:new("EntityT", "info_player_start_9")
+Map.ammo_shotgun_shells_1 = world:new("EntityT", "ammo_shotgun_shells_1")
+Map.ammo_9mmclip_2 = world:new("EntityT", "ammo_9mmclip_2")
+Map.info_player_start_10 = world:new("EntityT", "info_player_start_10")
+Map.info_player_start_11 = world:new("EntityT", "info_player_start_11")
+Map.info_player_start_12 = world:new("EntityT", "info_player_start_12")
+Map.ammo_9mmclip_3 = world:new("EntityT", "ammo_9mmclip_3")
+Map.ammo_9mmclip_4 = world:new("EntityT", "ammo_9mmclip_4")
+Map.info_player_start_13 = world:new("EntityT", "info_player_start_13")
+Map.ammo_9mmclip_5 = world:new("EntityT", "ammo_9mmclip_5")
+Map.ammo_9mmclip_6 = world:new("EntityT", "ammo_9mmclip_6")
+Map.info_player_start_14 = world:new("EntityT", "info_player_start_14")
+Map.info_player_start_15 = world:new("EntityT", "info_player_start_15")
+Map.info_player_start_16 = world:new("EntityT", "info_player_start_16")
+Map.ammo_9mmclip_7 = world:new("EntityT", "ammo_9mmclip_7")
+Map.ammo_shotgun_shells_2 = world:new("EntityT", "ammo_shotgun_shells_2")
+Map.ammo_9mmAR_2 = world:new("EntityT", "ammo_9mmAR_2")
+Map.ammo_9mmAR_3 = world:new("EntityT", "ammo_9mmAR_3")
+Map.weapon_shotgun_2 = world:new("EntityT", "weapon_shotgun_2")
+Map.PointLight = world:new("EntityT", "PointLight")
+Map.PointLight_1 = world:new("EntityT", "PointLight_1")
+Map.PointLight_2 = world:new("EntityT", "PointLight_2")
+Map.func_wall = world:new("EntityT", "func_wall")
+Map.func_wall_1 = world:new("EntityT", "func_wall_1")
+Map.func_wall_2 = world:new("EntityT", "func_wall_2")
+Map.func_wall_3 = world:new("EntityT", "func_wall_3")
+Map.func_wall_4 = world:new("EntityT", "func_wall_4")
+Map.func_wall_5 = world:new("EntityT", "func_wall_5")
+Map.func_wall_6 = world:new("EntityT", "func_wall_6")
+Map.func_wall_7 = world:new("EntityT", "func_wall_7")
+Map.func_wall_8 = world:new("EntityT", "func_wall_8")
+Map.func_wall_9 = world:new("EntityT", "func_wall_9")
+Map.func_wall_10 = world:new("EntityT", "func_wall_10")
+Map.func_wall_11 = world:new("EntityT", "func_wall_11")
+Map.func_wall_12 = world:new("EntityT", "func_wall_12")
+Map.func_wall_13 = world:new("EntityT", "func_wall_13")
+Map.func_wall_14 = world:new("EntityT", "func_wall_14")
+Map.func_wall_15 = world:new("EntityT", "func_wall_15")
+Map.func_wall_16 = world:new("EntityT", "func_wall_16")
+Map.func_wall_17 = world:new("EntityT", "func_wall_17")
+Map.func_wall_18 = world:new("EntityT", "func_wall_18")
+Map.func_wall_19 = world:new("EntityT", "func_wall_19")
+Map.func_wall_20 = world:new("EntityT", "func_wall_20")
+Map.func_wall_21 = world:new("EntityT", "func_wall_21")
+Map.func_wall_22 = world:new("EntityT", "func_wall_22")
+Map.func_wall_23 = world:new("EntityT", "func_wall_23")
+Map.func_water = world:new("EntityT", "func_water")
+Map.func_water_1 = world:new("EntityT", "func_water_1")
+Map.func_water_2 = world:new("EntityT", "func_water_2")
+Map.func_ladder = world:new("EntityT", "func_ladder")
+Map.func_ladder_1 = world:new("EntityT", "func_ladder_1")
+Map.func_ladder_2 = world:new("EntityT", "func_ladder_2")
+Map.func_ladder_3 = world:new("EntityT", "func_ladder_3")
+Map.func_ladder_4 = world:new("EntityT", "func_ladder_4")
+Map.func_ladder_5 = world:new("EntityT", "func_ladder_5")
+Map.func_ladder_6 = world:new("EntityT", "func_ladder_6")
+Map.func_ladder_7 = world:new("EntityT", "func_ladder_7")
+Map.func_ladder_8 = world:new("EntityT", "func_ladder_8")
+Map.func_ladder_9 = world:new("EntityT", "func_ladder_9")
+Map.func_ladder_10 = world:new("EntityT", "func_ladder_10")
+Map.func_ladder_11 = world:new("EntityT", "func_ladder_11")
+Map.func_ladder_12 = world:new("EntityT", "func_ladder_12")
+Map.func_ladder_13 = world:new("EntityT", "func_ladder_13")
+Map.func_ladder_14 = world:new("EntityT", "func_ladder_14")
+Map.func_wall_24 = world:new("EntityT", "func_wall_24")
+Map.func_ladder_15 = world:new("EntityT", "func_ladder_15")
+Map.func_wall_25 = world:new("EntityT", "func_wall_25")
+Map.func_water_3 = world:new("EntityT", "func_water_3")
+Map.func_water_4 = world:new("EntityT", "func_water_4")
+Map.func_wall_26 = world:new("EntityT", "func_wall_26")
+Map.func_water_5 = world:new("EntityT", "func_water_5")
+Map.func_wall_27 = world:new("EntityT", "func_wall_27")
+Map.teleporter_1_of_5 = world:new("EntityT", "teleporter_1_of_5")
+Map.teleporter_2_of_5 = world:new("EntityT", "teleporter_2_of_5")
+Map.teleporter_3_of_5 = world:new("EntityT", "teleporter_3_of_5")
+Map.teleporter_4_of_5 = world:new("EntityT", "teleporter_4_of_5")
+Map.teleporter_5_of_5 = world:new("EntityT", "teleporter_5_of_5")
+Map.info_generic_1 = world:new("EntityT", "info_generic_1")
+Map.info_generic_2 = world:new("EntityT", "info_generic_2")
+Map.info_generic_3 = world:new("EntityT", "info_generic_3")
+Map.info_generic_4 = world:new("EntityT", "info_generic_4")
+Map.info_generic_5 = world:new("EntityT", "info_generic_5")
+Map.PointLightSource_001 = world:new("EntityT", "PointLightSource_001")
+Map.PointLightSource_002 = world:new("EntityT", "PointLightSource_002")
+Map.PointLightSource_003 = world:new("EntityT", "PointLightSource_003")
+Map.PointLightSource_004 = world:new("EntityT", "PointLightSource_004")
+Map.PointLightSource_005 = world:new("EntityT", "PointLightSource_005")
+
+
+-- Set the worlds root entity.
+-- ***************************
+
+world:SetRootEntity(Map)
+
+
+-- Setup the entity hierarchy.
+-- ***************************
+
+Map:AddChild(Map.ammo_rpg_rocket)
+Map:AddChild(Map.weapon_rpg)
+Map:AddChild(Map.weapon_shotgun)
+Map:AddChild(Map.ammo_shotgun_shells)
+Map:AddChild(Map.weapon_9mmAR)
+Map:AddChild(Map.ammo_rpg_rocket_1)
+Map:AddChild(Map.ammo_9mmAR)
+Map:AddChild(Map.info_player_start)
+Map:AddChild(Map.info_player_start_1)
+Map:AddChild(Map.weapon_hornetgun)
+Map:AddChild(Map.ammo_rpg_rocket_2)
+Map:AddChild(Map.ammo_rpg_rocket_3)
+Map:AddChild(Map.info_player_start_2)
+Map:AddChild(Map.info_player_start_3)
+Map:AddChild(Map.info_player_start_4)
+Map:AddChild(Map.info_player_start_5)
+Map:AddChild(Map.info_player_start_6)
+Map:AddChild(Map.info_player_start_7)
+Map:AddChild(Map.weapon_handgrenade)
+Map:AddChild(Map.info_player_start_8)
+Map:AddChild(Map.weapon_handgrenade_1)
+Map:AddChild(Map.ammo_9mmAR_1)
+Map:AddChild(Map.weapon_9mmAR_1)
+Map:AddChild(Map.weapon_handgrenade_2)
+Map:AddChild(Map.ammo_9mmclip)
+Map:AddChild(Map.weapon_handgrenade_3)
+Map:AddChild(Map.weapon_shotgun_1)
+Map:AddChild(Map.ammo_ARgrenades)
+Map:AddChild(Map.ammo_9mmclip_1)
+Map:AddChild(Map.weapon_9mmAR_2)
+Map:AddChild(Map.weapon_rpg_1)
+Map:AddChild(Map.ammo_ARgrenades_1)
+Map:AddChild(Map.info_player_start_9)
+Map:AddChild(Map.ammo_shotgun_shells_1)
+Map:AddChild(Map.ammo_9mmclip_2)
+Map:AddChild(Map.info_player_start_10)
+Map:AddChild(Map.info_player_start_11)
+Map:AddChild(Map.info_player_start_12)
+Map:AddChild(Map.ammo_9mmclip_3)
+Map:AddChild(Map.ammo_9mmclip_4)
+Map:AddChild(Map.info_player_start_13)
+Map:AddChild(Map.ammo_9mmclip_5)
+Map:AddChild(Map.ammo_9mmclip_6)
+Map:AddChild(Map.info_player_start_14)
+Map:AddChild(Map.info_player_start_15)
+Map:AddChild(Map.info_player_start_16)
+Map:AddChild(Map.ammo_9mmclip_7)
+Map:AddChild(Map.ammo_shotgun_shells_2)
+Map:AddChild(Map.ammo_9mmAR_2)
+Map:AddChild(Map.ammo_9mmAR_3)
+Map:AddChild(Map.weapon_shotgun_2)
+Map:AddChild(Map.PointLight)
+Map:AddChild(Map.PointLight_1)
+Map:AddChild(Map.PointLight_2)
+Map:AddChild(Map.func_wall)
+Map:AddChild(Map.func_wall_1)
+Map:AddChild(Map.func_wall_2)
+Map:AddChild(Map.func_wall_3)
+Map:AddChild(Map.func_wall_4)
+Map:AddChild(Map.func_wall_5)
+Map:AddChild(Map.func_wall_6)
+Map:AddChild(Map.func_wall_7)
+Map:AddChild(Map.func_wall_8)
+Map:AddChild(Map.func_wall_9)
+Map:AddChild(Map.func_wall_10)
+Map:AddChild(Map.func_wall_11)
+Map:AddChild(Map.func_wall_12)
+Map:AddChild(Map.func_wall_13)
+Map:AddChild(Map.func_wall_14)
+Map:AddChild(Map.func_wall_15)
+Map:AddChild(Map.func_wall_16)
+Map:AddChild(Map.func_wall_17)
+Map:AddChild(Map.func_wall_18)
+Map:AddChild(Map.func_wall_19)
+Map:AddChild(Map.func_wall_20)
+Map:AddChild(Map.func_wall_21)
+Map:AddChild(Map.func_wall_22)
+Map:AddChild(Map.func_wall_23)
+Map:AddChild(Map.func_water)
+Map:AddChild(Map.func_water_1)
+Map:AddChild(Map.func_water_2)
+Map:AddChild(Map.func_ladder)
+Map:AddChild(Map.func_ladder_1)
+Map:AddChild(Map.func_ladder_2)
+Map:AddChild(Map.func_ladder_3)
+Map:AddChild(Map.func_ladder_4)
+Map:AddChild(Map.func_ladder_5)
+Map:AddChild(Map.func_ladder_6)
+Map:AddChild(Map.func_ladder_7)
+Map:AddChild(Map.func_ladder_8)
+Map:AddChild(Map.func_ladder_9)
+Map:AddChild(Map.func_ladder_10)
+Map:AddChild(Map.func_ladder_11)
+Map:AddChild(Map.func_ladder_12)
+Map:AddChild(Map.func_ladder_13)
+Map:AddChild(Map.func_ladder_14)
+Map:AddChild(Map.func_wall_24)
+Map:AddChild(Map.func_ladder_15)
+Map:AddChild(Map.func_wall_25)
+Map:AddChild(Map.func_water_3)
+Map:AddChild(Map.func_water_4)
+Map:AddChild(Map.func_wall_26)
+Map:AddChild(Map.func_water_5)
+Map:AddChild(Map.func_wall_27)
+Map:AddChild(Map.teleporter_1_of_5)
+Map:AddChild(Map.teleporter_2_of_5)
+Map:AddChild(Map.teleporter_3_of_5)
+Map:AddChild(Map.teleporter_4_of_5)
+Map:AddChild(Map.teleporter_5_of_5)
+Map:AddChild(Map.info_generic_1)
+Map:AddChild(Map.info_generic_2)
+Map:AddChild(Map.info_generic_3)
+Map:AddChild(Map.info_generic_4)
+Map:AddChild(Map.info_generic_5)
+Map:AddChild(Map.PointLightSource_001)
+Map:AddChild(Map.PointLightSource_002)
+Map:AddChild(Map.PointLightSource_003)
+Map:AddChild(Map.PointLightSource_004)
+Map:AddChild(Map.PointLightSource_005)
+
+
+-- Initialization of the entity contents ("constructors").
+-- *******************************************************
+
+function Map:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 0, 0, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.ammo_rpg_rocket:OnInit()
+    self:GetTransform():set("Origin", 2507, -1433, -509)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Items/?.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Item.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.weapon_rpg:OnInit()
+    self:GetTransform():set("Origin", 1216, 864, -1688)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Weapons/Bazooka/Bazooka_w.cmdl")
+    c1:set("Animation", 0)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Weapon.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.weapon_shotgun:OnInit()
+    self:GetTransform():set("Origin", -288, 448, -302)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Weapons/Shotgun/Shotgun_w.cmdl")
+    c1:set("Animation", 0)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Weapon.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.ammo_shotgun_shells:OnInit()
+    self:GetTransform():set("Origin", -288, 386, -282)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Items/?.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Item.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.weapon_9mmAR:OnInit()
+    self:GetTransform():set("Origin", 2448, 632, -792)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Weapons/9mmAR/9mmAR_w.cmdl")
+    c1:set("Animation", 0)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Weapon.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.ammo_rpg_rocket_1:OnInit()
+    self:GetTransform():set("Origin", 2260, 680, -1516)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Items/?.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Item.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.ammo_9mmAR:OnInit()
+    self:GetTransform():set("Origin", 1357, -736, -120)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Items/?.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Item.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.info_player_start:OnInit()
+    self:GetTransform():set("Origin", -179, -451, -256)
+    self:GetTransform():set("Orientation", 0, 0, -0.3007058)
+
+    local c1 = world:new("ComponentPlayerStartT")
+    c1:set("SinglePlayer", true)
+    c1:set("MultiPlayer", true)
+
+    self:AddComponent(c1)
+end
+
+function Map.info_player_start_1:OnInit()
+    self:GetTransform():set("Origin", 1008, -84, -64)
+    self:GetTransform():set("Orientation", 0, 0, 0.13052632)
+
+    local c1 = world:new("ComponentPlayerStartT")
+    c1:set("SinglePlayer", true)
+    c1:set("MultiPlayer", true)
+
+    self:AddComponent(c1)
+end
+
+function Map.weapon_hornetgun:OnInit()
+    self:GetTransform():set("Origin", -1216, -1588, -292)
+    self:GetTransform():set("Orientation", 0, 0, 0.70710677)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Weapons/BattleScythe/BattleScythe_w.cmdl")
+    c1:set("Animation", 0)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Weapon.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.ammo_rpg_rocket_2:OnInit()
+    self:GetTransform():set("Origin", 728, -579, -252)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Items/?.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Item.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.ammo_rpg_rocket_3:OnInit()
+    self:GetTransform():set("Origin", 672, -579, -252)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Items/?.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Item.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.info_player_start_2:OnInit()
+    self:GetTransform():set("Origin", 2432, -1568, -272)
+    self:GetTransform():set("Orientation", 0, 0, 1)
+
+    local c1 = world:new("ComponentPlayerStartT")
+    c1:set("SinglePlayer", true)
+    c1:set("MultiPlayer", true)
+
+    self:AddComponent(c1)
+end
+
+function Map.info_player_start_3:OnInit()
+    self:GetTransform():set("Origin", 144, -1104, -64)
+    self:GetTransform():set("Orientation", 0, 0, 0.61566144)
+
+    local c1 = world:new("ComponentPlayerStartT")
+    c1:set("SinglePlayer", true)
+    c1:set("MultiPlayer", true)
+
+    self:AddComponent(c1)
+end
+
+function Map.info_player_start_4:OnInit()
+    self:GetTransform():set("Origin", -1216, -1740, -258)
+    self:GetTransform():set("Orientation", 0, 0, -0.70710677)
+
+    local c1 = world:new("ComponentPlayerStartT")
+    c1:set("SinglePlayer", true)
+    c1:set("MultiPlayer", true)
+
+    self:AddComponent(c1)
+end
+
+function Map.info_player_start_5:OnInit()
+    self:GetTransform():set("Origin", 2512, 312, -1328)
+    self:GetTransform():set("Orientation", 0, 0, -0.70710677)
+
+    local c1 = world:new("ComponentPlayerStartT")
+    c1:set("SinglePlayer", true)
+    c1:set("MultiPlayer", true)
+
+    self:AddComponent(c1)
+end
+
+function Map.info_player_start_6:OnInit()
+    self:GetTransform():set("Origin", 608, -1328, -240)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentPlayerStartT")
+    c1:set("SinglePlayer", true)
+    c1:set("MultiPlayer", true)
+
+    self:AddComponent(c1)
+end
+
+function Map.info_player_start_7:OnInit()
+    self:GetTransform():set("Origin", 96, -1968, -352)
+    self:GetTransform():set("Orientation", 0, 0, 1)
+
+    local c1 = world:new("ComponentPlayerStartT")
+    c1:set("SinglePlayer", true)
+    c1:set("MultiPlayer", true)
+
+    self:AddComponent(c1)
+end
+
+function Map.weapon_handgrenade:OnInit()
+    self:GetTransform():set("Origin", 226, -1968, -400)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Weapons/Grenade/Grenade_w.cmdl")
+    c1:set("Animation", 0)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Weapon.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.info_player_start_8:OnInit()
+    self:GetTransform():set("Origin", 1472, 1024, -1360)
+    self:GetTransform():set("Orientation", 0, 0, 0.92387956)
+
+    local c1 = world:new("ComponentPlayerStartT")
+    c1:set("SinglePlayer", true)
+    c1:set("MultiPlayer", true)
+
+    self:AddComponent(c1)
+end
+
+function Map.weapon_handgrenade_1:OnInit()
+    self:GetTransform():set("Origin", 0, 512, -12)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Weapons/Grenade/Grenade_w.cmdl")
+    c1:set("Animation", 0)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Weapon.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.ammo_9mmAR_1:OnInit()
+    self:GetTransform():set("Origin", 592, 544, 4)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Items/?.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Item.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.weapon_9mmAR_1:OnInit()
+    self:GetTransform():set("Origin", 540, 496, 4)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Weapons/9mmAR/9mmAR_w.cmdl")
+    c1:set("Animation", 0)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Weapon.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.weapon_handgrenade_2:OnInit()
+    self:GetTransform():set("Origin", -1008, -1536, -256)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Weapons/Grenade/Grenade_w.cmdl")
+    c1:set("Animation", 0)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Weapon.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.ammo_9mmclip:OnInit()
+    self:GetTransform():set("Origin", 2468, 986, -1008)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Items/?.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Item.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.weapon_handgrenade_3:OnInit()
+    self:GetTransform():set("Origin", -239, -475, -159)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Weapons/Grenade/Grenade_w.cmdl")
+    c1:set("Animation", 0)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Weapon.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.weapon_shotgun_1:OnInit()
+    self:GetTransform():set("Origin", -348, -1345, -991)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Weapons/Shotgun/Shotgun_w.cmdl")
+    c1:set("Animation", 0)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Weapon.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.ammo_ARgrenades:OnInit()
+    self:GetTransform():set("Origin", 2880, 640, -1512)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Items/?.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Item.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.ammo_9mmclip_1:OnInit()
+    self:GetTransform():set("Origin", 1072, -575, -66)
+    self:GetTransform():set("Orientation", 0, 0, -0.70710677)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Items/?.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Item.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.weapon_9mmAR_2:OnInit()
+    self:GetTransform():set("Origin", -248, -706, -260)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Weapons/9mmAR/9mmAR_w.cmdl")
+    c1:set("Animation", 0)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Weapon.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.weapon_rpg_1:OnInit()
+    self:GetTransform():set("Origin", -488, -64, -350)
+    self:GetTransform():set("Orientation", 0, 0, -0.70710677)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Weapons/Bazooka/Bazooka_w.cmdl")
+    c1:set("Animation", 0)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Weapon.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.ammo_ARgrenades_1:OnInit()
+    self:GetTransform():set("Origin", 1359, -693, -63)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Items/?.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Item.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.info_player_start_9:OnInit()
+    self:GetTransform():set("Origin", 674, 192, -85)
+    self:GetTransform():set("Orientation", 0, 0, 0.70710677)
+
+    local c1 = world:new("ComponentPlayerStartT")
+    c1:set("SinglePlayer", true)
+    c1:set("MultiPlayer", true)
+
+    self:AddComponent(c1)
+end
+
+function Map.ammo_shotgun_shells_1:OnInit()
+    self:GetTransform():set("Origin", -1216, -1696, -988)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Items/?.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Item.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.ammo_9mmclip_2:OnInit()
+    self:GetTransform():set("Origin", -488, -152, -344)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Items/?.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Item.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.info_player_start_10:OnInit()
+    self:GetTransform():set("Origin", 2660, 624, -744)
+    self:GetTransform():set("Orientation", 0, 0, 0.70710677)
+
+    local c1 = world:new("ComponentPlayerStartT")
+    c1:set("SinglePlayer", true)
+    c1:set("MultiPlayer", true)
+
+    self:AddComponent(c1)
+end
+
+function Map.info_player_start_11:OnInit()
+    self:GetTransform():set("Origin", -172, -893, -454)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentPlayerStartT")
+    c1:set("SinglePlayer", true)
+    c1:set("MultiPlayer", true)
+
+    self:AddComponent(c1)
+end
+
+function Map.info_player_start_12:OnInit()
+    self:GetTransform():set("Origin", 164, 548, -85)
+    self:GetTransform():set("Orientation", 0, 0, 0.70710677)
+
+    local c1 = world:new("ComponentPlayerStartT")
+    c1:set("SinglePlayer", true)
+    c1:set("MultiPlayer", true)
+
+    self:AddComponent(c1)
+end
+
+function Map.ammo_9mmclip_3:OnInit()
+    self:GetTransform():set("Origin", 580, 590, -124)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Items/?.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Item.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.ammo_9mmclip_4:OnInit()
+    self:GetTransform():set("Origin", 538, 590, -124)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Items/?.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Item.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.info_player_start_13:OnInit()
+    self:GetTransform():set("Origin", 352, 244, -1296)
+    self:GetTransform():set("Orientation", 0, 0, -0.70710677)
+
+    local c1 = world:new("ComponentPlayerStartT")
+    c1:set("SinglePlayer", true)
+    c1:set("MultiPlayer", true)
+
+    self:AddComponent(c1)
+end
+
+function Map.ammo_9mmclip_5:OnInit()
+    self:GetTransform():set("Origin", 1496, -1240, -312)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Items/?.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Item.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.ammo_9mmclip_6:OnInit()
+    self:GetTransform():set("Origin", 392, -1672, -312)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Items/?.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Item.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.info_player_start_14:OnInit()
+    self:GetTransform():set("Origin", 1984, 56, -64)
+    self:GetTransform():set("Orientation", 0, 0, 0.8870108)
+
+    local c1 = world:new("ComponentPlayerStartT")
+    c1:set("SinglePlayer", true)
+    c1:set("MultiPlayer", true)
+
+    self:AddComponent(c1)
+end
+
+function Map.info_player_start_15:OnInit()
+    self:GetTransform():set("Origin", 1776, -640, -256)
+    self:GetTransform():set("Orientation", 0, 0, 1)
+
+    local c1 = world:new("ComponentPlayerStartT")
+    c1:set("SinglePlayer", true)
+    c1:set("MultiPlayer", true)
+
+    self:AddComponent(c1)
+end
+
+function Map.info_player_start_16:OnInit()
+    self:GetTransform():set("Origin", 2448, 392, -400)
+    self:GetTransform():set("Orientation", 0, 0, 0.3826835)
+
+    local c1 = world:new("ComponentPlayerStartT")
+    c1:set("SinglePlayer", true)
+    c1:set("MultiPlayer", true)
+
+    self:AddComponent(c1)
+end
+
+function Map.ammo_9mmclip_7:OnInit()
+    self:GetTransform():set("Origin", 534, 240, -1330)
+    self:GetTransform():set("Orientation", 0, 0, -0.70710677)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Items/?.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Item.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.ammo_shotgun_shells_2:OnInit()
+    self:GetTransform():set("Origin", 2248, 648, -440)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Items/?.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Item.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.ammo_9mmAR_2:OnInit()
+    self:GetTransform():set("Origin", 1288, 632, -1352)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Items/?.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Item.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.ammo_9mmAR_3:OnInit()
+    self:GetTransform():set("Origin", 1288, 592, -1352)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Items/?.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Item.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.weapon_shotgun_2:OnInit()
+    self:GetTransform():set("Origin", 1876, 648, -1492)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Weapons/Shotgun/Shotgun_w.cmdl")
+    c1:set("Animation", 0)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/Weapon.lua")
+    c2:set("ScriptCode", "")
+
+    local c3 = world:new("ComponentSoundT")
+    c3:set("Name", "Item/PickUp")
+    c3:set("AutoPlay", false)
+    c3:set("Interval", 0)
+
+    local c4 = world:new("ComponentSoundT")
+    c4:set("Name", "Item/Respawn")
+    c4:set("AutoPlay", false)
+    c4:set("Interval", 0)
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.PointLight:OnInit()
+    self:GetTransform():set("Origin", 1928, 968, -1296)
+    self:GetTransform():set("Orientation", 0, -0.70710677, 0)
+
+    local c1 = world:new("ComponentRadiosityLightT")
+    c1:set("Color", 0.6666667, 0.6666667, 0.33333334)
+    c1:set("Intensity", 3)
+    c1:set("ConeAngle", 360)
+
+    self:AddComponent(c1)
+end
+
+function Map.PointLight_1:OnInit()
+    self:GetTransform():set("Origin", 784, 240, -1244)
+    self:GetTransform():set("Orientation", 0, -0.70710677, 0)
+
+    local c1 = world:new("ComponentRadiosityLightT")
+    c1:set("Color", 0.6666667, 0.6666667, 0.33333334)
+    c1:set("Intensity", 3)
+    c1:set("ConeAngle", 360)
+
+    self:AddComponent(c1)
+end
+
+function Map.PointLight_2:OnInit()
+    self:GetTransform():set("Origin", 528, 240, -1244)
+    self:GetTransform():set("Orientation", 0, -0.70710677, 0)
+
+    local c1 = world:new("ComponentRadiosityLightT")
+    c1:set("Color", 0.6666667, 0.6666667, 0.33333334)
+    c1:set("Intensity", 3)
+    c1:set("ConeAngle", 360)
+
+    self:AddComponent(c1)
+end
+
+function Map.func_wall:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 352, -1026, -304)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_wall_1:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 1172, -1282, -408)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_wall_2:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 802, -840, -224)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_wall_3:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 1008, -878, -112)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_wall_4:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 672, -878, -206)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_wall_5:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 132, -228.00002, -112)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_wall_6:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", -318, 92, -220)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_wall_7:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", -204, 62, -408)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_wall_8:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 828, -190, -404.5)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_wall_9:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 392, -702, -224)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_wall_10:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 62, -1344, -560)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_wall_11:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", -1598, -1336, -878)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_wall_12:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", -1662, -1336, -606.5)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_wall_13:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", -1216, -1344, -148)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_wall_14:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 2420, -1534, -404.5)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_wall_15:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", -190, 512, -112)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_wall_16:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 2310.5, 907.5, -351)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_wall_17:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 2560, 574, -774.00006)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_wall_18:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 2272, -236.00002, -332)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_wall_19:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 2272, -52, -332)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_wall_20:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 2567, 646, -1001)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_wall_21:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 2568, 282, -1193.5)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_wall_22:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 2568, 1014.00006, -1195.5)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_wall_23:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 1231, 800, -1108)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_water:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 1016, -980.00006, -440)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_water_1:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 138.00006, -1783.4287, -440)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_water_2:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", -1216, -1344, -752)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_ladder:OnInit()
+    self:GetTransform():set("Origin", -1592, -1336, -878)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_ladder_1:OnInit()
+    self:GetTransform():set("Origin", -1656, -1336, -606.5)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_ladder_2:OnInit()
+    self:GetTransform():set("Origin", 56, -1344, -560)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_ladder_3:OnInit()
+    self:GetTransform():set("Origin", 1172, -1288, -408)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_ladder_4:OnInit()
+    self:GetTransform():set("Origin", 2420, -1528, -404.5)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_ladder_5:OnInit()
+    self:GetTransform():set("Origin", 808, -840, -224)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_ladder_6:OnInit()
+    self:GetTransform():set("Origin", 672, -872, -206)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_ladder_7:OnInit()
+    self:GetTransform():set("Origin", -312, 92, -220)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_ladder_8:OnInit()
+    self:GetTransform():set("Origin", -204, 56, -408)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_ladder_9:OnInit()
+    self:GetTransform():set("Origin", 392, -696, -224)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_ladder_10:OnInit()
+    self:GetTransform():set("Origin", 2560, 568, -774.00006)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_ladder_11:OnInit()
+    self:GetTransform():set("Origin", 2313.5, 904.5, -351)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_ladder_12:OnInit()
+    self:GetTransform():set("Origin", 2568, 1008, -1195.5)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_ladder_13:OnInit()
+    self:GetTransform():set("Origin", 2568, 288, -1193.5)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_ladder_14:OnInit()
+    self:GetTransform():set("Origin", 1296, 776, -1425.5)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_wall_24:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 1158, 740, -1405.5)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_ladder_15:OnInit()
+    self:GetTransform():set("Origin", 828, -184, -404.5)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_wall_25:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 2560, 589.99994, -782)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_water_3:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 2252, 648, -1476)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_water_4:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", -838, -624, -652)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_wall_26:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 368, -656, -132)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_water_5:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 1232, 800, -1564)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.func_wall_27:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 2568, 648, -1420)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.teleporter_1_of_5:OnInit()
+    self:GetTransform():set("Origin", 0, -752, -320)
+    self:GetTransform():set("Orientation", 0, 0, 1)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_2.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "Games/DeathMatch/GUIs/Teleporter_main.cgui")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentCollisionModelT")
+    c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_2.cmap")
+
+    self:AddComponent(c1, c2)
+end
+
+function Map.teleporter_2_of_5:OnInit()
+    self:GetTransform():set("Origin", 976, 472, -128)
+    self:GetTransform():set("Orientation", 0, 0, 0.70710677)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_2.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "Games/DeathMatch/GUIs/Teleporter_main.cgui")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentCollisionModelT")
+    c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_2.cmap")
+
+    self:AddComponent(c1, c2)
+end
+
+function Map.teleporter_3_of_5:OnInit()
+    self:GetTransform():set("Origin", -504, 16, -352)
+    self:GetTransform():set("Orientation", 0, 0, -0.5)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_2.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "Games/DeathMatch/GUIs/Teleporter_main.cgui")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentCollisionModelT")
+    c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_2.cmap")
+
+    self:AddComponent(c1, c2)
+end
+
+function Map.teleporter_4_of_5:OnInit()
+    self:GetTransform():set("Origin", -1488, -1344, -992)
+    self:GetTransform():set("Orientation", 0, 0, -0.70710677)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_2.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "Games/DeathMatch/GUIs/Teleporter_main.cgui")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentCollisionModelT")
+    c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_2.cmap")
+
+    self:AddComponent(c1, c2)
+end
+
+function Map.teleporter_5_of_5:OnInit()
+    self:GetTransform():set("Origin", 1336, 400, -1360)
+    self:GetTransform():set("Orientation", 0, 0, 1)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_2.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "Games/DeathMatch/GUIs/Teleporter_main.cgui")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentCollisionModelT")
+    c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_2.cmap")
+
+    self:AddComponent(c1, c2)
+end
+
+function Map.info_generic_1:OnInit()
+    self:GetTransform():set("Origin", 0, -704, -303)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.info_generic_2:OnInit()
+    self:GetTransform():set("Origin", 924, 472, -111)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.info_generic_3:OnInit()
+    self:GetTransform():set("Origin", -464, 0, -335)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.info_generic_4:OnInit()
+    self:GetTransform():set("Origin", -1440, -1344, -975.00006)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.info_generic_5:OnInit()
+    self:GetTransform():set("Origin", 1336, 448, -1343)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.PointLightSource_001:OnInit()
+    self:GetTransform():set("Origin", 40, -720, -240)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentPointLightT")
+    c1:set("On", true)
+    c1:set("Color", 1, 0.5019608, 0.2509804)
+    c1:set("Radius", 120)
+    c1:set("ShadowType", 1)
+
+    self:AddComponent(c1)
+end
+
+function Map.PointLightSource_002:OnInit()
+    self:GetTransform():set("Origin", -480, 48, -304)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentPointLightT")
+    c1:set("On", true)
+    c1:set("Color", 1, 0.5019608, 0.2509804)
+    c1:set("Radius", 120)
+    c1:set("ShadowType", 1)
+
+    self:AddComponent(c1)
+end
+
+function Map.PointLightSource_003:OnInit()
+    self:GetTransform():set("Origin", 976, 472, -8)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentPointLightT")
+    c1:set("On", true)
+    c1:set("Color", 1, 0.5019608, 0.2509804)
+    c1:set("Radius", 120)
+    c1:set("ShadowType", 1)
+
+    self:AddComponent(c1)
+end
+
+function Map.PointLightSource_004:OnInit()
+    self:GetTransform():set("Origin", -1456, -1304, -912)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentPointLightT")
+    c1:set("On", true)
+    c1:set("Color", 1, 0.5019608, 0.2509804)
+    c1:set("Radius", 120)
+    c1:set("ShadowType", 1)
+
+    self:AddComponent(c1)
+end
+
+function Map.PointLightSource_005:OnInit()
+    self:GetTransform():set("Origin", 1288, 448, -1256)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentPointLightT")
+    c1:set("On", true)
+    c1:set("Color", 1, 0.5019608, 0.2509804)
+    c1:set("Radius", 120)
+    c1:set("ShadowType", 1)
+
+    self:AddComponent(c1)
+end

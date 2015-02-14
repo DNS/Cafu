@@ -1,6 +1,6 @@
 // Cafu Map File
 // Written by CaWE, the Cafu World Editor.
-Version 13
+Version 14
 
 
 {
@@ -3931,417 +3931,271 @@ Version 13
 
 {
   classname "info_player_start"
-  angles "0 90 0"
-  origin "0 80 392"
 }
 
 {
   classname "info_player_start"
-  angles "0 180 0"
-  origin "0 1024 320"
 }
 
 {
   classname "info_player_start"
-  angles "0 0 0"
-  origin "0 -1024 344"
 }
 
 {
   classname "info_player_start"
-  angles "0 270 0"
-  origin "1024 4 320"
 }
 
 {
   classname "info_player_start"
-  angles "0 90 0"
-  origin "-1000 0 320"
 }
 
 {
   classname "weapon_shotgun"
-  angles "0 90 0"
-  origin "0 80 320"
 }
 
 {
   classname "weapon_shotgun"
-  angles "0 90 0"
-  origin "-1000 0 248"
 }
 
 {
   classname "weapon_shotgun"
-  angles "0 90 0"
-  origin "1024 4 248"
 }
 
 {
   classname "weapon_shotgun"
-  angles "0 90 0"
-  origin "0 -1024 272"
 }
 
 {
   classname "weapon_shotgun"
-  angles "0 90 0"
-  origin "0 1024 248"
 }
 
 {
   classname "ammo_shotgun_shells"
-  angles "0 90 0"
-  origin "-1072 1104 320"
 }
 
 {
   classname "item_healthkit_small"
-  angles "0 90 0"
-  origin "1040 1104 320"
 }
 
 {
   classname "item_healthkit_small"
-  angles "0 90 0"
-  origin "1104 1104 320"
 }
 
 {
   classname "item_armor_green"
-  angles "0 90 0"
-  origin "1104 -1040 320"
 }
 
 {
   classname "item_armor_green"
-  angles "0 90 0"
-  origin "1104 -1136 320"
 }
 
 {
   classname "weapon_357handgun"
-  angles "0 90 0"
-  origin "-1168 -1136 320"
 }
 
 {
   classname "weapon_rpg"
-  angles "0 0 0"
-  origin "0 -160 -144"
 }
 
 {
   classname "ammo_rpg_rocket"
-  angles "0 90 0"
-  origin "40 -160 -144"
 }
 
 {
   classname "ammo_rpg_rocket"
-  angles "0 90 0"
-  origin "-40 -160 -144"
 }
 
 {
   classname "weapon_crossbow"
-  angles "0 90 0"
-  origin "-288 1000 1085"
 }
 
 {
   classname "ammo_crossbow_arrows"
-  angles "0 90 0"
-  origin "-261 798 840"
 }
 
 {
   classname "ammo_crossbow_arrows"
-  angles "0 90 0"
-  origin "-261 846 840"
 }
 
 {
   classname "weapon_9mmAR"
-  angles "270 90 0"
-  origin "0 1632 2032"
 }
 
 {
   classname "ammo_ARgrenades"
-  angles "270 90 0"
-  origin "-48 1632 2032"
 }
 
 {
   classname "ammo_ARgrenades"
-  angles "270 90 0"
-  origin "48 1632 2032"
 }
 
 {
   classname "weapon_hornetgun"
-  angles "0 90 0"
-  origin "-992 992 1472"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 90 0"
-  origin "-992 -992 1472"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 90 0"
-  origin "-944 -992 1472"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 90 0"
-  origin "-896 -992 1472"
 }
 
 {
   classname "weapon_tripmine"
-  angles "0 90 0"
-  origin "-944 992 1472"
 }
 
 {
   classname "weapon_battlescythe"
-  angles "0 90 0"
-  origin "-896 992 1472"
 }
 
 {
   classname "item_healthkit_small"
-  angles "0 90 0"
-  origin "-912 848 1984"
 }
 
 {
   classname "item_healthkit_small"
-  angles "0 90 0"
-  origin "-848 848 1984"
 }
 
 {
   classname "item_armor_green"
-  angles "0 90 0"
-  origin "-848 -848 1984"
 }
 
 {
   classname "item_armor_green"
-  angles "0 90 0"
-  origin "-912 -848 1984"
 }
 
 {
   classname "weapon_tripmine"
-  angles "0 90 0"
-  origin "0 464 -4"
 }
 
 {
   classname "weapon_tripmine"
-  angles "0 90 0"
-  origin "0 424 0"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 90 0"
-  origin "0 384 0"
 }
 
 {
   classname "weapon_crossbow"
-  angles "0 45 0"
-  origin "392 392 1928"
 }
 
 {
   classname "PointLight"
-  intensity_r "10"
-  intensity_g "10"
-  intensity_b "20"
-  angles "-0 90 -0"
-  opening_angle "180"
   light_radius "20"
   light_color_diff "0 0 0"
   light_color_spec "0 0 0"
-  origin "1232 80 304"
 }
 
 {
   classname "PointLight"
-  intensity_r "10"
-  intensity_g "10"
-  intensity_b "20"
-  angles "-0 90 -0"
-  opening_angle "180"
   light_radius "20"
   light_color_diff "0 0 0"
   light_color_spec "0 0 0"
-  origin "1224 -64 304"
 }
 
 {
   classname "weapon_facehugger"
-  angles "0 90 0"
-  origin "-1168 -1008 320"
 }
 
 {
   classname "weapon_hornetgun"
-  angles "0 90 0"
-  origin "-1040 -1136 320"
 }
 
 {
   classname "weapon_egon"
-  angles "0 145 0"
-  origin "-992 0 2016"
 }
 
 {
   classname "item_armor_green"
-  angles "0 90 0"
-  origin "1008 -1136 320"
 }
 
 {
   classname "item_healthkit_small"
-  angles "0 90 0"
-  origin "1104 1040 320"
 }
 
 {
   classname "ammo_shotgun_shells"
-  angles "0 90 0"
-  origin "-1168 1008 320"
 }
 
 {
   classname "ammo_shotgun_shells"
-  angles "0 90 0"
-  origin "-1168 1104 320"
 }
 
 {
   classname "ammo_crossbow_arrows"
-  angles "0 215 0"
-  origin "464 464 1928"
 }
 
 {
   classname "ammo_crossbow_arrows"
-  angles "0 215 0"
-  origin "432 432 1928"
 }
 
 {
   classname "PointLight"
-  intensity_r "40"
-  intensity_g "20"
-  intensity_b "20"
-  angles "-0 90 -0"
-  opening_angle "180"
   light_radius "20"
   light_color_diff "0 0 0"
   light_color_spec "0 0 0"
-  origin "0 1632 1984"
 }
 
 {
   classname "ammo_gausscells"
-  angles "0 145 0"
-  origin "-992 -48 2016"
 }
 
 {
   classname "ammo_gausscells"
-  angles "0 145 0"
-  origin "-992 48 2016"
 }
 
 {
   classname "item_longjump"
-  angles "0 90 0"
-  origin "-448 448 1472"
 }
 
 {
   classname "item_longjump"
-  angles "0 90 0"
-  origin "-448 -448 1472"
 }
 
 {
   classname "weapon_gauss"
-  angles "0 180 0"
-  origin "1104 824 260"
 }
 
 {
   classname "weapon_tripmine"
-  angles "0 90 0"
-  origin "-184 1112 248"
 }
 
 {
   classname "weapon_tripmine"
-  angles "0 90 0"
-  origin "176 1112 248"
 }
 
 {
   classname "ammo_crossbow_arrows"
-  angles "0 90 0"
-  origin "-336 -1224 272"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 90 0"
-  origin "336 -1224 272"
 }
 
 {
   classname "LifeFormMaker"
-  angles "0 90 0"
-  monstercount "2"
-  delay "-1"
-  m_imaxlivechildren "5"
-  monstertype "Butterfly"
-  origin "768 191 384"
 }
 
 {
   classname "monster_eagle"
-  angles "0 32 0"
-  origin "-880 -936 3696"
 }
 
 {
   classname "monster_eagle"
-  angles "0 305 0"
-  origin "456 -1152 2328"
 }
 
 {
   classname "monster_eagle"
-  angles "0 196 0"
-  origin "256 1016 1080"
 }
 
 {
   classname "monster_butterfly"
-  angles "0 90 0"
-  origin "-384 -200 392"
 }
 
 {

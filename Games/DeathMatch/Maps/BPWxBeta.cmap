@@ -1,6 +1,6 @@
 // Cafu Map File
 // Written by CaWE, the Cafu World Editor.
-Version 13
+Version 14
 
 GroupDef 0 "ladder entities" "rgb(176, 253, 88)" 1 1 0
 
@@ -14380,347 +14380,227 @@ GroupDef 0 "ladder entities" "rgb(176, 253, 88)" 1 1 0
 
 {
   classname "ammo_rpg_rocket"
-  angles "0 90 0"
-  origin "2507 -1433 -509"
 }
 
 {
   classname "weapon_rpg"
-  angles "0 90 0"
-  origin "1216 864 -1688"
 }
 
 {
   classname "weapon_shotgun"
-  angles "0 90 0"
-  origin "-288 448 -302"
 }
 
 {
   classname "ammo_shotgun_shells"
-  angles "0 90 0"
-  origin "-288 386 -282"
 }
 
 {
   classname "weapon_9mmAR"
-  angles "0 90 0"
-  origin "2448 632 -792"
 }
 
 {
   classname "ammo_rpg_rocket"
-  angles "0 90 0"
-  origin "2260 680 -1516"
 }
 
 {
   classname "ammo_9mmAR"
-  angles "0 90 0"
-  origin "1357 -736 -120"
 }
 
 {
   classname "info_player_start"
-  angles "0 55 0"
-  origin "-179 -451 -256"
 }
 
 {
   classname "info_player_start"
-  angles "0 105 0"
-  origin "1008 -84 -64"
 }
 
 {
   classname "weapon_hornetgun"
-  angles "0 180 0"
-  origin "-1216 -1588 -292"
 }
 
 {
   classname "ammo_rpg_rocket"
-  angles "0 90 0"
-  origin "728 -579 -252"
 }
 
 {
   classname "ammo_rpg_rocket"
-  angles "0 90 0"
-  origin "672 -579 -252"
 }
 
 {
   classname "info_player_start"
-  angles "0 270 0"
-  origin "2432 -1568 -272"
 }
 
 {
   classname "info_player_start"
-  angles "0 166 0"
-  origin "144 -1104 -64"
 }
 
 {
   classname "info_player_start"
-  angles "0 0 0"
-  origin "-1216 -1740 -258"
 }
 
 {
   classname "info_player_start"
-  angles "0 0 0"
-  origin "2512 312 -1328"
 }
 
 {
   classname "info_player_start"
-  angles "0 90 0"
-  origin "608 -1328 -240"
 }
 
 {
   classname "info_player_start"
-  angles "0 270 0"
-  origin "96 -1968 -352"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 90 0"
-  origin "226 -1968 -400"
 }
 
 {
   classname "info_player_start"
-  angles "0 225 0"
-  origin "1472 1024 -1360"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 90 0"
-  origin "0 512 -12"
 }
 
 {
   classname "ammo_9mmAR"
-  angles "0 90 0"
-  origin "592 544 4"
 }
 
 {
   classname "weapon_9mmAR"
-  angles "0 90 0"
-  origin "540 496 4"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 90 0"
-  origin "-1008 -1536 -256"
 }
 
 {
   classname "ammo_9mmclip"
-  angles "0 90 0"
-  origin "2468 986 -1008"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 90 0"
-  origin "-239 -475 -159"
 }
 
 {
   classname "weapon_shotgun"
-  angles "0 90 0"
-  origin "-348 -1345 -991"
 }
 
 {
   classname "ammo_ARgrenades"
-  angles "0 90 0"
-  origin "2880 640 -1512"
 }
 
 {
   classname "ammo_9mmclip"
-  angles "0 0 0"
-  origin "1072 -575 -66"
 }
 
 {
   classname "weapon_9mmAR"
-  angles "0 90 0"
-  origin "-248 -706 -260"
 }
 
 {
   classname "weapon_rpg"
-  angles "0 0 0"
-  origin "-488 -64 -350"
 }
 
 {
   classname "ammo_ARgrenades"
-  angles "0 90 0"
-  origin "1359 -693 -63"
 }
 
 {
   classname "info_player_start"
-  angles "0 180 0"
-  origin "674 192 -85"
 }
 
 {
   classname "ammo_shotgun_shells"
-  angles "0 90 0"
-  origin "-1216 -1696 -988"
 }
 
 {
   classname "ammo_9mmclip"
-  angles "0 90 0"
-  origin "-488 -152 -344"
 }
 
 {
   classname "info_player_start"
-  angles "0 180 0"
-  origin "2660 624 -744"
 }
 
 {
   classname "info_player_start"
-  angles "0 90 0"
-  origin "-172 -893 -454"
 }
 
 {
   classname "info_player_start"
-  angles "0 180 0"
-  origin "164 548 -85"
 }
 
 {
   classname "ammo_9mmclip"
-  angles "0 90 0"
-  origin "580 590 -124"
 }
 
 {
   classname "ammo_9mmclip"
-  angles "0 90 0"
-  origin "538 590 -124"
 }
 
 {
   classname "info_player_start"
-  angles "0 0 0"
-  origin "352 244 -1296"
 }
 
 {
   classname "ammo_9mmclip"
-  angles "0 90 0"
-  origin "1496 -1240 -312"
 }
 
 {
   classname "ammo_9mmclip"
-  angles "0 90 0"
-  origin "392 -1672 -312"
 }
 
 {
   classname "info_player_start"
-  angles "0 215 0"
-  origin "1984 56 -64"
 }
 
 {
   classname "info_player_start"
-  angles "0 270 0"
-  origin "1776 -640 -256"
 }
 
 {
   classname "info_player_start"
-  angles "0 135 0"
-  origin "2448 392 -400"
 }
 
 {
   classname "ammo_9mmclip"
-  angles "0 0 0"
-  origin "534 240 -1330"
 }
 
 {
   classname "ammo_shotgun_shells"
-  angles "0 90 0"
-  origin "2248 648 -440"
 }
 
 {
   classname "ammo_9mmAR"
-  angles "0 90 0"
-  origin "1288 632 -1352"
 }
 
 {
   classname "ammo_9mmAR"
-  angles "0 90 0"
-  origin "1288 592 -1352"
 }
 
 {
   classname "weapon_shotgun"
-  angles "0 90 0"
-  origin "1876 648 -1492"
 }
 
 {
   classname "PointLight"
-  intensity_r "2"
-  intensity_g "2"
-  intensity_b "1"
-  angles "-0 90 -0"
-  opening_angle "180"
   light_radius "20"
   light_color_diff "0 0 0"
   light_color_spec "0 0 0"
-  origin "1928 968 -1296"
 }
 
 {
   classname "PointLight"
-  intensity_r "2"
-  intensity_g "2"
-  intensity_b "1"
-  angles "-0 90 -0"
-  opening_angle "180"
   light_radius "20"
   light_color_diff "0 0 0"
   light_color_spec "0 0 0"
-  origin "784 240 -1244"
 }
 
 {
   classname "PointLight"
-  intensity_r "2"
-  intensity_g "2"
-  intensity_b "1"
-  angles "-0 90 -0"
-  opening_angle "180"
   light_radius "20"
   light_color_diff "0 0 0"
   light_color_spec "0 0 0"
-  origin "528 240 -1244"
 }
 
 {
@@ -16136,145 +16016,60 @@ GroupDef 0 "ladder entities" "rgb(176, 253, 88)" 1 1 0
 
 {
   classname "static_detail_model"
-  angles "-0 270 -0"
-  name "teleporter_1_of_5"
-  model "Models/Terminals/Terminal_2.cmdl"
-  scale "1.0"
-  gui "GUIs/Teleporter_main.cgui"
-  collisionModel "Models/Terminals/Terminal_2.cmap"
-  origin "0 -752 -320"
 }
 
 {
   classname "static_detail_model"
-  angles "-0 180 -0"
-  name "teleporter_2_of_5"
-  model "Models/Terminals/Terminal_2.cmdl"
-  scale "1.0"
-  gui "GUIs/Teleporter_main.cgui"
-  collisionModel "Models/Terminals/Terminal_2.cmap"
-  origin "976 472 -128"
 }
 
 {
   classname "static_detail_model"
-  angles "-0 30 -0"
-  name "teleporter_3_of_5"
-  model "Models/Terminals/Terminal_2.cmdl"
-  scale "1.0"
-  gui "GUIs/Teleporter_main.cgui"
-  collisionModel "Models/Terminals/Terminal_2.cmap"
-  origin "-504 16 -352"
 }
 
 {
   classname "static_detail_model"
-  angles "-0 0 -0"
-  name "teleporter_4_of_5"
-  model "Models/Terminals/Terminal_2.cmdl"
-  scale "1.0"
-  gui "GUIs/Teleporter_main.cgui"
-  collisionModel "Models/Terminals/Terminal_2.cmap"
-  origin "-1488 -1344 -992"
 }
 
 {
   classname "static_detail_model"
-  angles "-0 270 -0"
-  name "teleporter_5_of_5"
-  model "Models/Terminals/Terminal_2.cmdl"
-  scale "1.0"
-  gui "GUIs/Teleporter_main.cgui"
-  collisionModel "Models/Terminals/Terminal_2.cmap"
-  origin "1336 400 -1360"
 }
 
 {
   classname "info_generic"
-  angles "-0 90 -0"
-  name "info_generic_1"
-  origin "0 -704 -303"
 }
 
 {
   classname "info_generic"
-  angles "-0 90 -0"
-  name "info_generic_2"
-  origin "924 472 -111"
 }
 
 {
   classname "info_generic"
-  angles "-0 90 -0"
-  name "info_generic_3"
-  origin "-464 0 -335"
 }
 
 {
   classname "info_generic"
-  angles "-0 90 -0"
-  name "info_generic_4"
-  origin "-1440 -1344 -975.00006"
 }
 
 {
   classname "info_generic"
-  angles "-0 90 -0"
-  name "info_generic_5"
-  origin "1336 448 -1343"
 }
 
 {
   classname "PointLightSource"
-  angles "-0 90 -0"
-  light_radius "120"
-  light_color_diff "255 128 64"
-  light_color_spec "255 128 64"
-  name "PointLightSource_001"
-  light_casts_shadows "1"
-  origin "40 -720 -240"
 }
 
 {
   classname "PointLightSource"
-  angles "-0 90 -0"
-  light_radius "120"
-  light_color_diff "255 128 64"
-  light_color_spec "255 128 64"
-  name "PointLightSource_002"
-  light_casts_shadows "1"
-  origin "-480 48 -304"
 }
 
 {
   classname "PointLightSource"
-  angles "-0 90 -0"
-  light_radius "120"
-  light_color_diff "255 128 64"
-  light_color_spec "255 128 64"
-  name "PointLightSource_003"
-  light_casts_shadows "1"
-  origin "976 472 -8"
 }
 
 {
   classname "PointLightSource"
-  angles "-0 90 -0"
-  light_radius "120"
-  light_color_diff "255 128 64"
-  light_color_spec "255 128 64"
-  name "PointLightSource_004"
-  light_casts_shadows "1"
-  origin "-1456 -1304 -912"
 }
 
 {
   classname "PointLightSource"
-  angles "-0 90 -0"
-  light_radius "120"
-  light_color_diff "255 128 64"
-  light_color_spec "255 128 64"
-  name "PointLightSource_005"
-  light_casts_shadows "1"
-  origin "1288 448 -1256"
 }

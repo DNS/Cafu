@@ -1,0 +1,64 @@
+-- This is a Cafu Entities file, written by the CaWE Map Editor.
+-- The file defines the entity hierarchy and properties of the related game world;
+-- it is used both by the CaWE Map Editor as well as by the Cafu Engine.
+--
+-- You CAN edit this file manually, but note that CaWE may overwrite your changes.
+-- Also note that structural changes to the entity hierarchy will bring this file
+-- out of sync with the related map (cmap) and world (cw) files, effectively
+-- causing LOSS OF WORK (see the documentation for details).
+-- It is therefore recommended that you use CaWE for all changes to this file.
+
+
+-- Instantiation of all entities.
+-- ******************************
+
+local Map = world:new("EntityT", "Map")
+Map.info_player_start = world:new("EntityT", "info_player_start")
+Map.PointLightSource = world:new("EntityT", "PointLightSource")
+
+
+-- Set the worlds root entity.
+-- ***************************
+
+world:SetRootEntity(Map)
+
+
+-- Setup the entity hierarchy.
+-- ***************************
+
+Map:AddChild(Map.info_player_start)
+Map:AddChild(Map.PointLightSource)
+
+
+-- Initialization of the entity contents ("constructors").
+-- *******************************************************
+
+function Map:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 0, 0, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.info_player_start:OnInit()
+    self:GetTransform():set("Origin", 16, -16, 56)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentPlayerStartT")
+    c1:set("SinglePlayer", true)
+    c1:set("MultiPlayer", true)
+
+    self:AddComponent(c1)
+end
+
+function Map.PointLightSource:OnInit()
+    self:GetTransform():set("Origin", 48, -48, 240)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentPointLightT")
+    c1:set("On", true)
+    c1:set("Color", 1, 0, 0)
+    c1:set("Radius", 197)
+    c1:set("ShadowType", 1)
+
+    self:AddComponent(c1)
+end

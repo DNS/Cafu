@@ -1,6 +1,6 @@
 // Cafu Map File
 // Written by CaWE, the Cafu World Editor.
-Version 13
+Version 14
 
 
 {
@@ -11010,140 +11010,94 @@ Version 13
 
 {
   classname "info_player_start"
-  angles "0 0 0"
-  origin "0 0 996"
 }
 
 {
   classname "info_player_start"
-  angles "0 269 0"
-  origin "336 0 848"
 }
 
 {
   classname "info_player_start"
-  angles "0 90 0"
-  origin "-336 0 848"
 }
 
 {
   classname "info_player_start"
-  angles "0 221 0"
-  origin "720 336 448"
 }
 
 {
   classname "info_player_start"
-  angles "0 44 0"
-  origin "-720 -336 448"
 }
 
 {
   classname "info_player_start"
-  angles "0 133 0"
-  origin "-1040 1040 624"
 }
 
 {
   classname "info_player_start"
-  angles "0 305 0"
-  origin "1040 -1040 624"
 }
 
 {
   classname "info_player_start"
-  angles "0 57 0"
-  origin "-808 -1040 80"
 }
 
 {
   classname "info_player_start"
-  angles "0 222 0"
-  origin "800 1056 80"
 }
 
 {
   classname "ammo_9mmclip"
-  angles "0 90 0"
-  origin "-352 -544 32"
 }
 
 {
   classname "ammo_9mmclip"
-  angles "0 90 0"
-  origin "352 544 32"
 }
 
 {
   classname "ammo_ARgrenades"
-  angles "0 90 0"
-  origin "-768 816 272"
 }
 
 {
   classname "ammo_ARgrenades"
-  angles "0 90 0"
-  origin "512 -304 688"
 }
 
 {
   classname "ammo_shotgun_shells"
-  angles "0 90 0"
-  origin "-352 544 32"
 }
 
 {
   classname "ammo_shotgun_shells"
-  angles "0 90 0"
-  origin "-752 0 800"
 }
 
 {
   classname "ammo_rpg_rocket"
-  angles "0 90 0"
-  origin "-768 -816 272"
 }
 
 {
   classname "ammo_rpg_rocket"
-  angles "0 90 0"
-  origin "512 304 688"
 }
 
 {
   classname "weapon_9mmAR"
-  angles "0 90 0"
-  origin "-768 720 464"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 90 0"
-  origin "0 -544 480"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 90 0"
-  origin "0 544 480"
 }
 
 {
   classname "weapon_rpg"
-  angles "0 90 0"
-  origin "-768 -720 464"
 }
 
 {
   classname "weapon_shotgun"
-  angles "0 90 0"
-  origin "-656 0 432"
 }
 
 {
   classname "weapon_hornetgun"
-  angles "0 90 0"
-  origin "-704 -288 72"
 }
 
 {

@@ -1,6 +1,6 @@
 // Cafu Map File
 // Written by CaWE, the Cafu World Editor.
-Version 13
+Version 14
 
 
 {
@@ -20512,14 +20512,10 @@ Version 13
 
 {
   classname "info_player_start"
-  angles "0 0 0"
-  origin "-144 -408 -280"
 }
 
 {
   classname "item_longjump"
-  angles "0 180 0"
-  origin "-192 -472 -184"
 }
 
 {
@@ -20567,8 +20563,6 @@ Version 13
 
 {
   classname "info_player_start"
-  angles "0 0 0"
-  origin "-104 -408 -280"
 }
 
 {
@@ -20619,14 +20613,10 @@ Version 13
 
 {
   classname "ammo_ARgrenades"
-  angles "0 90 0"
-  origin "172 -244 -76"
 }
 
 {
   classname "ammo_357"
-  angles "0 90 0"
-  origin "420 -244 -76"
 }
 
 {
@@ -20749,14 +20739,10 @@ Version 13
 
 {
   classname "ammo_ARgrenades"
-  angles "0 90 0"
-  origin "-480 -1 -124"
 }
 
 {
   classname "ammo_gausscells"
-  angles "0 90 0"
-  origin "-512 -1 -124"
 }
 
 {
@@ -21000,8 +20986,6 @@ Version 13
 
 {
   classname "weapon_shotgun"
-  angles "0 270 0"
-  origin "592 -280 -320"
 }
 
 {
@@ -21102,8 +21086,6 @@ Version 13
 
 {
   classname "ammo_gausscells"
-  angles "0 180 0"
-  origin "64 -128 -192"
 }
 
 {
@@ -21175,20 +21157,14 @@ Version 13
 
 {
   classname "item_armor_green"
-  angles "0 90 0"
-  origin "1047 -134 -254"
 }
 
 {
   classname "item_armor_green"
-  angles "0 90 0"
-  origin "1182 -146 -254"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 90 0"
-  origin "1120 -148 -286"
 }
 
 {
@@ -21375,8 +21351,6 @@ Version 13
 
 {
   classname "weapon_facehugger"
-  angles "0 45 0"
-  origin "756 -132 -316"
 }
 
 {
@@ -21438,20 +21412,14 @@ Version 13
 
 {
   classname "ammo_shotgun_shells"
-  angles "0 45 0"
-  origin "976 -640 -424"
 }
 
 {
   classname "ammo_shotgun_shells"
-  angles "0 45 0"
-  origin "942 -610 -422"
 }
 
 {
   classname "weapon_egon"
-  angles "0 290 0"
-  origin "1096 -628 -416"
 }
 
 {
@@ -21706,32 +21674,22 @@ Version 13
 
 {
   classname "weapon_rpg"
-  angles "0 0 0"
-  origin "576 -512 84"
 }
 
 {
   classname "ammo_rpg_rocket"
-  angles "0 90 0"
-  origin "-268 276 84"
 }
 
 {
   classname "ammo_rpg_rocket"
-  angles "0 90 0"
-  origin "-268 312 84"
 }
 
 {
   classname "item_healthkit_small"
-  angles "0 225 0"
-  origin "-1080 -864 -60"
 }
 
 {
   classname "item_healthkit_small"
-  angles "0 178 0"
-  origin "-1040 -916 -60"
 }
 
 {
@@ -22010,8 +21968,6 @@ Version 13
 
 {
   classname "ammo_gausscells"
-  angles "0 0 0"
-  origin "792 632 -31"
 }
 
 {
@@ -22170,44 +22126,30 @@ Version 13
 
 {
   classname "ammo_9mmbox"
-  angles "0 90 0"
-  origin "1084 20 84"
 }
 
 {
   classname "ammo_crossbow_arrows"
-  angles "0 0 0"
-  origin "1012 20 84"
 }
 
 {
   classname "ammo_crossbow_arrows"
-  angles "0 0 0"
-  origin "1048 20 84"
 }
 
 {
   classname "item_armor_green"
-  angles "0 90 0"
-  origin "-132 -308 84"
 }
 
 {
   classname "item_armor_green"
-  angles "0 90 0"
-  origin "-132 -360 84"
 }
 
 {
   classname "weapon_357handgun"
-  angles "0 60 0"
-  origin "-256 -732 -60"
 }
 
 {
   classname "weapon_crossbow"
-  angles "0 0 0"
-  origin "232 624 84"
 }
 
 {
@@ -22332,8 +22274,6 @@ Version 13
 
 {
   classname "weapon_9mmAR"
-  angles "0 180 0"
-  origin "960 1008 -388"
 }
 
 {
@@ -22354,8 +22294,6 @@ Version 13
 
 {
   classname "weapon_9mmAR"
-  angles "0 180 0"
-  origin "-880 312 -120"
 }
 
 {
@@ -22420,8 +22358,6 @@ Version 13
 
 {
   classname "ammo_ARgrenades"
-  angles "0 0 0"
-  origin "-1296 320 -120"
 }
 
 {
@@ -22954,14 +22890,10 @@ Version 13
 
 {
   classname "weapon_9mmAR"
-  angles "0 90 0"
-  origin "1164 -368 -508"
 }
 
 {
   classname "ammo_9mmbox"
-  angles "0 0 0"
-  origin "2220 -408 -700"
 }
 
 {
@@ -23296,104 +23228,70 @@ Version 13
 
 {
   classname "ammo_357"
-  angles "0 294 0"
-  origin "1100 948 -380"
 }
 
 {
   classname "ammo_357"
-  angles "0 245 0"
-  origin "1080 924 -380"
 }
 
 {
   classname "weapon_357handgun"
-  angles "0 135 0"
-  origin "576 1280 -349"
 }
 
 {
   classname "info_player_start"
-  angles "0 180 0"
-  origin "960 928 -336"
 }
 
 {
   classname "info_player_start"
-  angles "0 270 0"
-  origin "1180 -56 -272"
 }
 
 {
   classname "info_player_start"
-  angles "0 90 0"
-  origin "760 768 -276"
 }
 
 {
   classname "info_player_start"
-  angles "0 180 0"
-  origin "1408 768 -276"
 }
 
 {
   classname "weapon_shotgun"
-  angles "0 270 0"
-  origin "1548 480 -316"
 }
 
 {
   classname "item_armor_green"
-  angles "0 90 0"
-  origin "1716 484 -144"
 }
 
 {
   classname "item_armor_green"
-  angles "0 90 0"
-  origin "1608 260 -144"
 }
 
 {
   classname "ammo_9mmAR"
-  angles "0 180 0"
-  origin "2272 384 -316"
 }
 
 {
   classname "ammo_ARgrenades"
-  angles "0 0 0"
-  origin "1204 -368 -508"
 }
 
 {
   classname "ammo_9mmAR"
-  angles "0 90 0"
-  origin "-488 -184 -284"
 }
 
 {
   classname "ammo_ARgrenades"
-  angles "0 90 0"
-  origin "-472 -116 -284"
 }
 
 {
   classname "ammo_crossbow_arrows"
-  angles "0 90 0"
-  origin "-880 272 -316"
 }
 
 {
   classname "ammo_gausscells"
-  angles "0 90 0"
-  origin "-1120 1792 -316"
 }
 
 {
   classname "ammo_gausscells"
-  angles "0 90 0"
-  origin "-1072 1792 -316"
 }
 
 {
@@ -23414,146 +23312,98 @@ Version 13
 
 {
   classname "info_player_start"
-  angles "0 90 0"
-  origin "-312 504 -84"
 }
 
 {
   classname "info_player_start"
-  angles "0 270 0"
-  origin "556 -924 -24"
 }
 
 {
   classname "info_player_start"
-  angles "0 45 0"
-  origin "-1008 -852 -24"
 }
 
 {
   classname "info_player_start"
-  angles "0 0 0"
-  origin "-704 228 -272"
 }
 
 {
   classname "info_player_start"
-  angles "0 0 0"
-  origin "-1200 196 -84"
 }
 
 {
   classname "info_player_start"
-  angles "0 180 0"
-  origin "1548 476 -260"
 }
 
 {
   classname "info_player_start"
-  angles "0 357 0"
-  origin "2184 -520 -464"
 }
 
 {
   classname "item_healthkit_small"
-  angles "0 135 0"
-  origin "2344 -520 -508"
 }
 
 {
   classname "item_healthkit_small"
-  angles "0 0 0"
-  origin "1408 768 -316"
 }
 
 {
   classname "item_healthkit_small"
-  angles "0 326 0"
-  origin "-192 1792 -316"
 }
 
 {
   classname "item_healthkit_small"
-  angles "0 36 0"
-  origin "-128 1784 -316"
 }
 
 {
   classname "ammo_crossbow_arrows"
-  angles "0 335 0"
-  origin "320 1792 4"
 }
 
 {
   classname "item_longjump"
-  angles "0 180 0"
-  origin "-672 728 49"
 }
 
 {
   classname "ammo_rpg_rocket"
-  angles "0 90 0"
-  origin "1624 168 -332"
 }
 
 {
   classname "ammo_9mmAR"
-  angles "0 1 0"
-  origin "1632 -292 -238"
 }
 
 {
   classname "ammo_9mmAR"
-  angles "0 1 0"
-  origin "1608 -264 -332"
 }
 
 {
   classname "ammo_crossbow_arrows"
-  angles "0 90 0"
-  origin "1588 168 -332"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 0 0"
-  origin "1040 -764 -316"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 90 0"
-  origin "-296 540 -124"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 90 0"
-  origin "-284 496 -124"
 }
 
 {
   classname "weapon_tripmine"
-  angles "0 90 0"
-  origin "-1416 1396 9"
 }
 
 {
   classname "weapon_tripmine"
-  angles "0 90 0"
-  origin "-1416 1436 9"
 }
 
 {
   classname "ammo_9mmclip"
-  angles "0 90 0"
-  origin "-672 1024 -312"
 }
 
 {
   classname "ammo_9mmclip"
-  angles "0 90 0"
-  origin "-672 880 -312"
 }
 
 {
@@ -23873,8 +23723,6 @@ Version 13
 
 {
   classname "weapon_9mmAR"
-  angles "0 0 0"
-  origin "-544 228 -308"
 }
 
 {
@@ -23945,14 +23793,9 @@ Version 13
 
 {
   classname "PointLight"
-  intensity_r "10"
-  intensity_g "20"
-  angles "0 90 0"
-  opening_angle "180"
   light_radius "20"
   light_color_diff "0 0 0"
   light_color_spec "0 0 0"
-  origin "-528 464 -420"
 }
 
 {
@@ -24340,14 +24183,9 @@ Version 13
 
 {
   classname "PointLight"
-  intensity_r "10"
-  intensity_g "20"
-  angles "0 90 0"
-  opening_angle "180"
   light_radius "20"
   light_color_diff "0 0 0"
   light_color_spec "0 0 0"
-  origin "-528 644 -236"
 }
 
 {
@@ -24367,8 +24205,6 @@ Version 13
 
 {
   classname "ammo_crossbow_arrows"
-  angles "0 35 0"
-  origin "384 1776 4"
 }
 
 {
@@ -24540,20 +24376,14 @@ Version 13
 
 {
   classname "weapon_gauss"
-  angles "0 90 0"
-  origin "-752 -272 -124"
 }
 
 {
   classname "weapon_gauss"
-  angles "0 0 0"
-  origin "1616 -48 -332"
 }
 
 {
   classname "weapon_facehugger"
-  angles "0 110 0"
-  origin "-472 1601 -268"
 }
 
 {
@@ -24605,20 +24435,14 @@ Version 13
 
 {
   classname "ammo_rpg_rocket"
-  angles "0 90 0"
-  origin "-480 1448 -124"
 }
 
 {
   classname "info_player_start"
-  angles "0 0 0"
-  origin "384 752 40"
 }
 
 {
   classname "info_player_start"
-  angles "0 135 0"
-  origin "-1414 1688 -276"
 }
 
 {
@@ -24901,26 +24725,18 @@ Version 13
 
 {
   classname "weapon_crossbow"
-  angles "0 0 0"
-  origin "-1356 632 84"
 }
 
 {
   classname "ammo_crossbow_arrows"
-  angles "0 0 0"
-  origin "-1136 658 136"
 }
 
 {
   classname "ammo_crossbow_arrows"
-  angles "0 0 0"
-  origin "-1136 658 136"
 }
 
 {
   classname "ammo_crossbow_arrows"
-  angles "0 0 0"
-  origin "-1136 658 136"
 }
 
 {
@@ -25041,14 +24857,10 @@ Version 13
 
 {
   classname "ammo_shotgun_shells"
-  angles "0 55 0"
-  origin "-1216 128 -270"
 }
 
 {
   classname "ammo_shotgun_shells"
-  angles "0 112 0"
-  origin "-1216 96 -270"
 }
 
 {
@@ -25149,50 +24961,34 @@ Version 13
 
 {
   classname "weapon_shotgun"
-  angles "0 90 0"
-  origin "-572 -720 -248"
 }
 
 {
   classname "ammo_shotgun_shells"
-  angles "0 315 0"
-  origin "-880 608 -268"
 }
 
 {
   classname "weapon_shotgun"
-  angles "0 135 0"
-  origin "-1200 608 -268"
 }
 
 {
   classname "item_armor_green"
-  angles "0 0 0"
-  origin "-840 776 -124"
 }
 
 {
   classname "item_armor_green"
-  angles "0 90 0"
-  origin "24 512 -124"
 }
 
 {
   classname "item_healthkit_small"
-  angles "0 199 0"
-  origin "-288 392 84"
 }
 
 {
   classname "ammo_ARgrenades"
-  angles "0 270 0"
-  origin "-1274 590 140"
 }
 
 {
   classname "item_armor_green"
-  angles "0 45 0"
-  origin "2088 -520 -508"
 }
 
 {
@@ -25301,20 +25097,14 @@ Version 13
 
 {
   classname "weapon_crossbow"
-  angles "0 90 0"
-  origin "1584 -368 -700"
 }
 
 {
   classname "ammo_357"
-  angles "0 345 0"
-  origin "1618 -478 -700"
 }
 
 {
   classname "ammo_357"
-  angles "0 46 0"
-  origin "1650 -478 -700"
 }
 
 {
@@ -25382,14 +25172,10 @@ Version 13
 
 {
   classname "ammo_rpg_rocket"
-  angles "0 90 0"
-  origin "1536 -448 -518"
 }
 
 {
   classname "weapon_tripmine"
-  angles "0 90 0"
-  origin "1524 -282 -514"
 }
 
 {
@@ -25537,32 +25323,21 @@ Version 13
 
 {
   classname "PointLight"
-  intensity_r "20"
-  intensity_g "10"
-  angles "0 90 0"
-  opening_angle "180"
   light_radius "20"
   light_color_diff "0 0 0"
   light_color_spec "0 0 0"
-  origin "1024 -378 -150"
 }
 
 {
   classname "ammo_9mmAR"
-  angles "0 135 0"
-  origin "12 -52 -316"
 }
 
 {
   classname "ammo_357"
-  angles "0 65 0"
-  origin "-316 175 -316"
 }
 
 {
   classname "ammo_357"
-  angles "0 135 0"
-  origin "-316 142 -316"
 }
 
 {
@@ -25596,20 +25371,14 @@ Version 13
 
 {
   classname "weapon_rpg"
-  angles "0 180 0"
-  origin "1028 -432 -176"
 }
 
 {
   classname "ammo_357"
-  angles "0 300 0"
-  origin "-450 130 -264"
 }
 
 {
   classname "ammo_357"
-  angles "0 250 0"
-  origin "-450 94 -264"
 }
 
 {
@@ -25661,34 +25430,20 @@ Version 13
 
 {
   classname "weapon_tripmine"
-  angles "0 0 0"
-  origin "1008 -764 -316"
 }
 
 {
   classname "PointLight"
-  intensity_r "8"
-  intensity_g "4"
-  intensity_b "2"
-  angles "270 90 0"
-  opening_angle "68"
   light_radius "20"
   light_color_diff "0 0 0"
   light_color_spec "0 0 0"
-  origin "576 1280 -156"
 }
 
 {
   classname "PointLight"
-  intensity_r "8"
-  intensity_g "4"
-  intensity_b "2"
-  angles "270 90 0"
-  opening_angle "68"
   light_radius "20"
   light_color_diff "0 0 0"
   light_color_spec "0 0 0"
-  origin "1776 -368 -387"
 }
 
 {
@@ -25722,923 +25477,554 @@ Version 13
 
 {
   classname "static_detail_model"
-  angles "0 270 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Tonne01.mdl"
-  origin "9 -162 -320"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Gelaender01.mdl"
-  origin "1538 -412 -512"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Gelaender01.mdl"
-  origin "1606 -412 -512"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Gelaender01.mdl"
-  origin "1674 -412 -512"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Gelaender01.mdl"
-  origin "1742 -412 -512"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Gelaender01.mdl"
-  origin "1810 -412 -512"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Gelaender01.mdl"
-  origin "1878 -412 -512"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Gelaender01.mdl"
-  origin "1946 -412 -512"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Gelaender01.mdl"
-  origin "2014 -412 -512"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Gelaender01.mdl"
-  origin "1538 -324 -512"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Gelaender01.mdl"
-  origin "1606 -324 -512"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Gelaender01.mdl"
-  origin "1674 -324 -512"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Gelaender01.mdl"
-  origin "1742 -324 -512"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Gelaender01.mdl"
-  origin "1810 -324 -512"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Gelaender01.mdl"
-  origin "1878 -324 -512"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Gelaender01.mdl"
-  origin "1946 -324 -512"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Gelaender01.mdl"
-  origin "2014 -324 -512"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Lampe01.mdl"
-  origin "1776 -368 -391"
 }
 
 {
   classname "static_detail_model"
-  angles "0 240 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Tonne01.mdl"
-  origin "-471 -117 -352"
 }
 
 {
   classname "static_detail_model"
-  angles "0 300 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Tonne01.mdl"
-  origin "-487 -185 -344"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Lampe01.mdl"
-  origin "576 1280 -160"
 }
 
 {
   classname "static_detail_model"
-  angles "270 270 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe02_big1.mdl"
-  origin "704 -116 -196"
 }
 
 {
   classname "static_detail_model"
-  angles "0 270 270"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Pipe01_Bend.mdl"
-  scale "1.0"
-  origin "-320 116 -305"
 }
 
 {
   classname "static_detail_model"
-  angles "90 180 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Pipe01_Bend.mdl"
-  scale "1.0"
-  origin "-321 112 -286"
 }
 
 {
   classname "static_detail_model"
-  angles "270 180 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Pipe01_Clamp.mdl"
-  scale "1.0"
-  origin "-334 116 -302"
 }
 
 {
   classname "static_detail_model"
-  angles "0 180 270"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Pipe01_T-Junction.mdl"
-  scale "1.0"
-  origin "-311 106 -309"
 }
 
 {
   classname "static_detail_model"
-  angles "270 180 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Pipe01_Clamp.mdl"
-  scale "1.0"
-  origin "-333 99 -311"
 }
 
 {
   classname "static_detail_model"
-  angles "90 270 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Pipe01_T-Junction.mdl"
-  scale "1.0"
-  origin "-332 -182 -286"
 }
 
 {
   classname "static_detail_model"
-  angles "90 270 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  model "Models/Static/Pipe01_Pipe_short.mdl"
-  scale "1.0"
-  origin "-339 -84 -235"
 }
 
 {
   classname "static_detail_model"
-  angles "0 81 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/WoodBox_large01.mdl"
-  origin "-960 1760 -319"
 }
 
 {
   classname "static_detail_model"
-  angles "0 105 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Palette01.mdl"
-  origin "-960 1700 -320"
 }
 
 {
   classname "static_detail_model"
-  angles "0 31 291"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Palette01.mdl"
-  origin "-1143 1674 -295"
 }
 
 {
   classname "static_detail_model"
-  angles "330 248 90"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/WeldTank_blue.mdl"
-  origin "-55 1798 -314"
 }
 
 {
   classname "static_detail_model"
-  angles "12 90 11"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/WeldTank_red.mdl"
-  origin "-30 1810 -318"
 }
 
 {
   classname "static_detail_model"
-  angles "351 158 180"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/LifeForms/FaceHugger/FaceHugger.cmdl"
-  origin "2352 -324 -507"
 }
 
 {
   classname "static_detail_model"
-  angles "349 286 177"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/LifeForms/FaceHugger/FaceHugger.cmdl"
-  origin "1353 -432 -507"
 }
 
 {
   classname "static_detail_model"
-  angles "351 286 180"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/LifeForms/FaceHugger/FaceHugger.cmdl"
-  origin "1165 -528 -443"
 }
 
 {
   classname "static_detail_model"
-  angles "0 105 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Tonne01.mdl"
-  origin "942 -609 -496"
 }
 
 {
   classname "static_detail_model"
-  angles "0 330 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Tonne01.mdl"
-  origin "977 -639 -490"
 }
 
 {
   classname "static_detail_model"
-  angles "277 285 270"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Tonne01.mdl"
-  origin "1090 -651 -456"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Pipe_medium.mdl"
-  origin "248 -302 -168"
 }
 
 {
   classname "static_detail_model"
-  angles "90 180 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Bend.mdl"
-  origin "159 -295 8"
 }
 
 {
   classname "static_detail_model"
-  angles "0 180 270"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Pipe_medium.mdl"
-  origin "168 -301 -73"
 }
 
 {
   classname "static_detail_model"
-  angles "270 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Bend.mdl"
-  origin "167 -295 -159"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 270"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Clamp.mdl"
-  origin "161 -295 -5"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 270"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Clamp.mdl"
-  origin "161 -295 -145"
 }
 
 {
   classname "static_detail_model"
-  angles "8 129 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Players/Skeleton/Skeleton.cmdl"
-  sequence "76"
-  origin "-698 -316 -305"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/MediBox01.mdl"
-  origin "-1434 1680 8"
 }
 
 {
   classname "static_detail_model"
-  angles "0 270 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/MediBox01.mdl"
-  origin "645 -651 -312"
 }
 
 {
   classname "static_detail_model"
-  angles "0 30 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Rocks01.mdl"
-  origin "-752 -824 -64"
 }
 
 {
   classname "static_detail_model"
-  angles "0 75 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Rocks01.mdl"
-  origin "563 -984 -64"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Rocks01.mdl"
-  origin "147 483 80"
 }
 
 {
   classname "static_detail_model"
-  angles "0 120 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Rocks01.mdl"
-  origin "-1407 1461 -319"
 }
 
 {
   classname "static_detail_model"
-  angles "0 75 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Rocks01.mdl"
-  origin "-1310 -114 -128"
 }
 
 {
   classname "static_detail_model"
-  angles "0 120 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Players/Skeleton/Skeleton.cmdl"
-  sequence "74"
-  origin "477 139 81"
 }
 
 {
   classname "monster_eagle"
-  angles "0 172 0"
-  origin "188 576 224"
 }
 
 {
   classname "monster_butterfly"
-  angles "0 90 0"
-  origin "-548 -532 -80"
 }
 
 {
   classname "monster_butterfly"
-  angles "0 90 0"
-  origin "-504 -548 -52"
 }
 
 {
   classname "static_detail_model"
-  angles "0 30 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/LifeForms/Eagle/Eagle.cmdl"
-  sequence "4"
-  origin "-120 1780 0"
 }
 
 {
   classname "static_detail_model"
-  angles "270 53 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/WeldTank_blue.mdl"
-  origin "1336 -320 -507"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/WeldTank_red.mdl"
-  origin "1168 -316 -512"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 75"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Palette01.mdl"
-  origin "2329 331 -297"
 }
 
 {
   classname "static_detail_model"
-  angles "0 355 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Palette01.mdl"
-  origin "2210 412 -320"
 }
 
 {
   classname "static_detail_model"
-  angles "0 270 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/WeldTank_blue.mdl"
-  origin "1436 784 -320"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Palette01.mdl"
-  origin "1096 960 -392"
 }
 
 {
   classname "static_detail_model"
-  angles "0 180 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Palette01.mdl"
-  origin "1096 912 -392"
 }
 
 {
   classname "static_detail_model"
-  angles "0 180 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Pipe_short.mdl"
-  origin "1100 976 -384"
 }
 
 {
   classname "static_detail_model"
-  angles "0 180 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Pipe_short.mdl"
-  origin "1098 964 -384"
 }
 
 {
   classname "static_detail_model"
-  angles "0 23 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Pipe_short.mdl"
-  origin "1102 960 -374"
 }
 
 {
   classname "static_detail_model"
-  angles "0 353 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_T-Junction.mdl"
-  origin "1103 918 -384"
 }
 
 {
   classname "static_detail_model"
-  angles "0 83 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Bend.mdl"
-  origin "1081 911 -384"
 }
 
 {
   classname "static_detail_model"
-  angles "0 255 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/WoodBox_large01.mdl"
-  origin "1016 1020 -391"
 }
 
 {
   classname "static_detail_model"
-  angles "0 135 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Rocks01.mdl"
-  origin "1500 267 -320"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Pipe_medium.mdl"
-  origin "1767 410 -8"
 }
 
 {
   classname "static_detail_model"
-  angles "270 210 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Bend.mdl"
-  origin "1769 359 -96"
 }
 
 {
   classname "static_detail_model"
-  angles "0 180 180"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_T-Junction.mdl"
-  origin "1690 410 3"
 }
 
 {
   classname "static_detail_model"
-  angles "0 180 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Pipe_long.mdl"
-  origin "1548 410 -8"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 270"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Pipe_short.mdl"
-  origin "1686 405 -50"
 }
 
 {
   classname "static_detail_model"
-  angles "0 210 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_T-Junction.mdl"
-  origin "1692 411 -105"
 }
 
 {
   classname "static_detail_model"
-  angles "0 30 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Pipe_short.mdl"
-  origin "1727 385 -104"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 270"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Bend.mdl"
-  origin "1779 368 -69"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 270"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Handle.mdl"
-  origin "1691 406 -50"
 }
 
 {
   classname "static_detail_model"
-  angles "90 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_T-Junction.mdl"
-  origin "329 -308 -162"
 }
 
 {
   classname "static_detail_model"
-  angles "0 180 90"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Bend.mdl"
-  origin "323 -275 -158"
 }
 
 {
   classname "static_detail_model"
-  angles "0 180 270"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Pipe_short.mdl"
-  origin "335 -267 -109"
 }
 
 {
   classname "static_detail_model"
-  angles "90 180 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Bend.mdl"
-  origin "326 -265 -59"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Pipe_medium.mdl"
-  origin "406 -302 -168"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Pipe_medium.mdl"
-  origin "241 -272 -62"
 }
 
 {
   classname "static_detail_model"
-  angles "0 270 90"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Clamp.mdl"
-  origin "332 -265 -74"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Pipe_short.mdl"
-  origin "140 -277 -62"
 }
 
 {
   classname "static_detail_model"
-  angles "0 0 0"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Clamp.mdl"
-  origin "174 -273 -63"
 }
 
 {
   classname "static_detail_model"
-  angles "0 90 270"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Handle.mdl"
-  origin "330 -276 -138"
 }
 
 {
   classname "static_detail_model"
-  angles "0 135 325"
   rendertranslucency "255"
   rendercolor "0 0 0"
-  scale "1.0"
-  model "Models/Static/Pipe01_Handle.mdl"
-  origin "1099 905 -385"
 }
 
 {

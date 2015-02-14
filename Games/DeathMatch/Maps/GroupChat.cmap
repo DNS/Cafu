@@ -1,6 +1,6 @@
 // Cafu Map File
 // Written by CaWE, the Cafu World Editor.
-Version 13
+Version 14
 
 
 {
@@ -4852,331 +4852,225 @@ Version 13
   }
 
   {
-    ( -1535.9998 -128 -255.99997 ) ( -1535.9998 -8 -255.99997 ) ( -1535.9998 -128 704 ) "Textures/Kai/wallmarble" ( 2 0.754167 -0.652536 0 ( 0 120 0 ) ( 0 0 -1678.3 ) )
-    ( -1535.9998 -128 -255.99997 ) ( -1535.9998 -128 704 ) ( 1856 -128 -255.99997 ) "Textures/Kai/wallmarble" ( 2 -0.143868 -0.652536 0 ( 3192.47 0 0 ) ( 0 0 -1678.3 ) )
-    ( -1535.9998 -128 -255.99997 ) ( 1856 -128 -255.99997 ) ( -1535.9998 -8 -255.99997 ) "Textures/Kai/wallmarble" ( 2 -0.143868 -0.754167 0 ( 3192.47 0 0 ) ( 0 -120 0 ) )
+    ( -1535.9998 -128 -255.99995 ) ( -1535.9998 -8 -255.99995 ) ( -1535.9998 -128 704 ) "Textures/Kai/wallmarble" ( 2 0.754167 -0.652536 0 ( 0 120 0 ) ( 0 0 -1678.3 ) )
+    ( -1535.9998 -128 -255.99995 ) ( -1535.9998 -128 704 ) ( 1856 -128 -255.99995 ) "Textures/Kai/wallmarble" ( 2 -0.143868 -0.652536 0 ( 3192.47 0 0 ) ( 0 0 -1678.3 ) )
+    ( -1535.9998 -128 -255.99995 ) ( 1856 -128 -255.99995 ) ( -1535.9998 -8 -255.99995 ) "Textures/Kai/wallmarble" ( 2 -0.143868 -0.754167 0 ( 3192.47 0 0 ) ( 0 -120 0 ) )
     ( -1535.9998 -128 704 ) ( -1535.9998 -8 704 ) ( 1856 -128 704 ) "Textures/Kai/wallmarble" ( 2 -0.143868 -0.754167 0 ( 3192.47 0 0 ) ( 0 -120 0 ) )
-    ( -1535.9998 -8 -255.99997 ) ( 1856 -8 -255.99997 ) ( -1535.9998 -8 704 ) "Textures/Kai/wallmarble" ( 2 -0.143945 -0.652539 0 ( 128 0 0 ) ( 0 0 -128 ) )
-    ( 1856 -128 -255.99997 ) ( 1856 -128 704 ) ( 1856 -8 -255.99997 ) "Textures/Kai/wallmarble" ( 2 0.754167 -0.652536 0 ( 0 120 0 ) ( 0 0 -1678.3 ) )
+    ( -1535.9998 -8 -255.99995 ) ( 1856 -8 -255.99995 ) ( -1535.9998 -8 704 ) "Textures/Kai/wallmarble" ( 2 -0.143945 -0.652539 0 ( 128 0 0 ) ( 0 0 -128 ) )
+    ( 1856 -128 -255.99995 ) ( 1856 -128 704 ) ( 1856 -8 -255.99995 ) "Textures/Kai/wallmarble" ( 2 0.754167 -0.652536 0 ( 0 120 0 ) ( 0 0 -1678.3 ) )
   }
 }
 
 {
   classname "info_player_start"
-  angles "0 0 0"
-  origin "1040 672 64"
 }
 
 {
   classname "info_player_start"
-  angles "0 180 0"
-  origin "160 -528 64"
 }
 
 {
   classname "info_player_start"
-  angles "0 270 0"
-  origin "0 1376 224"
 }
 
 {
   classname "info_player_start"
-  angles "0 270 0"
-  origin "-1040 352 384"
 }
 
 {
   classname "info_player_start"
-  angles "0 60 0"
-  origin "-1120 -576 224"
 }
 
 {
   classname "info_player_start"
-  angles "0 0 0"
-  origin "1120 -704 64"
 }
 
 {
   classname "info_player_start"
-  angles "0 315 0"
-  origin "1152 1152 128"
 }
 
 {
   classname "info_player_start"
-  angles "0 30 0"
-  origin "-1152 1152 336"
 }
 
 {
   classname "info_player_start"
-  angles "0 0 0"
-  origin "-160 352 384"
 }
 
 {
   classname "info_player_start"
-  angles "0 0 0"
-  origin "0 384 64"
 }
 
 {
   classname "weapon_egon"
-  angles "0 0 0"
-  origin "704 512 240"
 }
 
 {
   classname "weapon_rpg"
-  angles "0 0 0"
-  origin "-832 -384 224"
 }
 
 {
   classname "ammo_rpg_rocket"
-  angles "0 0 0"
-  origin "-864 -608 224"
 }
 
 {
   classname "ammo_rpg_rocket"
-  angles "0 0 0"
-  origin "-800 -608 224"
 }
 
 {
   classname "weapon_shotgun"
-  angles "0 0 0"
-  origin "-1088 64 384"
 }
 
 {
   classname "ammo_shotgun_shells"
-  angles "0 0 0"
-  origin "-1088 960 384"
 }
 
 {
   classname "weapon_shotgun"
-  angles "0 0 0"
-  origin "1088 960 64"
 }
 
 {
   classname "ammo_shotgun_shells"
-  angles "0 0 0"
-  origin "1088 64 64"
 }
 
 {
   classname "ammo_ARgrenades"
-  angles "0 0 0"
-  origin "-640 -576 64"
 }
 
 {
   classname "ammo_9mmAR"
-  angles "0 0 0"
-  origin "0 -576 64"
 }
 
 {
   classname "weapon_9mmAR"
-  angles "0 0 0"
-  origin "448 -576 64"
 }
 
 {
   classname "ammo_357"
-  angles "0 0 0"
-  origin "-384 1440 224"
 }
 
 {
   classname "weapon_357handgun"
-  angles "0 270 0"
-  origin "384 1440 224"
 }
 
 {
   classname "weapon_hornetgun"
-  angles "0 0 0"
-  origin "1216 -704 256"
 }
 
 {
   classname "weapon_facehugger"
-  angles "0 0 0"
-  origin "784 -104 224"
 }
 
 {
   classname "weapon_crossbow"
-  angles "0 90 0"
-  origin "96 288 384"
 }
 
 {
   classname "ammo_crossbow_arrows"
-  angles "0 0 0"
-  origin "-120 736 224"
 }
 
 {
   classname "item_healthkit_small"
-  angles "0 0 0"
-  origin "-32 640 64"
 }
 
 {
   classname "item_healthkit_small"
-  angles "0 0 0"
-  origin "32 640 64"
 }
 
 {
   classname "item_armor_green"
-  angles "0 0 0"
-  origin "-224 512 64"
 }
 
 {
   classname "item_armor_green"
-  angles "0 0 0"
-  origin "224 512 64"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 0 0"
-  origin "-64 288 384"
 }
 
 {
   classname "weapon_gauss"
-  angles "0 0 0"
-  origin "1184 1504 128"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 0 0"
-  origin "0 1024 224"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 0 0"
-  origin "0 -48 64"
 }
 
 {
   classname "ammo_9mmAR"
-  angles "0 0 0"
-  origin "-496 512 384"
 }
 
 {
   classname "ammo_9mmclip"
-  angles "0 0 0"
-  origin "512 512 144"
 }
 
 {
   classname "weapon_tripmine"
-  angles "0 90 0"
-  origin "832 -104 224"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 0 0"
-  origin "832 -152 224"
 }
 
 {
   classname "item_armor_green"
-  angles "0 0 0"
-  origin "784 -152 224"
 }
 
 {
   classname "weapon_facehugger"
-  angles "0 0 0"
-  origin "616 -680 48"
 }
 
 {
   classname "weapon_tripmine"
-  angles "0 90 0"
-  origin "664 -680 48"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 0 0"
-  origin "664 -728 48"
 }
 
 {
   classname "item_armor_green"
-  angles "0 0 0"
-  origin "616 -728 48"
 }
 
 {
   classname "weapon_facehugger"
-  angles "0 0 0"
-  origin "-1144 -104 32"
 }
 
 {
   classname "weapon_tripmine"
-  angles "0 90 0"
-  origin "-1096 -104 32"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 0 0"
-  origin "-1096 -152 32"
 }
 
 {
   classname "item_armor_green"
-  angles "0 0 0"
-  origin "-1144 -152 32"
 }
 
 {
   classname "ammo_crossbow_arrows"
-  angles "0 0 0"
-  origin "832 -704 64"
 }
 
 {
   classname "ammo_ARgrenades"
-  angles "0 0 0"
-  origin "-80 1440 224"
 }
 
 {
   classname "ammo_ARgrenades"
-  angles "0 0 0"
-  origin "864 1184 128"
 }
 
 {
   classname "ammo_rpg_rocket"
-  angles "0 0 0"
-  origin "1024 -704 64"
 }
 
 {
   classname "ammo_rpg_rocket"
-  angles "0 0 0"
-  origin "1216 -704 64"
 }
 
 {
@@ -6773,32 +6667,13 @@ Version 13
 
 {
   classname "static_detail_model"
-  angles "-0 255 -0"
-  scale "1.0"
-  name "static_detail_model_001"
-  model "Models/Players/James/James.cmdl"
-  sequence "1"
-  origin "-802.425 585.575 356.5438"
 }
 
 {
   classname "static_detail_model"
-  angles "-0 195 -0"
-  scale "1.0"
-  name "static_detail_model_002"
-  model "Models/Players/Punisher/Punisher.cmdl"
-  sequence "1"
-  origin "-838.00244 634.44275 356.5438"
 }
 
 {
   classname "PointLightSource"
   opening_angle "180"
-  angles "-0 90 -0"
-  name "PointLight_001"
-  light_casts_shadows "1"
-  light_color_spec "247 222 166"
-  light_color_diff "247 222 166"
-  light_radius "500"
-  origin "-880 504 416"
 }

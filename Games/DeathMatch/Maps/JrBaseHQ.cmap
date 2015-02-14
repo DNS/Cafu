@@ -1,6 +1,6 @@
 // Cafu Map File
 // Written by CaWE, the Cafu World Editor.
-Version 13
+Version 14
 
 
 {
@@ -10393,70 +10393,42 @@ Version 13
 
 {
   classname "info_player_start"
-  angles "0 0 0"
-  origin "480 -352 104"
 }
 
 {
   classname "info_player_start"
-  angles "0 0 0"
-  origin "1312 880 -248"
 }
 
 {
   classname "info_player_start"
-  angles "0 0 0"
-  origin "480 48 40"
 }
 
 {
   classname "info_player_start"
-  angles "0 270 0"
-  origin "512 1920 -168"
 }
 
 {
   classname "info_player_start"
-  angles "0 90 0"
-  origin "-272 2928 -56"
 }
 
 {
   classname "info_player_start"
-  angles "0 90 0"
-  origin "832 2048 -152"
 }
 
 {
   classname "LifeFormMaker"
-  angles "0 270 0"
-  monstertype "Butterfly"
-  monstercount "-1"
-  delay "-1"
-  m_imaxlivechildren "3"
-  origin "-40 1176 -96"
 }
 
 {
   classname "LifeFormMaker"
-  angles "0 0 0"
-  monstertype "Eagle"
-  monstercount "-1"
-  delay "-1"
-  m_imaxlivechildren "1"
-  origin "304 1248 120"
 }
 
 {
   classname "weapon_9mmAR"
-  angles "0 90 0"
-  origin "376 872 -208"
 }
 
 {
   classname "ammo_9mmAR"
-  angles "0 90 0"
-  origin "-424 1696 -200"
 }
 
 {
@@ -10509,79 +10481,54 @@ Version 13
 
 {
   classname "ammo_ARgrenades"
-  angles "0 90 0"
-  origin "-360 1720 -200"
 }
 
 {
   classname "weapon_handgrenade"
-  angles "0 90 0"
-  origin "-376 1672 -200"
 }
 
 {
   classname "weapon_facehugger"
-  angles "0 90 0"
-  origin "648 1680 -208"
 }
 
 {
   classname "weapon_egon"
-  angles "0 90 0"
-  origin "616 2216 -112"
 }
 
 {
   classname "ammo_gausscells"
-  angles "0 90 0"
-  origin "344 2216 -112"
 }
 
 {
   classname "ammo_rpg_rocket"
-  angles "0 90 0"
-  origin "-352 2912 -56"
 }
 
 {
   classname "weapon_rpg"
-  angles "0 90 0"
-  origin "400 2976 -64"
 }
 
 {
   classname "weapon_battlescythe"
-  angles "0 90 0"
-  origin "640 736 96"
 }
 
 {
   classname "weapon_gauss"
-  angles "0 90 0"
-  origin "104 1264 -320"
 }
 
 {
   classname "weapon_shotgun"
-  angles "0 90 0"
-  origin "1360 776 -264"
 }
 
 {
   classname "ammo_shotgun_shells"
-  angles "0 90 0"
-  origin "712 2056 -416"
 }
 
 {
   classname "ammo_shotgun_shells"
-  angles "0 90 0"
-  origin "760 2752 -64"
 }
 
 {
   classname "tree"
-  origin "560 1584 -216"
 }
 
 {

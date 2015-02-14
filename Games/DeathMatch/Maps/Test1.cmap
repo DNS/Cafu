@@ -1,6 +1,6 @@
 // Cafu Map File
 // Written by CaWE, the Cafu World Editor.
-Version 13
+Version 14
 
 
 {
@@ -82,16 +82,8 @@ Version 13
 
 {
   classname "info_player_start"
-  angles "0 90 0"
-  origin "16 -16 56"
 }
 
 {
   classname "PointLightSource"
-  angles "-0 90 -0"
-  light_radius "197"
-  light_color_diff "255 0 0"
-  light_color_spec "0 255 255"
-  light_casts_shadows "1"
-  origin "48 -48 240"
 }
