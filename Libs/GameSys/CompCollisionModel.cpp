@@ -133,16 +133,6 @@ void ComponentCollisionModelT::UpdateDependencies(EntityT* Entity)
 }
 
 
-void ComponentCollisionModelT::GetCollisionBB(BoundingBox3fT& BB) const
-{
-    if (m_ClipModel && m_ClipModel->GetCollisionModel())
-    {
-        assert(m_ClipModel->GetCollisionModel()->GetBoundingBox().IsInited());
-        BB.Insert(m_ClipModel->GetCollisionModel()->GetBoundingBox().AsBoxOfFloat());
-    }
-}
-
-
 void ComponentCollisionModelT::DoDeserialize(cf::Network::InStreamT& Stream, bool IsIniting)
 {
     // Deserialization may have updated our origin or orientation,

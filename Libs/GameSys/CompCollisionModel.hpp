@@ -54,15 +54,13 @@ namespace cf
             // to set a bounding-box with the given dimensions as the collision model.
             void SetBoundingBox(const BoundingBox3dT& BB, const char* MatName);
 
-            /// Returns the clip model of this component, NULL for none.
-            const cf::ClipSys::ClipModelT* GetClipModel() const { return m_ClipModel; }
 
             // Base class overrides.
             ComponentCollisionModelT* Clone() const;
             const char* GetName() const { return "CollisionModel"; }
             void UpdateDependencies(EntityT* Entity);
             unsigned int GetEditorColor() const { return 0xAAAAAA; }
-            void GetCollisionBB(BoundingBox3fT& BB) const;
+            const cf::ClipSys::ClipModelT* GetClipModel() override { UpdateClipModel(); return m_ClipModel; }
 
 
             // The TypeSys related declarations for this class.

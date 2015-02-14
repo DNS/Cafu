@@ -24,6 +24,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Entity.hpp"
 #include "World.hpp"
 
+#include "ClipSys/ClipModel.hpp"
+#include "ClipSys/CollisionModel_base.hpp"
 #include "PhysicsWorld.hpp"
 
 extern "C"
@@ -96,6 +98,21 @@ ComponentPhysicsT* ComponentPhysicsT::Clone() const
 }
 
 
+namespace
+{
+    void InsertCollisionBB(BoundingBox3fT& BB, IntrusivePtrT<ComponentBaseT> Comp)
+    {
+        if (Comp == NULL) return;
+        if (!Comp->GetClipModel()) return;
+        if (!Comp->GetClipModel()->GetCollisionModel()) return;
+
+        assert(Comp->GetClipModel()->GetCollisionModel()->GetBoundingBox().IsInited());
+
+        BB += Comp->GetClipModel()->GetCollisionModel()->GetBoundingBox().AsBoxOfFloat();
+    }
+}
+
+
 void ComponentPhysicsT::UpdateDependencies(EntityT* Entity)
 {
     if (GetEntity() != Entity)
@@ -128,10 +145,10 @@ void ComponentPhysicsT::UpdateDependencies(EntityT* Entity)
         BoundingBox3fT BB;
         const ArrayT< IntrusivePtrT<ComponentBaseT> >& Components = GetEntity()->GetComponents();
 
-        GetEntity()->GetApp()->GetCollisionBB(BB);
+        InsertCollisionBB(BB, GetEntity()->GetApp());
 
         for (unsigned int CompNr = 0; CompNr < Components.Size(); CompNr++)
-            Components[CompNr]->GetCollisionBB(BB);
+            InsertCollisionBB(BB, Components[CompNr]);
 
         if (!BB.IsInited()) return;
 

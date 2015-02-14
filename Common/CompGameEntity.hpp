@@ -26,7 +26,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameSys/Entity.hpp"       // For GetGameEnt() only.
 
 
-namespace cf { namespace ClipSys { class ClipModelT; } }
 class StaticEntityDataT;
 
 
@@ -57,7 +56,7 @@ class CompGameEntityT : public cf::GameSys::ComponentBaseT
     const char* GetName() const { return "GameEntity"; }
     void UpdateDependencies(cf::GameSys::EntityT* Entity);
     BoundingBox3fT GetCullingBB() const;
-    void GetCollisionBB(BoundingBox3fT& BB) const;
+    const cf::ClipSys::ClipModelT* GetClipModel() override { UpdateClipModel(); return m_ClipModel; }
 
 
     private:

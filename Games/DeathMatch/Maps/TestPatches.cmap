@@ -228,19 +228,6 @@ PatchDef
 }
 
 {
-  classname "func_mover"
-
-  {
-    ( -128 24 8 ) ( -64 24 8 ) ( -64 -40 8 ) "TechDemo/floors/gho_floor1a" ( 2 0 0.375 0 ( 64 0 0 ) ( 0 -64 0 ) )
-    ( -128 -40 0 ) ( -64 -40 0 ) ( -64 24 0 ) "TechDemo/floors/gho_floor1a" ( 2 0 0.375 0 ( 64 0 0 ) ( 0 -64 0 ) )
-    ( -128 24 8 ) ( -128 -40 8 ) ( -128 -40 0 ) "TechDemo/floors/got_hallpanel2" ( 2 0.625 0 0 ( 0 64 0 ) ( 0 0 -8 ) )
-    ( -64 24 0 ) ( -64 -40 0 ) ( -64 -40 8 ) "TechDemo/floors/got_hallpanel2" ( 2 0.625 0 0 ( 0 64 0 ) ( 0 0 -8 ) )
-    ( -64 24 8 ) ( -128 24 8 ) ( -128 24 0 ) "TechDemo/floors/got_hallpanel2" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -8 ) )
-    ( -64 -40 0 ) ( -128 -40 0 ) ( -128 -40 8 ) "TechDemo/floors/got_hallpanel2" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -8 ) )
-  }
-}
-
-{
   classname "PointLightSource"
 }
 
@@ -293,4 +280,23 @@ PatchDef
 
 {
   classname "PointLightSource"
+}
+
+{
+  classname "func_mover"
+}
+
+{
+
+  {
+    ( -128 24 8 ) ( -64 24 8 ) ( -64 -40 8 ) "TechDemo/floors/gho_floor1a" ( 2 0 0.375 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( -128 -40 0 ) ( -64 -40 0 ) ( -64 24 0 ) "TechDemo/floors/gho_floor1a" ( 2 0 0.375 0 ( 64 0 0 ) ( 0 -64 0 ) )
+    ( -128 24 8 ) ( -128 -40 8 ) ( -128 -40 0 ) "TechDemo/floors/got_hallpanel2" ( 2 0.625 0 0 ( 0 64 0 ) ( 0 0 -8 ) )
+    ( -64 24 0 ) ( -64 -40 0 ) ( -64 -40 8 ) "TechDemo/floors/got_hallpanel2" ( 2 0.625 0 0 ( 0 64 0 ) ( 0 0 -8 ) )
+    ( -64 24 8 ) ( -128 24 8 ) ( -128 24 0 ) "TechDemo/floors/got_hallpanel2" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -8 ) )
+    ( -64 -40 0 ) ( -128 -40 0 ) ( -128 -40 8 ) "TechDemo/floors/got_hallpanel2" ( 2 0 0 0 ( 64 0 0 ) ( 0 0 -8 ) )
+  }
+}
+
+{
 }

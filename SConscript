@@ -1,4 +1,5 @@
 import os, platform, sys
+import subprocess
 import CompilerSetup
 
 Import('env', 'buildMode', 'compiler')
@@ -161,4 +162,49 @@ elif sys.platform=="linux2":
             ("debug" if buildMode == "dbg" else "release")])
         envCaWE.Append(LIBS=["fbxsdk-static"])
 
-envCaWE.Program('CaWE/CaWE', SourceFilesList + CommonWorldObject)
+CaWE_exe = envCaWE.Program('CaWE/CaWE', SourceFilesList + CommonWorldObject)
+
+
+
+def UpdateDocTemplates(target, source, env):
+    """
+    Runs `.../CaWE --update-doxygen` in order to update the `Doxygen/scripting/tmpl/*.hpp` files.
+    """
+    subprocess.call([str(source[0]), "--update-doxygen"])
+
+    # For all target files (`Doxygen/scripting/tmpl/*.hpp`), make sure that they
+    #   - don't contain the string "// WARNING" (e.g. about mismatches),
+    #   - don't contain any lines that the related files in `../src/` don't have.
+    for t in target:
+        tmplPath = str(t)
+        path, basename = os.path.split(tmplPath)
+        srcPath = os.path.join(os.path.dirname(path), "src", basename)
+
+        with open(tmplPath, 'r') as tmplFile:
+            with open(srcPath, 'r') as srcFile:
+                srcLines  = srcFile.readlines()
+                srcLineNr = 0
+
+                for tmplLine in tmplFile:
+                    if "// WARNING" in tmplLine:
+                        raise Exception('Found a "// WARNING ..." comment in file "{0}".'.format(tmplPath))
+
+                    while tmplLine != srcLines[srcLineNr]:
+                        srcLineNr += 1
+                        if srcLineNr >= len(srcLines):
+                            raise Exception('A line in template file "{0}" does not exist in the related source '
+                                            'file:\n\n{1}\nUse e.g. BeyondCompare to review the situation.'.format(tmplPath, tmplLine))
+
+    return None
+
+
+if buildMode == "dbg":
+    # Unfortunately, the list of target files must be known in advance: it is not possible
+    # to run `.../CaWE --update-doxygen` first and then see what it produced. For details,
+    # see https://pairlist4.pair.net/pipermail/scons-users/2015-February/003409.html
+    TargetFiles = [
+        "GameComponents.hpp", "GameEntities.hpp", "GameWorld.hpp",
+        "GuiComponents.hpp", "GuiGui.hpp", "GuiWindows.hpp"
+    ]
+
+    envCaWE.Command(["#/Doxygen/scripting/tmpl/" + f for f in TargetFiles], CaWE_exe, UpdateDocTemplates)

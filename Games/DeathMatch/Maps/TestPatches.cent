@@ -17,7 +17,6 @@ Map.info_player_start = world:new("EntityT", "info_player_start")
 Map.func_group = world:new("EntityT", "func_group")
 Map.func_group_1 = world:new("EntityT", "func_group_1")
 Map.Call_Lift_Screen = world:new("EntityT", "Call_Lift_Screen")
-Map.MyFirstLift = world:new("EntityT", "MyFirstLift")
 Map.Hall_Light = world:new("EntityT", "Hall_Light")
 Map.LiftWeldTank = world:new("EntityT", "LiftWeldTank")
 Map.LiftLight = world:new("EntityT", "LiftLight")
@@ -25,6 +24,9 @@ Map.TestTrigger = world:new("EntityT", "TestTrigger")
 Map.SoundTrigger = world:new("EntityT", "SoundTrigger")
 Map.TestSpeaker = world:new("EntityT", "TestSpeaker")
 Map.PointLightSource_001 = world:new("EntityT", "PointLightSource_001")
+Map.SimpleLift = world:new("EntityT", "SimpleLift")
+Map.SimpleLift.Platform = world:new("EntityT", "Platform")
+Map.SimpleLift.Platform.move_dest = world:new("EntityT", "move_dest")
 
 
 -- Set the worlds root entity.
@@ -40,7 +42,6 @@ Map:AddChild(Map.info_player_start)
 Map:AddChild(Map.func_group)
 Map:AddChild(Map.func_group_1)
 Map:AddChild(Map.Call_Lift_Screen)
-Map:AddChild(Map.MyFirstLift)
 Map:AddChild(Map.Hall_Light)
 Map:AddChild(Map.LiftWeldTank)
 Map:AddChild(Map.LiftLight)
@@ -48,6 +49,9 @@ Map:AddChild(Map.TestTrigger)
 Map:AddChild(Map.SoundTrigger)
 Map:AddChild(Map.TestSpeaker)
 Map:AddChild(Map.PointLightSource_001)
+Map:AddChild(Map.SimpleLift)
+Map.SimpleLift:AddChild(Map.SimpleLift.Platform)
+Map.SimpleLift.Platform:AddChild(Map.SimpleLift.Platform.move_dest)
 
 
 -- Initialization of the entity contents ("constructors").
@@ -100,23 +104,12 @@ function Map.Call_Lift_Screen:OnInit()
     c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_2.cmap")
 
     local c3 = world:new("ComponentTargetT")
-    c3:set("Target", "MyFirstLift")
+    c3:set("Target", "SimpleLift")
 
     local c4 = world:new("ComponentTargetT")
     c4:set("Target", "Hall_Light")
 
     self:AddComponent(c1, c2, c3, c4)
-end
-
-function Map.MyFirstLift:OnInit()
-    self:GetTransform():set("Origin", -96, -8, 4)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-
-    local c1 = world:new("ComponentScriptT")
-    c1:set("Name", "Games/DeathMatch/Scripts/Mover.lua")
-    c1:set("ScriptCode", "")
-
-    self:AddComponent(c1)
 end
 
 function Map.Hall_Light:OnInit()
@@ -318,4 +311,33 @@ function Map.PointLightSource_001:OnInit()
     c1:set("ShadowType", 1)
 
     self:AddComponent(c1)
+end
+
+function Map.SimpleLift:OnInit()
+    self:GetTransform():set("Origin", -96, -8, 96)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentMoverT")
+    c1:set("moveDuration", 3)
+    c1:set("destActivated", 2)
+    c1:set("destTimeout", 5)
+    c1:set("otherEntities", 2)
+    c1:set("trajFunc", 0)
+    c1:set("trajExp", 1)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/MoverBinary.lua")
+    c2:set("ScriptCode", "")
+
+    self:AddComponent(c1, c2)
+end
+
+function Map.SimpleLift.Platform:OnInit()
+    self:GetTransform():set("Origin", 0, 0, -80)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.SimpleLift.Platform.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, 0, 136)
+    self:GetTransform():set("Orientation", 0, 0, 0)
 end

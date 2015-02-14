@@ -614,6 +614,103 @@ class ComponentModelT : public ComponentBaseT
 };
 
 
+/// This component controls the movement of one or more entities and implements the related effects.
+///
+/// The component can handle a single entity, e.g. a moving platform or a lift, or several entities
+/// that act together as a team, e.g. the wings of a door.
+///
+/// This component works in concert with a Script component, which must be present in the same entity.
+/// The Mover component queries the Script component for the desired spatial transformation of each
+/// team member, and notifies it whenever the movement is blocked by another entity (e.g. a player).
+/// It also implements the appropriate effects on other entities, e.g. their being pushed by moving
+/// parts, or their riding on top of them.
+///
+/// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
+/// must be used with the get() and set() methods at this time -- see get() and set() for details.
+///
+/// If you would like to create a new component of this type explicitly (those defined in the CaWE Map Editor are instantiated automatically), use WorldT::new():
+/// \code{.lua}
+///     local comp = world:new("ComponentMoverT")
+/// \endcode
+///
+/// @nosubgrouping
+/// @cppName{cf,GameSys,ComponentMoverT}
+class ComponentMoverT : public ComponentBaseT
+{
+    public:
+
+    /// This is the main method of this component: [...]
+    /// @param FrameTime   The time across which the parts are moved.
+    HandleMove(number FrameTime);
+
+
+    public:
+
+    /** @name Event Handlers (Callbacks)
+     *
+     * See the \ref eventhandlers overview page for additional information about the methods in this group.
+     *
+     * @{
+     */
+
+    /** @} */
+
+
+    public:
+
+    /// The time in seconds that it takes to move each part from one endpoint to the other.
+    /// @cppType{float}
+    number moveDuration;
+
+    /// Describes the mover's behavior when it is activated at the "dest" position.
+    ///
+    /// @par Typical values:
+    /// <table>
+    /// <tr><th>Value</th><th>Description</th></tr>
+    /// <tr><td>0</td><td>move home</td></tr>
+    /// <tr><td>1</td><td>reset timeout</td></tr>
+    /// <tr><td>2</td><td>ignore</td></tr>
+    /// </table>
+    ///
+    /// @cppType{int}
+    number destActivated;
+
+    /// The timeout in seconds after which the parts move back to their "home" position. A negative value to disables the timeout.
+    /// @cppType{float}
+    number destTimeout;
+
+    /// Describes the mover's behavior regarding other entities.
+    ///
+    /// @par Typical values:
+    /// <table>
+    /// <tr><th>Value</th><th>Description</th></tr>
+    /// <tr><td>0</td><td>ignore</td></tr>
+    /// <tr><td>1</td><td>cannot push</td></tr>
+    /// <tr><td>2</td><td>can push</td></tr>
+    /// <tr><td>3</td><td>can force-push</td></tr>
+    /// </table>
+    ///
+    /// @cppType{int}
+    number otherEntities;
+
+    /// Describes the base function that is used to compute the mover's trajectory.
+    ///
+    /// @par Typical values:
+    /// <table>
+    /// <tr><th>Value</th><th>Description</th></tr>
+    /// <tr><td>0</td><td>linear</td></tr>
+    /// <tr><td>1</td><td>sine</td></tr>
+    /// </table>
+    ///
+    /// @cppType{int}
+    number trajFunc;
+
+    /// The exponent that is applied to `trajFunc`.
+    /// @cppType{float}
+    number trajExp;
+};
+
+
 /// This component adds a particle system to its entity.
 /// The particle system is obsolete though: This is just a quick and dirty port
 /// of the particle system in the old game system to the new component system.
@@ -1049,6 +1146,46 @@ class ComponentSoundT : public ComponentBaseT
 };
 
 
+/// This component connects its entity to another.
+/// It is used by Script or GUI (Model) components in order to learn which other entity
+/// is related and should possibly be acted upon. For example, Target components are
+/// often used to let generic "open door" GUIs know which door they should actually open.
+///
+/// Note that the variables of this class (also referred to as "Public Attributes" or "Member Data")
+/// must be used with the get() and set() methods at this time -- see get() and set() for details.
+///
+/// If you would like to create a new component of this type explicitly (those defined in the CaWE Map Editor are instantiated automatically), use WorldT::new():
+/// \code{.lua}
+///     local comp = world:new("ComponentTargetT")
+/// \endcode
+///
+/// @nosubgrouping
+/// @cppName{cf,GameSys,ComponentTargetT}
+class ComponentTargetT : public ComponentBaseT
+{
+    public:
+
+
+    public:
+
+    /** @name Event Handlers (Callbacks)
+     *
+     * See the \ref eventhandlers overview page for additional information about the methods in this group.
+     *
+     * @{
+     */
+
+    /** @} */
+
+
+    public:
+
+    /// The name of another entity that scripts and GUIs should act upon.
+    /// @cppType{std::string}
+    string Target;
+};
+
+
 /// This component adds information about the position and orientation of its entity.
 /// Positions and orientations can be measured relative to several distinct spaces:
 ///
@@ -1080,6 +1217,9 @@ class ComponentSoundT : public ComponentBaseT
 class ComponentTransformT : public ComponentBaseT
 {
     public:
+
+    /// Returns the origin of the transform (in world-space).
+    tuple GetOriginWS();
 
     /// Returns the orientation of this entity as a tuple of three angles, measured in degrees:
     ///   - heading (yaw),
