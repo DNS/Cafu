@@ -1,6 +1,6 @@
 // Cafu Map File
 // Written by CaWE, the Cafu World Editor.
-Version 13
+Version 14
 
 
 {
@@ -22,8 +22,4 @@ Version 13
 
 {
   classname "static_detail_model"
-  angles "-0 90 -0"
-  model "Models/Terminals/Terminal_6.cmdl"
-  scale "1.0"
-  origin "0 0 0"
 }
