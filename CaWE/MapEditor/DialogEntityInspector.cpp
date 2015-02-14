@@ -529,7 +529,11 @@ void EntityInspectorDialogT::OnPropertyGridRightClick(wxPropertyGridEvent& Event
 
         case ID_MENU_HELP_COMPONENT:
         {
-            const wxString URL = wxString("http://api.cafu.de/scripting/classGame_1_1") + wxString(Comp->GetType()->ClassName) + ".html";
+            wxString cn(Comp->GetType()->ClassName);
+
+            cn.Replace(":", "_1");
+
+            const wxString URL = wxString("http://docs.cafu.de/lua/class") + cn + ".html";
 
             if (!wxLaunchDefaultBrowser(URL))
                 wxMessageBox("Could not open the help URL in your default browser.", URL, wxOK | wxICON_ERROR);

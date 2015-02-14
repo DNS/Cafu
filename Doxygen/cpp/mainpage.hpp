@@ -11,7 +11,7 @@
  *
  *   - For an overview and introduction to Cafu, see the documentation at http://www.cafu.de/wiki/
  *   - The Developer Resources page is at http://www.cafu.de/developers
- *   - If you're looking for the \emph{Scripting} reference documentation instead, see http://api.cafu.de/scripting
+ *   - If you're looking for the \emph{scripting} reference documentation instead, see http://docs.cafu.de/lua/
  *
  *
  * @section libsandapps Libraries and Applications

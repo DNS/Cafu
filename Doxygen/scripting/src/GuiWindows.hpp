@@ -114,7 +114,7 @@ class WindowT
     /// This method is called if a key was pressed and the window has the keyboard input focus.
     ///
     /// @param Key   The integer number that represents the key that has been pressed.
-    ///     See <a href="http://api.cafu.de/OpenGLWindow_8hpp_source.html#l00044" style="color: #4665A2;">OpenGLWindow.hpp</a>
+    ///     See <a href="http://docs.cafu.de/c++/OpenGLWindow_8hpp_source.html#l00044" style="color: #4665A2;">OpenGLWindow.hpp</a>
     ///     for a list of possible values for \c Key.
     ///     Here is a list of the most frequently used values and their meaning:
     ///

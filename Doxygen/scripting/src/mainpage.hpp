@@ -41,7 +41,7 @@
  *       - http://trac.cafu.de/browser/cafu/trunk/Games/DeathMatch/Worlds for map scripts, and
  *       - http://trac.cafu.de/browser/cafu/trunk/Games/DeathMatch/GUIs for GUI scripts.
  *       - These scripts also ship with each Cafu release and are found in the respective subdirectories.
- *   - If you're looking for the \emph{C++} reference documentation instead, see http://api.cafu.de
+ *   - If you're looking for the \emph{C++} reference documentation instead, see http://docs.cafu.de/c++/
  */
 
 
