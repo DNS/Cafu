@@ -78,26 +78,10 @@ Map.monster_eagle = world:new("EntityT", "monster_eagle")
 Map.monster_eagle_1 = world:new("EntityT", "monster_eagle_1")
 Map.monster_eagle_2 = world:new("EntityT", "monster_eagle_2")
 Map.monster_butterfly = world:new("EntityT", "monster_butterfly")
-Map.func_wall = world:new("EntityT", "func_wall")
-Map.func_wall_1 = world:new("EntityT", "func_wall_1")
-Map.func_wall_2 = world:new("EntityT", "func_wall_2")
-Map.func_wall_3 = world:new("EntityT", "func_wall_3")
-Map.func_wall_4 = world:new("EntityT", "func_wall_4")
 Map.func_wall_5 = world:new("EntityT", "func_wall_5")
 Map.func_wall_6 = world:new("EntityT", "func_wall_6")
 Map.func_wall_7 = world:new("EntityT", "func_wall_7")
 Map.func_water = world:new("EntityT", "func_water")
-Map.func_ladder = world:new("EntityT", "func_ladder")
-Map.func_ladder_1 = world:new("EntityT", "func_ladder_1")
-Map.func_ladder_2 = world:new("EntityT", "func_ladder_2")
-Map.func_ladder_3 = world:new("EntityT", "func_ladder_3")
-Map.func_ladder_4 = world:new("EntityT", "func_ladder_4")
-Map.func_ladder_5 = world:new("EntityT", "func_ladder_5")
-Map.func_wall_8 = world:new("EntityT", "func_wall_8")
-Map.func_wall_9 = world:new("EntityT", "func_wall_9")
-Map.func_wall_10 = world:new("EntityT", "func_wall_10")
-Map.func_ladder_6 = world:new("EntityT", "func_ladder_6")
-Map.func_ladder_7 = world:new("EntityT", "func_ladder_7")
 Map.func_wall_11 = world:new("EntityT", "func_wall_11")
 Map.func_wall_12 = world:new("EntityT", "func_wall_12")
 Map.func_wall_13 = world:new("EntityT", "func_wall_13")
@@ -191,26 +175,10 @@ Map:AddChild(Map.monster_eagle)
 Map:AddChild(Map.monster_eagle_1)
 Map:AddChild(Map.monster_eagle_2)
 Map:AddChild(Map.monster_butterfly)
-Map:AddChild(Map.func_wall)
-Map:AddChild(Map.func_wall_1)
-Map:AddChild(Map.func_wall_2)
-Map:AddChild(Map.func_wall_3)
-Map:AddChild(Map.func_wall_4)
 Map:AddChild(Map.func_wall_5)
 Map:AddChild(Map.func_wall_6)
 Map:AddChild(Map.func_wall_7)
 Map:AddChild(Map.func_water)
-Map:AddChild(Map.func_ladder)
-Map:AddChild(Map.func_ladder_1)
-Map:AddChild(Map.func_ladder_2)
-Map:AddChild(Map.func_ladder_3)
-Map:AddChild(Map.func_ladder_4)
-Map:AddChild(Map.func_ladder_5)
-Map:AddChild(Map.func_wall_8)
-Map:AddChild(Map.func_wall_9)
-Map:AddChild(Map.func_wall_10)
-Map:AddChild(Map.func_ladder_6)
-Map:AddChild(Map.func_ladder_7)
 Map:AddChild(Map.func_wall_11)
 Map:AddChild(Map.func_wall_12)
 Map:AddChild(Map.func_wall_13)
@@ -240,7 +208,7 @@ function Map:OnInit()
 end
 
 function Map.info_player_start:OnInit()
-    self:GetTransform():set("Origin", 0, 80, 392)
+    self:GetTransform():set("Origin", -184, 80, 272)
     self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentPlayerStartT")
@@ -2058,36 +2026,6 @@ function Map.monster_butterfly:OnInit()
     self:AddComponent(c1, c2)
 end
 
-function Map.func_wall:OnInit()
-    self:GetBasics():set("Static", true)
-    self:GetTransform():set("Origin", 0, -38, 28)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.func_wall_1:OnInit()
-    self:GetBasics():set("Static", true)
-    self:GetTransform():set("Origin", -350, -1008, 828)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.func_wall_2:OnInit()
-    self:GetBasics():set("Static", true)
-    self:GetTransform():set("Origin", -350, 1000, 1228)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.func_wall_3:OnInit()
-    self:GetBasics():set("Static", true)
-    self:GetTransform():set("Origin", -848, 510, 1668)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.func_wall_4:OnInit()
-    self:GetBasics():set("Static", true)
-    self:GetTransform():set("Origin", -848, -510, 1668)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
 function Map.func_wall_5:OnInit()
     self:GetBasics():set("Static", true)
     self:GetTransform():set("Origin", 0, 228, 0)
@@ -2109,64 +2047,6 @@ end
 function Map.func_water:OnInit()
     self:GetBasics():set("Static", true)
     self:GetTransform():set("Origin", 0, 136, -96)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.func_ladder:OnInit()
-    self:GetTransform():set("Origin", -344, -1008, 828)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.func_ladder_1:OnInit()
-    self:GetTransform():set("Origin", -848, 504, 1668)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.func_ladder_2:OnInit()
-    self:GetTransform():set("Origin", -848, -504, 1668)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.func_ladder_3:OnInit()
-    self:GetTransform():set("Origin", -344, 1000, 1228)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.func_ladder_4:OnInit()
-    self:GetTransform():set("Origin", 0, -32, 28)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.func_ladder_5:OnInit()
-    self:GetTransform():set("Origin", -318, 840, 916)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.func_wall_8:OnInit()
-    self:GetBasics():set("Static", true)
-    self:GetTransform():set("Origin", -318, 848, 916)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.func_wall_9:OnInit()
-    self:GetBasics():set("Static", true)
-    self:GetTransform():set("Origin", -256, 935.99994, 656)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.func_wall_10:OnInit()
-    self:GetBasics():set("Static", true)
-    self:GetTransform():set("Origin", -318, 848, 384)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.func_ladder_6:OnInit()
-    self:GetTransform():set("Origin", -318, 840, 384)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.func_ladder_7:OnInit()
-    self:GetTransform():set("Origin", -256, 944, 656)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 

@@ -70,8 +70,6 @@ Map.ammo_ARgrenades_1 = world:new("EntityT", "ammo_ARgrenades_1")
 Map.ammo_ARgrenades_2 = world:new("EntityT", "ammo_ARgrenades_2")
 Map.ammo_rpg_rocket_2 = world:new("EntityT", "ammo_rpg_rocket_2")
 Map.ammo_rpg_rocket_3 = world:new("EntityT", "ammo_rpg_rocket_3")
-Map.func_wall = world:new("EntityT", "func_wall")
-Map.func_wall_1 = world:new("EntityT", "func_wall_1")
 Map.func_wall_2 = world:new("EntityT", "func_wall_2")
 Map.func_wall_3 = world:new("EntityT", "func_wall_3")
 Map.func_wall_4 = world:new("EntityT", "func_wall_4")
@@ -96,8 +94,6 @@ Map.func_wall_22 = world:new("EntityT", "func_wall_22")
 Map.func_wall_23 = world:new("EntityT", "func_wall_23")
 Map.func_wall_24 = world:new("EntityT", "func_wall_24")
 Map.func_wall_25 = world:new("EntityT", "func_wall_25")
-Map.func_ladder = world:new("EntityT", "func_ladder")
-Map.func_ladder_1 = world:new("EntityT", "func_ladder_1")
 
 
 -- Set the worlds root entity.
@@ -166,8 +162,6 @@ Map:AddChild(Map.ammo_ARgrenades_1)
 Map:AddChild(Map.ammo_ARgrenades_2)
 Map:AddChild(Map.ammo_rpg_rocket_2)
 Map:AddChild(Map.ammo_rpg_rocket_3)
-Map:AddChild(Map.func_wall)
-Map:AddChild(Map.func_wall_1)
 Map:AddChild(Map.func_wall_2)
 Map:AddChild(Map.func_wall_3)
 Map:AddChild(Map.func_wall_4)
@@ -192,8 +186,6 @@ Map:AddChild(Map.func_wall_22)
 Map:AddChild(Map.func_wall_23)
 Map:AddChild(Map.func_wall_24)
 Map:AddChild(Map.func_wall_25)
-Map:AddChild(Map.func_ladder)
-Map:AddChild(Map.func_ladder_1)
 
 
 -- Initialization of the entity contents ("constructors").
@@ -1772,18 +1764,6 @@ function Map.ammo_rpg_rocket_3:OnInit()
     self:AddComponent(c1, c2, c3, c4)
 end
 
-function Map.func_wall:OnInit()
-    self:GetBasics():set("Static", true)
-    self:GetTransform():set("Origin", 1120, -516, 145)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.func_wall_1:OnInit()
-    self:GetBasics():set("Static", true)
-    self:GetTransform():set("Origin", -964, 1248, 320.5)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
 function Map.func_wall_2:OnInit()
     self:GetBasics():set("Static", true)
     self:GetTransform():set("Origin", -808, 1376, 400)
@@ -1925,15 +1905,5 @@ end
 function Map.func_wall_25:OnInit()
     self:GetBasics():set("Static", true)
     self:GetTransform():set("Origin", -111.999985, -524, 156)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.func_ladder:OnInit()
-    self:GetTransform():set("Origin", -972, 1248, 320.5)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.func_ladder_1:OnInit()
-    self:GetTransform():set("Origin", 1120, -524, 145)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
