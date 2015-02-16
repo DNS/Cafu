@@ -1708,21 +1708,26 @@ CollisionModelStaticT::CollisionModelStaticT(const cf::MapFileEntityT& Entity, c
     }
 
     // Now that m_BrushSides and m_BrushSideVIs are not reallocated any more, fix the pointers into them.
-    unsigned long FirstSideNr=0;
-    for (unsigned long BrushNr=0; BrushNr<m_Brushes.Size(); BrushNr++)
+    unsigned long FirstSideNr = 0;
+    for (unsigned long BrushNr = 0; BrushNr < m_Brushes.Size(); BrushNr++)
     {
-        m_Brushes[BrushNr].Sides=&m_BrushSides[FirstSideNr];
-        FirstSideNr+=m_Brushes[BrushNr].NrOfSides;
+        m_Brushes[BrushNr].Sides = &m_BrushSides[FirstSideNr];
+        FirstSideNr += m_Brushes[BrushNr].NrOfSides;
     }
-    assert(FirstSideNr==m_BrushSides.Size());
+    assert(FirstSideNr == m_BrushSides.Size());
 
-    unsigned long FirstVINr=0;
-    for (unsigned long SideNr=0; SideNr<m_BrushSides.Size(); SideNr++)
+    unsigned long FirstVINr = 0;
+    for (unsigned long SideNr = 0; SideNr < m_BrushSides.Size(); SideNr++)
     {
-        m_BrushSides[SideNr].Vertices=&m_BrushSideVIs[FirstVINr];
-        FirstVINr+=m_BrushSides[SideNr].NrOfVertices;
+        m_BrushSides[SideNr].Vertices = NULL;
+
+        if (m_BrushSides[SideNr].NrOfVertices > 0)
+        {
+            m_BrushSides[SideNr].Vertices = &m_BrushSideVIs[FirstVINr];
+            FirstVINr += m_BrushSides[SideNr].NrOfVertices;
+        }
     }
-    assert(FirstVINr==m_BrushSideVIs.Size());
+    assert(FirstVINr == m_BrushSideVIs.Size());
 
 
     // Bezier patches second. Note that for patches, only polygons are created, no volume brushes.
