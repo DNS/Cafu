@@ -424,6 +424,8 @@ inline void FindFrustum(const Polygon3T<double>& LightSource, const Polygon3T<do
 // Returns 'true' if visibility from the 'MasterSL' to the 'TargetSL' could be established, false otherwise.
 bool DetermineVisibility(unsigned long CurrentSL, const Polygon3T<double>& EnteringPortal, ArrayT<unsigned long> AncestorSLs, const Polygon3T<double>& MasterPortal, const unsigned long TargetSL, BoundingBox3T<double> TargetBB)
 {
+    assert(TargetBB.IsInited());
+
     // Record that we can see from all ancestors into 'CurrentSL', and vice-versa.
     for (unsigned long AncestorNr=0; AncestorNr<AncestorSLs.Size(); AncestorNr++)
     {
@@ -457,7 +459,16 @@ bool DetermineVisibility(unsigned long CurrentSL, const Polygon3T<double>& Enter
         case BoundingBox3T<double>::Both:
             // Note the /2 in MapT::RoundEpsilon/2, this should make sure that GetSplits() doesn't reach another conclusion than WhatSide(),
             // i.e. it prevents that GetSplits() cannot find a proper sub-box on *both* sides of the plane.
-            TargetBB=TargetBB.GetSplits(EnteringPortal.Plane, MapT::RoundEpsilon/2)[1];
+            TargetBB = TargetBB.GetSplits(EnteringPortal.Plane, MapT::RoundEpsilon/2)[1];
+
+            if (!TargetBB.IsInited())
+            {
+                // If TargetSL only has a single portal that happens to be in one of the principal planes,
+                // then TargetBB has the shape of a rectangle (zero volume). If its plane happens to be
+                // identical with EnteringPortal.Plane, the methods WhatSide() and GetSplits() bring us here.
+                return false;
+            }
+
             break;
     }
 
@@ -488,7 +499,16 @@ bool DetermineVisibility(unsigned long CurrentSL, const Polygon3T<double>& Enter
             case BoundingBox3T<double>::Both:
                 // Note the /2 in MapT::RoundEpsilon/2, this should make sure that GetSplits() doesn't reach another conclusion than WhatSide(),
                 // i.e. it prevents that GetSplits() cannot find a proper sub-box on *both* sides of the plane.
-                TargetBB=TargetBB.GetSplits(Frustum[FrustumNr], MapT::RoundEpsilon/2)[0];
+                TargetBB = TargetBB.GetSplits(Frustum[FrustumNr], MapT::RoundEpsilon/2)[0];
+
+                if (!TargetBB.IsInited())
+                {
+                    // If TargetSL only has a single portal that happens to be in one of the principal planes,
+                    // then TargetBB has the shape of a rectangle (zero volume). If its plane happens to be
+                    // identical with Frustum[FrustumNr], the methods WhatSide() and GetSplits() bring us here.
+                    return false;
+                }
+
                 break;
         }
     }
@@ -557,6 +577,9 @@ bool DetermineVisibility(unsigned long CurrentSL, const Polygon3T<double>& Enter
 // If mutual visibility could be established, the result is recorded in 'SuperLeavesPVS', for both "from A to B" and "from B to A".
 bool CanSeeFromAToB(unsigned long MasterSL, unsigned long TargetSL)
 {
+    // If the TargetSL's bounding-box is not initialized, it has no portals and thus cannot be visible from MasterSL.
+    if (!SuperLeavesBBs[TargetSL].IsInited()) return false;
+
     ArrayT<unsigned long> AncestorSLs;
     AncestorSLs.PushBackEmpty(2);
 
