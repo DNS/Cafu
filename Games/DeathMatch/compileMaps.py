@@ -7,19 +7,19 @@ import os, sys
 # not from Cafu/Games/DeathMatch/, or else the tools cannot find e.g. the Textures/*.zip files.
 
 MapSettings = {
-    "Test1":            ([], [], ["-StopUE", "0.01"]),
-    "TestPatches":      ([], [], ["-StopUE", "0.01"]),
-    "TestPhysics":      ([], [], ["-StopUE", "0.01"]),
-    "AEonsCanyonTower": ([], [], ["-StopUE", "0.1"]),
-    "AEonsCube":        ([], [], ["-StopUE", "0.1"]),
-    "BPRockB":          ([], [], ["-StopUE", "0.1"]),
-    "BPWxBeta":         ([], [], ["-StopUE", "0.1"]),
-    "JrBaseHQ":         ([], [], ["-StopUE", "0.1"]),
-    "Kidney":           ([], [], ["-StopUE", "0.1"]),
-    "ReNoEcho":         ([], [], ["-StopUE", "0.1"]),
-    "ReNoElixir":       ([], [], ["-StopUE", "0.1"]),
-    "TechDemo":         ([], [], ["-StopUE", "0.1"]),
-    "Gotham":           ([], [], ["-fast"])     # Gotham is, at the moment, a really bad case that can take CaLight very long to complete.
+    "Test1":            ([], [], ["-StopUE", "0.01"],  1),
+    "TestPatches":      ([], [], ["-StopUE", "0.01"],  2),
+    "TestPhysics":      ([], [], ["-StopUE", "0.01"],  3),
+    "AEonsCanyonTower": ([], [], ["-StopUE", "0.1"],   4),
+    "AEonsCube":        ([], [], ["-StopUE", "0.1"],   5),
+    "BPRockB":          ([], [], ["-StopUE", "0.1"],   6),
+    "BPWxBeta":         ([], [], ["-StopUE", "0.1"],   7),
+    "JrBaseHQ":         ([], [], ["-StopUE", "0.1"],   8),
+    "Kidney":           ([], [], ["-StopUE", "0.1"],   9),
+    "ReNoEcho":         ([], [], ["-StopUE", "0.1"],  10),
+    "ReNoElixir":       ([], [], ["-StopUE", "0.1"],  11),
+    "TechDemo":         ([], [], ["-StopUE", "0.1"],  12),
+    "Gotham":           ([], [], ["-fast"],           13),  # Gotham is, at this time, a really bad case that can take CaLight very long to complete.
 }
 
 
@@ -41,7 +41,7 @@ def FindTools():
 ToolPath = FindTools()
 print "Using tools in:", ToolPath
 
-MapList = sys.argv[1:] or list(MapSettings.keys())
+MapList = sys.argv[1:] or [x[0] for x in sorted(MapSettings.items(), key=lambda SettingItem: SettingItem[1][3])]
 print "Compiling maps:", MapList
 
 
