@@ -53,7 +53,6 @@ Map.info_player_start_11 = world:new("EntityT", "info_player_start_11")
 Map.info_player_start_12 = world:new("EntityT", "info_player_start_12")
 Map.ammo_9mmclip_3 = world:new("EntityT", "ammo_9mmclip_3")
 Map.ammo_9mmclip_4 = world:new("EntityT", "ammo_9mmclip_4")
-Map.info_player_start_13 = world:new("EntityT", "info_player_start_13")
 Map.ammo_9mmclip_5 = world:new("EntityT", "ammo_9mmclip_5")
 Map.ammo_9mmclip_6 = world:new("EntityT", "ammo_9mmclip_6")
 Map.info_player_start_14 = world:new("EntityT", "info_player_start_14")
@@ -101,6 +100,18 @@ Map.PointLightSource_002 = world:new("EntityT", "PointLightSource_002")
 Map.PointLightSource_003 = world:new("EntityT", "PointLightSource_003")
 Map.PointLightSource_004 = world:new("EntityT", "PointLightSource_004")
 Map.PointLightSource_005 = world:new("EntityT", "PointLightSource_005")
+Map.LargeLift = world:new("EntityT", "LargeLift")
+Map.LargeLift.Gondola = world:new("EntityT", "Gondola")
+Map.LargeLift.Gondola.move_dest = world:new("EntityT", "move_dest")
+Map.LargeLift.Gondola.ActivatePanel = world:new("EntityT", "ActivatePanel")
+Map.LargeLift.Gondola.ActivatePanel.Light = world:new("EntityT", "Light")
+Map.LargeLift_Call_0 = world:new("EntityT", "LargeLift_Call_0")
+Map.LargeLift_Call_0.Light = world:new("EntityT", "Light")
+Map.LargeLift_Call_1 = world:new("EntityT", "LargeLift_Call_1")
+Map.LargeLift_Call_1.Light = world:new("EntityT", "Light")
+Map.SmallLift = world:new("EntityT", "SmallLift")
+Map.SmallLift.Plunger = world:new("EntityT", "Plunger")
+Map.SmallLift.Plunger.move_dest = world:new("EntityT", "move_dest")
 
 
 -- Set the worlds root entity.
@@ -152,7 +163,6 @@ Map:AddChild(Map.info_player_start_11)
 Map:AddChild(Map.info_player_start_12)
 Map:AddChild(Map.ammo_9mmclip_3)
 Map:AddChild(Map.ammo_9mmclip_4)
-Map:AddChild(Map.info_player_start_13)
 Map:AddChild(Map.ammo_9mmclip_5)
 Map:AddChild(Map.ammo_9mmclip_6)
 Map:AddChild(Map.info_player_start_14)
@@ -200,6 +210,18 @@ Map:AddChild(Map.PointLightSource_002)
 Map:AddChild(Map.PointLightSource_003)
 Map:AddChild(Map.PointLightSource_004)
 Map:AddChild(Map.PointLightSource_005)
+Map:AddChild(Map.LargeLift)
+Map.LargeLift:AddChild(Map.LargeLift.Gondola)
+Map.LargeLift.Gondola:AddChild(Map.LargeLift.Gondola.move_dest)
+Map.LargeLift.Gondola:AddChild(Map.LargeLift.Gondola.ActivatePanel)
+Map.LargeLift.Gondola.ActivatePanel:AddChild(Map.LargeLift.Gondola.ActivatePanel.Light)
+Map:AddChild(Map.LargeLift_Call_0)
+Map.LargeLift_Call_0:AddChild(Map.LargeLift_Call_0.Light)
+Map:AddChild(Map.LargeLift_Call_1)
+Map.LargeLift_Call_1:AddChild(Map.LargeLift_Call_1.Light)
+Map:AddChild(Map.SmallLift)
+Map.SmallLift:AddChild(Map.SmallLift.Plunger)
+Map.SmallLift.Plunger:AddChild(Map.SmallLift.Plunger.move_dest)
 
 
 -- Initialization of the entity contents ("constructors").
@@ -1191,17 +1213,6 @@ function Map.ammo_9mmclip_4:OnInit()
     self:AddComponent(c1, c2, c3, c4)
 end
 
-function Map.info_player_start_13:OnInit()
-    self:GetTransform():set("Origin", 352, 244, -1296)
-    self:GetTransform():set("Orientation", 0, 0, -0.70710677)
-
-    local c1 = world:new("ComponentPlayerStartT")
-    c1:set("SinglePlayer", true)
-    c1:set("MultiPlayer", true)
-
-    self:AddComponent(c1)
-end
-
 function Map.ammo_9mmclip_5:OnInit()
     self:GetTransform():set("Origin", 1496, -1240, -312)
     self:GetTransform():set("Orientation", 0, 0, 0)
@@ -1790,4 +1801,170 @@ function Map.PointLightSource_005:OnInit()
     c1:set("ShadowType", 1)
 
     self:AddComponent(c1)
+end
+
+function Map.LargeLift:OnInit()
+    self:GetTransform():set("Origin", 352, 480, -320)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentMoverT")
+    c1:set("moveDuration", 8)
+    c1:set("destActivated", 0)
+    c1:set("destTimeout", -1)
+    c1:set("otherEntities", 2)
+    c1:set("trajFunc", 1)
+    c1:set("trajExp", 2)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/MoverBinary.lua")
+    c2:set("ScriptCode", "")
+
+    self:AddComponent(c1, c2)
+end
+
+function Map.LargeLift.Gondola:OnInit()
+    self:GetTransform():set("Origin", 0, 0, -32)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.LargeLift.Gondola.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, 0, -992)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.LargeLift.Gondola.ActivatePanel:OnInit()
+    self:GetTransform():set("Origin", 56, 56, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0.38236433)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_7.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "Games/DeathMatch/GUIs/Activate_main.cgui")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentCollisionModelT")
+    c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_7.cmap")
+
+    local c3 = world:new("ComponentTargetT")
+    c3:set("Target", "LargeLift")
+
+    self:AddComponent(c1, c2, c3)
+end
+
+function Map.LargeLift.Gondola.ActivatePanel.Light:OnInit()
+    self:GetTransform():set("Origin", -11.337149, -33.933304, 64)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentPointLightT")
+    c1:set("On", true)
+    c1:set("Color", 0, 0.5019608, 0.7529412)
+    c1:set("Radius", 96)
+    c1:set("ShadowType", 0)
+
+    self:AddComponent(c1)
+end
+
+function Map.LargeLift_Call_0:OnInit()
+    self:GetTransform():set("Origin", 302, 234, -1360)
+    self:GetTransform():set("Orientation", 0, 0, -0.7071068)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_7.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "Games/DeathMatch/GUIs/Activate_main.cgui")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentCollisionModelT")
+    c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_7.cmap")
+
+    local c3 = world:new("ComponentTargetT")
+    c3:set("Target", "LargeLift")
+
+    self:AddComponent(c1, c2, c3)
+end
+
+function Map.LargeLift_Call_0.Light:OnInit()
+    self:GetTransform():set("Origin", -10.000003, -33.999996, 64)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentPointLightT")
+    c1:set("On", true)
+    c1:set("Color", 0, 0.5019608, 0.7529412)
+    c1:set("Radius", 96)
+    c1:set("ShadowType", 0)
+
+    self:AddComponent(c1)
+end
+
+function Map.LargeLift_Call_1:OnInit()
+    self:GetTransform():set("Origin", 176, 392, -352)
+    self:GetTransform():set("Orientation", 0, 0, 0.9237473)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_7.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "Games/DeathMatch/GUIs/Activate_main.cgui")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentCollisionModelT")
+    c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_7.cmap")
+
+    local c3 = world:new("ComponentTargetT")
+    c3:set("Target", "LargeLift")
+
+    self:AddComponent(c1, c2, c3)
+end
+
+function Map.LargeLift_Call_1.Light:OnInit()
+    self:GetTransform():set("Origin", -11.337151, -33.933304, 64)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentPointLightT")
+    c1:set("On", true)
+    c1:set("Color", 0, 0.5019608, 0.7529412)
+    c1:set("Radius", 96)
+    c1:set("ShadowType", 0)
+
+    self:AddComponent(c1)
+end
+
+function Map.SmallLift:OnInit()
+    self:GetTransform():set("Origin", 2320, 1112, -408)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentMoverT")
+    c1:set("moveDuration", 3)
+    c1:set("destActivated", 2)
+    c1:set("destTimeout", 2)
+    c1:set("otherEntities", 2)
+    c1:set("trajFunc", 0)
+    c1:set("trajExp", 3)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/MoverBinary.lua")
+    c2:set("ScriptCode", "")
+
+    self:AddComponent(c1, c2)
+end
+
+function Map.SmallLift.Plunger:OnInit()
+    self:GetTransform():set("Origin", 0, 0, -992)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.SmallLift.Plunger.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, 0, 952)
+    self:GetTransform():set("Orientation", 0, 0, 0)
 end
