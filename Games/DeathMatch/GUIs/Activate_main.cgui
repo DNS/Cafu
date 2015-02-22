@@ -1,0 +1,79 @@
+local gui = ...
+
+assert(loadfile("Games/DeathMatch/GUIs/Activate_init.cgui"))(gui)
+
+local Root = gui:GetRootWindow()
+local InfoTop = Root.InfoTop
+local InfoMain = Root.InfoMain
+local ButtonGo = Root.ButtonGo
+
+
+
+function ButtonGo:OnMouseEnter()
+    self:GetComponent("Border"):set("Color", 1.0, 0.0, 0.0)
+    self:GetComponent("Border"):set("Alpha", 1.0)
+    self:GetComponent("Text"):interpolate("Scale", 1.0, 1.08, 500)
+end
+
+function ButtonGo:OnMouseLeave()
+    self:GetComponent("Border"):set("Color", 0, 0.333333, 0.490196)
+    self:GetComponent("Border"):set("Alpha", 0.498039)
+    self:GetComponent("Text"):interpolate("Scale", 1.08, 1.0, 500)
+end
+
+function ButtonGo:OnMouseButtonUp()
+    -- `gui.Model`  is the Model component that holds this GUI.
+    -- `gui.Entity` is the entity that holds the `gui.Model` that holds this GUI.
+    --
+    -- Thus, if we wanted to call a script function of "our" entity, this would work:
+    --     gui.Entity:GetComponent("Script"):OnActivate()
+    --
+    -- However, for the general case, the `gui.Entity` also has Target components that specify which
+    -- entities should be "activated" (or acted upon) when this GUI is "activated" (e.g. when a button
+    -- has been pressed).
+    -- Therefore, for each target entity specified in `gui.Entity`, the following code calls the
+    -- `OnActivate()` method in the target entity's Script component.
+    -- TODO: This should be generalized and be put into a module, so that other GUIs can use it as well!
+    for i = 0, 99 do
+        local TargetComp = gui.Entity:GetComponent("Target", i)
+
+        -- If there are no more Target components in this entity, we're done.
+        if not TargetComp then break end
+
+        local TargetName = TargetComp:get("Target")
+        local TargetEnt  = world:GetRootEntity():FindByName(TargetName)     -- ... = TargetComp:GetTargetEntity()
+
+        if not TargetEnt then
+            Console.Warning(string.format("%s's target entity %s not found!\n", gui.Entity:GetBasics():get("Name"), TargetName))
+            goto continue
+        end
+
+        local TargetScript = TargetEnt:GetComponent("Script")
+
+        if not TargetScript then
+            Console.Warning(string.format("%s's target entity %s has no Script component!\n", gui.Entity:GetBasics():get("Name"), TargetName))
+            goto continue
+        end
+
+        if not TargetScript.OnActivate then
+            Console.Warning(string.format("%s's target entity %s has no OnActivate() method in its Script component!\n", gui.Entity:GetBasics():get("Name"), TargetName))
+            goto continue
+        end
+
+        -- Console.Print(string.format("Calling `%s:GetComponent(\"Script\"):OnActivate(%s)`\n", TargetName, gui.Entity:GetBasics():get("Name")))
+        TargetScript:OnActivate(gui.Entity)
+
+        ::continue::
+    end
+
+    return true
+end
+
+
+
+-- This function is called as soon as the entity related to this GUI has been initialized
+-- and has bound itself to the global script variable "Entity".
+function OnEntityInit()
+    -- local EntName = Entity:GetName()
+    -- InfoStation:GetComponent("Text"):set("Text", "Entity " .. EntName)
+end

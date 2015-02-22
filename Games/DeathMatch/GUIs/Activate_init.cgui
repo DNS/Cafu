@@ -1,0 +1,126 @@
+-- This is a Cafu engine GUI script file, written by CaWE, the Cafu World Editor.
+-- You CAN edit this file manually, but note that CaWE may overwrite your changes.
+-- It is recommended that you place all your customizations like method overrides
+-- and effects into a separate cgui file that calls loadfile() for including this.
+
+
+-- Instantiation of all windows.
+-- *****************************
+
+local gui = ...
+local Root = gui:new("WindowT", "Root")
+Root.InfoTop = gui:new("WindowT", "InfoTop")
+Root.InfoMain = gui:new("WindowT", "InfoMain")
+Root.ButtonGo = gui:new("WindowT", "ButtonGo")
+
+
+-- Set the GUIs root window.
+-- *************************
+
+gui:SetRootWindow(Root)
+gui:activate(false)
+gui:setInteractive(true)
+gui:showMouse(true)
+gui:setFocus(Root)
+
+
+-- Setup the window hierarchy.
+-- ***************************
+
+Root:AddChild(Root.InfoTop)
+Root:AddChild(Root.InfoMain)
+Root:AddChild(Root.ButtonGo)
+
+
+-- Initialization of the window contents ("constructors").
+-- *******************************************************
+
+function Root:OnInit()
+    self:GetTransform():set("Pos", 0, 0)
+    self:GetTransform():set("Size", 640, 480)
+    self:GetTransform():set("Rotation", 0)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", [[
+Wormhole Automation Services Inc.
+
+]])
+    c1:set("Font", "Fonts/Impact")
+    c1:set("Scale", 0.5)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0.243137, 0.356863)
+    c1:set("Alpha", 0.5)
+    c1:set("horAlign", 0)
+    c1:set("verAlign", 1)
+
+    local c2 = gui:new("ComponentImageT")
+    c2:set("Material", "")
+    c2:set("Color", 0, 0.356863, 0.533333)
+    c2:set("Alpha", 0.75)
+
+    self:AddComponent(c1, c2)
+end
+
+function Root.InfoTop:OnInit()
+    self:GetTransform():set("Pos", 0, 15)
+    self:GetTransform():set("Size", 640, 30)
+    self:GetTransform():set("Rotation", 0)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Building Control")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.5)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0.243137, 0.356863)
+    c1:set("Alpha", 1)
+    c1:set("horAlign", 0)
+    c1:set("verAlign", -1)
+
+    self:AddComponent(c1)
+end
+
+function Root.InfoMain:OnInit()
+    self:GetTransform():set("Pos", 0, 100)
+    self:GetTransform():set("Size", 640, 70)
+    self:GetTransform():set("Rotation", 0)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Master Lift")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 0.6)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0.15294118, 0.45490196, 0.59607846)
+    c1:set("Alpha", 0.5)
+    c1:set("horAlign", 0)
+    c1:set("verAlign", -1)
+
+    self:AddComponent(c1)
+end
+
+function Root.ButtonGo:OnInit()
+    self:GetTransform():set("Pos", 20, 165)
+    self:GetTransform():set("Size", 600, 180)
+    self:GetTransform():set("Rotation", 0)
+
+    local c1 = gui:new("ComponentTextT")
+    c1:set("Text", "Activate")
+    c1:set("Font", "Fonts/Arial")
+    c1:set("Scale", 1)
+    c1:set("Padding", 0, 0)
+    c1:set("Color", 0, 0.501961, 0.752941)
+    c1:set("Alpha", 0.5)
+    c1:set("horAlign", 0)
+    c1:set("verAlign", 0)
+
+    local c2 = gui:new("ComponentBorderT")
+    c2:set("Width", 4)
+    c2:set("Color", 0, 0.333333, 0.490196)
+    c2:set("Alpha", 0.498039)
+
+    local c3 = gui:new("ComponentImageT")
+    c3:set("Material", "")
+    c3:set("Color", 0, 0, 0)
+    c3:set("Alpha", 0.117647)
+
+    self:AddComponent(c1, c2, c3)
+end
