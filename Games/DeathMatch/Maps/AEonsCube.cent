@@ -14,7 +14,6 @@
 
 local Map = world:new("EntityT", "Map")
 Map.info_player_start = world:new("EntityT", "info_player_start")
-Map.info_player_start_1 = world:new("EntityT", "info_player_start_1")
 Map.info_player_start_2 = world:new("EntityT", "info_player_start_2")
 Map.info_player_start_3 = world:new("EntityT", "info_player_start_3")
 Map.info_player_start_4 = world:new("EntityT", "info_player_start_4")
@@ -54,6 +53,9 @@ Map.func_wall_11 = world:new("EntityT", "func_wall_11")
 Map.func_wall_12 = world:new("EntityT", "func_wall_12")
 Map.func_water_3 = world:new("EntityT", "func_water_3")
 Map.func_water_4 = world:new("EntityT", "func_water_4")
+Map.Lift = world:new("EntityT", "Lift")
+Map.Lift.Plunger = world:new("EntityT", "Plunger")
+Map.Lift.Plunger.move_dest = world:new("EntityT", "move_dest")
 
 
 -- Set the worlds root entity.
@@ -66,7 +68,6 @@ world:SetRootEntity(Map)
 -- ***************************
 
 Map:AddChild(Map.info_player_start)
-Map:AddChild(Map.info_player_start_1)
 Map:AddChild(Map.info_player_start_2)
 Map:AddChild(Map.info_player_start_3)
 Map:AddChild(Map.info_player_start_4)
@@ -106,6 +107,9 @@ Map:AddChild(Map.func_wall_11)
 Map:AddChild(Map.func_wall_12)
 Map:AddChild(Map.func_water_3)
 Map:AddChild(Map.func_water_4)
+Map:AddChild(Map.Lift)
+Map.Lift:AddChild(Map.Lift.Plunger)
+Map.Lift.Plunger:AddChild(Map.Lift.Plunger.move_dest)
 
 
 -- Initialization of the entity contents ("constructors").
@@ -118,19 +122,8 @@ function Map:OnInit()
 end
 
 function Map.info_player_start:OnInit()
-    self:GetTransform():set("Origin", 0, 0, 996)
-    self:GetTransform():set("Orientation", 0, 0, -0.70710677)
-
-    local c1 = world:new("ComponentPlayerStartT")
-    c1:set("SinglePlayer", true)
-    c1:set("MultiPlayer", true)
-
-    self:AddComponent(c1)
-end
-
-function Map.info_player_start_1:OnInit()
     self:GetTransform():set("Origin", 336, 0, 848)
-    self:GetTransform():set("Orientation", 0, 0, 0.9999619)
+    self:GetTransform():set("Orientation", 0, 0, -0.70710677)
 
     local c1 = world:new("ComponentPlayerStartT")
     c1:set("SinglePlayer", true)
@@ -755,5 +748,34 @@ end
 function Map.func_water_4:OnInit()
     self:GetBasics():set("Static", true)
     self:GetTransform():set("Origin", 0, 864, 364)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.Lift:OnInit()
+    self:GetTransform():set("Origin", -40, -40, 64)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentMoverT")
+    c1:set("moveDuration", 4)
+    c1:set("destActivated", 1)
+    c1:set("destTimeout", 2)
+    c1:set("otherEntities", 2)
+    c1:set("trajFunc", 1)
+    c1:set("trajExp", 1)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/MoverBinary.lua")
+    c2:set("ScriptCode", "")
+
+    self:AddComponent(c1, c2)
+end
+
+function Map.Lift.Plunger:OnInit()
+    self:GetTransform():set("Origin", 40, 40, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.Lift.Plunger.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, 0, 704)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
