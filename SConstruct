@@ -1,4 +1,4 @@
-import os, platform, shutil, sys
+import codecs, os, platform, shutil, sys, time
 
 
 # See the SCons manual, http://www.scons.org/wiki/GoFastButton and the man page for more information about the next two lines.
@@ -16,6 +16,127 @@ except ImportError:
     # CompilerSetup.py file from the related template file (which is under version control) automatically.
     shutil.copy("CompilerSetup.py.tmpl", "CompilerSetup.py")
     import CompilerSetup
+
+
+def CheckFormatting(start_dir, QuickMode):
+    """
+    This function checks for common problems such as trailing whitespace, TABs,
+    improper encoding (non-UTF8), no EOL at end of file, and mixed(!) EOL styles
+    within a single file.
+    Files whose newline style does not match the operating system's default are
+    accounted for statistics, but not counted as errors.
+    """
+    t1 = time.time()
+    CheckedCount  = 0
+    ProblemsCount = 0
+    c_NewL_Dos    = 0
+    c_NewL_Unix   = 0
+
+    QuickCount  = 0
+    QuickRefCO  = 0                             # For excluding newly checked-out files.
+    QuickRefOld = time.time() - 3600 * 24 * 7   # For excluding too old files.
+
+    if QuickMode:
+        try:
+            QuickRefCO = os.path.getmtime(".gitattributes") + 3600
+        except:
+            print 'Could not determine mtime for ".gitattributes".'
+
+    for root, dirs, files in os.walk(start_dir):
+        # print root, dirs
+
+        if not dirs and not files:
+            print root, "is empty"
+
+        for filename in files:
+            if os.path.splitext(filename)[1] in [".h", ".hpp", ".c", ".cpp", ".lua", ".py", ".cmat", ".cgui", ""]:
+                pathname = os.path.join(root, filename)
+
+                if QuickMode:
+                    ts = os.path.getmtime(pathname)
+                    if ts < QuickRefOld or ts < QuickRefCO:
+                        QuickCount += 1
+                        continue
+
+                CheckedCount += 1
+
+                try:
+                    f = codecs.open(pathname, encoding='utf-8', errors='strict')
+
+                    c = {
+                        "tabs": 0,
+                        "NewL_Dos": 0,
+                        "NewL_Unix": 0,
+                        "NewL_Mac": 0,
+                        "NewL_Other": 0,
+                        "trailing_ws": 0,
+                    }
+
+                    for line in f:
+                        if "\t" in line:
+                            c["tabs"] += 1
+
+                        if line.endswith("\r\n"):
+                            c["NewL_Dos"] += 1
+                        elif line.endswith("\n"):
+                            c["NewL_Unix"] += 1
+                        elif line.endswith("\r"):
+                            c["NewL_Mac"] += 1
+                        else:
+                            # Note that "no newline at end of file" is a special case of this!
+                            c["NewL_Other"] += 1
+
+                        if line.rstrip("\r\n").endswith(" "):
+                            c["trailing_ws"] += 1
+
+                    if c["NewL_Dos" ]: c_NewL_Dos  += 1
+                    if c["NewL_Unix"]: c_NewL_Unix += 1
+
+                    if c["tabs"] or c["trailing_ws"] or c["NewL_Mac"] or c["NewL_Other"] or (bool(c["NewL_Dos"]) and bool(c["NewL_Unix"])):
+                        print pathname, c
+                        ProblemsCount += 1
+
+                except UnicodeDecodeError:
+                    if filename in ["MainMenu_init.cgui", "MainMenu_main.cgui"]:
+                        continue
+
+                    print pathname, "is not properly UTF-8 encoded"
+                    ProblemsCount += 1
+                    # subprocess.Popen(["iconv", "-f", "iso-8859-1", "-t", "utf-8", pathname, "-o", "xy.tmp"]).wait()
+                    # subprocess.Popen(["mv", "-f", "xy.tmp", pathname]).wait()
+
+        for excl in ["FontWizard", "wxExt", "wxFB"]:
+            if "CaWE" in root and excl in dirs:
+                dirs.remove(excl)
+
+        for excl in [".git", ".svn", ".sconf_temp", "build", "ExtLibs", "out"]:
+            if excl in dirs:
+                dirs.remove(excl)
+
+    t2 = time.time()
+
+    if ProblemsCount:
+        print ""
+
+    if QuickCount:
+        print "{} source files checked in {:.2f}s ({} files skipped due to quick mode).".format(CheckedCount, t2 - t1, QuickCount)
+    else:
+        print "{} source files checked in {:.2f}s.".format(CheckedCount, t2 - t1)
+
+    if c_NewL_Dos and c_NewL_Unix:
+        print "Files with DOS-style  newlines:", c_NewL_Dos
+        print "Files with Unix-style newlines:", c_NewL_Unix
+
+    if ProblemsCount:
+        print "\nError: The formatting of the above indicated source files is unexpected."
+        Exit(1)
+
+    print ""
+
+
+if hasattr(CompilerSetup, "checkSourceFormatting") and CompilerSetup.checkSourceFormatting:
+    CheckFormatting(".", CompilerSetup.checkSourceFormatting == "quick")
+
 
 # Import the (user-configured) base environment from the setup file.
 # The base environment is evaluated and further refined (e.g. with compiler-specific settings) below.
