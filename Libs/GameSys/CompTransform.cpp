@@ -308,6 +308,28 @@ int ComponentTransformT::GetOriginWS(lua_State* LuaState)
 }
 
 
+static const cf::TypeSys::MethsDocT META_SetOriginWS =
+{
+    "SetOriginWS",
+    "Sets the origin of the transform (in world-space).",
+    "", "(number x, number y, number z)"
+};
+
+int ComponentTransformT::SetOriginWS(lua_State* LuaState)
+{
+    ScriptBinderT                      Binder(LuaState);
+    IntrusivePtrT<ComponentTransformT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentTransformT> >(1);
+    Vector3fT OriginWS;
+
+    OriginWS.x = float(luaL_checknumber(LuaState, 2));
+    OriginWS.y = float(luaL_checknumber(LuaState, 3));
+    OriginWS.z = float(luaL_checknumber(LuaState, 4));
+
+    Comp->SetOriginWS(OriginWS);
+    return 0;
+}
+
+
 static const cf::TypeSys::MethsDocT META_GetAngles =
 {
     "GetAngles",
@@ -498,6 +520,7 @@ void* ComponentTransformT::CreateInstance(const cf::TypeSys::CreateParamsT& Para
 const luaL_Reg ComponentTransformT::MethodsList[] =
 {
     { "GetOriginWS", GetOriginWS },
+    { "SetOriginWS", SetOriginWS },
     { "GetAngles",   GetAngles },
     { "SetAngles",   SetAngles },
     { "GetAxisX",    GetAxisX },
@@ -511,6 +534,7 @@ const luaL_Reg ComponentTransformT::MethodsList[] =
 const cf::TypeSys::MethsDocT ComponentTransformT::DocMethods[] =
 {
     META_GetOriginWS,
+    META_SetOriginWS,
     META_GetAngles,
     META_SetAngles,
     META_GetAxisX,

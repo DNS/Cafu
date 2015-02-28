@@ -1221,6 +1221,9 @@ class ComponentTransformT : public ComponentBaseT
     /// Returns the origin of the transform (in world-space).
     tuple GetOriginWS();
 
+    /// Sets the origin of the transform (in world-space).
+    SetOriginWS(number x, number y, number z);
+
     /// Returns the orientation of this entity as a tuple of three angles, measured in degrees:
     ///   - heading (yaw),
     ///   - pitch,

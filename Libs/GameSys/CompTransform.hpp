@@ -114,6 +114,7 @@ namespace cf
 
             // The Lua API methods of this class.
             static int GetOriginWS(lua_State* LuaState);
+            static int SetOriginWS(lua_State* LuaState);
             static int GetAngles(lua_State* LuaState);
             static int SetAngles(lua_State* LuaState);
             static int GetAxisX(lua_State* LuaState);
