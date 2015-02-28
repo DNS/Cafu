@@ -43,7 +43,12 @@ function CallRescueButton:OnMouseButtonDown()
     CallRescueText.HelpText:GetComponent("Text"):interpolate("Color.r", 0, 1, 50)
     CallRescueText.HelpText:GetComponent("Text"):set("Text", "ERROR: Invalid socket handle at port 7.")
 
-    Entity:RunMapCommand("OnGui_CallRescueButtonPressed();");
+    -- `gui.Model`  is the Model component that holds this GUI.
+    -- `gui.Entity` is the entity that holds the `gui.Model` that holds this GUI.
+    --
+    -- Thus, the following calls a script function of "our" entity.
+    -- (See `Activate_main.cgui` for a more generic example with Target components.)
+    gui.Entity:GetComponent("Script"):OnGui_CallRescueButtonPressed()
 
     gui:setInteractive(false);
     gui:showMouse(false);

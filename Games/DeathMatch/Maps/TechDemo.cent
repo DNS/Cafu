@@ -22461,7 +22461,20 @@ function Map.static_detail_model_60:OnInit()
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_2.cmap")
 
-    self:AddComponent(c1, c2)
+    local c3 = world:new("ComponentScriptT")
+    c3:set("Name", "")
+    c3:set("ScriptCode", [[
+local Script = ...
+
+function Script:OnGui_CallRescueButtonPressed()
+    coroutine.yield(3)
+
+    -- The target entity is hardcoded here, but sometimes that's easier than explicitly using Target components.
+    world:GetRootEntity():FindByName("EmergencyExit_Light1"):GetComponent("PointLight"):set("Color", 0, 0.8, 0)
+end
+]])
+
+    self:AddComponent(c1, c2, c3)
 end
 
 function Map.static_detail_model_61:OnInit()
