@@ -1742,7 +1742,32 @@ function Map.FaceHugger:OnInit()
     c1:set("IsSubmodel", false)
     c1:set("Is1stPerson", false)
 
-    self:AddComponent(c1)
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "")
+    c2:set("ScriptCode", [[
+local Script = ...
+local Model = Script:GetEntity():GetComponent("Model")
+
+local c = 0
+
+function Model:OnAnimationChange(AnimNr)
+    return 0.8, true
+end
+
+function Model:OnSequenceWrap_Sv()
+    c = c + 1
+
+    if c > 4 then
+        local anim = self:get("Animation") + 1
+
+        if anim >= self:GetNumAnims() then anim = 0 end
+        self:set("Animation", anim)
+        c = 0
+    end
+end
+]])
+
+    self:AddComponent(c1, c2)
 end
 
 function Map.Skeleton:OnInit()
@@ -1759,7 +1784,32 @@ function Map.Skeleton:OnInit()
     c1:set("IsSubmodel", false)
     c1:set("Is1stPerson", false)
 
-    self:AddComponent(c1)
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "")
+    c2:set("ScriptCode", [[
+local Script = ...
+local Model = Script:GetEntity():GetComponent("Model")
+
+local c = 0
+
+function Model:OnAnimationChange(AnimNr)
+    return 0.8, true
+end
+
+function Model:OnSequenceWrap_Sv()
+    c = c + 1
+
+    if c > 4 then
+        local anim = self:get("Animation") + 1
+
+        if anim >= self:GetNumAnims() then anim = 0 end
+        self:set("Animation", anim)
+        c = 0
+    end
+end
+]])
+
+    self:AddComponent(c1, c2)
 end
 
 function Map.vertical_door:OnInit()
