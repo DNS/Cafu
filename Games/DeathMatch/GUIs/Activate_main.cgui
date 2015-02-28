@@ -68,12 +68,3 @@ function ButtonGo:OnMouseButtonUp()
 
     return true
 end
-
-
-
--- This function is called as soon as the entity related to this GUI has been initialized
--- and has bound itself to the global script variable "Entity".
-function OnEntityInit()
-    -- local EntName = Entity:GetName()
-    -- InfoStation:GetComponent("Text"):set("Text", "Entity " .. EntName)
-end
