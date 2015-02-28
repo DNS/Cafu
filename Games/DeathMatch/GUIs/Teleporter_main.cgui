@@ -10,6 +10,22 @@ local ButtonMinus = Root.ButtonMinus
 local ButtonPlus = Root.ButtonPlus
 local ButtonGo = Root.ButtonGo
 
+-- Figure out the total size of the teleportation network (number of nodes)
+-- that this station is in, and which number this node/station has.
+-- Note that our entities must have names like "teleporter_2_of_5" for this to work.
+local OUR_NODE_NR, MAX_NODES = string.match(gui.Entity:GetBasics():get("Name"), "(%d+)_of_(%d+)")
+
+OUR_NODE_NR = tonumber(OUR_NODE_NR) or 1
+MAX_NODES   = tonumber(MAX_NODES) or 3
+
+
+function InfoStation:OnInit2()
+    self:GetComponent("Text"):set("Text", "Station " .. OUR_NODE_NR)
+end
+
+function DestNode:OnInit2()
+    self:GetComponent("Text"):set("Text", (OUR_NODE_NR % MAX_NODES) + 1)
+end
 
 
 function ButtonMinus:OnMouseEnter()
@@ -73,26 +89,13 @@ function ButtonGo:OnMouseLeave()
 end
 
 function ButtonGo:OnMouseButtonUp()
-    local origNr = OUR_NODE_NR
-    local destNr = DestNode:GetComponent("Text"):get("Text")
+    local DestNodeNr = DestNode:GetComponent("Text"):get("Text")
+    local DestName   = "teleporter_" .. DestNodeNr .. "_of_" .. MAX_NODES
+    local DestEnt    = world:GetRootEntity():FindByName(DestName)
 
-    Entity:RunMapCommand("teleport(" .. origNr .. ", " .. destNr .. ");");
-    return true;
-end
+    -- Console.Print("teleporting from " .. gui.Entity:GetBasics():get("Name") .. "\n")
+    -- Console.Print("teleporting to   " .. DestName .. "\n")
 
-
-
--- This function is called as soon as the entity related to this GUI has been initialized
--- and has bound itself to the global script variable "Entity".
--- Note that our entities must have names like "teleporter_2_of_5" for this to work.
-function OnEntityInit()
-    -- Figure out the total size of the teleportation network (number of nodes)
-    -- that this station is in, and which number this node/station has.
-    OUR_NODE_NR, MAX_NODES=string.match(Entity:GetName(), "(%d+)_of_(%d+)");
-
-    OUR_NODE_NR=tonumber(OUR_NODE_NR) or 1;
-    MAX_NODES  =tonumber(MAX_NODES) or 3;
-
-    InfoStation:GetComponent("Text"):set("Text", "Station " .. OUR_NODE_NR)
-    DestNode:GetComponent("Text"):set("Text", (OUR_NODE_NR % MAX_NODES) + 1)
+    gui.Entity:GetComponent("Script"):Teleport(DestEnt)
+    return true
 end

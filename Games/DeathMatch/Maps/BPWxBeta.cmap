@@ -15158,15 +15158,7 @@ Version 14
 }
 
 {
-  classname "static_detail_model"
-}
-
-{
-  classname "static_detail_model"
-}
-
-{
-  classname "static_detail_model"
+  classname "info_generic"
 }
 
 {
@@ -15178,7 +15170,7 @@ Version 14
 }
 
 {
-  classname "info_generic"
+  classname "static_detail_model"
 }
 
 {
@@ -15186,7 +15178,15 @@ Version 14
 }
 
 {
+  classname "static_detail_model"
+}
+
+{
   classname "info_generic"
+}
+
+{
+  classname "static_detail_model"
 }
 
 {

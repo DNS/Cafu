@@ -86,15 +86,15 @@ Map.func_wall_26 = world:new("EntityT", "func_wall_26")
 Map.func_water_5 = world:new("EntityT", "func_water_5")
 Map.func_wall_27 = world:new("EntityT", "func_wall_27")
 Map.teleporter_1_of_5 = world:new("EntityT", "teleporter_1_of_5")
+Map.teleporter_1_of_5.info_generic_1 = world:new("EntityT", "info_generic_1")
 Map.teleporter_2_of_5 = world:new("EntityT", "teleporter_2_of_5")
+Map.teleporter_2_of_5.info_generic_2 = world:new("EntityT", "info_generic_2")
 Map.teleporter_3_of_5 = world:new("EntityT", "teleporter_3_of_5")
+Map.teleporter_3_of_5.info_generic_3 = world:new("EntityT", "info_generic_3")
 Map.teleporter_4_of_5 = world:new("EntityT", "teleporter_4_of_5")
+Map.teleporter_4_of_5.info_generic_4 = world:new("EntityT", "info_generic_4")
 Map.teleporter_5_of_5 = world:new("EntityT", "teleporter_5_of_5")
-Map.info_generic_1 = world:new("EntityT", "info_generic_1")
-Map.info_generic_2 = world:new("EntityT", "info_generic_2")
-Map.info_generic_3 = world:new("EntityT", "info_generic_3")
-Map.info_generic_4 = world:new("EntityT", "info_generic_4")
-Map.info_generic_5 = world:new("EntityT", "info_generic_5")
+Map.teleporter_5_of_5.info_generic_5 = world:new("EntityT", "info_generic_5")
 Map.PointLightSource_001 = world:new("EntityT", "PointLightSource_001")
 Map.PointLightSource_002 = world:new("EntityT", "PointLightSource_002")
 Map.PointLightSource_003 = world:new("EntityT", "PointLightSource_003")
@@ -196,15 +196,15 @@ Map:AddChild(Map.func_wall_26)
 Map:AddChild(Map.func_water_5)
 Map:AddChild(Map.func_wall_27)
 Map:AddChild(Map.teleporter_1_of_5)
+Map.teleporter_1_of_5:AddChild(Map.teleporter_1_of_5.info_generic_1)
 Map:AddChild(Map.teleporter_2_of_5)
+Map.teleporter_2_of_5:AddChild(Map.teleporter_2_of_5.info_generic_2)
 Map:AddChild(Map.teleporter_3_of_5)
+Map.teleporter_3_of_5:AddChild(Map.teleporter_3_of_5.info_generic_3)
 Map:AddChild(Map.teleporter_4_of_5)
+Map.teleporter_4_of_5:AddChild(Map.teleporter_4_of_5.info_generic_4)
 Map:AddChild(Map.teleporter_5_of_5)
-Map:AddChild(Map.info_generic_1)
-Map:AddChild(Map.info_generic_2)
-Map:AddChild(Map.info_generic_3)
-Map:AddChild(Map.info_generic_4)
-Map:AddChild(Map.info_generic_5)
+Map.teleporter_5_of_5:AddChild(Map.teleporter_5_of_5.info_generic_5)
 Map:AddChild(Map.PointLightSource_001)
 Map:AddChild(Map.PointLightSource_002)
 Map:AddChild(Map.PointLightSource_003)
@@ -1630,7 +1630,16 @@ function Map.teleporter_1_of_5:OnInit()
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_2.cmap")
 
-    self:AddComponent(c1, c2)
+    local c3 = world:new("ComponentScriptT")
+    c3:set("Name", "Games/DeathMatch/Scripts/Teleporter.lua")
+    c3:set("ScriptCode", "")
+
+    self:AddComponent(c1, c2, c3)
+end
+
+function Map.teleporter_1_of_5.info_generic_1:OnInit()
+    self:GetTransform():set("Origin", 0, -48, 17)
+    self:GetTransform():set("Orientation", 0, 0, -1)
 end
 
 function Map.teleporter_2_of_5:OnInit()
@@ -1650,7 +1659,16 @@ function Map.teleporter_2_of_5:OnInit()
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_2.cmap")
 
-    self:AddComponent(c1, c2)
+    local c3 = world:new("ComponentScriptT")
+    c3:set("Name", "Games/DeathMatch/Scripts/Teleporter.lua")
+    c3:set("ScriptCode", "")
+
+    self:AddComponent(c1, c2, c3)
+end
+
+function Map.teleporter_2_of_5.info_generic_2:OnInit()
+    self:GetTransform():set("Origin", 0, -48, 17)
+    self:GetTransform():set("Orientation", 0, 0, -0.70710677)
 end
 
 function Map.teleporter_3_of_5:OnInit()
@@ -1670,7 +1688,16 @@ function Map.teleporter_3_of_5:OnInit()
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_2.cmap")
 
-    self:AddComponent(c1, c2)
+    local c3 = world:new("ComponentScriptT")
+    c3:set("Name", "Games/DeathMatch/Scripts/Teleporter.lua")
+    c3:set("ScriptCode", "")
+
+    self:AddComponent(c1, c2, c3)
+end
+
+function Map.teleporter_3_of_5.info_generic_3:OnInit()
+    self:GetTransform():set("Origin", 0, -48, 17)
+    self:GetTransform():set("Orientation", 0, 0, 0.5)
 end
 
 function Map.teleporter_4_of_5:OnInit()
@@ -1690,7 +1717,16 @@ function Map.teleporter_4_of_5:OnInit()
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_2.cmap")
 
-    self:AddComponent(c1, c2)
+    local c3 = world:new("ComponentScriptT")
+    c3:set("Name", "Games/DeathMatch/Scripts/Teleporter.lua")
+    c3:set("ScriptCode", "")
+
+    self:AddComponent(c1, c2, c3)
+end
+
+function Map.teleporter_4_of_5.info_generic_4:OnInit()
+    self:GetTransform():set("Origin", 0, -48, 17)
+    self:GetTransform():set("Orientation", 0, 0, 0.70710677)
 end
 
 function Map.teleporter_5_of_5:OnInit()
@@ -1710,32 +1746,16 @@ function Map.teleporter_5_of_5:OnInit()
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_2.cmap")
 
-    self:AddComponent(c1, c2)
+    local c3 = world:new("ComponentScriptT")
+    c3:set("Name", "Games/DeathMatch/Scripts/Teleporter.lua")
+    c3:set("ScriptCode", "")
+
+    self:AddComponent(c1, c2, c3)
 end
 
-function Map.info_generic_1:OnInit()
-    self:GetTransform():set("Origin", 0, -704, -303)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.info_generic_2:OnInit()
-    self:GetTransform():set("Origin", 924, 472, -111)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.info_generic_3:OnInit()
-    self:GetTransform():set("Origin", -464, 0, -335)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.info_generic_4:OnInit()
-    self:GetTransform():set("Origin", -1440, -1344, -975.00006)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.info_generic_5:OnInit()
-    self:GetTransform():set("Origin", 1336, 448, -1343)
-    self:GetTransform():set("Orientation", 0, 0, 0)
+function Map.teleporter_5_of_5.info_generic_5:OnInit()
+    self:GetTransform():set("Origin", 0, -48, 17)
+    self:GetTransform():set("Orientation", 0, 0, -1)
 end
 
 function Map.PointLightSource_001:OnInit()
