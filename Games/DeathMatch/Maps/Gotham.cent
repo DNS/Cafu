@@ -99,6 +99,12 @@ Map.func_wall_24 = world:new("EntityT", "func_wall_24")
 Map.func_wall_25 = world:new("EntityT", "func_wall_25")
 Map.func_wall_26 = world:new("EntityT", "func_wall_26")
 Map.func_wall_27 = world:new("EntityT", "func_wall_27")
+Map.Left_Lift = world:new("EntityT", "Left_Lift")
+Map.Left_Lift.Platform = world:new("EntityT", "Platform")
+Map.Left_Lift.Platform.move_dest = world:new("EntityT", "move_dest")
+Map.Right_Lift = world:new("EntityT", "Right_Lift")
+Map.Right_Lift.Platform = world:new("EntityT", "Platform")
+Map.Right_Lift.Platform.move_dest = world:new("EntityT", "move_dest")
 
 
 -- Set the worlds root entity.
@@ -196,6 +202,12 @@ Map:AddChild(Map.func_wall_24)
 Map:AddChild(Map.func_wall_25)
 Map:AddChild(Map.func_wall_26)
 Map:AddChild(Map.func_wall_27)
+Map:AddChild(Map.Left_Lift)
+Map.Left_Lift:AddChild(Map.Left_Lift.Platform)
+Map.Left_Lift.Platform:AddChild(Map.Left_Lift.Platform.move_dest)
+Map:AddChild(Map.Right_Lift)
+Map.Right_Lift:AddChild(Map.Right_Lift.Platform)
+Map.Right_Lift.Platform:AddChild(Map.Right_Lift.Platform.move_dest)
 
 
 -- Initialization of the entity contents ("constructors").
@@ -2149,5 +2161,63 @@ end
 function Map.func_wall_27:OnInit()
     self:GetBasics():set("Static", true)
     self:GetTransform():set("Origin", 1117, 1116, 328)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.Left_Lift:OnInit()
+    self:GetTransform():set("Origin", -1168, -208, 240)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentMoverT")
+    c1:set("moveDuration", 8)
+    c1:set("destActivated", 2)
+    c1:set("destTimeout", 3)
+    c1:set("otherEntities", 2)
+    c1:set("trajFunc", 0)
+    c1:set("trajExp", 2)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/MoverBinary.lua")
+    c2:set("ScriptCode", "")
+
+    self:AddComponent(c1, c2)
+end
+
+function Map.Left_Lift.Platform:OnInit()
+    self:GetTransform():set("Origin", 32, 0, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.Left_Lift.Platform.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, 0, 1704)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.Right_Lift:OnInit()
+    self:GetTransform():set("Origin", -1168, 208, 240)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentMoverT")
+    c1:set("moveDuration", 8)
+    c1:set("destActivated", 2)
+    c1:set("destTimeout", 3)
+    c1:set("otherEntities", 2)
+    c1:set("trajFunc", 0)
+    c1:set("trajExp", 2)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/MoverBinary.lua")
+    c2:set("ScriptCode", "")
+
+    self:AddComponent(c1, c2)
+end
+
+function Map.Right_Lift.Platform:OnInit()
+    self:GetTransform():set("Origin", 32, 0, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.Right_Lift.Platform.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, 0, 1704)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
