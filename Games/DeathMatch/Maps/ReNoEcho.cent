@@ -46,7 +46,6 @@ Map.func_wall_27 = world:new("EntityT", "func_wall_27")
 Map.func_wall_28 = world:new("EntityT", "func_wall_28")
 Map.func_wall_29 = world:new("EntityT", "func_wall_29")
 Map.func_wall_30 = world:new("EntityT", "func_wall_30")
-Map.func_wall_31 = world:new("EntityT", "func_wall_31")
 Map.weapon_rpg = world:new("EntityT", "weapon_rpg")
 Map.item_healthkit_small = world:new("EntityT", "item_healthkit_small")
 Map.item_healthkit_small_1 = world:new("EntityT", "item_healthkit_small_1")
@@ -87,7 +86,6 @@ Map.weapon_facehugger_1 = world:new("EntityT", "weapon_facehugger_1")
 Map.func_wall_61 = world:new("EntityT", "func_wall_61")
 Map.func_wall_62 = world:new("EntityT", "func_wall_62")
 Map.func_wall_63 = world:new("EntityT", "func_wall_63")
-Map.func_wall_64 = world:new("EntityT", "func_wall_64")
 Map.item_longjump = world:new("EntityT", "item_longjump")
 Map.func_wall_65 = world:new("EntityT", "func_wall_65")
 Map.func_wall_66 = world:new("EntityT", "func_wall_66")
@@ -159,6 +157,16 @@ Map.ammo_shotgun_shells_2 = world:new("EntityT", "ammo_shotgun_shells_2")
 Map.func_wall_95 = world:new("EntityT", "func_wall_95")
 Map.func_water_1 = world:new("EntityT", "func_water_1")
 Map.func_wall_96 = world:new("EntityT", "func_wall_96")
+Map.SouthernLift = world:new("EntityT", "SouthernLift")
+Map.SouthernLift.Platform = world:new("EntityT", "Platform")
+Map.SouthernLift.Platform.move_dest = world:new("EntityT", "move_dest")
+Map.SouthernLift_Call_1 = world:new("EntityT", "SouthernLift_Call_1")
+Map.SouthernLift_Call_0 = world:new("EntityT", "SouthernLift_Call_0")
+Map.NorthernLift = world:new("EntityT", "NorthernLift")
+Map.NorthernLift.Platform = world:new("EntityT", "Platform")
+Map.NorthernLift.Platform.move_dest = world:new("EntityT", "move_dest")
+Map.NorthernLift_Call_1 = world:new("EntityT", "NorthernLift_Call_1")
+Map.NorthernLift_Call_0 = world:new("EntityT", "NorthernLift_Call_0")
 
 
 -- Set the worlds root entity.
@@ -203,7 +211,6 @@ Map:AddChild(Map.func_wall_27)
 Map:AddChild(Map.func_wall_28)
 Map:AddChild(Map.func_wall_29)
 Map:AddChild(Map.func_wall_30)
-Map:AddChild(Map.func_wall_31)
 Map:AddChild(Map.weapon_rpg)
 Map:AddChild(Map.item_healthkit_small)
 Map:AddChild(Map.item_healthkit_small_1)
@@ -244,7 +251,6 @@ Map:AddChild(Map.weapon_facehugger_1)
 Map:AddChild(Map.func_wall_61)
 Map:AddChild(Map.func_wall_62)
 Map:AddChild(Map.func_wall_63)
-Map:AddChild(Map.func_wall_64)
 Map:AddChild(Map.item_longjump)
 Map:AddChild(Map.func_wall_65)
 Map:AddChild(Map.func_wall_66)
@@ -316,6 +322,16 @@ Map:AddChild(Map.ammo_shotgun_shells_2)
 Map:AddChild(Map.func_wall_95)
 Map:AddChild(Map.func_water_1)
 Map:AddChild(Map.func_wall_96)
+Map:AddChild(Map.SouthernLift)
+Map.SouthernLift:AddChild(Map.SouthernLift.Platform)
+Map.SouthernLift.Platform:AddChild(Map.SouthernLift.Platform.move_dest)
+Map:AddChild(Map.SouthernLift_Call_1)
+Map:AddChild(Map.SouthernLift_Call_0)
+Map:AddChild(Map.NorthernLift)
+Map.NorthernLift:AddChild(Map.NorthernLift.Platform)
+Map.NorthernLift.Platform:AddChild(Map.NorthernLift.Platform.move_dest)
+Map:AddChild(Map.NorthernLift_Call_1)
+Map:AddChild(Map.NorthernLift_Call_0)
 
 
 -- Initialization of the entity contents ("constructors").
@@ -532,12 +548,6 @@ end
 function Map.func_wall_30:OnInit()
     self:GetBasics():set("Static", true)
     self:GetTransform():set("Origin", -640, 1922, -416)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.func_wall_31:OnInit()
-    self:GetBasics():set("Static", true)
-    self:GetTransform():set("Origin", -640, 1988.0001, -238)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
@@ -959,12 +969,6 @@ end
 function Map.func_wall_63:OnInit()
     self:GetBasics():set("Static", true)
     self:GetTransform():set("Origin", -601, 1168, -355)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.func_wall_64:OnInit()
-    self:GetBasics():set("Static", true)
-    self:GetTransform():set("Origin", -336, -292, -238)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
@@ -2172,4 +2176,154 @@ function Map.func_wall_96:OnInit()
     self:GetBasics():set("Static", true)
     self:GetTransform():set("Origin", 344, 228, -260)
     self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.SouthernLift:OnInit()
+    self:GetTransform():set("Origin", -336, -328, -240)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentMoverT")
+    c1:set("moveDuration", 3)
+    c1:set("destActivated", 2)
+    c1:set("destTimeout", 3)
+    c1:set("otherEntities", 2)
+    c1:set("trajFunc", 0)
+    c1:set("trajExp", 2)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/MoverBinary.lua")
+    c2:set("ScriptCode", "")
+
+    self:AddComponent(c1, c2)
+end
+
+function Map.SouthernLift.Platform:OnInit()
+    self:GetTransform():set("Origin", 0, 40, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.SouthernLift.Platform.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, 0, -368)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.SouthernLift_Call_1:OnInit()
+    self:GetTransform():set("Origin", -236, -188, -248)
+    self:GetTransform():set("Orientation", 0, 0, 0.60876155)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_7.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "Games/DeathMatch/GUIs/Activate_main.cgui")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentCollisionModelT")
+    c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_7.cmap")
+
+    local c3 = world:new("ComponentTargetT")
+    c3:set("Target", "SouthernLift")
+
+    self:AddComponent(c1, c2, c3)
+end
+
+function Map.SouthernLift_Call_0:OnInit()
+    self:GetTransform():set("Origin", -245.82312, -196.4885, -616)
+    self:GetTransform():set("Orientation", 0, 0, 0.9659258)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_7.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "Games/DeathMatch/GUIs/Activate_main.cgui")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentCollisionModelT")
+    c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_7.cmap")
+
+    local c3 = world:new("ComponentTargetT")
+    c3:set("Target", "SouthernLift")
+
+    self:AddComponent(c1, c2, c3)
+end
+
+function Map.NorthernLift:OnInit()
+    self:GetTransform():set("Origin", -640, 2024, -240)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentMoverT")
+    c1:set("moveDuration", 3)
+    c1:set("destActivated", 2)
+    c1:set("destTimeout", 3)
+    c1:set("otherEntities", 2)
+    c1:set("trajFunc", 0)
+    c1:set("trajExp", 2)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/MoverBinary.lua")
+    c2:set("ScriptCode", "")
+
+    self:AddComponent(c1, c2)
+end
+
+function Map.NorthernLift.Platform:OnInit()
+    self:GetTransform():set("Origin", 0, -40, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.NorthernLift.Platform.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, 0, -368)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.NorthernLift_Call_1:OnInit()
+    self:GetTransform():set("Origin", -744, 1888, -248)
+    self:GetTransform():set("Orientation", 0, 0, -0.7933533)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_7.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "Games/DeathMatch/GUIs/Activate_main.cgui")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentCollisionModelT")
+    c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_7.cmap")
+
+    local c3 = world:new("ComponentTargetT")
+    c3:set("Target", "NorthernLift")
+
+    self:AddComponent(c1, c2, c3)
+end
+
+function Map.NorthernLift_Call_0:OnInit()
+    self:GetTransform():set("Origin", -716, 1892, -616)
+    self:GetTransform():set("Orientation", 0, 0, -0.25881907)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_7.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "Games/DeathMatch/GUIs/Activate_main.cgui")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentCollisionModelT")
+    c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_7.cmap")
+
+    local c3 = world:new("ComponentTargetT")
+    c3:set("Target", "NorthernLift")
+
+    self:AddComponent(c1, c2, c3)
 end
