@@ -33,6 +33,7 @@ namespace cf { namespace math { template<class T> class QuaternionT; } }
 /// Contrary to earlier test versions, it stores the fourth row explicitly, so that easy compatibility with
 /// OpenGL matrices is given and no problems occur with general-case use (e.g. as projection matrix etc.).
 /// @nosubgrouping
+template<class T>
 class Matrix4x4T
 {
     public:
@@ -278,11 +279,15 @@ class Matrix4x4T
 
 
     /// The matrix values.
-    float m[4][4];
+    T m[4][4];
 };
 
 
-typedef Matrix4x4T Matrix4x4fT;
-typedef Matrix4x4T MatrixT;       // The original MatrixT type for backwards-compatibility with old code.
+/// Typedef for a Matrix4x4T of floats.
+typedef Matrix4x4T<float> Matrix4x4fT;
+typedef Matrix4x4T<float> MatrixT;      // The original MatrixT type for backwards-compatibility with old code.
+
+/// Typedef for a Matrix4x4T of doubles.
+// typedef Matrix4x4T<double> Matrix4x4dT;
 
 #endif

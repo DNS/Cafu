@@ -34,7 +34,8 @@ class MapElementT;
 class Renderer2DT;
 class Renderer3DT;
 class ViewWindow2DT;
-typedef class Matrix4x4T Matrix4x4fT;
+template<class T> class Matrix4x4T;
+typedef Matrix4x4T<float> Matrix4x4fT;
 
 
 /// This class implements a spatial box that can be used to define a transformation (translation, rotation, scale or shear).

@@ -30,7 +30,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 template<class T> class ArrayT;
 class MaterialT;
-typedef class Matrix4x4T Matrix4x4fT;
+template<class T> class Matrix4x4T;
+typedef Matrix4x4T<float> Matrix4x4fT;
 
 
 namespace MatSys

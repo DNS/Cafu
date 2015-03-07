@@ -23,7 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Quaternion.hpp"
 
 
-Matrix4x4T::Matrix4x4T(const Vector3fT& t, const cf::math::QuaternionT<float>& q, const Vector3fT& s)
+template<class T> Matrix4x4T<T>::Matrix4x4T(const Vector3fT& t, const cf::math::QuaternionT<float>& q, const Vector3fT& s)
 {
     const float x=q.x;
     const float y=q.y;
@@ -42,7 +42,7 @@ Matrix4x4T::Matrix4x4T(const Vector3fT& t, const cf::math::QuaternionT<float>& q
 }
 
 
-Matrix4x4T Matrix4x4T::GetProjOrthoMatrix(float left, float right, float bottom, float top, float zNear, float zFar)
+template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetProjOrthoMatrix(float left, float right, float bottom, float top, float zNear, float zFar)
 {
     return Matrix4x4T(
         2.0f/(right-left),              0.0f,               0.0f, -(right+left)/(right-left),
@@ -52,7 +52,7 @@ Matrix4x4T Matrix4x4T::GetProjOrthoMatrix(float left, float right, float bottom,
 }
 
 
-Matrix4x4T Matrix4x4T::GetProjFrustumMatrix(float left, float right, float bottom, float top, float zNear, float zFar)
+template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetProjFrustumMatrix(float left, float right, float bottom, float top, float zNear, float zFar)
 {
     const float x=(2.0f*zNear)/(right-left);
     const float y=(2.0f*zNear)/(top-bottom);
@@ -71,7 +71,7 @@ Matrix4x4T Matrix4x4T::GetProjFrustumMatrix(float left, float right, float botto
 }
 
 
-Matrix4x4T Matrix4x4T::GetProjPerspectiveMatrix(float fovY, float aspect, float zNear, float zFar)
+template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetProjPerspectiveMatrix(float fovY, float aspect, float zNear, float zFar)
 {
     if (zFar<=zNear)
     {
@@ -95,7 +95,7 @@ Matrix4x4T Matrix4x4T::GetProjPerspectiveMatrix(float fovY, float aspect, float 
 }
 
 
-Matrix4x4T Matrix4x4T::GetProjPickMatrix(float x, float y, float width, float height, int viewport[4])
+template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetProjPickMatrix(float x, float y, float width, float height, int viewport[4])
 {
     // See the OpenGL Programming Guide for a description and CaWE for an example for how the pick matrix is used.
     const float sx=viewport[2] / width;
@@ -110,7 +110,7 @@ Matrix4x4T Matrix4x4T::GetProjPickMatrix(float x, float y, float width, float he
 }
 
 
-Matrix4x4T Matrix4x4T::GetTranslateMatrix(const Vector3fT& t)
+template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetTranslateMatrix(const Vector3fT& t)
 {
     Matrix4x4T M;
 
@@ -122,7 +122,7 @@ Matrix4x4T Matrix4x4T::GetTranslateMatrix(const Vector3fT& t)
 }
 
 
-Matrix4x4T Matrix4x4T::GetScaleMatrix(float sx, float sy, float sz)
+template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetScaleMatrix(float sx, float sy, float sz)
 {
     Matrix4x4T M;
 
@@ -134,7 +134,7 @@ Matrix4x4T Matrix4x4T::GetScaleMatrix(float sx, float sy, float sz)
 }
 
 
-Matrix4x4T Matrix4x4T::GetRotateXMatrix(float Angle)
+template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetRotateXMatrix(float Angle)
 {
     Matrix4x4T M;
 
@@ -149,7 +149,7 @@ Matrix4x4T Matrix4x4T::GetRotateXMatrix(float Angle)
 }
 
 
-Matrix4x4T Matrix4x4T::GetRotateYMatrix(float Angle)
+template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetRotateYMatrix(float Angle)
 {
     Matrix4x4T M;
 
@@ -164,7 +164,7 @@ Matrix4x4T Matrix4x4T::GetRotateYMatrix(float Angle)
 }
 
 
-Matrix4x4T Matrix4x4T::GetRotateZMatrix(float Angle)
+template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetRotateZMatrix(float Angle)
 {
     Matrix4x4T M;
 
@@ -179,7 +179,7 @@ Matrix4x4T Matrix4x4T::GetRotateZMatrix(float Angle)
 }
 
 
-Matrix4x4T Matrix4x4T::GetRotateMatrix(float Angle, const Vector3fT& Axis)
+template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetRotateMatrix(float Angle, const Vector3fT& Axis)
 {
     const float RadAngle=Angle*3.14159265358979323846f/180.0f;
     const float s       =float(sin(RadAngle));
@@ -196,7 +196,7 @@ Matrix4x4T Matrix4x4T::GetRotateMatrix(float Angle, const Vector3fT& Axis)
 }
 
 
-Matrix4x4T Matrix4x4T::operator * (const Matrix4x4T& vm) const
+template<class T> Matrix4x4T<T> Matrix4x4T<T>::operator * (const Matrix4x4T<T>& vm) const
 {
     return Matrix4x4T(
         m[0][0]*vm.m[0][0] + m[0][1]*vm.m[1][0] + m[0][2]*vm.m[2][0] + m[0][3]*vm.m[3][0],
@@ -221,7 +221,7 @@ Matrix4x4T Matrix4x4T::operator * (const Matrix4x4T& vm) const
 }
 
 
-void Matrix4x4T::Translate_MT(const VectorT& vTrans)
+template<class T> void Matrix4x4T<T>::Translate_MT(const VectorT& vTrans)
 {
     const VectorT t=Mul1(vTrans);
 
@@ -231,7 +231,7 @@ void Matrix4x4T::Translate_MT(const VectorT& vTrans)
 }
 
 
-void Matrix4x4T::Translate_MT(float tx, float ty, float tz)
+template<class T> void Matrix4x4T<T>::Translate_MT(float tx, float ty, float tz)
 {
     m[0][3]=m[0][0]*tx + m[0][1]*ty + m[0][2]*tz + m[0][3];
     m[1][3]=m[1][0]*tx + m[1][1]*ty + m[1][2]*tz + m[1][3];
@@ -239,7 +239,7 @@ void Matrix4x4T::Translate_MT(float tx, float ty, float tz)
 }
 
 
-void Matrix4x4T::Translate_TM(const VectorT& vTrans)
+template<class T> void Matrix4x4T<T>::Translate_TM(const VectorT& vTrans)
 {
     m[0][3]+=float(vTrans.x);
     m[1][3]+=float(vTrans.y);
@@ -247,7 +247,7 @@ void Matrix4x4T::Translate_TM(const VectorT& vTrans)
 }
 
 
-void Matrix4x4T::Scale_MS(float sx, float sy, float sz)
+template<class T> void Matrix4x4T<T>::Scale_MS(float sx, float sy, float sz)
 {
     for (int i=0; i<4; i++)
     {
@@ -258,7 +258,7 @@ void Matrix4x4T::Scale_MS(float sx, float sy, float sz)
 }
 
 
-void Matrix4x4T::Scale_SM(float sx, float sy, float sz)
+template<class T> void Matrix4x4T<T>::Scale_SM(float sx, float sy, float sz)
 {
     for (int j=0; j<4; j++)
     {
@@ -269,7 +269,7 @@ void Matrix4x4T::Scale_SM(float sx, float sy, float sz)
 }
 
 
-void Matrix4x4T::RotateX_MR(float Angle)
+template<class T> void Matrix4x4T<T>::RotateX_MR(float Angle)
 {
     const float RadAngle=Angle*3.14159265358979323846f/180.0f;
     const float SinAngle=float(sin(RadAngle));
@@ -286,7 +286,7 @@ void Matrix4x4T::RotateX_MR(float Angle)
 }
 
 
-void Matrix4x4T::RotateX_RM(float Angle)
+template<class T> void Matrix4x4T<T>::RotateX_RM(float Angle)
 {
     const float RadAngle=Angle*3.14159265358979323846f/180.0f;
     const float SinAngle=float(sin(RadAngle));
@@ -303,7 +303,7 @@ void Matrix4x4T::RotateX_RM(float Angle)
 }
 
 
-void Matrix4x4T::RotateY_MR(float Angle)
+template<class T> void Matrix4x4T<T>::RotateY_MR(float Angle)
 {
     const float RadAngle=Angle*3.14159265358979323846f/180.0f;
     const float SinAngle=float(sin(RadAngle));
@@ -320,7 +320,7 @@ void Matrix4x4T::RotateY_MR(float Angle)
 }
 
 
-void Matrix4x4T::RotateY_RM(float Angle)
+template<class T> void Matrix4x4T<T>::RotateY_RM(float Angle)
 {
     const float RadAngle=Angle*3.14159265358979323846f/180.0f;
     const float SinAngle=float(sin(RadAngle));
@@ -337,7 +337,7 @@ void Matrix4x4T::RotateY_RM(float Angle)
 }
 
 
-void Matrix4x4T::RotateZ_MR(float Angle)
+template<class T> void Matrix4x4T<T>::RotateZ_MR(float Angle)
 {
     const float RadAngle=Angle*3.14159265358979323846f/180.0f;
     const float SinAngle=float(sin(RadAngle));
@@ -354,7 +354,7 @@ void Matrix4x4T::RotateZ_MR(float Angle)
 }
 
 
-void Matrix4x4T::RotateZ_RM(float Angle)
+template<class T> void Matrix4x4T<T>::RotateZ_RM(float Angle)
 {
     const float RadAngle=Angle*3.14159265358979323846f/180.0f;
     const float SinAngle=float(sin(RadAngle));
@@ -371,7 +371,7 @@ void Matrix4x4T::RotateZ_RM(float Angle)
 }
 
 
-Matrix4x4T Matrix4x4T::GetInverse(bool* Result) const
+template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetInverse(bool* Result) const
 {
     // How it's done:
     // AX = I
@@ -464,7 +464,7 @@ Matrix4x4T Matrix4x4T::GetInverse(bool* Result) const
 }
 
 
-Matrix4x4T Matrix4x4T::GetTranspose() const
+template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetTranspose() const
 {
     Matrix4x4T mt;
 
@@ -474,3 +474,7 @@ Matrix4x4T Matrix4x4T::GetTranspose() const
 
     return mt;
 }
+
+
+template class Matrix4x4T<float>;
+// template class MatrixT<double>;
