@@ -30,13 +30,13 @@ template<class T> Matrix4x4T<T>::Matrix4x4T(const Vector3fT& t, const cf::math::
     const float z = q.z;
     const float w = q.w;
 
-    m[0][0] = 1.0f - 2.0f*y*y - 2.0f*z*z;  m[0][1] =        2.0f*x*y - 2.0f*w*z;  m[0][2] =        2.0f*x*z + 2.0f*w*y;  m[0][3] = t.x;
-    m[1][0] =        2.0f*x*y + 2.0f*w*z;  m[1][1] = 1.0f - 2.0f*x*x - 2.0f*z*z;  m[1][2] =        2.0f*y*z - 2.0f*w*x;  m[1][3] = t.y;
-    m[2][0] =        2.0f*x*z - 2.0f*w*y;  m[2][1] =        2.0f*y*z + 2.0f*w*x;  m[2][2] = 1.0f - 2.0f*x*x - 2.0f*y*y;  m[2][3] = t.z;
-    m[3][0] =                       0.0f;  m[3][1] =                       0.0f;  m[3][2] =                       0.0f;  m[3][3] = 1.0f;
+    m[0][0] = 1 - 2*y*y - 2*z*z;  m[0][1] =     2*x*y - 2*w*z;  m[0][2] =     2*x*z + 2*w*y;  m[0][3] = t.x;
+    m[1][0] =     2*x*y + 2*w*z;  m[1][1] = 1 - 2*x*x - 2*z*z;  m[1][2] =     2*y*z - 2*w*x;  m[1][3] = t.y;
+    m[2][0] =     2*x*z - 2*w*y;  m[2][1] =     2*y*z + 2*w*x;  m[2][2] = 1 - 2*x*x - 2*y*y;  m[2][3] = t.z;
+    m[3][0] =                 0;  m[3][1] =                 0;  m[3][2] =                 0;  m[3][3] =   1;
 
     for (unsigned int j = 0; j < 3; j++)
-        if (s[j] != 1.0f)
+        if (s[j] != 1)
             for (unsigned int i = 0; i < 3; i++)
                 m[i][j] *= s[j];
 }
@@ -45,29 +45,29 @@ template<class T> Matrix4x4T<T>::Matrix4x4T(const Vector3fT& t, const cf::math::
 template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetProjOrthoMatrix(float left, float right, float bottom, float top, float zNear, float zFar)
 {
     return Matrix4x4T(
-        2.0f / (right - left),                  0.0f,                   0.0f, -(right + left) / (right - left),
-                         0.0f, 2.0f / (top - bottom),                   0.0f, -(top + bottom) / (top - bottom),
-                         0.0f,                  0.0f, -2.0f / (zFar - zNear), -(zFar + zNear) / (zFar - zNear),
-                         0.0f,                  0.0f,                   0.0f,                             1.0f);
+        2 / (right - left),                  0,                   0, -(right + left) / (right - left),
+                         0, 2 / (top - bottom),                   0, -(top + bottom) / (top - bottom),
+                         0,                  0, -2 / (zFar - zNear), -(zFar + zNear) / (zFar - zNear),
+                         0,                  0,                   0,                                1);
 }
 
 
 template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetProjFrustumMatrix(float left, float right, float bottom, float top, float zNear, float zFar)
 {
-    const float x = (2.0f * zNear) / (right - left);
-    const float y = (2.0f * zNear) / (top - bottom);
+    const float x = (2*zNear) / (right - left);
+    const float y = (2*zNear) / (top - bottom);
     const float a = (right + left) / (right - left);
     const float b = (top + bottom) / (top - bottom);
 
     // If zFar <= zNear, the far plane is assumed to be at infinity (a useful special case for stencil shadow projections).
-    const float c = (zNear < zFar) ? -(zFar + zNear) / (zFar - zNear)    : -1.0f;
-    const float d = (zNear < zFar) ? -(2.0f*zFar*zNear) / (zFar - zNear) : -2.0f*zNear;
+    const float c = (zNear < zFar) ? -(zFar + zNear) / (zFar - zNear) : -1;
+    const float d = (zNear < zFar) ? -(2*zFar*zNear) / (zFar - zNear) : -2*zNear;
 
     return Matrix4x4T(
-        x,    0.0f, a,     0.0f,
-        0.0f, y,    b,     0.0f,
-        0.0f, 0.0f, c,     d,
-        0.0f, 0.0f, -1.0f, 0.0f);
+        x, 0,  a, 0,
+        0, y,  b, 0,
+        0, 0,  c, d,
+        0, 0, -1, 0);
 }
 
 
@@ -77,16 +77,16 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetProjPerspectiveMatrix(float fo
     {
         // If zFar <= zNear, the far plane is assumed to be at infinity (a useful special case for stencil shadow projections).
         // This code is also used in <http://trac.cafu.de/browser/cafu/trunk/Libs/OpenGL/OpenGLWindow.cpp?rev=100#L137>.
-        const float cotanFovY = 1.0f / tan(fovY * 3.14159265358979323846f / 360.0f);
+        const float cotanFovY = 1 / tan(fovY * T(3.14159265358979323846 / 360.0));
 
         return Matrix4x4T(
-            cotanFovY / aspect,      0.0f,  0.0f,          0.0f,
-                          0.0f, cotanFovY,  0.0f,          0.0f,
-                          0.0f,      0.0f, -1.0f, -2.0f * zNear,
-                          0.0f,      0.0f, -1.0f,          0.0f);
+            cotanFovY / aspect,         0,  0,          0,
+                             0, cotanFovY,  0,          0,
+                             0,         0, -1, -2 * zNear,
+                             0,         0, -1,          0);
     }
 
-    const float ymax =  zNear * float(tan(fovY * 3.14159265358979323846f / 360.0f));
+    const float ymax =  zNear * tan(fovY * T(3.14159265358979323846 / 360.0));
     const float ymin = -ymax;
     const float xmin =  ymin * aspect;
     const float xmax =  ymax * aspect;
@@ -100,13 +100,13 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetProjPickMatrix(float x, float 
     // See the OpenGL Programming Guide for a description and CaWE for an example for how the pick matrix is used.
     const float sx = viewport[2] / width;
     const float sy = viewport[3] / height;
-    const float tx = (viewport[2] + 2.0f*(viewport[0] - x)) / width;
-    const float ty = (viewport[3] + 2.0f*(viewport[1] - y)) / height;
+    const float tx = (viewport[2] + 2*(viewport[0] - x)) / width;
+    const float ty = (viewport[3] + 2*(viewport[1] - y)) / height;
 
-    return Matrix4x4T( sx, 0.0, 0.0f,   tx,
-                      0.0,  sy, 0.0f,   ty,
-                      0.0, 0.0, 1.0f, 0.0f,
-                      0.0, 0.0, 0.0f, 1.0f);
+    return Matrix4x4T(sx,  0, 0, tx,
+                       0, sy, 0, ty,
+                       0,  0, 1,  0,
+                       0,  0, 0,  1);
 }
 
 
@@ -138,7 +138,7 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetRotateXMatrix(float Angle)
 {
     Matrix4x4T M;
 
-    const float RadAngle = Angle * 3.14159265358979323846f / 180.0f;
+    const float RadAngle = Angle * T(3.14159265358979323846 / 180.0);
     const float SinAngle = sin(RadAngle);
     const float CosAngle = cos(RadAngle);
 
@@ -153,7 +153,7 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetRotateYMatrix(float Angle)
 {
     Matrix4x4T M;
 
-    const float RadAngle = Angle * 3.14159265358979323846f / 180.0f;
+    const float RadAngle = Angle * T(3.14159265358979323846 / 180.0);
     const float SinAngle = sin(RadAngle);
     const float CosAngle = cos(RadAngle);
 
@@ -168,7 +168,7 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetRotateZMatrix(float Angle)
 {
     Matrix4x4T M;
 
-    const float RadAngle = Angle * 3.14159265358979323846f / 180.0f;
+    const float RadAngle = Angle * T(3.14159265358979323846 / 180.0);
     const float SinAngle = sin(RadAngle);
     const float CosAngle = cos(RadAngle);
 
@@ -181,10 +181,10 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetRotateZMatrix(float Angle)
 
 template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetRotateMatrix(float Angle, const Vector3fT& Axis)
 {
-    const float RadAngle = Angle * 3.14159265358979323846f / 180.0f;
+    const float RadAngle = Angle * T(3.14159265358979323846 / 180.0);
     const float s        = sin(RadAngle);
     const float c        = cos(RadAngle);
-    const float t        = 1.0f - c;
+    const float t        = 1 - c;
 
     const float tx = t * Axis.x;
     const float ty = t * Axis.y;
@@ -194,10 +194,10 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetRotateMatrix(float Angle, cons
     const float sy = s * Axis.y;
     const float sz = s * Axis.z;
 
-    return Matrix4x4T(tx*Axis.x +  c, tx*Axis.y - sz, tx*Axis.z + sy, 0.0f,
-                      tx*Axis.y + sz, ty*Axis.y +  c, ty*Axis.z - sx, 0.0f,
-                      tx*Axis.z - sy, ty*Axis.z + sx, tz*Axis.z +  c, 0.0f,
-                                0.0f,           0.0f,           0.0f, 1.0f);
+    return Matrix4x4T(tx*Axis.x +  c, tx*Axis.y - sz, tx*Axis.z + sy, 0,
+                      tx*Axis.y + sz, ty*Axis.y +  c, ty*Axis.z - sx, 0,
+                      tx*Axis.z - sy, ty*Axis.z + sx, tz*Axis.z +  c, 0,
+                                   0,              0,              0, 1);
 }
 
 
@@ -276,7 +276,7 @@ template<class T> void Matrix4x4T<T>::Scale_SM(float sx, float sy, float sz)
 
 template<class T> void Matrix4x4T<T>::RotateX_MR(float Angle)
 {
-    const float RadAngle = Angle * 3.14159265358979323846f / 180.0f;
+    const float RadAngle = Angle * T(3.14159265358979323846 / 180.0);
     const float SinAngle = sin(RadAngle);
     const float CosAngle = cos(RadAngle);
 
@@ -293,7 +293,7 @@ template<class T> void Matrix4x4T<T>::RotateX_MR(float Angle)
 
 template<class T> void Matrix4x4T<T>::RotateX_RM(float Angle)
 {
-    const float RadAngle = Angle * 3.14159265358979323846f / 180.0f;
+    const float RadAngle = Angle * T(3.14159265358979323846 / 180.0);
     const float SinAngle = sin(RadAngle);
     const float CosAngle = cos(RadAngle);
 
@@ -310,7 +310,7 @@ template<class T> void Matrix4x4T<T>::RotateX_RM(float Angle)
 
 template<class T> void Matrix4x4T<T>::RotateY_MR(float Angle)
 {
-    const float RadAngle = Angle * 3.14159265358979323846f / 180.0f;
+    const float RadAngle = Angle * T(3.14159265358979323846 / 180.0);
     const float SinAngle = sin(RadAngle);
     const float CosAngle = cos(RadAngle);
 
@@ -327,7 +327,7 @@ template<class T> void Matrix4x4T<T>::RotateY_MR(float Angle)
 
 template<class T> void Matrix4x4T<T>::RotateY_RM(float Angle)
 {
-    const float RadAngle = Angle * 3.14159265358979323846f / 180.0f;
+    const float RadAngle = Angle * T(3.14159265358979323846 / 180.0);
     const float SinAngle = sin(RadAngle);
     const float CosAngle = cos(RadAngle);
 
@@ -344,7 +344,7 @@ template<class T> void Matrix4x4T<T>::RotateY_RM(float Angle)
 
 template<class T> void Matrix4x4T<T>::RotateZ_MR(float Angle)
 {
-    const float RadAngle = Angle * 3.14159265358979323846f / 180.0f;
+    const float RadAngle = Angle * T(3.14159265358979323846 / 180.0);
     const float SinAngle = sin(RadAngle);
     const float CosAngle = cos(RadAngle);
 
@@ -361,7 +361,7 @@ template<class T> void Matrix4x4T<T>::RotateZ_MR(float Angle)
 
 template<class T> void Matrix4x4T<T>::RotateZ_RM(float Angle)
 {
-    const float RadAngle = Angle * 3.14159265358979323846f / 180.0f;
+    const float RadAngle = Angle * T(3.14159265358979323846 / 180.0);
     const float SinAngle = sin(RadAngle);
     const float CosAngle = cos(RadAngle);
 
@@ -397,7 +397,7 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetInverse(bool* Result) const
         for (unsigned int j = 0; j < 4; j++)
         {
             pOut[j    ] = pIn[j];
-            pOut[j + 4] = (i == j) ? 1.0f : 0.0f;
+            pOut[j + 4] = (i == j) ? T(1.0) : T(0.0);
         }
 
         rowMap[i] = i;
@@ -410,7 +410,7 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetInverse(bool* Result) const
     for (int iRow = 0; iRow < 4; iRow++)
     {
         // Find the row with the largest element in this column.
-        float fLargest = 0.001f;
+        float fLargest = T(0.001);
         int   iLargest = -1;
 
         for (int iTest = iRow; iTest < 4; iTest++)
@@ -435,9 +435,9 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetInverse(bool* Result) const
         float* pRow = mat[rowMap[iRow]];
 
         // Divide this row by the element.
-        const float mul = 1.0f / pRow[iRow];
+        const float mul = 1 / pRow[iRow];
         for (unsigned int j = 0; j < 8; j++) pRow[j] *= mul;
-        pRow[iRow] = 1.0f;  // Preserve accuracy...
+        pRow[iRow] = 1;   // Preserve accuracy...
 
         // Eliminate this element from the other rows using operation 2.
         for (unsigned int i = 0; i < 4; i++)
@@ -449,7 +449,7 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetInverse(bool* Result) const
             // Multiply this row by -(iRow*the element).
             const float mul_ = -pScaleRow[iRow];
             for (unsigned int j = 0; j < 8; j++) pScaleRow[j] += pRow[j]*mul_;
-            pScaleRow[iRow] = 0.0f; // Preserve accuracy...
+            pScaleRow[iRow] = 0;    // Preserve accuracy...
         }
     }
 

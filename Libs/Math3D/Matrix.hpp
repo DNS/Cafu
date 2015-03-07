@@ -43,7 +43,7 @@ class Matrix4x4T
     {
         for (unsigned int i = 0; i < 4; i++)
             for (unsigned int j = 0; j < 4; j++)
-                m[i][j] = (i == j) ? 1.0f : 0.0f;
+                m[i][j] = (i == j) ? T(1.0) : 0;
     }
 
     /// Constructor for creating an arbitrary matrix.
@@ -92,7 +92,7 @@ class Matrix4x4T
     /// @param t   The translation that is expressed in the matrix.
     /// @param q   The quaternion that describes the rotation that is expressed in the matrix.
     /// @param s   The scale that is expressed in the matrix.
-    Matrix4x4T(const Vector3fT& t, const cf::math::QuaternionT<float>& q, const Vector3fT& s = Vector3fT(1.0f, 1.0f, 1.0f));
+    Matrix4x4T(const Vector3fT& t, const cf::math::QuaternionT<float>& q, const Vector3fT& s = Vector3fT(1, 1, 1));
 
     /// \name Named constructors
     /// @{
@@ -219,7 +219,7 @@ class Matrix4x4T
         Vector3fT ProjPoint = Mul1(v);
         float     v_w       = m[3][0]*v.x + m[3][1]*v.y + m[3][2]*v.z + m[3][3];
 
-        return (v_w != 0.0f) ? scale(ProjPoint, 1.0f / v_w) : ProjPoint;
+        return (v_w != 0) ? scale(ProjPoint, 1 / v_w) : ProjPoint;
     }
 
     /// Computes M*v, where M is this matrix.
