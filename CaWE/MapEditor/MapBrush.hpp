@@ -81,7 +81,7 @@ class MapBrushT : public MapPrimitiveT
     void TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles, bool LockTexCoords) override;
     void TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale, bool LockTexCoords) override;
     void TrafoMirror(unsigned int NormalAxis, float Dist, bool LockTexCoords) override;
-    void Transform(const MatrixT& Matrix, bool LockTexCoords) override;
+    void Transform(const Matrix4x4fT& Matrix, bool LockTexCoords) override;
 
     /// This method splits the brush along the given plane and returns the front piece, the back piece, or both.
     /// @param Plane   The plane along which to split this brush.

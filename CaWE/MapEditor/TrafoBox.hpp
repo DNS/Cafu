@@ -34,7 +34,7 @@ class MapElementT;
 class Renderer2DT;
 class Renderer3DT;
 class ViewWindow2DT;
-class MatrixT;
+typedef class Matrix4x4T Matrix4x4fT;
 
 
 /// This class implements a spatial box that can be used to define a transformation (translation, rotation, scale or shear).
@@ -136,7 +136,7 @@ class TrafoBoxT
     /// Computes the matrix for the shear transformation that is currently in progress.
     /// @param ShearMatrix   The computed matrix is returned here.
     /// @returns whether the shear matrix could be computed.
-    bool GetShearMatrix(MatrixT& ShearMatrix) const;
+    bool GetShearMatrix(Matrix4x4fT& ShearMatrix) const;
 
     // The overall state of the box is defined by these members:
     BoundingBox3fT m_BB;            ///< The spatial dimensions of the transformation box. m_BB.IsInited()==false is possible, e.g. when there is no selection.

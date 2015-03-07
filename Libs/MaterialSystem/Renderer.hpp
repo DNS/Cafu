@@ -30,7 +30,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 template<class T> class ArrayT;
 class MaterialT;
-class MatrixT;
+typedef class Matrix4x4T Matrix4x4fT;
 
 
 namespace MatSys
@@ -203,12 +203,12 @@ namespace MatSys
         enum MatrixNameT { MODEL_TO_WORLD, WORLD_TO_VIEW, PROJECTION /*VIEW_TO_CLIP*/ /*, TEXTURE*/, END_MARKER };
 
         // Methods for getting the native and dependent matrices.
-        virtual const MatrixT& GetMatrix(MatrixNameT MN) const=0;
-        virtual const MatrixT& GetMatrixInv(MatrixNameT MN) const=0;
-        virtual const MatrixT& GetMatrixModelView() const=0;
+        virtual const Matrix4x4fT& GetMatrix(MatrixNameT MN) const=0;
+        virtual const Matrix4x4fT& GetMatrixInv(MatrixNameT MN) const=0;
+        virtual const Matrix4x4fT& GetMatrixModelView() const=0;
 
         // Methods for modifying the matrices.
-        virtual void SetMatrix(MatrixNameT MN, const MatrixT& Matrix)=0;
+        virtual void SetMatrix(MatrixNameT MN, const Matrix4x4fT& Matrix)=0;
         virtual void Translate(MatrixNameT MN, float x, float y, float z)=0;    // Convenience method, equivalent to SetMatrix(GetMatrix()*T);
         virtual void Scale    (MatrixNameT MN, float scale)=0;
         virtual void RotateX  (MatrixNameT MN, float angle)=0;

@@ -19,8 +19,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-#ifndef CAFU_4X4_MATRIX_HPP_INCLUDED
-#define CAFU_4X4_MATRIX_HPP_INCLUDED
+#ifndef CAFU_MATH_MATRIX_4X4_HPP_INCLUDED
+#define CAFU_MATH_MATRIX_4X4_HPP_INCLUDED
 
 #include "Vector3.hpp"
 
@@ -33,12 +33,12 @@ namespace cf { namespace math { template<class T> class QuaternionT; } }
 /// Contrary to earlier test versions, it stores the fourth row explicitly, so that easy compatibility with
 /// OpenGL matrices is given and no problems occur with general-case use (e.g. as projection matrix etc.).
 /// @nosubgrouping
-class MatrixT
+class Matrix4x4T
 {
     public:
 
     /// The default constructor for creating a "1" (identity) matrix.
-    MatrixT()
+    Matrix4x4T()
     {
         for (int i=0; i<4; i++)
             for (int j=0; j<4; j++)
@@ -46,7 +46,7 @@ class MatrixT
     }
 
     /// Constructor for creating an arbitrary matrix.
-    MatrixT(const float M[4][4])
+    Matrix4x4T(const float M[4][4])
     {
         for (int i=0; i<4; i++)
             for (int j=0; j<4; j++)
@@ -54,7 +54,7 @@ class MatrixT
     }
 
     /// Constructor for creating an arbitrary matrix.
-    MatrixT(const double M[4][4])
+    Matrix4x4T(const double M[4][4])
     {
         for (int i=0; i<4; i++)
             for (int j=0; j<4; j++)
@@ -62,10 +62,10 @@ class MatrixT
     }
 
     /// Constructor for creating an arbitrary matrix.
-    MatrixT(float m00, float m01, float m02, float m03,
-            float m10, float m11, float m12, float m13,
-            float m20, float m21, float m22, float m23,
-            float m30, float m31, float m32, float m33)
+    Matrix4x4T(float m00, float m01, float m02, float m03,
+               float m10, float m11, float m12, float m13,
+               float m20, float m21, float m22, float m23,
+               float m30, float m31, float m32, float m33)
     {
         m[0][0]=m00; m[0][1]=m01; m[0][2]=m02; m[0][3]=m03;
         m[1][0]=m10; m[1][1]=m11; m[1][2]=m12; m[1][3]=m13;
@@ -91,21 +91,21 @@ class MatrixT
     /// @param t   The translation that is expressed in the matrix.
     /// @param q   The quaternion that describes the rotation that is expressed in the matrix.
     /// @param s   The scale that is expressed in the matrix.
-    MatrixT(const Vector3fT& t, const cf::math::QuaternionT<float>& q, const Vector3fT& s=Vector3fT(1.0f, 1.0f, 1.0f));
+    Matrix4x4T(const Vector3fT& t, const cf::math::QuaternionT<float>& q, const Vector3fT& s=Vector3fT(1.0f, 1.0f, 1.0f));
 
     /// \name Named constructors
     /// @{
-    static MatrixT GetProjOrthoMatrix(float left, float right, float bottom, float top, float zNear, float zFar);   ///< Returns a matrix for orthographic projection.
-    static MatrixT GetProjFrustumMatrix(float left, float right, float bottom, float top, float zNear, float zFar); ///< Returns a matrix for perspective projection. If zFar <= zNear, the far plane is assumed to be at infinity (a useful special case for stencil shadow projections).
-    static MatrixT GetProjPerspectiveMatrix(float fovY, float aspect, float zNear, float zFar);                     ///< Returns a matrix for perspective projection. If zFar <= zNear, the far plane is assumed to be at infinity (a useful special case for stencil shadow projections).
-    static MatrixT GetProjPickMatrix(float x, float y, float width, float height, int viewport[4]);                 ///< Returns a matrix for picking, i.e. the same matrix that gluPickMatrix() uses.
+    static Matrix4x4T GetProjOrthoMatrix(float left, float right, float bottom, float top, float zNear, float zFar);   ///< Returns a matrix for orthographic projection.
+    static Matrix4x4T GetProjFrustumMatrix(float left, float right, float bottom, float top, float zNear, float zFar); ///< Returns a matrix for perspective projection. If zFar <= zNear, the far plane is assumed to be at infinity (a useful special case for stencil shadow projections).
+    static Matrix4x4T GetProjPerspectiveMatrix(float fovY, float aspect, float zNear, float zFar);                     ///< Returns a matrix for perspective projection. If zFar <= zNear, the far plane is assumed to be at infinity (a useful special case for stencil shadow projections).
+    static Matrix4x4T GetProjPickMatrix(float x, float y, float width, float height, int viewport[4]);                 ///< Returns a matrix for picking, i.e. the same matrix that gluPickMatrix() uses.
 
-    static MatrixT GetTranslateMatrix(const Vector3fT& t);              ///< Returns a translate matrix about t.
-    static MatrixT GetScaleMatrix(float sx, float sy, float sz);        ///< Returns a scale matrix with scale factors (sx sy sz).
-    static MatrixT GetRotateXMatrix(float Angle);                       ///< Returns a rotation matrix about Angle degrees around the x-axis.
-    static MatrixT GetRotateYMatrix(float Angle);                       ///< Returns a rotation matrix about Angle degrees around the y-axis.
-    static MatrixT GetRotateZMatrix(float Angle);                       ///< Returns a rotation matrix about Angle degrees around the z-axis.
-    static MatrixT GetRotateMatrix(float Angle, const Vector3fT& Axis); ///< Returns a rotation matrix about Angle degrees around Axis.
+    static Matrix4x4T GetTranslateMatrix(const Vector3fT& t);              ///< Returns a translate matrix about t.
+    static Matrix4x4T GetScaleMatrix(float sx, float sy, float sz);        ///< Returns a scale matrix with scale factors (sx sy sz).
+    static Matrix4x4T GetRotateXMatrix(float Angle);                       ///< Returns a rotation matrix about Angle degrees around the x-axis.
+    static Matrix4x4T GetRotateYMatrix(float Angle);                       ///< Returns a rotation matrix about Angle degrees around the y-axis.
+    static Matrix4x4T GetRotateZMatrix(float Angle);                       ///< Returns a rotation matrix about Angle degrees around the z-axis.
+    static Matrix4x4T GetRotateMatrix(float Angle, const Vector3fT& Axis); ///< Returns a rotation matrix about Angle degrees around Axis.
     /// @}
 
 
@@ -119,7 +119,7 @@ class MatrixT
     /// Computes M*Other, that is, the matrix product of this and the Other matrix.
     /// @param  Other   The other matrix (right side).
     /// @return The matrix product of this and the Other matrix.
-    MatrixT operator * (const MatrixT& Other) const;
+    Matrix4x4T operator * (const Matrix4x4T& Other) const;
 
     void Translate_MT(const VectorT& Trans);            ///< Computes M=M*T, where T=GetTranslationMatrix(Trans). Assumes that the last row is (0 0 0 1).
     void Translate_MT(float tx, float ty, float tz);    ///< Computes M=M*T, where T=GetTranslationMatrix(Trans). Assumes that the last row is (0 0 0 1).
@@ -240,7 +240,7 @@ class MatrixT
     /// The matrices are considered equal if the element-wise comparison yields no difference larger than Epsilon.
     /// @param Other Matrix to compare to.
     /// @param Epsilon Tolerance value.
-    bool IsEqual(const MatrixT& Other, const float Epsilon=0) const
+    bool IsEqual(const Matrix4x4T& Other, const float Epsilon=0) const
     {
         for (unsigned long i=0; i<4; i++)
             for (unsigned long j=0; j<4; j++)
@@ -269,16 +269,20 @@ class MatrixT
     /// @param Result Whether the inversion was successful.
     /// @return If this matrix is invertible, the inverse is returned by this method and *Result, if not at NULL, is set to true.
     ///         Otherwise, an undefined matrix is returned and *Result, if not at NULL, is set to false.
-    MatrixT GetInverse(bool* Result=NULL) const;
+    Matrix4x4T GetInverse(bool* Result=NULL) const;
 
     /// Returns the transpose of this matrix.
     /// @return The transpose of this matrix.
-    MatrixT GetTranspose() const;
+    Matrix4x4T GetTranspose() const;
 
 
 
     /// The matrix values.
     float m[4][4];
 };
+
+
+typedef Matrix4x4T Matrix4x4fT;
+typedef Matrix4x4T MatrixT;       // The original MatrixT type for backwards-compatibility with old code.
 
 #endif

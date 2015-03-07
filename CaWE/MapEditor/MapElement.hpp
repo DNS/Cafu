@@ -42,7 +42,7 @@ class Renderer2DT;
 class Renderer3DT;
 class TextParserT;
 class ViewWindow2DT;
-class MatrixT;
+typedef class Matrix4x4T Matrix4x4fT;
 
 
 /// The TypeInfoTs of all MapElementT derived classes must register with this TypeInfoManT instance.
@@ -222,7 +222,7 @@ class MapElementT
     /// non-orthogonal basis vectors.
     /// @param Matrix          The matrix that describes the transform to be applied.
     /// @param LockTexCoords   Transform the texture-space along with the geometry.
-    virtual void Transform(const MatrixT& Matrix, bool LockTexCoords) { }
+    virtual void Transform(const Matrix4x4fT& Matrix, bool LockTexCoords) { }
 
 
     unsigned int GetFrameCount() const { return m_FrameCount; }

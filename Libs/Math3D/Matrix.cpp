@@ -23,7 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Quaternion.hpp"
 
 
-MatrixT::MatrixT(const Vector3fT& t, const cf::math::QuaternionT<float>& q, const Vector3fT& s)
+Matrix4x4T::Matrix4x4T(const Vector3fT& t, const cf::math::QuaternionT<float>& q, const Vector3fT& s)
 {
     const float x=q.x;
     const float y=q.y;
@@ -42,9 +42,9 @@ MatrixT::MatrixT(const Vector3fT& t, const cf::math::QuaternionT<float>& q, cons
 }
 
 
-MatrixT MatrixT::GetProjOrthoMatrix(float left, float right, float bottom, float top, float zNear, float zFar)
+Matrix4x4T Matrix4x4T::GetProjOrthoMatrix(float left, float right, float bottom, float top, float zNear, float zFar)
 {
-    return MatrixT(
+    return Matrix4x4T(
         2.0f/(right-left),              0.0f,               0.0f, -(right+left)/(right-left),
                      0.0f, 2.0f/(top-bottom),               0.0f, -(top+bottom)/(top-bottom),
                      0.0f,              0.0f, -2.0f/(zFar-zNear), -(zFar+zNear)/(zFar-zNear),
@@ -52,7 +52,7 @@ MatrixT MatrixT::GetProjOrthoMatrix(float left, float right, float bottom, float
 }
 
 
-MatrixT MatrixT::GetProjFrustumMatrix(float left, float right, float bottom, float top, float zNear, float zFar)
+Matrix4x4T Matrix4x4T::GetProjFrustumMatrix(float left, float right, float bottom, float top, float zNear, float zFar)
 {
     const float x=(2.0f*zNear)/(right-left);
     const float y=(2.0f*zNear)/(top-bottom);
@@ -63,7 +63,7 @@ MatrixT MatrixT::GetProjFrustumMatrix(float left, float right, float bottom, flo
     const float c=(zNear<zFar) ? -(zFar+zNear)/(zFar-zNear)      : -1.0f;
     const float d=(zNear<zFar) ? -(2.0f*zFar*zNear)/(zFar-zNear) : -2.0f*zNear;
 
-    return MatrixT(
+    return Matrix4x4T(
         x,    0.0f, a,     0.0f,
         0.0f, y,    b,     0.0f,
         0.0f, 0.0f, c,     d,
@@ -71,7 +71,7 @@ MatrixT MatrixT::GetProjFrustumMatrix(float left, float right, float bottom, flo
 }
 
 
-MatrixT MatrixT::GetProjPerspectiveMatrix(float fovY, float aspect, float zNear, float zFar)
+Matrix4x4T Matrix4x4T::GetProjPerspectiveMatrix(float fovY, float aspect, float zNear, float zFar)
 {
     if (zFar<=zNear)
     {
@@ -79,7 +79,7 @@ MatrixT MatrixT::GetProjPerspectiveMatrix(float fovY, float aspect, float zNear,
         // This code is also used in <http://trac.cafu.de/browser/cafu/trunk/Libs/OpenGL/OpenGLWindow.cpp?rev=100#L137>.
         const float cotanFovY=1.0f/tan(fovY*3.14159265358979323846f/360.0f);
 
-        return MatrixT(
+        return Matrix4x4T(
             cotanFovY/aspect,      0.0f,  0.0f,        0.0f,
                         0.0f, cotanFovY,  0.0f,        0.0f,
                         0.0f,      0.0f, -1.0f, -2.0f*zNear,
@@ -95,7 +95,7 @@ MatrixT MatrixT::GetProjPerspectiveMatrix(float fovY, float aspect, float zNear,
 }
 
 
-MatrixT MatrixT::GetProjPickMatrix(float x, float y, float width, float height, int viewport[4])
+Matrix4x4T Matrix4x4T::GetProjPickMatrix(float x, float y, float width, float height, int viewport[4])
 {
     // See the OpenGL Programming Guide for a description and CaWE for an example for how the pick matrix is used.
     const float sx=viewport[2] / width;
@@ -103,16 +103,16 @@ MatrixT MatrixT::GetProjPickMatrix(float x, float y, float width, float height, 
     const float tx=(viewport[2] + 2.0f * (viewport[0] - x)) / width;
     const float ty=(viewport[3] + 2.0f * (viewport[1] - y)) / height;
 
-    return MatrixT( sx, 0.0, 0.0f,   tx,
-                   0.0,  sy, 0.0f,   ty,
-                   0.0, 0.0, 1.0f, 0.0f,
-                   0.0, 0.0, 0.0f, 1.0f);
+    return Matrix4x4T( sx, 0.0, 0.0f,   tx,
+                      0.0,  sy, 0.0f,   ty,
+                      0.0, 0.0, 1.0f, 0.0f,
+                      0.0, 0.0, 0.0f, 1.0f);
 }
 
 
-MatrixT MatrixT::GetTranslateMatrix(const Vector3fT& t)
+Matrix4x4T Matrix4x4T::GetTranslateMatrix(const Vector3fT& t)
 {
-    MatrixT M;
+    Matrix4x4T M;
 
     M.m[0][3]=t.x;
     M.m[1][3]=t.y;
@@ -122,9 +122,9 @@ MatrixT MatrixT::GetTranslateMatrix(const Vector3fT& t)
 }
 
 
-MatrixT MatrixT::GetScaleMatrix(float sx, float sy, float sz)
+Matrix4x4T Matrix4x4T::GetScaleMatrix(float sx, float sy, float sz)
 {
-    MatrixT M;
+    Matrix4x4T M;
 
     M.m[0][0]=sx;
     M.m[1][1]=sy;
@@ -134,9 +134,9 @@ MatrixT MatrixT::GetScaleMatrix(float sx, float sy, float sz)
 }
 
 
-MatrixT MatrixT::GetRotateXMatrix(float Angle)
+Matrix4x4T Matrix4x4T::GetRotateXMatrix(float Angle)
 {
-    MatrixT M;
+    Matrix4x4T M;
 
     const float RadAngle=Angle*3.14159265358979323846f/180.0f;
     const float SinAngle=float(sin(RadAngle));
@@ -149,9 +149,9 @@ MatrixT MatrixT::GetRotateXMatrix(float Angle)
 }
 
 
-MatrixT MatrixT::GetRotateYMatrix(float Angle)
+Matrix4x4T Matrix4x4T::GetRotateYMatrix(float Angle)
 {
-    MatrixT M;
+    Matrix4x4T M;
 
     const float RadAngle=Angle*3.14159265358979323846f/180.0f;
     const float SinAngle=float(sin(RadAngle));
@@ -164,9 +164,9 @@ MatrixT MatrixT::GetRotateYMatrix(float Angle)
 }
 
 
-MatrixT MatrixT::GetRotateZMatrix(float Angle)
+Matrix4x4T Matrix4x4T::GetRotateZMatrix(float Angle)
 {
-    MatrixT M;
+    Matrix4x4T M;
 
     const float RadAngle=Angle*3.14159265358979323846f/180.0f;
     const float SinAngle=float(sin(RadAngle));
@@ -179,7 +179,7 @@ MatrixT MatrixT::GetRotateZMatrix(float Angle)
 }
 
 
-MatrixT MatrixT::GetRotateMatrix(float Angle, const Vector3fT& Axis)
+Matrix4x4T Matrix4x4T::GetRotateMatrix(float Angle, const Vector3fT& Axis)
 {
     const float RadAngle=Angle*3.14159265358979323846f/180.0f;
     const float s       =float(sin(RadAngle));
@@ -189,16 +189,16 @@ MatrixT MatrixT::GetRotateMatrix(float Angle, const Vector3fT& Axis)
     const float tx=t*Axis.x; const float ty=t*Axis.y; const float tz=t*Axis.z;
     const float sx=s*Axis.x; const float sy=s*Axis.y; const float sz=s*Axis.z;
 
-    return MatrixT(tx*Axis.x +  c, tx*Axis.y - sz, tx*Axis.z + sy, 0.0f,
-                   tx*Axis.y + sz, ty*Axis.y +  c, ty*Axis.z - sx, 0.0f,
-                   tx*Axis.z - sy, ty*Axis.z + sx, tz*Axis.z +  c, 0.0f,
-                             0.0f,           0.0f,           0.0f, 1.0f);
+    return Matrix4x4T(tx*Axis.x +  c, tx*Axis.y - sz, tx*Axis.z + sy, 0.0f,
+                      tx*Axis.y + sz, ty*Axis.y +  c, ty*Axis.z - sx, 0.0f,
+                      tx*Axis.z - sy, ty*Axis.z + sx, tz*Axis.z +  c, 0.0f,
+                                0.0f,           0.0f,           0.0f, 1.0f);
 }
 
 
-MatrixT MatrixT::operator * (const MatrixT& vm) const
+Matrix4x4T Matrix4x4T::operator * (const Matrix4x4T& vm) const
 {
-    return MatrixT(
+    return Matrix4x4T(
         m[0][0]*vm.m[0][0] + m[0][1]*vm.m[1][0] + m[0][2]*vm.m[2][0] + m[0][3]*vm.m[3][0],
         m[0][0]*vm.m[0][1] + m[0][1]*vm.m[1][1] + m[0][2]*vm.m[2][1] + m[0][3]*vm.m[3][1],
         m[0][0]*vm.m[0][2] + m[0][1]*vm.m[1][2] + m[0][2]*vm.m[2][2] + m[0][3]*vm.m[3][2],
@@ -221,7 +221,7 @@ MatrixT MatrixT::operator * (const MatrixT& vm) const
 }
 
 
-void MatrixT::Translate_MT(const VectorT& vTrans)
+void Matrix4x4T::Translate_MT(const VectorT& vTrans)
 {
     const VectorT t=Mul1(vTrans);
 
@@ -231,7 +231,7 @@ void MatrixT::Translate_MT(const VectorT& vTrans)
 }
 
 
-void MatrixT::Translate_MT(float tx, float ty, float tz)
+void Matrix4x4T::Translate_MT(float tx, float ty, float tz)
 {
     m[0][3]=m[0][0]*tx + m[0][1]*ty + m[0][2]*tz + m[0][3];
     m[1][3]=m[1][0]*tx + m[1][1]*ty + m[1][2]*tz + m[1][3];
@@ -239,7 +239,7 @@ void MatrixT::Translate_MT(float tx, float ty, float tz)
 }
 
 
-void MatrixT::Translate_TM(const VectorT& vTrans)
+void Matrix4x4T::Translate_TM(const VectorT& vTrans)
 {
     m[0][3]+=float(vTrans.x);
     m[1][3]+=float(vTrans.y);
@@ -247,7 +247,7 @@ void MatrixT::Translate_TM(const VectorT& vTrans)
 }
 
 
-void MatrixT::Scale_MS(float sx, float sy, float sz)
+void Matrix4x4T::Scale_MS(float sx, float sy, float sz)
 {
     for (int i=0; i<4; i++)
     {
@@ -258,7 +258,7 @@ void MatrixT::Scale_MS(float sx, float sy, float sz)
 }
 
 
-void MatrixT::Scale_SM(float sx, float sy, float sz)
+void Matrix4x4T::Scale_SM(float sx, float sy, float sz)
 {
     for (int j=0; j<4; j++)
     {
@@ -269,7 +269,7 @@ void MatrixT::Scale_SM(float sx, float sy, float sz)
 }
 
 
-void MatrixT::RotateX_MR(float Angle)
+void Matrix4x4T::RotateX_MR(float Angle)
 {
     const float RadAngle=Angle*3.14159265358979323846f/180.0f;
     const float SinAngle=float(sin(RadAngle));
@@ -286,7 +286,7 @@ void MatrixT::RotateX_MR(float Angle)
 }
 
 
-void MatrixT::RotateX_RM(float Angle)
+void Matrix4x4T::RotateX_RM(float Angle)
 {
     const float RadAngle=Angle*3.14159265358979323846f/180.0f;
     const float SinAngle=float(sin(RadAngle));
@@ -303,7 +303,7 @@ void MatrixT::RotateX_RM(float Angle)
 }
 
 
-void MatrixT::RotateY_MR(float Angle)
+void Matrix4x4T::RotateY_MR(float Angle)
 {
     const float RadAngle=Angle*3.14159265358979323846f/180.0f;
     const float SinAngle=float(sin(RadAngle));
@@ -320,7 +320,7 @@ void MatrixT::RotateY_MR(float Angle)
 }
 
 
-void MatrixT::RotateY_RM(float Angle)
+void Matrix4x4T::RotateY_RM(float Angle)
 {
     const float RadAngle=Angle*3.14159265358979323846f/180.0f;
     const float SinAngle=float(sin(RadAngle));
@@ -337,7 +337,7 @@ void MatrixT::RotateY_RM(float Angle)
 }
 
 
-void MatrixT::RotateZ_MR(float Angle)
+void Matrix4x4T::RotateZ_MR(float Angle)
 {
     const float RadAngle=Angle*3.14159265358979323846f/180.0f;
     const float SinAngle=float(sin(RadAngle));
@@ -354,7 +354,7 @@ void MatrixT::RotateZ_MR(float Angle)
 }
 
 
-void MatrixT::RotateZ_RM(float Angle)
+void Matrix4x4T::RotateZ_RM(float Angle)
 {
     const float RadAngle=Angle*3.14159265358979323846f/180.0f;
     const float SinAngle=float(sin(RadAngle));
@@ -371,7 +371,7 @@ void MatrixT::RotateZ_RM(float Angle)
 }
 
 
-MatrixT MatrixT::GetInverse(bool* Result) const
+Matrix4x4T Matrix4x4T::GetInverse(bool* Result) const
 {
     // How it's done:
     // AX = I
@@ -420,7 +420,7 @@ MatrixT MatrixT::GetInverse(bool* Result) const
         }
 
         // They're all too small.. sorry.
-        if (iLargest==-1) return MatrixT();
+        if (iLargest==-1) return Matrix4x4T();
 
         // Swap the rows.
         int iTemp = rowMap[iLargest];
@@ -449,7 +449,7 @@ MatrixT MatrixT::GetInverse(bool* Result) const
     }
 
     // The inverse is on the right side of AX now (the identity is on the left).
-    MatrixT dst;
+    Matrix4x4T dst;
 
     for (int i=0; i<4; i++)
     {
@@ -464,9 +464,9 @@ MatrixT MatrixT::GetInverse(bool* Result) const
 }
 
 
-MatrixT MatrixT::GetTranspose() const
+Matrix4x4T Matrix4x4T::GetTranspose() const
 {
-    MatrixT mt;
+    Matrix4x4T mt;
 
     for (int i=0; i<4; i++)
         for (int j=0; j<4; j++)

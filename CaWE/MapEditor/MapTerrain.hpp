@@ -110,7 +110,7 @@ class MapTerrainT : public MapPrimitiveT
     void TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT& Angles, bool LockTexCoords) override;
     void TrafoScale(const Vector3fT& RefPoint, const Vector3fT& Scale, bool LockTexCoords) override;
     void TrafoMirror(unsigned int NormalAxis, float Dist, bool LockTexCoords) override;
-    void Transform(const MatrixT& Matrix, bool LockTexCoords) override;
+    void Transform(const Matrix4x4fT& Matrix, bool LockTexCoords) override;
 
     wxString GetDescription() const { return "Terrain"; }
 
