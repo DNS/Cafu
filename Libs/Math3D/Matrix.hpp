@@ -41,24 +41,24 @@ class Matrix4x4T
     /// The default constructor for creating a "1" (identity) matrix.
     Matrix4x4T()
     {
-        for (int i = 0; i < 4; i++)
-            for (int j = 0; j < 4; j++)
+        for (unsigned int i = 0; i < 4; i++)
+            for (unsigned int j = 0; j < 4; j++)
                 m[i][j] = (i == j) ? 1.0f : 0.0f;
     }
 
     /// Constructor for creating an arbitrary matrix.
     Matrix4x4T(const float M[4][4])
     {
-        for (int i = 0; i < 4; i++)
-            for (int j = 0; j < 4; j++)
+        for (unsigned int i = 0; i < 4; i++)
+            for (unsigned int j = 0; j < 4; j++)
                 m[i][j] = M[i][j];
     }
 
     /// Constructor for creating an arbitrary matrix.
     Matrix4x4T(const double M[4][4])
     {
-        for (int i = 0; i < 4; i++)
-            for (int j = 0; j < 4; j++)
+        for (unsigned int i = 0; i < 4; i++)
+            for (unsigned int j = 0; j < 4; j++)
                 m[i][j] = float(M[i][j]);
     }
 
@@ -112,10 +112,10 @@ class Matrix4x4T
 
 
     /// Returns the i-th row of this matrix.
-    float* operator [] (unsigned long i) { assert(i < 4); return m[i]; }
+    float* operator [] (unsigned int i) { assert(i < 4); return m[i]; }
 
     /// Returns the i-th row of this matrix.
-    const float* operator [] (unsigned long i) const { assert(i < 4); return m[i]; }
+    const float* operator [] (unsigned int i) const { assert(i < 4); return m[i]; }
 
     /// Computes M*Other, that is, the matrix product of this and the Other matrix.
     /// @param  Other   The other matrix (right side).
@@ -206,7 +206,7 @@ class Matrix4x4T
                             m[1][0]*v[0] + m[1][1]*v[1] + m[1][2]*v[2] + m[1][3],
                             m[2][0]*v[0] + m[2][1]*v[1] + m[2][2]*v[2] + m[2][3] };
 
-        for (int i = 0; i < 3; i++) out[i] = Result[i];
+        for (unsigned int i = 0; i < 3; i++) out[i] = Result[i];
     }
 
     /// Computes M*v, where M is this matrix.
@@ -234,7 +234,7 @@ class Matrix4x4T
                             m[2][0]*v[0] + m[2][1]*v[1] + m[2][2]*v[2] + m[2][3]*v[3],
                             m[3][0]*v[0] + m[3][1]*v[1] + m[3][2]*v[2] + m[3][3]*v[3] };
 
-        for (int i = 0; i < 4; i++) out[i] = Result[i];
+        for (unsigned int i = 0; i < 4; i++) out[i] = Result[i];
     }
 
     /// Returns whether this matrix is equal to Other.
@@ -243,8 +243,8 @@ class Matrix4x4T
     /// @param Epsilon Tolerance value.
     bool IsEqual(const Matrix4x4T& Other, const float Epsilon = 0) const
     {
-        for (unsigned long i = 0; i < 4; i++)
-            for (unsigned long j = 0; j < 4; j++)
+        for (unsigned int i = 0; i < 4; i++)
+            for (unsigned int j = 0; j < 4; j++)
                 if (fabs(m[i][j] - Other.m[i][j]) > Epsilon)
                     return false;
 
