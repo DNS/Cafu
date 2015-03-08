@@ -40,6 +40,34 @@ Map.ammo_shotgun_shells_1 = world:new("EntityT", "ammo_shotgun_shells_1")
 Map.tree = world:new("EntityT", "tree")
 Map.func_water_2 = world:new("EntityT", "func_water_2")
 Map.func_water_3 = world:new("EntityT", "func_water_3")
+Map.EntryLift = world:new("EntityT", "EntryLift")
+Map.EntryLift.Plunger = world:new("EntityT", "Plunger")
+Map.EntryLift.Plunger.move_dest = world:new("EntityT", "move_dest")
+Map.EntryLift.UpperButton = world:new("EntityT", "UpperButton")
+Map.EntryLift.UpperButton.move_dest = world:new("EntityT", "move_dest")
+Map.EntryLift.LowerButton = world:new("EntityT", "LowerButton")
+Map.EntryLift.LowerButton.move_dest = world:new("EntityT", "move_dest")
+Map.SmallLift = world:new("EntityT", "SmallLift")
+Map.SmallLift.Plunger = world:new("EntityT", "Plunger")
+Map.SmallLift.Plunger.move_dest = world:new("EntityT", "move_dest")
+Map.Bridge = world:new("EntityT", "Bridge")
+Map.Bridge.Platform = world:new("EntityT", "Platform")
+Map.Bridge.Platform.move_dest = world:new("EntityT", "move_dest")
+Map.Bridge.Button = world:new("EntityT", "Button")
+Map.Bridge.Button.move_dest = world:new("EntityT", "move_dest")
+Map.WaterLift = world:new("EntityT", "WaterLift")
+Map.WaterLift.Platform = world:new("EntityT", "Platform")
+Map.WaterLift.Platform.move_dest = world:new("EntityT", "move_dest")
+Map.Door1 = world:new("EntityT", "Door1")
+Map.Door1.left_wing = world:new("EntityT", "left_wing")
+Map.Door1.left_wing.move_dest = world:new("EntityT", "move_dest")
+Map.Door1.right_wing = world:new("EntityT", "right_wing")
+Map.Door1.right_wing.move_dest = world:new("EntityT", "move_dest")
+Map.Door2 = world:new("EntityT", "Door2")
+Map.Door2.left_wing = world:new("EntityT", "left_wing")
+Map.Door2.left_wing.move_dest = world:new("EntityT", "move_dest")
+Map.Door2.right_wing = world:new("EntityT", "right_wing")
+Map.Door2.right_wing.move_dest = world:new("EntityT", "move_dest")
 
 
 -- Set the worlds root entity.
@@ -78,6 +106,34 @@ Map:AddChild(Map.ammo_shotgun_shells_1)
 Map:AddChild(Map.tree)
 Map:AddChild(Map.func_water_2)
 Map:AddChild(Map.func_water_3)
+Map:AddChild(Map.EntryLift)
+Map.EntryLift:AddChild(Map.EntryLift.Plunger)
+Map.EntryLift.Plunger:AddChild(Map.EntryLift.Plunger.move_dest)
+Map.EntryLift:AddChild(Map.EntryLift.UpperButton)
+Map.EntryLift.UpperButton:AddChild(Map.EntryLift.UpperButton.move_dest)
+Map.EntryLift:AddChild(Map.EntryLift.LowerButton)
+Map.EntryLift.LowerButton:AddChild(Map.EntryLift.LowerButton.move_dest)
+Map:AddChild(Map.SmallLift)
+Map.SmallLift:AddChild(Map.SmallLift.Plunger)
+Map.SmallLift.Plunger:AddChild(Map.SmallLift.Plunger.move_dest)
+Map:AddChild(Map.Bridge)
+Map.Bridge:AddChild(Map.Bridge.Platform)
+Map.Bridge.Platform:AddChild(Map.Bridge.Platform.move_dest)
+Map.Bridge:AddChild(Map.Bridge.Button)
+Map.Bridge.Button:AddChild(Map.Bridge.Button.move_dest)
+Map:AddChild(Map.WaterLift)
+Map.WaterLift:AddChild(Map.WaterLift.Platform)
+Map.WaterLift.Platform:AddChild(Map.WaterLift.Platform.move_dest)
+Map:AddChild(Map.Door1)
+Map.Door1:AddChild(Map.Door1.left_wing)
+Map.Door1.left_wing:AddChild(Map.Door1.left_wing.move_dest)
+Map.Door1:AddChild(Map.Door1.right_wing)
+Map.Door1.right_wing:AddChild(Map.Door1.right_wing.move_dest)
+Map:AddChild(Map.Door2)
+Map.Door2:AddChild(Map.Door2.left_wing)
+Map.Door2.left_wing:AddChild(Map.Door2.left_wing.move_dest)
+Map.Door2:AddChild(Map.Door2.right_wing)
+Map.Door2.right_wing:AddChild(Map.Door2.right_wing.move_dest)
 
 
 -- Initialization of the entity contents ("constructors").
@@ -649,5 +705,229 @@ end
 function Map.func_water_3:OnInit()
     self:GetBasics():set("Static", true)
     self:GetTransform():set("Origin", 1312, 904, -448)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.EntryLift:OnInit()
+    self:GetTransform():set("Origin", 0, 576, 8)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentMoverT")
+    c1:set("moveDuration", 3)
+    c1:set("destActivated", 1)
+    c1:set("destTimeout", 3)
+    c1:set("otherEntities", 2)
+    c1:set("trajFunc", 1)
+    c1:set("trajExp", 1)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/MoverBinary.lua")
+    c2:set("ScriptCode", "")
+
+    self:AddComponent(c1, c2)
+end
+
+function Map.EntryLift.Plunger:OnInit()
+    self:GetTransform():set("Origin", -56, 56, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.EntryLift.Plunger.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, 0, -232)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.EntryLift.UpperButton:OnInit()
+    self:GetTransform():set("Origin", -56, 0, 40)
+    self:GetTransform():set("Orientation", 0, 0, 0.70710677)
+end
+
+function Map.EntryLift.UpperButton.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, -7, 0)
+    self:GetTransform():set("Orientation", 0, 0, -0.70710677)
+end
+
+function Map.EntryLift.LowerButton:OnInit()
+    self:GetTransform():set("Origin", 96, 136, -184)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.EntryLift.LowerButton.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, -7, 0)
+    self:GetTransform():set("Orientation", 0, 0, -0.70710677)
+end
+
+function Map.SmallLift:OnInit()
+    self:GetTransform():set("Origin", -544, 2656, -112)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentMoverT")
+    c1:set("moveDuration", 1)
+    c1:set("destActivated", 1)
+    c1:set("destTimeout", 1)
+    c1:set("otherEntities", 2)
+    c1:set("trajFunc", 1)
+    c1:set("trajExp", 1)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/MoverBinary.lua")
+    c2:set("ScriptCode", "")
+
+    self:AddComponent(c1, c2)
+end
+
+function Map.SmallLift.Plunger:OnInit()
+    self:GetTransform():set("Origin", -40, -24, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.SmallLift.Plunger.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, 0, 152)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.Bridge:OnInit()
+    self:GetTransform():set("Origin", 160, 2656, -88)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentMoverT")
+    c1:set("moveDuration", 5)
+    c1:set("destActivated", 2)
+    c1:set("destTimeout", -1)
+    c1:set("otherEntities", 2)
+    c1:set("trajFunc", 1)
+    c1:set("trajExp", 2)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/MoverBinary.lua")
+    c2:set("ScriptCode", "")
+
+    self:AddComponent(c1, c2)
+end
+
+function Map.Bridge.Platform:OnInit()
+    self:GetTransform():set("Origin", 152, -8, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.Bridge.Platform.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, 232, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.Bridge.Button:OnInit()
+    self:GetTransform():set("Origin", -208, 8, 56)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.Bridge.Button.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, -7, 0)
+    self:GetTransform():set("Orientation", 0, 0, -0.70710677)
+end
+
+function Map.WaterLift:OnInit()
+    self:GetTransform():set("Origin", 784, 512, -320)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentMoverT")
+    c1:set("moveDuration", 5)
+    c1:set("destActivated", 2)
+    c1:set("destTimeout", 3)
+    c1:set("otherEntities", 2)
+    c1:set("trajFunc", 1)
+    c1:set("trajExp", 2)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/MoverBinary.lua")
+    c2:set("ScriptCode", "")
+
+    self:AddComponent(c1, c2)
+end
+
+function Map.WaterLift.Platform:OnInit()
+    self:GetTransform():set("Origin", -24, 0, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.WaterLift.Platform.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, 0, 408)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.Door1:OnInit()
+    self:GetTransform():set("Origin", 232, 576, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0.99999994)
+
+    local c1 = world:new("ComponentMoverT")
+    c1:set("moveDuration", 0.5)
+    c1:set("destActivated", 1)
+    c1:set("destTimeout", 3)
+    c1:set("otherEntities", 2)
+    c1:set("trajFunc", 0)
+    c1:set("trajExp", 2)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/MoverBinary.lua")
+    c2:set("ScriptCode", "")
+
+    self:AddComponent(c1, c2)
+end
+
+function Map.Door1.left_wing:OnInit()
+    self:GetTransform():set("Origin", 0, 8, 40)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.Door1.left_wing.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, 47, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.Door1.right_wing:OnInit()
+    self:GetTransform():set("Origin", 0, -8, 88)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.Door1.right_wing.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, -47, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.Door2:OnInit()
+    self:GetTransform():set("Origin", 128, 1800, -208)
+    self:GetTransform():set("Orientation", 0, 0, -0.70710677)
+
+    local c1 = world:new("ComponentMoverT")
+    c1:set("moveDuration", 0.5)
+    c1:set("destActivated", 1)
+    c1:set("destTimeout", 3)
+    c1:set("otherEntities", 2)
+    c1:set("trajFunc", 0)
+    c1:set("trajExp", 2)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/MoverBinary.lua")
+    c2:set("ScriptCode", "")
+
+    self:AddComponent(c1, c2)
+end
+
+function Map.Door2.left_wing:OnInit()
+    self:GetTransform():set("Origin", 0, 8, 40)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.Door2.left_wing.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, 47, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.Door2.right_wing:OnInit()
+    self:GetTransform():set("Origin", 0, -8, 88)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.Door2.right_wing.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, -47, 0)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
