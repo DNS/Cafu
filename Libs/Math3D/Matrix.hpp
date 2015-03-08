@@ -51,7 +51,7 @@ class Matrix4x4T
     {
         for (unsigned int i = 0; i < 4; i++)
             for (unsigned int j = 0; j < 4; j++)
-                m[i][j] = M[i][j];
+                m[i][j] = T(M[i][j]);
     }
 
     /// Constructor for creating an arbitrary matrix.
@@ -59,14 +59,14 @@ class Matrix4x4T
     {
         for (unsigned int i = 0; i < 4; i++)
             for (unsigned int j = 0; j < 4; j++)
-                m[i][j] = float(M[i][j]);
+                m[i][j] = T(M[i][j]);
     }
 
     /// Constructor for creating an arbitrary matrix.
-    Matrix4x4T(float m00, float m01, float m02, float m03,
-               float m10, float m11, float m12, float m13,
-               float m20, float m21, float m22, float m23,
-               float m30, float m31, float m32, float m33)
+    Matrix4x4T(T m00, T m01, T m02, T m03,
+               T m10, T m11, T m12, T m13,
+               T m20, T m21, T m22, T m23,
+               T m30, T m31, T m32, T m33)
     {
         m[0][0] = m00; m[0][1] = m01; m[0][2] = m02; m[0][3] = m03;
         m[1][0] = m10; m[1][1] = m11; m[1][2] = m12; m[1][3] = m13;
@@ -92,47 +92,47 @@ class Matrix4x4T
     /// @param t   The translation that is expressed in the matrix.
     /// @param q   The quaternion that describes the rotation that is expressed in the matrix.
     /// @param s   The scale that is expressed in the matrix.
-    Matrix4x4T(const Vector3fT& t, const cf::math::QuaternionT<float>& q, const Vector3fT& s = Vector3fT(1, 1, 1));
+    Matrix4x4T(const Vector3T<T>& t, const cf::math::QuaternionT<T>& q, const Vector3T<T>& s = Vector3T<T>(1, 1, 1));
 
     /// \name Named constructors
     /// @{
-    static Matrix4x4T GetProjOrthoMatrix(float left, float right, float bottom, float top, float zNear, float zFar);   ///< Returns a matrix for orthographic projection.
-    static Matrix4x4T GetProjFrustumMatrix(float left, float right, float bottom, float top, float zNear, float zFar); ///< Returns a matrix for perspective projection. If zFar <= zNear, the far plane is assumed to be at infinity (a useful special case for stencil shadow projections).
-    static Matrix4x4T GetProjPerspectiveMatrix(float fovY, float aspect, float zNear, float zFar);                     ///< Returns a matrix for perspective projection. If zFar <= zNear, the far plane is assumed to be at infinity (a useful special case for stencil shadow projections).
-    static Matrix4x4T GetProjPickMatrix(float x, float y, float width, float height, int viewport[4]);                 ///< Returns a matrix for picking, i.e. the same matrix that gluPickMatrix() uses.
+    static Matrix4x4T GetProjOrthoMatrix(T left, T right, T bottom, T top, T zNear, T zFar);    ///< Returns a matrix for orthographic projection.
+    static Matrix4x4T GetProjFrustumMatrix(T left, T right, T bottom, T top, T zNear, T zFar);  ///< Returns a matrix for perspective projection. If zFar <= zNear, the far plane is assumed to be at infinity (a useful special case for stencil shadow projections).
+    static Matrix4x4T GetProjPerspectiveMatrix(T fovY, T aspect, T zNear, T zFar);              ///< Returns a matrix for perspective projection. If zFar <= zNear, the far plane is assumed to be at infinity (a useful special case for stencil shadow projections).
+    static Matrix4x4T GetProjPickMatrix(T x, T y, T width, T height, int viewport[4]);          ///< Returns a matrix for picking, i.e. the same matrix that gluPickMatrix() uses.
 
-    static Matrix4x4T GetTranslateMatrix(const Vector3fT& t);              ///< Returns a translate matrix about t.
-    static Matrix4x4T GetScaleMatrix(float sx, float sy, float sz);        ///< Returns a scale matrix with scale factors (sx sy sz).
-    static Matrix4x4T GetRotateXMatrix(float Angle);                       ///< Returns a rotation matrix about Angle degrees around the x-axis.
-    static Matrix4x4T GetRotateYMatrix(float Angle);                       ///< Returns a rotation matrix about Angle degrees around the y-axis.
-    static Matrix4x4T GetRotateZMatrix(float Angle);                       ///< Returns a rotation matrix about Angle degrees around the z-axis.
-    static Matrix4x4T GetRotateMatrix(float Angle, const Vector3fT& Axis); ///< Returns a rotation matrix about Angle degrees around Axis.
+    static Matrix4x4T GetTranslateMatrix(const Vector3T<T>& t);             ///< Returns a translate matrix about t.
+    static Matrix4x4T GetScaleMatrix(T sx, T sy, T sz);                     ///< Returns a scale matrix with scale factors (sx sy sz).
+    static Matrix4x4T GetRotateXMatrix(T Angle);                            ///< Returns a rotation matrix about Angle degrees around the x-axis.
+    static Matrix4x4T GetRotateYMatrix(T Angle);                            ///< Returns a rotation matrix about Angle degrees around the y-axis.
+    static Matrix4x4T GetRotateZMatrix(T Angle);                            ///< Returns a rotation matrix about Angle degrees around the z-axis.
+    static Matrix4x4T GetRotateMatrix(T Angle, const Vector3T<T>& Axis);    ///< Returns a rotation matrix about Angle degrees around Axis.
     /// @}
 
 
 
     /// Returns the i-th row of this matrix.
-    float* operator [] (unsigned int i) { assert(i < 4); return m[i]; }
+    T* operator [] (unsigned int i) { assert(i < 4); return m[i]; }
 
     /// Returns the i-th row of this matrix.
-    const float* operator [] (unsigned int i) const { assert(i < 4); return m[i]; }
+    const T* operator [] (unsigned int i) const { assert(i < 4); return m[i]; }
 
     /// Computes M*Other, that is, the matrix product of this and the Other matrix.
     /// @param  Other   The other matrix (right side).
     /// @return The matrix product of this and the Other matrix.
     Matrix4x4T operator * (const Matrix4x4T& Other) const;
 
-    void Translate_MT(const VectorT& Trans);            ///< Computes M=M*T, where T=GetTranslationMatrix(Trans). Assumes that the last row is (0 0 0 1).
-    void Translate_MT(float tx, float ty, float tz);    ///< Computes M=M*T, where T=GetTranslationMatrix(Trans). Assumes that the last row is (0 0 0 1).
-    void Translate_TM(const VectorT& Trans);            ///< Computes M=T*M, where T=GetTranslationMatrix(Trans). Assumes that the last row is (0 0 0 1).
-    void Scale_MS    (float sx, float sy, float sz);    ///< Computes M=M*S, where S=GetScaleMatrix      (sx, sy, sz).
-    void Scale_SM    (float sx, float sy, float sz);    ///< Computes M=S*M, where S=GetScaleMatrix      (sx, sy, sz).
-    void RotateX_MR  (float Angle);                     ///< Computes M=M*R, where R=GetRotateXMatrix    (Angle).
-    void RotateX_RM  (float Angle);                     ///< Computes M=R*M, where R=GetRotateXMatrix    (Angle).
-    void RotateY_MR  (float Angle);                     ///< Computes M=M*R, where R=GetRotateYMatrix    (Angle).
-    void RotateY_RM  (float Angle);                     ///< Computes M=R*M, where R=GetRotateYMatrix    (Angle).
-    void RotateZ_MR  (float Angle);                     ///< Computes M=M*R, where R=GetRotateZMatrix    (Angle).
-    void RotateZ_RM  (float Angle);                     ///< Computes M=R*M, where R=GetRotateZMatrix    (Angle).
+    void Translate_MT(const Vector3dT& Trans);  ///< Computes M=M*T, where T=GetTranslationMatrix(Trans). Assumes that the last row is (0 0 0 1).
+    void Translate_MT(T tx, T ty, T tz);        ///< Computes M=M*T, where T=GetTranslationMatrix(Trans). Assumes that the last row is (0 0 0 1).
+    void Translate_TM(const Vector3dT& Trans);  ///< Computes M=T*M, where T=GetTranslationMatrix(Trans). Assumes that the last row is (0 0 0 1).
+    void Scale_MS    (T sx, T sy, T sz);        ///< Computes M=M*S, where S=GetScaleMatrix      (sx, sy, sz).
+    void Scale_SM    (T sx, T sy, T sz);        ///< Computes M=S*M, where S=GetScaleMatrix      (sx, sy, sz).
+    void RotateX_MR  (T Angle);                 ///< Computes M=M*R, where R=GetRotateXMatrix    (Angle).
+    void RotateX_RM  (T Angle);                 ///< Computes M=R*M, where R=GetRotateXMatrix    (Angle).
+    void RotateY_MR  (T Angle);                 ///< Computes M=M*R, where R=GetRotateYMatrix    (Angle).
+    void RotateY_RM  (T Angle);                 ///< Computes M=R*M, where R=GetRotateYMatrix    (Angle).
+    void RotateZ_MR  (T Angle);                 ///< Computes M=M*R, where R=GetRotateZMatrix    (Angle).
+    void RotateZ_RM  (T Angle);                 ///< Computes M=R*M, where R=GetRotateZMatrix    (Angle).
 
     /// Computes M*v, where M is this matrix.
     /// The w-component of v is assumed to be 0 (v being a direction vector, not a point).
@@ -140,11 +140,11 @@ class Matrix4x4T
     /// That means that only the rotation (and scale) of M is applied to v.
     /// @param  v    A direction vector.
     /// @return M*v. The w-component of the returned vector is implied to be 0.
-    VectorT Mul0(const VectorT& v) const
+    Vector3dT Mul0(const Vector3dT& v) const
     {
-        return VectorT(m[0][0]*v.x + m[0][1]*v.y + m[0][2]*v.z,
-                       m[1][0]*v.x + m[1][1]*v.y + m[1][2]*v.z,
-                       m[2][0]*v.x + m[2][1]*v.y + m[2][2]*v.z);
+        return Vector3dT(m[0][0]*v.x + m[0][1]*v.y + m[0][2]*v.z,
+                         m[1][0]*v.x + m[1][1]*v.y + m[1][2]*v.z,
+                         m[2][0]*v.x + m[2][1]*v.y + m[2][2]*v.z);
     }
 
     // Same as above, but with float.
@@ -152,9 +152,9 @@ class Matrix4x4T
     /// @return M*v. The w-component of the returned vector is implied to be 0.
     Vector3fT Mul0(const Vector3fT& v) const
     {
-        return Vector3fT(m[0][0]*v.x + m[0][1]*v.y + m[0][2]*v.z,
-                         m[1][0]*v.x + m[1][1]*v.y + m[1][2]*v.z,
-                         m[2][0]*v.x + m[2][1]*v.y + m[2][2]*v.z);
+        return Vector3fT(float(m[0][0]*v.x + m[0][1]*v.y + m[0][2]*v.z),
+                         float(m[1][0]*v.x + m[1][1]*v.y + m[1][2]*v.z),
+                         float(m[2][0]*v.x + m[2][1]*v.y + m[2][2]*v.z));
     }
 
     /// Computes M*v, where M is this matrix.
@@ -163,11 +163,11 @@ class Matrix4x4T
     /// That means that both the rotation (and scale) *and* the translation of M is applied to v.
     /// @param  v    A point.
     /// @return M*v. The w-component of the returned vector is implied to be 1.
-    VectorT Mul1(const VectorT& v) const
+    Vector3dT Mul1(const Vector3dT& v) const
     {
-        return VectorT(m[0][0]*v.x + m[0][1]*v.y + m[0][2]*v.z + m[0][3],
-                       m[1][0]*v.x + m[1][1]*v.y + m[1][2]*v.z + m[1][3],
-                       m[2][0]*v.x + m[2][1]*v.y + m[2][2]*v.z + m[2][3]);
+        return Vector3dT(m[0][0]*v.x + m[0][1]*v.y + m[0][2]*v.z + m[0][3],
+                         m[1][0]*v.x + m[1][1]*v.y + m[1][2]*v.z + m[1][3],
+                         m[2][0]*v.x + m[2][1]*v.y + m[2][2]*v.z + m[2][3]);
     }
 
     // Same as above, but with float.
@@ -175,9 +175,9 @@ class Matrix4x4T
     /// @return M*v. The w-component of the returned vector is implied to be 1.
     Vector3fT Mul1(const Vector3fT& v) const
     {
-        return Vector3fT(m[0][0]*v.x + m[0][1]*v.y + m[0][2]*v.z + m[0][3],
-                         m[1][0]*v.x + m[1][1]*v.y + m[1][2]*v.z + m[1][3],
-                         m[2][0]*v.x + m[2][1]*v.y + m[2][2]*v.z + m[2][3]);
+        return Vector3fT(float(m[0][0]*v.x + m[0][1]*v.y + m[0][2]*v.z + m[0][3]),
+                         float(m[1][0]*v.x + m[1][1]*v.y + m[1][2]*v.z + m[1][3]),
+                         float(m[2][0]*v.x + m[2][1]*v.y + m[2][2]*v.z + m[2][3]));
     }
 
     /// Computes M*v, where M is this matrix.
@@ -186,11 +186,11 @@ class Matrix4x4T
     /// That means that both the rotation (and scale) *and* the translation of M is applied to v.
     /// @param  v    A point.
     /// @return M*v. The w-component of the returned vector is implied to be 1.
-    Vector3fT Mul_xyz1(const Vector3fT& v) const
+    Vector3T<T> Mul_xyz1(const Vector3T<T>& v) const
     {
-        return Vector3fT(m[0][0]*v.x + m[0][1]*v.y + m[0][2]*v.z + m[0][3],
-                         m[1][0]*v.x + m[1][1]*v.y + m[1][2]*v.z + m[1][3],
-                         m[2][0]*v.x + m[2][1]*v.y + m[2][2]*v.z + m[2][3]);
+        return Vector3T<T>(m[0][0]*v.x + m[0][1]*v.y + m[0][2]*v.z + m[0][3],
+                           m[1][0]*v.x + m[1][1]*v.y + m[1][2]*v.z + m[1][3],
+                           m[2][0]*v.x + m[2][1]*v.y + m[2][2]*v.z + m[2][3]);
     }
 
     /// Computes M*v, where M is this matrix.
@@ -199,12 +199,12 @@ class Matrix4x4T
     /// That means that both the rotation (and scale) *and* the translation of M is applied to v.
     /// @param  v   A point.
     /// @param  out The result of M*v.
-    void Mul_xyz1(const float v[3], float out[3]) const
+    void Mul_xyz1(const T v[3], T out[3]) const
     {
-        // We need the Result variable in case that v==out.
-        float Result[3] = { m[0][0]*v[0] + m[0][1]*v[1] + m[0][2]*v[2] + m[0][3],
-                            m[1][0]*v[0] + m[1][1]*v[1] + m[1][2]*v[2] + m[1][3],
-                            m[2][0]*v[0] + m[2][1]*v[1] + m[2][2]*v[2] + m[2][3] };
+        // We need the Result variable in case that v == out.
+        const T Result[3] = { m[0][0]*v[0] + m[0][1]*v[1] + m[0][2]*v[2] + m[0][3],
+                              m[1][0]*v[0] + m[1][1]*v[1] + m[1][2]*v[2] + m[1][3],
+                              m[2][0]*v[0] + m[2][1]*v[1] + m[2][2]*v[2] + m[2][3] };
 
         for (unsigned int i = 0; i < 3; i++) out[i] = Result[i];
     }
@@ -214,10 +214,10 @@ class Matrix4x4T
     /// The resulting 4-tuple is divided by the w-component so that only the xyz components must be returned.
     /// @param  v    A point.
     /// @return M*v. The w-component of the returned vector is implied to be 1.
-    Vector3fT ProjectPoint(const Vector3fT& v) const
+    Vector3T<T> ProjectPoint(const Vector3T<T>& v) const
     {
-        Vector3fT ProjPoint = Mul1(v);
-        float     v_w       = m[3][0]*v.x + m[3][1]*v.y + m[3][2]*v.z + m[3][3];
+        const Vector3T<T> ProjPoint = Mul1(v);
+        const T           v_w       = m[3][0]*v.x + m[3][1]*v.y + m[3][2]*v.z + m[3][3];
 
         return (v_w != 0) ? scale(ProjPoint, 1 / v_w) : ProjPoint;
     }
@@ -226,13 +226,13 @@ class Matrix4x4T
     /// @param v     The four-component vector that is multiplied with M.
     /// @param out   The four-component result vector.
     /// @return The four-component result vector M*v is returned via the out parameter.
-    void Mul(const float v[4], float out[4]) const
+    void Mul(const T v[4], T out[4]) const
     {
-        // We need the Result variable in case that v==out.
-        float Result[4] = { m[0][0]*v[0] + m[0][1]*v[1] + m[0][2]*v[2] + m[0][3]*v[3],
-                            m[1][0]*v[0] + m[1][1]*v[1] + m[1][2]*v[2] + m[1][3]*v[3],
-                            m[2][0]*v[0] + m[2][1]*v[1] + m[2][2]*v[2] + m[2][3]*v[3],
-                            m[3][0]*v[0] + m[3][1]*v[1] + m[3][2]*v[2] + m[3][3]*v[3] };
+        // We need the Result variable in case that v == out.
+        const T Result[4] = { m[0][0]*v[0] + m[0][1]*v[1] + m[0][2]*v[2] + m[0][3]*v[3],
+                              m[1][0]*v[0] + m[1][1]*v[1] + m[1][2]*v[2] + m[1][3]*v[3],
+                              m[2][0]*v[0] + m[2][1]*v[1] + m[2][2]*v[2] + m[2][3]*v[3],
+                              m[3][0]*v[0] + m[3][1]*v[1] + m[3][2]*v[2] + m[3][3]*v[3] };
 
         for (unsigned int i = 0; i < 4; i++) out[i] = Result[i];
     }
@@ -241,7 +241,7 @@ class Matrix4x4T
     /// The matrices are considered equal if the element-wise comparison yields no difference larger than Epsilon.
     /// @param Other Matrix to compare to.
     /// @param Epsilon Tolerance value.
-    bool IsEqual(const Matrix4x4T& Other, const float Epsilon = 0) const
+    bool IsEqual(const Matrix4x4T& Other, const T Epsilon = 0) const
     {
         for (unsigned int i = 0; i < 4; i++)
             for (unsigned int j = 0; j < 4; j++)
@@ -255,15 +255,15 @@ class Matrix4x4T
     /// this is a faster shortcut for GetInverse().Mul1(v).
     /// It employs the transpose of the rotational part for inverting the rotation, and properly accounts for the translation.
     /// @param v DOCTODO
-    Vector3fT InvXForm(Vector3fT v) const
+    Vector3T<T> InvXForm(Vector3T<T> v) const
     {
         v.x -= m[0][3];
         v.y -= m[1][3];
         v.z -= m[2][3];
 
-        return Vector3fT(m[0][0]*v.x + m[1][0]*v.y + m[2][0]*v.z,
-                         m[0][1]*v.x + m[1][1]*v.y + m[2][1]*v.z,
-                         m[0][2]*v.x + m[1][2]*v.y + m[2][2]*v.z);
+        return Vector3T<T>(m[0][0]*v.x + m[1][0]*v.y + m[2][0]*v.z,
+                           m[0][1]*v.x + m[1][1]*v.y + m[2][1]*v.z,
+                           m[0][2]*v.x + m[1][2]*v.y + m[2][2]*v.z);
     }
 
     /// Computes the inverse of this matrix.
@@ -288,6 +288,6 @@ typedef Matrix4x4T<float> Matrix4x4fT;
 typedef Matrix4x4T<float> MatrixT;      // The original MatrixT type for backwards-compatibility with old code.
 
 /// Typedef for a Matrix4x4T of doubles.
-// typedef Matrix4x4T<double> Matrix4x4dT;
+typedef Matrix4x4T<double> Matrix4x4dT;
 
 #endif

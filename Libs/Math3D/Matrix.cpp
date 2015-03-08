@@ -23,12 +23,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Quaternion.hpp"
 
 
-template<class T> Matrix4x4T<T>::Matrix4x4T(const Vector3fT& t, const cf::math::QuaternionT<float>& q, const Vector3fT& s)
+template<class T> Matrix4x4T<T>::Matrix4x4T(const Vector3T<T>& t, const cf::math::QuaternionT<T>& q, const Vector3T<T>& s)
 {
-    const float x = q.x;
-    const float y = q.y;
-    const float z = q.z;
-    const float w = q.w;
+    const T x = q.x;
+    const T y = q.y;
+    const T z = q.z;
+    const T w = q.w;
 
     m[0][0] = 1 - 2*y*y - 2*z*z;  m[0][1] =     2*x*y - 2*w*z;  m[0][2] =     2*x*z + 2*w*y;  m[0][3] = t.x;
     m[1][0] =     2*x*y + 2*w*z;  m[1][1] = 1 - 2*x*x - 2*z*z;  m[1][2] =     2*y*z - 2*w*x;  m[1][3] = t.y;
@@ -42,7 +42,7 @@ template<class T> Matrix4x4T<T>::Matrix4x4T(const Vector3fT& t, const cf::math::
 }
 
 
-template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetProjOrthoMatrix(float left, float right, float bottom, float top, float zNear, float zFar)
+template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetProjOrthoMatrix(T left, T right, T bottom, T top, T zNear, T zFar)
 {
     return Matrix4x4T(
         2 / (right - left),                  0,                   0, -(right + left) / (right - left),
@@ -52,16 +52,16 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetProjOrthoMatrix(float left, fl
 }
 
 
-template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetProjFrustumMatrix(float left, float right, float bottom, float top, float zNear, float zFar)
+template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetProjFrustumMatrix(T left, T right, T bottom, T top, T zNear, T zFar)
 {
-    const float x = (2*zNear) / (right - left);
-    const float y = (2*zNear) / (top - bottom);
-    const float a = (right + left) / (right - left);
-    const float b = (top + bottom) / (top - bottom);
+    const T x = (2*zNear) / (right - left);
+    const T y = (2*zNear) / (top - bottom);
+    const T a = (right + left) / (right - left);
+    const T b = (top + bottom) / (top - bottom);
 
     // If zFar <= zNear, the far plane is assumed to be at infinity (a useful special case for stencil shadow projections).
-    const float c = (zNear < zFar) ? -(zFar + zNear) / (zFar - zNear) : -1;
-    const float d = (zNear < zFar) ? -(2*zFar*zNear) / (zFar - zNear) : -2*zNear;
+    const T c = (zNear < zFar) ? -(zFar + zNear) / (zFar - zNear) : -1;
+    const T d = (zNear < zFar) ? -(2*zFar*zNear) / (zFar - zNear) : -2*zNear;
 
     return Matrix4x4T(
         x, 0,  a, 0,
@@ -71,13 +71,13 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetProjFrustumMatrix(float left, 
 }
 
 
-template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetProjPerspectiveMatrix(float fovY, float aspect, float zNear, float zFar)
+template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetProjPerspectiveMatrix(T fovY, T aspect, T zNear, T zFar)
 {
     if (zFar <= zNear)
     {
         // If zFar <= zNear, the far plane is assumed to be at infinity (a useful special case for stencil shadow projections).
         // This code is also used in <http://trac.cafu.de/browser/cafu/trunk/Libs/OpenGL/OpenGLWindow.cpp?rev=100#L137>.
-        const float cotanFovY = 1 / tan(fovY * T(3.14159265358979323846 / 360.0));
+        const T cotanFovY = 1 / tan(fovY * T(3.14159265358979323846 / 360.0));
 
         return Matrix4x4T(
             cotanFovY / aspect,         0,  0,          0,
@@ -86,22 +86,22 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetProjPerspectiveMatrix(float fo
                              0,         0, -1,          0);
     }
 
-    const float ymax =  zNear * tan(fovY * T(3.14159265358979323846 / 360.0));
-    const float ymin = -ymax;
-    const float xmin =  ymin * aspect;
-    const float xmax =  ymax * aspect;
+    const T ymax =  zNear * tan(fovY * T(3.14159265358979323846 / 360.0));
+    const T ymin = -ymax;
+    const T xmin =  ymin * aspect;
+    const T xmax =  ymax * aspect;
 
     return GetProjFrustumMatrix(xmin, xmax, ymin, ymax, zNear, zFar);
 }
 
 
-template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetProjPickMatrix(float x, float y, float width, float height, int viewport[4])
+template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetProjPickMatrix(T x, T y, T width, T height, int viewport[4])
 {
     // See the OpenGL Programming Guide for a description and CaWE for an example for how the pick matrix is used.
-    const float sx = viewport[2] / width;
-    const float sy = viewport[3] / height;
-    const float tx = (viewport[2] + 2*(viewport[0] - x)) / width;
-    const float ty = (viewport[3] + 2*(viewport[1] - y)) / height;
+    const T sx = viewport[2] / width;
+    const T sy = viewport[3] / height;
+    const T tx = (viewport[2] + 2*(viewport[0] - x)) / width;
+    const T ty = (viewport[3] + 2*(viewport[1] - y)) / height;
 
     return Matrix4x4T(sx,  0, 0, tx,
                        0, sy, 0, ty,
@@ -110,7 +110,7 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetProjPickMatrix(float x, float 
 }
 
 
-template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetTranslateMatrix(const Vector3fT& t)
+template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetTranslateMatrix(const Vector3T<T>& t)
 {
     Matrix4x4T M;
 
@@ -122,7 +122,7 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetTranslateMatrix(const Vector3f
 }
 
 
-template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetScaleMatrix(float sx, float sy, float sz)
+template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetScaleMatrix(T sx, T sy, T sz)
 {
     Matrix4x4T M;
 
@@ -134,13 +134,13 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetScaleMatrix(float sx, float sy
 }
 
 
-template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetRotateXMatrix(float Angle)
+template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetRotateXMatrix(T Angle)
 {
     Matrix4x4T M;
 
-    const float RadAngle = Angle * T(3.14159265358979323846 / 180.0);
-    const float SinAngle = sin(RadAngle);
-    const float CosAngle = cos(RadAngle);
+    const T RadAngle = Angle * T(3.14159265358979323846 / 180.0);
+    const T SinAngle = sin(RadAngle);
+    const T CosAngle = cos(RadAngle);
 
     M.m[1][1] = CosAngle; M.m[1][2] = -SinAngle;
     M.m[2][1] = SinAngle; M.m[2][2] =  CosAngle;
@@ -149,13 +149,13 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetRotateXMatrix(float Angle)
 }
 
 
-template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetRotateYMatrix(float Angle)
+template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetRotateYMatrix(T Angle)
 {
     Matrix4x4T M;
 
-    const float RadAngle = Angle * T(3.14159265358979323846 / 180.0);
-    const float SinAngle = sin(RadAngle);
-    const float CosAngle = cos(RadAngle);
+    const T RadAngle = Angle * T(3.14159265358979323846 / 180.0);
+    const T SinAngle = sin(RadAngle);
+    const T CosAngle = cos(RadAngle);
 
     M.m[0][0] =  CosAngle; M.m[0][2] = SinAngle;
     M.m[2][0] = -SinAngle; M.m[2][2] = CosAngle;
@@ -164,13 +164,13 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetRotateYMatrix(float Angle)
 }
 
 
-template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetRotateZMatrix(float Angle)
+template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetRotateZMatrix(T Angle)
 {
     Matrix4x4T M;
 
-    const float RadAngle = Angle * T(3.14159265358979323846 / 180.0);
-    const float SinAngle = sin(RadAngle);
-    const float CosAngle = cos(RadAngle);
+    const T RadAngle = Angle * T(3.14159265358979323846 / 180.0);
+    const T SinAngle = sin(RadAngle);
+    const T CosAngle = cos(RadAngle);
 
     M.m[0][0] = CosAngle; M.m[0][1] = -SinAngle;
     M.m[1][0] = SinAngle; M.m[1][1] =  CosAngle;
@@ -179,20 +179,20 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetRotateZMatrix(float Angle)
 }
 
 
-template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetRotateMatrix(float Angle, const Vector3fT& Axis)
+template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetRotateMatrix(T Angle, const Vector3T<T>& Axis)
 {
-    const float RadAngle = Angle * T(3.14159265358979323846 / 180.0);
-    const float s        = sin(RadAngle);
-    const float c        = cos(RadAngle);
-    const float t        = 1 - c;
+    const T RadAngle = Angle * T(3.14159265358979323846 / 180.0);
+    const T s        = sin(RadAngle);
+    const T c        = cos(RadAngle);
+    const T t        = 1 - c;
 
-    const float tx = t * Axis.x;
-    const float ty = t * Axis.y;
-    const float tz = t * Axis.z;
+    const T tx = t * Axis.x;
+    const T ty = t * Axis.y;
+    const T tz = t * Axis.z;
 
-    const float sx = s * Axis.x;
-    const float sy = s * Axis.y;
-    const float sz = s * Axis.z;
+    const T sx = s * Axis.x;
+    const T sy = s * Axis.y;
+    const T sz = s * Axis.z;
 
     return Matrix4x4T(tx*Axis.x +  c, tx*Axis.y - sz, tx*Axis.z + sy, 0,
                       tx*Axis.y + sz, ty*Axis.y +  c, ty*Axis.z - sx, 0,
@@ -226,17 +226,17 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::operator * (const Matrix4x4T<T>& 
 }
 
 
-template<class T> void Matrix4x4T<T>::Translate_MT(const VectorT& vTrans)
+template<class T> void Matrix4x4T<T>::Translate_MT(const Vector3dT& vTrans)
 {
-    const VectorT t = Mul1(vTrans);
+    const Vector3dT t = Mul1(vTrans);
 
-    m[0][3] = float(t.x);
-    m[1][3] = float(t.y);
-    m[2][3] = float(t.z);
+    m[0][3] = T(t.x);
+    m[1][3] = T(t.y);
+    m[2][3] = T(t.z);
 }
 
 
-template<class T> void Matrix4x4T<T>::Translate_MT(float tx, float ty, float tz)
+template<class T> void Matrix4x4T<T>::Translate_MT(T tx, T ty, T tz)
 {
     m[0][3] = m[0][0]*tx + m[0][1]*ty + m[0][2]*tz + m[0][3];
     m[1][3] = m[1][0]*tx + m[1][1]*ty + m[1][2]*tz + m[1][3];
@@ -244,15 +244,15 @@ template<class T> void Matrix4x4T<T>::Translate_MT(float tx, float ty, float tz)
 }
 
 
-template<class T> void Matrix4x4T<T>::Translate_TM(const VectorT& vTrans)
+template<class T> void Matrix4x4T<T>::Translate_TM(const Vector3dT& vTrans)
 {
-    m[0][3] += float(vTrans.x);
-    m[1][3] += float(vTrans.y);
-    m[2][3] += float(vTrans.z);
+    m[0][3] += T(vTrans.x);
+    m[1][3] += T(vTrans.y);
+    m[2][3] += T(vTrans.z);
 }
 
 
-template<class T> void Matrix4x4T<T>::Scale_MS(float sx, float sy, float sz)
+template<class T> void Matrix4x4T<T>::Scale_MS(T sx, T sy, T sz)
 {
     for (unsigned int i = 0; i < 4; i++)
     {
@@ -263,7 +263,7 @@ template<class T> void Matrix4x4T<T>::Scale_MS(float sx, float sy, float sz)
 }
 
 
-template<class T> void Matrix4x4T<T>::Scale_SM(float sx, float sy, float sz)
+template<class T> void Matrix4x4T<T>::Scale_SM(T sx, T sy, T sz)
 {
     for (unsigned int j = 0; j < 4; j++)
     {
@@ -274,16 +274,16 @@ template<class T> void Matrix4x4T<T>::Scale_SM(float sx, float sy, float sz)
 }
 
 
-template<class T> void Matrix4x4T<T>::RotateX_MR(float Angle)
+template<class T> void Matrix4x4T<T>::RotateX_MR(T Angle)
 {
-    const float RadAngle = Angle * T(3.14159265358979323846 / 180.0);
-    const float SinAngle = sin(RadAngle);
-    const float CosAngle = cos(RadAngle);
+    const T RadAngle = Angle * T(3.14159265358979323846 / 180.0);
+    const T SinAngle = sin(RadAngle);
+    const T CosAngle = cos(RadAngle);
 
     for (unsigned int i = 0; i < 4; i++)
     {
-        const float y =  CosAngle*m[i][1] + SinAngle*m[i][2];
-        const float z = -SinAngle*m[i][1] + CosAngle*m[i][2];
+        const T y =  CosAngle*m[i][1] + SinAngle*m[i][2];
+        const T z = -SinAngle*m[i][1] + CosAngle*m[i][2];
 
         m[i][1] = y;
         m[i][2] = z;
@@ -291,16 +291,16 @@ template<class T> void Matrix4x4T<T>::RotateX_MR(float Angle)
 }
 
 
-template<class T> void Matrix4x4T<T>::RotateX_RM(float Angle)
+template<class T> void Matrix4x4T<T>::RotateX_RM(T Angle)
 {
-    const float RadAngle = Angle * T(3.14159265358979323846 / 180.0);
-    const float SinAngle = sin(RadAngle);
-    const float CosAngle = cos(RadAngle);
+    const T RadAngle = Angle * T(3.14159265358979323846 / 180.0);
+    const T SinAngle = sin(RadAngle);
+    const T CosAngle = cos(RadAngle);
 
     for (unsigned int j = 0; j < 4; j++)
     {
-        const float a = CosAngle*m[1][j] - SinAngle*m[2][j];
-        const float b = SinAngle*m[1][j] + CosAngle*m[2][j];
+        const T a = CosAngle*m[1][j] - SinAngle*m[2][j];
+        const T b = SinAngle*m[1][j] + CosAngle*m[2][j];
 
         m[1][j] = a;
         m[2][j] = b;
@@ -308,16 +308,16 @@ template<class T> void Matrix4x4T<T>::RotateX_RM(float Angle)
 }
 
 
-template<class T> void Matrix4x4T<T>::RotateY_MR(float Angle)
+template<class T> void Matrix4x4T<T>::RotateY_MR(T Angle)
 {
-    const float RadAngle = Angle * T(3.14159265358979323846 / 180.0);
-    const float SinAngle = sin(RadAngle);
-    const float CosAngle = cos(RadAngle);
+    const T RadAngle = Angle * T(3.14159265358979323846 / 180.0);
+    const T SinAngle = sin(RadAngle);
+    const T CosAngle = cos(RadAngle);
 
     for (unsigned int i = 0; i < 4; i++)
     {
-        const float x = CosAngle*m[i][0] - SinAngle*m[i][2];
-        const float z = SinAngle*m[i][0] + CosAngle*m[i][2];
+        const T x = CosAngle*m[i][0] - SinAngle*m[i][2];
+        const T z = SinAngle*m[i][0] + CosAngle*m[i][2];
 
         m[i][0] = x;
         m[i][2] = z;
@@ -325,16 +325,16 @@ template<class T> void Matrix4x4T<T>::RotateY_MR(float Angle)
 }
 
 
-template<class T> void Matrix4x4T<T>::RotateY_RM(float Angle)
+template<class T> void Matrix4x4T<T>::RotateY_RM(T Angle)
 {
-    const float RadAngle = Angle * T(3.14159265358979323846 / 180.0);
-    const float SinAngle = sin(RadAngle);
-    const float CosAngle = cos(RadAngle);
+    const T RadAngle = Angle * T(3.14159265358979323846 / 180.0);
+    const T SinAngle = sin(RadAngle);
+    const T CosAngle = cos(RadAngle);
 
     for (unsigned int j = 0; j < 4; j++)
     {
-        const float a =  CosAngle*m[0][j] + SinAngle*m[2][j];
-        const float b = -SinAngle*m[0][j] + CosAngle*m[2][j];
+        const T a =  CosAngle*m[0][j] + SinAngle*m[2][j];
+        const T b = -SinAngle*m[0][j] + CosAngle*m[2][j];
 
         m[0][j] = a;
         m[2][j] = b;
@@ -342,16 +342,16 @@ template<class T> void Matrix4x4T<T>::RotateY_RM(float Angle)
 }
 
 
-template<class T> void Matrix4x4T<T>::RotateZ_MR(float Angle)
+template<class T> void Matrix4x4T<T>::RotateZ_MR(T Angle)
 {
-    const float RadAngle = Angle * T(3.14159265358979323846 / 180.0);
-    const float SinAngle = sin(RadAngle);
-    const float CosAngle = cos(RadAngle);
+    const T RadAngle = Angle * T(3.14159265358979323846 / 180.0);
+    const T SinAngle = sin(RadAngle);
+    const T CosAngle = cos(RadAngle);
 
     for (unsigned int i = 0; i < 4; i++)
     {
-        const float x =  CosAngle*m[i][0] + SinAngle*m[i][1];
-        const float y = -SinAngle*m[i][0] + CosAngle*m[i][1];
+        const T x =  CosAngle*m[i][0] + SinAngle*m[i][1];
+        const T y = -SinAngle*m[i][0] + CosAngle*m[i][1];
 
         m[i][0] = x;
         m[i][1] = y;
@@ -359,16 +359,16 @@ template<class T> void Matrix4x4T<T>::RotateZ_MR(float Angle)
 }
 
 
-template<class T> void Matrix4x4T<T>::RotateZ_RM(float Angle)
+template<class T> void Matrix4x4T<T>::RotateZ_RM(T Angle)
 {
-    const float RadAngle = Angle * T(3.14159265358979323846 / 180.0);
-    const float SinAngle = sin(RadAngle);
-    const float CosAngle = cos(RadAngle);
+    const T RadAngle = Angle * T(3.14159265358979323846 / 180.0);
+    const T SinAngle = sin(RadAngle);
+    const T CosAngle = cos(RadAngle);
 
     for (unsigned int j = 0; j < 4; j++)
     {
-        const float a = CosAngle*m[0][j] - SinAngle*m[1][j];
-        const float b = SinAngle*m[0][j] + CosAngle*m[1][j];
+        const T a = CosAngle*m[0][j] - SinAngle*m[1][j];
+        const T b = SinAngle*m[0][j] + CosAngle*m[1][j];
 
         m[0][j] = a;
         m[1][j] = b;
@@ -383,16 +383,16 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetInverse(bool* Result) const
     // A = this
     // X = the matrix we're looking for
     // I = identity
-    float mat[4][8];
-    int   rowMap[4];
+    T   mat[4][8];
+    int rowMap[4];
 
     if (Result != NULL) Result[0] = false;
 
     // Copy this matrix into the left half of mat and the identity matrix into the right half, so that "mat=AI".
     for (unsigned int i = 0; i < 4; i++)
     {
-        const float* pIn  = m[i];
-        float*       pOut = mat[i];
+        const T* pIn  = m[i];
+        T*       pOut = mat[i];
 
         for (unsigned int j = 0; j < 4; j++)
         {
@@ -410,12 +410,12 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetInverse(bool* Result) const
     for (int iRow = 0; iRow < 4; iRow++)
     {
         // Find the row with the largest element in this column.
-        float fLargest = T(0.001);
-        int   iLargest = -1;
+        T   fLargest = T(0.001);
+        int iLargest = -1;
 
         for (int iTest = iRow; iTest < 4; iTest++)
         {
-            float fTest = (float)fabs(mat[rowMap[iTest]][iRow]);
+            const T fTest = fabs(mat[rowMap[iTest]][iRow]);
 
             if (fTest > fLargest)
             {
@@ -428,14 +428,14 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetInverse(bool* Result) const
         if (iLargest == -1) return Matrix4x4T();
 
         // Swap the rows.
-        int iTemp = rowMap[iLargest];
+        const int iTemp = rowMap[iLargest];
         rowMap[iLargest] = rowMap[iRow];
         rowMap[iRow] = iTemp;
 
-        float* pRow = mat[rowMap[iRow]];
+        T* pRow = mat[rowMap[iRow]];
 
         // Divide this row by the element.
-        const float mul = 1 / pRow[iRow];
+        const T mul = 1 / pRow[iRow];
         for (unsigned int j = 0; j < 8; j++) pRow[j] *= mul;
         pRow[iRow] = 1;   // Preserve accuracy...
 
@@ -444,10 +444,10 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetInverse(bool* Result) const
         {
             if (i == iRow) continue;
 
-            float* pScaleRow = mat[rowMap[i]];
+            T* pScaleRow = mat[rowMap[i]];
 
             // Multiply this row by -(iRow*the element).
-            const float mul_ = -pScaleRow[iRow];
+            const T mul_ = -pScaleRow[iRow];
             for (unsigned int j = 0; j < 8; j++) pScaleRow[j] += pRow[j]*mul_;
             pScaleRow[iRow] = 0;    // Preserve accuracy...
         }
@@ -458,8 +458,8 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetInverse(bool* Result) const
 
     for (unsigned int i = 0; i < 4; i++)
     {
-        const float* pIn  = mat[rowMap[i]] + 4;
-        float*       pOut = dst.m[i];
+        const T* pIn  = mat[rowMap[i]] + 4;
+        T*       pOut = dst.m[i];
 
         for (unsigned int j = 0; j < 4; j++) pOut[j] = pIn[j];
     }
@@ -482,4 +482,4 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetTranspose() const
 
 
 template class Matrix4x4T<float>;
-// template class MatrixT<double>;
+template class Matrix4x4T<double>;
