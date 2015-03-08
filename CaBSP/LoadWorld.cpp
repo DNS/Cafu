@@ -358,20 +358,32 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
 
         // Move all map primitives in this entity from world space into the local entity space.
         //
-        // This is a horrible hack, a variant of cf::GameSys::EntityT::GetModelToWorld() that ignores the orientation
-        // (rather than using the inverse of cf::GameSys::EntityT::GetModelToWorld() directly).
-        //
-        // I did it because it seems to me that MapFileTerrainTs are, at this time, "incompatible" with rotation:
+        // TODO: MapFileTerrainTs are, at this time, "incompatible" with rotation:
         // their dimensions are specified with a bounding box. That only really makes sense without rotation,
         // and we should probably switch to a origin, x- and y-axis representation first...
-        //
-        Vector3dT Delta = AllScriptEnts[EntNr]->GetTransform()->GetOriginPS().AsVectorOfDouble();
+        bool          InvResult  = true;
+        const MatrixT WorldToEnt = AllScriptEnts[EntNr]->GetTransform()->GetEntityToWorld().GetInverse(&InvResult);
 
-        for (IntrusivePtrT<const cf::GameSys::EntityT> P = AllScriptEnts[EntNr]->GetParent(); P != NULL; P = P->GetParent())
-            if (!P->GetTransform()->IsIdentity())
-                Delta += P->GetTransform()->GetOriginPS().AsVectorOfDouble();
+        if (!InvResult)
+            Console->Warning(cf::va("Entity %lu: Cannot transform from world space to entity space!\n", EntNr));
 
-        MFEntityList[EntNr].Translate(-Delta * CA3DE_SCALE);
+        if (WorldToEnt.IsEqual(MatrixT(), 0.001f))
+        {
+            // If WorldToEnt is (close to) the identity anyway, skip the Transform() call below, both as
+            // a performance optimization but mostly in order to not negatively impact numerical precision.
+            InvResult = false;
+        }
+
+        if (InvResult)
+        {
+            Matrix4x4fT Mat = WorldToEnt;
+
+            Mat[0][3] *= float(CA3DE_SCALE);
+            Mat[1][3] *= float(CA3DE_SCALE);
+            Mat[2][3] *= float(CA3DE_SCALE);
+
+            MFEntityList[EntNr].Transform(Mat);
+        }
 
         // 3. Fill-in the Terrains array.
         for (unsigned long TerrainNr = 0; TerrainNr < E.MFTerrains.Size(); TerrainNr++)

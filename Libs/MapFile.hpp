@@ -28,6 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/Vector3.hpp"
 #include "Math3D/Plane3.hpp"
 #include "Math3D/BoundingBox.hpp"
+#include "Math3D/Matrix.hpp"
 
 
 class MaterialT;
@@ -167,8 +168,8 @@ namespace cf
         /// @throws TextParserT::ParseError on problems.
         MapFileEntityT(unsigned long Index, TextParserT& TP);
 
-        /// Translates all primitives in this entity by the given `Delta`.
-        void Translate(const Vector3dT& Delta);
+        /// Transforms all primitives in this entity by the given matrix.
+        void Transform(const Matrix4x4fT& Mat);
 
 
         unsigned long                      MFIndex;     ///< In the source cmap file, this was/is the MFIndex-th entity. Normally (e.g. immediately after loading the cmap file) this is identical to the index of this MapFileEntityT into the array of all entities. It is kept explicitly here in case the array of all entities is rearranged, as is done e.g. by the CaBSP loader.

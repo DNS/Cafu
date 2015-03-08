@@ -301,21 +301,24 @@ MapFileEntityT::MapFileEntityT(unsigned long Index, TextParserT& TP)
 }
 
 
-void MapFileEntityT::Translate(const Vector3dT& Delta)
+void MapFileEntityT::Transform(const MatrixT& Mat)
 {
-    const Vector3fT DeltaF = Delta.AsVectorOfFloat();
-
     for (unsigned int i = 0; i < MFBrushes.Size(); i++)
     {
         for (unsigned int p = 0; p < MFBrushes[i].MFPlanes.Size(); p++)
         {
-            MapFilePlaneT& MFP = MFBrushes[i].MFPlanes[p];
+            MapFilePlaneT&  MFP = MFBrushes[i].MFPlanes[p];
+            const Vector3dT St  = Mat.Mul1(MFP.Plane.Normal * MFP.Plane.Dist);  // A point on the transformed plane ("Stützvektor").
 
-            MFP.Plane.Dist += dot(MFP.Plane.Normal, Delta);
+            MFP.Plane.Normal = normalizeOr0(Mat.Mul0(MFP.Plane.Normal), 0.0001);
+            MFP.Plane.Dist   = dot(St, MFP.Plane.Normal);
+
+            MFP.U = Mat.Mul0(MFP.U);
+            MFP.V = Mat.Mul0(MFP.V);
 
             // This follows the code in FaceNodeT::InitRenderMeshesAndMats().
-            MFP.ShiftU -= dot(Delta, MFP.U) / dot(MFP.U, MFP.U);
-            MFP.ShiftV -= dot(Delta, MFP.V) / dot(MFP.V, MFP.V);
+            MFP.ShiftU -= dot(Vector3dT(Mat[0][3], Mat[1][3], Mat[2][3]), MFP.U) / dot(MFP.U, MFP.U);
+            MFP.ShiftV -= dot(Vector3dT(Mat[0][3], Mat[1][3], Mat[2][3]), MFP.V) / dot(MFP.V, MFP.V);
         }
     }
 
@@ -325,26 +328,28 @@ void MapFileEntityT::Translate(const Vector3dT& Delta)
 
         for (unsigned long j = 0; j < CPs.Size(); j += 5)
         {
-            CPs[j + 0] += DeltaF.x;
-            CPs[j + 1] += DeltaF.y;
-            CPs[j + 2] += DeltaF.z;
+            const Vector3fT v = Mat.Mul1(Vector3fT(CPs[j + 0], CPs[j + 1], CPs[j + 2]));
+
+            CPs[j + 0] = v.x;
+            CPs[j + 1] = v.y;
+            CPs[j + 2] = v.z;
         }
     }
 
     for (unsigned int i = 0; i < MFTerrains.Size(); i++)
     {
-        MFTerrains[i].Bounds.Min += Delta;
-        MFTerrains[i].Bounds.Max += Delta;
+        MFTerrains[i].Bounds.Min = Mat.Mul1(MFTerrains[i].Bounds.Min);
+        MFTerrains[i].Bounds.Max = Mat.Mul1(MFTerrains[i].Bounds.Max);
     }
 
     for (unsigned int i = 0; i < MFPlants.Size(); i++)
     {
-        MFPlants[i].Position += Delta;
+        MFPlants[i].Position = Mat.Mul1(MFPlants[i].Position);
     }
 
     for (unsigned int i = 0; i < MFModels.Size(); i++)
     {
-        MFModels[i].Origin += DeltaF;
+        MFModels[i].Origin = Mat.Mul1(MFModels[i].Origin);
     }
 }
 
