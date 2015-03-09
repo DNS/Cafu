@@ -407,7 +407,7 @@ template<class T> Matrix4x4T<T> Matrix4x4T<T>::GetInverse(bool* Result) const
     // 1. Multiply or divide a row by a nonzero number.
     // 2. Add a multiple of one row to another.
     // 3. Interchange two rows.
-    for (int iRow = 0; iRow < 4; iRow++)
+    for (unsigned int iRow = 0; iRow < 4; iRow++)
     {
         // Find the row with the largest element in this column.
         T   fLargest = T(0.001);
