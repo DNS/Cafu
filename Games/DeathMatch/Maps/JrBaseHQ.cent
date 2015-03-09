@@ -63,11 +63,13 @@ Map.Door1.left_wing = world:new("EntityT", "left_wing")
 Map.Door1.left_wing.move_dest = world:new("EntityT", "move_dest")
 Map.Door1.right_wing = world:new("EntityT", "right_wing")
 Map.Door1.right_wing.move_dest = world:new("EntityT", "move_dest")
+Map.Door1.Frame = world:new("EntityT", "Frame")
 Map.Door2 = world:new("EntityT", "Door2")
 Map.Door2.left_wing = world:new("EntityT", "left_wing")
 Map.Door2.left_wing.move_dest = world:new("EntityT", "move_dest")
 Map.Door2.right_wing = world:new("EntityT", "right_wing")
 Map.Door2.right_wing.move_dest = world:new("EntityT", "move_dest")
+Map.Door2.Frame = world:new("EntityT", "Frame")
 
 
 -- Set the worlds root entity.
@@ -129,11 +131,13 @@ Map.Door1:AddChild(Map.Door1.left_wing)
 Map.Door1.left_wing:AddChild(Map.Door1.left_wing.move_dest)
 Map.Door1:AddChild(Map.Door1.right_wing)
 Map.Door1.right_wing:AddChild(Map.Door1.right_wing.move_dest)
+Map.Door1:AddChild(Map.Door1.Frame)
 Map:AddChild(Map.Door2)
 Map.Door2:AddChild(Map.Door2.left_wing)
 Map.Door2.left_wing:AddChild(Map.Door2.left_wing.move_dest)
 Map.Door2:AddChild(Map.Door2.right_wing)
 Map.Door2.right_wing:AddChild(Map.Door2.right_wing.move_dest)
+Map.Door2:AddChild(Map.Door2.Frame)
 
 
 -- Initialization of the entity contents ("constructors").
@@ -893,6 +897,12 @@ function Map.Door1.right_wing.move_dest:OnInit()
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
+function Map.Door1.Frame:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 232, 576, 64)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
 function Map.Door2:OnInit()
     self:GetTransform():set("Origin", 128, 1800, -208)
     self:GetTransform():set("Orientation", 0, 0, -0.70710677)
@@ -929,5 +939,11 @@ end
 
 function Map.Door2.right_wing.move_dest:OnInit()
     self:GetTransform():set("Origin", 0, -47, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.Door2.Frame:OnInit()
+    self:GetBasics():set("Static", true)
+    self:GetTransform():set("Origin", 128, 1800, -144)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
