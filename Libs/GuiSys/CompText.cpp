@@ -113,7 +113,6 @@ void ComponentTextT::VarFontNameT::GetChoices(ArrayT<std::string>& Strings, Arra
         }
 
         Strings.PushBack(DirName + "/" + FindFileData.cFileName);
-        Values.PushBack(DirName + "/" + FindFileData.cFileName);
     }
     while (FindNextFile(FindHandle, &FindFileData)!=0);
 
@@ -144,11 +143,23 @@ void ComponentTextT::VarFontNameT::GetChoices(ArrayT<std::string>& Strings, Arra
 
         // For portability, only the 'd_name' member of a 'dirent' may be accessed.
         Strings.PushBack(DirName + "/" + DirEnt->d_name);
-        Values.PushBack(DirName + "/" + DirEnt->d_name);
     }
 
     closedir(Dir);
 #endif
+
+    struct StringComparatorT
+    {
+        bool operator () (const std::string& s1, const std::string& s2)
+        {
+            return s1 < s2;
+        }
+    };
+
+    Strings.QuickSort(StringComparatorT());
+
+    for (unsigned int i = 0; i < Strings.Size(); i++)
+        Values.PushBack(Strings[i]);
 }
 
 
