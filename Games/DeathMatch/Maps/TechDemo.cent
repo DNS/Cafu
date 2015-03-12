@@ -1421,11 +1421,13 @@ Map.static_detail_model_67 = world:new("EntityT", "static_detail_model_67")
 Map.static_detail_model_68 = world:new("EntityT", "static_detail_model_68")
 Map.LifeFormMaker = world:new("EntityT", "LifeFormMaker")
 Map.static_detail_model_69 = world:new("EntityT", "static_detail_model_69")
-Map.DoubleSlideDoor1_Left = world:new("EntityT", "DoubleSlideDoor1_Left")
-Map.DoubleSlideDoor1_Right = world:new("EntityT", "DoubleSlideDoor1_Right")
-Map.DoubleSlideDoor1_Light = world:new("EntityT", "DoubleSlideDoor1_Light")
 Map.EmergencyExit_Light1 = world:new("EntityT", "EmergencyExit_Light1")
-Map.DoubleSlideDoor1_Trigger = world:new("EntityT", "DoubleSlideDoor1_Trigger")
+Map.GlasDoor = world:new("EntityT", "GlasDoor")
+Map.GlasDoor.LeftWing = world:new("EntityT", "LeftWing")
+Map.GlasDoor.LeftWing.move_dest = world:new("EntityT", "move_dest")
+Map.GlasDoor.RightWing = world:new("EntityT", "RightWing")
+Map.GlasDoor.RightWing.move_dest = world:new("EntityT", "move_dest")
+Map.GlasDoor_Light = world:new("EntityT", "GlasDoor_Light")
 Map.Doors10_Light_1 = world:new("EntityT", "Doors10_Light_1")
 Map.Doors10_Light_1_1 = world:new("EntityT", "Doors10_Light_1_1")
 Map.static_detail_model_001 = world:new("EntityT", "static_detail_model_001")
@@ -1438,63 +1440,63 @@ Map.PointLightSource_006 = world:new("EntityT", "PointLightSource_006")
 Map.static_detail_model_002 = world:new("EntityT", "static_detail_model_002")
 Map.static_detail_model_003 = world:new("EntityT", "static_detail_model_003")
 Map.PointLightSource_007 = world:new("EntityT", "PointLightSource_007")
-Map.door = world:new("EntityT", "door")
-Map.door.func_door = world:new("EntityT", "func_door")
-Map.door.func_door.move_dest = world:new("EntityT", "move_dest")
-Map.door.func_door_1 = world:new("EntityT", "func_door_1")
-Map.door.func_door_1.move_dest = world:new("EntityT", "move_dest")
+Map.BrokenGate1 = world:new("EntityT", "BrokenGate1")
+Map.BrokenGate1.UpperPart = world:new("EntityT", "UpperPart")
+Map.BrokenGate1.UpperPart.move_dest = world:new("EntityT", "move_dest")
+Map.BrokenGate1.LowerPart = world:new("EntityT", "LowerPart")
+Map.BrokenGate1.LowerPart.move_dest = world:new("EntityT", "move_dest")
+Map.BrokenGate2 = world:new("EntityT", "BrokenGate2")
+Map.BrokenGate2.UpperPart = world:new("EntityT", "UpperPart")
+Map.BrokenGate2.UpperPart.move_dest = world:new("EntityT", "move_dest")
+Map.BrokenGate2.LowerPart = world:new("EntityT", "LowerPart")
+Map.BrokenGate2.LowerPart.move_dest = world:new("EntityT", "move_dest")
 Map.door_1 = world:new("EntityT", "door_1")
-Map.door_1.door1_left_4 = world:new("EntityT", "door1_left_4")
-Map.door_1.door1_left_4.move_dest = world:new("EntityT", "move_dest")
-Map.door_1.door1_right_4 = world:new("EntityT", "door1_right_4")
-Map.door_1.door1_right_4.move_dest = world:new("EntityT", "move_dest")
+Map.door_1.LeftWing = world:new("EntityT", "LeftWing")
+Map.door_1.LeftWing.move_dest = world:new("EntityT", "move_dest")
+Map.door_1.RightWing = world:new("EntityT", "RightWing")
+Map.door_1.RightWing.move_dest = world:new("EntityT", "move_dest")
 Map.door_2 = world:new("EntityT", "door_2")
-Map.door_2.door1_left_5 = world:new("EntityT", "door1_left_5")
-Map.door_2.door1_left_5.move_dest = world:new("EntityT", "move_dest")
-Map.door_2.door1_right_5 = world:new("EntityT", "door1_right_5")
-Map.door_2.door1_right_5.move_dest = world:new("EntityT", "move_dest")
-Map.door_3 = world:new("EntityT", "door_3")
-Map.door_3.func_door_2 = world:new("EntityT", "func_door_2")
-Map.door_3.func_door_2.move_dest = world:new("EntityT", "move_dest")
-Map.door_3.func_door_3 = world:new("EntityT", "func_door_3")
-Map.door_3.func_door_3.move_dest = world:new("EntityT", "move_dest")
-Map.door_4 = world:new("EntityT", "door_4")
-Map.door_4.func_door_4 = world:new("EntityT", "func_door_4")
-Map.door_4.func_door_4.move_dest = world:new("EntityT", "move_dest")
-Map.door_4.func_door_5 = world:new("EntityT", "func_door_5")
-Map.door_4.func_door_5.move_dest = world:new("EntityT", "move_dest")
+Map.door_2.LeftWing = world:new("EntityT", "LeftWing")
+Map.door_2.LeftWing.move_dest = world:new("EntityT", "move_dest")
+Map.door_2.RightWing = world:new("EntityT", "RightWing")
+Map.door_2.RightWing.move_dest = world:new("EntityT", "move_dest")
+Map.StorageDoor = world:new("EntityT", "StorageDoor")
+Map.StorageDoor.LeftWing = world:new("EntityT", "LeftWing")
+Map.StorageDoor.LeftWing.move_dest = world:new("EntityT", "move_dest")
+Map.StorageDoor.RightWing = world:new("EntityT", "RightWing")
+Map.StorageDoor.RightWing.move_dest = world:new("EntityT", "move_dest")
 Map.door_5 = world:new("EntityT", "door_5")
-Map.door_5.door1_left = world:new("EntityT", "door1_left")
-Map.door_5.door1_left.move_dest = world:new("EntityT", "move_dest")
-Map.door_5.door1_right = world:new("EntityT", "door1_right")
-Map.door_5.door1_right.move_dest = world:new("EntityT", "move_dest")
+Map.door_5.LeftWing = world:new("EntityT", "LeftWing")
+Map.door_5.LeftWing.move_dest = world:new("EntityT", "move_dest")
+Map.door_5.RightWing = world:new("EntityT", "RightWing")
+Map.door_5.RightWing.move_dest = world:new("EntityT", "move_dest")
 Map.door_6 = world:new("EntityT", "door_6")
-Map.door_6.door1_left_1 = world:new("EntityT", "door1_left_1")
-Map.door_6.door1_left_1.move_dest = world:new("EntityT", "move_dest")
-Map.door_6.door1_right_1 = world:new("EntityT", "door1_right_1")
-Map.door_6.door1_right_1.move_dest = world:new("EntityT", "move_dest")
+Map.door_6.LeftWing = world:new("EntityT", "LeftWing")
+Map.door_6.LeftWing.move_dest = world:new("EntityT", "move_dest")
+Map.door_6.RightWing = world:new("EntityT", "RightWing")
+Map.door_6.RightWing.move_dest = world:new("EntityT", "move_dest")
 Map.door_7 = world:new("EntityT", "door_7")
-Map.door_7.door1_left_2 = world:new("EntityT", "door1_left_2")
-Map.door_7.door1_left_2.move_dest = world:new("EntityT", "move_dest")
-Map.door_7.door1_right_2 = world:new("EntityT", "door1_right_2")
-Map.door_7.door1_right_2.move_dest = world:new("EntityT", "move_dest")
-Map.door_8 = world:new("EntityT", "door_8")
-Map.door_8.func_door_6 = world:new("EntityT", "func_door_6")
-Map.door_8.func_door_6.move_dest = world:new("EntityT", "move_dest")
-Map.door_8.func_door_7 = world:new("EntityT", "func_door_7")
-Map.door_8.func_door_7.move_dest = world:new("EntityT", "move_dest")
+Map.door_7.LeftWing = world:new("EntityT", "LeftWing")
+Map.door_7.LeftWing.move_dest = world:new("EntityT", "move_dest")
+Map.door_7.RightWing = world:new("EntityT", "RightWing")
+Map.door_7.RightWing.move_dest = world:new("EntityT", "move_dest")
+Map.RestroomDoor = world:new("EntityT", "RestroomDoor")
+Map.RestroomDoor.LeftWing = world:new("EntityT", "LeftWing")
+Map.RestroomDoor.LeftWing.move_dest = world:new("EntityT", "move_dest")
+Map.RestroomDoor.RightWing = world:new("EntityT", "RightWing")
+Map.RestroomDoor.RightWing.move_dest = world:new("EntityT", "move_dest")
 Map.door_9 = world:new("EntityT", "door_9")
-Map.door_9.door1_left_3 = world:new("EntityT", "door1_left_3")
-Map.door_9.door1_left_3.move_dest = world:new("EntityT", "move_dest")
-Map.door_9.door1_right_3 = world:new("EntityT", "door1_right_3")
-Map.door_9.door1_right_3.move_dest = world:new("EntityT", "move_dest")
-Map.door_10 = world:new("EntityT", "door_10")
-Map.door_10.func_door_8 = world:new("EntityT", "func_door_8")
-Map.door_10.func_door_8.move_dest = world:new("EntityT", "move_dest")
-Map.door_10.func_door_9 = world:new("EntityT", "func_door_9")
-Map.door_10.func_door_9.move_dest = world:new("EntityT", "move_dest")
-Map.door_10.func_door_10 = world:new("EntityT", "func_door_10")
-Map.door_10.func_door_10.move_dest = world:new("EntityT", "move_dest")
+Map.door_9.LeftWing = world:new("EntityT", "LeftWing")
+Map.door_9.LeftWing.move_dest = world:new("EntityT", "move_dest")
+Map.door_9.RightWing = world:new("EntityT", "RightWing")
+Map.door_9.RightWing.move_dest = world:new("EntityT", "move_dest")
+Map.HeavyGate = world:new("EntityT", "HeavyGate")
+Map.HeavyGate.UpperPart = world:new("EntityT", "UpperPart")
+Map.HeavyGate.UpperPart.move_dest = world:new("EntityT", "move_dest")
+Map.HeavyGate.LeftWing = world:new("EntityT", "LeftWing")
+Map.HeavyGate.LeftWing.move_dest = world:new("EntityT", "move_dest")
+Map.HeavyGate.RightWing = world:new("EntityT", "RightWing")
+Map.HeavyGate.RightWing.move_dest = world:new("EntityT", "move_dest")
 
 
 -- Set the worlds root entity.
@@ -2914,11 +2916,13 @@ Map:AddChild(Map.static_detail_model_67)
 Map:AddChild(Map.static_detail_model_68)
 Map:AddChild(Map.LifeFormMaker)
 Map:AddChild(Map.static_detail_model_69)
-Map:AddChild(Map.DoubleSlideDoor1_Left)
-Map:AddChild(Map.DoubleSlideDoor1_Right)
-Map:AddChild(Map.DoubleSlideDoor1_Light)
 Map:AddChild(Map.EmergencyExit_Light1)
-Map:AddChild(Map.DoubleSlideDoor1_Trigger)
+Map:AddChild(Map.GlasDoor)
+Map.GlasDoor:AddChild(Map.GlasDoor.LeftWing)
+Map.GlasDoor.LeftWing:AddChild(Map.GlasDoor.LeftWing.move_dest)
+Map.GlasDoor:AddChild(Map.GlasDoor.RightWing)
+Map.GlasDoor.RightWing:AddChild(Map.GlasDoor.RightWing.move_dest)
+Map:AddChild(Map.GlasDoor_Light)
 Map:AddChild(Map.Doors10_Light_1)
 Map:AddChild(Map.Doors10_Light_1_1)
 Map:AddChild(Map.static_detail_model_001)
@@ -2931,63 +2935,63 @@ Map:AddChild(Map.PointLightSource_006)
 Map:AddChild(Map.static_detail_model_002)
 Map:AddChild(Map.static_detail_model_003)
 Map:AddChild(Map.PointLightSource_007)
-Map:AddChild(Map.door)
-Map.door:AddChild(Map.door.func_door)
-Map.door.func_door:AddChild(Map.door.func_door.move_dest)
-Map.door:AddChild(Map.door.func_door_1)
-Map.door.func_door_1:AddChild(Map.door.func_door_1.move_dest)
+Map:AddChild(Map.BrokenGate1)
+Map.BrokenGate1:AddChild(Map.BrokenGate1.UpperPart)
+Map.BrokenGate1.UpperPart:AddChild(Map.BrokenGate1.UpperPart.move_dest)
+Map.BrokenGate1:AddChild(Map.BrokenGate1.LowerPart)
+Map.BrokenGate1.LowerPart:AddChild(Map.BrokenGate1.LowerPart.move_dest)
+Map:AddChild(Map.BrokenGate2)
+Map.BrokenGate2:AddChild(Map.BrokenGate2.UpperPart)
+Map.BrokenGate2.UpperPart:AddChild(Map.BrokenGate2.UpperPart.move_dest)
+Map.BrokenGate2:AddChild(Map.BrokenGate2.LowerPart)
+Map.BrokenGate2.LowerPart:AddChild(Map.BrokenGate2.LowerPart.move_dest)
 Map:AddChild(Map.door_1)
-Map.door_1:AddChild(Map.door_1.door1_left_4)
-Map.door_1.door1_left_4:AddChild(Map.door_1.door1_left_4.move_dest)
-Map.door_1:AddChild(Map.door_1.door1_right_4)
-Map.door_1.door1_right_4:AddChild(Map.door_1.door1_right_4.move_dest)
+Map.door_1:AddChild(Map.door_1.LeftWing)
+Map.door_1.LeftWing:AddChild(Map.door_1.LeftWing.move_dest)
+Map.door_1:AddChild(Map.door_1.RightWing)
+Map.door_1.RightWing:AddChild(Map.door_1.RightWing.move_dest)
 Map:AddChild(Map.door_2)
-Map.door_2:AddChild(Map.door_2.door1_left_5)
-Map.door_2.door1_left_5:AddChild(Map.door_2.door1_left_5.move_dest)
-Map.door_2:AddChild(Map.door_2.door1_right_5)
-Map.door_2.door1_right_5:AddChild(Map.door_2.door1_right_5.move_dest)
-Map:AddChild(Map.door_3)
-Map.door_3:AddChild(Map.door_3.func_door_2)
-Map.door_3.func_door_2:AddChild(Map.door_3.func_door_2.move_dest)
-Map.door_3:AddChild(Map.door_3.func_door_3)
-Map.door_3.func_door_3:AddChild(Map.door_3.func_door_3.move_dest)
-Map:AddChild(Map.door_4)
-Map.door_4:AddChild(Map.door_4.func_door_4)
-Map.door_4.func_door_4:AddChild(Map.door_4.func_door_4.move_dest)
-Map.door_4:AddChild(Map.door_4.func_door_5)
-Map.door_4.func_door_5:AddChild(Map.door_4.func_door_5.move_dest)
+Map.door_2:AddChild(Map.door_2.LeftWing)
+Map.door_2.LeftWing:AddChild(Map.door_2.LeftWing.move_dest)
+Map.door_2:AddChild(Map.door_2.RightWing)
+Map.door_2.RightWing:AddChild(Map.door_2.RightWing.move_dest)
+Map:AddChild(Map.StorageDoor)
+Map.StorageDoor:AddChild(Map.StorageDoor.LeftWing)
+Map.StorageDoor.LeftWing:AddChild(Map.StorageDoor.LeftWing.move_dest)
+Map.StorageDoor:AddChild(Map.StorageDoor.RightWing)
+Map.StorageDoor.RightWing:AddChild(Map.StorageDoor.RightWing.move_dest)
 Map:AddChild(Map.door_5)
-Map.door_5:AddChild(Map.door_5.door1_left)
-Map.door_5.door1_left:AddChild(Map.door_5.door1_left.move_dest)
-Map.door_5:AddChild(Map.door_5.door1_right)
-Map.door_5.door1_right:AddChild(Map.door_5.door1_right.move_dest)
+Map.door_5:AddChild(Map.door_5.LeftWing)
+Map.door_5.LeftWing:AddChild(Map.door_5.LeftWing.move_dest)
+Map.door_5:AddChild(Map.door_5.RightWing)
+Map.door_5.RightWing:AddChild(Map.door_5.RightWing.move_dest)
 Map:AddChild(Map.door_6)
-Map.door_6:AddChild(Map.door_6.door1_left_1)
-Map.door_6.door1_left_1:AddChild(Map.door_6.door1_left_1.move_dest)
-Map.door_6:AddChild(Map.door_6.door1_right_1)
-Map.door_6.door1_right_1:AddChild(Map.door_6.door1_right_1.move_dest)
+Map.door_6:AddChild(Map.door_6.LeftWing)
+Map.door_6.LeftWing:AddChild(Map.door_6.LeftWing.move_dest)
+Map.door_6:AddChild(Map.door_6.RightWing)
+Map.door_6.RightWing:AddChild(Map.door_6.RightWing.move_dest)
 Map:AddChild(Map.door_7)
-Map.door_7:AddChild(Map.door_7.door1_left_2)
-Map.door_7.door1_left_2:AddChild(Map.door_7.door1_left_2.move_dest)
-Map.door_7:AddChild(Map.door_7.door1_right_2)
-Map.door_7.door1_right_2:AddChild(Map.door_7.door1_right_2.move_dest)
-Map:AddChild(Map.door_8)
-Map.door_8:AddChild(Map.door_8.func_door_6)
-Map.door_8.func_door_6:AddChild(Map.door_8.func_door_6.move_dest)
-Map.door_8:AddChild(Map.door_8.func_door_7)
-Map.door_8.func_door_7:AddChild(Map.door_8.func_door_7.move_dest)
+Map.door_7:AddChild(Map.door_7.LeftWing)
+Map.door_7.LeftWing:AddChild(Map.door_7.LeftWing.move_dest)
+Map.door_7:AddChild(Map.door_7.RightWing)
+Map.door_7.RightWing:AddChild(Map.door_7.RightWing.move_dest)
+Map:AddChild(Map.RestroomDoor)
+Map.RestroomDoor:AddChild(Map.RestroomDoor.LeftWing)
+Map.RestroomDoor.LeftWing:AddChild(Map.RestroomDoor.LeftWing.move_dest)
+Map.RestroomDoor:AddChild(Map.RestroomDoor.RightWing)
+Map.RestroomDoor.RightWing:AddChild(Map.RestroomDoor.RightWing.move_dest)
 Map:AddChild(Map.door_9)
-Map.door_9:AddChild(Map.door_9.door1_left_3)
-Map.door_9.door1_left_3:AddChild(Map.door_9.door1_left_3.move_dest)
-Map.door_9:AddChild(Map.door_9.door1_right_3)
-Map.door_9.door1_right_3:AddChild(Map.door_9.door1_right_3.move_dest)
-Map:AddChild(Map.door_10)
-Map.door_10:AddChild(Map.door_10.func_door_8)
-Map.door_10.func_door_8:AddChild(Map.door_10.func_door_8.move_dest)
-Map.door_10:AddChild(Map.door_10.func_door_9)
-Map.door_10.func_door_9:AddChild(Map.door_10.func_door_9.move_dest)
-Map.door_10:AddChild(Map.door_10.func_door_10)
-Map.door_10.func_door_10:AddChild(Map.door_10.func_door_10.move_dest)
+Map.door_9:AddChild(Map.door_9.LeftWing)
+Map.door_9.LeftWing:AddChild(Map.door_9.LeftWing.move_dest)
+Map.door_9:AddChild(Map.door_9.RightWing)
+Map.door_9.RightWing:AddChild(Map.door_9.RightWing.move_dest)
+Map:AddChild(Map.HeavyGate)
+Map.HeavyGate:AddChild(Map.HeavyGate.UpperPart)
+Map.HeavyGate.UpperPart:AddChild(Map.HeavyGate.UpperPart.move_dest)
+Map.HeavyGate:AddChild(Map.HeavyGate.LeftWing)
+Map.HeavyGate.LeftWing:AddChild(Map.HeavyGate.LeftWing.move_dest)
+Map.HeavyGate:AddChild(Map.HeavyGate.RightWing)
+Map.HeavyGate.RightWing:AddChild(Map.HeavyGate.RightWing.move_dest)
 
 
 -- Initialization of the entity contents ("constructors").
@@ -23056,41 +23060,6 @@ function Map.static_detail_model_69:OnInit()
     self:AddComponent(c1)
 end
 
-function Map.DoubleSlideDoor1_Left:OnInit()
-    self:GetTransform():set("Origin", -1664, 22, 1379.9922)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-
-    local c1 = world:new("ComponentScriptT")
-    c1:set("Name", "Games/DeathMatch/Scripts/Mover.lua")
-    c1:set("ScriptCode", "")
-
-    self:AddComponent(c1)
-end
-
-function Map.DoubleSlideDoor1_Right:OnInit()
-    self:GetTransform():set("Origin", -1664, -22, 1379.9922)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-
-    local c1 = world:new("ComponentScriptT")
-    c1:set("Name", "Games/DeathMatch/Scripts/Mover.lua")
-    c1:set("ScriptCode", "")
-
-    self:AddComponent(c1)
-end
-
-function Map.DoubleSlideDoor1_Light:OnInit()
-    self:GetTransform():set("Origin", -1544, 32, 1500)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-
-    local c1 = world:new("ComponentPointLightT")
-    c1:set("On", true)
-    c1:set("Color", 1, 0.68235296, 0.36862746)
-    c1:set("Radius", 394)
-    c1:set("ShadowType", 1)
-
-    self:AddComponent(c1)
-end
-
 function Map.EmergencyExit_Light1:OnInit()
     self:GetTransform():set("Origin", -2356, 484, 1460)
     self:GetTransform():set("Orientation", 0, 0, 0)
@@ -23104,19 +23073,66 @@ function Map.EmergencyExit_Light1:OnInit()
     self:AddComponent(c1)
 end
 
-function Map.DoubleSlideDoor1_Trigger:OnInit()
-    self:GetTransform():set("Origin", -1664, 0, 1379.9922)
+function Map.GlasDoor:OnInit()
+    self:GetTransform():set("Origin", -1664, 0, 1328)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentMoverT")
+    c1:set("moveDuration", 0.5)
+    c1:set("destActivated", 1)
+    c1:set("destTimeout", 2)
+    c1:set("otherEntities", 2)
+    c1:set("trajFunc", 1)
+    c1:set("trajExp", 1)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/MoverBinary.lua")
+    c2:set("ScriptCode", "")
+
+    self:AddComponent(c1, c2)
+end
+
+function Map.GlasDoor.LeftWing:OnInit()
+    self:GetTransform():set("Origin", 0, 0, 40)
     self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentScriptT")
-    c1:set("Name", "")
-    c1:set("ScriptCode", [[
-local Trigger = ...
+    c1:set("Name", "Games/DeathMatch/Scripts/Mover.lua")
+    c1:set("ScriptCode", "")
 
-function Trigger:OnTrigger(Other)
-    -- Add your code here.
+    self:AddComponent(c1)
 end
-]])
+
+function Map.GlasDoor.LeftWing.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, 40, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.GlasDoor.RightWing:OnInit()
+    self:GetTransform():set("Origin", 0, 0, 64)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentScriptT")
+    c1:set("Name", "Games/DeathMatch/Scripts/Mover.lua")
+    c1:set("ScriptCode", "")
+
+    self:AddComponent(c1)
+end
+
+function Map.GlasDoor.RightWing.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, -40, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.GlasDoor_Light:OnInit()
+    self:GetTransform():set("Origin", -1544, 32, 1500)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentPointLightT")
+    c1:set("On", true)
+    c1:set("Color", 1, 0.68235296, 0.36862746)
+    c1:set("Radius", 394)
+    c1:set("ShadowType", 1)
 
     self:AddComponent(c1)
 end
@@ -23298,17 +23314,17 @@ function Map.PointLightSource_007:OnInit()
     self:AddComponent(c1)
 end
 
-function Map.door:OnInit()
-    self:GetTransform():set("Origin", -2080, -160, 1388.75)
+function Map.BrokenGate1:OnInit()
+    self:GetTransform():set("Origin", -2080, -152, 1392)
     self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentMoverT")
-    c1:set("moveDuration", 3)
-    c1:set("destActivated", 1)
-    c1:set("destTimeout", 2)
+    c1:set("moveDuration", 0.7)
+    c1:set("destActivated", 2)
+    c1:set("destTimeout", 3)
     c1:set("otherEntities", 2)
     c1:set("trajFunc", 0)
-    c1:set("trajExp", 2)
+    c1:set("trajExp", 0.7)
 
     local c2 = world:new("ComponentScriptT")
     c2:set("Name", "Games/DeathMatch/Scripts/MoverBinary.lua")
@@ -23317,23 +23333,62 @@ function Map.door:OnInit()
     self:AddComponent(c1, c2)
 end
 
-function Map.door.func_door:OnInit()
-    self:GetTransform():set("Origin", 0, 0, 23.25)
+function Map.BrokenGate1.UpperPart:OnInit()
+    self:GetTransform():set("Origin", 0, 0, 24)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door.func_door.move_dest:OnInit()
-    self:GetTransform():set("Origin", 0, 0, 17)
+function Map.BrokenGate1.UpperPart.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, 0, 16)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door.func_door_1:OnInit()
-    self:GetTransform():set("Origin", 0, 0, -23.25)
+function Map.BrokenGate1.LowerPart:OnInit()
+    self:GetTransform():set("Origin", 0, 0, -24)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door.func_door_1.move_dest:OnInit()
-    self:GetTransform():set("Origin", 0, 0, -20)
+function Map.BrokenGate1.LowerPart.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, 0, -24)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.BrokenGate2:OnInit()
+    self:GetTransform():set("Origin", -1472, 488, 1352)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentMoverT")
+    c1:set("moveDuration", 1)
+    c1:set("destActivated", 2)
+    c1:set("destTimeout", 2)
+    c1:set("otherEntities", 2)
+    c1:set("trajFunc", 0)
+    c1:set("trajExp", 0.8)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/MoverBinary.lua")
+    c2:set("ScriptCode", "")
+
+    self:AddComponent(c1, c2)
+end
+
+function Map.BrokenGate2.UpperPart:OnInit()
+    self:GetTransform():set("Origin", 0, 0, 24)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.BrokenGate2.UpperPart.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, 0, 16)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.BrokenGate2.LowerPart:OnInit()
+    self:GetTransform():set("Origin", 0, 0, -24)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.BrokenGate2.LowerPart.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, 0, -16)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
@@ -23342,7 +23397,7 @@ function Map.door_1:OnInit()
     self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentMoverT")
-    c1:set("moveDuration", 3)
+    c1:set("moveDuration", 2)
     c1:set("destActivated", 1)
     c1:set("destTimeout", 2)
     c1:set("otherEntities", 2)
@@ -23356,22 +23411,22 @@ function Map.door_1:OnInit()
     self:AddComponent(c1, c2)
 end
 
-function Map.door_1.door1_left_4:OnInit()
-    self:GetTransform():set("Origin", 24.5, 0, 0)
+function Map.door_1.LeftWing:OnInit()
+    self:GetTransform():set("Origin", 8, 0, 24)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_1.door1_left_4.move_dest:OnInit()
+function Map.door_1.LeftWing.move_dest:OnInit()
     self:GetTransform():set("Origin", 47, 0, 0)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_1.door1_right_4:OnInit()
-    self:GetTransform():set("Origin", -24.5, 0, 0)
+function Map.door_1.RightWing:OnInit()
+    self:GetTransform():set("Origin", -8, 0, -24)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_1.door1_right_4.move_dest:OnInit()
+function Map.door_1.RightWing.move_dest:OnInit()
     self:GetTransform():set("Origin", -47, 0, 0)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
@@ -23381,7 +23436,7 @@ function Map.door_2:OnInit()
     self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentMoverT")
-    c1:set("moveDuration", 3)
+    c1:set("moveDuration", 0.5)
     c1:set("destActivated", 1)
     c1:set("destTimeout", 2)
     c1:set("otherEntities", 2)
@@ -23395,71 +23450,32 @@ function Map.door_2:OnInit()
     self:AddComponent(c1, c2)
 end
 
-function Map.door_2.door1_left_5:OnInit()
-    self:GetTransform():set("Origin", 0, 24.5, 0)
+function Map.door_2.LeftWing:OnInit()
+    self:GetTransform():set("Origin", 0, 8, -24)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_2.door1_left_5.move_dest:OnInit()
+function Map.door_2.LeftWing.move_dest:OnInit()
     self:GetTransform():set("Origin", 0, 47, 0)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_2.door1_right_5:OnInit()
-    self:GetTransform():set("Origin", 0, -24.5, 0)
+function Map.door_2.RightWing:OnInit()
+    self:GetTransform():set("Origin", 0, -8, 24)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_2.door1_right_5.move_dest:OnInit()
+function Map.door_2.RightWing.move_dest:OnInit()
     self:GetTransform():set("Origin", 0, -47, 0)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_3:OnInit()
-    self:GetTransform():set("Origin", -1472, 496, 1348.75)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-
-    local c1 = world:new("ComponentMoverT")
-    c1:set("moveDuration", 3)
-    c1:set("destActivated", 1)
-    c1:set("destTimeout", 2)
-    c1:set("otherEntities", 2)
-    c1:set("trajFunc", 0)
-    c1:set("trajExp", 2)
-
-    local c2 = world:new("ComponentScriptT")
-    c2:set("Name", "Games/DeathMatch/Scripts/MoverBinary.lua")
-    c2:set("ScriptCode", "")
-
-    self:AddComponent(c1, c2)
-end
-
-function Map.door_3.func_door_2:OnInit()
-    self:GetTransform():set("Origin", 0, 0, 23.25)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.door_3.func_door_2.move_dest:OnInit()
-    self:GetTransform():set("Origin", 0, 0, 17)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.door_3.func_door_3:OnInit()
-    self:GetTransform():set("Origin", 0, 0, -23.25)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.door_3.func_door_3.move_dest:OnInit()
-    self:GetTransform():set("Origin", 0, 0, -20)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.door_4:OnInit()
+function Map.StorageDoor:OnInit()
     self:GetTransform():set("Origin", 608, 768, 596.0078)
     self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentMoverT")
-    c1:set("moveDuration", 3)
+    c1:set("moveDuration", 0.5)
     c1:set("destActivated", 1)
     c1:set("destTimeout", 2)
     c1:set("otherEntities", 2)
@@ -23473,32 +23489,32 @@ function Map.door_4:OnInit()
     self:AddComponent(c1, c2)
 end
 
-function Map.door_4.func_door_4:OnInit()
-    self:GetTransform():set("Origin", 0, 22, 0)
+function Map.StorageDoor.LeftWing:OnInit()
+    self:GetTransform():set("Origin", 0, 0, -24)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_4.func_door_4.move_dest:OnInit()
+function Map.StorageDoor.LeftWing.move_dest:OnInit()
     self:GetTransform():set("Origin", 0, 40, 0)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_4.func_door_5:OnInit()
-    self:GetTransform():set("Origin", 0, -22, 0)
+function Map.StorageDoor.RightWing:OnInit()
+    self:GetTransform():set("Origin", 0, 0, 24)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_4.func_door_5.move_dest:OnInit()
+function Map.StorageDoor.RightWing.move_dest:OnInit()
     self:GetTransform():set("Origin", 0, -40, 0)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
 function Map.door_5:OnInit()
-    self:GetTransform():set("Origin", -160, 479.98438, 640)
+    self:GetTransform():set("Origin", -160, 480, 640)
     self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentMoverT")
-    c1:set("moveDuration", 3)
+    c1:set("moveDuration", 0.5)
     c1:set("destActivated", 1)
     c1:set("destTimeout", 2)
     c1:set("otherEntities", 2)
@@ -23512,22 +23528,22 @@ function Map.door_5:OnInit()
     self:AddComponent(c1, c2)
 end
 
-function Map.door_5.door1_left:OnInit()
-    self:GetTransform():set("Origin", 0, 24.5, 0)
+function Map.door_5.LeftWing:OnInit()
+    self:GetTransform():set("Origin", 0, 7.984375, -24)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_5.door1_left.move_dest:OnInit()
+function Map.door_5.LeftWing.move_dest:OnInit()
     self:GetTransform():set("Origin", 0, 47, 0)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_5.door1_right:OnInit()
-    self:GetTransform():set("Origin", 0, -24.5, 0)
+function Map.door_5.RightWing:OnInit()
+    self:GetTransform():set("Origin", 0, -8.015625, 24)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_5.door1_right.move_dest:OnInit()
+function Map.door_5.RightWing.move_dest:OnInit()
     self:GetTransform():set("Origin", 0, -47, 0)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
@@ -23537,7 +23553,7 @@ function Map.door_6:OnInit()
     self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentMoverT")
-    c1:set("moveDuration", 3)
+    c1:set("moveDuration", 0.5)
     c1:set("destActivated", 1)
     c1:set("destTimeout", 2)
     c1:set("otherEntities", 2)
@@ -23551,22 +23567,22 @@ function Map.door_6:OnInit()
     self:AddComponent(c1, c2)
 end
 
-function Map.door_6.door1_left_1:OnInit()
-    self:GetTransform():set("Origin", 0, 24.5, 0)
+function Map.door_6.LeftWing:OnInit()
+    self:GetTransform():set("Origin", 0, 8, -24)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_6.door1_left_1.move_dest:OnInit()
+function Map.door_6.LeftWing.move_dest:OnInit()
     self:GetTransform():set("Origin", 0, 47, 0)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_6.door1_right_1:OnInit()
-    self:GetTransform():set("Origin", 0, -24.5, 0)
+function Map.door_6.RightWing:OnInit()
+    self:GetTransform():set("Origin", 0, -8, 24)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_6.door1_right_1.move_dest:OnInit()
+function Map.door_6.RightWing.move_dest:OnInit()
     self:GetTransform():set("Origin", 0, -47, 0)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
@@ -23576,7 +23592,7 @@ function Map.door_7:OnInit()
     self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentMoverT")
-    c1:set("moveDuration", 3)
+    c1:set("moveDuration", 0.5)
     c1:set("destActivated", 1)
     c1:set("destTimeout", 2)
     c1:set("otherEntities", 2)
@@ -23590,32 +23606,32 @@ function Map.door_7:OnInit()
     self:AddComponent(c1, c2)
 end
 
-function Map.door_7.door1_left_2:OnInit()
-    self:GetTransform():set("Origin", 0, 24.5, 0)
+function Map.door_7.LeftWing:OnInit()
+    self:GetTransform():set("Origin", 0, 8, -24)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_7.door1_left_2.move_dest:OnInit()
+function Map.door_7.LeftWing.move_dest:OnInit()
     self:GetTransform():set("Origin", 0, 47, 0)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_7.door1_right_2:OnInit()
-    self:GetTransform():set("Origin", 0, -24.5, 0)
+function Map.door_7.RightWing:OnInit()
+    self:GetTransform():set("Origin", 0, -8, 24)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_7.door1_right_2.move_dest:OnInit()
+function Map.door_7.RightWing.move_dest:OnInit()
     self:GetTransform():set("Origin", 0, -47, 0)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_8:OnInit()
+function Map.RestroomDoor:OnInit()
     self:GetTransform():set("Origin", -448, -1060, 700.0078)
     self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentMoverT")
-    c1:set("moveDuration", 3)
+    c1:set("moveDuration", 0.5)
     c1:set("destActivated", 1)
     c1:set("destTimeout", 2)
     c1:set("otherEntities", 2)
@@ -23629,22 +23645,22 @@ function Map.door_8:OnInit()
     self:AddComponent(c1, c2)
 end
 
-function Map.door_8.func_door_6:OnInit()
-    self:GetTransform():set("Origin", -22, 0, 0)
+function Map.RestroomDoor.LeftWing:OnInit()
+    self:GetTransform():set("Origin", 0, 0, -24)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_8.func_door_6.move_dest:OnInit()
+function Map.RestroomDoor.LeftWing.move_dest:OnInit()
     self:GetTransform():set("Origin", -40, 0, 0)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_8.func_door_7:OnInit()
-    self:GetTransform():set("Origin", 22, 0, 0)
+function Map.RestroomDoor.RightWing:OnInit()
+    self:GetTransform():set("Origin", 0, 0, 24)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_8.func_door_7.move_dest:OnInit()
+function Map.RestroomDoor.RightWing.move_dest:OnInit()
     self:GetTransform():set("Origin", 40, 0, 0)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
@@ -23654,7 +23670,7 @@ function Map.door_9:OnInit()
     self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentMoverT")
-    c1:set("moveDuration", 3)
+    c1:set("moveDuration", 0.5)
     c1:set("destActivated", 1)
     c1:set("destTimeout", 2)
     c1:set("otherEntities", 2)
@@ -23668,34 +23684,34 @@ function Map.door_9:OnInit()
     self:AddComponent(c1, c2)
 end
 
-function Map.door_9.door1_left_3:OnInit()
-    self:GetTransform():set("Origin", 0, 24.5, 0)
+function Map.door_9.LeftWing:OnInit()
+    self:GetTransform():set("Origin", 0, 8, -24)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_9.door1_left_3.move_dest:OnInit()
+function Map.door_9.LeftWing.move_dest:OnInit()
     self:GetTransform():set("Origin", 0, 47, 0)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_9.door1_right_3:OnInit()
-    self:GetTransform():set("Origin", 0, -24.5, 0)
+function Map.door_9.RightWing:OnInit()
+    self:GetTransform():set("Origin", 0, -8, 24)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_9.door1_right_3.move_dest:OnInit()
+function Map.door_9.RightWing.move_dest:OnInit()
     self:GetTransform():set("Origin", 0, -47, 0)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_10:OnInit()
-    self:GetTransform():set("Origin", 992, -448, 712.4375)
+function Map.HeavyGate:OnInit()
+    self:GetTransform():set("Origin", 984, -448, 688)
     self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentMoverT")
     c1:set("moveDuration", 3)
     c1:set("destActivated", 1)
-    c1:set("destTimeout", 2)
+    c1:set("destTimeout", 5)
     c1:set("otherEntities", 2)
     c1:set("trajFunc", 0)
     c1:set("trajExp", 2)
@@ -23707,32 +23723,32 @@ function Map.door_10:OnInit()
     self:AddComponent(c1, c2)
 end
 
-function Map.door_10.func_door_8:OnInit()
-    self:GetTransform():set("Origin", 0, 76, -18.40625)
+function Map.HeavyGate.UpperPart:OnInit()
+    self:GetTransform():set("Origin", 0, 0, 32)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_10.func_door_8.move_dest:OnInit()
+function Map.HeavyGate.UpperPart.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, 0, 64)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.HeavyGate.LeftWing:OnInit()
+    self:GetTransform():set("Origin", 0, 8, -24)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.HeavyGate.LeftWing.move_dest:OnInit()
     self:GetTransform():set("Origin", 0, 112, 0)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_10.func_door_9:OnInit()
-    self:GetTransform():set("Origin", 0, 0, 36.8125)
+function Map.HeavyGate.RightWing:OnInit()
+    self:GetTransform():set("Origin", 0, -8, -24)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.door_10.func_door_9.move_dest:OnInit()
-    self:GetTransform():set("Origin", 0, 0, 65.5)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.door_10.func_door_10:OnInit()
-    self:GetTransform():set("Origin", 0, -76, -18.40625)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.door_10.func_door_10.move_dest:OnInit()
+function Map.HeavyGate.RightWing.move_dest:OnInit()
     self:GetTransform():set("Origin", 0, -112, 0)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
