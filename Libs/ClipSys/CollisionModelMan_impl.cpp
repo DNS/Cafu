@@ -83,8 +83,9 @@ const CollisionModelT* CollModelManImplT::GetCM(const std::string& FileName)
 
             // TODO: Account for the first map file entity to come with terrains! (Must keep the terrain instance in cmInfoT.)
             const ArrayT<CollisionModelStaticT::TerrainRefT> ShTe;
+            const double CA3DE_SCALE = 25.4;
 
-            CollisionModelStaticT* CM = new CollisionModelStaticT(MapFileEntityT(0, TP), ShTe, true /*Use generic brushes.*/);
+            CollisionModelStaticT* CM = new CollisionModelStaticT(MapFileEntityT(0, TP, CA3DE_SCALE), ShTe, true /*Use generic brushes.*/);
 
             CM->ScaleDown254();
 

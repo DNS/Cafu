@@ -28,9 +28,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace cf;
 
 
-const double cf::CA3DE_SCALE=25.4;
-
-
 static void SkipGroupDef(TextParserT& TP)
 {
     if (TP.PeekNextToken()=="Group")
@@ -41,7 +38,7 @@ static void SkipGroupDef(TextParserT& TP)
 }
 
 
-MapFileBrushT::MapFileBrushT(TextParserT& TP, unsigned long BrushNr)
+MapFileBrushT::MapFileBrushT(TextParserT& TP, unsigned long BrushNr, const double CA3DE_SCALE)
 {
     SkipGroupDef(TP);
 
@@ -123,7 +120,7 @@ MapFileBrushT::MapFileBrushT(TextParserT& TP, unsigned long BrushNr)
 }
 
 
-MapFileBezierPatchT::MapFileBezierPatchT(TextParserT& TP)
+MapFileBezierPatchT::MapFileBezierPatchT(TextParserT& TP, const double CA3DE_SCALE)
 {
     TP.AssertAndSkipToken("{");
     SkipGroupDef(TP);
@@ -167,7 +164,7 @@ MapFileBezierPatchT::MapFileBezierPatchT(TextParserT& TP)
 }
 
 
-MapFileTerrainT::MapFileTerrainT(TextParserT& TP)
+MapFileTerrainT::MapFileTerrainT(TextParserT& TP, const double CA3DE_SCALE)
 {
     TP.AssertAndSkipToken("{");
     SkipGroupDef(TP);
@@ -201,7 +198,7 @@ MapFileTerrainT::MapFileTerrainT(TextParserT& TP)
 }
 
 
-MapFilePlantT::MapFilePlantT(TextParserT& TP)
+MapFilePlantT::MapFilePlantT(TextParserT& TP, const double CA3DE_SCALE)
 {
     TP.AssertAndSkipToken("{");
     SkipGroupDef(TP);
@@ -225,7 +222,7 @@ MapFilePlantT::MapFilePlantT(TextParserT& TP)
 }
 
 
-MapFileModelT::MapFileModelT(TextParserT& TP)
+MapFileModelT::MapFileModelT(TextParserT& TP, const double CA3DE_SCALE)
 {
     TP.AssertAndSkipToken("{");
     SkipGroupDef(TP);
@@ -256,7 +253,7 @@ MapFileModelT::MapFileModelT(TextParserT& TP)
 }
 
 
-MapFileEntityT::MapFileEntityT(unsigned long Index, TextParserT& TP)
+MapFileEntityT::MapFileEntityT(unsigned long Index, TextParserT& TP, const double CA3DE_SCALE)
     : MFIndex(Index)
 {
     TP.AssertAndSkipToken("{");
@@ -270,23 +267,23 @@ MapFileEntityT::MapFileEntityT(unsigned long Index, TextParserT& TP)
 
         if (Token=="{")                 // Begin of Brush.
         {
-            MFBrushes.PushBack(MapFileBrushT(TP, MFBrushes.Size()));
+            MFBrushes.PushBack(MapFileBrushT(TP, MFBrushes.Size(), CA3DE_SCALE));
         }
         else if (Token=="PatchDef")     // Patch definition.
         {
-            MFPatches.PushBack(MapFileBezierPatchT(TP));
+            MFPatches.PushBack(MapFileBezierPatchT(TP, CA3DE_SCALE));
         }
         else if (Token=="TerrainDef")   // Terrain definition.
         {
-            MFTerrains.PushBack(MapFileTerrainT(TP));
+            MFTerrains.PushBack(MapFileTerrainT(TP, CA3DE_SCALE));
         }
         else if (Token=="PlantDef")     // Plant definition.
         {
-            MFPlants.PushBack(MapFilePlantT(TP));
+            MFPlants.PushBack(MapFilePlantT(TP, CA3DE_SCALE));
         }
         else if (Token=="ModelDef")     // Model definition.
         {
-            MFModels.PushBack(MapFileModelT(TP));
+            MFModels.PushBack(MapFileModelT(TP, CA3DE_SCALE));
         }
         else                            // Property Pair.
         {

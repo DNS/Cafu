@@ -37,9 +37,6 @@ class TextParserT;
 
 namespace cf
 {
-    extern const double CA3DE_SCALE;
-
-
     /// This struct describes a plane (and thus one side) of a map brush.
     /// The members U, V, ShiftU and ShiftV together define the planar projection
     /// for computing the (u, v) texture coordinates at the vertices of the brush.
@@ -61,7 +58,7 @@ namespace cf
         MapFileBrushT() { }
 
         /// @throws TextParserT::ParseError on problems.
-        MapFileBrushT(TextParserT& TP, unsigned long BrushNr);
+        MapFileBrushT(TextParserT& TP, unsigned long BrushNr, const double CA3DE_SCALE);
 
 
         ArrayT<MapFilePlaneT> MFPlanes;
@@ -74,7 +71,7 @@ namespace cf
         MapFileBezierPatchT() { }
 
         /// @throws TextParserT::ParseError on problems.
-        MapFileBezierPatchT(TextParserT& TP);
+        MapFileBezierPatchT(TextParserT& TP, const double CA3DE_SCALE);
 
 
         // TODO: Remove the SizeX, SizeY and ControlsPoints members, use a cf::math::BezierPatchT<float> instead!
@@ -95,7 +92,7 @@ namespace cf
         MapFileTerrainT() { }
 
         /// @throws TextParserT::ParseError on problems.
-        MapFileTerrainT(TextParserT& TP);
+        MapFileTerrainT(TextParserT& TP, const double CA3DE_SCALE);
 
         /// Returns the spatial coordinate for the given (logical) height field position.
         /// Note that for processing all vertices of a terrain quickly, specialized loops
@@ -128,7 +125,7 @@ namespace cf
         MapFilePlantT() { }
 
         /// @throws TextParserT::ParseError on problems.
-        MapFilePlantT(TextParserT& TP);
+        MapFilePlantT(TextParserT& TP, const double CA3DE_SCALE);
 
 
         std::string  DescrFileName;
@@ -144,7 +141,7 @@ namespace cf
         MapFileModelT() { }
 
         /// @throws TextParserT::ParseError on problems.
-        MapFileModelT(TextParserT& TP);
+        MapFileModelT(TextParserT& TP, const double CA3DE_SCALE);
 
 
         std::string Model;
@@ -166,7 +163,7 @@ namespace cf
         MapFileEntityT() : MFIndex(0) { }
 
         /// @throws TextParserT::ParseError on problems.
-        MapFileEntityT(unsigned long Index, TextParserT& TP);
+        MapFileEntityT(unsigned long Index, TextParserT& TP, const double CA3DE_SCALE);
 
         /// Transforms all primitives in this entity by the given matrix.
         void Transform(const Matrix4x4fT& Mat);

@@ -223,6 +223,7 @@ void ComputeBrushFaces(const MapFileBrushT& MFBrush, WorldT& World, cf::SceneGra
 // Liest ein MapFile, das die der Version entsprechenden "MapFile Specifications" erfüllen muß, in die World ein.
 void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, WorldT& World, ArrayT<Vector3dT>& FloodFillSources, ArrayT<Vector3dT>& DrawWorldOutsidePointSamples)
 {
+    const double CA3DE_SCALE = 25.4;
     World.PlantDescrMan.SetModDir(GameDirectory);
 
     Console->Print(cf::va("\n*** Load World %s ***\n", LoadName));
@@ -263,7 +264,7 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
 
         while (!TP.IsAtEOF())
         {
-            MFEntityList.PushBack(MapFileEntityT(MFEntityList.Size(), TP));
+            MFEntityList.PushBack(MapFileEntityT(MFEntityList.Size(), TP, CA3DE_SCALE));
         }
     }
     catch (const TextParserT::ParseError&)

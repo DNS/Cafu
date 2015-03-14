@@ -2026,24 +2026,26 @@ void CollisionModelStaticT::FreeTree(NodeT* Node)
 */
 
 
-static void ScaleDown254(CollisionModelStaticT::NodeT* Node)
+static void ScaleDown254(CollisionModelStaticT::NodeT* Node, const double CA3DE_SCALE)
 {
     assert(Node);
     if (Node->PlaneType == CollisionModelStaticT::NodeT::NONE) return;
 
-    Node->PlaneDist /= cf::CA3DE_SCALE;
+    Node->PlaneDist /= CA3DE_SCALE;
 
-    ScaleDown254(Node->Children[0]);
-    ScaleDown254(Node->Children[1]);
+    ScaleDown254(Node->Children[0], CA3DE_SCALE);
+    ScaleDown254(Node->Children[1], CA3DE_SCALE);
 }
 
 
 void CollisionModelStaticT::ScaleDown254()
 {
+    const double CA3DE_SCALE = 25.4;
+
     m_BB.Min /= CA3DE_SCALE;
     m_BB.Max /= CA3DE_SCALE;
 
-    ::ScaleDown254(m_RootNode);
+    ::ScaleDown254(m_RootNode, CA3DE_SCALE);
 
     for (unsigned int i = 0; i < m_Brushes.Size(); i++)
     {
