@@ -1044,8 +1044,10 @@ void MapBezierPatchT::UpdateRenderMesh() const
         static MaterialT s_CollMaterial;
         s_CollMaterial.ClipFlags=MaterialT::Clip_AllBlocking;
 
+        const double COLLISION_MODEL_MIN_NODE_SIZE = 40.0;
+
         delete CollModel;
-        CollModel=new cf::ClipSys::CollisionModelStaticT(CollisionBP.Width, CollisionBP.Height, CoordsOnly, &s_CollMaterial);
+        CollModel = new cf::ClipSys::CollisionModelStaticT(CollisionBP.Width, CollisionBP.Height, CoordsOnly, &s_CollMaterial, COLLISION_MODEL_MIN_NODE_SIZE);
 
 
         // 3. Everything updated for now.

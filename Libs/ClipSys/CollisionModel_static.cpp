@@ -28,10 +28,12 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 #include "Math3D/BezierPatch.hpp"
+#include "Math3D/Brush.hpp"
 #include "Math3D/Pluecker.hpp"
+#include "Math3D/Polygon.hpp"
 #include "SceneGraph/_aux.hpp"
+#include "Terrain/Terrain.hpp"
 #include "MapFile.hpp"
-#include "../Common/World.hpp"      // Needed (only) for some MapT::xy stuff.
 
 #if defined(_WIN32) && defined(_MSC_VER)
     // Turn off warning C4355: 'this' : used in base member initializer list.
@@ -861,10 +863,8 @@ bool CollisionModelStaticT::NodeT::IntersectsAllChildren(const BoundingBox3dT& B
 }
 
 
-bool CollisionModelStaticT::NodeT::DetermineSplitPlane(const BoundingBox3dT& NodeBB)
+bool CollisionModelStaticT::NodeT::DetermineSplitPlane(const BoundingBox3dT& NodeBB, const double MIN_NODE_SIZE)
 {
-    const double MIN_NODE_SIZE=1000.0;
-
     PlaneTypeE PlaneTypes_SBLE[3]={ ALONG_X, ALONG_Y, ALONG_Z };
     Vector3dT  NodeBBSize_SBLE   =NodeBB.Max-NodeBB.Min;
 
@@ -1515,7 +1515,7 @@ static inline int Sign(const double a)
 // Computes the bevel planes for clip brush CB, using the newer "sign flip at edge" method,
 // as outlined by Karl Patrick at http://www.xp-cagey.com/?article=1000
 // This method is also very simple and robust, but several hundred times faster than the convex hull method.
-static ArrayT<Plane3dT> ComputeBevelPlanes(const ArrayT< Polygon3T<double> >& BrushPolys, const BoundingBox3dT& BrushBB)
+static ArrayT<Plane3dT> ComputeBevelPlanes(const ArrayT< Polygon3T<double> >& BrushPolys, const BoundingBox3dT& BrushBB, const double MAP_ROUND_EPSILON)
 {
     ArrayT<Plane3dT> BevelPlanes;
 
@@ -1538,16 +1538,16 @@ static ArrayT<Plane3dT> ComputeBevelPlanes(const ArrayT< Polygon3T<double> >& Br
 
             for (unsigned long E1Nr=0; E1Nr<P1.Vertices.Size(); E1Nr++)
                 for (unsigned long E2Nr=0; E2Nr<P2.Vertices.Size(); E2Nr++)
-                    if (P1.Vertices[E1Nr].IsEqual(P2.Vertices[(E2Nr+1) % P2.Vertices.Size()], MapT::RoundEpsilon) &&
-                        P1.Vertices[(E1Nr+1) % P1.Vertices.Size()].IsEqual(P2.Vertices[E2Nr], MapT::RoundEpsilon))
+                    if (P1.Vertices[E1Nr].IsEqual(P2.Vertices[(E2Nr+1) % P2.Vertices.Size()], MAP_ROUND_EPSILON) &&
+                        P1.Vertices[(E1Nr+1) % P1.Vertices.Size()].IsEqual(P2.Vertices[E2Nr], MAP_ROUND_EPSILON))
                     {
                         // Common edge found!
                         const VectorT A=P1.Vertices[E1Nr];
                         const VectorT B=P1.Vertices[(E1Nr+1) % P1.Vertices.Size()];
 
-                        if (Sign(P1.Plane.Normal.x)*Sign(P2.Plane.Normal.x)==-1) try { BevelPlanes.PushBack(Plane3dT(A, B, A+Vector3dT(Sign(P1.Plane.Normal.x)*100.0, 0.0, 0.0), MapT::RoundEpsilon)); } catch (const DivisionByZeroE&) { }
-                        if (Sign(P1.Plane.Normal.y)*Sign(P2.Plane.Normal.y)==-1) try { BevelPlanes.PushBack(Plane3dT(A, B, A+Vector3dT(0.0, Sign(P1.Plane.Normal.y)*100.0, 0.0), MapT::RoundEpsilon)); } catch (const DivisionByZeroE&) { }
-                        if (Sign(P1.Plane.Normal.z)*Sign(P2.Plane.Normal.z)==-1) try { BevelPlanes.PushBack(Plane3dT(A, B, A+Vector3dT(0.0, 0.0, Sign(P1.Plane.Normal.z)*100.0), MapT::RoundEpsilon)); } catch (const DivisionByZeroE&) { }
+                        if (Sign(P1.Plane.Normal.x)*Sign(P2.Plane.Normal.x)==-1) try { BevelPlanes.PushBack(Plane3dT(A, B, A+Vector3dT(Sign(P1.Plane.Normal.x)*100.0, 0.0, 0.0), MAP_ROUND_EPSILON)); } catch (const DivisionByZeroE&) { }
+                        if (Sign(P1.Plane.Normal.y)*Sign(P2.Plane.Normal.y)==-1) try { BevelPlanes.PushBack(Plane3dT(A, B, A+Vector3dT(0.0, Sign(P1.Plane.Normal.y)*100.0, 0.0), MAP_ROUND_EPSILON)); } catch (const DivisionByZeroE&) { }
+                        if (Sign(P1.Plane.Normal.z)*Sign(P2.Plane.Normal.z)==-1) try { BevelPlanes.PushBack(Plane3dT(A, B, A+Vector3dT(0.0, 0.0, Sign(P1.Plane.Normal.z)*100.0), MAP_ROUND_EPSILON)); } catch (const DivisionByZeroE&) { }
                     }
         }
     }
@@ -1563,7 +1563,7 @@ static ArrayT<Plane3dT> ComputeBevelPlanes(const ArrayT< Polygon3T<double> >& Br
             const VectorT S1=scale(BevelPlanes[Plane1Nr].Normal, S);
             const VectorT S2=scale(BevelPlanes[Plane2Nr].Normal, S);
 
-            if (!S1.IsEqual(S2, MapT::RoundEpsilon)) continue;
+            if (!S1.IsEqual(S2, MAP_ROUND_EPSILON)) continue;
 
             // These planes are "equal"!
             BevelPlanes[Plane2Nr]=BevelPlanes[BevelPlanes.Size()-1];
@@ -1580,7 +1580,7 @@ static ArrayT<Plane3dT> ComputeBevelPlanes(const ArrayT< Polygon3T<double> >& Br
             const VectorT S1=scale(BrushPolys[PolyNr].Plane.Normal, S);
             const VectorT S2=scale(BevelPlanes[PlaneNr].Normal, S);
 
-            if (!S1.IsEqual(S2, MapT::RoundEpsilon)) continue;
+            if (!S1.IsEqual(S2, MAP_ROUND_EPSILON)) continue;
 
             // These planes are "equal"!
             BevelPlanes[PlaneNr]=BevelPlanes[BevelPlanes.Size()-1];
@@ -1592,7 +1592,8 @@ static ArrayT<Plane3dT> ComputeBevelPlanes(const ArrayT< Polygon3T<double> >& Br
 }
 
 
-CollisionModelStaticT::CollisionModelStaticT(const cf::MapFileEntityT& Entity, const ArrayT<TerrainRefT>& Terrains, bool UseGenericBrushes)
+CollisionModelStaticT::CollisionModelStaticT(const cf::MapFileEntityT& Entity, const ArrayT<TerrainRefT>& Terrains, bool UseGenericBrushes,
+        const double MAP_ROUND_EPSILON, const double MAP_MIN_VERTEX_DIST, const double BP_MAX_CURVE_ERROR, const double BP_MAX_CURVE_LENGTH, const double MIN_NODE_SIZE)
     : m_Name("map file entity model"),    // This should be distinct from *any* model file name on disk (in order to not confuse the model manager).
       m_BB(),
       m_Contents(0),
@@ -1643,7 +1644,7 @@ CollisionModelStaticT::CollisionModelStaticT(const cf::MapFileEntityT& Entity, c
         for (unsigned long PlaneNr=0; PlaneNr<MapBrush.MFPlanes.Size(); PlaneNr++)
             BrushPolys[PlaneNr].Plane=MapBrush.MFPlanes[PlaneNr].Plane;
 
-        Polygon3T<double>::Complete(BrushPolys, MapT::RoundEpsilon);
+        Polygon3T<double>::Complete(BrushPolys, MAP_ROUND_EPSILON);
 
 
         // 3. Compute the BrushBB.
@@ -1660,7 +1661,7 @@ CollisionModelStaticT::CollisionModelStaticT(const cf::MapFileEntityT& Entity, c
 
             // Should never trigger, because the polygons were all valid when CaBSP initially loaded them
             // (and did the same computations and validity check)!
-            assert(BrushPoly.IsValid(MapT::RoundEpsilon, MapT::MinVertexDist));
+            assert(BrushPoly.IsValid(MAP_ROUND_EPSILON, MAP_MIN_VERTEX_DIST));
 
             for (unsigned long VertexNr=0; VertexNr<BrushPoly.Vertices.Size(); VertexNr++)
                 m_BrushSideVIs.PushBack(::GetVertex(VertexMap, m_Vertices, BrushPoly.Vertices[VertexNr]));
@@ -1677,7 +1678,7 @@ CollisionModelStaticT::CollisionModelStaticT(const cf::MapFileEntityT& Entity, c
         // 4. Optionally compute the bevel planes.
         if (!UseGenericBrushes)
         {
-            ArrayT<Plane3dT> BevelPlanes=ComputeBevelPlanes(BrushPolys, Brush.BB);
+            const ArrayT<Plane3dT> BevelPlanes = ComputeBevelPlanes(BrushPolys, Brush.BB, MAP_ROUND_EPSILON);
 
             // Add a brush side for each bevel plane.
             // Note that *all* added bevel sides are created with the "NULL" material,
@@ -1758,13 +1759,7 @@ CollisionModelStaticT::CollisionModelStaticT(const cf::MapFileEntityT& Entity, c
         }
         else
         {
-            // ###
-            // ### For now, these consts MUST be kept in sync with those in SceneGraph/BezierPatchNode.cpp !!!
-            // ###
-            const double COLLISION_MODEL_MAX_CURVE_ERROR =600.0;    // Mhhhh... 60cm is really quite much... (though not for really large walls).
-            const double COLLISION_MODEL_MAX_CURVE_LENGTH= -1.0;
-
-            BezierPatch.Subdivide(COLLISION_MODEL_MAX_CURVE_ERROR, COLLISION_MODEL_MAX_CURVE_LENGTH);
+            BezierPatch.Subdivide(BP_MAX_CURVE_ERROR, BP_MAX_CURVE_LENGTH);
         }
 
 
@@ -1906,7 +1901,7 @@ CollisionModelStaticT::CollisionModelStaticT(const cf::MapFileEntityT& Entity, c
     m_BB      =m_RootNode->GetBB();         // Buffer bounding box for entire shape.
     m_Contents=m_RootNode->GetContents();   // Buffer contents     for entire shape.
 
-    BuildAxialBSPTree(m_RootNode, m_BB);    // Finally create the axis-aligned BSP tree for this collision shape.
+    BuildAxialBSPTree(m_RootNode, m_BB, MIN_NODE_SIZE);   // Finally create the axis-aligned BSP tree for this collision shape.
 
 #ifdef DEBUG
     const BoundingBox3dT TestBB=m_RootNode->GetBB();
@@ -1941,7 +1936,7 @@ CollisionModelStaticT::CollisionModelStaticT(const cf::MapFileEntityT& Entity, c
 }
 
 
-CollisionModelStaticT::CollisionModelStaticT(unsigned long Width, unsigned long Height, const ArrayT<Vector3dT>& Mesh, MaterialT* Material)
+CollisionModelStaticT::CollisionModelStaticT(unsigned long Width, unsigned long Height, const ArrayT<Vector3dT>& Mesh, MaterialT* Material, const double MIN_NODE_SIZE)
     : m_Name("custom mesh model"),    // This should be distinct from *any* model file name on disk (in order to not confuse the model manager).
       m_BB(),
       m_Contents(0),
@@ -2005,7 +2000,7 @@ CollisionModelStaticT::CollisionModelStaticT(unsigned long Width, unsigned long 
     m_BB      =m_RootNode->GetBB();         // Buffer bounding box for entire shape.
     m_Contents=m_RootNode->GetContents();   // Buffer contents     for entire shape.
 
-    BuildAxialBSPTree(m_RootNode, m_BB);    // Finally create the axis-aligned BSP tree for this collision shape.
+    BuildAxialBSPTree(m_RootNode, m_BB, MIN_NODE_SIZE);   // Finally create the axis-aligned BSP tree for this collision shape.
 }
 
 
@@ -2313,9 +2308,9 @@ btCollisionShape* CollisionModelStaticT::GetBulletAdapter() const
 
 
 // See the comments in CaWE/OrthoBspTree.hpp for some additional information.
-void CollisionModelStaticT::BuildAxialBSPTree(NodeT* Node, const BoundingBox3dT& NodeBB)
+void CollisionModelStaticT::BuildAxialBSPTree(NodeT* Node, const BoundingBox3dT& NodeBB, const double MIN_NODE_SIZE)
 {
-    if (!Node->DetermineSplitPlane(NodeBB)) return;
+    if (!Node->DetermineSplitPlane(NodeBB, MIN_NODE_SIZE)) return;
 
     // Create a front child for Node.
     BoundingBox3dT FrontBB=NodeBB;
@@ -2376,6 +2371,6 @@ void CollisionModelStaticT::BuildAxialBSPTree(NodeT* Node, const BoundingBox3dT&
     }
 
     // Recurse.
-    BuildAxialBSPTree(FrontNode, FrontBB);
-    BuildAxialBSPTree(BackNode,  BackBB);
+    BuildAxialBSPTree(FrontNode, FrontBB, MIN_NODE_SIZE);
+    BuildAxialBSPTree(BackNode,  BackBB, MIN_NODE_SIZE);
 }

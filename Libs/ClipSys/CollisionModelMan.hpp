@@ -77,7 +77,7 @@ namespace cf
             /// @param Mesh     The vertices of the mesh.
             /// @param Material The material reported in collision results when a trace hit.
             /// @returns the matching collision model instance.
-            virtual const CollisionModelT* GetCM(unsigned long Width, unsigned long Height, const ArrayT<Vector3dT>& Mesh, MaterialT* Material)=0;
+            virtual const CollisionModelT* GetCM(unsigned long Width, unsigned long Height, const ArrayT<Vector3dT>& Mesh, MaterialT* Material, const double MIN_NODE_SIZE)=0;
 
             /// Creates a collision model from the given (axis-aligned) bounding-box.
             /// @param BB   The bounding box to create a collision model for.

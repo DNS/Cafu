@@ -409,9 +409,19 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
                 ShTe.PushBack(cf::ClipSys::CollisionModelStaticT::TerrainRefT(&ST->Terrain, ST->Material, ST->BB));
             }
 
+            // ###
+            // ### For now, these consts MUST be kept in sync with those in SceneGraph/BezierPatchNode.cpp !!!
+            // ### See there at BezierPatchNodeT::CreatePatchMeshes() for details.
+            // ###
+            const double COLLISION_MODEL_MAX_CURVE_ERROR  = 600.0;
+            const double COLLISION_MODEL_MAX_CURVE_LENGTH =  -1.0;
+
+            const double MIN_NODE_SIZE = 1000.0;
+
             // false: Use brushes with precomputed bevel planes (for EntNr == 0).
             // true:  Use generic brushes (for EntNr > 0).
-            GameEnt->m_CollModel = new cf::ClipSys::CollisionModelStaticT(E, ShTe, EntNr > 0);
+            GameEnt->m_CollModel = new cf::ClipSys::CollisionModelStaticT(E, ShTe, EntNr > 0,
+                MapT::RoundEpsilon, MapT::MinVertexDist, COLLISION_MODEL_MAX_CURVE_ERROR, COLLISION_MODEL_MAX_CURVE_LENGTH, MIN_NODE_SIZE);
         }
 
         // 6. Collect the geometry primitives for the BSP tree.

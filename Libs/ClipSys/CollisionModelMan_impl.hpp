@@ -40,7 +40,7 @@ namespace cf
             // The CollisionModelManI interface.
             const CollisionModelT* GetCM(const std::string& FileName);
          // const CollisionModelT* GetCM(std::istream& InFile, SceneGraph::aux::PoolT& Pool, const ArrayT<CollisionModelStaticT::TerrainRefT>& Terrains);
-            const CollisionModelT* GetCM(unsigned long Width, unsigned long Height, const ArrayT<Vector3dT>& Mesh, MaterialT* Material);
+            const CollisionModelT* GetCM(unsigned long Width, unsigned long Height, const ArrayT<Vector3dT>& Mesh, MaterialT* Material, const double MIN_NODE_SIZE) override;
             const CollisionModelT* GetCM(const BoundingBox3T<double>& BB, MaterialT* Material);
             const CollisionModelT* GetCM(const CollisionModelT* CollisionModel);
             const std::string& GetFileName(const CollisionModelT* CollisionModel) const;
