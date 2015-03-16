@@ -248,6 +248,8 @@ namespace cf
 
             void ScaleDown254();
 
+            void Dump(std::ostream& OutFile) const;
+
             /// The destructor.
             ~CollisionModelStaticT();
 

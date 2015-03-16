@@ -2063,6 +2063,153 @@ void CollisionModelStaticT::ScaleDown254()
 }
 
 
+void CollisionModelStaticT::Dump(std::ostream& OutFile) const
+{
+    // using namespace cf::SceneGraph;
+
+    OutFile << "\n";
+    OutFile << m_Name << "\n";
+
+
+    // Write the vertices.
+    OutFile << "\nVertices\n";
+    OutFile << m_Vertices.Size();
+    OutFile << "\n";
+
+    for (unsigned long VertexNr=0; VertexNr<m_Vertices.Size(); VertexNr++)
+    {
+        // The vertices are intentionally not written via Pool.Write(),
+        // because they *are* "pooled" (free from duplicates) already.
+        OutFile << m_Vertices[VertexNr];
+        OutFile << "\n";
+    }
+
+
+    // Write the brush side vertex indices.
+    OutFile << "\nBrush side vertex indices\n";
+    OutFile << m_BrushSideVIs.Size();
+    OutFile << "\n";
+
+    for (unsigned long viNr=0; viNr<m_BrushSideVIs.Size(); viNr++)
+    {
+        OutFile << m_BrushSideVIs[viNr];
+        OutFile << "\n";
+    }
+
+
+    // Write the brush sides.
+    OutFile << "\nBrush sides\n";
+    OutFile << m_BrushSides.Size();
+    OutFile << "\n";
+
+    for (unsigned long SideNr=0; SideNr<m_BrushSides.Size(); SideNr++)
+    {
+        const BrushT::SideT& Side=m_BrushSides[SideNr];
+
+        OutFile << Side.Plane.Normal << "  ";
+        OutFile << Side.Plane.Dist << "  ";
+
+        OutFile << (Side.Vertices - &m_BrushSideVIs[0]) << "  ";    // Index of first vertex index in m_BrushSideVIs.
+        OutFile << Side.NrOfVertices << "  ";
+
+        OutFile << (Side.Material ? Side.Material->Name : "");  // Side.Material==NULL can occur when m_GenericBrushes==false.
+        OutFile << "\n";
+    }
+
+
+    // Write the brushes.
+    OutFile << "\nBrushes\n";
+    OutFile << m_GenericBrushes;
+    OutFile << "\n";
+    OutFile << m_Brushes.Size();
+    OutFile << "\n";
+
+    for (unsigned long BrushNr=0; BrushNr<m_Brushes.Size(); BrushNr++)
+    {
+        const BrushT& Brush=m_Brushes[BrushNr];
+
+        OutFile << (Brush.Sides - &m_BrushSides[0]) << "  ";    // Index of first side in m_BrushSides.
+        OutFile << Brush.NrOfSides << "  ";
+
+#if 0
+        // Dependent information that is not saved to disk, but recomputed on demand.
+        OutFile << Brush.NrOfHullVerts;
+        for (unsigned long VertexNr=0; VertexNr<Brush.NrOfHullVerts; VertexNr++)
+            OutFile << Brush.HullVerts[VertexNr];
+
+        OutFile << Brush.NrOfHullEdges;
+        for (unsigned long EdgeNr=0; EdgeNr<Brush.NrOfHullEdges; EdgeNr++)
+        {
+            OutFile << Brush.HullEdges[EdgeNr].A;
+            OutFile << Brush.HullEdges[EdgeNr].B;
+        }
+#endif
+
+        // For non-generic brushes, the bounding-box cannot be recovered from the vertices when loading.
+        OutFile << Brush.BB.Min << "  ";
+        OutFile << Brush.BB.Max << "  ";
+
+     // OutFile << Brush.Contents;    // Contents is recovered from the sides when loading.
+        OutFile << "\n";
+    }
+
+
+    // Write the polygons.
+    OutFile << "\nPolygons\n";
+    OutFile << m_Polygons.Size();
+    OutFile << "\n";
+
+    for (unsigned long PolyNr=0; PolyNr<m_Polygons.Size(); PolyNr++)
+    {
+        const PolygonT& Polygon=m_Polygons[PolyNr];
+
+        for (unsigned long VertexNr=0; VertexNr<4; VertexNr++)
+            OutFile << Polygon.Vertices[VertexNr] << "  ";
+
+        OutFile << (Polygon.Material ? Polygon.Material->Name : "");
+        OutFile << "\n";
+    }
+
+
+    // Write the nodes.
+    OutFile << "\nNodes\n";
+    ArrayT<NodeT*> NodeStack;
+    NodeStack.PushBack(m_RootNode);
+
+    while (NodeStack.Size()>0)
+    {
+        const NodeT* CurrentNode=NodeStack[NodeStack.Size()-1];
+        NodeStack.DeleteBack();
+
+        OutFile << CurrentNode->PlaneType << "  ";
+        OutFile << CurrentNode->PlaneDist << "  ";
+
+        OutFile << "\nPolygons: ";
+        OutFile << CurrentNode->Polygons.Size() << "  ";
+        for (unsigned long PolyNr=0; PolyNr<CurrentNode->Polygons.Size(); PolyNr++)
+            OutFile << (CurrentNode->Polygons[PolyNr] - &m_Polygons[0]) << "  ";    // Index of polygon in m_Polygons.
+
+        OutFile << "\nBrushes: ";
+        OutFile << CurrentNode->Brushes.Size() << "  ";
+        for (unsigned long BrushNr=0; BrushNr<CurrentNode->Brushes.Size(); BrushNr++)
+            OutFile << (CurrentNode->Brushes[BrushNr] - &m_Brushes[0]) << "  ";     // Index of brush in m_Brushes.
+
+        OutFile << "\nTerrains: ";
+        OutFile << CurrentNode->Terrains.Size() << "  ";
+        for (unsigned long TerrainNr=0; TerrainNr<CurrentNode->Terrains.Size(); TerrainNr++)
+            OutFile << (CurrentNode->Terrains[TerrainNr] - &m_Terrains[0]) << "  "; // Index of terrain in m_Terrains.
+
+        OutFile << "\n";
+
+        if (CurrentNode->PlaneType!=NodeT::NONE)
+        {
+            NodeStack.PushBack(CurrentNode->Children[0]);
+            NodeStack.PushBack(CurrentNode->Children[1]);
+        }
+    }
+}
+
+
 CollisionModelStaticT::~CollisionModelStaticT()
 {
     // It's not necessary to call FreeTree(), because m_NodesPool.Free() does actually nothing.

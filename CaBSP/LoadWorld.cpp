@@ -255,6 +255,23 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
 
 
     // Parse all map entities into the MFEntityList.
+    ArrayT<MapFileEntityT> MFEntityList_Unscaled;
+    TextParserT            TP_Unscaled(LoadName, "({})");
+
+    try
+    {
+        MapFileReadHeader(TP_Unscaled);
+
+        while (!TP_Unscaled.IsAtEOF())
+        {
+            MFEntityList_Unscaled.PushBack(MapFileEntityT(MFEntityList_Unscaled.Size(), TP_Unscaled, 1.0));
+        }
+    }
+    catch (const TextParserT::ParseError&)
+    {
+        Error("Problem with parsing the map near byte %lu (%.3f%%) of the file.", TP_Unscaled.GetReadPosByte(), TP_Unscaled.GetReadPosPercent()*100.0);
+    }
+
     ArrayT<MapFileEntityT> MFEntityList;
     TextParserT            TP(LoadName, "({})");
 
@@ -271,6 +288,12 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
     {
         Error("Problem with parsing the map near byte %lu (%.3f%%) of the file.", TP.GetReadPosByte(), TP.GetReadPosPercent()*100.0);
     }
+
+#define CHECK_SCALE 1
+#if CHECK_SCALE
+    std::ofstream stream_254("dump_254.txt");
+    std::ofstream stream__10("dump__10.txt");
+#endif
 
 
     ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllScriptEnts;
@@ -289,6 +312,17 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
     {
         if (AllScriptEnts[EntNr]->GetBasics()->IsStatic())
         {
+            MapFileEntityT& E_Unscaled = MFEntityList_Unscaled[EntNr];
+
+            // Move all brushes of this entity into the 'worldspawn' entity.
+            MFEntityList_Unscaled[0].MFBrushes.PushBack(E_Unscaled.MFBrushes);
+            E_Unscaled.MFBrushes.Clear();
+
+            // Move all bezier patches of this entity into the 'worldspawn' entity.
+            MFEntityList_Unscaled[0].MFPatches.PushBack(E_Unscaled.MFPatches);
+            E_Unscaled.MFPatches.Clear();
+
+
             MapFileEntityT& E = MFEntityList[EntNr];
 
             // Move all brushes of this entity into the 'worldspawn' entity.
@@ -323,6 +357,7 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
         StaticEntityDataT* GameEnt = new StaticEntityDataT();
         World.m_StaticEntityData.PushBack(GameEnt);
 
+        const MapFileEntityT& E_Unscaled = MFEntityList_Unscaled[EntNr];
         const MapFileEntityT& E = MFEntityList[EntNr];
 
         float LightMapPatchSize = 200.0f;
@@ -377,6 +412,8 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
 
         if (InvResult)
         {
+            MFEntityList_Unscaled[EntNr].Transform(WorldToEnt);
+
             Matrix4x4fT Mat = WorldToEnt;
 
             Mat[0][3] *= float(CA3DE_SCALE);
@@ -422,6 +459,16 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
             // true:  Use generic brushes (for EntNr > 0).
             GameEnt->m_CollModel = new cf::ClipSys::CollisionModelStaticT(E, ShTe, EntNr > 0,
                 MapT::RoundEpsilon, MapT::MinVertexDist, COLLISION_MODEL_MAX_CURVE_ERROR, COLLISION_MODEL_MAX_CURVE_LENGTH, MIN_NODE_SIZE);
+
+#if CHECK_SCALE
+            cf::ClipSys::CollisionModelStaticT cm_254(E, ShTe, EntNr > 0, MapT::RoundEpsilon, MapT::MinVertexDist, COLLISION_MODEL_MAX_CURVE_ERROR, COLLISION_MODEL_MAX_CURVE_LENGTH, MIN_NODE_SIZE);
+            cf::ClipSys::CollisionModelStaticT cm__10(E_Unscaled, ShTe, EntNr > 0, 0.08 /*ca. MapT::RoundEpsilon / CA3DE_SCALE*/, 0.4 /*ca. MapT::MinVertexDist / CA3DE_SCALE*/, 24.0, -1.0, 40.0);
+
+            cm_254.ScaleDown254();
+
+            cm_254.Dump(stream_254);
+            cm__10.Dump(stream__10);
+#endif
         }
 
         // 6. Collect the geometry primitives for the BSP tree.
