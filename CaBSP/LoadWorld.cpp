@@ -289,7 +289,7 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
         Error("Problem with parsing the map near byte %lu (%.3f%%) of the file.", TP.GetReadPosByte(), TP.GetReadPosPercent()*100.0);
     }
 
-#define CHECK_SCALE 1
+#define CHECK_SCALE 0
 #if CHECK_SCALE
     std::ofstream stream_254("dump_254.txt");
     std::ofstream stream__10("dump__10.txt");
@@ -457,8 +457,12 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
 
             // false: Use brushes with precomputed bevel planes (for EntNr == 0).
             // true:  Use generic brushes (for EntNr > 0).
-            GameEnt->m_CollModel = new cf::ClipSys::CollisionModelStaticT(E, ShTe, EntNr > 0,
-                MapT::RoundEpsilon, MapT::MinVertexDist, COLLISION_MODEL_MAX_CURVE_ERROR, COLLISION_MODEL_MAX_CURVE_LENGTH, MIN_NODE_SIZE);
+            GameEnt->m_CollModel = new cf::ClipSys::CollisionModelStaticT(E_Unscaled, ShTe, EntNr > 0,
+                MapT::RoundEpsilon / CA3DE_SCALE /*ca. 0.08*/,
+                MapT::MinVertexDist / CA3DE_SCALE /*ca. 0.4*/,
+                COLLISION_MODEL_MAX_CURVE_ERROR / CA3DE_SCALE /*ca. 24.0*/,
+                COLLISION_MODEL_MAX_CURVE_LENGTH,
+                MIN_NODE_SIZE / CA3DE_SCALE /*ca. 40.0*/);
 
 #if CHECK_SCALE
             cf::ClipSys::CollisionModelStaticT cm_254(E, ShTe, EntNr > 0, MapT::RoundEpsilon, MapT::MinVertexDist, COLLISION_MODEL_MAX_CURVE_ERROR, COLLISION_MODEL_MAX_CURVE_LENGTH, MIN_NODE_SIZE);
