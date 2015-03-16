@@ -84,15 +84,14 @@ const CollisionModelT* CollModelManImplT::GetCM(const std::string& FileName)
 
             // TODO: Account for the first map file entity to come with terrains! (Must keep the terrain instance in cmInfoT.)
             const ArrayT<CollisionModelStaticT::TerrainRefT> ShTe;
-            const double CA3DE_SCALE = 25.4;
-            const double COLLISION_MODEL_MAX_CURVE_ERROR = 600.0;
+
+            const double COLLISION_MODEL_MAX_CURVE_ERROR  = 24.0;
             const double COLLISION_MODEL_MAX_CURVE_LENGTH = -1.0;
-            const double MIN_NODE_SIZE = 1000.0;
+            const double COLLISION_MODEL_MIN_NODE_SIZE    = 40.0;
+            const double CA3DE_SCALE = 25.4;
 
-            CollisionModelStaticT* CM = new CollisionModelStaticT(MapFileEntityT(0, TP, CA3DE_SCALE), ShTe, true /*Use generic brushes.*/,
-                MapT::RoundEpsilon, MapT::MinVertexDist, COLLISION_MODEL_MAX_CURVE_ERROR, COLLISION_MODEL_MAX_CURVE_LENGTH, MIN_NODE_SIZE);
-
-            CM->ScaleDown254();
+            CollisionModelStaticT* CM = new CollisionModelStaticT(MapFileEntityT(0, TP, 1.0), ShTe, true /*Use generic brushes.*/,
+                MapT::RoundEpsilon / CA3DE_SCALE, MapT::MinVertexDist / CA3DE_SCALE, COLLISION_MODEL_MAX_CURVE_ERROR, COLLISION_MODEL_MAX_CURVE_LENGTH, COLLISION_MODEL_MIN_NODE_SIZE);
 
             cmi.Instance = CM;
         }

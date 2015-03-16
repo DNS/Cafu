@@ -287,9 +287,6 @@ void WorldT::ScaleDown254()
         // }
 
         SED->m_BspTree->ScaleDown254();
-
-        // if (SED->m_CollModel)
-        //     SED->m_CollModel->ScaleDown254();
     }
 }
 

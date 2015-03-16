@@ -289,12 +289,6 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
         Error("Problem with parsing the map near byte %lu (%.3f%%) of the file.", TP.GetReadPosByte(), TP.GetReadPosPercent()*100.0);
     }
 
-#define CHECK_SCALE 0
-#if CHECK_SCALE
-    std::ofstream stream_254("dump_254.txt");
-    std::ofstream stream__10("dump__10.txt");
-#endif
-
 
     ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllScriptEnts;
     ScriptWorld->GetRootEntity()->GetAll(AllScriptEnts);
@@ -463,16 +457,6 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
                 COLLISION_MODEL_MAX_CURVE_ERROR / CA3DE_SCALE /*ca. 24.0*/,
                 COLLISION_MODEL_MAX_CURVE_LENGTH,
                 MIN_NODE_SIZE / CA3DE_SCALE /*ca. 40.0*/);
-
-#if CHECK_SCALE
-            cf::ClipSys::CollisionModelStaticT cm_254(E, ShTe, EntNr > 0, MapT::RoundEpsilon, MapT::MinVertexDist, COLLISION_MODEL_MAX_CURVE_ERROR, COLLISION_MODEL_MAX_CURVE_LENGTH, MIN_NODE_SIZE);
-            cf::ClipSys::CollisionModelStaticT cm__10(E_Unscaled, ShTe, EntNr > 0, 0.08 /*ca. MapT::RoundEpsilon / CA3DE_SCALE*/, 0.4 /*ca. MapT::MinVertexDist / CA3DE_SCALE*/, 24.0, -1.0, 40.0);
-
-            cm_254.ScaleDown254();
-
-            cm_254.Dump(stream_254);
-            cm__10.Dump(stream__10);
-#endif
         }
 
         // 6. Collect the geometry primitives for the BSP tree.
