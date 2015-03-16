@@ -28,7 +28,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClipSys/ClipModel.hpp"
 #include "ClipSys/ClipWorld.hpp"
 #include "ClipSys/CollisionModelMan.hpp"
-#include "ClipSys/CollisionModel_static.hpp"    // Only needed for ScaleDown254()
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 
@@ -95,19 +94,10 @@ void ComponentCollisionModelT::SetBoundingBox(const BoundingBox3dT& BB, const ch
 {
     if (!GetEntity()) return;
 
-    // Have to take the detour by 25.4, because the CollisionModelStaticT ctor uses epsilon values
-    // (MapT::RoundEpsilon and MapT::MinVertexDist) that are still coined to the millimeter worlds...
-    const double         CA3DE_SCALE = 25.4;
-    const BoundingBox3dT BB254(BB.Min * CA3DE_SCALE, BB.Max * CA3DE_SCALE);
-    MaterialT*           Mat = MaterialManager->GetMaterial(MatName);
+    MaterialT* Mat = MaterialManager->GetMaterial(MatName);
 
     CleanUp();
-    m_CollisionModel = GetEntity()->GetWorld().GetCollModelMan().GetCM(BB254, Mat);
-
-    // These lines can be removed, as soon as the 25.4 scaling above is removed. See the related commit of 2013-10-28 for details.
-    cf::ClipSys::CollisionModelStaticT* CMS = dynamic_cast<cf::ClipSys::CollisionModelStaticT*>(const_cast<cf::ClipSys::CollisionModelT*>(m_CollisionModel));
-    assert(CMS);
-    CMS->ScaleDown254();
+    m_CollisionModel = GetEntity()->GetWorld().GetCollModelMan().GetCM(BB, Mat);
 
     m_CollMdlName.Set("bounding-box");
     m_PrevName = m_CollMdlName.Get();
