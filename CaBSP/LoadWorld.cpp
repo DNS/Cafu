@@ -223,7 +223,6 @@ void ComputeBrushFaces(const MapFileBrushT& MFBrush, WorldT& World, cf::SceneGra
 // Liest ein MapFile, das die der Version entsprechenden "MapFile Specifications" erfüllen muß, in die World ein.
 void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, WorldT& World, ArrayT<Vector3dT>& FloodFillSources, ArrayT<Vector3dT>& DrawWorldOutsidePointSamples)
 {
-    const double CA3DE_SCALE = 25.4;
     World.PlantDescrMan.SetModDir(GameDirectory);
 
     Console->Print(cf::va("\n*** Load World %s ***\n", LoadName));
@@ -258,6 +257,7 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
     ArrayT<MapFileEntityT> MFEntityList_Unscaled;
     TextParserT            TP_Unscaled(LoadName, "({})");
 
+    // TODO: Remove _Unscaled
     try
     {
         MapFileReadHeader(TP_Unscaled);
@@ -281,7 +281,7 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
 
         while (!TP.IsAtEOF())
         {
-            MFEntityList.PushBack(MapFileEntityT(MFEntityList.Size(), TP, CA3DE_SCALE));
+            MFEntityList.PushBack(MapFileEntityT(MFEntityList.Size(), TP, 1.0));
         }
     }
     catch (const TextParserT::ParseError&)
@@ -380,7 +380,7 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
         }
 
         if (AllScriptEnts[EntNr]->GetComponent("PlayerStart") != NULL)
-            FloodFillSources.PushBack(AllScriptEnts[EntNr]->GetTransform()->GetOriginWS().AsVectorOfDouble() * CA3DE_SCALE);
+            FloodFillSources.PushBack(AllScriptEnts[EntNr]->GetTransform()->GetOriginWS().AsVectorOfDouble());
 
 
         // 1. Copy the properties.
@@ -407,14 +407,7 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
         if (InvResult)
         {
             MFEntityList_Unscaled[EntNr].Transform(WorldToEnt);
-
-            Matrix4x4fT Mat = WorldToEnt;
-
-            Mat[0][3] *= float(CA3DE_SCALE);
-            Mat[1][3] *= float(CA3DE_SCALE);
-            Mat[2][3] *= float(CA3DE_SCALE);
-
-            MFEntityList[EntNr].Transform(Mat);
+            MFEntityList[EntNr].Transform(WorldToEnt);
         }
 
         // 3. Fill-in the Terrains array.
@@ -444,19 +437,20 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
             // ### For now, these consts MUST be kept in sync with those in SceneGraph/BezierPatchNode.cpp !!!
             // ### See there at BezierPatchNodeT::CreatePatchMeshes() for details.
             // ###
-            const double COLLISION_MODEL_MAX_CURVE_ERROR  = 600.0;
+            const double CA3DE_SCALE = 25.4;
+            const double COLLISION_MODEL_MAX_CURVE_ERROR  = 600.0 / CA3DE_SCALE;   // ca. 24.0
             const double COLLISION_MODEL_MAX_CURVE_LENGTH =  -1.0;
 
-            const double MIN_NODE_SIZE = 1000.0;
+            const double MIN_NODE_SIZE = 1000.0 / CA3DE_SCALE;  // ca. 40.0
 
             // false: Use brushes with precomputed bevel planes (for EntNr == 0).
             // true:  Use generic brushes (for EntNr > 0).
             GameEnt->m_CollModel = new cf::ClipSys::CollisionModelStaticT(E_Unscaled, ShTe, EntNr > 0,
-                MapT::RoundEpsilon / CA3DE_SCALE /*ca. 0.08*/,
-                MapT::MinVertexDist / CA3DE_SCALE /*ca. 0.4*/,
-                COLLISION_MODEL_MAX_CURVE_ERROR / CA3DE_SCALE /*ca. 24.0*/,
+                MapT::RoundEpsilon,
+                MapT::MinVertexDist,
+                COLLISION_MODEL_MAX_CURVE_ERROR,
                 COLLISION_MODEL_MAX_CURVE_LENGTH,
-                MIN_NODE_SIZE / CA3DE_SCALE /*ca. 40.0*/);
+                MIN_NODE_SIZE);
         }
 
         // 6. Collect the geometry primitives for the BSP tree.

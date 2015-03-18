@@ -44,8 +44,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** MapT ***/
 /************/
 
-const double MapT::RoundEpsilon = 2.0;
-const double MapT::MinVertexDist=10.0;  // 1 cm
+const double MapT::RoundEpsilon  =  2.0 / 25.4;   // ca. 0.08
+const double MapT::MinVertexDist = 10.0 / 25.4;   // ca. 0.4
 
 
 /**********************/

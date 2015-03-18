@@ -88,10 +88,9 @@ const CollisionModelT* CollModelManImplT::GetCM(const std::string& FileName)
             const double COLLISION_MODEL_MAX_CURVE_ERROR  = 24.0;
             const double COLLISION_MODEL_MAX_CURVE_LENGTH = -1.0;
             const double COLLISION_MODEL_MIN_NODE_SIZE    = 40.0;
-            const double CA3DE_SCALE = 25.4;
 
             CollisionModelStaticT* CM = new CollisionModelStaticT(MapFileEntityT(0, TP, 1.0), ShTe, true /*Use generic brushes.*/,
-                MapT::RoundEpsilon / CA3DE_SCALE, MapT::MinVertexDist / CA3DE_SCALE, COLLISION_MODEL_MAX_CURVE_ERROR, COLLISION_MODEL_MAX_CURVE_LENGTH, COLLISION_MODEL_MIN_NODE_SIZE);
+                MapT::RoundEpsilon, MapT::MinVertexDist, COLLISION_MODEL_MAX_CURVE_ERROR, COLLISION_MODEL_MAX_CURVE_LENGTH, COLLISION_MODEL_MIN_NODE_SIZE);
 
             cmi.Instance = CM;
         }
@@ -169,12 +168,11 @@ const CollisionModelT* CollModelManImplT::GetCM(const BoundingBox3T<double>& BB,
     const double COLLISION_MODEL_MAX_CURVE_ERROR  = 24.0;   // Unused with this model.
     const double COLLISION_MODEL_MAX_CURVE_LENGTH = -1.0;   // Unused with this model.
     const double COLLISION_MODEL_MIN_NODE_SIZE    = 64.0;   // Unused with this model.
-    const double CA3DE_SCALE = 25.4;
 
     cmInfoT cmi;
 
     cmi.Instance = new CollisionModelStaticT(Entity, ArrayT<CollisionModelStaticT::TerrainRefT>(), true /*Use generic brushes.*/,
-        MapT::RoundEpsilon / CA3DE_SCALE, MapT::MinVertexDist / CA3DE_SCALE, COLLISION_MODEL_MAX_CURVE_ERROR, COLLISION_MODEL_MAX_CURVE_LENGTH, COLLISION_MODEL_MIN_NODE_SIZE);
+        MapT::RoundEpsilon, MapT::MinVertexDist, COLLISION_MODEL_MAX_CURVE_ERROR, COLLISION_MODEL_MAX_CURVE_LENGTH, COLLISION_MODEL_MIN_NODE_SIZE);
     cmi.FileName = "";
     cmi.RefCount = 1;
     cmi.NoDelete = false;

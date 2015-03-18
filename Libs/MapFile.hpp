@@ -58,7 +58,7 @@ namespace cf
         MapFileBrushT() { }
 
         /// @throws TextParserT::ParseError on problems.
-        MapFileBrushT(TextParserT& TP, unsigned long BrushNr, const double CA3DE_SCALE);
+        MapFileBrushT(TextParserT& TP, unsigned long BrushNr);
 
 
         ArrayT<MapFilePlaneT> MFPlanes;
@@ -71,7 +71,7 @@ namespace cf
         MapFileBezierPatchT() { }
 
         /// @throws TextParserT::ParseError on problems.
-        MapFileBezierPatchT(TextParserT& TP, const double CA3DE_SCALE);
+        MapFileBezierPatchT(TextParserT& TP);
 
 
         // TODO: Remove the SizeX, SizeY and ControlsPoints members, use a cf::math::BezierPatchT<float> instead!
@@ -92,7 +92,7 @@ namespace cf
         MapFileTerrainT() { }
 
         /// @throws TextParserT::ParseError on problems.
-        MapFileTerrainT(TextParserT& TP, const double CA3DE_SCALE);
+        MapFileTerrainT(TextParserT& TP);
 
         /// Returns the spatial coordinate for the given (logical) height field position.
         /// Note that for processing all vertices of a terrain quickly, specialized loops
@@ -125,7 +125,7 @@ namespace cf
         MapFilePlantT() { }
 
         /// @throws TextParserT::ParseError on problems.
-        MapFilePlantT(TextParserT& TP, const double CA3DE_SCALE);
+        MapFilePlantT(TextParserT& TP);
 
 
         std::string  DescrFileName;
@@ -141,7 +141,7 @@ namespace cf
         MapFileModelT() { }
 
         /// @throws TextParserT::ParseError on problems.
-        MapFileModelT(TextParserT& TP, const double CA3DE_SCALE);
+        MapFileModelT(TextParserT& TP);
 
 
         std::string Model;
@@ -163,7 +163,7 @@ namespace cf
         MapFileEntityT() : MFIndex(0) { }
 
         /// @throws TextParserT::ParseError on problems.
-        MapFileEntityT(unsigned long Index, TextParserT& TP, const double CA3DE_SCALE);
+        MapFileEntityT(unsigned long Index, TextParserT& TP);
 
         /// Transforms all primitives in this entity by the given matrix.
         void Transform(const Matrix4x4fT& Mat);

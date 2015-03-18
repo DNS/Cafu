@@ -38,7 +38,7 @@ static void SkipGroupDef(TextParserT& TP)
 }
 
 
-MapFileBrushT::MapFileBrushT(TextParserT& TP, unsigned long BrushNr, const double CA3DE_SCALE)
+MapFileBrushT::MapFileBrushT(TextParserT& TP, unsigned long BrushNr)
 {
     SkipGroupDef(TP);
 
@@ -56,9 +56,9 @@ MapFileBrushT::MapFileBrushT(TextParserT& TP, unsigned long BrushNr, const doubl
         for (char PointNr=0; PointNr<3; PointNr++)
         {
             TP.AssertAndSkipToken("(");
-            Points[PointNr].x=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
-            Points[PointNr].y=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
-            Points[PointNr].z=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
+            Points[PointNr].x=TP.GetNextTokenAsFloat();
+            Points[PointNr].y=TP.GetNextTokenAsFloat();
+            Points[PointNr].z=TP.GetNextTokenAsFloat();
             TP.AssertAndSkipToken(")");
         }
 
@@ -99,16 +99,16 @@ MapFileBrushT::MapFileBrushT(TextParserT& TP, unsigned long BrushNr, const doubl
 
         // Texture U axis.
         TP.AssertAndSkipToken("(");
-        MFPlane.U.x=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
-        MFPlane.U.y=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
-        MFPlane.U.z=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
+        MFPlane.U.x=TP.GetNextTokenAsFloat();
+        MFPlane.U.y=TP.GetNextTokenAsFloat();
+        MFPlane.U.z=TP.GetNextTokenAsFloat();
         TP.AssertAndSkipToken(")");
 
         // Texture V axis.
         TP.AssertAndSkipToken("(");
-        MFPlane.V.x=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
-        MFPlane.V.y=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
-        MFPlane.V.z=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
+        MFPlane.V.x=TP.GetNextTokenAsFloat();
+        MFPlane.V.y=TP.GetNextTokenAsFloat();
+        MFPlane.V.z=TP.GetNextTokenAsFloat();
         TP.AssertAndSkipToken(")");
 
         // End of surface information.
@@ -120,7 +120,7 @@ MapFileBrushT::MapFileBrushT(TextParserT& TP, unsigned long BrushNr, const doubl
 }
 
 
-MapFileBezierPatchT::MapFileBezierPatchT(TextParserT& TP, const double CA3DE_SCALE)
+MapFileBezierPatchT::MapFileBezierPatchT(TextParserT& TP)
 {
     TP.AssertAndSkipToken("{");
     SkipGroupDef(TP);
@@ -153,8 +153,6 @@ MapFileBezierPatchT::MapFileBezierPatchT(TextParserT& TP, const double CA3DE_SCA
             for (unsigned long Coord=0; Coord<5; Coord++)
             {
                 ControlPoints.PushBack(TP.GetNextTokenAsFloat());
-
-                if (Coord<3) ControlPoints[ControlPoints.Size()-1]*=float(CA3DE_SCALE);
             }
 
             TP.AssertAndSkipToken(")");
@@ -164,7 +162,7 @@ MapFileBezierPatchT::MapFileBezierPatchT(TextParserT& TP, const double CA3DE_SCA
 }
 
 
-MapFileTerrainT::MapFileTerrainT(TextParserT& TP, const double CA3DE_SCALE)
+MapFileTerrainT::MapFileTerrainT(TextParserT& TP)
 {
     TP.AssertAndSkipToken("{");
     SkipGroupDef(TP);
@@ -173,15 +171,15 @@ MapFileTerrainT::MapFileTerrainT(TextParserT& TP, const double CA3DE_SCALE)
     Material=MaterialManager->GetMaterial(MaterialName);
 
     TP.AssertAndSkipToken("(");
-    Bounds.Min.x=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
-    Bounds.Min.y=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
-    Bounds.Min.z=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
+    Bounds.Min.x=TP.GetNextTokenAsFloat();
+    Bounds.Min.y=TP.GetNextTokenAsFloat();
+    Bounds.Min.z=TP.GetNextTokenAsFloat();
     TP.AssertAndSkipToken(")");
 
     TP.AssertAndSkipToken("(");
-    Bounds.Max.x=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
-    Bounds.Max.y=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
-    Bounds.Max.z=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
+    Bounds.Max.x=TP.GetNextTokenAsFloat();
+    Bounds.Max.y=TP.GetNextTokenAsFloat();
+    Bounds.Max.z=TP.GetNextTokenAsFloat();
     TP.AssertAndSkipToken(")");
 
     TP.AssertAndSkipToken("(");
@@ -198,7 +196,7 @@ MapFileTerrainT::MapFileTerrainT(TextParserT& TP, const double CA3DE_SCALE)
 }
 
 
-MapFilePlantT::MapFilePlantT(TextParserT& TP, const double CA3DE_SCALE)
+MapFilePlantT::MapFilePlantT(TextParserT& TP)
 {
     TP.AssertAndSkipToken("{");
     SkipGroupDef(TP);
@@ -207,9 +205,9 @@ MapFilePlantT::MapFilePlantT(TextParserT& TP, const double CA3DE_SCALE)
     RandomSeed   =TP.GetNextTokenAsInt();
 
     TP.AssertAndSkipToken("(");
-    Position.x=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
-    Position.y=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
-    Position.z=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
+    Position.x=TP.GetNextTokenAsFloat();
+    Position.y=TP.GetNextTokenAsFloat();
+    Position.z=TP.GetNextTokenAsFloat();
     TP.AssertAndSkipToken(")");
 
     TP.AssertAndSkipToken("(");
@@ -222,7 +220,7 @@ MapFilePlantT::MapFilePlantT(TextParserT& TP, const double CA3DE_SCALE)
 }
 
 
-MapFileModelT::MapFileModelT(TextParserT& TP, const double CA3DE_SCALE)
+MapFileModelT::MapFileModelT(TextParserT& TP)
 {
     TP.AssertAndSkipToken("{");
     SkipGroupDef(TP);
@@ -232,9 +230,9 @@ MapFileModelT::MapFileModelT(TextParserT& TP, const double CA3DE_SCALE)
     Label    =TP.GetNextToken();
 
     TP.AssertAndSkipToken("(");
-    Origin.x=TP.GetNextTokenAsFloat()*float(CA3DE_SCALE);
-    Origin.y=TP.GetNextTokenAsFloat()*float(CA3DE_SCALE);
-    Origin.z=TP.GetNextTokenAsFloat()*float(CA3DE_SCALE);
+    Origin.x=TP.GetNextTokenAsFloat();
+    Origin.y=TP.GetNextTokenAsFloat();
+    Origin.z=TP.GetNextTokenAsFloat();
     TP.AssertAndSkipToken(")");
 
     TP.AssertAndSkipToken("(");
@@ -243,7 +241,7 @@ MapFileModelT::MapFileModelT(TextParserT& TP, const double CA3DE_SCALE)
     Angles.z=TP.GetNextTokenAsFloat();
     TP.AssertAndSkipToken(")");
 
-    Scale         =TP.GetNextTokenAsFloat()*float(CA3DE_SCALE);
+    Scale         =TP.GetNextTokenAsFloat();
     SeqNumber     =TP.GetNextTokenAsInt();
     FrameOffset   =TP.GetNextTokenAsFloat();
     FrameTimeScale=TP.GetNextTokenAsFloat();
@@ -253,7 +251,7 @@ MapFileModelT::MapFileModelT(TextParserT& TP, const double CA3DE_SCALE)
 }
 
 
-MapFileEntityT::MapFileEntityT(unsigned long Index, TextParserT& TP, const double CA3DE_SCALE)
+MapFileEntityT::MapFileEntityT(unsigned long Index, TextParserT& TP)
     : MFIndex(Index)
 {
     TP.AssertAndSkipToken("{");
@@ -267,23 +265,23 @@ MapFileEntityT::MapFileEntityT(unsigned long Index, TextParserT& TP, const doubl
 
         if (Token=="{")                 // Begin of Brush.
         {
-            MFBrushes.PushBack(MapFileBrushT(TP, MFBrushes.Size(), CA3DE_SCALE));
+            MFBrushes.PushBack(MapFileBrushT(TP, MFBrushes.Size()));
         }
         else if (Token=="PatchDef")     // Patch definition.
         {
-            MFPatches.PushBack(MapFileBezierPatchT(TP, CA3DE_SCALE));
+            MFPatches.PushBack(MapFileBezierPatchT(TP));
         }
         else if (Token=="TerrainDef")   // Terrain definition.
         {
-            MFTerrains.PushBack(MapFileTerrainT(TP, CA3DE_SCALE));
+            MFTerrains.PushBack(MapFileTerrainT(TP));
         }
         else if (Token=="PlantDef")     // Plant definition.
         {
-            MFPlants.PushBack(MapFilePlantT(TP, CA3DE_SCALE));
+            MFPlants.PushBack(MapFilePlantT(TP));
         }
         else if (Token=="ModelDef")     // Model definition.
         {
-            MFModels.PushBack(MapFileModelT(TP, CA3DE_SCALE));
+            MFModels.PushBack(MapFileModelT(TP));
         }
         else                            // Property Pair.
         {
