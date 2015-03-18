@@ -105,7 +105,6 @@ namespace cf
             // The NodeT interface.
             void WriteTo(std::ostream& OutFile, aux::PoolT& Pool) const;
             const BoundingBox3T<double>& GetBoundingBox() const;
-            void ScaleDown254();
 
          // void InitDrawing();
             bool IsOpaque() const;

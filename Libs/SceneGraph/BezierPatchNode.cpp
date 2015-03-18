@@ -246,26 +246,6 @@ const BoundingBox3T<double>& BezierPatchNodeT::GetBoundingBox() const
 }
 
 
-void cf::SceneGraph::BezierPatchNodeT::ScaleDown254()
-{
-    for (unsigned long c = 0; c < ControlPointsXYZ.Size(); c++)
-        ControlPointsXYZ[c] /= 25.4f;
-
-    m_MaxError /= 25.4f;
-
-    BB.Min /= 25.4;
-    BB.Max /= 25.4;
-
-    for (unsigned int m = 0; m < Meshes.Size(); m++)
-        for (unsigned int v = 0; v < Meshes[m]->Vertices.Size(); v++)
-        {
-            Meshes[m]->Vertices[v].Origin[0] /= 25.4;
-            Meshes[m]->Vertices[v].Origin[1] /= 25.4;
-            Meshes[m]->Vertices[v].Origin[2] /= 25.4;
-        }
-}
-
-
 bool BezierPatchNodeT::IsOpaque() const
 {
     return Material->HasDefaultBlendFunc();
