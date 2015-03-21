@@ -35,7 +35,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace cf::SceneGraph;
 
 
-const double FaceNodeT::ROUND_EPSILON=2.0;
+const double FaceNodeT::ROUND_EPSILON = 0.08;       // Make sure that this matches MapT::RoundEpsilon in Common/World.hpp!
 
 
 FaceNodeT::FaceNodeT(LightMapManT& LMM, SHLMapManT& SMM)

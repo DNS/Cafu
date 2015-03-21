@@ -44,7 +44,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 /*** MapT ***/
 /************/
 
-const double MapT::RoundEpsilon  = 0.08;    // ca.  2.0 / 25.4
+const double MapT::RoundEpsilon  = 0.08;    // ca.  2.0 / 25.4      // Make sure that this matches FaceNodeT::ROUND_EPSILON in SceneGraph/FaceNode.cpp!
 const double MapT::MinVertexDist = 0.40;    // ca. 10.0 / 25.4
 
 
