@@ -241,10 +241,11 @@ bool ComponentTextEditT::OnInputEvent(const CaKeyboardEventT& KE)
 {
     if (m_TextComp == NULL) return false;
 
-    const std::string& Text = m_TextComp->m_Text.Get();
+    const std::string& Text    = m_TextComp->m_Text.Get();
+    const unsigned int TextLen = (unsigned int)Text.length();
 
     // Make sure that the cursor position is valid.
-    if (m_CursorPos.Get() > Text.length()) m_CursorPos.Set(Text.length());
+    if (m_CursorPos.Get() > TextLen) m_CursorPos.Set(TextLen);
 
     if (KE.Type == CaKeyboardEventT::CKE_KEYDOWN)
     {
@@ -264,7 +265,7 @@ bool ComponentTextEditT::OnInputEvent(const CaKeyboardEventT& KE)
                 return true;
 
             case CaKeyboardEventT::CK_DELETE:
-                if (m_CursorPos.Get() < Text.length())
+                if (m_CursorPos.Get() < TextLen)
                 {
                     std::string NewText = Text;
 
@@ -282,7 +283,7 @@ bool ComponentTextEditT::OnInputEvent(const CaKeyboardEventT& KE)
                 return true;
 
             case CaKeyboardEventT::CK_RIGHT:
-                if (m_CursorPos.Get() < Text.length())
+                if (m_CursorPos.Get() < TextLen)
                 {
                     m_CursorPos.Set(m_CursorPos.Get() + 1);   // m_CursorPos++;
                     m_CursorTime = 0;
@@ -295,7 +296,7 @@ bool ComponentTextEditT::OnInputEvent(const CaKeyboardEventT& KE)
                 return true;
 
             case CaKeyboardEventT::CK_END:
-                m_CursorPos.Set(Text.length());
+                m_CursorPos.Set(TextLen);
                 m_CursorTime = 0;
                 return true;
         }
@@ -346,7 +347,7 @@ int ComponentTextEditT::SetText(lua_State* LuaState)
     luaL_argcheck(LuaState, Comp->m_TextComp != NULL, 1, "This component has no Text sibling component associated to it.");
 
     Comp->m_TextComp->m_Text.Set(s);
-    Comp->m_CursorPos.Set(strlen(s));
+    Comp->m_CursorPos.Set((unsigned int)strlen(s));
     return 0;
 }
 

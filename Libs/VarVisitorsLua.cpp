@@ -332,7 +332,7 @@ void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarArrayT<uint32_t>& Var)
 
     if (lua_istable(m_LuaState, -1))
     {
-        const int Num = lua_rawlen(m_LuaState, -1);
+        const int Num = int(lua_rawlen(m_LuaState, -1));
 
         for (int i = 1; i <= Num; i++)
         {
@@ -357,7 +357,7 @@ void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarArrayT<uint16_t>& Var)
 
     if (lua_istable(m_LuaState, -1))
     {
-        const int Num = lua_rawlen(m_LuaState, -1);
+        const int Num = int(lua_rawlen(m_LuaState, -1));
 
         for (int i = 1; i <= Num; i++)
         {
@@ -382,7 +382,7 @@ void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarArrayT<uint8_t>& Var)
 
     if (lua_istable(m_LuaState, -1))
     {
-        const int Num = lua_rawlen(m_LuaState, -1);
+        const int Num = int(lua_rawlen(m_LuaState, -1));
 
         for (int i = 1; i <= Num; i++)
         {
@@ -407,7 +407,7 @@ void VarVisitorSetFromLuaT::visit(cf::TypeSys::VarArrayT<std::string>& Var)
 
     if (lua_istable(m_LuaState, -1))
     {
-        const int Num = lua_rawlen(m_LuaState, -1);
+        const int Num = int(lua_rawlen(m_LuaState, -1));
 
         for (int i = 1; i <= Num; i++)
         {

@@ -65,7 +65,7 @@ ComponentInventoryT::ComponentInventoryT(const ComponentInventoryT& Comp)
 
 void ComponentInventoryT::DoSerialize(cf::Network::OutStreamT& Stream) const
 {
-    uint16_t NUM_ITEMS = m_Items.size();
+    uint16_t NUM_ITEMS = uint16_t(m_Items.size());
 
     Stream << NUM_ITEMS;
 
