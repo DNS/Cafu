@@ -54,15 +54,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 // This should match the value in CaBSP's LoadWorld() function.
-// Alternatives include:
-//   - Don't express the error in world units, but as an absolute value,
-//     e.g. `400.0f / ScriptWorld->GetMillimetersPerWorldUnit()`. However, using absolute values is probably not
-//     a good idea, and we don't have the ScriptWorld readily available in the `MapBezierPatchT` ctors anyway.
-//   - See the implementation of BezierPatchT<T>::Subdivide() for an elegant suggestion that would make the error
-//     metric independent of the size of the Bezier patch, and thus independent of any reference to the world,
-//     so that the `MAX_CURVE_ERROR` could actually be removed.
-static const double CA3DE_SCALE = 25.4;
-static const float MAX_CURVE_ERROR = 400.0f / CA3DE_SCALE;
+// As a possible alternative, see the implementation of BezierPatchT<T>::Subdivide() for an
+// elegant suggestion that would make the error metric independent of the size of the Bezier
+// patch, and thus independent of any reference to the world, so that the `MAX_CURVE_ERROR`
+// could actually be removed.
+static const float MAX_CURVE_ERROR = 24.0f;
 
 
 /*** Begin of TypeSys related definitions for this class. ***/

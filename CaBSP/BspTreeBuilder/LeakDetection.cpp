@@ -168,7 +168,7 @@ void BspTreeBuilderT::LeakDetected(const VectorT& InfoPlayerStartOrigin, const s
     // c) In the normal case, as least two points are written into the 'Points' array.
     for (unsigned long CurrentLeaf=LeafNr; CurrentLeaf!=(unsigned long)-1; CurrentLeaf=BFS_Tree[CurrentLeaf])
     {
-        const Vector3dT Point=BFS_TreePoints[CurrentLeaf]/25.4;
+        const Vector3dT Point = BFS_TreePoints[CurrentLeaf];
 
         PointFile << "  { ";
         PointFile << PointCount << "; " << "  ";                    // Time

@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/******************/
-/*** Load World ***/
-/******************/
-
 #include <iostream>
 #include "ClipSys/CollisionModel_static.hpp"
 #include "ConsoleCommands/ConsoleWarningsOnly.hpp"
@@ -73,28 +69,6 @@ VectorT GetVectorFromTripleToken(const std::string& TripleToken)
 
     return V;
 }
-
-
-/* OBSOLETE - CaWE saves the cmap files now immediately right.
-// Nimmt ein Token, das aus drei durch Leerzeichen voneinander getrennten Zahlen besteht, die als Winkel interpretiert werden,
-// und gibt die dazugehörige Richtung als VectorT zurück.
-VectorT GetDirFromTripleAngleToken(const char* TripleToken)
-{
-    VectorT V;
-    std::istringstream iss(TripleToken);
-
-    iss >> V.x >> V.y >> V.z;
-
-    VectorT D(0.0, 1.0, 0.0);
-
-    // Sigh. All this angle related stuff *REALLY* must be checked:
-    // Which angles rotates about which axis, and in what order?
-    // Also wrt. the BBs of static detail models!
-    D=D.GetRotX(V.x);
-    D=D.GetRotZ(V.y);
-
-    return normalize(D, 0.0);
-} */
 
 
 // Computes the brush polygons from a MapFileBrushT.
@@ -254,24 +228,6 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
 
 
     // Parse all map entities into the MFEntityList.
-    ArrayT<MapFileEntityT> MFEntityList_Unscaled;
-    TextParserT            TP_Unscaled(LoadName, "({})");
-
-    // TODO: Remove _Unscaled
-    try
-    {
-        MapFileReadHeader(TP_Unscaled);
-
-        while (!TP_Unscaled.IsAtEOF())
-        {
-            MFEntityList_Unscaled.PushBack(MapFileEntityT(MFEntityList_Unscaled.Size(), TP_Unscaled, 1.0));
-        }
-    }
-    catch (const TextParserT::ParseError&)
-    {
-        Error("Problem with parsing the map near byte %lu (%.3f%%) of the file.", TP_Unscaled.GetReadPosByte(), TP_Unscaled.GetReadPosPercent()*100.0);
-    }
-
     ArrayT<MapFileEntityT> MFEntityList;
     TextParserT            TP(LoadName, "({})");
 
@@ -281,7 +237,7 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
 
         while (!TP.IsAtEOF())
         {
-            MFEntityList.PushBack(MapFileEntityT(MFEntityList.Size(), TP, 1.0));
+            MFEntityList.PushBack(MapFileEntityT(MFEntityList.Size(), TP));
         }
     }
     catch (const TextParserT::ParseError&)
@@ -306,17 +262,6 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
     {
         if (AllScriptEnts[EntNr]->GetBasics()->IsStatic())
         {
-            MapFileEntityT& E_Unscaled = MFEntityList_Unscaled[EntNr];
-
-            // Move all brushes of this entity into the 'worldspawn' entity.
-            MFEntityList_Unscaled[0].MFBrushes.PushBack(E_Unscaled.MFBrushes);
-            E_Unscaled.MFBrushes.Clear();
-
-            // Move all bezier patches of this entity into the 'worldspawn' entity.
-            MFEntityList_Unscaled[0].MFPatches.PushBack(E_Unscaled.MFPatches);
-            E_Unscaled.MFPatches.Clear();
-
-
             MapFileEntityT& E = MFEntityList[EntNr];
 
             // Move all brushes of this entity into the 'worldspawn' entity.
@@ -351,11 +296,10 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
         StaticEntityDataT* GameEnt = new StaticEntityDataT();
         World.m_StaticEntityData.PushBack(GameEnt);
 
-        const MapFileEntityT& E_Unscaled = MFEntityList_Unscaled[EntNr];
         const MapFileEntityT& E = MFEntityList[EntNr];
 
-        float LightMapPatchSize = 200.0f;
-        float SHLMapPatchSize   = 200.0f;
+        float LightMapPatchSize = 8.0f;
+        float SHLMapPatchSize   = 8.0f;
 
         {
             std::map<std::string, std::string>::const_iterator It;
@@ -365,8 +309,8 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
             {
                 LightMapPatchSize = float(atof(It->second.c_str()));
 
-                if (LightMapPatchSize <   50.0) { LightMapPatchSize =   50.0; Console->Print("NOTE: LightMap PatchSize clamped to 50.\n"  ); }
-                if (LightMapPatchSize > 2000.0) { LightMapPatchSize = 2000.0; Console->Print("NOTE: LightMap PatchSize clamped to 2000.\n"); }
+                if (LightMapPatchSize <   2.0f) { LightMapPatchSize =   2.0f; Console->Print("NOTE: LightMap PatchSize clamped to 2.\n"  ); }
+                if (LightMapPatchSize > 128.0f) { LightMapPatchSize = 128.0f; Console->Print("NOTE: LightMap PatchSize clamped to 128.\n"); }
             }
 
             It = E.MFProperties.find("shlmap_patchsize");
@@ -374,8 +318,8 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
             {
                 SHLMapPatchSize = float(atof(It->second.c_str()));
 
-                if (SHLMapPatchSize <   50.0) { SHLMapPatchSize =   50.0; Console->Print("NOTE: SHLMap PatchSize clamped to 50.\n"  ); }
-                if (SHLMapPatchSize > 2000.0) { SHLMapPatchSize = 2000.0; Console->Print("NOTE: SHLMap PatchSize clamped to 2000.\n"); }
+                if (SHLMapPatchSize <   2.0f) { SHLMapPatchSize =   2.0f; Console->Print("NOTE: SHLMap PatchSize clamped to 2.\n"  ); }
+                if (SHLMapPatchSize > 128.0f) { SHLMapPatchSize = 128.0f; Console->Print("NOTE: SHLMap PatchSize clamped to 128.\n"); }
             }
         }
 
@@ -406,7 +350,6 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
 
         if (InvResult)
         {
-            MFEntityList_Unscaled[EntNr].Transform(WorldToEnt);
             MFEntityList[EntNr].Transform(WorldToEnt);
         }
 
@@ -437,15 +380,13 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
             // ### For now, these consts MUST be kept in sync with those in SceneGraph/BezierPatchNode.cpp !!!
             // ### See there at BezierPatchNodeT::CreatePatchMeshes() for details.
             // ###
-            const double CA3DE_SCALE = 25.4;
-            const double COLLISION_MODEL_MAX_CURVE_ERROR  = 600.0 / CA3DE_SCALE;   // ca. 24.0
-            const double COLLISION_MODEL_MAX_CURVE_LENGTH =  -1.0;
-
-            const double MIN_NODE_SIZE = 1000.0 / CA3DE_SCALE;  // ca. 40.0
+            const double COLLISION_MODEL_MAX_CURVE_ERROR  = 24.0;
+            const double COLLISION_MODEL_MAX_CURVE_LENGTH = -1.0;
+            const double MIN_NODE_SIZE = 40.0;
 
             // false: Use brushes with precomputed bevel planes (for EntNr == 0).
             // true:  Use generic brushes (for EntNr > 0).
-            GameEnt->m_CollModel = new cf::ClipSys::CollisionModelStaticT(E_Unscaled, ShTe, EntNr > 0,
+            GameEnt->m_CollModel = new cf::ClipSys::CollisionModelStaticT(E, ShTe, EntNr > 0,
                 MapT::RoundEpsilon,
                 MapT::MinVertexDist,
                 COLLISION_MODEL_MAX_CURVE_ERROR,

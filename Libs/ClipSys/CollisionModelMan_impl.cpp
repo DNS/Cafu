@@ -89,7 +89,7 @@ const CollisionModelT* CollModelManImplT::GetCM(const std::string& FileName)
             const double COLLISION_MODEL_MAX_CURVE_LENGTH = -1.0;
             const double COLLISION_MODEL_MIN_NODE_SIZE    = 40.0;
 
-            CollisionModelStaticT* CM = new CollisionModelStaticT(MapFileEntityT(0, TP, 1.0), ShTe, true /*Use generic brushes.*/,
+            CollisionModelStaticT* CM = new CollisionModelStaticT(MapFileEntityT(0, TP), ShTe, true /*Use generic brushes.*/,
                 MapT::RoundEpsilon, MapT::MinVertexDist, COLLISION_MODEL_MAX_CURVE_ERROR, COLLISION_MODEL_MAX_CURVE_LENGTH, COLLISION_MODEL_MIN_NODE_SIZE);
 
             cmi.Instance = CM;

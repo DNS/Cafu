@@ -476,8 +476,8 @@ void BezierPatchNodeT::CreatePatchMeshes(ArrayT<cf::PatchMeshT>& PatchMeshes, Ar
             // ###
             // ### For now, these consts MUST be kept in sync with those in ClipSys/CollisionModel_static.cpp / LoadWorld.cpp !!!
             // ###
-            const double COLLISION_MODEL_MAX_CURVE_ERROR =600.0;
-            const double COLLISION_MODEL_MAX_CURVE_LENGTH= -1.0;
+            const double COLLISION_MODEL_MAX_CURVE_ERROR  = 24.0;
+            const double COLLISION_MODEL_MAX_CURVE_LENGTH = -1.0;
 
             CollisionBezierPatch.Subdivide(COLLISION_MODEL_MAX_CURVE_ERROR, COLLISION_MODEL_MAX_CURVE_LENGTH);
         }
@@ -488,7 +488,7 @@ void BezierPatchNodeT::CreatePatchMeshes(ArrayT<cf::PatchMeshT>& PatchMeshes, Ar
         for (unsigned long VertexNr=0; VertexNr<CollisionBezierPatch.Mesh.Size(); VertexNr++)
             CoordsOnly.PushBack(CollisionBezierPatch.Mesh[VertexNr].Coord);
 
-        const double COLLISION_MODEL_MIN_NODE_SIZE = 1000.0;
+        const double COLLISION_MODEL_MIN_NODE_SIZE = 40.0;
 
         CollModel = new cf::ClipSys::CollisionModelStaticT(CollisionBezierPatch.Width, CollisionBezierPatch.Height, CoordsOnly, Material, COLLISION_MODEL_MIN_NODE_SIZE);
     }
