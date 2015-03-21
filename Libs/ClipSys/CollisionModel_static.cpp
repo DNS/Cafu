@@ -2083,7 +2083,7 @@ void CollisionModelStaticT::SaveToFile(std::ostream& OutFile, cf::SceneGraph::au
         Pool.Write(OutFile, Side.Plane.Normal);
         aux::Write(OutFile, Side.Plane.Dist);
 
-        aux::Write(OutFile, aux::cnc_i32(Side.Vertices-&m_BrushSideVIs[0]));    // Index of first vertex index in m_BrushSideVIs.
+        aux::Write(OutFile, aux::cnc_i32(Side.Vertices ? Side.Vertices - &m_BrushSideVIs[0] : 0));  // Index of first vertex index in m_BrushSideVIs.
         aux::Write(OutFile, aux::cnc_ui32(Side.NrOfVertices));
 
         Pool.Write(OutFile, Side.Material ? Side.Material->Name : "");  // Side.Material==NULL can occur when m_GenericBrushes==false.
