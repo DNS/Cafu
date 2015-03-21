@@ -6,8 +6,8 @@ Version 14
 {
   classname "worldspawn"
   message "AEon's Canyon Tower"
-  shlmap_patchsize "200.0"
-  lightmap_patchsize "200.0"
+  shlmap_patchsize "8.0"
+  lightmap_patchsize "8.0"
   MaxRange "4096"
   fog_color "0 0 0"
   wind_velocity "0.0"

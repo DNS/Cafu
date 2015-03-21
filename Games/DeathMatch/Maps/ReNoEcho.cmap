@@ -5,8 +5,8 @@ Version 14
 
 {
   classname "worldspawn"
-  shlmap_patchsize "200.0"
-  lightmap_patchsize "200.0"
+  shlmap_patchsize "8.0"
+  lightmap_patchsize "8.0"
   sounds "1"
   MaxRange "4096"
   wind_velocity "0.0"
