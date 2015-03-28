@@ -63,7 +63,7 @@ void BspTreeBuilderT::CreateLeafPortals(unsigned long LeafNr, const ArrayT< Plan
         // Portals that are smaller than this minimum are considered degenerate, despite they were classified as valid above.
         // Note that the same is enforced below, where portals are split along the leafs faces.
         // UPDATE: As the new Polygon3T<double>::IsValid() method now enforces the MapT::MinVertexDist,
-        // I believe the problem is solved the the polygon area check not longer required.
+        // I believe the problem is solved and the polygon area check not longer required.
         if (Portal.GetArea()<=100.0 /* 1 cm^2 */) continue;
 
 

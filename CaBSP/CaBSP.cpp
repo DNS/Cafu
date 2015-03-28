@@ -169,16 +169,9 @@ void Usage()
 {
     Console->Print("USAGE: CaBSP InFile.cmap OutFile.cw [OPTIONS]\n");
     Console->Print("\n");
- // Console->Print("OPTIONS:\n");
- // Console->Print("-putWadInCW WadFile   : Place textures used from WAD specified into CW.\n");
- // Console->Print("-p WadFile            : Short form of '-putWadInCW'. Recommended when the\n");
- // Console->Print("                        limited length of the command line is a problem.\n");
- // Console->Print("\n");
     Console->Print("Please note that all file names must include their paths and suffixes!\n");
- // Console->Print("WAD file names are partially name-matched, case insensitive.\n");
 
     // The most simple tree means that there is no leak detection and no attempt to fill the world.
-
     exit(1);
 }
 
@@ -212,18 +205,14 @@ int main(int ArgC, const char* ArgV[])
 
     for (int ArgNr=3; ArgNr<ArgC; ArgNr++)
     {
-        if (!_stricmp(ArgV[ArgNr], "-putWadInCW") || !_stricmp(ArgV[ArgNr], "-p"))
+        if (!_stricmp(ArgV[ArgNr], "-mostSimpleTree") || !_stricmp(ArgV[ArgNr], "-mst"))
         {
-            ArgNr++;
-            if (ArgNr>=ArgC) Usage();
-
-            Console->Print(cf::va("NOTE: %s is obsolete now. Ignored \"%s %s\".\n", ArgV[ArgNr-1], ArgV[ArgNr-1], ArgV[ArgNr]));
+            Option_MostSimpleTree = true;
         }
-        else if (!_stricmp(ArgV[ArgNr], "-mostSimpleTree"    ) || !_stricmp(ArgV[ArgNr], "-mst")) { Option_MostSimpleTree    =true; }
         else if (!_stricmp(ArgV[ArgNr], "-minimizeFaceSplits") || !_stricmp(ArgV[ArgNr], "-mfs"))
         {
             Console->Print("\n*** WARNING: This option will cause the Cafu engine to render many faces\n");
-            Console->Print("*** *TWICE*! Therefore, it's use it currently highly discouraged.\n\n");
+            Console->Print("*** *TWICE*! Therefore, it's use is currently highly discouraged.\n\n");
             Option_MinimizeFaceSplits=true;
         }
         else if (ArgV[ArgNr][0]==0)

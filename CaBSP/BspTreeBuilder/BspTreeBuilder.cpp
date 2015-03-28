@@ -103,7 +103,7 @@ void BspTreeBuilderT::Build(bool IsWorldspawn, const ArrayT<Vector3dT>& FloodFil
 
     if (IsWorldspawn)
     {
-        // Worldspawen entities are supposed to come with a flood-fill origins list provided by the caller,
+        // Worldspawn entities are supposed to come with a flood-fill origins list provided by the caller,
         // usually obtained from other entity origins (e.g. info_player_start).
         assert(FloodFillSources.Size()>0);
     }
@@ -137,12 +137,15 @@ void BspTreeBuilderT::Build(bool IsWorldspawn, const ArrayT<Vector3dT>& FloodFil
             BuildBSPTree();
             Portalize();
             FloodFillInside(FloodFillSources, OutsidePointSamples);
+
             if (IsWorldspawn)
             {
                 // Only worldspawn entities are seen from the "inside", and thus supposed to be "watertight".
                 DetectLeaks(FloodFillSources, MapFileName, &LeakDetectMat);
             }
+
             RemoveOuterFaces();
+
             for (unsigned long FaceNr=0; FaceNr<FaceChildren.Size(); FaceNr++)
                 if (FaceChildren[FaceNr]->Material==&LeakDetectMat)
                 {
@@ -162,12 +165,15 @@ void BspTreeBuilderT::Build(bool IsWorldspawn, const ArrayT<Vector3dT>& FloodFil
         BuildBSPTree();
         Portalize();
         FloodFillInside(FloodFillSources, OutsidePointSamples);
+
         if (IsWorldspawn)
         {
             // Only worldspawn entities are seen from the "inside", and thus supposed to be "watertight".
             DetectLeaks(FloodFillSources, MapFileName, &LeakDetectMat);
         }
+
         RemoveOuterFaces();
+
         for (unsigned long FaceNr=0; FaceNr<FaceChildren.Size(); FaceNr++)
             if (FaceChildren[FaceNr]->Material==&LeakDetectMat)
             {
@@ -188,6 +194,7 @@ void BspTreeBuilderT::Build(bool IsWorldspawn, const ArrayT<Vector3dT>& FloodFil
 
     // THIRD TREE
     BuildBSPTree();
+
     if (IsWorldspawn)
     {
         // Do this only for worldspawn entities (seen from the "inside") for now.

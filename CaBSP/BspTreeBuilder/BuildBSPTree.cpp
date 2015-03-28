@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*****************************/
-/*** Build BSP Tree (Code) ***/
-/*****************************/
-
 
 // Für g++ darf diese Struktur nicht lokal in 'ChooseSplitPlane()' definiert sein,
 // da sie ansonsten nicht als Template-Argument verwendet werden kann.
@@ -69,6 +65,7 @@ Plane3T<double> BspTreeBuilderT::ChooseSplitPlane(const ArrayT<unsigned long>& F
     for (unsigned long PlaneNr=0; PlaneNr<PlaneSet.Size(); PlaneNr++)
     {
         for (unsigned long FaceNr=0; FaceNr<FaceSet.Size(); FaceNr++)
+        {
             switch (FaceChildren[FaceSet[FaceNr]]->Polygon.WhatSide(PlaneSet[PlaneNr].Plane, MapT::RoundEpsilon))
             {
                 case Polygon3T<double>::Back:
@@ -90,6 +87,7 @@ Plane3T<double> BspTreeBuilderT::ChooseSplitPlane(const ArrayT<unsigned long>& F
                     PlaneSet[PlaneNr].TotalArea+=FaceChildren[FaceSet[FaceNr]]->Polygon.GetArea();
                     break;
             }
+        }
 
         PlaneSet[PlaneNr].Balance=abs(PlaneSet[PlaneNr].Balance);
 
@@ -108,10 +106,11 @@ Plane3T<double> BspTreeBuilderT::ChooseSplitPlane(const ArrayT<unsigned long>& F
 
     for (unsigned long PlaneNr=0; PlaneNr<PlaneSet.Size(); PlaneNr++)
     {
-        double Score=  4*   PlaneSet[PlaneNr].TotalArea /MaxTotalArea
-                     + 2*(1-PlaneSet[PlaneNr].Balance   /WorstBalance)
-                     +20*(1-PlaneSet[PlaneNr].NrOfSplits/MaxNrOfSplits)
-                     + 1*   PlaneSet[PlaneNr].AxisAligned;
+        const double Score =
+               4.0*     PlaneSet[PlaneNr].TotalArea /MaxTotalArea
+            +  2.0*(1.0-PlaneSet[PlaneNr].Balance   /WorstBalance)
+            + 20.0*(1.0-PlaneSet[PlaneNr].NrOfSplits/MaxNrOfSplits)
+            +  1.0*     PlaneSet[PlaneNr].AxisAligned;
 
         if (Score>BestScore)
         {
@@ -147,6 +146,7 @@ void BspTreeBuilderT::BuildBSPTreeRecursive(const ArrayT<unsigned long>& FaceSet
     ArrayT<unsigned long> BackFS;
 
     for (unsigned long FaceNr=0; FaceNr<FaceSet.Size(); FaceNr++)
+    {
         switch (FaceChildren[FaceSet[FaceNr]]->Polygon.WhatSide(Nodes[NodeNr].Plane, MapT::RoundEpsilon))
         {
             case Polygon3T<double>::Front:
@@ -196,12 +196,12 @@ void BspTreeBuilderT::BuildBSPTreeRecursive(const ArrayT<unsigned long>& FaceSet
                         // Divergenz dürfte trotz der Verdopplung nicht eintreten können (gültige Faces vorausgesetzt)!
                         //    Haken: Die Face wird in der Engine idR zweimal gerendert werden, weil wir hier eine echte Kopie machen,
                         // und Kopie und Original danach nichts mehr voneinander wissen.
-                        // Sowohl FrontFS also auch BackFS die FaceSet[FaceNr] Nummer zuzuordnen geht natürlich auch nicht,
+                        // Sowohl FrontFS als auch BackFS die FaceSet[FaceNr] Nummer zuzuordnen geht natürlich auch nicht,
                         // weil später in der Rekursion ja ein weiterer Split dieser Face entstehen könnte, z.B. auf der
                         // Vorderseite der Nodes[NodeNr].Plane, wodurch die weiteren Berechnungen auf der Rückseite eine
                         // "faule" Face vorfinden.
                         //    Lösung 1: Splitte niemals, genau wie Doom3. Das Faces Array bleibt dadurch konstant, und wir können doch
-                        // sowohl dem FrontFS also auch BackFS die FaceSet[FaceNr] Nummer zuzuordnen. Ausprobieren!
+                        // sowohl dem FrontFS als auch BackFS die FaceSet[FaceNr] Nummer zuzuordnen. Ausprobieren!
                         //    Lösung 2: Wähle ein FS, und ordene die Face dort zu. Wenn z.B. die FrontFace valid und die BackFace
                         // invalid ist, ordne die Face dem FrontFS zu, und umgekehrt. Sind beide ungültig, wähle z.B. gemäß
                         // dem größeren Flächeninhalt, oder einfach beliebig.
@@ -215,14 +215,10 @@ void BspTreeBuilderT::BuildBSPTreeRecursive(const ArrayT<unsigned long>& FaceSet
             }
 
             default:
-                // Obsolete: Nodes[NodeNr].FaceSet.PushBack(FaceSet[FaceNr]);
                 ProgressCounter++;
                 break;
         }
-
-
-    // Make sure that we made progress.
-    // if (Nodes[NodeNr].FaceSet==0 && (FrontFS.Size()==0 || BackFS.Size()==0)) { PickAnotherSplitPlane(); Repeat the above loop; }
+    }
 
 
     if (FrontFS.Size())
@@ -234,6 +230,7 @@ void BspTreeBuilderT::BuildBSPTreeRecursive(const ArrayT<unsigned long>& FaceSet
     else
     {
         Leaves.PushBackEmpty();
+
         Nodes[NodeNr].FrontChild=Leaves.Size()-1;
         Nodes[NodeNr].FrontIsLeaf=true;
     }
@@ -247,6 +244,7 @@ void BspTreeBuilderT::BuildBSPTreeRecursive(const ArrayT<unsigned long>& FaceSet
     else
     {
         Leaves.PushBackEmpty();
+
         Nodes[NodeNr].BackChild=Leaves.Size()-1;
         Nodes[NodeNr].BackIsLeaf=true;
     }
@@ -263,7 +261,7 @@ void BspTreeBuilderT::BuildBSPTreeRecursive(const ArrayT<unsigned long>& FaceSet
 // entfernt, sondern dem Front- bzw. BackFS zugeordnet! Faces, die von einem Node gesplittet werden, werden mit den ent-
 // sprechenden Teilen(!) dem Front- bzw. BackFS zugeordnet (daher auch die Notwendigkeit des Face2-Arrays).
 // Fehlzuordnungen wie früher wegen zu großen Poly-Teilen gibt es damit nicht mehr.
-void BspTreeBuilderT::FillBSPLeaves(unsigned long NodeNr, const ArrayT<cf::SceneGraph::FaceNodeT*>& Face2, const ArrayT<unsigned long>& FaceSet, const BoundingBox3T<double>& BB)
+void BspTreeBuilderT::FillBSPLeaves(unsigned long NodeNr, const ArrayT<cf::SceneGraph::FaceNodeT*>& Face2, const ArrayT<unsigned long>& FaceSet, const BoundingBox3dT& BB)
 {
     ArrayT<cf::SceneGraph::BspTreeNodeT::NodeT>& Nodes =BspTree->Nodes;
     ArrayT<cf::SceneGraph::BspTreeNodeT::LeafT>& Leaves=BspTree->Leaves;
@@ -272,6 +270,7 @@ void BspTreeBuilderT::FillBSPLeaves(unsigned long NodeNr, const ArrayT<cf::Scene
     ArrayT<unsigned long>              FrontFS, BackFS;
 
     for (unsigned long FaceNr=0; FaceNr<Face2.Size(); FaceNr++)
+    {
         switch (Face2[FaceNr]->Polygon.WhatSide(Nodes[NodeNr].Plane, MapT::RoundEpsilon))
         {
             case Polygon3T<double>::Front:
@@ -293,7 +292,7 @@ void BspTreeBuilderT::FillBSPLeaves(unsigned long NodeNr, const ArrayT<cf::Scene
             {
                 // Das Problem des spitzen Keils braucht hier nicht wirklich berücksichtigt zu werden, da FrontFace und
                 // BackFace innerhalb dieser Funktion verbleiben und es keine 'gefährlichen' Operationen hierin gibt!
-                ArrayT< Polygon3T<double> > SplitResult=Face2[FaceNr]->Polygon.GetSplits(Nodes[NodeNr].Plane, MapT::RoundEpsilon);
+                const ArrayT< Polygon3T<double> > SplitResult = Face2[FaceNr]->Polygon.GetSplits(Nodes[NodeNr].Plane, MapT::RoundEpsilon);
 
                 // TexInfos usw. übernehmen.
                 cf::SceneGraph::FaceNodeT* FrontFace=new cf::SceneGraph::FaceNodeT(*Face2[FaceNr]); FrontFace->Polygon=SplitResult[0];
@@ -307,12 +306,13 @@ void BspTreeBuilderT::FillBSPLeaves(unsigned long NodeNr, const ArrayT<cf::Scene
             default:
                 break;
         }
+    }
 
 
     // Es ist nicht möglich, eine BB aus der FrontFL bzw. BackFL zu bilden,
     // da ein Leaf nicht überall von Faces begrenzt sein muß!
-    const double                    SplitEps   =0.0;    // Must use 0 here, not MapT::RoundEpsilon, or very small leaves near the split plane don't get a proper bounding-box.
-    ArrayT< BoundingBox3T<double> > SplitResult=BB.GetSplits(Nodes[NodeNr].Plane, SplitEps);
+    const double                 SplitEps    = 0.0;    // Must use 0 here, not MapT::RoundEpsilon, or very small leaves near the split plane don't get a proper bounding-box.
+    const ArrayT<BoundingBox3dT> SplitResult = BB.GetSplits(Nodes[NodeNr].Plane, SplitEps);
 
 #ifdef DEBUG
     // Make them easier to inspect in the debugger.
@@ -362,7 +362,8 @@ void BspTreeBuilderT::BuildBSPTree()
     // Start with all face numbers in a big list.
     ArrayT<unsigned long> AllFaces;
 
-    for (unsigned long FaceNr=0; FaceNr<FaceChildren.Size(); FaceNr++) AllFaces.PushBack(FaceNr);
+    for (unsigned long FaceNr=0; FaceNr<FaceChildren.Size(); FaceNr++)
+        AllFaces.PushBack(FaceNr);
 
 
     // PHASE I
@@ -373,19 +374,14 @@ void BspTreeBuilderT::BuildBSPTree()
     for (unsigned long FaceNr=AllFaces.Size(); FaceNr<FaceChildren.Size(); FaceNr++) AllFaces.PushBack(FaceNr);
 
     // Create a bounding box that contains the entire world (all 'Faces').
-    BoundingBox3T<double> WorldBB(FaceChildren[0]->Polygon.Vertices);
+    BoundingBox3dT WorldBB(FaceChildren[0]->Polygon.Vertices);
 
     for (unsigned long FaceNr=1; FaceNr<FaceChildren.Size(); FaceNr++)
         WorldBB.Insert(FaceChildren[FaceNr]->Polygon.Vertices);
 
     // It is important to also consider the other children, as is important for non-worldspawn entities.
     for (unsigned long ChildNr=0; ChildNr<OtherChildren.Size(); ChildNr++)
-    {
-        const BoundingBox3T<double>& ChildBB=OtherChildren[ChildNr]->GetBoundingBox();
-
-        WorldBB.Insert(ChildBB.Min);
-        WorldBB.Insert(ChildBB.Max);
-    }
+        WorldBB.Insert(OtherChildren[ChildNr]->GetBoundingBox());
 
     const double d=10.0*MapT::MinVertexDist;
 
