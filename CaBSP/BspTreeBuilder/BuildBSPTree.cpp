@@ -256,6 +256,156 @@ void BspTreeBuilderT::BuildBSPTree_SplitFaces(const ArrayT<unsigned long>& FaceS
 }
 
 
+/// Recursively creates a BSP tree from the given faces, never splitting the original input faces.
+///
+/// When a chosen split plane intersects some of the other faces, this method has the front and
+/// back sides reference the original intersecting faces, but does not modify them in any way.
+/// Some notable properties of this approach:
+///
+///   - Guaranteed to not introduce any new rounding errors.
+///
+///   - Having a face being referenced on the front and back sides of a node is only possible
+///     because the faces are not modified. See the code below for details.
+///
+///   - However it *is* necessary to temporarily track physically split faces while the tree is
+///     created. See the case of face 4 in the diagram in file `BuildBSPTree.dia` for an example.
+///
+///   - We don't need access to the FaceChildren array at all. Thus, it would be possible to
+///     turn this method and ChooseSplitPlane() into "static" functions that operate on the
+///     input parameters only.
+///
+/// @param FaceSet
+///     The indices (into FaceChildren) of the faces to create this BSP subtree of.
+///
+/// @param SplitFaces
+///     Paralleling the FaceSet array, SplitFaces[i] is the currently relevant "fragment"
+///     of FaceChildren[FaceSet[i]].
+///     See the diagram in file `BuildBSPTree.dia` for additional details.
+///
+void BspTreeBuilderT::BuildBSPTree_NeverSplit(const ArrayT<unsigned long>& FaceSet, const ArrayT<cf::SceneGraph::FaceNodeT*>& SplitFaces)
+{
+    ArrayT<cf::SceneGraph::BspTreeNodeT::NodeT>& Nodes =BspTree->Nodes;
+    ArrayT<cf::SceneGraph::BspTreeNodeT::LeafT>& Leaves=BspTree->Leaves;
+
+    static unsigned long ProgressCounter;
+    if (FaceSet.Size()==FaceChildren.Size()) ProgressCounter=0;
+
+    Console->Print(cf::va("%5.1f%%\r", (double)ProgressCounter/FaceChildren.Size()*100.0));
+    // fflush(stdout);      // The stdout console auto-flushes the output.
+
+    Nodes.PushBackEmpty();
+    const unsigned long NodeNr=Nodes.Size()-1;
+    Nodes[NodeNr].Plane=ChooseSplitPlane(FaceSet);
+
+    ArrayT<cf::SceneGraph::FaceNodeT*> DeleteList;
+    assert(FaceSet.Size() == SplitFaces.Size());
+
+    ArrayT<unsigned long>              FrontFS;
+    ArrayT<cf::SceneGraph::FaceNodeT*> FrontFaces;
+
+    ArrayT<unsigned long>              BackFS;
+    ArrayT<cf::SceneGraph::FaceNodeT*> BackFaces;
+
+    for (unsigned long FaceNr = 0; FaceNr < SplitFaces.Size(); FaceNr++)
+    {
+        switch (SplitFaces[FaceNr]->Polygon.WhatSide(Nodes[NodeNr].Plane, MapT::RoundEpsilon))
+        {
+            case Polygon3T<double>::Front:
+            case Polygon3T<double>::FrontAndOn:
+                FrontFS.PushBack(FaceSet[FaceNr]);
+                FrontFaces.PushBack(SplitFaces[FaceNr]);
+                break;
+
+            case Polygon3T<double>::Back:
+            case Polygon3T<double>::BackAndOn:
+                BackFS.PushBack(FaceSet[FaceNr]);
+                BackFaces.PushBack(SplitFaces[FaceNr]);
+                break;
+
+            case Polygon3T<double>::Both:
+            case Polygon3T<double>::BothAndOn:
+            {
+                // Polygon.WhatSide() already has determined that the face is on both sides of the plane.
+                // Logically, this implies that the call to GetSplits() "must" succeed, as WhatSide()
+                // and GetSplits() are quasi "atomic".
+                // TODO: Are we able to get rid of WhatSide() in favour if GetSplits()?
+                //
+                // Unfortunately, a check (e.g. for collapsing vertices) such as
+                //
+                //     if (SplitResult[0].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist) &&
+                //         SplitResult[1].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist)) ...;
+                //
+                // can still fail, leaving us in a difficult situation. Fortunately, like in FillBSPLeaves()
+                // there is no need for this check here, because the split results are not propagated to
+                // any outside code and we have no "dangerous" operations on them here. We only need them
+                // to handle cases like that of face 4 in `BuildBSPTree.dia`.
+                const ArrayT< Polygon3T<double> > SplitResult = SplitFaces[FaceNr]->Polygon.GetSplits(Nodes[NodeNr].Plane, MapT::RoundEpsilon);
+
+                // First copy SplitFaces[FaceNr], then replace its Polygon member.
+                // This makes sure that *other* members in the FaceNodeT are preserved.
+                cf::SceneGraph::FaceNodeT* FrontFace = new cf::SceneGraph::FaceNodeT(*SplitFaces[FaceNr]); FrontFace->Polygon = SplitResult[0];
+                cf::SceneGraph::FaceNodeT* BackFace  = new cf::SceneGraph::FaceNodeT(*SplitFaces[FaceNr]); BackFace ->Polygon = SplitResult[1];
+
+                // FaceSet[FaceNr] is added both to the FrontFS and the BackFS, so that eventually
+                // multiple leaves will refer to this face.
+                //
+                // IMPORTANT: This is only possible because we NEVER modify the FaceChildren input array
+                // while we recurse within this method! If our recursing into and processing of the FrontFS
+                // would split the face and place at FaceSet[FaceNr] one of its fragments, the subsequent
+                // processing of the BackFS might find there something entirely unexpected!
+                FrontFS.PushBack(FaceSet[FaceNr]);
+                FrontFaces.PushBack(FrontFace);
+                DeleteList.PushBack(FrontFace);
+
+                BackFS.PushBack(FaceSet[FaceNr]);
+                BackFaces.PushBack(BackFace);
+                DeleteList.PushBack(BackFace);
+                break;
+            }
+
+            default:
+                ProgressCounter++;
+                break;
+        }
+    }
+
+
+    if (FrontFS.Size())
+    {
+        Nodes[NodeNr].FrontChild=Nodes.Size();
+        Nodes[NodeNr].FrontIsLeaf=false;
+
+        BuildBSPTree_NeverSplit(FrontFS, FrontFaces);
+    }
+    else
+    {
+        Leaves.PushBackEmpty();
+
+        Nodes[NodeNr].FrontChild=Leaves.Size()-1;
+        Nodes[NodeNr].FrontIsLeaf=true;
+    }
+
+    if (BackFS.Size())
+    {
+        Nodes[NodeNr].BackChild=Nodes.Size();
+        Nodes[NodeNr].BackIsLeaf=false;
+
+        BuildBSPTree_NeverSplit(BackFS, BackFaces);
+    }
+    else
+    {
+        Leaves.PushBackEmpty();
+
+        Nodes[NodeNr].BackChild=Leaves.Size()-1;
+        Nodes[NodeNr].BackIsLeaf=true;
+    }
+
+
+    for (unsigned long FaceNr = 0; FaceNr < DeleteList.Size(); FaceNr++)
+        delete DeleteList[FaceNr];
+}
+
+
 // Nach dem Erstellen des Baumes sind die Leaves zunächst noch leer. Jetzt werden ihre FaceSet- und BB-Einträge ausgefüllt.
 // Diese Funktion, genau wie Portalize, hätte auch direkt in BuildBSPTree integriert werden können.
 // Der Klarheit halber habe ich das aber nicht gemacht.
@@ -372,7 +522,14 @@ void BspTreeBuilderT::BuildBSPTree()
 
 
     // PHASE I
-    BuildBSPTree_SplitFaces(AllFaces);
+    if (Option_MinimizeFaceSplits)
+    {
+        BuildBSPTree_NeverSplit(AllFaces, FaceChildren);
+    }
+    else
+    {
+        BuildBSPTree_SplitFaces(AllFaces);
+    }
 
 
     // Complete the list, in order to account for face splits during tree creation.
