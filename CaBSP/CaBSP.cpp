@@ -211,8 +211,6 @@ int main(int ArgC, const char* ArgV[])
         }
         else if (!_stricmp(ArgV[ArgNr], "-minimizeFaceSplits") || !_stricmp(ArgV[ArgNr], "-mfs"))
         {
-            Console->Print("\n*** WARNING: This option will cause the Cafu engine to render many faces\n");
-            Console->Print("*** *TWICE*! Therefore, it's use is currently highly discouraged.\n\n");
             Option_MinimizeFaceSplits=true;
         }
         else if (ArgV[ArgNr][0]==0)
