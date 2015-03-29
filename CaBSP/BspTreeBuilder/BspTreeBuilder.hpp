@@ -134,7 +134,7 @@ class BspTreeBuilderT
     private:
 
     Plane3T<double> ChooseSplitPlane(const ArrayT<unsigned long>& FaceSet) const;
-    void BuildBSPTreeRecursive(const ArrayT<unsigned long>& FaceSet);
+    void BuildBSPTree_SplitFaces(const ArrayT<unsigned long>& FaceSet);
     void FillBSPLeaves(unsigned long NodeNr, const ArrayT<cf::SceneGraph::FaceNodeT*>& Face2, const ArrayT<unsigned long>& FaceSet, const BoundingBox3T<double>& BB);
     void CreateLeafPortals(unsigned long LeafNr, const ArrayT< Plane3T<double> >& NodeList);
     void BuildBSPPortals(unsigned long NodeNr, ArrayT< Plane3T<double> >& NodeList);

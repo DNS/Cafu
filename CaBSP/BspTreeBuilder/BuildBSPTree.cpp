@@ -123,10 +123,30 @@ Plane3T<double> BspTreeBuilderT::ChooseSplitPlane(const ArrayT<unsigned long>& F
 }
 
 
-// Subroutine zu ProcessTree. Dies ist die eigentliche, rekursive und binäre Baumbildung, die die Faces des
-// FaceSet in einem BSP-Baum anordnet. Dazu wird unter diesen eine Splitplane ausgesucht, bzgl. der die anderen Faces ins
-// Front-, Back- bzw. NodeT::FaceSet eingeordnet werden. Rekursiv werden so auch die Bäume des Front- und BackFS bestimmt.
-void BspTreeBuilderT::BuildBSPTreeRecursive(const ArrayT<unsigned long>& FaceSet)
+/// Recursively creates a BSP tree from the given faces, splitting the input faces as necessary.
+///
+/// When a chosen split plane intersects some of the other faces, this method "physically" splits
+/// the origial input faces. Some notable properties of this approach:
+///
+///   - The case of face 4 in the diagram in file `BuildBSPTree.dia` is naturally handled,
+///     no special-case considerations required.
+///
+///   - In the old days, when there was no z-buffering at all and we had to solely rely on the
+///     BSP tree for proper back-to-front ordering, splitting the input faces was a requirement
+///     to get the order right.
+///
+///   - Each face (possibly a split result) is associated with exactly one node (but possibly
+///     with multiple leaves, e.g. face 1 in `BuildBSPTree.dia`).
+///
+///   - IMPORTANT: In the implementation below, it is NOT possible to assign one face index to
+///     both FrontFS and BackFS, because our recursing into and processing of the FrontFS may
+///     split the face and replace the face at the index with one of its fragments, leaving the
+///     subsequent processing of the BackFS to find there something entirely unexpected!
+///
+/// @param FaceSet
+///     The indices (into FaceChildren) of the faces to create this BSP subtree of.
+///
+void BspTreeBuilderT::BuildBSPTree_SplitFaces(const ArrayT<unsigned long>& FaceSet)
 {
     ArrayT<cf::SceneGraph::BspTreeNodeT::NodeT>& Nodes =BspTree->Nodes;
     ArrayT<cf::SceneGraph::BspTreeNodeT::LeafT>& Leaves=BspTree->Leaves;
@@ -141,7 +161,6 @@ void BspTreeBuilderT::BuildBSPTreeRecursive(const ArrayT<unsigned long>& FaceSet
     const unsigned long NodeNr=Nodes.Size()-1;
     Nodes[NodeNr].Plane=ChooseSplitPlane(FaceSet);
 
-    // Die Faces des FaceSet bzgl. der Nodes[NodeNr].Plane entsprechend zuordnen
     ArrayT<unsigned long> FrontFS;
     ArrayT<unsigned long> BackFS;
 
@@ -156,61 +175,45 @@ void BspTreeBuilderT::BuildBSPTreeRecursive(const ArrayT<unsigned long>& FaceSet
 
             case Polygon3T<double>::Back:
             case Polygon3T<double>::BackAndOn:
-                BackFS .PushBack(FaceSet[FaceNr]);
+                BackFS.PushBack(FaceSet[FaceNr]);
                 break;
 
             case Polygon3T<double>::Both:
             case Polygon3T<double>::BothAndOn:
             {
-                // Warning: Adding FaceSet[FaceNr] to both the FrontFS *and* the BackFS (that is, *without* duplicating the face in Faces),
-                // will cause that face to be referenced in the NodeT::FaceSet of *two* distinct nodes! That means that the sum of all
-                // NodeT::FaceSet sizes will exceed Faces.Size().
-                // As of 2005-11-17, the Cafu engine can handle this situation gracefully (see MapT::GetFacesOrderedBackToFront() or svn
-                // revision 140), but it still renders all affected faces *twice*!!
-                if (Option_MinimizeFaceSplits)
+                const ArrayT< Polygon3T<double> > SplitResult = FaceChildren[FaceSet[FaceNr]]->Polygon.GetSplits(Nodes[NodeNr].Plane, MapT::RoundEpsilon);
+
+                if (SplitResult[0].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist) &&
+                    SplitResult[1].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist))     // Prüfe insb. auf zusammenfallende Vertices.
                 {
-                    // Warning: Assigning the same FaceSet number to both the FrontFS *and* the BackFS is only viable
-                    // because with Option_AvoidSplittingFaces we are guaranteed that the Faces array never changes
-                    // while we recurse within this method!
-                    FrontFS.PushBack(FaceSet[FaceNr]);
-                    BackFS .PushBack(FaceSet[FaceNr]);
+                    // Keine zusammenfallenden Vertices -- alles OK.
+                    FaceChildren.PushBack(new cf::SceneGraph::FaceNodeT(*FaceChildren[FaceSet[FaceNr]]));
+
+                    FaceChildren[FaceSet[FaceNr]      ]->Polygon = SplitResult[0];
+                    FaceChildren[FaceChildren.Size()-1]->Polygon = SplitResult[1];
                 }
                 else
                 {
-                    ArrayT< Polygon3T<double> > SplitResult=FaceChildren[FaceSet[FaceNr]]->Polygon.GetSplits(Nodes[NodeNr].Plane, MapT::RoundEpsilon);
-
-                    if (SplitResult[0].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist) &&
-                        SplitResult[1].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist))     // Prüfe insb. auf zusammenfallende Vertices.
-                    {
-                        // Keine zusammenfallenden Vertices -- alles OK.
-                        FaceChildren.PushBack(new cf::SceneGraph::FaceNodeT(*FaceChildren[FaceSet[FaceNr]]));
-
-                        FaceChildren[FaceSet[FaceNr]      ]->Polygon=SplitResult[0];
-                        FaceChildren[FaceChildren.Size()-1]->Polygon=SplitResult[1];
-                    }
-                    else
-                    {
-                        // Wir haben den problematischen Fall des spitzen Keils gefunden. Was tun?
-                        // Es scheint am sinnvollsten zu sein, die Face zu verdoppeln und sie dann sowohl dem FrontFS als auch dem BackFS
-                        // zuzuordnen. Die negativen Konsequenzen aller anderen Alternativen sind nicht überschaubar.
-                        // Divergenz dürfte trotz der Verdopplung nicht eintreten können (gültige Faces vorausgesetzt)!
-                        //    Haken: Die Face wird in der Engine idR zweimal gerendert werden, weil wir hier eine echte Kopie machen,
-                        // und Kopie und Original danach nichts mehr voneinander wissen.
-                        // Sowohl FrontFS als auch BackFS die FaceSet[FaceNr] Nummer zuzuordnen geht natürlich auch nicht,
-                        // weil später in der Rekursion ja ein weiterer Split dieser Face entstehen könnte, z.B. auf der
-                        // Vorderseite der Nodes[NodeNr].Plane, wodurch die weiteren Berechnungen auf der Rückseite eine
-                        // "faule" Face vorfinden.
-                        //    Lösung 1: Splitte niemals, genau wie Doom3. Das Faces Array bleibt dadurch konstant, und wir können doch
-                        // sowohl dem FrontFS als auch BackFS die FaceSet[FaceNr] Nummer zuzuordnen. Ausprobieren!
-                        //    Lösung 2: Wähle ein FS, und ordene die Face dort zu. Wenn z.B. die FrontFace valid und die BackFace
-                        // invalid ist, ordne die Face dem FrontFS zu, und umgekehrt. Sind beide ungültig, wähle z.B. gemäß
-                        // dem größeren Flächeninhalt, oder einfach beliebig.
-                        FaceChildren.PushBack(new cf::SceneGraph::FaceNodeT(*FaceChildren[FaceSet[FaceNr]]));
-                    }
-
-                    FrontFS.PushBack(FaceSet[FaceNr]);
-                    BackFS .PushBack(FaceChildren.Size()-1);
+                    // Wir haben den problematischen Fall des spitzen Keils gefunden. Was tun?
+                    // Es scheint am sinnvollsten zu sein, die Face zu verdoppeln und sie dann sowohl dem FrontFS als auch dem BackFS
+                    // zuzuordnen. Die negativen Konsequenzen aller anderen Alternativen sind nicht überschaubar.
+                    // Divergenz dürfte trotz der Verdopplung nicht eintreten können (gültige Faces vorausgesetzt)!
+                    //    Haken: Die Face wird in der Engine idR zweimal gerendert werden, weil wir hier eine echte Kopie machen,
+                    // und Kopie und Original danach nichts mehr voneinander wissen.
+                    // Sowohl FrontFS als auch BackFS die FaceSet[FaceNr] Nummer zuzuordnen geht natürlich auch nicht,
+                    // weil später in der Rekursion ja ein weiterer Split dieser Face entstehen könnte, z.B. auf der
+                    // Vorderseite der Nodes[NodeNr].Plane, wodurch die weiteren Berechnungen auf der Rückseite eine
+                    // "faule" Face vorfinden.
+                    //    Lösung 1: Splitte niemals, genau wie Doom3. Das Faces Array bleibt dadurch konstant, und wir können doch
+                    // sowohl dem FrontFS als auch BackFS die FaceSet[FaceNr] Nummer zuzuordnen. Ausprobieren!
+                    //    Lösung 2: Wähle ein FS, und ordene die Face dort zu. Wenn z.B. die FrontFace valid und die BackFace
+                    // invalid ist, ordne die Face dem FrontFS zu, und umgekehrt. Sind beide ungültig, wähle z.B. gemäß
+                    // dem größeren Flächeninhalt, oder einfach beliebig.
+                    FaceChildren.PushBack(new cf::SceneGraph::FaceNodeT(*FaceChildren[FaceSet[FaceNr]]));
                 }
+
+                FrontFS.PushBack(FaceSet[FaceNr]);
+                BackFS .PushBack(FaceChildren.Size()-1);
                 break;
             }
 
@@ -225,7 +228,8 @@ void BspTreeBuilderT::BuildBSPTreeRecursive(const ArrayT<unsigned long>& FaceSet
     {
         Nodes[NodeNr].FrontChild=Nodes.Size();
         Nodes[NodeNr].FrontIsLeaf=false;
-        BuildBSPTreeRecursive(FrontFS);
+
+        BuildBSPTree_SplitFaces(FrontFS);
     }
     else
     {
@@ -239,7 +243,8 @@ void BspTreeBuilderT::BuildBSPTreeRecursive(const ArrayT<unsigned long>& FaceSet
     {
         Nodes[NodeNr].BackChild=Nodes.Size();
         Nodes[NodeNr].BackIsLeaf=false;
-        BuildBSPTreeRecursive(BackFS);
+
+        BuildBSPTree_SplitFaces(BackFS);
     }
     else
     {
@@ -367,7 +372,7 @@ void BspTreeBuilderT::BuildBSPTree()
 
 
     // PHASE I
-    BuildBSPTreeRecursive(AllFaces);
+    BuildBSPTree_SplitFaces(AllFaces);
 
 
     // Complete the list, in order to account for face splits during tree creation.
