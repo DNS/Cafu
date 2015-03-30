@@ -36,7 +36,7 @@ void BspTreeBuilderT::PrepareLeakDetection(const ArrayT<Vector3dT>& FloodFillSou
     for (unsigned long SourceNr=0; SourceNr<FloodFillSources.Size(); SourceNr++)
         WorldBB.Insert(FloodFillSources[SourceNr]);
 
-    const double d=10.0*MapT::MinVertexDist;
+    const double d = 10.0;
 
     WorldBB.Min-=VectorT(d, d, d);  // Kleiner Sicherheitszuschlag,
     WorldBB.Max+=VectorT(d, d, d);  // um es korrekter und sicherer zu machen.

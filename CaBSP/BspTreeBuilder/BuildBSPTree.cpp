@@ -545,7 +545,7 @@ void BspTreeBuilderT::BuildBSPTree()
     for (unsigned long ChildNr=0; ChildNr<OtherChildren.Size(); ChildNr++)
         WorldBB.Insert(OtherChildren[ChildNr]->GetBoundingBox());
 
-    const double d=10.0*MapT::MinVertexDist;
+    const double d = 10.0;
 
     WorldBB.Min-=VectorT(d, d, d);  // Kleiner Sicherheitszuschlag, damit auch die äußersten
     WorldBB.Max+=VectorT(d, d, d);  // Leaves wirklich eine korrekte BB bekommen!
