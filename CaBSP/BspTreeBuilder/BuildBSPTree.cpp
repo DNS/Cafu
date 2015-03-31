@@ -135,8 +135,8 @@ Plane3T<double> BspTreeBuilderT::ChooseSplitPlane(const ArrayT<unsigned long>& F
 ///     BSP tree for proper back-to-front ordering, splitting the input faces was a requirement
 ///     to get the order right.
 ///
-///   - Each face (possibly a split result) is associated with exactly one node (but possibly
-///     with multiple leaves, e.g. face 1 in `BuildBSPTree.dia`).
+///   - Each face (possibly a split result) is associated with exactly one node, but even with
+///     this method, possibly with multiple leaves, e.g. face 1 in `BuildBSPTree.dia`.
 ///
 ///   - IMPORTANT: In the implementation below, it is NOT possible to assign one face index to
 ///     both FrontFS and BackFS, because our recursing into and processing of the FrontFS may
@@ -522,13 +522,13 @@ void BspTreeBuilderT::BuildBSPTree()
 
 
     // PHASE I
-    if (Option_MinimizeFaceSplits)
+    if (m_Option_BspSplitFaces)
     {
-        BuildBSPTree_NeverSplit(AllFaces, FaceChildren);
+        BuildBSPTree_SplitFaces(AllFaces);
     }
     else
     {
-        BuildBSPTree_SplitFaces(AllFaces);
+        BuildBSPTree_NeverSplit(AllFaces, FaceChildren);
     }
 
 

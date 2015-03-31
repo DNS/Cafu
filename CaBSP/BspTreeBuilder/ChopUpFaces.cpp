@@ -19,31 +19,17 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*********************/
-/*** Chop Up Faces ***/
-/*********************/
 
-
-// Hinweis zur Implementierung:
-// Eine Zusammenführung der beiden wesentlichen Schleifen in eine große ist zwar denkbar, aber nicht ratsam: Beide Schleifen
-// iterieren über das Face-Array und modifizieren es zugleich. Die bestehende Lösung ist daher erheblich einfacher zu über-
-// blicken. Es ist mir deshalb bisher nicht gelungen, eine große Schleife besser zu implementieren als die zwei bestehenden.
 void BspTreeBuilderT::ChopUpFaces()
 {
     Console->Print(cf::va("\n%-50s %s\n", "*** Chop Up Interpenetrations ***", GetTimeSinceProgramStart()));
 
-    ArrayT< BoundingBox3T<double> > FaceBB;
-    for (unsigned long FaceNr=0; FaceNr<FaceChildren.Size(); FaceNr++) FaceBB.PushBack(BoundingBox3T<double>(FaceChildren[FaceNr]->Polygon.Vertices));
+    const double CHOP_MIN_VERTEX_DIST = std::max(3.0, MapT::MinVertexDist);
 
-    if (FaceChildren.Size()<2)
-    {
-        Console->Print("\nMh. I expected at least 2 faces to be left, but there are not.\n");
-        Console->Print("(Actually, there should be even more, at least 5 or 6.)\n");
-        Console->Print("Please contact CarstenFuchs@T-Online.de, tell him about this error,\n");
-        Console->Print("and if possible, also attach this map file to your email.");
+    ArrayT<BoundingBox3dT> FaceBB;
 
-        Error("Stopped by curiosity.");
-    }
+    for (unsigned long FaceNr = 0; FaceNr < FaceChildren.Size(); FaceNr++)
+        FaceBB.PushBack(BoundingBox3dT(FaceChildren[FaceNr]->Polygon.Vertices));
 
     // Zuerst die sich echt schneidenden Faces (deren Ebenen sich in einer Geraden schneiden) choppen.
     // Die folgende Schleife lief ursprünglich in O(n^2) Zeit. Man könnte sie auf O(1/2*n^2) bringen, indem man
@@ -64,35 +50,35 @@ void BspTreeBuilderT::ChopUpFaces()
 
             if (FaceChildren[Face1Nr]->Polygon.WhatSideSimple(FaceChildren[Face2Nr]->Polygon.Plane, MapT::RoundEpsilon)==Polygon3T<double>::Both)
             {
-                ArrayT< Polygon3T<double> > SplitResult=FaceChildren[Face1Nr]->Polygon.GetSplits(FaceChildren[Face2Nr]->Polygon.Plane, MapT::RoundEpsilon);
+                const ArrayT< Polygon3T<double> > SplitResult = FaceChildren[Face1Nr]->Polygon.GetSplits(FaceChildren[Face2Nr]->Polygon.Plane, MapT::RoundEpsilon);
 
-                if (SplitResult[0].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist) &&
-                    SplitResult[1].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist))  // Prüfe insb. zusammenfallende Vertices
+                if (SplitResult[0].IsValid(MapT::RoundEpsilon, CHOP_MIN_VERTEX_DIST) &&
+                    SplitResult[1].IsValid(MapT::RoundEpsilon, CHOP_MIN_VERTEX_DIST))   // Especially check for "collapsing" vertices.
                 {
                     FaceChildren.PushBack(new cf::SceneGraph::FaceNodeT(*FaceChildren[Face1Nr]));
 
                     Polygon3T<double>& Front=FaceChildren[Face1Nr              ]->Polygon; Front=SplitResult[0];
                     Polygon3T<double>& Back =FaceChildren[FaceChildren.Size()-1]->Polygon; Back =SplitResult[1];
 
-                    FaceBB[Face1Nr]=BoundingBox3T<double>(Front.Vertices);
-                    FaceBB.PushBack(BoundingBox3T<double>(Back .Vertices));
+                    FaceBB[Face1Nr] = BoundingBox3dT(Front.Vertices);
+                    FaceBB.PushBack(BoundingBox3dT(Back.Vertices));
                 }
             }
 
             if (FaceChildren[Face2Nr]->Polygon.WhatSideSimple(FaceChildren[Face1Nr]->Polygon.Plane, MapT::RoundEpsilon)==Polygon3T<double>::Both)
             {
-                ArrayT< Polygon3T<double> > SplitResult=FaceChildren[Face2Nr]->Polygon.GetSplits(FaceChildren[Face1Nr]->Polygon.Plane, MapT::RoundEpsilon);
+                const ArrayT< Polygon3T<double> > SplitResult = FaceChildren[Face2Nr]->Polygon.GetSplits(FaceChildren[Face1Nr]->Polygon.Plane, MapT::RoundEpsilon);
 
-                if (SplitResult[0].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist) &&
-                    SplitResult[1].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist))  // Prüfe insb. zusammenfallende Vertices
+                if (SplitResult[0].IsValid(MapT::RoundEpsilon, CHOP_MIN_VERTEX_DIST) &&
+                    SplitResult[1].IsValid(MapT::RoundEpsilon, CHOP_MIN_VERTEX_DIST))   // Especially check for "collapsing" vertices.
                 {
                     FaceChildren.PushBack(new cf::SceneGraph::FaceNodeT(*FaceChildren[Face2Nr]));
 
                     Polygon3T<double>& Front=FaceChildren[Face2Nr              ]->Polygon; Front=SplitResult[0];
                     Polygon3T<double>& Back =FaceChildren[FaceChildren.Size()-1]->Polygon; Back =SplitResult[1];
 
-                    FaceBB[Face2Nr]=BoundingBox3T<double>(Front.Vertices);
-                    FaceBB.PushBack(BoundingBox3T<double>(Back .Vertices));
+                    FaceBB[Face2Nr] = BoundingBox3dT(Front.Vertices);
+                    FaceBB.PushBack(BoundingBox3dT(Back.Vertices));
                 }
             }
         }
@@ -173,9 +159,9 @@ void BspTreeBuilderT::ChopUpFaces()
                 // Wenn Poly1 Poly2 ganz umschlossen hat, könnte NewPolygons.Size() hier auch 0 sein!
                 for (SplitterNr=0; SplitterNr<NewPolygons.Size(); SplitterNr++)
                 {
-                    FaceChildren.PushBack(new cf::SceneGraph::FaceNodeT(*FaceChildren[Face2Nr]));                   // Erst mal alte TexInfo usw. kopieren.
-                    FaceChildren[FaceChildren.Size()-1]->Polygon=NewPolygons[SplitterNr];                           // Neues Polygon einsetzen.
-                    FaceBB.PushBack(BoundingBox3T<double>(FaceChildren[FaceChildren.Size()-1]->Polygon.Vertices));  // Neue FaceBB erstellen.
+                    FaceChildren.PushBack(new cf::SceneGraph::FaceNodeT(*FaceChildren[Face2Nr]));           // Erst mal alte TexInfo usw. kopieren.
+                    FaceChildren[FaceChildren.Size()-1]->Polygon=NewPolygons[SplitterNr];                   // Neues Polygon einsetzen.
+                    FaceBB.PushBack(BoundingBox3dT(FaceChildren[FaceChildren.Size()-1]->Polygon.Vertices)); // Neue FaceBB erstellen.
                 }
 
                 // Die ursprüngliche Face2Nr nun mit der letzten Face aus dem FaceChildren-Array überschreiben.
@@ -205,9 +191,9 @@ void BspTreeBuilderT::ChopUpFaces()
                 // Wenn Poly2 Poly1 ganz umschlossen hat, könnte NewPolygons.Size() hier auch 0 sein!
                 for (SplitterNr=0; SplitterNr<NewPolygons.Size(); SplitterNr++)
                 {
-                    FaceChildren.PushBack(new cf::SceneGraph::FaceNodeT(*FaceChildren[Face1Nr]));                   // Erst mal alte TexInfo usw. kopieren.
-                    FaceChildren[FaceChildren.Size()-1]->Polygon=NewPolygons[SplitterNr];                           // Neues Polygon einsetzen,
-                    FaceBB.PushBack(BoundingBox3T<double>(FaceChildren[FaceChildren.Size()-1]->Polygon.Vertices));  // Neue FaceBB erstellen.
+                    FaceChildren.PushBack(new cf::SceneGraph::FaceNodeT(*FaceChildren[Face1Nr]));           // Erst mal alte TexInfo usw. kopieren.
+                    FaceChildren[FaceChildren.Size()-1]->Polygon=NewPolygons[SplitterNr];                   // Neues Polygon einsetzen,
+                    FaceBB.PushBack(BoundingBox3dT(FaceChildren[FaceChildren.Size()-1]->Polygon.Vertices)); // Neue FaceBB erstellen.
                 }
 
                 // Die ursprüngliche Face1Nr nun mit der letzten Face aus dem FaceChildren-Array überschreiben.

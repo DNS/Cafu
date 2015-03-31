@@ -81,7 +81,7 @@ static void Error(const char* ErrorText, ...)
 }
 
 
-BspTreeBuilderT::BspTreeBuilderT(cf::SceneGraph::BspTreeNodeT* BspTree_, bool MostSimpleTree, bool MinFaceSplits)
+BspTreeBuilderT::BspTreeBuilderT(cf::SceneGraph::BspTreeNodeT* BspTree_, bool MostSimpleTree, bool BspSplitFaces, bool ChopUpFaces)
     : BspTree             (BspTree_                    ),
    // Nodes               (BspTree_->Nodes             ),
    // Leaves              (BspTree_->Leaves            ),
@@ -89,8 +89,9 @@ BspTreeBuilderT::BspTreeBuilderT(cf::SceneGraph::BspTreeNodeT* BspTree_, bool Mo
       FaceChildren        (BspTree_->FaceChildren      ),
       OtherChildren       (BspTree_->OtherChildren     ),
       GlobalDrawVertices  (BspTree_->GlobalDrawVertices),
-      Option_MostSimpleTree(MostSimpleTree),
-      Option_MinimizeFaceSplits(MinFaceSplits)
+      m_Option_MostSimpleTree(MostSimpleTree),
+      m_Option_BspSplitFaces(BspSplitFaces),
+      m_Option_ChopUpFaces(ChopUpFaces)
 {
 }
 
@@ -128,9 +129,9 @@ void BspTreeBuilderT::Build(bool IsWorldspawn, const ArrayT<Vector3dT>& FloodFil
     }
 
 
-    if (!Option_MostSimpleTree && FaceChildren.Size()>0 /*No need to try to optimize the tree if it's too simple.*/)
+    if (!m_Option_MostSimpleTree && FaceChildren.Size() >= 4 /*No need to try to optimize the tree if it is too simple.*/)
     {
-        if (!Option_MinimizeFaceSplits)
+        if (m_Option_ChopUpFaces)
         {
             // FIRST TREE
             PrepareLeakDetection(FloodFillSources, &LeakDetectMat);
@@ -214,68 +215,6 @@ void BspTreeBuilderT::Build(bool IsWorldspawn, const ArrayT<Vector3dT>& FloodFil
     ComputeDrawStructures();
     CreateFullVisPVS();
 }
-
-
-/* static void BrushSplit(const ArrayT< Polygon3T<double> >& Brush, const Plane3T<double>& Plane, const double Epsilon, ArrayT< Polygon3T<double> >& FrontBrush, ArrayT< Polygon3T<double> >& BackBrush)
-{
-    FrontBrush.Clear(); FrontBrush.PushBackEmpty(Brush.Size()+1);
-    BackBrush .Clear(); BackBrush .PushBackEmpty(Brush.Size()+1);
-
-    for (unsigned long PolyNr=0; PolyNr<Brush.Size(); PolyNr++)
-    {
-        FrontBrush[PolyNr].Plane=Brush[PolyNr].Plane;
-        BackBrush [PolyNr].Plane=Brush[PolyNr].Plane;
-    }
-
-    FrontBrush[Brush.Size()].Plane=Plane.GetMirror();
-    BackBrush [Brush.Size()].Plane=Plane;
-
-    Polygon3T<double>::Complete(FrontBrush, Epsilon);
-    Polygon3T<double>::Complete(BackBrush,  Epsilon);
-} */
-
-
-// Bestimmt, ob der Brush auf der Vorderseite oder auf der Rückseite der Plane liegt.
-// Wenn beides der Fall ist, schneidet der Brush die Plane.
-// Returns the result as a Polygon3T<double>::SideT, where only the values Front, Back, Both or Empty are ever returned.
-/* This function is currently unused.
-static Polygon3T<double>::SideT BrushWhatSideTest(const ArrayT< Polygon3T<double> >& Brush, const Plane3T<double>& Plane, const double Epsilon)
-{
-    bool HasVertsFront=false;
-    bool HasVertsBack =false;
-
-    for (unsigned long PolyNr=0; PolyNr<Brush.Size(); PolyNr++)
-    {
-        Polygon3T<double>::SideT PolySide=Brush[PolyNr].WhatSideSimple(Plane, Epsilon);
-
-        switch (PolySide)
-        {
-            case Polygon3T<double>::Front:
-                HasVertsFront=true;
-                break;
-
-            case Polygon3T<double>::Back:
-                HasVertsBack=true;
-                break;
-
-            case Polygon3T<double>::Both:
-                HasVertsFront=true;
-                HasVertsBack=true;
-                break;
-
-            default:
-                // Intentionally do nothing here.
-                break;
-        }
-    }
-
-    if (HasVertsFront && HasVertsBack) return Polygon3T<double>::Both;
-    if (HasVertsFront) return Polygon3T<double>::Front;
-    if (HasVertsBack ) return Polygon3T<double>::Back;
-
-    return Polygon3T<double>::Empty;
-}
-*/
 
 
 #include "ChopUpFaces.cpp"

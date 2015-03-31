@@ -186,10 +186,11 @@ int main(int ArgC, const char* ArgV[])
     cf::GameSys::GetGameSysEntityTIM().Init();  // The one-time init of the GameSys entity type info manager.
     cf::GameSys::GetWorldTIM().Init();          // The one-time init of the GameSys world type info manager.
 
-    bool Option_MostSimpleTree    =false;
-    bool Option_MinimizeFaceSplits=false;
+    bool Option_MostSimpleTree = false;
+    bool Option_BspSplitFaces  = false;     // Don't split faces when creating a BSP tree.
+    bool Option_ChopUpFaces    = true;      // Chop up interpenetrating faces.
 
-    Console->Print(cf::va("\n*** Cafu Binary Space Partitioning Utility, Version 11 (%s) ***\n\n", __DATE__));
+    Console->Print(cf::va("\n*** Cafu Binary Space Partitioning Utility, Version 12 (%s) ***\n\n", __DATE__));
 
 
     // Initialize the FileMan by mounting the default file system.
@@ -205,15 +206,19 @@ int main(int ArgC, const char* ArgV[])
 
     for (int ArgNr=3; ArgNr<ArgC; ArgNr++)
     {
-        if (!_stricmp(ArgV[ArgNr], "-mostSimpleTree") || !_stricmp(ArgV[ArgNr], "-mst"))
+        if (!_stricmp(ArgV[ArgNr], "--most-simple-tree") || !_stricmp(ArgV[ArgNr], "-mst"))
         {
             Option_MostSimpleTree = true;
         }
-        else if (!_stricmp(ArgV[ArgNr], "-minimizeFaceSplits") || !_stricmp(ArgV[ArgNr], "-mfs"))
+        else if (!_stricmp(ArgV[ArgNr], "--bsp-split-faces") || !_stricmp(ArgV[ArgNr], "-bsf"))
         {
-            Option_MinimizeFaceSplits=true;
+            Option_BspSplitFaces = true;
         }
-        else if (ArgV[ArgNr][0]==0)
+        else if (!_stricmp(ArgV[ArgNr], "--dont-chop-up-faces") || !_stricmp(ArgV[ArgNr], "-dcuf"))
+        {
+            Option_ChopUpFaces = false;
+        }
+        else if (ArgV[ArgNr][0] == 0)
         {
             // The argument is "", the empty string.
             // This can happen under Linux, when CaBSP is called via wxExecute() with white-space trailing the command string.
@@ -263,7 +268,7 @@ int main(int ArgC, const char* ArgV[])
     // What we need:
     // For each entity: The BspTree itself, OutsidePointSamples, FloodFillSources.
     // One common instance, shared for all: LeakDetectMat
-    BspTreeBuilderT BspTreeBuilder(World.m_StaticEntityData[0]->m_BspTree, Option_MostSimpleTree, Option_MinimizeFaceSplits);
+    BspTreeBuilderT BspTreeBuilder(World.m_StaticEntityData[0]->m_BspTree, Option_MostSimpleTree, Option_BspSplitFaces, Option_ChopUpFaces);
 
     BspTreeBuilder.Build(true /*yes, this is the worldspawn entity*/, FloodFillSources, DrawWorldOutsidePointSamples, ArgV[1]);
 

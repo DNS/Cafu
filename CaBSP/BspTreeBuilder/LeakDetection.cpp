@@ -26,6 +26,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 void BspTreeBuilderT::PrepareLeakDetection(const ArrayT<Vector3dT>& FloodFillSources, MaterialT* LeakDetectMat)
 {
+    if (FaceChildren.Size() < 4)
+        Error("There are too few faces in this map to proceed.");
+
     // Determine a world bounding box.
     BoundingBox3T<double> WorldBB(FaceChildren[0]->Polygon.Vertices);
 

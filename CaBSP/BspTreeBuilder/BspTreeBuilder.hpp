@@ -51,11 +51,8 @@ class BspTreeBuilderT
     ArrayT<cf::SceneGraph::GenericNodeT*>&       OtherChildren;
     ArrayT<VectorT>&                             GlobalDrawVertices;
 
-    const bool Option_MostSimpleTree;
-    const bool Option_MinimizeFaceSplits;
 
-
-    BspTreeBuilderT(cf::SceneGraph::BspTreeNodeT* BspTree_, bool MostSimpleTree, bool MinFaceSplits);
+    BspTreeBuilderT(cf::SceneGraph::BspTreeNodeT* BspTree_, bool MostSimpleTree, bool BspSplitFaces, bool ChopUpFaces);
 
     void Build(bool IsWorldspawn,
                const ArrayT<Vector3dT>& FloodFillSources_,
@@ -143,6 +140,10 @@ class BspTreeBuilderT
     void ComputeLeakPathByBFS(const VectorT& Start) const;
     void LeakDetected(const VectorT& InfoPlayerStartOrigin, const std::string& PointFileName, const unsigned long LeafNr) const;
     void QuickSortFacesIntoTexNameOrder();
+
+    const bool m_Option_MostSimpleTree;
+    const bool m_Option_BspSplitFaces;
+    const bool m_Option_ChopUpFaces;
 };
 
 #endif

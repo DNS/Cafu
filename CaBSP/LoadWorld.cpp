@@ -441,7 +441,7 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
         // completely, so that we don't have to keep the OutsidePointSamples array.
         if (EntNr > 0)
         {
-            BspTreeBuilderT BspTreeBuilder(GameEnt->m_BspTree, false /*most simple tree*/, false /*min face splits*/);
+            BspTreeBuilderT BspTreeBuilder(GameEnt->m_BspTree, false /*most simple tree*/, false /*Bsp split faces*/, true /*chop up faces*/);
 
             ArrayT<Vector3dT> EmptyFloodFillSources;
             std::string       EmptyMapFileName = "";  // Entity BSP trees aren't flood-filled, so they cannot leak, so we never need to write a .pts point file for them.
