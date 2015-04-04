@@ -27,6 +27,27 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 ArrayT<bool> IsDefinitivelyOuterLeaf;
 
 
+#if 0
+unsigned int PrintCount = 0;
+
+void OutPoly(const Polygon3T<double>& P)
+{
+    const int sigdigits = std::numeric_limits<double>::digits10;
+
+    std::cout << std::setprecision(sigdigits);
+
+    std::cout << "    " << P.Plane << "\n";
+
+    for (unsigned int i = 0; i < P.Vertices.Size(); i++)
+    {
+        std::cout << "    " << P.Vertices[i] << "\n";
+    }
+
+    std::cout << "\n";
+}
+#endif
+
+
 void BspTreeBuilderT::FloodFillInsideRecursive(unsigned long Leaf1Nr)
 {
     ArrayT<cf::SceneGraph::BspTreeNodeT::LeafT>& Leaves=BspTree->Leaves;
@@ -49,7 +70,22 @@ void BspTreeBuilderT::FloodFillInsideRecursive(unsigned long Leaf1Nr)
                     {
                         // TODO: More extensive diagnostics would be nice, in order to better understand the problem.
                         // For example, we might examine the shape and size of the involved portals, and why they are there in the first place.
+                        // E.g. visualize in CaSanity, directly in the Cafu Engine, or augment pts pointfile format for CaWE.
                         Console->Warning(cf::va("Found a way from inner leaf %lu to outer leaf %lu!\n", Leaf1Nr, Leaf2Nr));
+
+#if 0
+                        if (PrintCount < 3)
+                        {
+                            PrintCount++;
+                            std::cout << "******************************************************************\n";
+
+                            const Polygon3T<double>& P1 = Leaves[Leaf1Nr].Portals[Portal1Nr];
+                            const Polygon3T<double>& P2 = Leaves[Leaf2Nr].Portals[Portal2Nr];
+
+                            std::cout << "Polygon 1:\n"; OutPoly(P1);
+                            std::cout << "Polygon 2:\n"; OutPoly(P2);
+                        }
+#endif
                         continue;
                     }
 
