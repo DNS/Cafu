@@ -42,7 +42,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/BezierPatch.hpp"
 #include "Math3D/Matrix.hpp"
 #include "Math3D/Matrix3x3.hpp"
-#include "MapFile.hpp"
 #include "TypeSys.hpp"
 
 #include "wx/wx.h"
@@ -55,14 +54,11 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 // This should match the value in CaBSP's LoadWorld() function.
-// Alternatives include:
-//   - Don't express the error in world units, but as an absolute value,
-//     e.g. `400.0f / ScriptWorld->GetMillimetersPerWorldUnit()`. However, using absolute values is probably not
-//     a good idea, and we don't have the ScriptWorld readily available in the `MapBezierPatchT` ctors anyway.
-//   - See the implementation of BezierPatchT<T>::Subdivide() for an elegant suggestion that would make the error
-//     metric independent of the size of the Bezier patch, and thus independent of any reference to the world,
-//     so that the `MAX_CURVE_ERROR` could actually be removed.
-static const float MAX_CURVE_ERROR = 400.0f / cf::CA3DE_SCALE;
+// As a possible alternative, see the implementation of BezierPatchT<T>::Subdivide() for an
+// elegant suggestion that would make the error metric independent of the size of the Bezier
+// patch, and thus independent of any reference to the world, so that the `MAX_CURVE_ERROR`
+// could actually be removed.
+static const float MAX_CURVE_ERROR = 24.0f;
 
 
 /*** Begin of TypeSys related definitions for this class. ***/
@@ -1044,8 +1040,10 @@ void MapBezierPatchT::UpdateRenderMesh() const
         static MaterialT s_CollMaterial;
         s_CollMaterial.ClipFlags=MaterialT::Clip_AllBlocking;
 
+        const double COLLISION_MODEL_MIN_NODE_SIZE = 40.0;
+
         delete CollModel;
-        CollModel=new cf::ClipSys::CollisionModelStaticT(CollisionBP.Width, CollisionBP.Height, CoordsOnly, &s_CollMaterial);
+        CollModel = new cf::ClipSys::CollisionModelStaticT(CollisionBP.Width, CollisionBP.Height, CoordsOnly, &s_CollMaterial, COLLISION_MODEL_MIN_NODE_SIZE);
 
 
         // 3. Everything updated for now.

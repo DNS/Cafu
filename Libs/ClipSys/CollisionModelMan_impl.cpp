@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ConsoleCommands/Console.hpp"
 #include "TextParser/TextParser.hpp"
 #include "String.hpp"
+#include "../Common/World.hpp"      // Needed (only) for some MapT::xy stuff.
 
 
 using namespace cf::ClipSys;
@@ -84,9 +85,12 @@ const CollisionModelT* CollModelManImplT::GetCM(const std::string& FileName)
             // TODO: Account for the first map file entity to come with terrains! (Must keep the terrain instance in cmInfoT.)
             const ArrayT<CollisionModelStaticT::TerrainRefT> ShTe;
 
-            CollisionModelStaticT* CM = new CollisionModelStaticT(MapFileEntityT(0, TP), ShTe, true /*Use generic brushes.*/);
+            const double COLLISION_MODEL_MAX_CURVE_ERROR  = 24.0;
+            const double COLLISION_MODEL_MAX_CURVE_LENGTH = -1.0;
+            const double COLLISION_MODEL_MIN_NODE_SIZE    = 40.0;
 
-            CM->ScaleDown254();
+            CollisionModelStaticT* CM = new CollisionModelStaticT(MapFileEntityT(0, TP), ShTe, true /*Use generic brushes.*/,
+                MapT::RoundEpsilon, MapT::MinVertexDist, COLLISION_MODEL_MAX_CURVE_ERROR, COLLISION_MODEL_MAX_CURVE_LENGTH, COLLISION_MODEL_MIN_NODE_SIZE);
 
             cmi.Instance = CM;
         }
@@ -120,14 +124,14 @@ const CollisionModelT* CollModelManImplT::GetCM(std::istream& InFile, cf::SceneG
 */
 
 
-const CollisionModelT* CollModelManImplT::GetCM(unsigned long Width, unsigned long Height, const ArrayT<Vector3dT>& Mesh, MaterialT* Material)
+const CollisionModelT* CollModelManImplT::GetCM(unsigned long Width, unsigned long Height, const ArrayT<Vector3dT>& Mesh, MaterialT* Material, const double MIN_NODE_SIZE)
 {
     cmInfoT cmi;
 
-    cmi.Instance=new CollisionModelStaticT(Width, Height, Mesh, Material);
-    cmi.FileName="";
-    cmi.RefCount=1;
-    cmi.NoDelete=false;
+    cmi.Instance = new CollisionModelStaticT(Width, Height, Mesh, Material, MIN_NODE_SIZE);
+    cmi.FileName = "";
+    cmi.RefCount = 1;
+    cmi.NoDelete = false;
 
     cmInfos.PushBack(cmi);
     return cmi.Instance;
@@ -161,12 +165,17 @@ const CollisionModelT* CollModelManImplT::GetCM(const BoundingBox3T<double>& BB,
     }
 
 
+    const double COLLISION_MODEL_MAX_CURVE_ERROR  = 24.0;   // Unused with this model.
+    const double COLLISION_MODEL_MAX_CURVE_LENGTH = -1.0;   // Unused with this model.
+    const double COLLISION_MODEL_MIN_NODE_SIZE    = 64.0;   // Unused with this model.
+
     cmInfoT cmi;
 
-    cmi.Instance=new CollisionModelStaticT(Entity, ArrayT<CollisionModelStaticT::TerrainRefT>(), true /*Use generic brushes.*/);
-    cmi.FileName="";
-    cmi.RefCount=1;
-    cmi.NoDelete=false;
+    cmi.Instance = new CollisionModelStaticT(Entity, ArrayT<CollisionModelStaticT::TerrainRefT>(), true /*Use generic brushes.*/,
+        MapT::RoundEpsilon, MapT::MinVertexDist, COLLISION_MODEL_MAX_CURVE_ERROR, COLLISION_MODEL_MAX_CURVE_LENGTH, COLLISION_MODEL_MIN_NODE_SIZE);
+    cmi.FileName = "";
+    cmi.RefCount = 1;
+    cmi.NoDelete = false;
 
     cmInfos.PushBack(cmi);
     return cmi.Instance;

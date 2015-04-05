@@ -6,8 +6,8 @@ GroupDef 0 "control room" "rgb(160, 185, 153)" 1 1 0
 
 {
   classname "worldspawn"
-  shlmap_patchsize "200.0"
-  lightmap_patchsize "200.0"
+  shlmap_patchsize "8.0"
+  lightmap_patchsize "8.0"
   sounds "1"
   light "5"
   MaxRange "4096"

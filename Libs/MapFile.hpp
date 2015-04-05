@@ -37,9 +37,6 @@ class TextParserT;
 
 namespace cf
 {
-    extern const double CA3DE_SCALE;
-
-
     /// This struct describes a plane (and thus one side) of a map brush.
     /// The members U, V, ShiftU and ShiftV together define the planar projection
     /// for computing the (u, v) texture coordinates at the vertices of the brush.

@@ -92,7 +92,7 @@ namespace cf
 
             /// Returns how many millimeters one world unit is large.
             /// Used whenever we have to deal with concrete units of measurement such as millimeters or meters
-            /// (e.g. for physics computations, the acoustic Doppler effect, etc.).
+            /// (e.g. for physics computations, radiometric units (e.g. W/m^2), the acoustic Doppler effect, etc.).
             /// FIXME: The same constant is currently also defined (as `const double METERS_PER_WORLD_UNIT = 0.0254`)
             ///        in CollisionModelStaticT::BulletAdapterT, PhysicsWorldT::TraceBoundingBox(), and the Sound Systems.
             float GetMillimetersPerWorldUnit() const { return 25.4f; }

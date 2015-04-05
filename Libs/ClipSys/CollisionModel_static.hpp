@@ -185,8 +185,9 @@ namespace cf
                 /// When a split plane was found, the PlaneType and PlaneDist members are appropriately set and true is returned,
                 /// otherwise they are initialized with NONE and 0, respectively, and the return value is false.
                 /// @param NodeBB   The relevant bounds in which a split plane is to be found from the contents of this node (plus ancestors).
+                /// @param MIN_NODE_SIZE   The minimum size (side length) that a node should not fall below.
                 /// @returns whether a split plane has successfully been determined.
-                bool DetermineSplitPlane(const BoundingBox3dT& NodeBB);
+                bool DetermineSplitPlane(const BoundingBox3dT& NodeBB, const double MIN_NODE_SIZE);
 
                 /// Determines whether the given BB intersects (is partly inside) each child of this node.
                 /// @param BB   The bounding box that is tested for intersection.
@@ -239,12 +240,11 @@ namespace cf
             ///     (in the cf::SceneGraph::BspTreeNodeT class) is used, and is thus *very* fast, rock solid and battle proven.
             ///     It also means that internally, only bounding-boxes (but not the true TraceSolidT objects) are traced against
             ///     such created brushes with the BrushT::TraceBevelBB() method.
-            CollisionModelStaticT(const MapFileEntityT& Entity, const ArrayT<TerrainRefT>& Terrains, bool UseGenericBrushes);
+            CollisionModelStaticT(const MapFileEntityT& Entity, const ArrayT<TerrainRefT>& Terrains, bool UseGenericBrushes,
+                const double MAP_ROUND_EPSILON, const double MAP_MIN_VERTEX_DIST, const double BP_MAX_CURVE_ERROR, const double BP_MAX_CURVE_LENGTH, const double MIN_NODE_SIZE);
 
             /// Constructor for creating a collision model from a regular mesh.
-            CollisionModelStaticT(unsigned long Width, unsigned long Height, const ArrayT<Vector3dT>& Mesh, MaterialT* Material);
-
-            void ScaleDown254();
+            CollisionModelStaticT(unsigned long Width, unsigned long Height, const ArrayT<Vector3dT>& Mesh, MaterialT* Material, const double MIN_NODE_SIZE);
 
             /// The destructor.
             ~CollisionModelStaticT();
@@ -271,7 +271,7 @@ namespace cf
             void operator = (const CollisionModelStaticT&);         ///< Use of the Assignment Operator is not allowed.
 
             /// Auxiliary method for constructing a CollisionModelStaticT instance (called by the constructors).
-            void BuildAxialBSPTree(NodeT* Node, const BoundingBox3dT& NodeBB);
+            void BuildAxialBSPTree(NodeT* Node, const BoundingBox3dT& NodeBB, const double MIN_NODE_SIZE);
 
             // Memory pools from which we allocate our objects.
             // Memory pools allow the *quick* allocation of unknown many but large quantities of *individual* objects.

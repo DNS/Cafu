@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/******************/
-/*** Load World ***/
-/******************/
-
 #include <iostream>
 #include "ClipSys/CollisionModel_static.hpp"
 #include "ConsoleCommands/ConsoleWarningsOnly.hpp"
@@ -73,28 +69,6 @@ VectorT GetVectorFromTripleToken(const std::string& TripleToken)
 
     return V;
 }
-
-
-/* OBSOLETE - CaWE saves the cmap files now immediately right.
-// Nimmt ein Token, das aus drei durch Leerzeichen voneinander getrennten Zahlen besteht, die als Winkel interpretiert werden,
-// und gibt die dazugehörige Richtung als VectorT zurück.
-VectorT GetDirFromTripleAngleToken(const char* TripleToken)
-{
-    VectorT V;
-    std::istringstream iss(TripleToken);
-
-    iss >> V.x >> V.y >> V.z;
-
-    VectorT D(0.0, 1.0, 0.0);
-
-    // Sigh. All this angle related stuff *REALLY* must be checked:
-    // Which angles rotates about which axis, and in what order?
-    // Also wrt. the BBs of static detail models!
-    D=D.GetRotX(V.x);
-    D=D.GetRotZ(V.y);
-
-    return normalize(D, 0.0);
-} */
 
 
 // Computes the brush polygons from a MapFileBrushT.
@@ -324,8 +298,8 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
 
         const MapFileEntityT& E = MFEntityList[EntNr];
 
-        float LightMapPatchSize = 200.0f;
-        float SHLMapPatchSize   = 200.0f;
+        float LightMapPatchSize = 8.0f;
+        float SHLMapPatchSize   = 8.0f;
 
         {
             std::map<std::string, std::string>::const_iterator It;
@@ -335,8 +309,8 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
             {
                 LightMapPatchSize = float(atof(It->second.c_str()));
 
-                if (LightMapPatchSize <   50.0) { LightMapPatchSize =   50.0; Console->Print("NOTE: LightMap PatchSize clamped to 50.\n"  ); }
-                if (LightMapPatchSize > 2000.0) { LightMapPatchSize = 2000.0; Console->Print("NOTE: LightMap PatchSize clamped to 2000.\n"); }
+                if (LightMapPatchSize <   2.0f) { LightMapPatchSize =   2.0f; Console->Print("NOTE: LightMap PatchSize clamped to 2.\n"  ); }
+                if (LightMapPatchSize > 128.0f) { LightMapPatchSize = 128.0f; Console->Print("NOTE: LightMap PatchSize clamped to 128.\n"); }
             }
 
             It = E.MFProperties.find("shlmap_patchsize");
@@ -344,13 +318,13 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
             {
                 SHLMapPatchSize = float(atof(It->second.c_str()));
 
-                if (SHLMapPatchSize <   50.0) { SHLMapPatchSize =   50.0; Console->Print("NOTE: SHLMap PatchSize clamped to 50.\n"  ); }
-                if (SHLMapPatchSize > 2000.0) { SHLMapPatchSize = 2000.0; Console->Print("NOTE: SHLMap PatchSize clamped to 2000.\n"); }
+                if (SHLMapPatchSize <   2.0f) { SHLMapPatchSize =   2.0f; Console->Print("NOTE: SHLMap PatchSize clamped to 2.\n"  ); }
+                if (SHLMapPatchSize > 128.0f) { SHLMapPatchSize = 128.0f; Console->Print("NOTE: SHLMap PatchSize clamped to 128.\n"); }
             }
         }
 
         if (AllScriptEnts[EntNr]->GetComponent("PlayerStart") != NULL)
-            FloodFillSources.PushBack(AllScriptEnts[EntNr]->GetTransform()->GetOriginWS().AsVectorOfDouble() * CA3DE_SCALE);
+            FloodFillSources.PushBack(AllScriptEnts[EntNr]->GetTransform()->GetOriginWS().AsVectorOfDouble());
 
 
         // 1. Copy the properties.
@@ -376,13 +350,7 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
 
         if (InvResult)
         {
-            Matrix4x4fT Mat = WorldToEnt;
-
-            Mat[0][3] *= float(CA3DE_SCALE);
-            Mat[1][3] *= float(CA3DE_SCALE);
-            Mat[2][3] *= float(CA3DE_SCALE);
-
-            MFEntityList[EntNr].Transform(Mat);
+            MFEntityList[EntNr].Transform(WorldToEnt);
         }
 
         // 3. Fill-in the Terrains array.
@@ -408,9 +376,22 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
                 ShTe.PushBack(cf::ClipSys::CollisionModelStaticT::TerrainRefT(&ST->Terrain, ST->Material, ST->BB));
             }
 
+            // ###
+            // ### For now, these consts MUST be kept in sync with those in SceneGraph/BezierPatchNode.cpp !!!
+            // ### See there at BezierPatchNodeT::CreatePatchMeshes() for details.
+            // ###
+            const double COLLISION_MODEL_MAX_CURVE_ERROR  = 24.0;
+            const double COLLISION_MODEL_MAX_CURVE_LENGTH = -1.0;
+            const double MIN_NODE_SIZE = 40.0;
+
             // false: Use brushes with precomputed bevel planes (for EntNr == 0).
             // true:  Use generic brushes (for EntNr > 0).
-            GameEnt->m_CollModel = new cf::ClipSys::CollisionModelStaticT(E, ShTe, EntNr > 0);
+            GameEnt->m_CollModel = new cf::ClipSys::CollisionModelStaticT(E, ShTe, EntNr > 0,
+                MapT::RoundEpsilon,
+                MapT::MinVertexDist,
+                COLLISION_MODEL_MAX_CURVE_ERROR,
+                COLLISION_MODEL_MAX_CURVE_LENGTH,
+                MIN_NODE_SIZE);
         }
 
         // 6. Collect the geometry primitives for the BSP tree.
@@ -460,7 +441,7 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
         // completely, so that we don't have to keep the OutsidePointSamples array.
         if (EntNr > 0)
         {
-            BspTreeBuilderT BspTreeBuilder(GameEnt->m_BspTree, false /*most simple tree*/, false /*min face splits*/);
+            BspTreeBuilderT BspTreeBuilder(GameEnt->m_BspTree, false /*most simple tree*/, false /*Bsp split faces*/, true /*chop up faces*/);
 
             ArrayT<Vector3dT> EmptyFloodFillSources;
             std::string       EmptyMapFileName = "";  // Entity BSP trees aren't flood-filled, so they cannot leak, so we never need to write a .pts point file for them.

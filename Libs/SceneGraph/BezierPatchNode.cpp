@@ -246,26 +246,6 @@ const BoundingBox3T<double>& BezierPatchNodeT::GetBoundingBox() const
 }
 
 
-void cf::SceneGraph::BezierPatchNodeT::ScaleDown254()
-{
-    for (unsigned long c = 0; c < ControlPointsXYZ.Size(); c++)
-        ControlPointsXYZ[c] /= 25.4f;
-
-    m_MaxError /= 25.4f;
-
-    BB.Min /= 25.4;
-    BB.Max /= 25.4;
-
-    for (unsigned int m = 0; m < Meshes.Size(); m++)
-        for (unsigned int v = 0; v < Meshes[m]->Vertices.Size(); v++)
-        {
-            Meshes[m]->Vertices[v].Origin[0] /= 25.4;
-            Meshes[m]->Vertices[v].Origin[1] /= 25.4;
-            Meshes[m]->Vertices[v].Origin[2] /= 25.4;
-        }
-}
-
-
 bool BezierPatchNodeT::IsOpaque() const
 {
     return Material->HasDefaultBlendFunc();
@@ -494,10 +474,10 @@ void BezierPatchNodeT::CreatePatchMeshes(ArrayT<cf::PatchMeshT>& PatchMeshes, Ar
         else
         {
             // ###
-            // ### For now, these consts MUST be kept in sync with those in ClipSys/CollisionModel_static.cpp !!!
+            // ### For now, these consts MUST be kept in sync with those in ClipSys/CollisionModel_static.cpp / LoadWorld.cpp !!!
             // ###
-            const double COLLISION_MODEL_MAX_CURVE_ERROR =600.0;
-            const double COLLISION_MODEL_MAX_CURVE_LENGTH= -1.0;
+            const double COLLISION_MODEL_MAX_CURVE_ERROR  = 24.0;
+            const double COLLISION_MODEL_MAX_CURVE_LENGTH = -1.0;
 
             CollisionBezierPatch.Subdivide(COLLISION_MODEL_MAX_CURVE_ERROR, COLLISION_MODEL_MAX_CURVE_LENGTH);
         }
@@ -508,7 +488,9 @@ void BezierPatchNodeT::CreatePatchMeshes(ArrayT<cf::PatchMeshT>& PatchMeshes, Ar
         for (unsigned long VertexNr=0; VertexNr<CollisionBezierPatch.Mesh.Size(); VertexNr++)
             CoordsOnly.PushBack(CollisionBezierPatch.Mesh[VertexNr].Coord);
 
-        CollModel=new cf::ClipSys::CollisionModelStaticT(CollisionBezierPatch.Width, CollisionBezierPatch.Height, CoordsOnly, Material);
+        const double COLLISION_MODEL_MIN_NODE_SIZE = 40.0;
+
+        CollModel = new cf::ClipSys::CollisionModelStaticT(CollisionBezierPatch.Width, CollisionBezierPatch.Height, CoordsOnly, Material, COLLISION_MODEL_MIN_NODE_SIZE);
     }
 
 

@@ -51,11 +51,8 @@ class BspTreeBuilderT
     ArrayT<cf::SceneGraph::GenericNodeT*>&       OtherChildren;
     ArrayT<VectorT>&                             GlobalDrawVertices;
 
-    const bool Option_MostSimpleTree;
-    const bool Option_MinimizeFaceSplits;
 
-
-    BspTreeBuilderT(cf::SceneGraph::BspTreeNodeT* BspTree_, bool MostSimpleTree, bool MinFaceSplits);
+    BspTreeBuilderT(cf::SceneGraph::BspTreeNodeT* BspTree_, bool MostSimpleTree, bool BspSplitFaces, bool ChopUpFaces);
 
     void Build(bool IsWorldspawn,
                const ArrayT<Vector3dT>& FloodFillSources_,
@@ -134,7 +131,8 @@ class BspTreeBuilderT
     private:
 
     Plane3T<double> ChooseSplitPlane(const ArrayT<unsigned long>& FaceSet) const;
-    void BuildBSPTreeRecursive(const ArrayT<unsigned long>& FaceSet);
+    void BuildBSPTree_SplitFaces(const ArrayT<unsigned long>& FaceSet);
+    void BuildBSPTree_NeverSplit(const ArrayT<unsigned long>& FaceSet, const ArrayT<cf::SceneGraph::FaceNodeT*>& SplitFaces);
     void FillBSPLeaves(unsigned long NodeNr, const ArrayT<cf::SceneGraph::FaceNodeT*>& Face2, const ArrayT<unsigned long>& FaceSet, const BoundingBox3T<double>& BB);
     void CreateLeafPortals(unsigned long LeafNr, const ArrayT< Plane3T<double> >& NodeList);
     void BuildBSPPortals(unsigned long NodeNr, ArrayT< Plane3T<double> >& NodeList);
@@ -142,6 +140,10 @@ class BspTreeBuilderT
     void ComputeLeakPathByBFS(const VectorT& Start) const;
     void LeakDetected(const VectorT& InfoPlayerStartOrigin, const std::string& PointFileName, const unsigned long LeafNr) const;
     void QuickSortFacesIntoTexNameOrder();
+
+    const bool m_Option_MostSimpleTree;
+    const bool m_Option_BspSplitFaces;
+    const bool m_Option_ChopUpFaces;
 };
 
 #endif

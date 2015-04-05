@@ -289,52 +289,6 @@ const BoundingBox3T<double>& BspTreeNodeT::GetBoundingBox() const
 }
 
 
-void cf::SceneGraph::BspTreeNodeT::ScaleDown254()
-{
-    m_LightMapPatchSize /= 25.4f;
-    m_SHLMapPatchSize   /= 25.4f;
-
-    for (unsigned long NodeNr=0; NodeNr<Nodes.Size(); NodeNr++)
-        Nodes[NodeNr].Plane.Dist /= 25.4;
-
-    for (unsigned long LeafNr=0; LeafNr<Leaves.Size(); LeafNr++)
-    {
-        LeafT& L=Leaves[LeafNr];
-
-        for (unsigned int p = 0; p < L.Portals.Size(); p++)
-        {
-            Polygon3T<double>& Poly = L.Portals[p];
-
-            Poly.Plane.Dist /= 25.4;
-
-            for (unsigned long VertexNr = 0; VertexNr < Poly.Vertices.Size(); VertexNr++)
-                Poly.Vertices[VertexNr] /= 25.4;
-        }
-
-        if (L.BB.IsInited())
-        {
-            L.BB.Min /= 25.4;
-            L.BB.Max /= 25.4;
-        }
-    }
-
-    if (BB.IsInited())
-    {
-        BB.Min /= 25.4;
-        BB.Max /= 25.4;
-    }
-
-    for (unsigned long ChildNr = 0; ChildNr < FaceChildren.Size(); ChildNr++)
-        FaceChildren[ChildNr]->ScaleDown254();
-
-    for (unsigned long ChildNr=0; ChildNr<OtherChildren.Size(); ChildNr++)
-        OtherChildren[ChildNr]->ScaleDown254();
-
-    for (unsigned long VertexNr=0; VertexNr<GlobalDrawVertices.Size(); VertexNr++)
-        GlobalDrawVertices[VertexNr] /= 25.4;
-}
-
-
 bool BspTreeNodeT::IsOpaque() const
 {
     return true;

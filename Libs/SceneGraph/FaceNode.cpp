@@ -35,7 +35,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace cf::SceneGraph;
 
 
-const double FaceNodeT::ROUND_EPSILON=2.0;
+const double FaceNodeT::ROUND_EPSILON = 0.08;       // Make sure that this matches MapT::RoundEpsilon in Common/World.hpp!
 
 
 FaceNodeT::FaceNodeT(LightMapManT& LMM, SHLMapManT& SMM)
@@ -569,20 +569,6 @@ void FaceNodeT::WriteTo(std::ostream& OutFile, aux::PoolT& Pool) const
 const BoundingBox3T<double>& FaceNodeT::GetBoundingBox() const
 {
     return BB;
-}
-
-
-void cf::SceneGraph::FaceNodeT::ScaleDown254()
-{
-    TI.U /= 25.4f;
-    TI.V /= 25.4f;
-
-    Polygon.Plane.Dist /= 25.4;
-
-    for (unsigned long VertexNr=0; VertexNr<Polygon.Vertices.Size(); VertexNr++)
-        Polygon.Vertices[VertexNr] /= 25.4;
-
-    // No need to do anything with the BB here, it is setup in InitRenderMeshesAndMats().
 }
 
 

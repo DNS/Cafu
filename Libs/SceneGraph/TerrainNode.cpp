@@ -130,13 +130,6 @@ const BoundingBox3T<double>& TerrainNodeT::GetBoundingBox() const
 }
 
 
-void cf::SceneGraph::TerrainNodeT::ScaleDown254()
-{
-    BB.Min /= 25.4;
-    BB.Max /= 25.4;
-}
-
-
 bool TerrainNodeT::IsOpaque() const
 {
     return true;

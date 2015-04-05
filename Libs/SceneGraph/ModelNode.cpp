@@ -113,13 +113,6 @@ const BoundingBox3T<double>& cf::SceneGraph::ModelNodeT::GetBoundingBox() const
 }
 
 
-void cf::SceneGraph::ModelNodeT::ScaleDown254()
-{
-    m_Origin /= 25.4f;
-    m_Scale /= 25.4f;
-}
-
-
 void cf::SceneGraph::ModelNodeT::DrawAmbientContrib(const Vector3dT& ViewerPos) const
 {
     // Calculate model distance from viewer position.

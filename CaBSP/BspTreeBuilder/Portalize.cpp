@@ -19,9 +19,40 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*****************/
-/*** Portalize ***/
-/*****************/
+
+namespace
+{
+    void FixPortal(Polygon3T<double>& Portal)
+    {
+        for (unsigned long VertexNr = 0; VertexNr < Portal.Vertices.Size(); VertexNr++)
+        {
+            const unsigned long NextNr = (VertexNr + 1) % Portal.Vertices.Size();
+
+            if (length(Portal.Vertices[VertexNr] - Portal.Vertices[NextNr]) < MapT::RoundEpsilon * 1.5)
+            {
+                Portal.Vertices.RemoveAtAndKeepOrder(NextNr);
+                VertexNr--;
+            }
+        }
+    }
+
+
+    bool IsAcceptable(const Polygon3T<double>& Portal)
+    {
+        if (Portal.Vertices.Size() < 3) return false;
+        if (Portal.GetArea() < 1.0) return false;
+
+#if 0
+        // Cannot use MapT::MinVertexDist here, because we used MapT::RoundEpsilon * 1.5 in FixPortal().
+        const double mvd = MapT::RoundEpsilon;
+
+        // This assert occassionally triggers if more than two vertices are (almost) on a straight line...
+        assert(Portal.IsValid(MapT::RoundEpsilon, mvd));
+#endif
+
+        return true;
+    }
+}
 
 
 void BspTreeBuilderT::CreateLeafPortals(unsigned long LeafNr, const ArrayT< Plane3T<double> >& NodeList)
@@ -48,35 +79,30 @@ void BspTreeBuilderT::CreateLeafPortals(unsigned long LeafNr, const ArrayT< Plan
 
     for (unsigned long PortalNr=0; PortalNr<NewPortals.Size(); PortalNr++)
     {
-        const Polygon3T<double>& Portal=NewPortals[PortalNr];
+        Polygon3T<double>& Portal = NewPortals[PortalNr];
 
-        // In degenerierten Grenzfällen (in Gegenwart von Splittern) können auch andere ungültige Polygone entstehen
-        // (z.B. mehrere Vertices quasi auf einer Edge), sodaß wir explizit die Gültigkeit prüfen.
-        // if (Portal.Vertices.Size()<3) continue;    // Ist in .IsValid() enthalten!
-        if (!Portal.IsValid(MapT::RoundEpsilon, MapT::MinVertexDist)) continue;
+        // Portals must be crafted very carefully, and we must carefully consider which ones
+        // we keep and which ones we reject:
+        //
+        //   - Rejecting portals too easily may tear big holes into the world:
+        //     It is well possible that Portal has vertices that are closer to each other than
+        //     MapT::MinVertexDist, or has more than two vertices that are (almost) on a
+        //     straight line. That is, Portal.IsValid(MapT::RoundEpsilon, MapT::MinVertexDist)
+        //     might return false for a portal that is otherwise proper and geometrically
+        //     important (consider any door-like portal as an example). If such a portal was
+        //     rejected, the subsequent flood-fill would not pass through it. Anything beyond
+        //     it would subsequently be removed, causing a huge leak.
+        //
+        //   - On the other hand, portals that are only thin slivers or generally very small
+        //     (but otherwise valid) should probably not be kept: Such portals are likely the
+        //     result of rounding errors elsewhere and not expected to be useful.
 
+        // This is actually not needed here, because Portal.IsValid() has already been called
+        // by the implementation of Polygon3T<double>::Complete().
+        FixPortal(Portal);
 
-        // Another very serious problem is the fact that we sometimes self-create leaks,
-        // because nearly all operations in this program suffer from rounding errors.
-        // I have *NO* idea how to best combat them (except the introduction of exact arithmetic, which I'm seriously considering).
-        // But for now, lets try something simpler - enforce a "minimum area" for portals.
-        // Portals that are smaller than this minimum are considered degenerate, despite they were classified as valid above.
-        // Note that the same is enforced below, where portals are split along the leafs faces.
-        // UPDATE: As the new Polygon3T<double>::IsValid() method now enforces the MapT::MinVertexDist,
-        // I believe the problem is solved the the polygon area check not longer required.
-        if (Portal.GetArea()<=100.0 /* 1 cm^2 */) continue;
-
-
-        // Note that rejecting portals here (i.e. adding additional test criteria) is a dangerous idea,
-        // because any omitted portal might stop the subsequent flood-fill early.
-        // This in turn might easily tear big holes into the world.
-        // Consider my Tech-Archive notes from 2005-11-15 for a sketch that shows a problematic (but valid!) leaf
-        // whose entry portal must not be omitted so that it can be entered during the flood-fill,
-        // or else the left wall will be erroneously removed by the fill.
-
-
-        // Okay, the portal seems to be good, so add it to the leaf.
-        Leaves[LeafNr].Portals.PushBack(Portal.GetMirror());
+        if (IsAcceptable(Portal))
+            Leaves[LeafNr].Portals.PushBack(Portal.GetMirror());
     }
 }
 
@@ -115,22 +141,49 @@ void BspTreeBuilderT::Portalize()
 
     unsigned long TotalNrOfPortals=0;
 
-    // Kommentare des ehem. Portalize berücksichtigen!!!
-    ArrayT< Plane3T<double> > NodeList;
+    ArrayT<Plane3dT> NodeList;
 
     BuildBSPPortals(0, NodeList);
     Console->Print("Portalization       :       done\n");
+
+    ArrayT<BoundingBox3dT> FaceBBs;
+    ArrayT<unsigned long>  LeafFaces;
+
+    for (unsigned long FaceNr = 0; FaceNr < FaceChildren.Size(); FaceNr++)
+        FaceBBs.PushBack(BoundingBox3dT(FaceChildren[FaceNr]->Polygon.Vertices).GetEpsilonBox(MapT::RoundEpsilon));
 
     for (unsigned long LeafNr=0; LeafNr<Leaves.Size(); LeafNr++)
     {
         Console->Print(cf::va("%5.1f%%\r", (double)LeafNr/Leaves.Size()*100.0));
         // fflush(stdout);      // The stdout console auto-flushes the output.
 
-        for (unsigned long PortalNr=0; PortalNr<Leaves[LeafNr].Portals.Size(); PortalNr++)
-            for (unsigned long FaceNr=0; FaceNr<Leaves[LeafNr].FaceChildrenSet.Size(); FaceNr++)
+        LeafFaces.Overwrite();
+
+        for (unsigned long FaceNr = 0; FaceNr < FaceChildren.Size(); FaceNr++)
+            if (Leaves[LeafNr].BB.Intersects(FaceBBs[FaceNr]))
+                LeafFaces.PushBack(FaceNr);
+
+        for (unsigned long PortalNr = 0; PortalNr < Leaves[LeafNr].Portals.Size(); PortalNr++)
+        {
+            // Note that we could also iterate over the Leaves[LeafNr].FaceChildrenSet here,
+            // using CurrentFace = FaceChildren[Leaves[LeafNr].FaceChildrenSet[FaceNr]] and
+            // making the FaceBBs and LeafFaces arrays redundant.
+            //
+            // However, this set would only contain the front-facing faces, not the back-facing
+            // ones. That is, an outer leaf that corresponds to a solid brush would have all
+            // its portals generated in BuildBSPPortals() above, and *none* clipped away here.
+            //
+            // This in turn *should* still not pose a problem and work properly, but, for
+            // reasons not fully understood yet, causes plenty of "Found a way from inner leaf
+            // X to outer leaf Y!" messages in FloodFillInsideRecursive().
+            //
+            // Clipping all portals against all relevant faces regardless of their orientation
+            // removes portals where we don't expect any, and much reduces the number of these
+            // messages (e.g. in map ReNoElixir).
+            for (unsigned long FaceNr = 0; FaceNr < LeafFaces.Size(); FaceNr++)
             {
-                const cf::SceneGraph::FaceNodeT* CurrentFace  =FaceChildren[Leaves[LeafNr].FaceChildrenSet[FaceNr]];
-                const Polygon3T<double>&         CurrentPortal=Leaves[LeafNr].Portals[PortalNr];
+                const cf::SceneGraph::FaceNodeT* CurrentFace   = FaceChildren[LeafFaces[FaceNr]];
+                const Polygon3T<double>&         CurrentPortal = Leaves[LeafNr].Portals[PortalNr];
 
                 // Wenn das Material der CurrentFace "durchsichtig" ist, d.h. BSP Portale nicht clippt
                 // bzw. nicht solid für sie ist, mache weiter (und lasse das CurrentPortal unberührt).
@@ -152,21 +205,20 @@ void BspTreeBuilderT::Portalize()
 
                 // Dafür die Splitter anhängen.
                 for (unsigned long PNr=0; PNr<NewPortals.Size(); PNr++)
-                    if (NewPortals[PNr].IsValid(MapT::RoundEpsilon, MapT::MinVertexDist))
-                        // Another very serious problem is the fact that we sometimes self-create leaks,
-                        // because nearly all operations in this program suffer from rounding errors.
-                        // I have *NO* idea how to best combat them (except the introduction of exact arithmetic, which I'm seriously considering).
-                        // But for now, lets try something simpler - enforce a "minimum area" for portals.
-                        // Portals that are smaller than this minimum are considered degenerate, despite they were classified as valid above.
-                        // Note that the same is enforced above, where portals are first created.
-                        // UPDATE: As the new Polygon3T<double>::IsValid() method now enforces the MapT::MinVertexDist,
-                        // I believe the problem is solved the the polygon area check not longer required.
-                        if (NewPortals[PNr].GetArea()>100.0 /* 1 cm^2 */)
-                            Leaves[LeafNr].Portals.PushBack(NewPortals[PNr]);
+                {
+                    Polygon3T<double>& Portal = NewPortals[PNr];
+
+                    // See the comment in CreateLeafPortals() for more details.
+                    FixPortal(Portal);
+
+                    if (IsAcceptable(Portal))
+                        Leaves[LeafNr].Portals.PushBack(Portal);
+                }
 
                 PortalNr--;
                 break;
             }
+        }
 
         TotalNrOfPortals+=Leaves[LeafNr].Portals.Size();
     }

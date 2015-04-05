@@ -26,6 +26,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 void BspTreeBuilderT::PrepareLeakDetection(const ArrayT<Vector3dT>& FloodFillSources, MaterialT* LeakDetectMat)
 {
+    if (FaceChildren.Size() < 4)
+        Error("There are too few faces in this map to proceed.");
+
     // Determine a world bounding box.
     BoundingBox3T<double> WorldBB(FaceChildren[0]->Polygon.Vertices);
 
@@ -36,7 +39,7 @@ void BspTreeBuilderT::PrepareLeakDetection(const ArrayT<Vector3dT>& FloodFillSou
     for (unsigned long SourceNr=0; SourceNr<FloodFillSources.Size(); SourceNr++)
         WorldBB.Insert(FloodFillSources[SourceNr]);
 
-    const double d=10.0*MapT::MinVertexDist;
+    const double d = 10.0;
 
     WorldBB.Min-=VectorT(d, d, d);  // Kleiner Sicherheitszuschlag,
     WorldBB.Max+=VectorT(d, d, d);  // um es korrekter und sicherer zu machen.
@@ -168,7 +171,7 @@ void BspTreeBuilderT::LeakDetected(const VectorT& InfoPlayerStartOrigin, const s
     // c) In the normal case, as least two points are written into the 'Points' array.
     for (unsigned long CurrentLeaf=LeafNr; CurrentLeaf!=(unsigned long)-1; CurrentLeaf=BFS_Tree[CurrentLeaf])
     {
-        const Vector3dT Point=BFS_TreePoints[CurrentLeaf]/25.4;
+        const Vector3dT Point = BFS_TreePoints[CurrentLeaf];
 
         PointFile << "  { ";
         PointFile << PointCount << "; " << "  ";                    // Time

@@ -73,7 +73,14 @@ void BspTreeBuilderT::RemoveOuterPortals()
         }
         else NrOfInnerLeaves++;
 
-    if (Warn) Console->Warning("Outer Leaf has Faces! Use \"CaSanity\" for more extensive diagnostics!\n");     // Sollte niemals vorkommen!
+    if (Warn)
+    {
+        // This warning is no longer useful, because it assumes that we carefully
+        // (in fact, aggressively) split all faces along intersecting node planes.
+        // As we today rather avoid splitting faces in many cases, it has become
+        // quite normal that portions of inner faces also extend into outer leaves.
+        // Console->Warning("Outer Leaf has Faces! Use \"CaSanity\" for more extensive diagnostics!\n");
+    }
 
     Console->Print(cf::va("Inner Leaves        : %10lu\n", NrOfInnerLeaves));
     Console->Print(cf::va("Outer Leaves        : %10lu\n", Leaves.Size()-NrOfInnerLeaves));

@@ -28,9 +28,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace cf;
 
 
-const double cf::CA3DE_SCALE=25.4;
-
-
 static void SkipGroupDef(TextParserT& TP)
 {
     if (TP.PeekNextToken()=="Group")
@@ -59,9 +56,9 @@ MapFileBrushT::MapFileBrushT(TextParserT& TP, unsigned long BrushNr)
         for (char PointNr=0; PointNr<3; PointNr++)
         {
             TP.AssertAndSkipToken("(");
-            Points[PointNr].x=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
-            Points[PointNr].y=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
-            Points[PointNr].z=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
+            Points[PointNr].x=TP.GetNextTokenAsFloat();
+            Points[PointNr].y=TP.GetNextTokenAsFloat();
+            Points[PointNr].z=TP.GetNextTokenAsFloat();
             TP.AssertAndSkipToken(")");
         }
 
@@ -102,16 +99,16 @@ MapFileBrushT::MapFileBrushT(TextParserT& TP, unsigned long BrushNr)
 
         // Texture U axis.
         TP.AssertAndSkipToken("(");
-        MFPlane.U.x=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
-        MFPlane.U.y=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
-        MFPlane.U.z=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
+        MFPlane.U.x=TP.GetNextTokenAsFloat();
+        MFPlane.U.y=TP.GetNextTokenAsFloat();
+        MFPlane.U.z=TP.GetNextTokenAsFloat();
         TP.AssertAndSkipToken(")");
 
         // Texture V axis.
         TP.AssertAndSkipToken("(");
-        MFPlane.V.x=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
-        MFPlane.V.y=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
-        MFPlane.V.z=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
+        MFPlane.V.x=TP.GetNextTokenAsFloat();
+        MFPlane.V.y=TP.GetNextTokenAsFloat();
+        MFPlane.V.z=TP.GetNextTokenAsFloat();
         TP.AssertAndSkipToken(")");
 
         // End of surface information.
@@ -156,8 +153,6 @@ MapFileBezierPatchT::MapFileBezierPatchT(TextParserT& TP)
             for (unsigned long Coord=0; Coord<5; Coord++)
             {
                 ControlPoints.PushBack(TP.GetNextTokenAsFloat());
-
-                if (Coord<3) ControlPoints[ControlPoints.Size()-1]*=float(CA3DE_SCALE);
             }
 
             TP.AssertAndSkipToken(")");
@@ -176,15 +171,15 @@ MapFileTerrainT::MapFileTerrainT(TextParserT& TP)
     Material=MaterialManager->GetMaterial(MaterialName);
 
     TP.AssertAndSkipToken("(");
-    Bounds.Min.x=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
-    Bounds.Min.y=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
-    Bounds.Min.z=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
+    Bounds.Min.x=TP.GetNextTokenAsFloat();
+    Bounds.Min.y=TP.GetNextTokenAsFloat();
+    Bounds.Min.z=TP.GetNextTokenAsFloat();
     TP.AssertAndSkipToken(")");
 
     TP.AssertAndSkipToken("(");
-    Bounds.Max.x=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
-    Bounds.Max.y=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
-    Bounds.Max.z=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
+    Bounds.Max.x=TP.GetNextTokenAsFloat();
+    Bounds.Max.y=TP.GetNextTokenAsFloat();
+    Bounds.Max.z=TP.GetNextTokenAsFloat();
     TP.AssertAndSkipToken(")");
 
     TP.AssertAndSkipToken("(");
@@ -210,9 +205,9 @@ MapFilePlantT::MapFilePlantT(TextParserT& TP)
     RandomSeed   =TP.GetNextTokenAsInt();
 
     TP.AssertAndSkipToken("(");
-    Position.x=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
-    Position.y=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
-    Position.z=TP.GetNextTokenAsFloat()*CA3DE_SCALE;
+    Position.x=TP.GetNextTokenAsFloat();
+    Position.y=TP.GetNextTokenAsFloat();
+    Position.z=TP.GetNextTokenAsFloat();
     TP.AssertAndSkipToken(")");
 
     TP.AssertAndSkipToken("(");
@@ -235,9 +230,9 @@ MapFileModelT::MapFileModelT(TextParserT& TP)
     Label    =TP.GetNextToken();
 
     TP.AssertAndSkipToken("(");
-    Origin.x=TP.GetNextTokenAsFloat()*float(CA3DE_SCALE);
-    Origin.y=TP.GetNextTokenAsFloat()*float(CA3DE_SCALE);
-    Origin.z=TP.GetNextTokenAsFloat()*float(CA3DE_SCALE);
+    Origin.x=TP.GetNextTokenAsFloat();
+    Origin.y=TP.GetNextTokenAsFloat();
+    Origin.z=TP.GetNextTokenAsFloat();
     TP.AssertAndSkipToken(")");
 
     TP.AssertAndSkipToken("(");
@@ -246,7 +241,7 @@ MapFileModelT::MapFileModelT(TextParserT& TP)
     Angles.z=TP.GetNextTokenAsFloat();
     TP.AssertAndSkipToken(")");
 
-    Scale         =TP.GetNextTokenAsFloat()*float(CA3DE_SCALE);
+    Scale         =TP.GetNextTokenAsFloat();
     SeqNumber     =TP.GetNextTokenAsInt();
     FrameOffset   =TP.GetNextTokenAsFloat();
     FrameTimeScale=TP.GetNextTokenAsFloat();
