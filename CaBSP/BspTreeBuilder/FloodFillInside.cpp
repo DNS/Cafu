@@ -69,8 +69,16 @@ void BspTreeBuilderT::FloodFillInsideRecursive(unsigned long Leaf1Nr)
                     if (IsDefinitivelyOuterLeaf[Leaf2Nr])
                     {
                         // TODO: More extensive diagnostics would be nice, in order to better understand the problem.
-                        // For example, we might examine the shape and size of the involved portals, and why they are there in the first place.
-                        // E.g. visualize in CaSanity, directly in the Cafu Engine, or augment pts pointfile format for CaWE.
+                        // For example, examine the shape and size of the involved portals, and why they are there in the first place.
+                        //
+                        // Possible options to visualize the related data:
+                        //   - graphically in CaSanity, directly in the Cafu Engine, augment pts pointfile format for CaWE,
+                        //   - structurally via graphviz (dot) graphs, create collapsible tree representation in HTML, ...
+                        //
+                        // I strongly suspect that we experience cases of "degenerate leaves" here, see the diagram in
+                        // file `DegenLeaves.dia` for details. These in turn are nothing else but plain, valid leaks,
+                        // stopped and "patched" here early by our IsDefinitivelyOuterLeaf[] check.
+                        //
                         Console->Warning(cf::va("Found a way from inner leaf %lu to outer leaf %lu!\n", Leaf1Nr, Leaf2Nr));
 
 #if 0

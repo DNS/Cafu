@@ -139,13 +139,12 @@ void BspTreeBuilderT::Portalize()
 
     Console->Print(cf::va("\n%-50s %s\n", "*** Portalization ***", GetTimeSinceProgramStart()));
 
-    unsigned long TotalNrOfPortals=0;
-
     ArrayT<Plane3dT> NodeList;
 
     BuildBSPPortals(0, NodeList);
     Console->Print("Portalization       :       done\n");
 
+    unsigned long          TotalNrOfPortals = 0;
     ArrayT<BoundingBox3dT> FaceBBs;
     ArrayT<unsigned long>  LeafFaces;
 
@@ -180,6 +179,12 @@ void BspTreeBuilderT::Portalize()
             // Clipping all portals against all relevant faces regardless of their orientation
             // removes portals where we don't expect any, and much reduces the number of these
             // messages (e.g. in map ReNoElixir).
+            //
+            // As a complete alternative, we could also create all portals at the BSP tree's
+            // build time, in BuildBSPTree(). This approach seems attractive from a theoretical
+            // point of view, but I expect that the implementation would become more
+            // complicated, the performance gain would be negligible, and the net result in
+            // created portals would (in fact, must) be the same.
             for (unsigned long FaceNr = 0; FaceNr < LeafFaces.Size(); FaceNr++)
             {
                 const cf::SceneGraph::FaceNodeT* CurrentFace   = FaceChildren[LeafFaces[FaceNr]];
