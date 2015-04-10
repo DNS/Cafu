@@ -475,7 +475,7 @@ inline static double ComputePatchWeight(unsigned long i, unsigned long Width, do
 }
 
 
-void DirectLighting(const CaLightWorldT& CaLightWorld, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& AllEnts, const char BLOCK_SIZE)
+void DirectLighting(const CaLightWorldT& CaLightWorld, const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> >& AllEnts, const char BLOCK_SIZE, const double METERS_PER_WORLD_UNIT)
 {
     const cf::SceneGraph::BspTreeNodeT& Map=CaLightWorld.GetBspTree();
 
@@ -639,9 +639,8 @@ void DirectLighting(const CaLightWorldT& CaLightWorld, const ArrayT< IntrusivePt
                         // that if we choose r=1m, I/(r^2) yields the 'irradiance' in [W/m^2] for the surface of the sphere with radius r=1m.
                         // Note that 'irradiance' is a little misleading here, because we only deal with rays of light that meet at PL_Origin.
                         // The sphere is not considered and can not be treated as an area light source!
-                        // Now choose r=LightRayLength. Because r is now specified in millimeters, the base unit of Cafu, we need to express it in
-                        // meters first in order to obtain [W/m^2] (and not [W/mm^2]).
-                        // Thus, I/((LightRayLength/1000)^2) gives us the 'irradiance' [W/m^2] for the surface of the sphere with radius LightRayLength.
+                        // Now choose r = LightRayLength * METERS_PER_WORLD_UNIT (the length of the light ray in meters, not in world units).
+                        // Thus, I/((LightRayLength * METERS_PER_WORLD_UNIT)^2) gives us the 'irradiance' [W/m^2] for the surface of the sphere with radius LightRayLength.
                         // This is especially true for the point where LightRay ends. Therefore, because LightRay ends in the center of the patch we
                         // are interested in, we have calculated exactly what we need!
                         // Note that we assumed that the patch is formed like a part of the sphere. Actually, that is not true -- patches are planar.
@@ -651,8 +650,8 @@ void DirectLighting(const CaLightWorldT& CaLightWorld, const ArrayT< IntrusivePt
                         // Finally, we need to take the orientation of the patch into account by multiplying with the cosine of the relative angle:
                         // -I*(1000/LightRayLength)^2*dot(VectorUnit(LightRay), F.Plane.Normal)
                         // This assumes that LightRay is not the null vector, that PL_Origin is on front of F.Plane and that F.Normal is a unit vector!
-                        const double  c          =1000.0/LightRayLength;
-                        const VectorT DeltaEnergy=scale(PL_Intensity, -REFLECTIVITY*c*c*LightRayDot);
+                        const double    c           = 1.0 / (LightRayLength * METERS_PER_WORLD_UNIT);
+                        const Vector3dT DeltaEnergy = scale(PL_Intensity, -REFLECTIVITY*c*c*LightRayDot);
 
                         Patch.UnradiatedEnergy+=DeltaEnergy;
                         Patch.TotalEnergy     +=DeltaEnergy;
@@ -664,8 +663,8 @@ void DirectLighting(const CaLightWorldT& CaLightWorld, const ArrayT< IntrusivePt
                         // Ist natürlich Blödsinn, da point light sources in der Realität nicht existieren.
                         // Daher erzwingen wir hier einfach eine LightRayLength von Map.GetLightMapPatchSize() und vernachlässigen
                         // die Orientierung des Patches.
-                        const double  c          =1000.0/Map.GetLightMapPatchSize();
-                        const VectorT DeltaEnergy=scale(PL_Intensity, REFLECTIVITY*c*c);
+                        const double  c           = 1.0 / (Map.GetLightMapPatchSize() * METERS_PER_WORLD_UNIT);
+                        const VectorT DeltaEnergy = scale(PL_Intensity, REFLECTIVITY*c*c);
 
                         Patch.UnradiatedEnergy+=DeltaEnergy;
                         Patch.TotalEnergy     +=DeltaEnergy;
@@ -1497,7 +1496,7 @@ int main(int ArgC, const char* ArgV[])
             InitializePatchMeshesPVSMatrix(CaLightWorld);   // Init1.cpp
 
             // Perform lighting
-            DirectLighting(CaLightWorld, AllEnts, BlockSize4DirectLighting);
+            DirectLighting(CaLightWorld, AllEnts, BlockSize4DirectLighting, ScriptWorld->GetMillimetersPerWorldUnit() / 1000.0);
             IterationCount=BounceLighting(CaLightWorld, CaLightOptions.BlockSize, CaLightOptions.StopUE, CaLightOptions.AskForMore, ArgV[1]);
 
             printf("Info: %lu calls to RadiateEnergy() caused %lu potential divergency events.\n", Count_AllCalls, Count_DivgWarnCalls);
