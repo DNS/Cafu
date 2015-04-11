@@ -1162,7 +1162,9 @@ int ComponentHumanPlayerT::FireRay(lua_State* LuaState)
     if (OtherScript == NULL) return 0;
 
     IntrusivePtrT<EntityT> This = Comp->GetEntity();
-    Binder.Push(This);
+    ScriptBinderT OtherBinder(OtherEnt->GetWorld().GetScriptState().GetLuaState());
+
+    OtherBinder.Push(This);     // Don't pass the raw `EntityT*` pointer!
     OtherScript->CallLuaMethod("TakeDamage", 1, "ffff", Damage, ViewDir.x, ViewDir.y, ViewDir.z);
     return 0;
 }
