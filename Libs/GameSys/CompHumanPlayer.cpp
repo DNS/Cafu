@@ -23,7 +23,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "AllComponents.hpp"
 #include "CompCollisionModel.hpp"
 #include "CompModel.hpp"                // for implementing CheckGUIs()
-#include "CompPhysics.hpp"
 #include "CompPlayerPhysics.hpp"
 #include "CompScript.hpp"
 #include "Entity.hpp"
@@ -32,6 +31,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "HumanPlayer/CompCarriedWeapon.hpp"
 
+#include "ClipSys/ClipModel.hpp"
 #include "ClipSys/ClipWorld.hpp"
 #include "ClipSys/TraceResult.hpp"
 #include "GuiSys/GuiImpl.hpp"
@@ -303,21 +303,35 @@ Vector3dT ComponentHumanPlayerT::GetCameraViewDirWS(double Random) const
 }
 
 
-RayResultT ComponentHumanPlayerT::TraceCameraRay(const Vector3dT& Dir) const
+bool ComponentHumanPlayerT::TraceCameraRay(const Vector3dT& Dir, Vector3dT& HitPoint, ComponentBaseT*& HitComp) const
 {
     if (!GetEntity())
-        return RayResultT(NULL);
+        return false;
 
-    IntrusivePtrT<ComponentPhysicsT> Physics =
-        dynamic_pointer_cast<ComponentPhysicsT>(GetEntity()->GetComponent("Physics"));
+    const Vector3dT Start = GetCameraOriginWS();
+    const Vector3dT Ray   = Dir * 9999.0;
 
-    RayResultT RayResult(Physics != NULL ? Physics->GetRigidBody() : NULL);
+    IntrusivePtrT<ComponentCollisionModelT> IgnoreCollMdl =
+        dynamic_pointer_cast<ComponentCollisionModelT>(GetEntity()->GetComponent("CollisionModel"));
 
-    GetEntity()->GetWorld().GetPhysicsWorld()->TraceRay(
-        UnitsToPhys(GetCameraOriginWS()),
-        Dir * 9999.0, RayResult);
+    cf::ClipSys::TraceResultT Result;
+    cf::ClipSys::ClipModelT*  HitClipModel = NULL;
 
-    return RayResult;
+    GetEntity()->GetWorld().GetClipWorld()->TraceRay(
+        Start,
+        Ray,
+        MaterialT::Clip_BlkButUtils,
+        IgnoreCollMdl != NULL ? IgnoreCollMdl->GetClipModel() : NULL,
+        Result,
+        &HitClipModel);
+
+    if (Result.StartSolid)
+        return false;
+
+    HitPoint = Start + Ray * Result.Fraction;
+    HitComp  = HitClipModel ? HitClipModel->GetOwner() : NULL;
+
+    return true;
 }
 
 
@@ -1143,16 +1157,17 @@ int ComponentHumanPlayerT::FireRay(lua_State* LuaState)
     ScriptBinderT Binder(LuaState);
     IntrusivePtrT<ComponentHumanPlayerT> Comp = Binder.GetCheckedObjectParam< IntrusivePtrT<ComponentHumanPlayerT> >(1);
 
-    const float  Damage = float(luaL_checknumber(LuaState, 2));
-    const double Random = lua_tonumber(LuaState, 3);
+    const float     Damage  = float(luaL_checknumber(LuaState, 2));
+    const double    Random  = lua_tonumber(LuaState, 3);
+    const Vector3dT ViewDir = Comp->GetCameraViewDirWS(Random);
 
-    const Vector3dT  ViewDir = Comp->GetCameraViewDirWS(Random);
-    const RayResultT RayResult(Comp->TraceCameraRay(ViewDir));
+    Vector3dT       HitPoint;
+    ComponentBaseT* HitComp;
 
-    if (!RayResult.hasHit()) return 0;
-    if (!RayResult.GetHitPhysicsComp()) return 0;
+    if (!Comp->TraceCameraRay(ViewDir, HitPoint, HitComp)) return 0;
+    if (!HitComp) return 0;
 
-    EntityT* OtherEnt = RayResult.GetHitPhysicsComp()->GetEntity();
+    EntityT* OtherEnt = HitComp->GetEntity();
 
     if (!OtherEnt) return 0;
 
@@ -1372,17 +1387,18 @@ int ComponentHumanPlayerT::RegisterParticle(lua_State* LuaState)
 
     if (Type == "shotgun-ray")
     {
-        const Vector3dT  ViewDir = HumanPlayer->GetCameraViewDirWS(0.08748866);   // ca. 5°
-        const RayResultT RayResult(HumanPlayer->TraceCameraRay(ViewDir));
+        const Vector3dT ViewDir = HumanPlayer->GetCameraViewDirWS(0.08748866);   // ca. 5°
+        Vector3dT       HitPoint;
+        ComponentBaseT* HitComp;
 
-        if (!RayResult.hasHit()) return 0;
+        if (!HumanPlayer->TraceCameraRay(ViewDir, HitPoint, HitComp)) return 0;
 
-        // Register a new particle at the 'Hit' point.
+        // Register a new particle at `HitPoint`.
         ParticleMST NewParticle;
 
-        NewParticle.Origin[0]=PhysToUnits(RayResult.m_hitPointWorld.x());
-        NewParticle.Origin[1]=PhysToUnits(RayResult.m_hitPointWorld.y());
-        NewParticle.Origin[2]=PhysToUnits(RayResult.m_hitPointWorld.z());
+        NewParticle.Origin[0] = float(HitPoint.x);
+        NewParticle.Origin[1] = float(HitPoint.y);
+        NewParticle.Origin[2] = float(HitPoint.z);
 
         NewParticle.Velocity[0]=0;
         NewParticle.Velocity[1]=0;
@@ -1395,7 +1411,7 @@ int ComponentHumanPlayerT::RegisterParticle(lua_State* LuaState)
         NewParticle.StretchY=1.0;
         NewParticle.AllRMs = NULL;
         NewParticle.RenderMat = HumanPlayer->m_GenericMatSet->GetRenderMats()[0];
-        NewParticle.MoveFunction=RayResult.GetHitPhysicsComp()==NULL ? ParticleFunction_ShotgunHitWall : ParticleFunction_HitEntity;
+        NewParticle.MoveFunction = HitComp ? ParticleFunction_HitEntity : ParticleFunction_ShotgunHitWall;
 
         ParticleEngineMS::RegisterNewParticle(NewParticle);
     }
@@ -1425,7 +1441,7 @@ int ComponentHumanPlayerT::RegisterParticle(lua_State* LuaState)
         NewParticle.StretchY=1.0;
         NewParticle.AllRMs = &HumanPlayer->m_WhiteSmokeMatSet->GetRenderMats();
         NewParticle.RenderMat = HumanPlayer->m_WhiteSmokeMatSet->GetRenderMats()[0];
-        NewParticle.MoveFunction=ParticleFunction_ShotgunWhiteSmoke;
+        NewParticle.MoveFunction = ParticleFunction_ShotgunWhiteSmoke;
 
         ParticleEngineMS::RegisterNewParticle(NewParticle);
     }
@@ -1455,23 +1471,24 @@ int ComponentHumanPlayerT::RegisterParticle(lua_State* LuaState)
         NewParticle.StretchY=1.0;
         NewParticle.AllRMs = &HumanPlayer->m_WhiteSmokeMatSet->GetRenderMats();
         NewParticle.RenderMat = HumanPlayer->m_WhiteSmokeMatSet->GetRenderMats()[0];
-        NewParticle.MoveFunction=ParticleFunction_ShotgunWhiteSmoke;
+        NewParticle.MoveFunction = ParticleFunction_ShotgunWhiteSmoke;
 
         ParticleEngineMS::RegisterNewParticle(NewParticle);
     }
     else if (Type == "AR-ray")
     {
-        const Vector3dT  ViewDir = HumanPlayer->GetCameraViewDirWS(0.03492);  // ca. 2°
-        const RayResultT RayResult(HumanPlayer->TraceCameraRay(ViewDir));
+        const Vector3dT ViewDir = HumanPlayer->GetCameraViewDirWS(0.03492);  // ca. 2°
+        Vector3dT       HitPoint;
+        ComponentBaseT* HitComp;
 
-        if (!RayResult.hasHit()) return 0;
+        if (!HumanPlayer->TraceCameraRay(ViewDir, HitPoint, HitComp)) return 0;
 
-        // Register a new particle at the hit point.
+        // Register a new particle at `HitPoint`.
         ParticleMST NewParticle;
 
-        NewParticle.Origin[0]=PhysToUnits(RayResult.m_hitPointWorld.x());
-        NewParticle.Origin[1]=PhysToUnits(RayResult.m_hitPointWorld.y());
-        NewParticle.Origin[2]=PhysToUnits(RayResult.m_hitPointWorld.z());
+        NewParticle.Origin[0] = float(HitPoint.x);
+        NewParticle.Origin[1] = float(HitPoint.y);
+        NewParticle.Origin[2] = float(HitPoint.z);
 
         NewParticle.Velocity[0]=0;
         NewParticle.Velocity[1]=0;
@@ -1484,23 +1501,24 @@ int ComponentHumanPlayerT::RegisterParticle(lua_State* LuaState)
         NewParticle.StretchY=1.0;
         NewParticle.AllRMs = NULL;
         NewParticle.RenderMat = HumanPlayer->m_GenericMatSet->GetRenderMats()[0];
-        NewParticle.MoveFunction=RayResult.GetHitPhysicsComp()==NULL ? ParticleFunction_HitWall : ParticleFunction_HitEntity;
+        NewParticle.MoveFunction = HitComp ? ParticleFunction_HitEntity : ParticleFunction_HitWall;
 
         ParticleEngineMS::RegisterNewParticle(NewParticle);
     }
     else if (Type == "DesertEagle-ray")
     {
-        const Vector3dT  ViewDir = HumanPlayer->GetCameraViewDirWS();
-        const RayResultT RayResult(HumanPlayer->TraceCameraRay(ViewDir));
+        const Vector3dT ViewDir = HumanPlayer->GetCameraViewDirWS();
+        Vector3dT       HitPoint;
+        ComponentBaseT* HitComp;
 
-        if (!RayResult.hasHit()) return 0;
+        if (!HumanPlayer->TraceCameraRay(ViewDir, HitPoint, HitComp)) return 0;
 
-        // Register a new particle at the 'Hit' point.
+        // Register a new particle at `HitPoint`.
         ParticleMST NewParticle;
 
-        NewParticle.Origin[0]=PhysToUnits(RayResult.m_hitPointWorld.x());
-        NewParticle.Origin[1]=PhysToUnits(RayResult.m_hitPointWorld.y());
-        NewParticle.Origin[2]=PhysToUnits(RayResult.m_hitPointWorld.z());
+        NewParticle.Origin[0] = float(HitPoint.x);
+        NewParticle.Origin[1] = float(HitPoint.y);
+        NewParticle.Origin[2] = float(HitPoint.z);
 
         NewParticle.Velocity[0]=0;
         NewParticle.Velocity[1]=0;
@@ -1514,7 +1532,7 @@ int ComponentHumanPlayerT::RegisterParticle(lua_State* LuaState)
 
         NewParticle.AllRMs = NULL;
         NewParticle.RenderMat = HumanPlayer->m_GenericMatSet->GetRenderMats()[0];
-        NewParticle.MoveFunction=RayResult.GetHitPhysicsComp()==NULL ? ParticleFunction_HitWall : ParticleFunction_HitEntity;
+        NewParticle.MoveFunction = HitComp ? ParticleFunction_HitEntity : ParticleFunction_HitWall;
 
         ParticleEngineMS::RegisterNewParticle(NewParticle);
     }

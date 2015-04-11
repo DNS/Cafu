@@ -25,7 +25,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CompBase.hpp"
 #include "../../Games/PlayerCommand.hpp"      // TODO: This file must be moved (and/or its contents completely redesigned).
 #include "GuiSys/GuiImpl.hpp"
-#include "PhysicsWorld.hpp"
 
 class ParticleMaterialSetT;
 
@@ -67,7 +66,7 @@ namespace cf
             Vector3dT GetCameraViewDirWS(double Random = 0.0) const;
 
             /// Traces a ray that originates at the player camera's origin in the given direction through the world.
-            RayResultT TraceCameraRay(const Vector3dT& Dir) const;
+            bool TraceCameraRay(const Vector3dT& Dir, Vector3dT& HitPoint, ComponentBaseT*& HitComp) const;
 
             /// A helper function for Think().
             void CheckGUIs(bool ThinkingOnServerSide, bool HaveButtonClick) const;
