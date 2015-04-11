@@ -246,7 +246,9 @@ end
 
 
 function AR:ProcessEvent(EventType, NumEvents)
-    HumanPlayer:RegisterParticle("AR-ray")
+    if EventType == PlayerScript.EVENT_TYPE_PRIMARY_FIRE then
+        HumanPlayer:RegisterParticle("AR-ray")
+    end
 
     -- Note that we can *not* have code like
     --     WeaponSound:set("Name", ...)
