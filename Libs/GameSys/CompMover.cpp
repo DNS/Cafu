@@ -239,6 +239,8 @@ namespace
             cf::ClipSys::TraceResultT      Trace(1.0);
             cf::ClipSys::ClipModelT*       StandingOn = NULL;
 
+            // Note: Tracing NearbyCM's "absolute bounding-box" here can be problematic.
+            // It would be better to trace the true clip model or at least its convex hull.
             Ent->GetWorld().GetClipWorld()->TraceBoundingBox(
                 NearbyCM->GetAbsoluteBB(), Vector3dT(), Vector3dT(0.0, 0.0, -0.1), MaterialT::Clip_AllBlocking, NearbyCM, Trace, &StandingOn);
 

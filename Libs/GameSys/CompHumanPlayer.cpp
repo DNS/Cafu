@@ -774,7 +774,10 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                     IntrusivePtrT<ComponentCollisionModelT> CompCollMdl = dynamic_pointer_cast<ComponentCollisionModelT>(GetEntity()->GetComponent("CollisionModel"));
 
                     if (CompCollMdl != NULL)
+                    {
+                        CompCollMdl->SetMember("IgnoreOrient", true);
                         CompCollMdl->SetBoundingBox(Dimensions, "Textures/meta/collisionmodel");
+                    }
 
                     break;
                 }

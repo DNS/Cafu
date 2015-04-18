@@ -53,7 +53,10 @@ const char* ComponentCollisionModelT::DocClass =
 
 const cf::TypeSys::VarsDocT ComponentCollisionModelT::DocVars[] =
 {
-    { "Name", "The file name of the collision model." },
+    { "Name",         "The file name of the collision model." },
+    { "IgnoreOrient", "If true, the orientation of the entity does not affect the orientation of the collision model.\n"
+                      "This is used with players, monsters and other NPCs whose world-space collision model must not\n"
+                      "change when they rotate (in order to not get them accidentally stuck in nearby walls)." },
     { NULL, NULL }
 };
 
@@ -63,11 +66,13 @@ ComponentCollisionModelT::ComponentCollisionModelT()
       m_CollMdlName("Name", "", FlagsIsFileName),
       m_PrevName(""),
       m_CollisionModel(NULL),
+      m_IgnoreOrient("IgnoreOrient", false),
       m_ClipModel(NULL),
       m_ClipPrevOrigin(),
       m_ClipPrevQuat()
 {
     GetMemberVars().Add(&m_CollMdlName);
+    GetMemberVars().Add(&m_IgnoreOrient);
 }
 
 
@@ -76,11 +81,13 @@ ComponentCollisionModelT::ComponentCollisionModelT(const ComponentCollisionModel
       m_CollMdlName(Comp.m_CollMdlName),
       m_PrevName(""),
       m_CollisionModel(NULL),
+      m_IgnoreOrient(Comp.m_IgnoreOrient),
       m_ClipModel(NULL),
       m_ClipPrevOrigin(),
       m_ClipPrevQuat()
 {
     GetMemberVars().Add(&m_CollMdlName);
+    GetMemberVars().Add(&m_IgnoreOrient);
 }
 
 
@@ -250,12 +257,12 @@ void ComponentCollisionModelT::UpdateClipModel()
 
     // Has the origin or orientation changed since we last registered clip model? If so, re-register!
     const Vector3fT              o = GetEntity()->GetTransform()->GetOriginWS();
-    const cf::math::QuaternionfT q = GetEntity()->GetTransform()->GetQuatWS();
+    const cf::math::QuaternionfT q = m_IgnoreOrient.Get() ? cf::math::QuaternionfT() : GetEntity()->GetTransform()->GetQuatWS();
 
     if (IsNewClipModel || o != m_ClipPrevOrigin || q != m_ClipPrevQuat)
     {
         m_ClipModel->SetOrigin(o.AsVectorOfDouble());
-        m_ClipModel->SetOrientation(cf::math::Matrix3x3dT(cf::math::QuaterniondT(q.x, q.y, q.z, q.w)));
+        m_ClipModel->SetOrientation(m_IgnoreOrient.Get() ? cf::math::Matrix3x3dT() : cf::math::Matrix3x3dT(cf::math::QuaterniondT(q.x, q.y, q.z, q.w)));
         m_ClipModel->Register();
 
         m_ClipPrevOrigin = o;
