@@ -111,7 +111,7 @@ void ClipWorldT::TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT
     WorldCollMdl->TraceConvexSolid(TraceSolid, Start, Ray, ClipMask, Result);
 
  // if (Result.Fraction<OldFrac && HitClipModel) *HitClipModel=WorldCollMdl;     // FIXME: WorldCollMdl is of type CollisionModelT...
-    if (Result.Fraction==0.0) return;
+    if (Result.StartSolid) return;
 
 
     // Now try all the entity models.
@@ -131,7 +131,7 @@ void ClipWorldT::TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT
         ClipModel->TraceConvexSolid(TraceSolid, Start, Ray, ClipMask, Result);
 
         if (Result.Fraction<OldFraction && HitClipModel) *HitClipModel=ClipModel;
-        if (Result.Fraction==0.0) break;
+        if (Result.StartSolid) break;
     }
 }
 
@@ -149,7 +149,7 @@ void ClipWorldT::TraceRay(const Vector3dT& Start, const Vector3dT& Ray,
     WorldCollMdl->TraceRay(Start, Ray, ClipMask, Result);
 
  // if (Result.Fraction<OldFrac && HitClipModel) *HitClipModel=WorldCollMdl;     // FIXME: WorldCollMdl is of type CollisionModelT...
-    if (Result.Fraction==0.0) return;
+    if (Result.StartSolid) return;
 
 
     // Now try all the entity models.
@@ -168,7 +168,7 @@ void ClipWorldT::TraceRay(const Vector3dT& Start, const Vector3dT& Ray,
         ClipModel->TraceRay(Start, Ray, ClipMask, Result);
 
         if (Result.Fraction<OldFraction && HitClipModel) *HitClipModel=ClipModel;
-        if (Result.Fraction==0.0) break;
+        if (Result.StartSolid) break;
     }
 }
 
