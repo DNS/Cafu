@@ -63,13 +63,13 @@ namespace cf
             /// @param HitClipModel   A pointer to the clip model instance with which the reported collision occurred, or NULL if there was no collision.
             /// @see TraceResultT
             void TraceBoundingBox(const BoundingBox3dT& TraceBB, const Vector3dT& Start, const Vector3dT& Ray,
-                unsigned long ClipMask, const ClipModelT* Ignore, TraceResultT& Result, ClipModelT** HitClipModel=NULL) const;
+                                  unsigned long ClipMask, const ClipModelT* Ignore, TraceResultT& Result, ClipModelT** HitClipModel = NULL) const;
 
             void TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT& Start, const Vector3dT& Ray,
-                unsigned long ClipMask, const ClipModelT* Ignore, TraceResultT& Result, ClipModelT** HitClipModel=NULL) const;
+                                  unsigned long ClipMask, const ClipModelT* Ignore, TraceResultT& Result, ClipModelT** HitClipModel = NULL) const;
 
             void TraceRay(const Vector3dT& Start, const Vector3dT& Ray,
-                unsigned long ClipMask, const ClipModelT* Ignore, TraceResultT& Result, ClipModelT** HitClipModel=NULL) const;
+                          unsigned long ClipMask, const ClipModelT* Ignore, TraceResultT& Result, ClipModelT** HitClipModel = NULL) const;
 
             /// Determines the set of clip models that touch a given bounding-box and meet a given contents mask.
             ///
@@ -90,13 +90,13 @@ namespace cf
             /// @returns This methods returns its results in the two parallel arrays Contacts and ClipModels,
             ///          where each contact that is described by FoundContacts[i] occurred with the clip model pointed to by FoundClipModels[i].
             void GetContacts(const BoundingBox3dT& TraceBB, const Vector3dT& Start, const Vector3dT& Ray,
-                unsigned long ClipMask, const ClipModelT* Ignore, ContactsResultT& Contacts) const;
+                             unsigned long ClipMask, const ClipModelT* Ignore, ContactsResultT& Contacts) const;
 
             void GetContacts(const TraceSolidT& TraceSolid, const Vector3dT& Start, const Vector3dT& Ray,
-                unsigned long ClipMask, const ClipModelT* Ignore, ContactsResultT& Contacts) const;
+                             unsigned long ClipMask, const ClipModelT* Ignore, ContactsResultT& Contacts) const;
 
             void GetContacts(const Vector3dT& Start, const Vector3dT& Ray,
-                unsigned long ClipMask, const ClipModelT* Ignore, ContactsResultT& Contacts) const;
+                             unsigned long ClipMask, const ClipModelT* Ignore, ContactsResultT& Contacts) const;
 
 
             private:

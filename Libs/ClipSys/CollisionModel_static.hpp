@@ -39,8 +39,7 @@ namespace cf
 
     namespace ClipSys
     {
-        /// This class represents a (static) collision model.
-        /// The set of available ctors is limited, because collision models should really be created via the CollisionModelProxyT class.
+        /// This class represents a static collision model.
         class CollisionModelStaticT : public CollisionModelT
         {
             public:
@@ -53,10 +52,10 @@ namespace cf
                 PolygonT();
 
                 /// The constructor.
-                PolygonT(CollisionModelStaticT* Parent_, MaterialT* Material_, unsigned long A, unsigned long B, unsigned long C, unsigned long D=0xFFFFFFFF);
+                PolygonT(CollisionModelStaticT* Parent_, MaterialT* Material_, unsigned long A, unsigned long B, unsigned long C, unsigned long D = 0xFFFFFFFF);
 
 
-                bool IsTriangle() const { return Vertices[3]==0xFFFFFFFF; }
+                bool IsTriangle() const { return Vertices[3] == 0xFFFFFFFF; }
 
                 BoundingBox3dT GetBB() const;
 
@@ -158,7 +157,7 @@ namespace cf
                 /// The type expresses which axes the plane is parallel to, the distance is the offset from the origin.
                 enum PlaneTypeE
                 {
-                    NONE=-1,    ///< No plane at all. Used for nodes that are actually leaves.
+                    NONE = -1,  ///< No plane at all. Used for nodes that are actually leaves.
                     ALONG_X,    ///< A plane with normal vector (1, 0, 0), parallel to the y- and z-axis.
                     ALONG_Y,    ///< A plane with normal vector (0, 1, 0), parallel to the x- and z-axis.
                     ALONG_Z     ///< A plane with normal vector (0, 0, 1), parallel to the x- and y-axis.
@@ -169,8 +168,8 @@ namespace cf
                 /// Note that NodeTs are managed by cf::PoolTs, and thus it makes no sense to have anything but a default ctor.
                 NodeT() : PlaneType(NONE), PlaneDist(0.0), Parent(NULL)
                 {
-                    Children[0]=NULL;
-                    Children[1]=NULL;
+                    Children[0] = NULL;
+                    Children[1] = NULL;
                 }
 
                 /// Returns the bounding box of all contents (polygons, brushes, terrains) of this node.
@@ -241,7 +240,7 @@ namespace cf
             ///     It also means that internally, only bounding-boxes (but not the true TraceSolidT objects) are traced against
             ///     such created brushes with the BrushT::TraceBevelBB() method.
             CollisionModelStaticT(const MapFileEntityT& Entity, const ArrayT<TerrainRefT>& Terrains, bool UseGenericBrushes,
-                const double MAP_ROUND_EPSILON, const double MAP_MIN_VERTEX_DIST, const double BP_MAX_CURVE_ERROR, const double BP_MAX_CURVE_LENGTH, const double MIN_NODE_SIZE);
+                                  const double MAP_ROUND_EPSILON, const double MAP_MIN_VERTEX_DIST, const double BP_MAX_CURVE_ERROR, const double BP_MAX_CURVE_LENGTH, const double MIN_NODE_SIZE);
 
             /// Constructor for creating a collision model from a regular mesh.
             CollisionModelStaticT(unsigned long Width, unsigned long Height, const ArrayT<Vector3dT>& Mesh, MaterialT* Material, const double MIN_NODE_SIZE);
@@ -251,13 +250,13 @@ namespace cf
 
 
             // The CollisionModelT interface.
-            BoundingBox3dT GetBoundingBox() const;
-            unsigned long GetContents() const;
-            void SaveToFile(std::ostream& OutFile, SceneGraph::aux::PoolT& Pool) const;
-            void TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const;
-            void TraceRay(const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const;
-            unsigned long GetContents(const Vector3dT& Point, double BoxRadius, unsigned long ContMask) const;
-            btCollisionShape* GetBulletAdapter() const;
+            BoundingBox3dT GetBoundingBox() const override;
+            unsigned long GetContents() const override;
+            void SaveToFile(std::ostream& OutFile, SceneGraph::aux::PoolT& Pool) const override;
+            void TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const override;
+            void TraceRay(const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const override;
+            unsigned long GetContents(const Vector3dT& Point, double BoxRadius, unsigned long ContMask) const override;
+            btCollisionShape* GetBulletAdapter() const override;
 
 
             private:

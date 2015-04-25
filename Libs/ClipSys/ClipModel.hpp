@@ -48,7 +48,7 @@ namespace cf
             public:
 
             /// The constructor for creating a clip model.
-            ClipModelT(const ClipWorldT& ClipWorld_, const CollisionModelT* CollisionModel_=NULL);
+            ClipModelT(const ClipWorldT& ClipWorld_, const CollisionModelT* CollisionModel_ = NULL);
 
             /// The destructor.
             ~ClipModelT();

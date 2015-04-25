@@ -51,7 +51,7 @@ namespace cf
         struct TraceResultT
         {
             /// The constructor.
-            TraceResultT(double Fraction_=1.0) : Fraction(Fraction_), StartSolid(false), Material(NULL) { }
+            TraceResultT(double Fraction_ = 1.0) : Fraction(Fraction_), StartSolid(false), Material(NULL) { }
 
             double     Fraction;        ///< How much of the trace could be completed before a hit occurred (if any).
             bool       StartSolid;      ///< Did the trace start in a solid part of the collision or clip model?
@@ -62,7 +62,7 @@ namespace cf
 
         struct ContactsResultT
         {
-            const static unsigned long MAX_CONTACTS=16;
+            const static unsigned long MAX_CONTACTS = 16;
 
             /// The constructor.
             ContactsResultT() : NrOfRepContacts(0), NrOfAllContacts(0) { }
