@@ -89,7 +89,7 @@ void ClipModelT::TraceBoundingBox(const BoundingBox3dT& TraceBB, const Vector3dT
     }
 
 
-    static TraceSolidT TraceSolid(TraceBB);
+    static TraceGenericT TraceSolid(TraceBB);
 
     TraceSolid.SetBB(TraceBB);
 
@@ -130,7 +130,7 @@ void ClipModelT::TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT
     const Vector3dT Start_  = Orientation.MulTranspose(Start - Origin); // Start is a point in space.
     const Vector3dT Ray_    = Orientation.MulTranspose(Ray);            // Ray is a directional vector.
 
-    static TraceSolidT TraceSolid_;                                     // The trace solid must be appropriately rotated as well.
+    static TraceGenericT TraceSolid_;                                   // The trace solid must be appropriately rotated as well.
 
     TraceSolid_.AssignInvTransformed(TraceSolid, Orientation);
 

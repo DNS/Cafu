@@ -2188,7 +2188,7 @@ void CollisionModelStaticT::TraceConvexSolid(
 void CollisionModelStaticT::TraceRay(
     const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const
 {
-    static const TraceSolidT    ZeroTraceSolid;
+    static const TraceGenericT  ZeroTraceSolid;
     static const BoundingBox3dT ZeroHullBB(Vector3dT(0, 0, 0));
 
     CollisionModelStaticT::s_CheckCount++;

@@ -54,21 +54,11 @@ namespace cf
             };
 
 
-            /// Creates an empty (invalid) trace model.
-            TraceSolidT();
+            /// The constructor.
+            TraceSolidT() { }
 
-            /// Creates a trace solid from (in the shape of) the given axis-aligned bounding-box.
-            TraceSolidT(const BoundingBox3dT& BB);
-
-            /// Updates this trace solid to the shape of the given bounding-box.
-            /// Compared to creating a new trace solid, this can significantly reduce or even
-            /// completely eliminate the required memory (re-)allocations.
-            void SetBB(const BoundingBox3dT& BB);
-
-            /// Assigns the given solid to this one, transformed by the *transpose* of the given matrix.
-            /// Compared to creating a new trace solid, this can significantly reduce or even
-            /// completely eliminate the required memory (re-)allocations.
-            void AssignInvTransformed(const TraceSolidT& Other, const math::Matrix3x3dT& Mat);
+            /// The virtual destructor.
+            virtual ~TraceSolidT() { }
 
             /// Returns the bounding-box of (the vertices of) this solid.
             BoundingBox3dT GetBB() const
@@ -82,22 +72,52 @@ namespace cf
             }
 
             /// Returns the number of vertices of this solid.
-            unsigned int GetNumVertices() const { return m_Vertices.Size(); }
+            virtual unsigned int GetNumVertices() const = 0;
 
             /// Returns the vertices of this solid.
-            const Vector3dT* GetVertices() const { return &m_Vertices[0]; }
+            virtual const Vector3dT* GetVertices() const = 0;
 
             /// Returns the number of planes of this solid.
-            unsigned int GetNumPlanes() const { return m_Planes.Size(); }
+            virtual unsigned int GetNumPlanes() const = 0;
 
             /// Returns the planes of this solid.
-            const Plane3dT* GetPlanes() const { return &m_Planes[0]; }
+            virtual const Plane3dT* GetPlanes() const = 0;
 
             /// Returns the number of edges of this solid.
-            unsigned int GetNumEdges() const { return m_Edges.Size(); }
+            virtual unsigned int GetNumEdges() const = 0;
 
             /// Returns the edges of this solid.
-            const EdgeT* GetEdges() const { return &m_Edges[0]; }
+            virtual const EdgeT* GetEdges() const = 0;
+        };
+
+
+        class TraceGenericT : public TraceSolidT
+        {
+            public:
+
+            /// Creates an empty (invalid) trace model.
+            TraceGenericT();
+
+            /// Creates a trace solid from (in the shape of) the given axis-aligned bounding-box.
+            TraceGenericT(const BoundingBox3dT& BB);
+
+            /// Updates this trace solid to the shape of the given bounding-box.
+            /// Compared to creating a new trace solid, this can significantly reduce or even
+            /// completely eliminate the required memory (re-)allocations.
+            void SetBB(const BoundingBox3dT& BB);
+
+            /// Assigns the given solid to this one, transformed by the *transpose* of the given matrix.
+            /// Compared to creating a new trace solid, this can significantly reduce or even
+            /// completely eliminate the required memory (re-)allocations.
+            void AssignInvTransformed(const TraceSolidT& Other, const math::Matrix3x3dT& Mat);
+
+            // Base class overrides.
+            unsigned int GetNumVertices() const override { return m_Vertices.Size(); }
+            const Vector3dT* GetVertices() const override { return &m_Vertices[0]; }
+            unsigned int GetNumPlanes() const override { return m_Planes.Size(); }
+            const Plane3dT* GetPlanes() const override { return &m_Planes[0]; }
+            unsigned int GetNumEdges() const override { return m_Edges.Size(); }
+            const EdgeT* GetEdges() const override { return &m_Edges[0]; }
 
 
             private:

@@ -25,18 +25,18 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace cf::ClipSys;
 
 
-TraceSolidT::TraceSolidT()
+TraceGenericT::TraceGenericT()
 {
 }
 
 
-TraceSolidT::TraceSolidT(const BoundingBox3dT& BB)
+TraceGenericT::TraceGenericT(const BoundingBox3dT& BB)
 {
     SetBB(BB);
 }
 
 
-void TraceSolidT::SetBB(const BoundingBox3dT& BB)
+void TraceGenericT::SetBB(const BoundingBox3dT& BB)
 {
     m_Vertices.Overwrite();
     m_Vertices.PushBackEmptyExact(8);
@@ -71,7 +71,7 @@ void TraceSolidT::SetBB(const BoundingBox3dT& BB)
 }
 
 
-void TraceSolidT::AssignInvTransformed(const TraceSolidT& Other, const cf::math::Matrix3x3dT& Mat)
+void TraceGenericT::AssignInvTransformed(const TraceSolidT& Other, const cf::math::Matrix3x3dT& Mat)
 {
     // Transform the vertices.
     m_Vertices.Overwrite();

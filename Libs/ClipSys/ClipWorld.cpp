@@ -72,7 +72,7 @@ void ClipWorldT::TraceBoundingBox(const BoundingBox3dT& TraceBB, const Vector3dT
     }
 
 
-    static TraceSolidT TraceSolid(TraceBB);
+    static TraceGenericT TraceSolid(TraceBB);
 
     TraceSolid.SetBB(TraceBB);
 
