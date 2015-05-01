@@ -94,13 +94,13 @@ void CollisionModelStaticT::PolygonT::TraceConvexSolid(
     if ((Material->ClipFlags & ClipMask) == 0) return;
 
     // If the trace solid is empty, it cannot collide with the polygon.
-    if (TraceSolid.Vertices.Size() == 0) return;
+    if (TraceSolid.GetNumVertices() == 0) return;
 
     // Use the optimized point trace whenever possible.
-    if (TraceSolid.Vertices.Size() == 1)
+    if (TraceSolid.GetNumVertices() == 1)
     {
-        // TraceSolid.Vertices[0] is normally supposed to be (0, 0, 0), but let's support the generic case.
-        TraceRay(Start + TraceSolid.Vertices[0], Ray, ClipMask, Result);
+        // TraceSolid.GetVertices()[0] is normally supposed to be (0, 0, 0), but let's support the generic case.
+        TraceRay(Start + TraceSolid.GetVertices()[0], Ray, ClipMask, Result);
         return;
     }
 
@@ -374,13 +374,13 @@ void CollisionModelStaticT::BrushT::TraceConvexSolid(
     if ((Contents & ClipMask) == 0) return;
 
     // If the trace solid is empty, it cannot collide with the brush.
-    if (TraceSolid.Vertices.Size() == 0) return;
+    if (TraceSolid.GetNumVertices() == 0) return;
 
     // Use the optimized point trace whenever possible.
-    if (TraceSolid.Vertices.Size() == 1)
+    if (TraceSolid.GetNumVertices() == 1)
     {
-        // TraceSolid.Vertices[0] is normally supposed to be (0, 0, 0), but let's support the generic case.
-        TraceRay(Start + TraceSolid.Vertices[0], Ray, ClipMask, Result);
+        // TraceSolid.GetVertices()[0] is normally supposed to be (0, 0, 0), but let's support the generic case.
+        TraceRay(Start + TraceSolid.GetVertices()[0], Ray, ClipMask, Result);
         return;
     }
 
@@ -412,13 +412,13 @@ void CollisionModelStaticT::BrushT::TraceConvexSolid(
     // Case b), add the (mirrored) planes of the trace solid.
     if (HullVerts == NULL) CacheHullVerts();
 
-    BevelPlanes.PushBackEmpty(TraceSolid.Planes.Size());
+    BevelPlanes.PushBackEmpty(TraceSolid.GetNumPlanes());
 
-    for (unsigned long PlaneNr = 0; PlaneNr < TraceSolid.Planes.Size(); PlaneNr++)
+    for (unsigned long PlaneNr = 0; PlaneNr < TraceSolid.GetNumPlanes(); PlaneNr++)
     {
         Plane3dT& BP = BevelPlanes[PlaneNr];
 
-        BP.Normal = -TraceSolid.Planes[PlaneNr].Normal;
+        BP.Normal = -TraceSolid.GetPlanes()[PlaneNr].Normal;
         BP.Dist   = dot(BP.Normal, Parent->m_Vertices[HullVerts[0]]);
 
         for (unsigned long VertexNr = 1; VertexNr < NrOfHullVerts; VertexNr++)
@@ -436,14 +436,14 @@ void CollisionModelStaticT::BrushT::TraceConvexSolid(
     {
         const EdgeT& EdgeBrush = HullEdges[BrushEdgeNr];
 
-        for (unsigned long TSEdgeNr = 0; TSEdgeNr < TraceSolid.Edges.Size(); TSEdgeNr++)
+        for (unsigned int TSEdgeNr = 0; TSEdgeNr < TraceSolid.GetNumEdges(); TSEdgeNr++)
         {
-            const TraceSolidT::EdgeT& EdgeTS = TraceSolid.Edges[TSEdgeNr];
+            const TraceSolidT::EdgeT& EdgeTS = TraceSolid.GetEdges()[TSEdgeNr];
 
             Plane3dT SepPlane;
 
             SepPlane.Normal = cross(Parent->m_Vertices[EdgeBrush.B] - Parent->m_Vertices[EdgeBrush.A],
-                                    TraceSolid.Vertices[EdgeTS.B] - TraceSolid.Vertices[EdgeTS.A]);
+                                    TraceSolid.GetVertices()[EdgeTS.B] - TraceSolid.GetVertices()[EdgeTS.A]);
 
             const double NormalLen = length(SepPlane.Normal);
             if (NormalLen < 0.00001) continue;
@@ -457,11 +457,11 @@ void CollisionModelStaticT::BrushT::TraceConvexSolid(
             unsigned long TsCountIn    = 0;
             unsigned long TsCountBelow = 0;
 
-            SepPlane.Dist = dot(SepPlane.Normal, TraceSolid.Vertices[EdgeTS.A]);
+            SepPlane.Dist = dot(SepPlane.Normal, TraceSolid.GetVertices()[EdgeTS.A]);
 
-            for (unsigned long VertexNr = 0; VertexNr < TraceSolid.Vertices.Size(); VertexNr++)
+            for (unsigned int VertexNr = 0; VertexNr < TraceSolid.GetNumVertices(); VertexNr++)
             {
-                const double Dist = SepPlane.GetDistance(TraceSolid.Vertices[VertexNr]);
+                const double Dist = SepPlane.GetDistance(TraceSolid.GetVertices()[VertexNr]);
 
                 // TODO: 0.01 ...?
                      if (Dist >  0.01) TsCountAbove++;
@@ -519,11 +519,11 @@ void CollisionModelStaticT::BrushT::TraceConvexSolid(
     {
         const Plane3dT* P = AllPlanes[PlaneNr];
 
-        BloatDistanceOffsets[PlaneNr] = dot(P->Normal, TraceSolid.Vertices[0]);
+        BloatDistanceOffsets[PlaneNr] = dot(P->Normal, TraceSolid.GetVertices()[0]);
 
-        for (unsigned long VertexNr = 1; VertexNr < TraceSolid.Vertices.Size(); VertexNr++)
+        for (unsigned int VertexNr = 1; VertexNr < TraceSolid.GetNumVertices(); VertexNr++)
         {
-            const double Ofs = dot(P->Normal, TraceSolid.Vertices[VertexNr]);
+            const double Ofs = dot(P->Normal, TraceSolid.GetVertices()[VertexNr]);
 
             // Yes, it's "<" rather than ">": Due to the direction of the P.Normal, the offsets are actually negative.
             if (Ofs < BloatDistanceOffsets[PlaneNr]) BloatDistanceOffsets[PlaneNr] = Ofs;
@@ -2179,8 +2179,7 @@ void CollisionModelStaticT::TraceConvexSolid(
 {
     CollisionModelStaticT::s_CheckCount++;
 
-    BoundingBox3dT TraceBB(TraceSolid.Vertices);
-    TraceParamsT   Params(TraceParamsT::SOLID, m_GenericBrushes, TraceBB, TraceSolid, Start, Ray, ClipMask, Result);
+    TraceParamsT Params(TraceParamsT::SOLID, m_GenericBrushes, TraceSolid.GetBB(), TraceSolid, Start, Ray, ClipMask, Result);
 
     m_RootNode->Trace(Start, Start + Ray * Result.Fraction, 0, Result.Fraction, Params);
 }

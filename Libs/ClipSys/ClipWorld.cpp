@@ -74,14 +74,7 @@ void ClipWorldT::TraceBoundingBox(const BoundingBox3dT& TraceBB, const Vector3dT
 
     static TraceSolidT TraceSolid(TraceBB);
 
-    TraceBB.GetCornerVertices(&TraceSolid.Vertices[0]);
-
-    TraceSolid.Planes[0].Dist =  TraceBB.Max.x;
-    TraceSolid.Planes[1].Dist = -TraceBB.Min.x;
-    TraceSolid.Planes[2].Dist =  TraceBB.Max.y;
-    TraceSolid.Planes[3].Dist = -TraceBB.Min.y;
-    TraceSolid.Planes[4].Dist =  TraceBB.Max.z;
-    TraceSolid.Planes[5].Dist = -TraceBB.Min.z;
+    TraceSolid.SetBB(TraceBB);
 
     TraceConvexSolid(TraceSolid, Start, Ray, ClipMask, Ignore, Result, HitClipModel);
 }
@@ -96,13 +89,13 @@ void ClipWorldT::TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT
 
     if (HitClipModel) *HitClipModel = NULL;
 
-    if (TraceSolid.Vertices.Size() == 0) return;
+    if (TraceSolid.GetNumVertices() == 0) return;
 
     // Use the optimized point trace whenever possible.
-    if (TraceSolid.Vertices.Size() == 1)
+    if (TraceSolid.GetNumVertices() == 1)
     {
         // TraceSolid.Vertices[0] is normally supposed to be (0, 0, 0), but let's support the generic case.
-        TraceRay(Start + TraceSolid.Vertices[0], Ray, ClipMask, Ignore, Result, HitClipModel);
+        TraceRay(Start + TraceSolid.GetVertices()[0], Ray, ClipMask, Ignore, Result, HitClipModel);
         return;
     }
 
@@ -118,8 +111,7 @@ void ClipWorldT::TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT
     static ArrayT<ClipModelT*> ClipModels;
     ClipModels.Overwrite();
 
-    const BoundingBox3dT HullBB(TraceSolid.Vertices);
-    const BoundingBox3dT OverallHullBB = HullBB.GetOverallTranslationBox(Start, Start + Ray * Result.Fraction);
+    const BoundingBox3dT OverallHullBB = TraceSolid.GetBB().GetOverallTranslationBox(Start, Start + Ray * Result.Fraction);
 
     GetClipModelsFromBB(ClipModels, ClipMask, OverallHullBB);
 
@@ -261,7 +253,7 @@ void ClipWorldT::Trace(const TraceSolidT& TraceSolid, const Vector3dT& Start, co
     static ArrayT<ClipModelT*> ClipModels;
     ClipModels.Overwrite();
 
-    const BoundingBox3dT OverallBB(Start, Start + Ray);
+    const BoundingBox3dT OverallBB = TraceSolid.GetBB().GetOverallTranslationBox(Start, Start + Ray);
 
     GetClipModelsFromBB(ClipModels, ClipMask, OverallBB);
 

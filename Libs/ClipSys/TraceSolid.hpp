@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_CLIPSYS_TRACESOLID_HPP_INCLUDED
 
 #include "Math3D/BoundingBox.hpp"
+#include "Math3D/Matrix3x3.hpp"
 #include "Math3D/Plane3.hpp"
 
 
@@ -48,8 +49,8 @@ namespace cf
             /// This struct describes an edge of a TraceSolidT.
             struct EdgeT
             {
-                unsigned long A;    ///< Index of the first  vertex of this edge.
-                unsigned long B;    ///< Index of the second vertex of this edge.
+                unsigned int A;   ///< Index of the first  vertex of this edge.
+                unsigned int B;   ///< Index of the second vertex of this edge.
             };
 
 
@@ -59,10 +60,51 @@ namespace cf
             /// Creates a trace solid from (in the shape of) the given axis-aligned bounding-box.
             TraceSolidT(const BoundingBox3dT& BB);
 
+            /// Updates this trace solid to the shape of the given bounding-box.
+            /// Compared to creating a new trace solid, this can significantly reduce or even
+            /// completely eliminate the required memory (re-)allocations.
+            void SetBB(const BoundingBox3dT& BB);
 
-            ArrayT<Vector3dT> Vertices;
-            ArrayT<Plane3dT>  Planes;
-            ArrayT<EdgeT>     Edges;
+            /// Assigns the given solid to this one, transformed by the *transpose* of the given matrix.
+            /// Compared to creating a new trace solid, this can significantly reduce or even
+            /// completely eliminate the required memory (re-)allocations.
+            void AssignInvTransformed(const TraceSolidT& Other, const math::Matrix3x3dT& Mat);
+
+            /// Returns the bounding-box of (the vertices of) this solid.
+            BoundingBox3dT GetBB() const
+            {
+                BoundingBox3dT BB;
+
+                for (unsigned int i = 0; i < GetNumVertices(); i++)
+                    BB += GetVertices()[i];
+
+                return BB;
+            }
+
+            /// Returns the number of vertices of this solid.
+            unsigned int GetNumVertices() const { return m_Vertices.Size(); }
+
+            /// Returns the vertices of this solid.
+            const Vector3dT* GetVertices() const { return &m_Vertices[0]; }
+
+            /// Returns the number of planes of this solid.
+            unsigned int GetNumPlanes() const { return m_Planes.Size(); }
+
+            /// Returns the planes of this solid.
+            const Plane3dT* GetPlanes() const { return &m_Planes[0]; }
+
+            /// Returns the number of edges of this solid.
+            unsigned int GetNumEdges() const { return m_Edges.Size(); }
+
+            /// Returns the edges of this solid.
+            const EdgeT* GetEdges() const { return &m_Edges[0]; }
+
+
+            private:
+
+            ArrayT<Vector3dT> m_Vertices;
+            ArrayT<Plane3dT>  m_Planes;
+            ArrayT<EdgeT>     m_Edges;
         };
     }
 }

@@ -91,14 +91,7 @@ void ClipModelT::TraceBoundingBox(const BoundingBox3dT& TraceBB, const Vector3dT
 
     static TraceSolidT TraceSolid(TraceBB);
 
-    TraceBB.GetCornerVertices(&TraceSolid.Vertices[0]);
-
-    TraceSolid.Planes[0].Dist =  TraceBB.Max.x;
-    TraceSolid.Planes[1].Dist = -TraceBB.Min.x;
-    TraceSolid.Planes[2].Dist =  TraceBB.Max.y;
-    TraceSolid.Planes[3].Dist = -TraceBB.Min.y;
-    TraceSolid.Planes[4].Dist =  TraceBB.Max.z;
-    TraceSolid.Planes[5].Dist = -TraceBB.Min.z;
+    TraceSolid.SetBB(TraceBB);
 
     TraceConvexSolid(TraceSolid, Start, Ray, ClipMask, Result);
 }
@@ -108,13 +101,13 @@ void ClipModelT::TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT
 {
     if (!CollisionModel) return;
 
-    if (TraceSolid.Vertices.Size() == 0) return;
+    if (TraceSolid.GetNumVertices() == 0) return;
 
     // Use the optimized point trace whenever possible.
-    if (TraceSolid.Vertices.Size() == 1)
+    if (TraceSolid.GetNumVertices() == 1)
     {
         // TraceSolid.Vertices[0] is normally supposed to be (0, 0, 0), but let's support the generic case.
-        TraceRay(Start + TraceSolid.Vertices[0], Ray, ClipMask, Result);
+        TraceRay(Start + TraceSolid.GetVertices()[0], Ray, ClipMask, Result);
         return;
     }
 
@@ -139,21 +132,9 @@ void ClipModelT::TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT
 
     static TraceSolidT TraceSolid_;                                     // The trace solid must be appropriately rotated as well.
 
-    TraceSolid_.Vertices.Overwrite();
-    TraceSolid_.Vertices.PushBackEmpty(TraceSolid.Vertices.Size());
+    TraceSolid_.AssignInvTransformed(TraceSolid, Orientation);
 
-    for (unsigned long VertexNr = 0; VertexNr < TraceSolid.Vertices.Size(); VertexNr++)
-        TraceSolid_.Vertices[VertexNr] = Orientation.MulTranspose(TraceSolid.Vertices[VertexNr]);
-
-    TraceSolid_.Planes.Overwrite();
-    TraceSolid_.Planes.PushBackEmpty(TraceSolid.Planes.Size());
-
-    for (unsigned long PlaneNr = 0; PlaneNr < TraceSolid.Planes.Size(); PlaneNr++)
-    {
-        TraceSolid_.Planes[PlaneNr].Normal = Orientation.MulTranspose(TraceSolid.Planes[PlaneNr].Normal);
-        TraceSolid_.Planes[PlaneNr].Dist   = TraceSolid.Planes[PlaneNr].Dist;
-    }
-
+    // Run the trace with the transformed trace solid.
     CollisionModel->TraceConvexSolid(TraceSolid_, Start_, Ray_, ClipMask, Result);
 
     // If there was a hit and Orientation is not the identity matrix,
