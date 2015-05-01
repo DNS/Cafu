@@ -258,7 +258,7 @@ void CollisionModelStaticT::PolygonT::TraceRay(
     const double F   =-(Dist-0.03125)/Nenner;
 
     // The intersection is only valid if F is in the proper interval.
-    if (F<0 || F>Result.Fraction) return;
+    if (F<0 || F>=Result.Fraction) return;
 
     // Hit the polygon!
     Result.Fraction    =F;
@@ -1035,7 +1035,11 @@ static double clamp(double min, double v, double max)
 
 void CollisionModelStaticT::NodeT::Trace(const Vector3dT& A, const Vector3dT& B, double FracA, double FracB, const TraceParamsT& Params) const
 {
-    if (Params.Result.Fraction<=FracA) return;    // If we already hit something nearer, there is no need to check this node.
+    // If we already hit something nearer, there is no need to check this node.
+    // Note that we really have to compare with `<` here, not `<=`, because if both sides
+    // are 0.0, we have to run the code below in order to not miss and thus fail to report
+    // actual starts in solid! See http://trac.cafu.de/ticket/148 for details.
+    if (Params.Result.Fraction < FracA) return;
 
     // Trace against all the brushes of this node.
     for (unsigned long BrushNr=0; BrushNr<Brushes.Size(); BrushNr++)
@@ -1056,7 +1060,7 @@ void CollisionModelStaticT::NodeT::Trace(const Vector3dT& A, const Vector3dT& B,
         }
 
         // If the contents of Brush got us stuck in solid, we can't go farther, so stop here.
-        if (Params.Result.Fraction==0.0) return;
+        if (Params.Result.StartSolid) return;
     }
 
     // Trace against all the polygons of this node.
@@ -1075,7 +1079,7 @@ void CollisionModelStaticT::NodeT::Trace(const Vector3dT& A, const Vector3dT& B,
         }
 
         // If the contents of Poly got us stuck in solid, we can't go farther, so stop here.
-        if (Params.Result.Fraction==0.0) return;
+        if (Params.Result.StartSolid) return;
     }
 
     // Trace against all the terrains of this node.
@@ -1143,7 +1147,7 @@ void CollisionModelStaticT::NodeT::Trace(const Vector3dT& A, const Vector3dT& B,
         }
 
         // If the contents of Terrain got us stuck in solid, we can't go farther, so stop here.
-        if (Params.Result.Fraction==0.0) return;
+        if (Params.Result.StartSolid) return;
     }
 
     // If this is a leaf node, we're done.

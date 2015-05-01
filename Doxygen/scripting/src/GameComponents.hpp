@@ -319,6 +319,12 @@ class ComponentCollisionModelT : public ComponentBaseT
     /// The file name of the collision model.
     /// @cppType{std::string}
     string Name;
+
+    /// If true, the orientation of the entity does not affect the orientation of the collision model.
+    /// This is used with players, monsters and other NPCs whose world-space collision model must not
+    /// change when they rotate (in order to not get them accidentally stuck in nearby walls).
+    /// @cppType{bool}
+    boolean IgnoreOrient;
 };
 
 

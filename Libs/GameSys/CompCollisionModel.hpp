@@ -91,6 +91,7 @@ namespace cf
             TypeSys::VarT<std::string>          m_CollMdlName;      ///< The file name of the collision model.
             std::string                         m_PrevName;         ///< The previous file name, used to detect changes in `m_CollMdlName`.
             const cf::ClipSys::CollisionModelT* m_CollisionModel;   ///< The collision model of this component, NULL for none.
+            TypeSys::VarT<bool>                 m_IgnoreOrient;     ///< If true, the orientation of the entity does not affect the orientation of the collision model.
 
             cf::ClipSys::ClipModelT*            m_ClipModel;        ///< The clip model of this component, NULL for none.
             Vector3fT                           m_ClipPrevOrigin;

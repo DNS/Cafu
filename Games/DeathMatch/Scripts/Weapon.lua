@@ -26,6 +26,7 @@ do
 
     Weapon:GetEntity():AddComponent(Trigger)
 
+    Trigger:set("IgnoreOrient", true)
     -- Trigger:SetBoundingBox(Weapon.Model:GetBoundingBox(), "Textures/meta/trigger")   -- A possible future improvement.
     Trigger:SetBoundingBox(-8, -8, 0, 8, 8, 8, "Textures/meta/trigger")
 end

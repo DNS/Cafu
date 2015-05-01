@@ -35,14 +35,26 @@ namespace cf
         class ClipModelT;
 
 
-        /// This class describes the result of tracing an object (a ray or a bounding box) through a collision shape, model or world.
+        /// This class describes the result of tracing an object (a ray, a bounding-box,
+        /// or a convex solid) through a collision model, a clip model, or a clip world.
+        ///
+        ///   - If `StartSolid` is `true`, the trace started in solid. In this case,
+        ///     `Fraction` is accordingly set to 0.0.
+        ///
+        ///   - If `Fraction` is smaller than the value that the trace was started with,
+        ///     something was hit along the trace. `Fraction`, `ImpactNormal` and `Material`
+        ///     provide details about the point of impact.
+        ///
+        ///   - If `Fraction` did not change, the entire trace succeeded without hitting
+        ///     anything.
+        ///
         struct TraceResultT
         {
             /// The constructor.
             TraceResultT(double Fraction_=1.0) : Fraction(Fraction_), StartSolid(false), Material(NULL) { }
 
-            double     Fraction;        ///< Fraction/percentage of movement completed, 0.0 means that the trace begun already stuck in solid, 1.0 means that the entire movement was possible without hitting anything.
-            bool       StartSolid;      ///< Did the movement start inside the object, "in solid"?
+            double     Fraction;        ///< How much of the trace could be completed before a hit occurred (if any).
+            bool       StartSolid;      ///< Did the trace start in a solid part of the collision or clip model?
             Vector3dT  ImpactNormal;    ///< On impact, this is the normal vector of the hit surface.
             MaterialT* Material;        ///< The material at the point of impact. Can be NULL when an edge (i.e. a bevel plane) was hit.
         };

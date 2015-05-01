@@ -44,6 +44,7 @@ do
 
     Entity:AddComponent(CollMdl)
 
+    CollMdl:set("IgnoreOrient", true)
     -- CollMdl:SetBoundingBox(Model:GetBoundingBox(), "Textures/meta/collisionmodel")   -- A possible future improvement.
     CollMdl:SetBoundingBox(-12, -12, -36, 12, 12, 36, "Textures/meta/collisionmodel")
 end
