@@ -115,7 +115,9 @@ void ClipWorldT::TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT
 
 
     // Now try all the entity models.
-    ArrayT<ClipModelT*>  ClipModels;
+    static ArrayT<ClipModelT*> ClipModels;
+    ClipModels.Overwrite();
+
     const BoundingBox3dT HullBB(TraceSolid.Vertices);
     const BoundingBox3dT OverallHullBB = HullBB.GetOverallTranslationBox(Start, Start + Ray * Result.Fraction);
 
@@ -153,7 +155,9 @@ void ClipWorldT::TraceRay(const Vector3dT& Start, const Vector3dT& Ray,
 
 
     // Now try all the entity models.
-    ArrayT<ClipModelT*>  ClipModels;
+    static ArrayT<ClipModelT*> ClipModels;
+    ClipModels.Overwrite();
+
     const BoundingBox3dT OverallBB(Start, Start + Ray * Result.Fraction);
 
     GetClipModelsFromBB(ClipModels, ClipMask, OverallBB);
@@ -201,20 +205,20 @@ void ClipWorldT::GetGridRectFromBB(unsigned long GridRect[], const BoundingBox3d
 // Note that the world clip model is *not* in the list of returned clip models!
 void ClipWorldT::GetClipModelsFromBB(ArrayT<ClipModelT*>& ClipModels, unsigned long ContentMask, const BoundingBox3dT& BB) const
 {
-    BoundingBox3dT ExpandedBB = BB.GetEpsilonBox(1.0);
-    unsigned long  GridRect[4];
+    const BoundingBox3dT ExpandedBB = BB.GetEpsilonBox(1.0);
+    unsigned long GridRect[4];
 
     GetGridRectFromBB(GridRect, BB);
 
 #ifdef DEBUG
-    for (unsigned long ModelNr = 0; ModelNr < ClipModels.Size(); ModelNr++)
-        assert(!ClipModels[ModelNr]->AlreadyChecked);
+    // TODO: Can we assert that for all clip models CM in the world,
+    // assert(!CM->AlreadyChecked)  holds?
 #endif
 
     for (unsigned long x = GridRect[0]; x < GridRect[2]; x++)
         for (unsigned long y = GridRect[1]; y < GridRect[3]; y++)
         {
-            ClipSectorT& Sector = Sectors[y * SectorSubdivs + x]; // The sector at (x, y).
+            const ClipSectorT& Sector = Sectors[y*SectorSubdivs + x];   // The sector at (x, y).
 
             if ((Sector.ModelContents & ContentMask) == 0) continue;
 
