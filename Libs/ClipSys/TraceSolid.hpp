@@ -91,20 +91,64 @@ namespace cf
         };
 
 
+        /// This class represents a convex solid in the shape of a point.
+        /// Traces of TracePointT solids are effectively "ray" traces, for which the
+        /// collision model implementations apply special optimizations.
+        class TracePointT : public TraceSolidT
+        {
+            public:
+
+            /// Creates a convex solid in the shape of a point.
+            TracePointT() { }
+
+            // Base class overrides.
+            unsigned int GetNumVertices() const override { return 1; }
+            const Vector3dT* GetVertices() const override { return &s_Vertex; }
+            unsigned int GetNumPlanes() const override { return 0; }
+            const Plane3dT* GetPlanes() const override { return NULL; }
+            unsigned int GetNumEdges() const override { return 0; }
+            const EdgeT* GetEdges() const override { return NULL; }
+
+
+            private:
+
+            const static Vector3dT s_Vertex;
+        };
+
+
+        /// This class represents a convex solid in the shape of a (bounding-)box.
+        class TraceBoxT : public TraceSolidT
+        {
+            public:
+
+            /// Creates a trace solid from (in the shape of) the given axis-aligned bounding-box.
+            TraceBoxT(const BoundingBox3dT& BB);
+
+            // Base class overrides.
+            unsigned int GetNumVertices() const override { return 8; }
+            const Vector3dT* GetVertices() const override { return m_Vertices; }
+            unsigned int GetNumPlanes() const override { return 6; }
+            const Plane3dT* GetPlanes() const override { return m_Planes; }
+            unsigned int GetNumEdges() const override { return 12; }
+            const EdgeT* GetEdges() const override { return s_Edges; }
+
+
+            private:
+
+            Vector3dT m_Vertices[8];
+            Plane3dT  m_Planes[6];
+
+            const static EdgeT s_Edges[12];
+        };
+
+
+        /// This class represents a generic convex solid of arbitrary shape.
         class TraceGenericT : public TraceSolidT
         {
             public:
 
             /// Creates an empty (invalid) trace model.
             TraceGenericT();
-
-            /// Creates a trace solid from (in the shape of) the given axis-aligned bounding-box.
-            TraceGenericT(const BoundingBox3dT& BB);
-
-            /// Updates this trace solid to the shape of the given bounding-box.
-            /// Compared to creating a new trace solid, this can significantly reduce or even
-            /// completely eliminate the required memory (re-)allocations.
-            void SetBB(const BoundingBox3dT& BB);
 
             /// Assigns the given solid to this one, transformed by the *transpose* of the given matrix.
             /// Compared to creating a new trace solid, this can significantly reduce or even

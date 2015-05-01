@@ -25,26 +25,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 using namespace cf::ClipSys;
 
 
-TraceGenericT::TraceGenericT()
+const Vector3dT TracePointT::s_Vertex = Vector3dT(0, 0, 0);
+
+
+TraceBoxT::TraceBoxT(const BoundingBox3dT& BB)
 {
-}
-
-
-TraceGenericT::TraceGenericT(const BoundingBox3dT& BB)
-{
-    SetBB(BB);
-}
-
-
-void TraceGenericT::SetBB(const BoundingBox3dT& BB)
-{
-    m_Vertices.Overwrite();
-    m_Vertices.PushBackEmptyExact(8);
-
-    BB.GetCornerVertices(&m_Vertices[0]);
-
-    m_Planes.Overwrite();
-    m_Planes.PushBackEmptyExact(6);
+    // No dynamic memory allocs from the heap!
+    BB.GetCornerVertices(m_Vertices);
 
     m_Planes[0] = Plane3dT(Vector3dT( 1.0,  0.0,  0.0),  BB.Max.x);
     m_Planes[1] = Plane3dT(Vector3dT(-1.0,  0.0,  0.0), -BB.Min.x);
@@ -52,22 +39,28 @@ void TraceGenericT::SetBB(const BoundingBox3dT& BB)
     m_Planes[3] = Plane3dT(Vector3dT( 0.0, -1.0,  0.0), -BB.Min.y);
     m_Planes[4] = Plane3dT(Vector3dT( 0.0,  0.0,  1.0),  BB.Max.z);
     m_Planes[5] = Plane3dT(Vector3dT( 0.0,  0.0, -1.0), -BB.Min.z);
+}
 
-    m_Edges.Overwrite();
-    m_Edges.PushBackEmptyExact(12);
 
-    m_Edges[ 0].A = 1; m_Edges[ 0].B = 5;
-    m_Edges[ 1].A = 5; m_Edges[ 1].B = 7;
-    m_Edges[ 2].A = 7; m_Edges[ 2].B = 3;
-    m_Edges[ 3].A = 3; m_Edges[ 3].B = 1;
-    m_Edges[ 4].A = 0; m_Edges[ 4].B = 4;
-    m_Edges[ 5].A = 4; m_Edges[ 5].B = 6;
-    m_Edges[ 6].A = 6; m_Edges[ 6].B = 2;
-    m_Edges[ 7].A = 2; m_Edges[ 7].B = 0;
-    m_Edges[ 8].A = 0; m_Edges[ 8].B = 1;
-    m_Edges[ 9].A = 4; m_Edges[ 9].B = 5;
-    m_Edges[10].A = 6; m_Edges[10].B = 7;
-    m_Edges[11].A = 2; m_Edges[11].B = 3;
+const TraceSolidT::EdgeT TraceBoxT::s_Edges[12] =
+{
+    { 1, 5 },
+    { 5, 7 },
+    { 7, 3 },
+    { 3, 1 },
+    { 0, 4 },
+    { 4, 6 },
+    { 6, 2 },
+    { 2, 0 },
+    { 0, 1 },
+    { 4, 5 },
+    { 6, 7 },
+    { 2, 3 }
+};
+
+
+TraceGenericT::TraceGenericT()
+{
 }
 
 

@@ -71,12 +71,7 @@ void ClipWorldT::TraceBoundingBox(const BoundingBox3dT& TraceBB, const Vector3dT
         return;
     }
 
-
-    static TraceGenericT TraceSolid(TraceBB);
-
-    TraceSolid.SetBB(TraceBB);
-
-    TraceConvexSolid(TraceSolid, Start, Ray, ClipMask, Ignore, Result, HitClipModel);
+    TraceConvexSolid(TraceBoxT(TraceBB), Start, Ray, ClipMask, Ignore, Result, HitClipModel);
 }
 
 
