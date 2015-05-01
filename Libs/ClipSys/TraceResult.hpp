@@ -70,20 +70,6 @@ namespace cf
             TraceResultT Result;        ///< The result of the trace that hit ClipModel (`Result.Fraction < 1.0`).
             ClipModelT*  ClipModel;     ///< The clip model related to the trace result. If `NULL`, the trace result is related to the ClipWorldT::WorldCollMdl.
         };
-
-
-        struct ContactsResultT
-        {
-            const static unsigned long MAX_CONTACTS = 16;
-
-            /// The constructor.
-            ContactsResultT() : NrOfRepContacts(0), NrOfAllContacts(0) { }
-
-            TraceResultT  TraceResults[MAX_CONTACTS];
-            ClipModelT*   ClipModels  [MAX_CONTACTS];
-            unsigned long NrOfRepContacts;      ///< The number of contacts actually reported in the TraceResults and ClipModels pair of array (at most MAX_CONTACTS many).
-            unsigned long NrOfAllContacts;      ///< The number of contacts that would have been reported if NrOfRepContacts was not capped by MAX_CONTACTS.
-        };
     }
 }
 

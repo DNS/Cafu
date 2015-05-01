@@ -32,7 +32,6 @@ namespace cf
         class  ClipModelT;
         class  ClipSectorT;
         class  CollisionModelT;
-        struct ContactsResultT;
         struct TraceResultT;
         struct WorldTraceResultT;
         class  TraceSolidT;
@@ -81,23 +80,6 @@ namespace cf
             /// @param ContentMask   The content filter mask; only clip models that meet this content mask are returned.
             /// @param BB            The bounding-box to be queried for clip models.
             void GetClipModelsFromBB(ArrayT<ClipModelT*>& ClipModels, unsigned long ContentMask, const BoundingBox3dT& BB) const;
-
-            /// Determines all places of contact between all clip models in this world and the given trace model
-            /// that would occur when the trace model was translated from trmOrig into direction trmMoveDir by trmMoveAmount.
-            ///
-            /// @note The contacts list is always exclusive the world, that is, the world clip model is *never*
-            ///       mentioned in the list, even if it meets all criteria otherwise.
-            ///
-            /// @returns This methods returns its results in the two parallel arrays Contacts and ClipModels,
-            ///          where each contact that is described by FoundContacts[i] occurred with the clip model pointed to by FoundClipModels[i].
-            void GetContacts(const BoundingBox3dT& TraceBB, const Vector3dT& Start, const Vector3dT& Ray,
-                             unsigned long ClipMask, const ClipModelT* Ignore, ContactsResultT& Contacts) const;
-
-            void GetContacts(const TraceSolidT& TraceSolid, const Vector3dT& Start, const Vector3dT& Ray,
-                             unsigned long ClipMask, const ClipModelT* Ignore, ContactsResultT& Contacts) const;
-
-            void GetContacts(const Vector3dT& Start, const Vector3dT& Ray,
-                             unsigned long ClipMask, const ClipModelT* Ignore, ContactsResultT& Contacts) const;
 
             /// Traces the given convex solid through the clip world.
             /// The method considers the clip world and all clip models therein, reporting the
