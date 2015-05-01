@@ -76,22 +76,6 @@ unsigned long ClipModelT::GetContents() const
 }
 
 
-void ClipModelT::TraceBoundingBox(const BoundingBox3dT& TraceBB, const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const
-{
-    if (!CollisionModel) return;
-
-    // Use the optimized point trace whenever possible.
-    if (TraceBB.Min == TraceBB.Max)
-    {
-        // TraceBB.Min and TraceBB.Max are normally supposed to be (0, 0, 0), but let's support the generic case.
-        TraceRay(Start + TraceBB.Min, Ray, ClipMask, Result);
-        return;
-    }
-
-    TraceConvexSolid(TraceBoxT(TraceBB), Start, Ray, ClipMask, Result);
-}
-
-
 void ClipModelT::TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const
 {
     if (!CollisionModel) return;

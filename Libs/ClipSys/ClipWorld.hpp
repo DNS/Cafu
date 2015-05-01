@@ -49,22 +49,19 @@ namespace cf
             /// The destructor.
             ~ClipWorldT();
 
-            /// Traces the given bounding box from Start along Ray (up to the input value of Result.Fraction) through the clip world,
+            /// Traces the given convex solid from Start along Ray (up to the input value of Result.Fraction) through the clip world,
             /// and reports the first collision, if any.
-            /// @param TraceBB   The bounding box to trace through the world.
-            /// @param Start     The start point in world space where the trace begins.
-            /// @param Ray       The ray along which the trace is performed. Note that with F being the input value of Result.Fraction, the endpoint is at Start+Ray*F.
-            /// @param ClipMask  Only surfaces whose clip flags match this mask participate in the test. This is for optimization, because it allows the implementation to cull surfaces that are not of interest early.
-            /// @param Ignore    A clip model that is to be ignored during the trace, even if the content mask matches.
-            ///                  This is normally used to "hide" the clip model from which the trace emanates in order to prevent it colliding with itself.
-            /// @param Result    The start value of Fraction is input via this reference, and the result of the trace returned.
+            /// @param TraceSolid   The convex solid to trace through the world.
+            /// @param Start        The start point in world space where the trace begins.
+            /// @param Ray          The ray along which the trace is performed. Note that with F being the input value of Result.Fraction, the endpoint is at Start+Ray*F.
+            /// @param ClipMask     Only surfaces whose clip flags match this mask participate in the test. This is for optimization, because it allows the implementation to cull surfaces that are not of interest early.
+            /// @param Ignore       A clip model that is to be ignored during the trace, even if the content mask matches.
+            ///                     This is normally used to "hide" the clip model from which the trace emanates in order to prevent it colliding with itself.
+            /// @param Result       The start value of Fraction is input via this reference, and the result of the trace returned.
             ///     Using an input/output parameter for returning the result, rather than a true return type, suggests itself because it makes
             ///     cascaded calls to this function natural (i.e. from (possibly many) super-objects and to (possibly many) sub-objects).
             /// @param HitClipModel   A pointer to the clip model instance with which the reported collision occurred, or NULL if there was no collision.
             /// @see TraceResultT
-            void TraceBoundingBox(const BoundingBox3dT& TraceBB, const Vector3dT& Start, const Vector3dT& Ray,
-                                  unsigned long ClipMask, const ClipModelT* Ignore, TraceResultT& Result, ClipModelT** HitClipModel = NULL) const;
-
             void TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT& Start, const Vector3dT& Ray,
                                   unsigned long ClipMask, const ClipModelT* Ignore, TraceResultT& Result, ClipModelT** HitClipModel = NULL) const;
 

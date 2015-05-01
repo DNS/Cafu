@@ -720,18 +720,19 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                 Vector3dT OurNewOrigin = IPSEntity->GetTransform()->GetOriginWS().AsVectorOfDouble();
 
                 // First, create a BB of dimensions (-16.0, -16.0, -4.0) - (16.0, 16.0, 4.0).
-                const BoundingBox3T<double> ClearingBB(VectorT(Dimensions.Min.x, Dimensions.Min.y, -Dimensions.Max.z), Dimensions.Max);
+                const BoundingBox3dT         ClearingBB(Vector3dT(Dimensions.Min.x, Dimensions.Min.y, -Dimensions.Max.z), Dimensions.Max);
+                const cf::ClipSys::TraceBoxT ClearingBox(ClearingBB);
 
                 cf::ClipSys::ClipModelT* IgnorePlayerClipModel = NULL;  // TODO!
 
-                // Move ClearingBB up to a reasonable height (if possible!), such that the *full* BB (that is, Dimensions) is clear of (not stuck in) solid.
+                // Move ClearingBox up to a reasonable height (if possible!), such that the *full* box (that is, Dimensions) is clear of (not stuck in) solid.
                 cf::ClipSys::TraceResultT Result(1.0);
-                GetEntity()->GetWorld().GetClipWorld()->TraceBoundingBox(ClearingBB, OurNewOrigin, VectorT(0.0, 0.0, 120.0), MaterialT::Clip_Players, IgnorePlayerClipModel, Result);
+                GetEntity()->GetWorld().GetClipWorld()->TraceConvexSolid(ClearingBox, OurNewOrigin, VectorT(0.0, 0.0, 120.0), MaterialT::Clip_Players, IgnorePlayerClipModel, Result);
                 const double AddHeight=120.0*Result.Fraction;
 
-                // Move ClearingBB down as far as possible.
+                // Move ClearingBox down as far as possible.
                 Result=cf::ClipSys::TraceResultT(1.0);
-                GetEntity()->GetWorld().GetClipWorld()->TraceBoundingBox(ClearingBB, OurNewOrigin+VectorT(0.0, 0.0, AddHeight), VectorT(0.0, 0.0, -1000.0), MaterialT::Clip_Players, IgnorePlayerClipModel, Result);
+                GetEntity()->GetWorld().GetClipWorld()->TraceConvexSolid(ClearingBox, OurNewOrigin + VectorT(0.0, 0.0, AddHeight), VectorT(0.0, 0.0, -1000.0), MaterialT::Clip_Players, IgnorePlayerClipModel, Result);
                 const double SubHeight=1000.0*Result.Fraction;
 
                 // Beachte: Hier für Epsilon 1.0 (statt z.B. 1.23456789) zu wählen hebt u.U. GENAU den (0 0 -1) Test in

@@ -60,21 +60,6 @@ ClipWorldT::~ClipWorldT()
 }
 
 
-void ClipWorldT::TraceBoundingBox(const BoundingBox3dT& TraceBB, const Vector3dT& Start, const Vector3dT& Ray,
-                                  unsigned long ClipMask, const ClipModelT* Ignore, TraceResultT& Result, ClipModelT** HitClipModel) const
-{
-    // Use the optimized point trace whenever possible.
-    if (TraceBB.Min == TraceBB.Max)
-    {
-        // TraceBB.Min and TraceBB.Max are normally supposed to be (0, 0, 0), but let's support the generic case.
-        TraceRay(Start + TraceBB.Min, Ray, ClipMask, Ignore, Result, HitClipModel);
-        return;
-    }
-
-    TraceConvexSolid(TraceBoxT(TraceBB), Start, Ray, ClipMask, Ignore, Result, HitClipModel);
-}
-
-
 void ClipWorldT::TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT& Start, const Vector3dT& Ray,
                                   unsigned long ClipMask, const ClipModelT* Ignore, TraceResultT& Result, ClipModelT** HitClipModel) const
 {

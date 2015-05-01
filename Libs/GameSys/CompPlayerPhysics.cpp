@@ -67,7 +67,8 @@ ComponentPlayerPhysicsT::ComponentPlayerPhysicsT()
       m_ClipWorld(NULL),
       m_IgnoreClipModel(NULL),
       m_Origin(),
-      m_Vel()
+      m_Vel(),
+      m_DimSolid(m_Dimensions.Get())
 {
     GetMemberVars().Add(&m_Velocity);
     GetMemberVars().Add(&m_Dimensions);
@@ -85,7 +86,8 @@ ComponentPlayerPhysicsT::ComponentPlayerPhysicsT(const ComponentPlayerPhysicsT& 
       m_ClipWorld(NULL),
       m_IgnoreClipModel(NULL),
       m_Origin(),
-      m_Vel()
+      m_Vel(),
+      m_DimSolid(m_Dimensions.Get())
 {
     GetMemberVars().Add(&m_Velocity);
     GetMemberVars().Add(&m_Dimensions);
@@ -104,8 +106,9 @@ void ComponentPlayerPhysicsT::MoveHuman(float FrameTime, const Vector3fT& WishVe
     if (CompCollMdl != NULL)
         m_IgnoreClipModel = CompCollMdl->GetClipModel();
 
-    m_Origin = GetEntity()->GetTransform()->GetOriginWS().AsVectorOfDouble();
-    m_Vel    = m_Velocity.Get();
+    m_Origin   = GetEntity()->GetTransform()->GetOriginWS().AsVectorOfDouble();
+    m_Vel      = m_Velocity.Get();
+    m_DimSolid = cf::ClipSys::TraceBoxT(m_Dimensions.Get());
 
     MoveHuman(FrameTime, WishVelocity.AsVectorOfDouble(), WishVelLadder.AsVectorOfDouble(), WishJump);
 
@@ -141,7 +144,7 @@ ComponentPlayerPhysicsT::PosCatT ComponentPlayerPhysicsT::CategorizePosition() c
 {
     // Bestimme die Brushes in der unmittelbaren Nähe unserer BB, insb. diejenigen unter uns. Bloate gemäß unserer Dimensions-BoundingBox.
     cf::ClipSys::TraceResultT Trace(1.0);
-    m_ClipWorld->TraceBoundingBox(m_Dimensions.Get(), m_Origin, Vector3dT(0.0, 0.0, -0.1), MaterialT::Clip_Players, m_IgnoreClipModel, Trace);
+    m_ClipWorld->TraceConvexSolid(m_DimSolid, m_Origin, Vector3dT(0.0, 0.0, -0.1), MaterialT::Clip_Players, m_IgnoreClipModel, Trace);
 
     // OLD CODE:
     // return (Trace.Fraction==1.0 || Trace.ImpactNormal.z<0.7) ? InAir : OnSolid;
@@ -159,7 +162,7 @@ ComponentPlayerPhysicsT::PosCatT ComponentPlayerPhysicsT::CategorizePosition() c
         const Vector3dT SlideOff = Vector3dT(0.0, 0.0, -0.1) + scale(Trace.ImpactNormal, Trace.ImpactNormal.z);
 
         Trace=cf::ClipSys::TraceResultT(1.0);   // Very important - reset the trace results.
-        m_ClipWorld->TraceBoundingBox(m_Dimensions.Get(), m_Origin, SlideOff, MaterialT::Clip_Players, m_IgnoreClipModel, Trace);
+        m_ClipWorld->TraceConvexSolid(m_DimSolid, m_Origin, SlideOff, MaterialT::Clip_Players, m_IgnoreClipModel, Trace);
 
         if (Trace.Fraction==1.0) return InAir;
     }
@@ -262,7 +265,7 @@ void ComponentPlayerPhysicsT::FlyMove(double TimeLeft)
         const Vector3dT           DistLeft = scale(m_Vel, TimeLeft);
         cf::ClipSys::TraceResultT Trace(1.0);
 
-        m_ClipWorld->TraceBoundingBox(m_Dimensions.Get(), m_Origin, DistLeft, MaterialT::Clip_Players, m_IgnoreClipModel, Trace);
+        m_ClipWorld->TraceConvexSolid(m_DimSolid, m_Origin, DistLeft, MaterialT::Clip_Players, m_IgnoreClipModel, Trace);
 
         if (Trace.StartSolid)               // MassChunk is trapped in another solid
         {
@@ -342,7 +345,7 @@ void ComponentPlayerPhysicsT::GroundMove(double FrameTime)
     const Vector3dT           DistLeft = scale(m_Vel, FrameTime);
     cf::ClipSys::TraceResultT Trace(1.0);
 
-    m_ClipWorld->TraceBoundingBox(m_Dimensions.Get(), m_Origin, DistLeft, MaterialT::Clip_Players, m_IgnoreClipModel, Trace);
+    m_ClipWorld->TraceConvexSolid(m_DimSolid, m_Origin, DistLeft, MaterialT::Clip_Players, m_IgnoreClipModel, Trace);
 
     if (Trace.Fraction==1.0)
     {
@@ -355,7 +358,7 @@ void ComponentPlayerPhysicsT::GroundMove(double FrameTime)
     Vector3dT OriginalPos = m_Origin;
     Vector3dT OriginalVel = m_Vel;
 
-    FlyMove(FrameTime);     // Correctly slide along walls, just calling m_ClipWorld->TraceBoundingBox() is not enough.
+    FlyMove(FrameTime);     // Correctly slide along walls, just calling m_ClipWorld->TraceConvexSolid() is not enough.
 
     Vector3dT GroundPos = m_Origin;
     Vector3dT GroundVel = m_Vel;
@@ -369,7 +372,7 @@ void ComponentPlayerPhysicsT::GroundMove(double FrameTime)
     const Vector3dT StepDown = Vector3dT(0, 0, -m_StepHeight.Get());
 
     Trace = cf::ClipSys::TraceResultT(1.0);   // Very important - reset the trace results.
-    m_ClipWorld->TraceBoundingBox(m_Dimensions.Get(), m_Origin, StepUp, MaterialT::Clip_Players, m_IgnoreClipModel, Trace);
+    m_ClipWorld->TraceConvexSolid(m_DimSolid, m_Origin, StepUp, MaterialT::Clip_Players, m_IgnoreClipModel, Trace);
     m_Origin = m_Origin + scale(StepUp, Trace.Fraction);
 
     // Then forward.
@@ -377,7 +380,7 @@ void ComponentPlayerPhysicsT::GroundMove(double FrameTime)
 
     // One step down again.
     Trace = cf::ClipSys::TraceResultT(1.0);   // Very important - reset the trace results.
-    m_ClipWorld->TraceBoundingBox(m_Dimensions.Get(), m_Origin, StepDown, MaterialT::Clip_Players, m_IgnoreClipModel, Trace);
+    m_ClipWorld->TraceConvexSolid(m_DimSolid, m_Origin, StepDown, MaterialT::Clip_Players, m_IgnoreClipModel, Trace);
 
     // Don't climb up somewhere where it is pointless.
     if (Trace.Fraction < 1.0 && Trace.ImpactNormal.z < 0.7)
@@ -424,7 +427,7 @@ void ComponentPlayerPhysicsT::MoveHuman(float FrameTime, const Vector3dT& WishVe
     const Vector3dT BodyDir = cf::math::Matrix3x3fT(GetEntity()->GetTransform()->GetQuatWS()).GetAxis(0).AsVectorOfDouble();
     cf::ClipSys::TraceResultT LadderResult(1.0);
 
-    m_ClipWorld->TraceBoundingBox(m_Dimensions.Get(), m_Origin, BodyDir * 6.0, MaterialT::Clip_Players, m_IgnoreClipModel, LadderResult);
+    m_ClipWorld->TraceConvexSolid(m_DimSolid, m_Origin, BodyDir * 6.0, MaterialT::Clip_Players, m_IgnoreClipModel, LadderResult);
 
     const bool OnLadder = LadderResult.Fraction < 1.0 && LadderResult.Material && ((LadderResult.Material->ClipFlags & MaterialT::SP_Ladder) != 0);
 
