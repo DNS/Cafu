@@ -34,6 +34,7 @@ namespace cf
         class  CollisionModelT;
         struct ContactsResultT;
         struct TraceResultT;
+        struct WorldTraceResultT;
         class  TraceSolidT;
 
 
@@ -97,6 +98,15 @@ namespace cf
 
             void GetContacts(const Vector3dT& Start, const Vector3dT& Ray,
                              unsigned long ClipMask, const ClipModelT* Ignore, ContactsResultT& Contacts) const;
+
+            /// Traces the given convex solid through the clip world.
+            /// The method considers the clip world and all clip models therein, reporting the
+            /// first collision with each, if any, in the order as they were encountered along
+            /// the trace (ordered by increasing `Fraction`).
+            /// This method is intended as a future replacement for the other Trace...()
+            /// methods. For now, see there for further details.
+            void Trace(const TraceSolidT& TraceSolid, const Vector3dT& Start, const Vector3dT& Ray,
+                       unsigned long ClipMask, const ClipModelT* Ignore, ArrayT<WorldTraceResultT>& Results) const;
 
 
             private:

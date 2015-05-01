@@ -60,6 +60,18 @@ namespace cf
         };
 
 
+        /// This class describes one result (of possibly several) of tracing an object
+        /// (a ray, a bounding-box, or a convex solid) through a clip world.
+        struct WorldTraceResultT
+        {
+            WorldTraceResultT() : Result(), ClipModel(NULL) { }
+            WorldTraceResultT(const TraceResultT& TR, ClipModelT* CM) : Result(TR), ClipModel(CM) { }
+
+            TraceResultT Result;        ///< The result of the trace that hit ClipModel (`Result.Fraction < 1.0`).
+            ClipModelT*  ClipModel;     ///< The clip model related to the trace result. If `NULL`, the trace result is related to the ClipWorldT::WorldCollMdl.
+        };
+
+
         struct ContactsResultT
         {
             const static unsigned long MAX_CONTACTS = 16;

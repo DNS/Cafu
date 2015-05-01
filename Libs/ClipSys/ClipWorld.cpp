@@ -384,3 +384,75 @@ void ClipWorldT::GetContacts(const Vector3dT& Start, const Vector3dT& Ray,
         }
     }
 }
+
+
+void ClipWorldT::Trace(const TraceSolidT& TraceSolid, const Vector3dT& Start, const Vector3dT& Ray,
+                       unsigned long ClipMask, const ClipModelT* Ignore, ArrayT<WorldTraceResultT>& Results) const
+{
+    Results.Overwrite();
+
+    // First trace against the WorldCollMdl.
+    // This is a special-case, because WorldCollMdl is a CollisionModelT,
+    // not a ClipModelT, and as such not registered in the clip sectors.
+    {
+        TraceResultT ModelResult;
+
+        WorldCollMdl->TraceConvexSolid(TraceSolid, Start, Ray, ClipMask, ModelResult);
+
+        Results.PushBack(WorldTraceResultT(ModelResult, NULL));
+    }
+
+    // Now trace against all entity clip models.
+    static ArrayT<ClipModelT*> ClipModels;
+    ClipModels.Overwrite();
+
+    const BoundingBox3dT OverallBB(Start, Start + Ray);
+
+    GetClipModelsFromBB(ClipModels, ClipMask, OverallBB);
+
+    for (unsigned int ModelNr = 0; ModelNr < ClipModels.Size(); ModelNr++)
+    {
+        ClipModelT* ClipModel = ClipModels[ModelNr];
+
+        if (ClipModel == Ignore) continue;
+
+        TraceResultT EntityResult;
+
+        ClipModel->TraceConvexSolid(TraceSolid, Start, Ray, ClipMask, EntityResult);
+
+        Results.PushBack(WorldTraceResultT(EntityResult, ClipModel));
+    }
+
+    // Remove all results in which no hit occurred (Fraction == 1.0).
+    for (unsigned int Nr = 0; Nr < Results.Size(); Nr++)
+    {
+        if (Results[Nr].Result.Fraction == 1.0)
+        {
+            Results.RemoveAt(Nr);
+            Nr--;
+        }
+    }
+
+    // Sort the results by StartSolid first, then by Fraction value.
+    struct ResultsComparatorT
+    {
+        bool operator () (const WorldTraceResultT& r1, const WorldTraceResultT& r2)
+        {
+            if (r1.Result.StartSolid == r2.Result.StartSolid)
+                return r1.Result.Fraction < r2.Result.Fraction;
+
+            return r1.Result.StartSolid;
+        }
+    };
+
+    Results.QuickSort(ResultsComparatorT());
+
+    // Assert that the results are sorted as intended.
+#ifdef DEBUG
+    for (unsigned int Nr = 1; Nr < Results.Size(); Nr++)
+    {
+        assert(!(Results[Nr-1].Result.StartSolid == false && Results[Nr].Result.StartSolid == true));
+        assert(Results[Nr-1].Result.Fraction <= Results[Nr].Result.Fraction);
+    }
+#endif
+}
