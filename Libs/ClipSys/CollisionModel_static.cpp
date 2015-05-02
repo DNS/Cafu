@@ -999,28 +999,19 @@ bool CollisionModelStaticT::NodeT::DetermineSplitPlane(const BoundingBox3dT& Nod
 
 struct TraceParamsT
 {
-    enum TypeT
-    {
-        POINT,
-        BOX,
-        SOLID
-    };
-
-
-    TraceParamsT(const TypeT Type_, const bool GenericBrushes_, const BoundingBox3dT& TraceBB_, const TraceSolidT& TraceSolid_, const Vector3dT& Start_, const Vector3dT& Ray_, unsigned long ClipMask_, TraceResultT& Result_)
-        : Type(Type_), GenericBrushes(GenericBrushes_), TraceBB(TraceBB_), TraceSolid(TraceSolid_), Start(Start_), Ray(Ray_), ClipMask(ClipMask_), Result(Result_)
+    TraceParamsT(const bool GenericBrushes_, const TraceSolidT& TraceSolid_, const Vector3dT& Start_, const Vector3dT& Ray_, unsigned long ClipMask_, TraceResultT& Result_)
+        : GenericBrushes(GenericBrushes_), TraceSolid(TraceSolid_), TraceBB(TraceSolid_.GetBB()), Start(Start_), Ray(Ray_), ClipMask(ClipMask_), Result(Result_)
     {
     }
 
 
-    const TypeT           Type;
-    const bool            GenericBrushes;
-    const BoundingBox3dT& TraceBB;
-    const TraceSolidT&    TraceSolid;
-    const Vector3dT&      Start;
-    const Vector3dT&      Ray;
-    const unsigned long   ClipMask;
-    TraceResultT&         Result;
+    const bool           GenericBrushes;
+    const TraceSolidT&   TraceSolid;
+    const BoundingBox3dT TraceBB;
+    const Vector3dT&     Start;
+    const Vector3dT&     Ray;
+    const unsigned long  ClipMask;
+    TraceResultT&        Result;
 };
 
 
@@ -1049,14 +1040,15 @@ void CollisionModelStaticT::NodeT::Trace(const Vector3dT& A, const Vector3dT& B,
         if (Brush->CheckCount == s_CheckCount) continue;
         Brush->CheckCount = s_CheckCount;
 
-        switch (Params.Type)
+        if (Params.TraceSolid.GetNumVertices() == 1)    // Also checked by BrushT::TraceConvexSolid(), but not by BrushT::TraceBevelBB(), thus anticipate it here.
         {
-            case TraceParamsT::POINT: Brush->TraceRay(Params.Start, Params.Ray, Params.ClipMask, Params.Result); break;
-            case TraceParamsT::BOX: break;
-            case TraceParamsT::SOLID:
-                if (Params.GenericBrushes) Brush->TraceConvexSolid(Params.TraceSolid, Params.Start, Params.Ray, Params.ClipMask, Params.Result);
-                                      else Brush->TraceBevelBB(Params.TraceBB, Params.Start, Params.Ray, Params.ClipMask, Params.Result);
-                break;
+            // TraceSolid.GetVertices()[0] is normally supposed to be (0, 0, 0), but let's support the generic case.
+            Brush->TraceRay(Params.Start + Params.TraceSolid.GetVertices()[0], Params.Ray, Params.ClipMask, Params.Result);
+        }
+        else
+        {
+            if (Params.GenericBrushes) Brush->TraceConvexSolid(Params.TraceSolid, Params.Start, Params.Ray, Params.ClipMask, Params.Result);
+                                  else Brush->TraceBevelBB(Params.TraceBB, Params.Start, Params.Ray, Params.ClipMask, Params.Result);
         }
 
         // If the contents of Brush got us stuck in solid, we can't go farther, so stop here.
@@ -1071,12 +1063,7 @@ void CollisionModelStaticT::NodeT::Trace(const Vector3dT& A, const Vector3dT& B,
         if (Poly->CheckCount == s_CheckCount) continue;
         Poly->CheckCount = s_CheckCount;
 
-        switch (Params.Type)
-        {
-            case TraceParamsT::POINT: Poly->TraceRay(Params.Start, Params.Ray, Params.ClipMask, Params.Result); break;
-            case TraceParamsT::BOX: break;
-            case TraceParamsT::SOLID: Poly->TraceConvexSolid(Params.TraceSolid, Params.Start, Params.Ray, Params.ClipMask, Params.Result); break;
-        }
+        Poly->TraceConvexSolid(Params.TraceSolid, Params.Start, Params.Ray, Params.ClipMask, Params.Result);
 
         // If the contents of Poly got us stuck in solid, we can't go farther, so stop here.
         if (Params.Result.StartSolid) return;
@@ -1090,60 +1077,25 @@ void CollisionModelStaticT::NodeT::Trace(const Vector3dT& A, const Vector3dT& B,
         if (Terrain->CheckCount == s_CheckCount) continue;
         Terrain->CheckCount = s_CheckCount;
 
-        switch (Params.Type)
+        // If the ClipFlags of this terrain don't match the ClipMask, it doesn't interfere with the trace.
+        if (!Terrain->Material) continue;
+        if ((Terrain->Material->ClipFlags & Params.ClipMask) == 0) continue;
+
+        const double       OldFrac = Params.Result.Fraction;
+        VB_Trace3T<double> LocalResult(Params.Result.Fraction);
+
+        LocalResult.StartSolid   = Params.Result.StartSolid;
+        LocalResult.ImpactNormal = Params.Result.ImpactNormal;
+
+        Terrain->Terrain->TraceBoundingBox(Params.TraceBB, Params.Start, Params.Ray, LocalResult);
+
+        Params.Result.Fraction     = LocalResult.Fraction;
+        Params.Result.StartSolid   = LocalResult.StartSolid;
+        Params.Result.ImpactNormal = LocalResult.ImpactNormal;
+
+        if (Params.Result.Fraction < OldFrac)
         {
-            case TraceParamsT::POINT:
-            {
-                // If the ClipFlags of this terrain don't match the ClipMask, it doesn't interfere with the trace.
-                if (!Terrain->Material) break;
-                if ((Terrain->Material->ClipFlags & Params.ClipMask) == 0) break;
-
-                // TODO: Terrain->Terrain->TraceRay(Params.Start, Params.Ray, Params.Result);
-
-                const double       OldFrac = Params.Result.Fraction;
-                VB_Trace3T<double> LocalResult(Params.Result.Fraction);
-
-                LocalResult.StartSolid   = Params.Result.StartSolid;
-                LocalResult.ImpactNormal = Params.Result.ImpactNormal;
-
-                Terrain->Terrain->TraceBoundingBox(BoundingBox3dT(Vector3dT()), Params.Start, Params.Ray, LocalResult);
-
-                Params.Result.Fraction     = LocalResult.Fraction;
-                Params.Result.StartSolid   = LocalResult.StartSolid;
-                Params.Result.ImpactNormal = LocalResult.ImpactNormal;
-
-                if (Params.Result.Fraction < OldFrac)
-                {
-                    Params.Result.Material = Terrain->Material;
-                }
-                break;
-            }
-
-            case TraceParamsT::BOX:     // Intentional fall-through: for now we just treat the BOX and SOLID cases alike...
-            case TraceParamsT::SOLID:
-            {
-                // If the ClipFlags of this terrain don't match the ClipMask, it doesn't interfere with the trace.
-                if (!Terrain->Material) break;
-                if ((Terrain->Material->ClipFlags & Params.ClipMask) == 0) break;
-
-                const double       OldFrac = Params.Result.Fraction;
-                VB_Trace3T<double> LocalResult(Params.Result.Fraction);
-
-                LocalResult.StartSolid   = Params.Result.StartSolid;
-                LocalResult.ImpactNormal = Params.Result.ImpactNormal;
-
-                Terrain->Terrain->TraceBoundingBox(Params.TraceBB, Params.Start, Params.Ray, LocalResult);
-
-                Params.Result.Fraction     = LocalResult.Fraction;
-                Params.Result.StartSolid   = LocalResult.StartSolid;
-                Params.Result.ImpactNormal = LocalResult.ImpactNormal;
-
-                if (Params.Result.Fraction < OldFrac)
-                {
-                    Params.Result.Material = Terrain->Material;
-                }
-                break;
-            }
+            Params.Result.Material = Terrain->Material;
         }
 
         // If the contents of Terrain got us stuck in solid, we can't go farther, so stop here.
@@ -2179,7 +2131,7 @@ void CollisionModelStaticT::TraceConvexSolid(
 {
     CollisionModelStaticT::s_CheckCount++;
 
-    TraceParamsT Params(TraceParamsT::SOLID, m_GenericBrushes, TraceSolid.GetBB(), TraceSolid, Start, Ray, ClipMask, Result);
+    TraceParamsT Params(m_GenericBrushes, TraceSolid, Start, Ray, ClipMask, Result);
 
     m_RootNode->Trace(Start, Start + Ray * Result.Fraction, 0, Result.Fraction, Params);
 }
@@ -2188,14 +2140,13 @@ void CollisionModelStaticT::TraceConvexSolid(
 void CollisionModelStaticT::TraceRay(
     const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const
 {
-    static const TraceGenericT  ZeroTraceSolid;
-    static const BoundingBox3dT ZeroHullBB(Vector3dT(0, 0, 0));
+    static const TracePointT Point;
 
     CollisionModelStaticT::s_CheckCount++;
 
     // Special-case: Everywhere else in our ClipSys universe, TraceSolid.Vertices.Size()==0 means "no collision"...
     // (Here it is used to let LinearTraceThroughTree() know that we want to trace a ray rather than a convex solid.)
-    TraceParamsT Params(TraceParamsT::POINT, m_GenericBrushes, ZeroHullBB, ZeroTraceSolid, Start, Ray, ClipMask, Result);
+    TraceParamsT Params(m_GenericBrushes, Point, Start, Ray, ClipMask, Result);
 
     m_RootNode->Trace(Start, Start + Ray * Result.Fraction, 0, Result.Fraction, Params);
 }
