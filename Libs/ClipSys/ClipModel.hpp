@@ -110,8 +110,6 @@ namespace cf
             /// @see TraceResultT
             void TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const;
 
-            void TraceRay(const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const;
-
             /// Determines the volume contents of the model at the given point / in the given box.
             /// The function considers all brush volumes in the clip model that contain the given point or intersect the given box,
             /// and returns their combined ("or'ed") contents.

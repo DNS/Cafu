@@ -65,9 +65,6 @@ namespace cf
             void TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT& Start, const Vector3dT& Ray,
                                   unsigned long ClipMask, const ClipModelT* Ignore, TraceResultT& Result, ClipModelT** HitClipModel = NULL) const;
 
-            void TraceRay(const Vector3dT& Start, const Vector3dT& Ray,
-                          unsigned long ClipMask, const ClipModelT* Ignore, TraceResultT& Result, ClipModelT** HitClipModel = NULL) const;
-
             /// Determines the set of clip models that touch a given bounding-box and meet a given contents mask.
             ///
             /// @note The return list is always exclusive the world, that is, the world clip model is *never*

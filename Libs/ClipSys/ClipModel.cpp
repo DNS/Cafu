@@ -79,17 +79,7 @@ unsigned long ClipModelT::GetContents() const
 void ClipModelT::TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const
 {
     if (!CollisionModel) return;
-
     if (TraceSolid.GetNumVertices() == 0) return;
-
-    // Use the optimized point trace whenever possible.
-    if (TraceSolid.GetNumVertices() == 1)
-    {
-        // TraceSolid.Vertices[0] is normally supposed to be (0, 0, 0), but let's support the generic case.
-        TraceRay(Start + TraceSolid.GetVertices()[0], Ray, ClipMask, Result);
-        return;
-    }
-
 
     // This is a quick and cheap test if Orientation is the identity matrix.
     const bool IsIdentityOrientation = (Orientation[0][0] == 1.0 && Orientation[1][1] == 1.0 && Orientation[2][2] == 1.0);
@@ -100,7 +90,6 @@ void ClipModelT::TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT
         CollisionModel->TraceConvexSolid(TraceSolid, Start - Origin, Ray, ClipMask, Result);
         return;
     }
-
 
     // Transform Start and Ray from world to model space.
     // Doing so requires multiplying them with the inverse of the model-to-world matrix formed by Origin and Orientation.
@@ -115,39 +104,6 @@ void ClipModelT::TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT
 
     // Run the trace with the transformed trace solid.
     CollisionModel->TraceConvexSolid(TraceSolid_, Start_, Ray_, ClipMask, Result);
-
-    // If there was a hit and Orientation is not the identity matrix,
-    // we have to rotate the new impact normal vector from model to world space.
-    if (Result.Fraction < OldFrac)
-    {
-        Result.ImpactNormal = Orientation.Mul(Result.ImpactNormal);
-    }
-}
-
-
-void ClipModelT::TraceRay(const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const
-{
-    if (!CollisionModel) return;
-
-    // This is a quick and cheap test if Orientation is the identity matrix.
-    const bool IsIdentityOrientation = (Orientation[0][0] == 1.0 && Orientation[1][1] == 1.0 && Orientation[2][2] == 1.0);
-
-    if (IsIdentityOrientation)
-    {
-        // Handle the simple case separately. This makes the rest of the code much simpler.
-        CollisionModel->TraceRay(Start - Origin, Ray, ClipMask, Result);
-        return;
-    }
-
-
-    // Transform Start and Ray from world to model space.
-    // Doing so requires multiplying them with the inverse of the model-to-world matrix formed by Origin and Orientation.
-    // We exploit the fact that Orientation is always an orthogonal base rotation matrix, where the inverse is the transpose.
-    const double    OldFrac = Result.Fraction;
-    const Vector3dT Start_  = Orientation.MulTranspose(Start - Origin); // Start is a point in space.
-    const Vector3dT Ray_    = Orientation.MulTranspose(Ray);            // Ray is a directional vector.
-
-    CollisionModel->TraceRay(Start_, Ray_, ClipMask, Result);
 
     // If there was a hit and Orientation is not the identity matrix,
     // we have to rotate the new impact normal vector from model to world space.

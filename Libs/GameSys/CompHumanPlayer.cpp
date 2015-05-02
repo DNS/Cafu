@@ -314,10 +314,12 @@ bool ComponentHumanPlayerT::TraceCameraRay(const Vector3dT& Dir, Vector3dT& HitP
     IntrusivePtrT<ComponentCollisionModelT> IgnoreCollMdl =
         dynamic_pointer_cast<ComponentCollisionModelT>(GetEntity()->GetComponent("CollisionModel"));
 
+    const static cf::ClipSys::TracePointT Point;
     cf::ClipSys::TraceResultT Result;
     cf::ClipSys::ClipModelT*  HitClipModel = NULL;
 
-    GetEntity()->GetWorld().GetClipWorld()->TraceRay(
+    GetEntity()->GetWorld().GetClipWorld()->TraceConvexSolid(
+        Point,
         Start,
         Ray,
         MaterialT::Clip_BlkButUtils,

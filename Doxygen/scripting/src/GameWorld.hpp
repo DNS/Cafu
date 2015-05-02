@@ -88,7 +88,7 @@ class WorldT
     // /// See `DeathMatch/GUIs/MainMenu/MainMenu_main.cgui` for an example.
     Init();
 
-    /// Employs m_ClipWorld->TraceRay() to trace a ray through the (clip) world.
+    /// Employs m_ClipWorld->Trace() to trace a ray through the (clip) world.
     table TraceRay(table Start, table Ray);
 
     /// Employs m_PhysicsWorld->TraceBoundingBox() to trace a bounding-box through the (physics) world.

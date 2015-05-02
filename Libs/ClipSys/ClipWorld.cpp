@@ -71,14 +71,6 @@ void ClipWorldT::TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT
 
     if (TraceSolid.GetNumVertices() == 0) return;
 
-    // Use the optimized point trace whenever possible.
-    if (TraceSolid.GetNumVertices() == 1)
-    {
-        // TraceSolid.Vertices[0] is normally supposed to be (0, 0, 0), but let's support the generic case.
-        TraceRay(Start + TraceSolid.GetVertices()[0], Ray, ClipMask, Ignore, Result, HitClipModel);
-        return;
-    }
-
 
     // Try the trace against the WorldCollMdl first.
     WorldCollMdl->TraceConvexSolid(TraceSolid, Start, Ray, ClipMask, Result);
@@ -103,45 +95,6 @@ void ClipWorldT::TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT
         if (ClipModel == Ignore) continue;
 
         ClipModel->TraceConvexSolid(TraceSolid, Start, Ray, ClipMask, Result);
-
-        if (Result.Fraction < OldFraction && HitClipModel) *HitClipModel = ClipModel;
-        if (Result.StartSolid) break;
-    }
-}
-
-
-void ClipWorldT::TraceRay(const Vector3dT& Start, const Vector3dT& Ray,
-                          unsigned long ClipMask, const ClipModelT* Ignore, TraceResultT& Result, ClipModelT** HitClipModel) const
-{
-    // Violation of this requirement is usually, but not necessarily, an error.
-    // If you ever get false-positives here, just remove the test entirely.
-    assert(Result.Fraction == 1.0 && !Result.StartSolid);
-
-    if (HitClipModel) *HitClipModel = NULL;
-
-    // Try the trace against the WorldCollMdl first.
-    WorldCollMdl->TraceRay(Start, Ray, ClipMask, Result);
-
- // if (Result.Fraction<OldFrac && HitClipModel) *HitClipModel=WorldCollMdl;     // FIXME: WorldCollMdl is of type CollisionModelT...
-    if (Result.StartSolid) return;
-
-
-    // Now try all the entity models.
-    static ArrayT<ClipModelT*> ClipModels;
-    ClipModels.Overwrite();
-
-    const BoundingBox3dT OverallBB(Start, Start + Ray * Result.Fraction);
-
-    GetClipModelsFromBB(ClipModels, ClipMask, OverallBB);
-
-    for (unsigned long ModelNr = 0; ModelNr < ClipModels.Size(); ModelNr++)
-    {
-        ClipModelT*  ClipModel   = ClipModels[ModelNr];
-        const double OldFraction = Result.Fraction;
-
-        if (ClipModel == Ignore) continue;
-
-        ClipModel->TraceRay(Start, Ray, ClipMask, Result);
 
         if (Result.Fraction < OldFraction && HitClipModel) *HitClipModel = ClipModel;
         if (Result.StartSolid) break;
