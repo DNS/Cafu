@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Bitmap/Bitmap.hpp"
 #include "ClipSys/CollisionModel_static.hpp"
 #include "ClipSys/TraceResult.hpp"
+#include "ClipSys/TraceSolid.hpp"
 #include "ConsoleCommands/ConVar.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
@@ -560,8 +561,10 @@ void BezierPatchNodeT::CreatePatchMeshes(ArrayT<cf::PatchMeshT>& PatchMeshes, Ar
                 const VectorT OutwardRay  =Patch.Normal*BBDiagonalLength;
                 const VectorT OutwardPoint=Patch.Coord+OutwardRay;
 
+                const static cf::ClipSys::TracePointT Point;
                 cf::ClipSys::TraceResultT Result(1.0);
-                CollModel->TraceRay(OutwardPoint, -OutwardRay, MaterialT::Clip_Radiance, Result);
+
+                CollModel->TraceConvexSolid(Point, OutwardPoint, -OutwardRay, MaterialT::Clip_Radiance, Result);
 
                 // The Patch.Normal*FaceNodeT::ROUND_EPSILON is "safety" in order to avoid (or at least reduce) accidental
                 // self-intersections due to rounding errors during clipping computations in CaLight.

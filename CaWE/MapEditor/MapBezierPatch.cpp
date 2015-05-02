@@ -36,6 +36,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ClipSys/CollisionModel_static.hpp"
 #include "ClipSys/TraceResult.hpp"
+#include "ClipSys/TraceSolid.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/Mesh.hpp"
 #include "MaterialSystem/Renderer.hpp"
@@ -624,11 +625,12 @@ bool MapBezierPatchT::TraceRay(const Vector3fT& RayOrigin, const Vector3fT& RayD
     // If possible (RayOrigin is not in cull bounding-box), do a quick bounding-box check first.
     if (!GetBB().Contains(RayOrigin) && !MapPrimitiveT::TraceRay(RayOrigin, RayDir, Fraction, FaceNr)) return false;
 
+    const static cf::ClipSys::TracePointT Point;
     const double              RayLength=100000.0;
     cf::ClipSys::TraceResultT Result(1.0);
 
     wxASSERT(CollModel!=NULL);      // Made sure by UpdateRenderMesh().
-    CollModel->TraceRay(RayOrigin.AsVectorOfDouble(), RayDir.AsVectorOfDouble()*RayLength, MaterialT::ClipFlagsT(0xFFFFFFFF), Result);
+    CollModel->TraceConvexSolid(Point, RayOrigin.AsVectorOfDouble(), RayDir.AsVectorOfDouble()*RayLength, MaterialT::ClipFlagsT(0xFFFFFFFF), Result);
 
     if (Result.Fraction==1.0) return false;
 

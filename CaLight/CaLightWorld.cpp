@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Bitmap/Bitmap.hpp"
 #include "ClipSys/CollisionModel_static.hpp"
 #include "ClipSys/TraceResult.hpp"
+#include "ClipSys/TraceSolid.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
 
@@ -38,9 +39,10 @@ CaLightWorldT::CaLightWorldT(const char* FileName, ModelManagerT& ModelMan, cf::
 double CaLightWorldT::TraceRay(const Vector3dT& Start, const Vector3dT& Ray) const
 {
 #if 1
+    const static cf::ClipSys::TracePointT Point;
     cf::ClipSys::TraceResultT Result(1.0);
 
-    m_CollModel->TraceRay(Start, Ray, MaterialT::Clip_Radiance, Result);
+    m_CollModel->TraceConvexSolid(Point, Start, Ray, MaterialT::Clip_Radiance, Result);
 
     return Result.Fraction;
 #else

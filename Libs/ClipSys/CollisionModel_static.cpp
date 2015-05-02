@@ -2137,21 +2137,6 @@ void CollisionModelStaticT::TraceConvexSolid(
 }
 
 
-void CollisionModelStaticT::TraceRay(
-    const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const
-{
-    static const TracePointT Point;
-
-    CollisionModelStaticT::s_CheckCount++;
-
-    // Special-case: Everywhere else in our ClipSys universe, TraceSolid.Vertices.Size()==0 means "no collision"...
-    // (Here it is used to let LinearTraceThroughTree() know that we want to trace a ray rather than a convex solid.)
-    TraceParamsT Params(m_GenericBrushes, Point, Start, Ray, ClipMask, Result);
-
-    m_RootNode->Trace(Start, Start + Ray * Result.Fraction, 0, Result.Fraction, Params);
-}
-
-
 unsigned long CollisionModelStaticT::GetContents(const Vector3dT& Point, double BoxRadius, unsigned long ContMask) const
 {
     static ArrayT<NodeT*> NodeStack;    // It's static for better performance, giving up thread safety.

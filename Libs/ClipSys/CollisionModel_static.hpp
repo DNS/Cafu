@@ -254,7 +254,6 @@ namespace cf
             unsigned long GetContents() const override;
             void SaveToFile(std::ostream& OutFile, SceneGraph::aux::PoolT& Pool) const override;
             void TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const override;
-            void TraceRay(const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const override;
             unsigned long GetContents(const Vector3dT& Point, double BoxRadius, unsigned long ContMask) const override;
             btCollisionShape* GetBulletAdapter() const override;
 
