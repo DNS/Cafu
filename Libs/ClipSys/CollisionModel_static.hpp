@@ -41,6 +41,7 @@ namespace cf
         {
             public:
 
+            class InternalTraceSolidT;
             class TraceParamsT;
 
 
@@ -59,7 +60,7 @@ namespace cf
 
                 BoundingBox3dT GetBB() const;
 
-                void TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const;
+                void TraceConvexSolid(const InternalTraceSolidT& TraceSolid, const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const;
 
                 void TraceRay(const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const;
 
@@ -108,7 +109,7 @@ namespace cf
                 /// For more detailed documentation, see CollisionModelT::TraceConvexSolid(), which has the same signature.
                 /// @see CollisionModelT::TraceConvexSolid()
                 /// @see TraceResultT
-                void TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const;
+                void TraceConvexSolid(const InternalTraceSolidT& TraceSolid, const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const;
 
                 void TraceRay(const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const;
 

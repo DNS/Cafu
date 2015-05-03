@@ -67,26 +67,41 @@ TraceGenericT::TraceGenericT()
 void TraceGenericT::AssignInvTransformed(const TraceSolidT& Other, const cf::math::Matrix3x3dT& Mat)
 {
     // Transform the vertices.
-    m_Vertices.Overwrite();
-    m_Vertices.PushBackEmpty(Other.GetNumVertices());
+    {
+        const unsigned int NumVerts = Other.GetNumVertices();
+        const Vector3dT*   Verts    = Other.GetVertices();
 
-    for (unsigned int i = 0; i < Other.GetNumVertices(); i++)
-        m_Vertices[i] = Mat.MulTranspose(Other.GetVertices()[i]);
+        m_Vertices.Overwrite();
+        m_Vertices.PushBackEmpty(NumVerts);
+
+        for (unsigned int i = 0; i < NumVerts; i++)
+            m_Vertices[i] = Mat.MulTranspose(Verts[i]);
+    }
 
     // Transform the planes.
-    m_Planes.Overwrite();
-    m_Planes.PushBackEmpty(Other.GetNumPlanes());
-
-    for (unsigned int i = 0; i < Other.GetNumPlanes(); i++)
     {
-        m_Planes[i].Normal = Mat.MulTranspose(Other.GetPlanes()[i].Normal);
-        m_Planes[i].Dist   = Other.GetPlanes()[i].Dist;
+        const unsigned int NumPlanes = Other.GetNumPlanes();
+        const Plane3dT*    Planes    = Other.GetPlanes();
+
+        m_Planes.Overwrite();
+        m_Planes.PushBackEmpty(NumPlanes);
+
+        for (unsigned int i = 0; i < NumPlanes; i++)
+        {
+            m_Planes[i].Normal = Mat.MulTranspose(Planes[i].Normal);
+            m_Planes[i].Dist   = Planes[i].Dist;
+        }
     }
 
     // The edges are not transformed, but must still be copied.
-    m_Edges.Overwrite();
-    m_Edges.PushBackEmpty(Other.GetNumEdges());
+    {
+        const unsigned int NumEdges = Other.GetNumEdges();
+        const EdgeT*       Edges    = Other.GetEdges();
 
-    for (unsigned int i = 0; i < Other.GetNumEdges(); i++)
-        m_Edges[i] = Other.GetEdges()[i];
+        m_Edges.Overwrite();
+        m_Edges.PushBackEmpty(NumEdges);
+
+        for (unsigned int i = 0; i < NumEdges; i++)
+            m_Edges[i] = Edges[i];
+    }
 }
