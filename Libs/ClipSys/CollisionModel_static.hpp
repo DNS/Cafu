@@ -27,22 +27,22 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Templates/Pool.hpp"
 
 
+namespace cf { struct MapFileEntityT; }
 class MaterialT;
 class TerrainT;
-struct TraceParamsT;     // Temporary...!
 
 
 namespace cf
 {
-    struct MapFileEntityT;
-
-
     namespace ClipSys
     {
         /// This class represents a static collision model.
         class CollisionModelStaticT : public CollisionModelT
         {
             public:
+
+            class TraceParamsT;
+
 
             class PolygonT
             {

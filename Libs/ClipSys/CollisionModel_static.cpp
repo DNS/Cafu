@@ -47,6 +47,32 @@ using namespace cf::ClipSys;
 unsigned long CollisionModelStaticT::s_CheckCount = 0;
 
 
+class CollisionModelStaticT::TraceParamsT
+{
+    public:
+
+    TraceParamsT(const bool GenericBrushes_, const TraceSolidT& TraceSolid_, const Vector3dT& Start_, const Vector3dT& Ray_, unsigned long ClipMask_, TraceResultT& Result_)
+        : GenericBrushes(GenericBrushes_),
+          TraceSolid(TraceSolid_),
+          TraceBB(TraceSolid_.GetBB()),
+          Start(Start_),
+          Ray(Ray_),
+          ClipMask(ClipMask_),
+          Result(Result_)
+    {
+    }
+
+
+    const bool           GenericBrushes;
+    const TraceSolidT&   TraceSolid;
+    const BoundingBox3dT TraceBB;
+    const Vector3dT&     Start;
+    const Vector3dT&     Ray;
+    const unsigned long  ClipMask;
+    TraceResultT&        Result;
+};
+
+
 CollisionModelStaticT::PolygonT::PolygonT()
     : Parent(NULL),
       Material(NULL),
@@ -995,24 +1021,6 @@ bool CollisionModelStaticT::NodeT::DetermineSplitPlane(const BoundingBox3dT& Nod
     PlaneDist = 0.0;
     return false;
 }
-
-
-struct TraceParamsT
-{
-    TraceParamsT(const bool GenericBrushes_, const TraceSolidT& TraceSolid_, const Vector3dT& Start_, const Vector3dT& Ray_, unsigned long ClipMask_, TraceResultT& Result_)
-        : GenericBrushes(GenericBrushes_), TraceSolid(TraceSolid_), TraceBB(TraceSolid_.GetBB()), Start(Start_), Ray(Ray_), ClipMask(ClipMask_), Result(Result_)
-    {
-    }
-
-
-    const bool           GenericBrushes;
-    const TraceSolidT&   TraceSolid;
-    const BoundingBox3dT TraceBB;
-    const Vector3dT&     Start;
-    const Vector3dT&     Ray;
-    const unsigned long  ClipMask;
-    TraceResultT&        Result;
-};
 
 
 static double clamp(double min, double v, double max)
