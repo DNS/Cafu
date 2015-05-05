@@ -63,41 +63,19 @@ ClipWorldT::~ClipWorldT()
 void ClipWorldT::TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT& Start, const Vector3dT& Ray,
                                   unsigned long ClipMask, const ClipModelT* Ignore, TraceResultT& Result, ClipModelT** HitClipModel) const
 {
-    // Violation of this requirement is usually, but not necessarily, an error.
-    // If you ever get false-positives here, just remove the test entirely.
-    assert(Result.Fraction == 1.0 && !Result.StartSolid);
-
     if (HitClipModel) *HitClipModel = NULL;
 
-    if (TraceSolid.GetNumVertices() == 0) return;
+    static ArrayT<WorldTraceResultT> Results;
+    // Results.Overwrite();     // Done in Trace().
 
+    Trace(TraceSolid, Start, Ray, ClipMask, Ignore, Results);
 
-    // Try the trace against the WorldCollMdl first.
-    WorldCollMdl->TraceConvexSolid(TraceSolid, Start, Ray, ClipMask, Result);
-
- // if (Result.Fraction<OldFrac && HitClipModel) *HitClipModel=WorldCollMdl;     // FIXME: WorldCollMdl is of type CollisionModelT...
-    if (Result.StartSolid) return;
-
-
-    // Now try all the entity models.
-    static ArrayT<ClipModelT*> ClipModels;
-    ClipModels.Overwrite();
-
-    const BoundingBox3dT OverallHullBB = TraceSolid.GetBB().GetOverallTranslationBox(Start, Start + Ray * Result.Fraction);
-
-    GetClipModelsFromBB(ClipModels, ClipMask, OverallHullBB);
-
-    for (unsigned long ModelNr = 0; ModelNr < ClipModels.Size(); ModelNr++)
+    if (Results.Size() > 0)
     {
-        ClipModelT*  ClipModel   = ClipModels[ModelNr];
-        const double OldFraction = Result.Fraction;
+        Result = Results[0].Result;
 
-        if (ClipModel == Ignore) continue;
-
-        ClipModel->TraceConvexSolid(TraceSolid, Start, Ray, ClipMask, Result);
-
-        if (Result.Fraction < OldFraction && HitClipModel) *HitClipModel = ClipModel;
-        if (Result.StartSolid) break;
+        if (HitClipModel)
+            *HitClipModel = Results[0].ClipModel;
     }
 }
 
