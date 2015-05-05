@@ -193,8 +193,12 @@ void ProcessNewGlyph(FT_Face& Face, GlyphInfoT& Glyph, RectBitmapAllocatorT& RBA
     BitmapT* Bitmap=RBA.Bitmaps[BitmapNr];
 
     // Copy the glyphs bitmap into the larger bitmap.
-    for (int y=0; y<Face->glyph->bitmap.rows; y++)
-        for (int x=0; x<Face->glyph->bitmap.width; x++)
+    // The cast to `unsigned int` is needed because in FreeType, the type of the `rows` and
+    // `width` fields was changed in version 2.5.4 (see its docs/CHANGES file for details)
+    // and some Linux distros still ship with FreeType 2.5.3 or older, whereas others ship
+    // with 2.5.4 or newer.
+    for (unsigned int y = 0; y < (unsigned int)Face->glyph->bitmap.rows; y++)
+        for (unsigned int x = 0; x < (unsigned int)Face->glyph->bitmap.width; x++)
         {
             const unsigned char GrayValue=Face->glyph->bitmap.buffer[x+y*Face->glyph->bitmap.pitch];
 
