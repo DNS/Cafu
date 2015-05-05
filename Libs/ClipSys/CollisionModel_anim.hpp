@@ -44,13 +44,12 @@ namespace cf
 
 
             // The CollisionModelT interface.
-            BoundingBox3dT GetBoundingBox() const;
-            unsigned long GetContents() const;
-            void SaveToFile(std::ostream& OutFile, SceneGraph::aux::PoolT& Pool) const;
-            void TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const;
-            void TraceRay(const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const;
-            unsigned long GetContents(const Vector3dT& Point, double BoxRadius, unsigned long ContMask) const;
-            btCollisionShape* GetBulletAdapter() const;
+            BoundingBox3dT GetBoundingBox() const override;
+            unsigned long GetContents() const override;
+            void SaveToFile(std::ostream& OutFile, SceneGraph::aux::PoolT& Pool) const override;
+            void TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const override;
+            unsigned long GetContents(const Vector3dT& Point, double BoxRadius, unsigned long ContMask) const override;
+            btCollisionShape* GetBulletAdapter() const override;
 
 
             private:

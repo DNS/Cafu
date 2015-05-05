@@ -48,7 +48,7 @@ namespace cf
             public:
 
             /// The constructor for creating a clip model.
-            ClipModelT(const ClipWorldT& ClipWorld_, const CollisionModelT* CollisionModel_=NULL);
+            ClipModelT(const ClipWorldT& ClipWorld_, const CollisionModelT* CollisionModel_ = NULL);
 
             /// The destructor.
             ~ClipModelT();
@@ -98,21 +98,17 @@ namespace cf
             /// Returns the contents of this clip model, which is the forwarded contents of the underlying collision model.
             unsigned long GetContents() const;
 
-            /// Traces the given bounding box from Start along Ray (up to the input value of Result.Fraction) through the clip model,
+            /// Traces the given convex solid from Start along Ray (up to the input value of Result.Fraction) through the clip model,
             /// and reports the first collision, if any.
-            /// @param TraceBB   The bounding box to trace through the model.
-            /// @param Start     The start point in world space where the trace begins.
-            /// @param Ray       The ray along which the trace is performed. Note that with F being the input value of Result.Fraction, the endpoint is at Start+Ray*F.
-            /// @param ClipMask  Only surfaces whose clip flags match this mask participate in the test. This is for optimization, because it allows the implementation to cull surfaces that are not of interest early.
-            /// @param Result    The start value of Fraction is input via this reference, and the result of the trace returned.
+            /// @param TraceSolid   The convex solid to trace through the model.
+            /// @param Start        The start point in world space where the trace begins.
+            /// @param Ray          The ray along which the trace is performed. Note that with F being the input value of Result.Fraction, the endpoint is at Start+Ray*F.
+            /// @param ClipMask     Only surfaces whose clip flags match this mask participate in the test. This is for optimization, because it allows the implementation to cull surfaces that are not of interest early.
+            /// @param Result       The start value of Fraction is input via this reference, and the result of the trace returned.
             ///     Using an input/output parameter for returning the result, rather than a true return type, suggests itself because it makes
             ///     cascaded calls to this function natural (i.e. from (possibly many) super-objects and to (possibly many) sub-objects).
             /// @see TraceResultT
-            void TraceBoundingBox(const BoundingBox3dT& TraceBB, const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const;
-
             void TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const;
-
-            void TraceRay(const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const;
 
             /// Determines the volume contents of the model at the given point / in the given box.
             /// The function considers all brush volumes in the clip model that contain the given point or intersect the given box,

@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClipSys/ClipModel.hpp"
 #include "ClipSys/ClipWorld.hpp"
 #include "ClipSys/TraceResult.hpp"
+#include "ClipSys/TraceSolid.hpp"
 #include "ConsoleCommands/Console.hpp"
 #include "MaterialSystem/Material.hpp"
 
@@ -241,8 +242,8 @@ namespace
 
             // Note: Tracing NearbyCM's "absolute bounding-box" here can be problematic.
             // It would be better to trace the true clip model or at least its convex hull.
-            Ent->GetWorld().GetClipWorld()->TraceBoundingBox(
-                NearbyCM->GetAbsoluteBB(), Vector3dT(), Vector3dT(0.0, 0.0, -0.1), MaterialT::Clip_AllBlocking, NearbyCM, Trace, &StandingOn);
+            Ent->GetWorld().GetClipWorld()->TraceConvexSolid(
+                cf::ClipSys::TraceBoxT(NearbyCM->GetAbsoluteBB()), Vector3dT(), Vector3dT(0.0, 0.0, -0.1), MaterialT::Clip_AllBlocking, NearbyCM, Trace, &StandingOn);
 
             if (Trace.StartSolid)
             {

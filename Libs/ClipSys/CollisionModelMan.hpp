@@ -61,7 +61,7 @@ namespace cf
             /// If the collision model has been loaded before, reference counting is employed.
             /// @param FileName   The name of the file to load the collision model from.
             /// @returns (a pointer to) the collision model instance that has been loaded from the given file, or NULL on failure.
-            virtual const CollisionModelT* GetCM(const std::string& FileName)=0;
+            virtual const CollisionModelT* GetCM(const std::string& FileName) = 0;
 
             // /// Loads a collision model from the specified instream.
             // /// @param InFile   The instream to load the collision model from.
@@ -77,13 +77,13 @@ namespace cf
             /// @param Mesh     The vertices of the mesh.
             /// @param Material The material reported in collision results when a trace hit.
             /// @returns the matching collision model instance.
-            virtual const CollisionModelT* GetCM(unsigned long Width, unsigned long Height, const ArrayT<Vector3dT>& Mesh, MaterialT* Material, const double MIN_NODE_SIZE)=0;
+            virtual const CollisionModelT* GetCM(unsigned long Width, unsigned long Height, const ArrayT<Vector3dT>& Mesh, MaterialT* Material, const double MIN_NODE_SIZE) = 0;
 
             /// Creates a collision model from the given (axis-aligned) bounding-box.
             /// @param BB   The bounding box to create a collision model for.
             /// @param Material   The material to use for the collision model.
             /// @returns the desired collision model.
-            virtual const CollisionModelT* GetCM(const BoundingBox3T<double>& BB, MaterialT* Material)=0;
+            virtual const CollisionModelT* GetCM(const BoundingBox3T<double>& BB, MaterialT* Material) = 0;
 
             /// Creates another collision model from a given collision model.
             /// a) If the given collision model has been created with other methods of this CollModelManI earlier,
@@ -94,20 +94,20 @@ namespace cf
             ///    and will not attempt to delete the instance when the count finally drops to 0.
             /// @param CollisionModel   The collision model to create another collision model from.
             /// @returns a matching collision model instance.
-            virtual const CollisionModelT* GetCM(const CollisionModelT* CollisionModel)=0;
+            virtual const CollisionModelT* GetCM(const CollisionModelT* CollisionModel) = 0;
 
 
             /// Returns the file name the given collision model has been loaded from (using the GetCM(const std::string& FileName) method).
             /// @param CollisionModel   The collision model for which return the associated file name.
             /// @returns the file name of the collision model, or "" (the empty string) if the model was created by another method.
-            virtual const std::string& GetFileName(const CollisionModelT* CollisionModel) const=0;
+            virtual const std::string& GetFileName(const CollisionModelT* CollisionModel) const = 0;
 
             /// Frees the given collision model (taking reference counting into account if necessary).
             /// @param CollisionModel   The collision model to be freed.
-            virtual void FreeCM(const CollisionModelT* CollisionModel)=0;
+            virtual void FreeCM(const CollisionModelT* CollisionModel) = 0;
 
             /// Returns the number of unique, physical collision model instances managed by this class.
-            virtual unsigned long GetUniqueCMCount() const=0;
+            virtual unsigned long GetUniqueCMCount() const = 0;
         };
 
 

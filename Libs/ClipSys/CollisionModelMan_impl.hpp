@@ -38,14 +38,14 @@ namespace cf
             ~CollModelManImplT();
 
             // The CollisionModelManI interface.
-            const CollisionModelT* GetCM(const std::string& FileName);
-         // const CollisionModelT* GetCM(std::istream& InFile, SceneGraph::aux::PoolT& Pool, const ArrayT<CollisionModelStaticT::TerrainRefT>& Terrains);
+            const CollisionModelT* GetCM(const std::string& FileName) override;
+         // const CollisionModelT* GetCM(std::istream& InFile, SceneGraph::aux::PoolT& Pool, const ArrayT<CollisionModelStaticT::TerrainRefT>& Terrains) override;
             const CollisionModelT* GetCM(unsigned long Width, unsigned long Height, const ArrayT<Vector3dT>& Mesh, MaterialT* Material, const double MIN_NODE_SIZE) override;
-            const CollisionModelT* GetCM(const BoundingBox3T<double>& BB, MaterialT* Material);
-            const CollisionModelT* GetCM(const CollisionModelT* CollisionModel);
-            const std::string& GetFileName(const CollisionModelT* CollisionModel) const;
-            void FreeCM(const CollisionModelT* CollisionModel);
-            unsigned long GetUniqueCMCount() const;
+            const CollisionModelT* GetCM(const BoundingBox3T<double>& BB, MaterialT* Material) override;
+            const CollisionModelT* GetCM(const CollisionModelT* CollisionModel) override;
+            const std::string& GetFileName(const CollisionModelT* CollisionModel) const override;
+            void FreeCM(const CollisionModelT* CollisionModel) override;
+            unsigned long GetUniqueCMCount() const override;
 
 
             private:

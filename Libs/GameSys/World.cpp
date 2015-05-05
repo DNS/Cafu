@@ -26,6 +26,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ClipSys/ClipWorld.hpp"
 #include "ClipSys/TraceResult.hpp"
+#include "ClipSys/TraceSolid.hpp"
 #include "ConsoleCommands/Console.hpp"
 #include "ConsoleCommands/Console_Lua.hpp"
 #include "ConsoleCommands/ConsoleInterpreter.hpp"
@@ -378,7 +379,7 @@ int WorldT::SetRootEntity(lua_State* LuaState)
 static const cf::TypeSys::MethsDocT META_TraceRay =
 {
     "TraceRay",
-    "Employs m_ClipWorld->TraceRay() to trace a ray through the (clip) world.",
+    "Employs m_ClipWorld->Trace() to trace a ray through the (clip) world.",
     "table", "(table Start, table Ray)"
 };
 
@@ -406,9 +407,10 @@ int WorldT::TraceRay(lua_State* LuaState)
     lua_rawgeti(LuaState, 3, 3); Ray.z = luaL_checknumber(LuaState, -1); lua_pop(LuaState, 1);
 
     // Delegate the work to the World->m_ClipWorld.
+    const static cf::ClipSys::TracePointT Point;
     cf::ClipSys::TraceResultT Result(1.0);
 
-    World->m_ClipWorld->TraceRay(Start, Ray, MaterialT::Clip_Players, NULL /*Ignore*/, Result);
+    World->m_ClipWorld->TraceConvexSolid(Point, Start, Ray, MaterialT::Clip_Players, NULL /*Ignore*/, Result);
 
     // Return the results.
     lua_newtable(LuaState);

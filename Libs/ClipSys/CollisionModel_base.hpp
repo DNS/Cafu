@@ -40,8 +40,7 @@ namespace cf
         class  TraceSolidT;
 
 
-        /// This is the base class for collision models, making sure that they all share the same interface.
-        /// See the description of the CollisionModelProxyT class for more information about related software design considerations.
+        /// This is the base class for collision models, defining their common interface.
         class CollisionModelT
         {
             public:
@@ -50,15 +49,15 @@ namespace cf
             virtual ~CollisionModelT() { }
 
             /// Returns the bounding box of this collision model.
-            virtual BoundingBox3dT GetBoundingBox() const=0;
+            virtual BoundingBox3dT GetBoundingBox() const = 0;
 
             /// Returns the contents of this collision model.
-            virtual unsigned long GetContents() const=0;
+            virtual unsigned long GetContents() const = 0;
 
             /// Saves the model to OutFile.
             /// TODO: Review serialization/deser. of class hierarchies (e.g. compare to cf::SceneGraph)!
             ///       Right now this is fixed and works for CollisionModelStaticTs only!!!
-            virtual void SaveToFile(std::ostream& OutFile, SceneGraph::aux::PoolT& Pool) const=0;
+            virtual void SaveToFile(std::ostream& OutFile, SceneGraph::aux::PoolT& Pool) const = 0;
 
             /// Traces the given TraceSolidT instance from Start along Ray (up to the input value of Result.Fraction)
             /// through the collision model, and reports the first collision, if any.
@@ -82,9 +81,7 @@ namespace cf
             ///     cascaded calls to this function natural (i.e. from (possibly many) super-objects and to (possibly many) sub-objects).
             ///
             /// @see TraceResultT
-            virtual void TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const=0;
-
-            virtual void TraceRay(const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const=0;
+            virtual void TraceConvexSolid(const TraceSolidT& TraceSolid, const Vector3dT& Start, const Vector3dT& Ray, unsigned long ClipMask, TraceResultT& Result) const = 0;
 
             /// Determines the volume contents of the model at the given point / in the given box.
             /// The function considers all brush volumes in the collision model that contain the given point or intersect the given box,
@@ -94,10 +91,10 @@ namespace cf
             /// @param ContMask    Only volumes whose contents matches this mask participate in the test. This is for optimization, because it allows the implementation to cull volumes that are not of interest early.
             /// @returns the combined volume content flags of the intersected volumes in the collision model.
             //      If the Point (and thus the associated box) is outside of all volumes, 0 is returned.
-            virtual unsigned long GetContents(const Vector3dT& Point, double BoxRadius, unsigned long ContMask) const=0;
+            virtual unsigned long GetContents(const Vector3dT& Point, double BoxRadius, unsigned long ContMask) const = 0;
 
             /// Returns an adapter class for using CollisionModelT instances also as Bullet btCollisionShape instances.
-            virtual btCollisionShape* GetBulletAdapter() const=0;
+            virtual btCollisionShape* GetBulletAdapter() const = 0;
         };
     }
 }

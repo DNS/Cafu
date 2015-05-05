@@ -46,14 +46,14 @@ namespace cf
 
 
             // The btCollisionShape interface.
-            void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const;
-            void setLocalScaling(const btVector3& scaling) { m_LocalScale=scaling; }
-            const btVector3& getLocalScaling() const { return m_LocalScale; }
-            void calculateLocalInertia(btScalar mass, btVector3& inertia) const;
-            const char* getName() const { return "CollisionModelStaticT::BulletAdapterT"; }
+            void getAabb(const btTransform& t, btVector3& aabbMin, btVector3& aabbMax) const override;
+            void setLocalScaling(const btVector3& scaling) override { m_LocalScale = scaling; }
+            const btVector3& getLocalScaling() const override { return m_LocalScale; }
+            void calculateLocalInertia(btScalar mass, btVector3& inertia) const override;
+            const char* getName() const override { return "CollisionModelStaticT::BulletAdapterT"; }
 
             // The btConcaveShape interface.
-            void processAllTriangles(btTriangleCallback* callback, const btVector3& aabbMin, const btVector3& aabbMax) const;
+            void processAllTriangles(btTriangleCallback* callback, const btVector3& aabbMin, const btVector3& aabbMax) const override;
 
 
             private:

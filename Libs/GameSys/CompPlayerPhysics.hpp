@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_GAMESYS_COMPONENT_PLAYER_PHYSICS_HPP_INCLUDED
 
 #include "CompBase.hpp"
+#include "ClipSys/TraceSolid.hpp"
 
 
 namespace cf { namespace ClipSys { class ClipModelT; } }
@@ -107,6 +108,7 @@ namespace cf
             const cf::ClipSys::ClipModelT* m_IgnoreClipModel;
             Vector3dT                      m_Origin;
             Vector3dT                      m_Vel;
+            cf::ClipSys::TraceBoxT         m_DimSolid;
         };
     }
 }
