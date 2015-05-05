@@ -56,20 +56,32 @@ class CollisionModelStaticT::InternalTraceSolidT
 
     InternalTraceSolidT(const TraceSolidT& TraceSolid)
         : NumVerts(TraceSolid.GetNumVertices()),
-          Verts(TraceSolid.GetVertices()),
-          NumPlanes(TraceSolid.GetNumPlanes()),
-          Planes(TraceSolid.GetPlanes()),
-          NumEdges(TraceSolid.GetNumEdges()),
-          Edges(TraceSolid.GetEdges())
+          Verts(TraceSolid.GetVertices())
     {
+        // Call the virtual functions only if absolutely necessary.
+        // In CaLight, this yields a small but noticeable speedup.
+        if (NumVerts > 1)
+        {
+            NumPlanes = TraceSolid.GetNumPlanes();
+            Planes    = TraceSolid.GetPlanes();
+            NumEdges  = TraceSolid.GetNumEdges();
+            Edges     = TraceSolid.GetEdges();
+        }
+        else
+        {
+            NumPlanes = 0;
+            Planes    = NULL;
+            NumEdges  = 0;
+            Edges     = NULL;
+        }
     }
 
 
-    const unsigned int        NumVerts;
+    unsigned int              NumVerts;
     const Vector3dT*          Verts;
-    const unsigned int        NumPlanes;
+    unsigned int              NumPlanes;
     const Plane3dT*           Planes;
-    const unsigned int        NumEdges;
+    unsigned int              NumEdges;
     const TraceSolidT::EdgeT* Edges;
 };
 
