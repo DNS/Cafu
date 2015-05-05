@@ -1100,7 +1100,14 @@ void CollisionModelStaticT::NodeT::Trace(const Vector3dT& A, const Vector3dT& B,
         if (Poly->CheckCount == s_CheckCount) continue;
         Poly->CheckCount = s_CheckCount;
 
-        Poly->TraceConvexSolid(Params.TraceSolid, Params.Start, Params.Ray, Params.ClipMask, Params.Result);
+        if (Params.TraceSolid.NumVerts == 1)    // Also checked by PolygonT::TraceConvexSolid(), but checking it here saves another function call there.
+        {
+            Poly->TraceRay(Params.Start, Params.Ray, Params.ClipMask, Params.Result);
+        }
+        else
+        {
+            Poly->TraceConvexSolid(Params.TraceSolid, Params.Start, Params.Ray, Params.ClipMask, Params.Result);
+        }
 
         // If the contents of Poly got us stuck in solid, we can't go farther, so stop here.
         if (Params.Result.StartSolid) return;
