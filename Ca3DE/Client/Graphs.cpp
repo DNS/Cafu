@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/****************************/
-/*** Client Graphs (Code) ***/
-/****************************/
-
 #include "../AppCafu.hpp"
 #include "../MainFrame.hpp"
 #include "Graphs.hpp"
@@ -34,21 +30,23 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 GraphsT::GraphsT()
 {
-#if 1
+#ifndef DEBUG
     // Simply use the Guis default material, assuming that the script it is defined in has already been registered.
-    m_RMatWireframe=MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("Gui/Default"));
+    m_RMatWireframe = MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("wireframe"));
 #else
     // Use the CaWE materials.
     // The problem here is that the ./CaWE/res/CaWE.cmat not necessarily ships with the public demo packages...
     MaterialManager->RegisterMaterialScript("./CaWE/res/CaWE.cmat", "./CaWE/res/");
 
-    m_RMatWireframe   =MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("CaWE/Wireframe"        ));
-    m_RMatWireframeOZ =MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("CaWE/WireframeOffsetZ" ));
-    m_RMatFlatShaded  =MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("CaWE/FlatShaded"       ));
-    m_RMatFlatShadedOZ=MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("CaWE/FlatShadedOffsetZ"));
-    m_RMatOverlay     =MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("CaWE/Overlay"          ));
-    m_RMatOverlayOZ   =MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("CaWE/OverlayOffsetZ"   ));
+    m_RMatWireframe    = MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("CaWE/Wireframe"        ));
+ // m_RMatWireframeOZ  = MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("CaWE/WireframeOffsetZ" ));
+ // m_RMatFlatShaded   = MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("CaWE/FlatShaded"       ));
+ // m_RMatFlatShadedOZ = MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("CaWE/FlatShadedOffsetZ"));
+ // m_RMatOverlay      = MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("CaWE/Overlay"          ));
+ // m_RMatOverlayOZ    = MatSys::Renderer->RegisterMaterial(MaterialManager->GetMaterial("CaWE/OverlayOffsetZ"   ));
 #endif
+
+    assert(m_RMatWireframe);
 
     for (unsigned long FrameIndex=0; FrameIndex<512; FrameIndex++)
         ClearForFrame(FrameIndex);
@@ -68,19 +66,19 @@ GraphsT::~GraphsT()
 
 void GraphsT::ClearForFrame(unsigned long ClientFrameNr)
 {
-    unsigned long FrameIndex=ClientFrameNr & (512-1);
+    const unsigned long FrameIndex = ClientFrameNr & (512 - 1);
 
-    FPS    [FrameIndex]=0;
-    Heading[FrameIndex]=0;
-    PosY   [FrameIndex]=0;
-    PosZ   [FrameIndex]=0;
+    FPS    [FrameIndex] = 0;
+    Heading[FrameIndex] = 0;
+    PosY   [FrameIndex] = 0;
+    PosZ   [FrameIndex] = 0;
 }
 
 
 void GraphsT::Draw(unsigned long ClientFrameNr)
 {
-    const wxSize  FrameSize=wxGetApp().GetMainFrame()->GetClientSize();
-    unsigned long FrameNr=512;
+    const wxSize FrameSize = wxGetApp().GetMainFrame()->GetClientSize();
+    int          FrameNr   = 512;
 
     MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
     MatSys::Renderer->PushMatrix(MatSys::RendererI::WORLD_TO_VIEW );
@@ -95,28 +93,31 @@ void GraphsT::Draw(unsigned long ClientFrameNr)
 
     while (FrameNr--)
     {
-        unsigned long FrameIndex=ClientFrameNr & (512-1);
+        const int x = (FrameSize.GetWidth() - 512) / 2 + FrameNr;
+        const int y = FrameSize.GetHeight() - 10;
+
+        const unsigned long FrameIndex = ClientFrameNr & (512 - 1);
 
         LinesMesh.Vertices.PushBackEmpty();
         LinesMesh.Vertices[LinesMesh.Vertices.Size()-1].SetColor(0.5, 0.5, 0.5);
-        LinesMesh.Vertices[LinesMesh.Vertices.Size()-1].SetOrigin((FrameSize.GetWidth()-512)/2+FrameNr, FrameSize.GetHeight()-10);
+        LinesMesh.Vertices[LinesMesh.Vertices.Size()-1].SetOrigin(x, y);
 
         LinesMesh.Vertices.PushBackEmpty();
         LinesMesh.Vertices[LinesMesh.Vertices.Size()-1].SetColor(0.5, 0.5, 0.5);
-        LinesMesh.Vertices[LinesMesh.Vertices.Size()-1].SetOrigin((FrameSize.GetWidth()-512)/2+FrameNr, FrameSize.GetHeight()-10-FPS[FrameIndex]);
+        LinesMesh.Vertices[LinesMesh.Vertices.Size()-1].SetOrigin(x, y - FPS[FrameIndex]);
 
 
-        PointsMesh.Vertices.PushBackEmpty();
-        PointsMesh.Vertices[PointsMesh.Vertices.Size()-1].SetColor(1.0, 0.0, 1.0);
-        PointsMesh.Vertices[PointsMesh.Vertices.Size()-1].SetOrigin((FrameSize.GetWidth()-512)/2+FrameNr, FrameSize.GetHeight()-10-Heading[FrameIndex]);
+     // PointsMesh.Vertices.PushBackEmpty();
+     // PointsMesh.Vertices[PointsMesh.Vertices.Size()-1].SetColor(1.0, 0.0, 1.0);
+     // PointsMesh.Vertices[PointsMesh.Vertices.Size()-1].SetOrigin(x, y - Heading[FrameIndex]);
 
         PointsMesh.Vertices.PushBackEmpty();
         PointsMesh.Vertices[PointsMesh.Vertices.Size()-1].SetColor(0.0, 1.0, 0.0);
-        PointsMesh.Vertices[PointsMesh.Vertices.Size()-1].SetOrigin((FrameSize.GetWidth()-512)/2+FrameNr, FrameSize.GetHeight()-10-PosY[FrameIndex]);
+        PointsMesh.Vertices[PointsMesh.Vertices.Size()-1].SetOrigin(x, y - PosY[FrameIndex]);
 
         PointsMesh.Vertices.PushBackEmpty();
         PointsMesh.Vertices[PointsMesh.Vertices.Size()-1].SetColor(0.0, 0.0, 1.0);
-        PointsMesh.Vertices[PointsMesh.Vertices.Size()-1].SetOrigin((FrameSize.GetWidth()-512)/2+FrameNr, FrameSize.GetHeight()-10-PosZ[FrameIndex]);
+        PointsMesh.Vertices[PointsMesh.Vertices.Size()-1].SetOrigin(x, y - PosZ[FrameIndex]);
 
         ClientFrameNr--;
     }

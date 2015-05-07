@@ -371,8 +371,8 @@ void ClientStateInGameT::Render(float FrameTime)
         if (CameraTrafo != NULL)
         {
          // Graphs.Heading[ClientFrameNr & (512-1)]=(Current_Heading >> 5) & 511;
-            Graphs.PosY   [ClientFrameNr & (512-1)]=((unsigned short)(CameraTrafo->GetOriginWS().y/20.0)) & 511;
-            Graphs.PosZ   [ClientFrameNr & (512-1)]=((unsigned short)(CameraTrafo->GetOriginWS().z/20.0)) & 511;
+            Graphs.PosY   [ClientFrameNr & (512-1)]=((unsigned short)CameraTrafo->GetOriginWS().y) & 511;
+            Graphs.PosZ   [ClientFrameNr & (512-1)]=((unsigned short)CameraTrafo->GetOriginWS().z) & 511;
 
             MatSys::Renderer->PushMatrix(MatSys::RendererI::PROJECTION    );
             MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);

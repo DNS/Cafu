@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/******************************/
-/*** Client Graphs (Header) ***/
-/******************************/
-
 #ifndef CAFU_CLIENT_GRAPHS_HPP_INCLUDED
 #define CAFU_CLIENT_GRAPHS_HPP_INCLUDED
 
