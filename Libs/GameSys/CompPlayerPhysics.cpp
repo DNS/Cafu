@@ -133,8 +133,6 @@ void ComponentPlayerPhysicsT::UpdateDependencies(EntityT* Entity)
     if (Entity)
     {
         m_ClipWorld = Entity->GetWorld().GetClipWorld();
-
-        Entity->GetTransform()->InitClientApprox("Origin");
     }
 }
 

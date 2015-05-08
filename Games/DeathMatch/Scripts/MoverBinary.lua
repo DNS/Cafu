@@ -25,10 +25,6 @@ Script.State    = STATE_AT_HOME     -- Initial state is in the home rest positio
 Script.Progress = 0.0               -- How far along the way to the "dest" position?
 Script.TimeLeft = -1.0              -- This is properly inited whenever STATE_AT_DEST is entered.
 
--- TODO: Call InitClientApprox() in some client-init (e.g. OnClientInit()) only?
-Trafo:InitClientApprox("Origin")
--- Trafo:InitClientApprox("Orientation")
-
 
 function Script:OnInit()
     self.Parts = self:GetEntity():GetChildren()
@@ -36,11 +32,9 @@ function Script:OnInit()
     self.DEST_ORIGINS = {}
 
     for i, Part in ipairs(self.Parts) do
---[[
         -- TODO: Call InitClientApprox() in some client-init (e.g. OnClientInit()) only?
-        Part:GetTransform():InitClientApprox("Origin")
+     -- Part:GetTransform():InitClientApprox("Origin")
      -- Part:GetTransform():InitClientApprox("Orientation")   -- No swing doors yet.
---]]
 
         local DestMarker = Part:GetChildren()[1]
 

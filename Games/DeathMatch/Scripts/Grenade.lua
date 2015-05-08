@@ -12,13 +12,8 @@ Grenade.Timer               = 0.0
 
 Grenade:InitEventTypes(1)
 
-
--- There is no need to call InitClientApprox() here, because Grenades have
--- a PlayerPhysics component that sets interpolation for the origin as well.
-if false then
-    -- TODO: Call InitClientApprox() in some client-init (e.g. OnClientInit()) only?
-    Trafo:InitClientApprox("Origin")
-end
+-- TODO: Call InitClientApprox() in some client-init (e.g. OnClientInit()) only?
+Trafo:InitClientApprox("Origin")
 
 
 function Grenade:Think(FrameTime)

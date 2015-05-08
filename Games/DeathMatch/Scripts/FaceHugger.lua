@@ -5,13 +5,8 @@ local Model = FaceHugger:GetEntity():GetComponent("Model")
 local PaSys = FaceHugger:GetEntity():GetComponent("ParticleSystemOld")
 local PlPhy = FaceHugger:GetEntity():GetComponent("PlayerPhysics")
 
-
--- There is no need to call InitClientApprox() here, because FaceHuggers have
--- a PlayerPhysics component that sets interpolation for the origin as well.
-if false then
-    -- TODO: Call InitClientApprox() in some client-init (e.g. OnClientInit()) only?
-    Trafo:InitClientApprox("Origin")
-end
+-- TODO: Call InitClientApprox() in some client-init (e.g. OnClientInit()) only?
+Trafo:InitClientApprox("Origin")
 
 
 function FaceHugger:Think(FrameTime)

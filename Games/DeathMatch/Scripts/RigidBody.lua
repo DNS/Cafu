@@ -4,7 +4,6 @@ local RigidBody = ...   -- Retrieve the ComponentScriptT instance that is respon
 local Physics   = RigidBody:GetEntity():GetComponent("Physics")
 local Trafo     = RigidBody:GetEntity():GetTransform()
 
-
 -- TODO: Call InitClientApprox() in some client-init (e.g. OnClientInit()) only?
 Trafo:InitClientApprox("Origin")
 Trafo:InitClientApprox("Orientation")
