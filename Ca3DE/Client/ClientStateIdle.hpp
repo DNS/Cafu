@@ -36,13 +36,12 @@ class ClientStateIdleT : public ClientStateT
 
     ClientStateIdleT(ClientT& Client_);
 
-    int GetID() const;
-
-    // Implementation of the ClientStateT interface.
-    bool ProcessInputEvent(const CaKeyboardEventT& KE);
-    bool ProcessInputEvent(const CaMouseEventT&    ME);
-    void Render(float FrameTime);
-    void MainLoop(float FrameTime);
+    // Implement the ClientStateT interface.
+    int GetID() const override;
+    bool ProcessInputEvent(const CaKeyboardEventT& KE) override;
+    bool ProcessInputEvent(const CaMouseEventT& ME) override;
+    void Render(float FrameTime) override;
+    void MainLoop(float FrameTime) override;
 
 
     private:

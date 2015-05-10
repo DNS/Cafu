@@ -233,49 +233,7 @@ bool EngineEntityT::ParseServerDeltaUpdateMessage(unsigned long DeltaFrameNr, un
 }
 
 
-bool EngineEntityT::Repredict(const ArrayT<PlayerCommandT>& PlayerCommands, unsigned long RemoteLastIncomingSequenceNr, unsigned long LastOutgoingSequenceNr)
-{
-    if (!UsePrediction.GetValueBool())
-        return false;
-
-    if (LastOutgoingSequenceNr-RemoteLastIncomingSequenceNr>PlayerCommands.Size())
-    {
-        EnqueueString("WARNING - Reprediction impossible: Last ack'ed PlayerCommand is too old (%u, %u)!\n", RemoteLastIncomingSequenceNr, LastOutgoingSequenceNr);
-        return false;
-    }
-
-    IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP =
-        dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(m_Entity->GetComponent("HumanPlayer"));
-
-    if (CompHP == NULL)
-    {
-        EnqueueString("WARNING - Reprediction impossible: HumanPlayer component not found in human player entity!\n");
-        return false;
-    }
-
-    /*
-     * This assumes that this method is immediately called after ParseServerDeltaUpdateMessage(),
-     * where the state of this entity has been set to the state of the latest server frame,
-     * and that every in-game packet from the server contains a delta update message for our local client!
-     */
-
-    // Unseren Entity über alle relevanten (d.h. noch nicht bestätigten) PlayerCommands unterrichten.
-    // Wenn wir auf dem selben Host laufen wie der Server (z.B. Single-Player Spiel oder lokaler Client bei non-dedicated-Server Spiel),
-    // werden die Netzwerk-Nachrichten in Nullzeit (im Idealfall über Memory-Buffer) versandt.
-    // Falls dann auch noch der Server mit full-speed läuft, sollte daher immer RemoteLastIncomingSequenceNr==LastOutgoingSequenceNr sein,
-    // was impliziert, daß dann keine Prediction stattfindet (da nicht notwendig!).
-    for (unsigned long SequenceNr = RemoteLastIncomingSequenceNr+1; SequenceNr <= LastOutgoingSequenceNr; SequenceNr++)
-    {
-        // Note that components other than CompHP should *not* Think/Repredict,
-        // e.g. the player's CollisionModel component must not cause OnTrigger() callbacks!
-        CompHP->Think(PlayerCommands[SequenceNr & (PlayerCommands.Size()-1)], false /*ThinkingOnServerSide*/);
-    }
-
-    return true;
-}
-
-
-void EngineEntityT::Predict(const PlayerCommandT& PlayerCommand, unsigned long OutgoingSequenceNr)
+void EngineEntityT::Predict(const PlayerCommandT& PlayerCommand)
 {
     if (!UsePrediction.GetValueBool())
         return;

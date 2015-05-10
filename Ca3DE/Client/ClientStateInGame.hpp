@@ -46,13 +46,12 @@ class ClientStateInGameT : public ClientStateT
     ClientStateInGameT(ClientT& Client_);
     ~ClientStateInGameT();
 
-    int GetID() const;
-
-    // These methods are driven (called) by the GUI window that "owns" this client.
-    bool ProcessInputEvent(const CaKeyboardEventT& KE);
-    bool ProcessInputEvent(const CaMouseEventT&    ME);
-    void Render(float FrameTime);
-    void MainLoop(float FrameTime);
+    // Implement the ClientStateT interface.
+    int GetID() const override;
+    bool ProcessInputEvent(const CaKeyboardEventT& KE) override;
+    bool ProcessInputEvent(const CaMouseEventT& ME) override;
+    void Render(float FrameTime) override;
+    void MainLoop(float FrameTime) override;
 
 
     static int ConFunc_say_Callback(lua_State* LuaState);
@@ -86,7 +85,7 @@ class ClientStateInGameT : public ClientStateT
     ScrollInfoT            ChatScrollInfo;
     ScrollInfoT            SystemScrollInfo;
     GraphsT                Graphs;
-    unsigned long          ClientFrameNr;
+    unsigned long          ClientFrameNr;       ///< Counts the calls to Render(). Only used with Graphs; should be integrated there.
     PlayerCommandT         PlayerCommand;       ///< The player command structure that collects the input until the next call to MainLoop().
     PathRecorderT*         m_PathRecorder;      ///< Records the path of this client in a pointfile that can be loaded into CaWE.
 };

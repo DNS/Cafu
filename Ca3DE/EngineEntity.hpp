@@ -103,18 +103,8 @@ class EngineEntityT
     // Im Falle des Scheitersn bleibt die EngineEntityT Instanz unberührt.
     bool ParseServerDeltaUpdateMessage(unsigned long DeltaFrameNr, unsigned long ServerFrameNr, const ArrayT<uint8_t>* DeltaMessage);
 
-    // This function is called after we received any in-game message (which should always contain an SC1_FrameInfo message) from the server.
-    // From such a message we know that the server has seen all PlayerCommands up to the 'RemoteLastIncomingSequenceNr' packet,
-    // and that all entities (especially this one!) are in the corresponding state.
-    // (The number 'RemoteLastIncomingSequenceNr' is provided by the network protocol and must be handed-in here.)
-    // Consequently, this function applies all PlayerCommands from 'RemoteLastIncomingSequenceNr+1' to 'LastOutgoingSequenceNr'
-    // to the current state, and puts the result in the 'PredictedState' of this entity.
-    // Returns 'true' on success, 'false' on failure. The functions fails when the RemoteLastIncomingSequenceNr becomes too old.
-    bool Repredict(const ArrayT<PlayerCommandT>& PlayerCommands, unsigned long RemoteLastIncomingSequenceNr, unsigned long LastOutgoingSequenceNr);
-
-    // Updates the predicted state of this entity according to the 'PlayerCommand'.
-    // The 'OutgoingSequenceNr' is the sequence number of the packet in which the caller sends the 'PlayerCommand' to the server.
-    void Predict(const PlayerCommandT& PlayerCommand, unsigned long OutgoingSequenceNr);
+    /// Updates the (predicted) state of this entity according to the `PlayerCommand`.
+    void Predict(const PlayerCommandT& PlayerCommand);
 
     /// Calls the 'PostDraw()' function of this entity.
     void PostDraw(float FrameTime, bool FirstPersonView);

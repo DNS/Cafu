@@ -274,9 +274,31 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
 
 bool CaClientWorldT::OurEntity_Repredict(unsigned long RemoteLastIncomingSequenceNr, unsigned long LastOutgoingSequenceNr)
 {
+    if (LastOutgoingSequenceNr - RemoteLastIncomingSequenceNr > m_PlayerCommands.Size())
+    {
+        EnqueueString("WARNING - Reprediction impossible: Last ack'ed PlayerCommand is too old (%u, %u)!\n", RemoteLastIncomingSequenceNr, LastOutgoingSequenceNr);
+        return false;
+    }
+
+    // If we run on the same host as the server (in a single-player game or as the local client
+    // with a non-dedicated server), network messages are normally delivered without delay, and
+    // we ideally have `RemoteLastIncomingSequenceNr == LastOutgoingSequenceNr` here, meaning
+    // that (re-)prediction not necessary and thus not applied.
     if (OurEntityID<m_EngineEntities.Size())
         if (m_EngineEntities[OurEntityID]!=NULL)
-            return m_EngineEntities[OurEntityID]->Repredict(m_PlayerCommands, RemoteLastIncomingSequenceNr, LastOutgoingSequenceNr);
+        {
+            /*
+             * It is assumed that this method is immediately called after ReadServerFrameMessage(),
+             * where the state of this entity has been set to the state of the latest server frame,
+             * and that every in-game packet from the server contains a delta update message for our local client!
+             */
+            for (unsigned long sNr = RemoteLastIncomingSequenceNr + 1; sNr <= LastOutgoingSequenceNr; sNr++)
+            {
+                m_EngineEntities[OurEntityID]->Predict(m_PlayerCommands[sNr & (m_PlayerCommands.Size() - 1)]);
+            }
+
+            return true;
+        }
 
     return false;
 }
@@ -289,7 +311,7 @@ void CaClientWorldT::OurEntity_Predict(const PlayerCommandT& PlayerCommand, unsi
 
     if (OurEntityID<m_EngineEntities.Size())
         if (m_EngineEntities[OurEntityID]!=NULL)
-            m_EngineEntities[OurEntityID]->Predict(PlayerCommand, OutgoingSequenceNr);
+            m_EngineEntities[OurEntityID]->Predict(PlayerCommand);
 }
 
 
