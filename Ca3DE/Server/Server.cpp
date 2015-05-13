@@ -432,6 +432,7 @@ void ServerT::MainLoop()
         if (World && ClientInfos[ClientNr]->ClientState!=ClientInfoT::Zombie)
         {
             World->WriteClientDeltaUpdateMessages(ClientInfos[ClientNr]->EntityID,
+                                                  ClientInfos[ClientNr]->LastPlayerCommandNr,
                                                   ClientInfos[ClientNr]->LastKnownFrameReceived,
                                                   ClientInfos[ClientNr]->OldStatesPVSEntityIDs,
                                                   ClientInfos[ClientNr]->CurrentStateIndex, UnreliableData);
@@ -682,11 +683,12 @@ void ServerT::ProcessConnectionLessPacket(NetDataT& InData, const NetAddressT& S
 
 void ServerT::ProcessInGamePacketHelper(NetDataT& InData, unsigned long LastIncomingSequenceNr)
 {
-    ServerPtr->ProcessInGamePacket(InData, LastIncomingSequenceNr);
+    // The LastIncomingSequenceNr is unused now.
+    ServerPtr->ProcessInGamePacket(InData);
 }
 
 
-void ServerT::ProcessInGamePacket(NetDataT& InData, unsigned long LastIncomingSequenceNr)
+void ServerT::ProcessInGamePacket(NetDataT& InData)
 {
     // We can only get here when the client who sent the message is not listed as a zombie,
     // and therefore (consequently) the World pointer must be valid, too.
@@ -704,18 +706,21 @@ void ServerT::ProcessInGamePacket(NetDataT& InData, unsigned long LastIncomingSe
             {
                 PlayerCommandT PlayerCommand;
 
-                PlayerCommand.FrameTime   =InData.ReadFloat();
-                PlayerCommand.Keys        =InData.ReadLong();
-                PlayerCommand.DeltaHeading=InData.ReadWord();
-                PlayerCommand.DeltaPitch  =InData.ReadWord();
-             // PlayerCommand.DeltaBank   =InData.ReadWord();
-                PlayerCommand.Nr          =LastIncomingSequenceNr;
+                const unsigned int PlCmdNr = InData.ReadLong();
+                PlayerCommand.FrameTime    = InData.ReadFloat();
+                PlayerCommand.Keys         = InData.ReadLong();
+                PlayerCommand.DeltaHeading = InData.ReadWord();
+                PlayerCommand.DeltaPitch   = InData.ReadWord();
+             // PlayerCommand.DeltaBank    = InData.ReadWord();
 
                 if (InData.ReadOfl) return;     // Ignore the rest of the message!
 
                 // PlayerCommand-Messages eines Clients, der im Wait4MapInfoACK-State ist, gehören idR zur vorher gespielten World.
                 // Akzeptiere PlayerCommand-Messages daher erst (wieder), wenn der Client vollständig online ist.
                 if (ClientInfos[GlobalClientNr]->ClientState!=ClientInfoT::Online) break;
+
+                assert(ClientInfos[GlobalClientNr]->LastPlayerCommandNr < PlCmdNr);
+                ClientInfos[GlobalClientNr]->LastPlayerCommandNr = PlCmdNr;
 
                 World->NotifyHumanPlayerEntityOfClientCommand(ClientInfos[GlobalClientNr]->EntityID, PlayerCommand);
                 // Console->Print("    %s sent PlComm (req for Upd), ClientKeys=0x%X, Heading=%u\n", ClientInfos[GlobalClientNr].PlayerName, World->LifeForms[ClLFNr].CurrentState.ClientKeys, World->LifeForms[ClLFNr].CurrentState.Heading);

@@ -32,6 +32,7 @@ ClientInfoT::ClientInfoT(const NetAddressT& ClientAddress_, const std::string& P
       PlayerName(PlayerName_),
       ModelName(ModelName_),
       EntityID(0),
+      LastPlayerCommandNr(0),
       LastKnownFrameReceived(0),
       BaseLineFrameNr(1),
       OldStatesPVSEntityIDs(),
@@ -44,6 +45,10 @@ void ClientInfoT::InitForNewWorld(unsigned long ClientEntityID)
 {
     ClientState            = Wait4MapInfoACK;
     EntityID               = ClientEntityID;
+
+    // The client restarts the player command numbering at 1 whenever a new world is entered.
+    // A value of 0 means that no player command has been received yet (in the current world).
+    LastPlayerCommandNr    = 0;
 
     // From Ca3DEWorldT init (ctor), the client knows the baselines ("create states") for frame 1,
     // so the server does not have to sent `SC1_EntityBaseLine` messages for the entities in the map file.

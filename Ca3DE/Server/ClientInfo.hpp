@@ -48,6 +48,7 @@ struct ClientInfoT
 
     // World-related data
     unsigned long                   EntityID;               ///< ID of our HumanPlayer entity.
+    unsigned int                    LastPlayerCommandNr;    ///< The number of the last player command that we have received from the client.
     unsigned long                   LastKnownFrameReceived; ///< Für Delta-Kompression: Letztes Frame, von dem wir wissen, das der Cl es empf. hat.
     unsigned long                   BaseLineFrameNr;
     ArrayT< ArrayT<unsigned long> > OldStatesPVSEntityIDs;

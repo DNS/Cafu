@@ -83,7 +83,7 @@ class ServerT
 
     void        DropClient(unsigned long ClientNr, const char* Reason);
     void        ProcessConnectionLessPacket(NetDataT& InData, const NetAddressT& SenderAddress);
-    void        ProcessInGamePacket      (NetDataT& InData, unsigned long LastIncomingSequenceNr);
+    void        ProcessInGamePacket      (NetDataT& InData);
     static void ProcessInGamePacketHelper(NetDataT& InData, unsigned long LastIncomingSequenceNr);
 
 

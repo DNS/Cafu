@@ -157,6 +157,7 @@ ClientStateInGameT::ClientStateInGameT(ClientT& Client_)
       IsLoadingWorld(false),
       WasLMBOnceUp(false),
       ClientFrameNr(0),
+      m_PlayerCommandCount(1),    // In each newly loaded world, player command numbering restarts at 1.
       m_PathRecorder(NULL)
 {
     assert(Client.Socket!=INVALID_SOCKET);
@@ -678,6 +679,7 @@ void ClientStateInGameT::ParseServerPacket(NetDataT& InData)
 
                     ConsoleInterpreter->RunCommand("StartLevelIntroMusic()");   // This function must be provided in "config.lua".
 
+                    m_PlayerCommandCount = 1;   // In each newly loaded world, player command numbering restarts at 1.
                     WasLMBOnceUp=false;
                 }
                 catch (const WorldT::LoadErrorT& E)
@@ -803,14 +805,10 @@ void ClientStateInGameT::MainLoop(float FrameTime)
             else
             {
                 assert(ClientIGSPtr==this);
-                const unsigned long RemoteLastIncomingSequenceNr=GameProtocol.ProcessIncomingMessage(InData, ParseServerPacketHelper);
 
-                if (World && RemoteLastIncomingSequenceNr!=0)
-                {
-                    // Führe für unseren Entity die Reprediction durch.
-                    // Der zweite Parameter entspricht der 'LastOutgoingSequenceNr'.
-                    World->OurEntity_Repredict(RemoteLastIncomingSequenceNr, GameProtocol.GetNextOutgoingSequenceNr()-1);
-                }
+                // ProcessIncomingMessage() returns the last sequence number that the remote
+                // party has seen from us, but we have no longer need for this here.
+                GameProtocol.ProcessIncomingMessage(InData, ParseServerPacketHelper);
             }
         }
         catch (const NetDataT::WinSockAPIError& E)
@@ -877,19 +875,18 @@ void ClientStateInGameT::MainLoop(float FrameTime)
 
 
         PlayerCommand.FrameTime=FrameTime;
-        PlayerCommand.Nr       =GameProtocol.GetNextOutgoingSequenceNr();
 
         // PlayerCommand an Server senden
         UnreliableData.WriteByte (CS1_PlayerCommand);
+        UnreliableData.WriteLong (m_PlayerCommandCount);
         UnreliableData.WriteFloat(FrameTime);
         UnreliableData.WriteLong (PlayerCommand.Keys);
         UnreliableData.WriteWord (PlayerCommand.DeltaHeading);
         UnreliableData.WriteWord (PlayerCommand.DeltaPitch);
      // UnreliableData.WriteWord (PlayerCommand.DeltaBank);
-     // UnreliableData.WriteLong (PlayerCommand.Nr);
 
         // Führe für unseren Entity die Prediction durch
-        World->OurEntity_Predict(PlayerCommand, PlayerCommand.Nr /* next outgoing sequence number */);
+        World->OurEntity_Predict(PlayerCommand, m_PlayerCommandCount);
 
         if (m_PathRecorder)
         {
@@ -900,6 +897,7 @@ void ClientStateInGameT::MainLoop(float FrameTime)
         }
 
         PlayerCommand=PlayerCommandT();     // Clear the PlayerCommand.
+        m_PlayerCommandCount++;
     }
 
 

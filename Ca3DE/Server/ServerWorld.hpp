@@ -69,7 +69,7 @@ class CaServerWorldT : public Ca3DEWorldT
     // sodaß die Gegenstelle aus dem Zustand des Frames 'ClientFrameNr' den Zustand des Frames 'ServerFrameNr' rekonstruieren kann.
     // WICHTIG: Die EngineEntities befinden sich bei Funktionsaufruf schon im Zustand des Frames 'ServerFrameNr'. Die Client PVS-EntityIDs für diesen
     // Zustand werden erst mit diesem Aufruf erstellt! Deshalb MUSS diese Funktion auch nach JEDEM Aufruf von 'Think()' für jeden Client aufgerufen werden!
-    void WriteClientDeltaUpdateMessages(unsigned long ClientEntityID, unsigned long ClientFrameNr, ArrayT< ArrayT<unsigned long> >& ClientOldStatesPVSEntityIDs, unsigned long& ClientCurrentStateIndex, NetDataT& OutData) const;
+    void WriteClientDeltaUpdateMessages(unsigned long ClientEntityID, unsigned int LastPlayerCommandNr, unsigned long ClientFrameNr, ArrayT< ArrayT<unsigned long> >& ClientOldStatesPVSEntityIDs, unsigned long& ClientCurrentStateIndex, NetDataT& OutData) const;
 
     // Überführt die World über die Zeit 'FrameTime' in den nächsten Zustand.
     // Berechnet den nächsten Zustand 'ServerFrameNr' der EngineEntities, indem auf alle Entities die 'FrameTime' angewandt wird.

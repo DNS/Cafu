@@ -438,7 +438,7 @@ unsigned long CaServerWorldT::WriteClientNewBaseLines(unsigned long OldBaseLineF
 }
 
 
-void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID, unsigned long ClientFrameNr, ArrayT< ArrayT<unsigned long> >& ClientOldStatesPVSEntityIDs, unsigned long& ClientCurrentStateIndex, NetDataT& OutData) const
+void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID, unsigned int LastPlayerCommandNr, unsigned long ClientFrameNr, ArrayT< ArrayT<unsigned long> >& ClientOldStatesPVSEntityIDs, unsigned long& ClientCurrentStateIndex, NetDataT& OutData) const
 {
     // Wenn dies hier aufgerufen wird, befinden sich sämtliche m_EngineEntities schon im Zustand ('Entity->State') zum Frame 'ServerFrameNr'.
     // Der Client, von dem obige Parameter stammen, ist aber noch nicht soweit (sondern noch im vorherigen Zustand).
@@ -520,6 +520,7 @@ void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID
     OutData.WriteByte(SC1_FrameInfo);
     OutData.WriteLong(m_ServerFrameNr);     // What we are delta'ing to   (Frame, für das wir Informationen schicken)
     OutData.WriteLong(DeltaFrameNr);        // What we are delta'ing from (Frame, auf das wir uns beziehen (0 für BaseLine))
+    OutData.WriteLong(LastPlayerCommandNr); // The number of the last player command that has been received (and accounted for in m_ServerFrameNr).
 
 
     unsigned long OldIndex = 0;

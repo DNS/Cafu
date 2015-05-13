@@ -68,16 +68,7 @@ class CaClientWorldT : public Ca3DEWorldT
 
     unsigned long ReadServerFrameMessage(NetDataT& InData);
 
-    /// This function is called after we received any in-game message (which should always contain an SC1_FrameInfo message) from the server.
-    /// From such a message we know that the server has seen all PlayerCommands up to the 'RemoteLastIncomingSequenceNr' packet,
-    /// and that all entities (especially "ours"!) are in the corresponding state.
-    /// (The number 'RemoteLastIncomingSequenceNr' is provided by the network protocol and must be handed in here.)
-    /// Consequently, this function (re-)applies all PlayerCommands from `RemoteLastIncomingSequenceNr + 1` to `LastOutgoingSequenceNr`
-    /// to the current state.
-    /// Returns `true` on success, `false` on failure. The functions fails when the `RemoteLastIncomingSequenceNr` becomes too old.
-    bool OurEntity_Repredict(unsigned long RemoteLastIncomingSequenceNr, unsigned long LastOutgoingSequenceNr);
-
-    void OurEntity_Predict(const PlayerCommandT& PlayerCommand, unsigned long OutgoingSequenceNr);
+    void OurEntity_Predict(const PlayerCommandT& PlayerCommand, unsigned int PlayerCommandNr);
 
     /// Returns the camera details of "our" entity that the client should use to render the world.
     /// This is typically called for the local human player from whose perspective the world is rendered.
@@ -124,7 +115,9 @@ class CaClientWorldT : public Ca3DEWorldT
     unsigned long          m_ServerFrameNr;     // Erhalte mit Frames[ServerFrameNr & (MAX_FRAMES-1)] das Frame zur ServerFrameNr!
     const char             MAX_FRAMES;
     ArrayT<FrameT>         Frames;
-    ArrayT<PlayerCommandT> m_PlayerCommands;    ///< The last player commands, kept for prediction.
+
+    ArrayT<PlayerCommandT> m_PlayerCommands;    ///< The last player commands, kept for the reprediction that is applied after each frame update from the server.
+    unsigned int           m_PlayerCommandNr;   ///< The number of the latest player command in m_PlayerCommands.
 
     ArrayT<unsigned long>  BFS_Tree;
     ArrayT<VectorT>        BFS_TreePoints;

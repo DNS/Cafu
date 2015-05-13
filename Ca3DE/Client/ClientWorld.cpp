@@ -52,7 +52,8 @@ CaClientWorldT::CaClientWorldT(const char* FileName, ModelManagerT& ModelMan, cf
       m_ServerFrameNr(0xDEADBEEF),
       MAX_FRAMES(16) /*MUST BE POWER OF 2*/,
       Frames(),
-      m_PlayerCommands()
+      m_PlayerCommands(),
+      m_PlayerCommandNr(0)
 {
     ProgressFunction(-1.0f, "InitDrawing()");
 
@@ -121,6 +122,7 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
     // Header der SC1_NewFrameInfo Message zu Ende lesen
     CurrentFrame.ServerFrameNr=InData.ReadLong();           // Frame for which the server is sending (delta) info
     CurrentFrame.DeltaFrameNr =InData.ReadLong();           // Frame to decompress against
+    const unsigned int SvLastPlayerCommandNr = InData.ReadLong();   // The last player command that the server has received and accounted for in this frame.
 
     cf::LogDebug(net, "    CurrentFrame.ServerFrameNr==%lu", CurrentFrame.ServerFrameNr);
     cf::LogDebug(net, "    CurrentFrame.DeltaFrameNr ==%lu", CurrentFrame.DeltaFrameNr);
@@ -266,48 +268,50 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
     // Falls das CurrentFrame die ganze Zeit nicht gültig war, müssen wir 0 zurückgeben,
     // um vom Server gegen die BaseLines komprimierte Messages zu bekommen (siehe oben)!
     if (!CurrentFrame.IsValid)
-        EnqueueString("CLIENT INFO: CurrentFrame (%lu %lu) invalid, requesting baseline message.\n", CurrentFrame.ServerFrameNr, CurrentFrame.DeltaFrameNr);
-
-    return CurrentFrame.IsValid ? m_ServerFrameNr : 0;
-}
-
-
-bool CaClientWorldT::OurEntity_Repredict(unsigned long RemoteLastIncomingSequenceNr, unsigned long LastOutgoingSequenceNr)
-{
-    if (LastOutgoingSequenceNr - RemoteLastIncomingSequenceNr > m_PlayerCommands.Size())
     {
-        EnqueueString("WARNING - Reprediction impossible: Last ack'ed PlayerCommand is too old (%u, %u)!\n", RemoteLastIncomingSequenceNr, LastOutgoingSequenceNr);
-        return false;
+        EnqueueString("CLIENT INFO: CurrentFrame (%lu %lu) invalid, requesting baseline message.\n", CurrentFrame.ServerFrameNr, CurrentFrame.DeltaFrameNr);
+        return 0;
     }
 
-    // If we run on the same host as the server (in a single-player game or as the local client
-    // with a non-dedicated server), network messages are normally delivered without delay, and
-    // we ideally have `RemoteLastIncomingSequenceNr == LastOutgoingSequenceNr` here, meaning
-    // that (re-)prediction not necessary and thus not applied.
-    if (OurEntityID<m_EngineEntities.Size())
-        if (m_EngineEntities[OurEntityID]!=NULL)
+
+    /*
+     * Run the reprediction for our local player entity.
+     *
+     * Just as with any other entity that is in our PVS, our local player entity's state has
+     * been updated to the state of the latest server frame. In this server frame, all player
+     * commands up to `SvLastPlayerCommandNr` have been accounted for.
+     *
+     * Now re-apply all player commands that are newer than `SvLastPlayerCommandNr` to our
+     * local player entity in order to update it to the most recent state.
+     */
+    if (OurEntityID < m_EngineEntities.Size() && m_EngineEntities[OurEntityID] != NULL)
+    {
+        if (m_PlayerCommandNr - SvLastPlayerCommandNr <= m_PlayerCommands.Size())
         {
-            /*
-             * It is assumed that this method is immediately called after ReadServerFrameMessage(),
-             * where the state of this entity has been set to the state of the latest server frame,
-             * and that every in-game packet from the server contains a delta update message for our local client!
-             */
-            for (unsigned long sNr = RemoteLastIncomingSequenceNr + 1; sNr <= LastOutgoingSequenceNr; sNr++)
+            // If we run on the same host as the server (in a single-player game or as the local client
+            // with a non-dedicated server), network messages are normally delivered without delay. In
+            // such cases, we ideally have `SvLastPlayerCommandNr == m_PlayerCommandNr` here, meaning
+            // that (re-)prediction is not necessary and thus not applied.
+            for (unsigned int Nr = SvLastPlayerCommandNr + 1; Nr <= m_PlayerCommandNr; Nr++)
             {
-                m_EngineEntities[OurEntityID]->Predict(m_PlayerCommands[sNr & (m_PlayerCommands.Size() - 1)]);
+                m_EngineEntities[OurEntityID]->Predict(m_PlayerCommands[Nr & (m_PlayerCommands.Size() - 1)]);
             }
-
-            return true;
         }
+        else
+        {
+            EnqueueString("WARNING - Reprediction impossible: Last ack'ed PlayerCommand is too old (%u, %u)!\n", SvLastPlayerCommandNr, m_PlayerCommandNr);
+        }
+    }
 
-    return false;
+    return m_ServerFrameNr;
 }
 
 
-void CaClientWorldT::OurEntity_Predict(const PlayerCommandT& PlayerCommand, unsigned long OutgoingSequenceNr)
+void CaClientWorldT::OurEntity_Predict(const PlayerCommandT& PlayerCommand, unsigned int PlayerCommandNr)
 {
     // Store the PlayerCommand for the reprediction.
-    m_PlayerCommands[OutgoingSequenceNr & (m_PlayerCommands.Size()-1)] = PlayerCommand;
+    m_PlayerCommands[PlayerCommandNr & (m_PlayerCommands.Size() - 1)] = PlayerCommand;
+    m_PlayerCommandNr = PlayerCommandNr;
 
     if (OurEntityID<m_EngineEntities.Size())
         if (m_EngineEntities[OurEntityID]!=NULL)
