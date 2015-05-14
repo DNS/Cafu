@@ -121,15 +121,15 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
 
     // Header der SC1_NewFrameInfo Message zu Ende lesen
     CurrentFrame.ServerFrameNr=InData.ReadLong();           // Frame for which the server is sending (delta) info
-    CurrentFrame.DeltaFrameNr =InData.ReadLong();           // Frame to decompress against
-    const unsigned int SvLastPlayerCommandNr = InData.ReadLong();   // The last player command that the server has received and accounted for in this frame.
+    const unsigned long DeltaFrameNr          = InData.ReadLong();  // Frame to decompress against.
+    const unsigned int  SvLastPlayerCommandNr = InData.ReadLong();  // The last player command that the server has received and accounted for in this frame.
 
-    cf::LogDebug(net, "    CurrentFrame.ServerFrameNr==%lu", CurrentFrame.ServerFrameNr);
-    cf::LogDebug(net, "    CurrentFrame.DeltaFrameNr ==%lu", CurrentFrame.DeltaFrameNr);
+    cf::LogDebug(net, "    CurrentFrame.ServerFrameNr == %lu", CurrentFrame.ServerFrameNr);
+    cf::LogDebug(net, "    DeltaFrameNr               == %lu", DeltaFrameNr);
 
     m_ServerFrameNr=CurrentFrame.ServerFrameNr;
 
-    if (CurrentFrame.DeltaFrameNr==0)
+    if (DeltaFrameNr == 0)
     {
         // Das Frame ist gegen die BaseLines komprimiert
         DeltaFrame=NULL;
@@ -138,11 +138,11 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
     else
     {
         // Das Frame ist gegen ein anderes Frame (delta-)komprimiert
-        DeltaFrame=&Frames[CurrentFrame.DeltaFrameNr & (MAX_FRAMES-1)];
+        DeltaFrame = &Frames[DeltaFrameNr & (MAX_FRAMES - 1)];
 
         // Wir können nur dann richtig dekomprimieren, wenn das DeltaFrame damals gültig war (Ungültigkeit sollte hier niemals vorkommen!)
         // und es nicht zu alt ist (andernfalls wurde es schon mit einem jüngeren Frame überschrieben und ist daher nicht mehr verfügbar).
-        if (DeltaFrame->IsValid && CurrentFrame.DeltaFrameNr==DeltaFrame->ServerFrameNr)
+        if (DeltaFrame->IsValid && DeltaFrameNr == DeltaFrame->ServerFrameNr)
         {
             CurrentFrame.IsValid=true;
         }
@@ -152,7 +152,7 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
             // denn er ist nicht verwertbar. Dazu arbeiten wir ganz normal mit dem ungültigen oder veralteten DeltaFrame, denn das CurrentFrame
             // ist ja eh ungültig. Danach müssen wir eine nicht-komprimierte (d.h. gegen die BaseLines komprimierte) Nachricht anfordern,
             // indem wir ganz am Ende dieser Funktion 0 anstatt 'm_ServerFrameNr' zurückgeben.
-            EnqueueString("CLIENT WARNING: %s, L %u: %u %u %u!\n", __FILE__, __LINE__, DeltaFrame->IsValid, CurrentFrame.DeltaFrameNr, DeltaFrame->ServerFrameNr);
+            EnqueueString("CLIENT WARNING: %s, L %u: %u %u %u!\n", __FILE__, __LINE__, DeltaFrame->IsValid, DeltaFrameNr, DeltaFrame->ServerFrameNr);
         }
     }
 
@@ -189,7 +189,7 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
             // Notwendig ist es, den Zustand dieses Entities vom DeltaFrame (Nummer CurrentFrame.DeltaFrameNr) in den Zustand des
             // CurrentFrames (Nummer CurrentFrame.ServerFrameNr) zu kopieren.
             CurrentFrame.IsValid&=      // Note that operator & doesn't short-circuit, like operator && does!
-                ParseServerDeltaUpdateMessage(DeltaFrameEntityID, CurrentFrame.DeltaFrameNr, CurrentFrame.ServerFrameNr, NULL);
+                ParseServerDeltaUpdateMessage(DeltaFrameEntityID, DeltaFrameNr, CurrentFrame.ServerFrameNr, NULL);
 
             DeltaFrameIndex++;
             if (DeltaFrameIndex>=DeltaFrame->EntityIDsInPVS.Size()) DeltaFrameEntityID=0x99999999;
@@ -224,7 +224,7 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
             CurrentFrame.EntityIDsInPVS.PushBack(NewEntityID);
 
             CurrentFrame.IsValid&=      // Note that operator & doesn't short-circuit, like operator && does!
-                ParseServerDeltaUpdateMessage(NewEntityID, CurrentFrame.DeltaFrameNr, CurrentFrame.ServerFrameNr, &DeltaMessage);
+                ParseServerDeltaUpdateMessage(NewEntityID, DeltaFrameNr, CurrentFrame.ServerFrameNr, &DeltaMessage);
 
             DeltaFrameIndex++;
             if (DeltaFrameIndex>=DeltaFrame->EntityIDsInPVS.Size()) DeltaFrameEntityID=0x99999999;
@@ -255,7 +255,7 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
         CurrentFrame.EntityIDsInPVS.PushBack(DeltaFrameEntityID);
 
         CurrentFrame.IsValid&=      // Note that operator & doesn't short-circuit, like operator && does!
-            ParseServerDeltaUpdateMessage(DeltaFrameEntityID, CurrentFrame.DeltaFrameNr, CurrentFrame.ServerFrameNr, NULL);
+            ParseServerDeltaUpdateMessage(DeltaFrameEntityID, DeltaFrameNr, CurrentFrame.ServerFrameNr, NULL);
 
         DeltaFrameIndex++;
         if (DeltaFrameIndex>=DeltaFrame->EntityIDsInPVS.Size()) DeltaFrameEntityID=0x99999999;
@@ -269,7 +269,7 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
     // um vom Server gegen die BaseLines komprimierte Messages zu bekommen (siehe oben)!
     if (!CurrentFrame.IsValid)
     {
-        EnqueueString("CLIENT INFO: CurrentFrame (%lu %lu) invalid, requesting baseline message.\n", CurrentFrame.ServerFrameNr, CurrentFrame.DeltaFrameNr);
+        EnqueueString("CLIENT INFO: CurrentFrame (%lu %lu) invalid, requesting baseline message.\n", CurrentFrame.ServerFrameNr, DeltaFrameNr);
         return 0;
     }
 

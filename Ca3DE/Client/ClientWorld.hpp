@@ -42,7 +42,6 @@ class FrameT
 
     bool          IsValid;
     unsigned long ServerFrameNr;
-    unsigned long DeltaFrameNr;
 
     ArrayT<unsigned long> EntityIDsInPVS;
 
