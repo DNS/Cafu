@@ -116,18 +116,20 @@ bool CaClientWorldT::ReadEntityBaseLineMessage(NetDataT& InData)
 
 unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
 {
-    FrameT        CurrentFrame;
-    const FrameT* DeltaFrame;
-
-    // Header der SC1_NewFrameInfo Message zu Ende lesen
-    CurrentFrame.ServerFrameNr=InData.ReadLong();           // Frame for which the server is sending (delta) info
+    // Finish reading the SC1_FrameInfo message.
+    m_ServerFrameNr                           = InData.ReadLong();  // Frame for which the server is sending (delta) info.
     const unsigned long DeltaFrameNr          = InData.ReadLong();  // Frame to decompress against.
     const unsigned int  SvLastPlayerCommandNr = InData.ReadLong();  // The last player command that the server has received and accounted for in this frame.
 
-    cf::LogDebug(net, "    CurrentFrame.ServerFrameNr == %lu", CurrentFrame.ServerFrameNr);
-    cf::LogDebug(net, "    DeltaFrameNr               == %lu", DeltaFrameNr);
+    cf::LogDebug(net, "    m_ServerFrameNr == %lu", m_ServerFrameNr);
+    cf::LogDebug(net, "    DeltaFrameNr    == %lu", DeltaFrameNr);
 
-    m_ServerFrameNr=CurrentFrame.ServerFrameNr;
+    FrameT&       CurrentFrame = Frames[m_ServerFrameNr & (MAX_FRAMES - 1)];
+    const FrameT* DeltaFrame;
+
+    CurrentFrame.IsValid       = false;
+    CurrentFrame.ServerFrameNr = m_ServerFrameNr;
+    CurrentFrame.EntityIDsInPVS.Overwrite();
 
     if (DeltaFrameNr == 0)
     {
@@ -261,9 +263,6 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
         if (DeltaFrameIndex>=DeltaFrame->EntityIDsInPVS.Size()) DeltaFrameEntityID=0x99999999;
                                                            else DeltaFrameEntityID=DeltaFrame->EntityIDsInPVS[DeltaFrameIndex];
     }
-
-    // CurrentFrame speichern für die spätere Wiederverwendung
-    Frames[m_ServerFrameNr & (MAX_FRAMES-1)]=CurrentFrame;
 
     // Falls das CurrentFrame die ganze Zeit nicht gültig war, müssen wir 0 zurückgeben,
     // um vom Server gegen die BaseLines komprimierte Messages zu bekommen (siehe oben)!
