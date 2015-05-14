@@ -49,8 +49,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 CaClientWorldT::CaClientWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, WorldT::ProgressFunctionT ProgressFunction, unsigned long OurEntityID_) /*throw (WorldT::LoadErrorT)*/
     : Ca3DEWorldT(FileName, ModelMan, GuiRes, true, ProgressFunction),
       OurEntityID(OurEntityID_),
+      m_FrameInfos(),
       m_ServerFrameNr(0xDEADBEEF),
-      Frames(),
       m_PlayerCommands(),
       m_PlayerCommandNr(0)
 {
@@ -59,7 +59,7 @@ CaClientWorldT::CaClientWorldT(const char* FileName, ModelManagerT& ModelMan, cf
     for (unsigned int EntNr = 0; EntNr < m_World->m_StaticEntityData.Size(); EntNr++)
         m_World->m_StaticEntityData[EntNr]->m_BspTree->InitDrawing();
 
-    Frames.PushBackEmpty(16);               // The size MUST be a power of 2.
+    m_FrameInfos.PushBackEmpty(16);         // The size MUST be a power of 2.
     m_PlayerCommands.PushBackEmpty(128);    // The size MUST be a power of 2.
 
     ProgressFunction(-1.0f, "Loading Materials");
@@ -123,8 +123,8 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
     cf::LogDebug(net, "    m_ServerFrameNr == %lu", m_ServerFrameNr);
     cf::LogDebug(net, "    DeltaFrameNr    == %lu", DeltaFrameNr);
 
-    FrameT&       CurrentFrame = Frames[m_ServerFrameNr & (Frames.Size() - 1)];
-    const FrameT* DeltaFrame;
+    FrameInfoT&       CurrentFrame = m_FrameInfos[m_ServerFrameNr & (m_FrameInfos.Size() - 1)];
+    const FrameInfoT* DeltaFrame;
 
     CurrentFrame.IsValid       = false;
     CurrentFrame.ServerFrameNr = m_ServerFrameNr;
@@ -139,7 +139,7 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
     else
     {
         // Das Frame ist gegen ein anderes Frame (delta-)komprimiert
-        DeltaFrame = &Frames[DeltaFrameNr & (Frames.Size() - 1)];
+        DeltaFrame = &m_FrameInfos[DeltaFrameNr & (m_FrameInfos.Size() - 1)];
 
         // Wir können nur dann richtig dekomprimieren, wenn das DeltaFrame damals gültig war (Ungültigkeit sollte hier niemals vorkommen!)
         // und es nicht zu alt ist (andernfalls wurde es schon mit einem jüngeren Frame überschrieben und ist daher nicht mehr verfügbar).
@@ -430,7 +430,7 @@ void CaClientWorldT::Draw(float FrameTime, IntrusivePtrT<const cf::GameSys::Comp
     // Entweder DrawEntities() veranlassen, alle Entities des m_EngineEntities-Arrays zu zeichnen
     // (z.B. durch einen Trick, oder explizit ein Array der Größe m_EngineEntities.Size() übergeben, das an der Stelle i der Wert i hat),
     // oder indem die Beachtung des PVS auf Server-Seite (!) ausgeschaltet wird! Die Effekte sind jeweils verschieden!
-    const FrameT& CurrentFrame = Frames[m_ServerFrameNr & (Frames.Size() - 1)];
+    const FrameInfoT& CurrentFrame = m_FrameInfos[m_ServerFrameNr & (m_FrameInfos.Size() - 1)];
 
     static float TotalTime=0.0;
     TotalTime+=FrameTime;

@@ -36,19 +36,16 @@ struct PlayerCommandT;
 class  NetDataT;
 
 
-class FrameT
+/// This class reflects which entities are relevant for this client at the given server frame.
+class FrameInfoT
 {
     public:
 
-    bool          IsValid;
-    unsigned long ServerFrameNr;
+    FrameInfoT() : IsValid(false) { }
 
-    ArrayT<unsigned long> EntityIDsInPVS;
-
-
-    FrameT() : IsValid(false)
-    {
-    }
+    bool                  IsValid;          ///< Is this a properly received and thus usable frame info at all?
+    unsigned long         ServerFrameNr;    ///< The number of the server frame that this info is about.
+    ArrayT<unsigned long> EntityIDsInPVS;   ///< The IDs of the entities that are relevant for this client at the given server frame.
 };
 
 
@@ -111,8 +108,8 @@ class CaClientWorldT : public Ca3DEWorldT
 
     const unsigned long    OurEntityID;
 
-    unsigned long          m_ServerFrameNr;     // Erhalte mit Frames[ServerFrameNr & (MAX_FRAMES-1)] das Frame zur ServerFrameNr!
-    ArrayT<FrameT>         Frames;
+    ArrayT<FrameInfoT>     m_FrameInfos;        ///< The last frame infos as received from the server. Past frame infos are kept for the delta decompression.
+    unsigned long          m_ServerFrameNr;     ///< The number of the latest server frame that we have been updated to (received an SC1_FrameInfo message for).
 
     ArrayT<PlayerCommandT> m_PlayerCommands;    ///< The last player commands, kept for the reprediction that is applied after each frame update from the server.
     unsigned int           m_PlayerCommandNr;   ///< The number of the latest player command in m_PlayerCommands.
