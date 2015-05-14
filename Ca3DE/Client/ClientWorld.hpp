@@ -112,7 +112,6 @@ class CaClientWorldT : public Ca3DEWorldT
     const unsigned long    OurEntityID;
 
     unsigned long          m_ServerFrameNr;     // Erhalte mit Frames[ServerFrameNr & (MAX_FRAMES-1)] das Frame zur ServerFrameNr!
-    const char             MAX_FRAMES;
     ArrayT<FrameT>         Frames;
 
     ArrayT<PlayerCommandT> m_PlayerCommands;    ///< The last player commands, kept for the reprediction that is applied after each frame update from the server.
