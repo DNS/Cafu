@@ -27,6 +27,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 
 namespace cf { namespace ClipSys { class CollisionModelT; } }
+struct ClientInfoT;
 class NetDataT;
 
 
@@ -54,26 +55,28 @@ class CaServerWorldT : public Ca3DEWorldT
     // (d.h. für solche, deren 'BaseLineFrameNr' größer (d.h. jünger) als die 'SentClientBaseLineFrameNr' ist).
     unsigned long WriteClientNewBaseLines(unsigned long OldBaseLineFrameNr, ArrayT< ArrayT<char> >& OutDatas) const;
 
-    // Schreibt eine komplette Delta-Update-Message (FrameInfo+EntityUpdates) nach 'OutData'.
-    // 'ClientEntityID' ist dabei die ID des Entities, dessen PVS zur Bestimmung der sichtbaren Entities herangezogen wird,
-    // 'ClientFrameNr' die Nummer des Frames/Zustands, den der Client zuletzt bestätigt hat,
-    // 'ClientOldStatesPVSEntityIDs' die von dieser Funktion gewarteteten PVS-Informationen vorangegangener Zustände und
-    // 'ClientCurrentStateIndex' der (ebenfalls von dieser Funktion gewartete) Index in die PVS-Informationen.
-    //
-    // Diese Funktion nimmt folgende Parameter zu einem Client entgegen:
-    // 'ClientEntityID'              - die ID des Entities des Clients,
-    // 'ClientFrameNr'               - die Nummer des letzten ServerFrames, das der Client von uns gesehen hat,
-    // 'ClientOldStatesPVSEntityIDs' - die IDs der Entities der letzten Zustände des Clients, und
-    // 'ClientCurrentStateIndex'     - der zum Zustand des Frames 'ClientFrameNr' gehörende Index ins 'ClientOldStatesPVSEntityIDs' Array.
-    // Diese Funktion schreibt dann eine SC1_NewFrameInfo Message und die sich aus obigem ergebenden, relevanten SC1_EntityUpdate Messages nach 'OutData',
-    // sodaß die Gegenstelle aus dem Zustand des Frames 'ClientFrameNr' den Zustand des Frames 'ServerFrameNr' rekonstruieren kann.
-    // WICHTIG: Die EngineEntities befinden sich bei Funktionsaufruf schon im Zustand des Frames 'ServerFrameNr'. Die Client PVS-EntityIDs für diesen
-    // Zustand werden erst mit diesem Aufruf erstellt! Deshalb MUSS diese Funktion auch nach JEDEM Aufruf von 'Think()' für jeden Client aufgerufen werden!
-    void WriteClientDeltaUpdateMessages(unsigned long ClientEntityID, unsigned int LastPlayerCommandNr, unsigned long ClientFrameNr, ArrayT< ArrayT<unsigned long> >& ClientOldStatesPVSEntityIDs, unsigned long& ClientCurrentStateIndex, NetDataT& OutData) const;
+    /// This method writes a delta update message for the given client into the given `OutData`.
+    /// Note that this method must only be called *after* UpdateFrameInfo() has been called,
+    /// because it relies on the client's frame info being up-to-date for the current frame!
+    ///
+    /// The message consist of an SC1_FrameInfo header and all SC1_EntityUpdate and
+    /// SC1_EntityRemove (sub-)messages as required for the client to reconstruct the current
+    /// frame.
+    void WriteClientDeltaUpdateMessages(const ClientInfoT& ClientInfo, NetDataT& OutData) const;
 
-    // Überführt die World über die Zeit 'FrameTime' in den nächsten Zustand.
-    // Berechnet den nächsten Zustand 'ServerFrameNr' der EngineEntities, indem auf alle Entities die 'FrameTime' angewandt wird.
+    /// This method advances the world over the given time `FrameTime` into the next state.
+    /// That is, time `FrameTime` is applied to all entities in `m_EngineEntities` in order
+    /// to compute the next state, advancing the `m_ServerFrameNr` by one.
     void Think(float FrameTime);
+
+    /// This method *must* be called after Think() for each client:
+    /// It updates the client's frame info corresponding to the the new/current server frame.
+    ///
+    /// The previous call to Think() brought the entire world (all m_EngineEntities) into the
+    /// new state with number m_ServerFrameNr. The ClientInfoT instances however know at this
+    /// time nothing about the new state. Calling this method updates a client's frame info
+    /// (the list of entities that are relevant for the client in the new frame) accordingly.
+    void UpdateFrameInfo(ClientInfoT& ClientInfo) const;
 
 
     private:

@@ -20,6 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "ServerWorld.hpp"
+#include "ClientInfo.hpp"
 #include "../EngineEntity.hpp"
 #include "ConsoleCommands/ConVar.hpp"
 #include "ConsoleCommands/Console.hpp"      // For cf::va().
@@ -438,38 +439,35 @@ unsigned long CaServerWorldT::WriteClientNewBaseLines(unsigned long OldBaseLineF
 }
 
 
-void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID, unsigned int LastPlayerCommandNr, unsigned long ClientFrameNr, ArrayT< ArrayT<unsigned long> >& ClientOldStatesPVSEntityIDs, unsigned long& ClientCurrentStateIndex, NetDataT& OutData) const
+void CaServerWorldT::UpdateFrameInfo(ClientInfoT& ClientInfo) const
 {
-    // Wenn dies hier aufgerufen wird, befinden sich sämtliche m_EngineEntities schon im Zustand ('Entity->State') zum Frame 'ServerFrameNr'.
-    // Der Client, von dem obige Parameter stammen, ist aber noch nicht soweit (sondern noch im vorherigen Zustand).
-    // Update daher zuerst die PVS-EntityID Infos dieses Clients.
-    const char TEMP_MAX_OLDSTATES=16+1;     // (?)
+    const unsigned int TEMP_MAX_OLDSTATES = 16 + 1;     // (?)
 
-    if (ClientOldStatesPVSEntityIDs.Size()<TEMP_MAX_OLDSTATES)
+    if (ClientInfo.OldStatesPVSEntityIDs.Size() < TEMP_MAX_OLDSTATES)
     {
-        ClientOldStatesPVSEntityIDs.PushBackEmpty();
+        ClientInfo.OldStatesPVSEntityIDs.PushBackEmpty();
 
-        ClientCurrentStateIndex=ClientOldStatesPVSEntityIDs.Size()-1;
+        ClientInfo.CurrentStateIndex = ClientInfo.OldStatesPVSEntityIDs.Size() - 1;
     }
     else
     {
-        ClientCurrentStateIndex++;
-        if (ClientCurrentStateIndex>=TEMP_MAX_OLDSTATES) ClientCurrentStateIndex=0;
+        ClientInfo.CurrentStateIndex++;
+        if (ClientInfo.CurrentStateIndex >= TEMP_MAX_OLDSTATES) ClientInfo.CurrentStateIndex = 0;
 
-        ClientOldStatesPVSEntityIDs[ClientCurrentStateIndex].Clear();
+        ClientInfo.OldStatesPVSEntityIDs[ClientInfo.CurrentStateIndex].Overwrite();
     }
 
+    const EngineEntityT* EE = m_EngineEntities[ClientInfo.EntityID];
+
+    if (!EE) return;
 
     const cf::SceneGraph::BspTreeNodeT* BspTree = m_World->m_StaticEntityData[0]->m_BspTree;
+    ArrayT<unsigned long>& NewStatePVSEntityIDs = ClientInfo.OldStatesPVSEntityIDs[ClientInfo.CurrentStateIndex];
+    const unsigned long    ClientLeafNr         = BspTree->WhatLeaf(EE->GetEntity()->GetTransform()->GetOriginWS().AsVectorOfDouble());
 
-    ArrayT<unsigned long>* NewStatePVSEntityIDs=&ClientOldStatesPVSEntityIDs[ClientCurrentStateIndex];
-    ArrayT<unsigned long>* OldStatePVSEntityIDs=NULL;
-    const unsigned long    ClientLeafNr        =(m_EngineEntities[ClientEntityID]!=NULL) ?
-        BspTree->WhatLeaf(m_EngineEntities[ClientEntityID]->GetEntity()->GetTransform()->GetOriginWS().AsVectorOfDouble()) : 0;
-
-    // Finde heraus, welche Entities im PVS von diesem Client liegen. Erhalte ein Array von EntityIDs.
-    for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
-        if (m_EngineEntities[EntityNr]!=NULL)
+    // Determine all entities that are relevant for (in the PVS of) this client.
+    for (unsigned long EntityNr = 0; EntityNr < m_EngineEntities.Size(); EntityNr++)
+        if (m_EngineEntities[EntityNr] != NULL)
         {
             BoundingBox3dT EntityBB = m_EngineEntities[EntityNr]->GetEntity()->GetCullingBB(true /*WorldSpace*/).AsBoxOfDouble();
 
@@ -482,19 +480,26 @@ void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID
                 EntityBB += m_EngineEntities[EntityNr]->GetEntity()->GetTransform()->GetOriginWS().AsVectorOfDouble();
             }
 
-            if (BspTree->IsInPVS(EntityBB, ClientLeafNr)) NewStatePVSEntityIDs->PushBack(EntityNr);
+            if (BspTree->IsInPVS(EntityBB, ClientLeafNr)) NewStatePVSEntityIDs.PushBack(EntityNr);
         }
 
     // Make sure that NewStatePVSEntityIDs is in sorted order. At the time of this writing, this is trivially the
     // case, but it is also easy to foresee changes to the above loop that unintentionally break this rule, which is
     // an important requirement for the code below and whose violations may cause hard to diagnose problems.
-    for (unsigned int i = 1; i < NewStatePVSEntityIDs->Size(); i++)
-        assert((*NewStatePVSEntityIDs)[i-1] < (*NewStatePVSEntityIDs)[i]);
+    for (unsigned int i = 1; i < NewStatePVSEntityIDs.Size(); i++)
+        assert(NewStatePVSEntityIDs[i - 1] < NewStatePVSEntityIDs[i]);
+}
 
+
+void CaServerWorldT::WriteClientDeltaUpdateMessages(const ClientInfoT& ClientInfo, NetDataT& OutData) const
+{
+    const unsigned long ClientFrameNr = ClientInfo.LastKnownFrameReceived;
+    const ArrayT<unsigned long>* NewStatePVSEntityIDs = &ClientInfo.OldStatesPVSEntityIDs[ClientInfo.CurrentStateIndex];
+    const ArrayT<unsigned long>* OldStatePVSEntityIDs = NULL;
 
     unsigned long DeltaFrameNr;     // Kann dies entfernen, indem der Packet-Header direkt im if-else-Teil geschrieben wird!
 
-    if (ClientFrameNr == 0 || ClientFrameNr >= m_ServerFrameNr || ClientFrameNr+ClientOldStatesPVSEntityIDs.Size()-1 < m_ServerFrameNr)
+    if (ClientFrameNr == 0 || ClientFrameNr >= m_ServerFrameNr || ClientFrameNr + ClientInfo.OldStatesPVSEntityIDs.Size() - 1 < m_ServerFrameNr)
     {
         // Erläuterung der obigen if-Bedingung:
         // a) Der erste  Teil 'ClientFrameNr==0' ist klar! (Echt?? Vermutlich war gemeint, dass der Client in der letzten CS1_FrameInfoACK Nachricht explizit "0" geschickt und damit Baseline angefordert hat.)
@@ -504,23 +509,23 @@ void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID
 
         // Entweder will der Client explizit ein retransmit haben (bei neuer World oder auf User-Wunsch (no-delta mode) oder nach Problemen),
         // oder beim Client ist schon länger keine verwertbare Nachricht mehr angekommen. Daher delta'en wir bzgl. der BaseLine!
-        DeltaFrameNr        =0;
-        OldStatePVSEntityIDs=&EmptyArray;
+        DeltaFrameNr         = 0;
+        OldStatePVSEntityIDs = &EmptyArray;
     }
     else
     {
         // Nach obiger if-Bedingung ist FrameDiff auf jeden Fall in [1 .. ClientOldStatesPVSEntityIDs.Size()-1].
-        unsigned long FrameDiff=m_ServerFrameNr-ClientFrameNr;
+        const unsigned long FrameDiff = m_ServerFrameNr-ClientFrameNr;
 
-        DeltaFrameNr        =ClientFrameNr;
-        OldStatePVSEntityIDs=&ClientOldStatesPVSEntityIDs[FrameDiff<=ClientCurrentStateIndex ? ClientCurrentStateIndex-FrameDiff : ClientOldStatesPVSEntityIDs.Size()+ClientCurrentStateIndex-FrameDiff];
+        DeltaFrameNr         = ClientFrameNr;
+        OldStatePVSEntityIDs = &ClientInfo.OldStatesPVSEntityIDs[FrameDiff <= ClientInfo.CurrentStateIndex ? ClientInfo.CurrentStateIndex - FrameDiff : ClientInfo.OldStatesPVSEntityIDs.Size() + ClientInfo.CurrentStateIndex - FrameDiff];
     }
 
 
     OutData.WriteByte(SC1_FrameInfo);
     OutData.WriteLong(m_ServerFrameNr);     // What we are delta'ing to   (Frame, für das wir Informationen schicken)
     OutData.WriteLong(DeltaFrameNr);        // What we are delta'ing from (Frame, auf das wir uns beziehen (0 für BaseLine))
-    OutData.WriteLong(LastPlayerCommandNr); // The number of the last player command that has been received (and accounted for in m_ServerFrameNr).
+    OutData.WriteLong(ClientInfo.LastPlayerCommandNr);  // The number of the last player command that has been received (and accounted for in m_ServerFrameNr).
 
 
     unsigned long OldIndex = 0;
@@ -547,7 +552,7 @@ void CaServerWorldT::WriteClientDeltaUpdateMessages(unsigned long ClientEntityID
         // Better risk not-updated fields of other entities, than getting stuck with the own entity!
         // In order to achieve this, the introduction of the 'SkipEntity' variable is the best solution I could think of.
         // (Also see constant GameProtocol1T::MAX_MSG_SIZE that defines the maximum package size.)
-        const bool SkipEntity = OutData.Data.Size() > 4096 && NewEntityID != ClientEntityID;
+        const bool SkipEntity = OutData.Data.Size() > 4096 && NewEntityID != ClientInfo.EntityID;
 
         if (OldEntityID == NewEntityID)
         {

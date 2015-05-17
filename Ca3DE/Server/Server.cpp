@@ -414,50 +414,58 @@ void ServerT::MainLoop()
         // Hier wäre der richtige Ort zum "externen" Einfügen/Entfernen von HumanPlayer-Entities ins AKTUELLE Frame.
 
 
-        // BaseLines neu erzeugter Entities zum reliable Senden vormerken (in die ReliableData-Buffer eintragen):
-        // Sei 'ClientInfos[ClientNr]->BaseLineFrameNr' diejenige ServerFrameNr, bis zu der (einschließlich) ein Client alle BaseLines kennt.
-        // Sende dann die BaseLines aller Entities, deren BaseLineFrameNr größer als diese Nr ist (d.h. diejenigen BaseLines, die der Client noch nicht kennt)!
-        // Beachte die Reihenfolge: Darf nach diesem Teil keine neuen Entities mehr im AKTUELLEN Frame erzeugen, sondern erst im NÄCHSTEN Frame wieder!
-        for (unsigned long ClientNr=0; ClientNr<ClientInfos.Size(); ClientNr++)
-            ClientInfos[ClientNr]->BaseLineFrameNr=World->WriteClientNewBaseLines(ClientInfos[ClientNr]->BaseLineFrameNr, ClientInfos[ClientNr]->ReliableDatas);
+        // Update the connected clients according to the new (now current) world state.
+        for (unsigned long ClientNr = 0; ClientNr < ClientInfos.Size(); ClientNr++)
+        {
+            ClientInfoT* CI = ClientInfos[ClientNr];
+
+            // Prepare reliable BaseLine messages for newly created entities that the client
+            // does not yet know about. CI->BaseLineFrameNr is the server frame number up to
+            // which the client has received and acknowledged all BaseLines. That is, BaseLine
+            // messages are created for entities whose BaseLineFrameNr is larger than that.
+            //
+            // Note that after this, no further entities can be added to the world in the
+            // *current* frame, but only in the next!
+            CI->BaseLineFrameNr = World->WriteClientNewBaseLines(CI->BaseLineFrameNr, CI->ReliableDatas);
+
+            // Update the client's frame info corresponding to the the current server frame.
+            World->UpdateFrameInfo(*CI);
+        }
     }
 
 
     // Sende die aufgestauten ReliableData und die hier "dynamisch" erzeugten UnreliableData
     // (bestehend aus den Delta-Update-Messages (FrameInfo+EntityUpdates)) an die für sie bestimmten Empfänger.
-    for (unsigned long ClientNr=0; ClientNr<ClientInfos.Size(); ClientNr++)
+    for (unsigned long ClientNr = 0; ClientNr < ClientInfos.Size(); ClientNr++)
     {
-        NetDataT UnreliableData;
-
-        if (World && ClientInfos[ClientNr]->ClientState!=ClientInfoT::Zombie)
-        {
-            World->WriteClientDeltaUpdateMessages(ClientInfos[ClientNr]->EntityID,
-                                                  ClientInfos[ClientNr]->LastPlayerCommandNr,
-                                                  ClientInfos[ClientNr]->LastKnownFrameReceived,
-                                                  ClientInfos[ClientNr]->OldStatesPVSEntityIDs,
-                                                  ClientInfos[ClientNr]->CurrentStateIndex, UnreliableData);
-        }
+        ClientInfoT* CI = ClientInfos[ClientNr];
 
         ClientInfos[ClientNr]->TimeSinceLastUpdate+=FrameTime;
 
-        // Delta-Komprimierte Entity-Daten senden
-        // TODO: Diese Lösung ist natürlich nicht so toll:
-        // Will / Muß jedes Frame World->WriteClientDeltaUpdateMessages(...) aufrufen (PRÜFEN!),
-        // will aber außerdem nur alle 0.1 sec etwas senden!!!
-        if (ClientInfos[ClientNr]->TimeSinceLastUpdate<0.05) continue;
+        // Only send something after a minimum interval.
+        if (CI->TimeSinceLastUpdate < 0.05) continue;
+
+        NetDataT UnreliableData;
+
+        if (World && CI->ClientState != ClientInfoT::Zombie)
+        {
+            World->WriteClientDeltaUpdateMessages(*CI, UnreliableData);
+        }
 
         try
         {
-            // Sende bewußt auch an Clients im Wait4MapInfoACK-Zustand! (Aber warum?? Eine Vermutung: Andernfalls werden RELIABLE Data auch nicht transportiert!)
+            // Note that we intentionally also send to clients in Wait4MapInfoACK and Zombie
+            // states, in order to keep the handling (with possible re-transfers) of reliable
+            // data going.
             // TODO: Für Zombies statt rel.+unrel. Data nur leere Buffer übergeben! VORHER aber die DropMsg in ServerT::DropClient SENDEN!
-            ClientInfos[ClientNr]->GameProtocol.GetTransmitData(ClientInfos[ClientNr]->ReliableDatas, UnreliableData.Data).Send(ServerSocket, ClientInfos[ClientNr]->ClientAddress);
+            CI->GameProtocol.GetTransmitData(CI->ReliableDatas, UnreliableData.Data).Send(ServerSocket, CI->ClientAddress);
         }
-        catch (const GameProtocol1T::MaxMsgSizeExceeded& /*E*/) { Console->Warning(cf::va("(ClientNr==%u, EntityID==%u) caught a GameProtocol1T::MaxMsgSizeExceeded exception!", ClientNr, ClientInfos[ClientNr]->EntityID)); }
+        catch (const GameProtocol1T::MaxMsgSizeExceeded& /*E*/) { Console->Warning(cf::va("(ClientNr==%u, EntityID==%u) caught a GameProtocol1T::MaxMsgSizeExceeded exception!", ClientNr, CI->EntityID)); }
         catch (const NetDataT::WinSockAPIError&            E  ) { Console->Warning(cf::va("caught a NetDataT::WinSockAPIError exception (error %u)!", E.Error)); }
         catch (const NetDataT::MessageLength&              E  ) { Console->Warning(cf::va("caught a NetDataT::MessageLength exception (wanted %u, actual %u)!", E.Wanted, E.Actual)); }
 
-        ClientInfos[ClientNr]->ReliableDatas.Clear();
-        ClientInfos[ClientNr]->TimeSinceLastUpdate=0;
+        CI->ReliableDatas.Clear();
+        CI->TimeSinceLastUpdate = 0;
     }
 }
 
