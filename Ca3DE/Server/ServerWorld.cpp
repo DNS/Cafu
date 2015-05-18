@@ -441,29 +441,15 @@ unsigned long CaServerWorldT::WriteClientNewBaseLines(unsigned long OldBaseLineF
 
 void CaServerWorldT::UpdateFrameInfo(ClientInfoT& ClientInfo) const
 {
-    const unsigned int TEMP_MAX_OLDSTATES = 16 + 1;     // (?)
-
-    if (ClientInfo.OldStatesPVSEntityIDs.Size() < TEMP_MAX_OLDSTATES)
-    {
-        ClientInfo.OldStatesPVSEntityIDs.PushBackEmpty();
-
-        ClientInfo.CurrentStateIndex = ClientInfo.OldStatesPVSEntityIDs.Size() - 1;
-    }
-    else
-    {
-        ClientInfo.CurrentStateIndex++;
-        if (ClientInfo.CurrentStateIndex >= TEMP_MAX_OLDSTATES) ClientInfo.CurrentStateIndex = 0;
-
-        ClientInfo.OldStatesPVSEntityIDs[ClientInfo.CurrentStateIndex].Overwrite();
-    }
-
     const EngineEntityT* EE = m_EngineEntities[ClientInfo.EntityID];
 
     if (!EE) return;
 
     const cf::SceneGraph::BspTreeNodeT* BspTree = m_World->m_StaticEntityData[0]->m_BspTree;
-    ArrayT<unsigned long>& NewStatePVSEntityIDs = ClientInfo.OldStatesPVSEntityIDs[ClientInfo.CurrentStateIndex];
+    ArrayT<unsigned long>& NewStatePVSEntityIDs = ClientInfo.OldStatesPVSEntityIDs[m_ServerFrameNr & (ClientInfo.OldStatesPVSEntityIDs.Size() - 1)];
     const unsigned long    ClientLeafNr         = BspTree->WhatLeaf(EE->GetEntity()->GetTransform()->GetOriginWS().AsVectorOfDouble());
+
+    NewStatePVSEntityIDs.Overwrite();
 
     // Determine all entities that are relevant for (in the PVS of) this client.
     for (unsigned long EntityNr = 0; EntityNr < m_EngineEntities.Size(); EntityNr++)
@@ -494,7 +480,7 @@ void CaServerWorldT::UpdateFrameInfo(ClientInfoT& ClientInfo) const
 void CaServerWorldT::WriteClientDeltaUpdateMessages(const ClientInfoT& ClientInfo, NetDataT& OutData) const
 {
     const unsigned long ClientFrameNr = ClientInfo.LastKnownFrameReceived;
-    const ArrayT<unsigned long>* NewStatePVSEntityIDs = &ClientInfo.OldStatesPVSEntityIDs[ClientInfo.CurrentStateIndex];
+    const ArrayT<unsigned long>* NewStatePVSEntityIDs = &ClientInfo.OldStatesPVSEntityIDs[m_ServerFrameNr & (ClientInfo.OldStatesPVSEntityIDs.Size() - 1)];
     const ArrayT<unsigned long>* OldStatePVSEntityIDs = NULL;
 
     unsigned long DeltaFrameNr;     // Kann dies entfernen, indem der Packet-Header direkt im if-else-Teil geschrieben wird!
@@ -505,7 +491,7 @@ void CaServerWorldT::WriteClientDeltaUpdateMessages(const ClientInfoT& ClientInf
         // a) Der erste  Teil 'ClientFrameNr==0' ist klar! (Echt?? Vermutlich war gemeint, dass der Client in der letzten CS1_FrameInfoACK Nachricht explizit "0" geschickt und damit Baseline angefordert hat.)
         // b) Der zweite Teil 'ClientFrameNr>=ServerFrameNr' ist nur zur Sicherheit und sollte NIEMALS anspringen!
         // c) Der dritte Teil ist äquivalent zu 'ServerFrameNr-ClientFrameNr>=ClientOldStatesPVSEntityIDs.Size()'!
-        static ArrayT<unsigned long> EmptyArray;
+        static const ArrayT<unsigned long> EmptyArray;
 
         // Entweder will der Client explizit ein retransmit haben (bei neuer World oder auf User-Wunsch (no-delta mode) oder nach Problemen),
         // oder beim Client ist schon länger keine verwertbare Nachricht mehr angekommen. Daher delta'en wir bzgl. der BaseLine!
@@ -514,11 +500,8 @@ void CaServerWorldT::WriteClientDeltaUpdateMessages(const ClientInfoT& ClientInf
     }
     else
     {
-        // Nach obiger if-Bedingung ist FrameDiff auf jeden Fall in [1 .. ClientOldStatesPVSEntityIDs.Size()-1].
-        const unsigned long FrameDiff = m_ServerFrameNr-ClientFrameNr;
-
         DeltaFrameNr         = ClientFrameNr;
-        OldStatePVSEntityIDs = &ClientInfo.OldStatesPVSEntityIDs[FrameDiff <= ClientInfo.CurrentStateIndex ? ClientInfo.CurrentStateIndex - FrameDiff : ClientInfo.OldStatesPVSEntityIDs.Size() + ClientInfo.CurrentStateIndex - FrameDiff];
+        OldStatePVSEntityIDs = &ClientInfo.OldStatesPVSEntityIDs[ClientFrameNr & (ClientInfo.OldStatesPVSEntityIDs.Size() - 1)];
     }
 
 

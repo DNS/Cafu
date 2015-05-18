@@ -35,9 +35,9 @@ ClientInfoT::ClientInfoT(const NetAddressT& ClientAddress_, const std::string& P
       LastPlayerCommandNr(0),
       LastKnownFrameReceived(0),
       BaseLineFrameNr(1),
-      OldStatesPVSEntityIDs(),
-      CurrentStateIndex(0)
+      OldStatesPVSEntityIDs()
 {
+    OldStatesPVSEntityIDs.PushBackEmpty(16);    // The size MUST be a power of 2.
 }
 
 
@@ -59,6 +59,6 @@ void ClientInfoT::InitForNewWorld(unsigned long ClientEntityID)
     LastKnownFrameReceived = 0;
     BaseLineFrameNr        = 1;
 
-    OldStatesPVSEntityIDs.Clear();
-    CurrentStateIndex      = 0;
+    for (unsigned int i = 0; i < OldStatesPVSEntityIDs.Size(); i++)
+        OldStatesPVSEntityIDs[i].Overwrite();
 }

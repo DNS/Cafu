@@ -51,8 +51,7 @@ struct ClientInfoT
     unsigned int                    LastPlayerCommandNr;    ///< The number of the last player command that we have received from the client.
     unsigned long                   LastKnownFrameReceived; ///< Für Delta-Kompression: Letztes Frame, von dem wir wissen, das der Cl es empf. hat.
     unsigned long                   BaseLineFrameNr;
-    ArrayT< ArrayT<unsigned long> > OldStatesPVSEntityIDs;
-    unsigned long                   CurrentStateIndex;
+    ArrayT< ArrayT<unsigned long> > OldStatesPVSEntityIDs;  ///< TODO: Replace type with `ArrayT<FrameInfoT>` ?
 };
 
 #endif
