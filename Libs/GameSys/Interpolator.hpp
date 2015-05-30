@@ -222,6 +222,8 @@ namespace cf
                 m_B     = cf::math::QuaternionfT::FromXYZ(m_Value.Get());
                 m_Total = m_Time;
                 m_Time  = 0.0f;
+
+                m_Value.Set(m_A.GetXYZ());
             }
 
             /// Advances the interpolation over the given time.
