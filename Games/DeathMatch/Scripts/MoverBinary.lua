@@ -33,7 +33,7 @@ function Script:OnInit()
 
     for i, Part in ipairs(self.Parts) do
         -- TODO: Call InitClientApprox() in some client-init (e.g. OnClientInit()) only?
-     -- Part:GetTransform():InitClientApprox("Origin")
+        Part:GetTransform():InitClientApprox("Origin")
      -- Part:GetTransform():InitClientApprox("Orientation")   -- No swing doors yet.
 
         local DestMarker = Part:GetChildren()[1]
