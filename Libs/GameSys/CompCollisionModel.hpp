@@ -83,8 +83,8 @@ namespace cf
 
             private:
 
-            void DoDeserialize(cf::Network::InStreamT& Stream, bool IsIniting) /*override*/;
-            void DoServerFrame(float t);
+            void DoDeserialize(cf::Network::InStreamT& Stream, bool IsIniting) override;
+            void DoServerFrame(float t) override;
             void CleanUp();
             void UpdateClipModel();
 

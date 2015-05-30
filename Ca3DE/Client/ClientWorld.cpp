@@ -697,8 +697,6 @@ void CaClientWorldT::PostDrawEntities(float FrameTime, const ArrayT<unsigned lon
 
         if (EntityID < m_EngineEntities.Size() && m_EngineEntities[EntityID] != NULL)
         {
-            m_EngineEntities[EntityID]->PostDraw(FrameTime, FirstPerson);
-
             IntrusivePtrT<cf::GameSys::EntityT> Ent = m_EngineEntities[EntityID]->GetEntity();
 
             Ent->OnClientFrame(FrameTime);

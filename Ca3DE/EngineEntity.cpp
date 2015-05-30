@@ -252,17 +252,4 @@ void EngineEntityT::Predict(const PlayerCommandT& PlayerCommand)
     CompHP->Think(PlayerCommand, false /*ThinkingOnServerSide*/);
 }
 
-
-void EngineEntityT::PostDraw(float FrameTime, bool FirstPersonView)
-{
-    if (!FirstPersonView)
-    {
-        // Using !FirstPersonView is a hack to exclude "our" entity, which is predicted already,
-        // from being interpolated (whereas other player entities should be interpolated normally).
-//        Entity->Interpolate(FrameTime);
-    }
-
-//    Entity->PostDraw(FrameTime, FirstPersonView);
-}
-
 #endif   /* !DEDICATED */
