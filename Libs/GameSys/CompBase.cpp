@@ -242,6 +242,40 @@ void ComponentBaseT::OnClientFrame(float t)
 }
 
 
+void ComponentBaseT::InterpolationUpdateTargetValues(bool IsIniting)
+{
+    for (unsigned int caNr = 0; caNr < m_ClientApprox.Size(); caNr++)
+    {
+        if (IsIniting || !clientApproxNPCs.GetValueBool())
+        {
+            m_ClientApprox[caNr]->ReInit();
+        }
+        else
+        {
+            m_ClientApprox[caNr]->NotifyOverwriteUpdate();
+        }
+    }
+}
+
+
+void ComponentBaseT::InterpolationSetCurrentValues()
+{
+    for (unsigned int caNr = 0; caNr < m_ClientApprox.Size(); caNr++)
+    {
+        m_ClientApprox[caNr]->SetCurrentValue();
+    }
+}
+
+
+void ComponentBaseT::InterpolationSetTargetValues()
+{
+    for (unsigned int caNr = 0; caNr < m_ClientApprox.Size(); caNr++)
+    {
+        m_ClientApprox[caNr]->SetTargetValue();
+    }
+}
+
+
 namespace
 {
     // Returns the variable matching VarName, and a Suffix that indicates whether the whole variable or only a part of it was meant.

@@ -462,6 +462,17 @@ void CaClientWorldT::Draw(float FrameTime, IntrusivePtrT<const cf::GameSys::Comp
         return;
     }
 
+
+    // Set the interpolated values for rendering the video frame.
+    for (unsigned int i = 0; i < CurrentFrame.EntityIDsInPVS.Size(); i++)
+    {
+        const unsigned int                  ID  = CurrentFrame.EntityIDsInPVS[i];
+        IntrusivePtrT<cf::GameSys::EntityT> Ent = m_EngineEntities[ID]->GetEntity();
+
+        Ent->InterpolationSetCurrentValues();
+    }
+
+
     // Draw the ambient contribution of the entities.
     DrawEntities(OurEntityID, false, DrawOrigin, CurrentFrame.EntityIDsInPVS);
 
@@ -551,6 +562,18 @@ void CaClientWorldT::Draw(float FrameTime, IntrusivePtrT<const cf::GameSys::Comp
 
     // Zuletzt halbtransparente HUD-Elemente, Fonts usw. zeichnen.
     PostDrawEntities(FrameTime, CurrentFrame.EntityIDsInPVS);
+
+
+    // Restore the values as they were obtained from the last server frame.
+    // This is important for the next prediction step of the local human player entity,
+    // because only with these values can the prediction work as it does on the server.
+    for (unsigned int i = 0; i < CurrentFrame.EntityIDsInPVS.Size(); i++)
+    {
+        const unsigned int                  ID  = CurrentFrame.EntityIDsInPVS[i];
+        IntrusivePtrT<cf::GameSys::EntityT> Ent = m_EngineEntities[ID]->GetEntity();
+
+        Ent->InterpolationSetTargetValues();
+    }
 }
 
 

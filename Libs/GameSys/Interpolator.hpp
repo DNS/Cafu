@@ -101,14 +101,11 @@ namespace cf
                 m_B     = m_Value.Get();
                 m_Total = m_Time;
                 m_Time  = 0.0f;
-
-                m_Value.Set(m_A);
             }
 
             void Interpolate(float Time) override
             {
                 m_Time += Time;
-                m_Value.Set(GetCurrentValue());
             }
 
             void SetCurrentValue() override
@@ -201,14 +198,11 @@ namespace cf
                 m_B     = cf::math::QuaternionfT::FromXYZ(m_Value.Get());
                 m_Total = m_Time;
                 m_Time  = 0.0f;
-
-                m_Value.Set(m_A.GetXYZ());
             }
 
             void Interpolate(float Time) override
             {
                 m_Time += Time;
-                m_Value.Set(m_Total > 0.001f ? slerp(m_A, m_B, m_Time / m_Total).GetXYZ() : m_B.GetXYZ());
             }
 
             void SetCurrentValue() override

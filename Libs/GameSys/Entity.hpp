@@ -291,6 +291,20 @@ namespace cf
             /// @param t   The time in seconds since the last client frame.
             void OnClientFrame(float t);
 
+            /// For each component variable that is interpolated on the client, this method
+            /// picks up the current value and stores it as the new target value for the
+            /// interpolation. The current value itself is not modified.
+            /// The client calls this method after each frame update from the server.
+            void InterpolationUpdateTargetValues(bool IsIniting);
+
+            /// For each component variable that is interpolated on the client, this method
+            /// assigns the current, interpolated value to the variable.
+            void InterpolationSetCurrentValues();
+
+            /// For each component variable that is interpolated on the client, this method
+            /// assigns the target value of the interpolation to the variable.
+            void InterpolationSetTargetValues();
+
             /// Calls the Lua method with name `MethodName` of this entity.
             /// This method is analogous to UniScriptStateT::CallMethod(), see there for details.
             /// @param MethodName     The name of the Lua method to call.

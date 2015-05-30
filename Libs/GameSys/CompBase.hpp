@@ -250,6 +250,20 @@ namespace cf
             /// @param t   The time in seconds since the last client frame.
             void OnClientFrame(float t);
 
+            /// For each component variable that is interpolated on the client, this method
+            /// picks up the current value and stores it as the new target value for the
+            /// interpolation. The current value itself is not modified.
+            /// The client calls this method after each frame update from the server.
+            void InterpolationUpdateTargetValues(bool IsIniting);
+
+            /// For each component variable that is interpolated on the client, this method
+            /// assigns the current, interpolated value to the variable.
+            void InterpolationSetCurrentValues();
+
+            /// For each component variable that is interpolated on the client, this method
+            /// assigns the target value of the interpolation to the variable.
+            void InterpolationSetTargetValues();
+
 
             // The TypeSys related declarations for this class.
             virtual const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }

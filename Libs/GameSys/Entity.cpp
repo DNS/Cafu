@@ -612,6 +612,49 @@ void EntityT::OnClientFrame(float t)
 }
 
 
+void EntityT::InterpolationUpdateTargetValues(bool IsIniting)
+{
+    if (m_App != NULL) m_App->InterpolationUpdateTargetValues(IsIniting);
+    m_Basics->InterpolationUpdateTargetValues(IsIniting);
+    m_Transform->InterpolationUpdateTargetValues(IsIniting);
+
+    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
+        m_Components[CompNr]->InterpolationUpdateTargetValues(IsIniting);
+}
+
+
+void EntityT::InterpolationSetCurrentValues()
+{
+    if (m_App != NULL) m_App->InterpolationSetCurrentValues();
+    m_Basics->InterpolationSetCurrentValues();
+    m_Transform->InterpolationSetCurrentValues();
+
+    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
+        m_Components[CompNr]->InterpolationSetCurrentValues();
+
+    // Note that no effort is made to inform components that their values may have changed.
+    // For example, ComponentCollisionModelT components are not informed if the origin or
+    // orientation in the entity's ComponentTransformT has changed (and consequently the
+    // ClipModel in the ClipWorld is not updated).
+}
+
+
+void EntityT::InterpolationSetTargetValues()
+{
+    if (m_App != NULL) m_App->InterpolationSetTargetValues();
+    m_Basics->InterpolationSetTargetValues();
+    m_Transform->InterpolationSetTargetValues();
+
+    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
+        m_Components[CompNr]->InterpolationSetTargetValues();
+
+    // Note that no effort is made to inform components that their values may have changed.
+    // For example, ComponentCollisionModelT components are not informed if the origin or
+    // orientation in the entity's ComponentTransformT has changed (and consequently the
+    // ClipModel in the ClipWorld is not updated).
+}
+
+
 bool EntityT::CallLuaMethod(const char* MethodName, int NumExtraArgs, const char* Signature, ...)
 {
     va_list vl;
