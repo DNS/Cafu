@@ -42,10 +42,193 @@ namespace cf
 
             virtual ~ApproxBaseT() { }
 
+            /// Returns the variable that this is an interpolator for.
             virtual cf::TypeSys::VarBaseT* GetVar() const = 0;
+
+            /// Re-initializes this interpolator to the variable's current value.
             virtual void ReInit() = 0;
+
+            /// The user calls this method in order to let the interpolator know that the interpolated value was changed externally.
             virtual void NotifyOverwriteUpdate() = 0;
+
+            /// Advances the interpolation over the given time.
             virtual void Interpolate(float Time) = 0;
+
+            /// Assigns the interpolation's current value to the variable.
+            virtual void SetCurrentValue() = 0;
+
+            /// Assigns the interpolation's target value to the variable.
+            virtual void SetTargetValue() = 0;
+        };
+
+
+        /// Linearly interpolates a value over a period of time.
+        /// The course of the interpolation is adapted/updated whenever a new reference value is set.
+        /// This is mostly intended for game entities on clients, where we interpolate from the "current" value
+        /// towards the reference value of the most recent server update. If the subsequent server update happens
+        /// to arrive later than the one before it, our interpolation may (briefly) turn into an extrapolation
+        /// for bridging the gap.
+        template<class T>
+        class VarInterpolatorT : public ApproxBaseT
+        {
+            public:
+
+            VarInterpolatorT(cf::TypeSys::VarT<T>& v)
+                : m_Value(v),
+                  m_A(v.Get()),
+                  m_B(m_A),
+                  m_Total(0.0f),
+                  m_Time(0.0f)
+            {
+            }
+
+            cf::TypeSys::VarBaseT* GetVar() const override
+            {
+                return &m_Value;
+            }
+
+            void ReInit() override
+            {
+                m_A     = m_Value.Get();
+                m_B     = m_A;
+                m_Total = 0.0f;
+                m_Time  = 0.0f;
+            }
+
+            void NotifyOverwriteUpdate() override
+            {
+                m_A     = GetCurrentValue();
+                m_B     = m_Value.Get();
+                m_Total = m_Time;
+                m_Time  = 0.0f;
+
+                m_Value.Set(m_A);
+            }
+
+            void Interpolate(float Time) override
+            {
+                m_Time += Time;
+                m_Value.Set(GetCurrentValue());
+            }
+
+            void SetCurrentValue() override
+            {
+                m_Value.Set(GetCurrentValue());
+            }
+
+            void SetTargetValue() override
+            {
+                m_Value.Set(m_B);
+            }
+
+
+            private:
+
+            // bool CanContinue(const T& DeltaY) const;
+
+            T GetCurrentValue() const
+            {
+                if (m_Total < 0.001f) return m_B;
+
+                const float f = m_Time / m_Total;
+
+                return m_A * (1.0f - f) + m_B * f;
+            }
+
+
+            cf::TypeSys::VarT<T>& m_Value;  ///< The value that is interpolated.
+            T                     m_A;      ///< The start value that we're interpolating from.
+            T                     m_B;      ///< The target value that we're interpolating to.
+            float                 m_Total;  ///< The total time that the interpolation is expected to take from A to B.
+            float                 m_Time;   ///< The actual time that has passed since we started from A.
+        };
+
+
+#if 0
+        template<class T> inline bool VarInterpolatorT<T>::CanContinue(const T& DeltaY) const
+        {
+            return DeltaY < 128;
+        }
+
+        template<> inline bool VarInterpolatorT<Vector2fT>::CanContinue(const Vector2fT& DeltaY) const
+        {
+            return length(DeltaY) < 128;
+        }
+
+        template<> inline bool VarInterpolatorT<Vector3fT>::CanContinue(const Vector3fT& DeltaY) const
+        {
+            return length(DeltaY) < 128;
+        }
+
+        template<> inline bool VarInterpolatorT<Vector3dT>::CanContinue(const Vector3dT& DeltaY) const
+        {
+            return length(DeltaY) < 128;
+        }
+#endif
+
+
+        /// This class is like VarInterpolatorT, but for Vector3fT%s that represent quaternions.
+        class VarSlerpT : public ApproxBaseT
+        {
+            public:
+
+            VarSlerpT(cf::TypeSys::VarT<Vector3fT>& v)
+                : m_Value(v),
+                  m_A(cf::math::QuaternionfT::FromXYZ(v.Get())),
+                  m_B(m_A),
+                  m_Total(0.0f),
+                  m_Time(0.0f)
+            {
+                assert(v.HasFlag("IsQuat"));
+            }
+
+            cf::TypeSys::VarBaseT* GetVar() const override
+            {
+                return &m_Value;
+            }
+
+            void ReInit() override
+            {
+                m_A     = cf::math::QuaternionfT::FromXYZ(m_Value.Get());
+                m_B     = m_A;
+                m_Total = 0.0f;
+                m_Time  = 0.0f;
+            }
+
+            void NotifyOverwriteUpdate() override
+            {
+                m_A     = m_Total > 0.001f ? slerp(m_A, m_B, m_Time / m_Total) : m_B;
+                m_B     = cf::math::QuaternionfT::FromXYZ(m_Value.Get());
+                m_Total = m_Time;
+                m_Time  = 0.0f;
+
+                m_Value.Set(m_A.GetXYZ());
+            }
+
+            void Interpolate(float Time) override
+            {
+                m_Time += Time;
+                m_Value.Set(m_Total > 0.001f ? slerp(m_A, m_B, m_Time / m_Total).GetXYZ() : m_B.GetXYZ());
+            }
+
+            void SetCurrentValue() override
+            {
+                m_Value.Set(m_Total > 0.001f ? slerp(m_A, m_B, m_Time / m_Total).GetXYZ() : m_B.GetXYZ());
+            }
+
+            void SetTargetValue() override
+            {
+                m_Value.Set(m_B.GetXYZ());
+            }
+
+
+            private:
+
+            cf::TypeSys::VarT<Vector3fT>& m_Value;  ///< The value that is interpolated.
+            cf::math::QuaternionfT        m_A;      ///< The start value that we're interpolating from.
+            cf::math::QuaternionfT        m_B;      ///< The target value that we're interpolating to.
+            float                         m_Total;  ///< The total time that the interpolation is expected to take from A to B.
+            float                         m_Time;   ///< The actual time that has passed since we started from A.
         };
 
 
@@ -83,167 +266,6 @@ namespace cf
         };
 
 
-        /// Linearly interpolates a value over a period of time.
-        /// The course of the interpolation is adapted/updated whenever a new reference value is set.
-        /// This is mostly intended for game entities on clients, where we interpolate from the "current" value
-        /// towards the reference value of the most recent server update. If the subsequent server update happens
-        /// to arrive later than the one before it, our interpolation may (briefly) turn into an extrapolation
-        /// for bridging the gap.
-        template<class T>
-        class VarInterpolatorT : public ApproxBaseT
-        {
-            public:
-
-            VarInterpolatorT(cf::TypeSys::VarT<T>& v)
-                : m_Value(v),
-                  m_LastValue(v.Get()),
-                  m_Gradient(T()),  // If T is float, this initializes m_Gradient with 0.0f.
-                  m_ExtTime(0.0f)
-            {
-            }
-
-            cf::TypeSys::VarBaseT* GetVar() const
-            {
-                return &m_Value;
-            }
-
-            /// Used to re-initialize this interpolator at the current value.
-            void ReInit()
-            {
-                m_LastValue = m_Value.Get();
-                m_Gradient  = T();
-                m_ExtTime   = 0.0f;
-            }
-
-            /// The user calls this method in order to let the interpolator know that the interpolated value was changed externally.
-            void NotifyOverwriteUpdate()
-            {
-                const T NewRef = m_Value.Get();
-                m_Value.Set(m_LastValue);
-
-                UpdateRef(NewRef);
-            }
-
-            /// Advances the interpolation over the given time.
-            void Interpolate(float Time)
-            {
-                m_Value.Set(m_Value.Get() + m_Gradient*Time);
-                m_ExtTime += Time;
-
-                m_LastValue = m_Value.Get();
-            }
-
-
-            private:
-
-            bool CanContinue(const T& DeltaY) const;
-
-            /// Sets a new reference value: the value that we should interpolate to.
-            void UpdateRef(const T& Ref)
-            {
-                const T DeltaY = Ref - m_Value.Get();
-
-                if (m_ExtTime < 0.0001f || !CanContinue(DeltaY))
-                {
-                    m_Value.Set(Ref);
-                    m_LastValue = Ref;
-                    m_Gradient  = T();
-                }
-                else
-                {
-                    m_Gradient = DeltaY/m_ExtTime;
-                }
-
-                m_ExtTime = 0.0f;
-            }
-
-
-            cf::TypeSys::VarT<T>& m_Value;      ///< The value that is interpolated.
-            T                     m_LastValue;  ///< The last interpolated value. Normally m_LastValue == m_Value.
-            T                     m_Gradient;   ///< The change in the value over time.
-            float                 m_ExtTime;    ///< The time we've been interpolating since the reference value was last set.
-        };
-
-
-        template<class T> inline bool VarInterpolatorT<T>::CanContinue(const T& DeltaY) const
-        {
-            return DeltaY < 128;
-        }
-
-        template<> inline bool VarInterpolatorT<Vector2fT>::CanContinue(const Vector2fT& DeltaY) const
-        {
-            return length(DeltaY) < 128;
-        }
-
-        template<> inline bool VarInterpolatorT<Vector3fT>::CanContinue(const Vector3fT& DeltaY) const
-        {
-            return length(DeltaY) < 128;
-        }
-
-        template<> inline bool VarInterpolatorT<Vector3dT>::CanContinue(const Vector3dT& DeltaY) const
-        {
-            return length(DeltaY) < 128;
-        }
-
-
-        /// This class is like VarInterpolatorT, but for Vector3fT%s that represent quaternions.
-        class VarSlerpT : public ApproxBaseT
-        {
-            public:
-
-            VarSlerpT(cf::TypeSys::VarT<Vector3fT>& v)
-                : m_Value(v),
-                  m_A(cf::math::QuaternionfT::FromXYZ(v.Get())),
-                  m_B(m_A),
-                  m_Total(0.0f),
-                  m_Time(0.0f)
-            {
-                assert(v.HasFlag("IsQuat"));
-            }
-
-            cf::TypeSys::VarBaseT* GetVar() const
-            {
-                return &m_Value;
-            }
-
-            /// Used to re-initialize this interpolator at the current value.
-            void ReInit()
-            {
-                m_A     = cf::math::QuaternionfT::FromXYZ(m_Value.Get());
-                m_B     = m_A;
-                m_Total = 0.0f;
-                m_Time  = 0.0f;
-            }
-
-            /// The user calls this method in order to let the interpolator know that the interpolated value was changed externally.
-            void NotifyOverwriteUpdate()
-            {
-                m_A     = m_Total > 0.001f ? slerp(m_A, m_B, m_Time / m_Total) : m_B;
-                m_B     = cf::math::QuaternionfT::FromXYZ(m_Value.Get());
-                m_Total = m_Time;
-                m_Time  = 0.0f;
-
-                m_Value.Set(m_A.GetXYZ());
-            }
-
-            /// Advances the interpolation over the given time.
-            void Interpolate(float Time)
-            {
-                m_Time += Time;
-                m_Value.Set(m_Total > 0.001f ? slerp(m_A, m_B, m_Time / m_Total).GetXYZ() : m_B.GetXYZ());
-            }
-
-
-            private:
-
-            cf::TypeSys::VarT<Vector3fT>& m_Value;  ///< The value that is interpolated.
-            cf::math::QuaternionfT        m_A;      ///< The start value that we're interpolating from.
-            cf::math::QuaternionfT        m_B;      ///< The target value that we're interpolating to.
-            float                         m_Total;  ///< The total time that the interpolation is expected to take from A to B.
-            float                         m_Time;   ///< The actual time that has passed since we started from A.
-        };
-
-
 #if 0
         /// Linearly interpolates a value over a period of time.
         /// The course of the interpolation is adapted/updated whenever a new reference value is set.
@@ -264,7 +286,6 @@ namespace cf
             {
             }
 
-            /// Used to re-initialize this interpolator at the current value.
             void ReInit()
             {
                 m_LastValue = m_Value;
@@ -272,7 +293,6 @@ namespace cf
                 m_ExtTime   = 0.0f;
             }
 
-            /// The user calls this method in order to let the interpolator know that the interpolated value was changed externally.
             void NotifyOverwriteUpdate()
             {
                 const T NewRef = m_Value;
@@ -281,7 +301,6 @@ namespace cf
                 UpdateRef(NewRef);
             }
 
-            /// Advances the interpolation over the given time.
             void Interpolate(float Time)
             {
                 m_Value   += m_Gradient*Time;
