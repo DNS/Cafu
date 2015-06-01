@@ -58,6 +58,9 @@ void EngineEntityT::SetState(const cf::Network::StateT& State, bool IsIniting) c
     cf::Network::InStreamT Stream(State);
 
     m_Entity->Deserialize(Stream, IsIniting);
+
+    // Deserialization has brought new reference values for interpolated values.
+    m_Entity->InterpolationUpdateTargetValues(IsIniting);
 }
 
 
@@ -223,12 +226,12 @@ bool EngineEntityT::ParseServerDeltaUpdateMessage(unsigned long DeltaFrameNr, un
     }
 
     // Set the result as the new entity state, and record it in the m_OldStates for future reference.
-    EntityStateFrameNr=ServerFrameNr;
+    EntityStateFrameNr = ServerFrameNr;
 
     const cf::Network::StateT NewState = DeltaMessage ? cf::Network::StateT(*DeltaState, *DeltaMessage) : *DeltaState;
 
     m_OldStates[EntityStateFrameNr & (m_OldStates.Size()-1)] = NewState;
-    SetState(NewState, DeltaFrameNr == 0);  // Don't process events if we're delta'ing from the baseline (e.g. when re-entering the PVS).
+    SetState(NewState, DeltaFrameNr == 0);  // Don't process events and don't interpolate if we're delta'ing from the baseline (e.g. when re-entering the PVS).
     return true;
 }
 

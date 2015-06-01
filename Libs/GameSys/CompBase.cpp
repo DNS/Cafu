@@ -149,21 +149,6 @@ void ComponentBaseT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
             Vars[VarNr]->Deserialize(Stream);
     }
 
-    // Deserialization has brought new reference values for interpolated values.
-    for (unsigned int caNr = 0; caNr < m_ClientApprox.Size(); caNr++)
-    {
-        if (IsIniting || !clientApproxNPCs.GetValueBool())
-        {
-            m_ClientApprox[caNr]->ReInit();
-        }
-        else
-        {
-            m_ClientApprox[caNr]->NotifyOverwriteUpdate();
-        }
-    }
-
-    // Call this after updating the interpolator updates above, so that code
-    // that implements DoDeserialize() deals with the latest values.
     DoDeserialize(Stream, IsIniting);
 }
 
@@ -231,12 +216,6 @@ void ComponentBaseT::OnServerFrame(float t)
 
 void ComponentBaseT::OnClientFrame(float t)
 {
-    // Note that it is up to human player code to setup interpolation for "other"
-    // player entities, and to *not* set it up for the "local" player entity.
-    if (clientApproxNPCs.GetValueBool())
-        for (unsigned int caNr = 0; caNr < m_ClientApprox.Size(); caNr++)
-            m_ClientApprox[caNr]->Interpolate(t);
-
     // TODO: Do we have to run the pending value interpolations here as well?
     DoClientFrame(t);
 }
@@ -252,9 +231,17 @@ void ComponentBaseT::InterpolationUpdateTargetValues(bool IsIniting)
         }
         else
         {
-            m_ClientApprox[caNr]->NotifyOverwriteUpdate();
+            m_ClientApprox[caNr]->UpdateTargetValue();
         }
     }
+}
+
+
+void ComponentBaseT::InterpolationAdvanceTime(float t)
+{
+    if (clientApproxNPCs.GetValueBool())
+        for (unsigned int caNr = 0; caNr < m_ClientApprox.Size(); caNr++)
+            m_ClientApprox[caNr]->AdvanceTime(t);
 }
 
 

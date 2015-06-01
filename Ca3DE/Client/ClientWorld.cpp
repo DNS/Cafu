@@ -469,6 +469,7 @@ void CaClientWorldT::Draw(float FrameTime, IntrusivePtrT<const cf::GameSys::Comp
         const unsigned int                  ID  = CurrentFrame.EntityIDsInPVS[i];
         IntrusivePtrT<cf::GameSys::EntityT> Ent = m_EngineEntities[ID]->GetEntity();
 
+        Ent->InterpolationAdvanceTime(FrameTime);
         Ent->InterpolationSetCurrentValues();
     }
 

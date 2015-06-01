@@ -30,12 +30,12 @@ namespace cf
 {
     namespace GameSys
     {
-        /// A common base class for "approximators" (interpolators and extrapolators),
-        /// so that approximators of different types can easily be managed together.
+        /// A common base class for "approximators" (interpolators and extrapolators), so that
+        /// approximators of different types can easily be managed together.
         ///
-        /// ApproxBaseT%s are used in ComponentBaseT in order to advance values over
-        /// client frames in order to bridge the larger intervals between server frames,
-        /// especially the origin and the orientation of movable NPC entities.
+        /// ApproxBaseT%s are used in ComponentBaseT in order to advance values over client
+        /// frames in order to bridge the larger intervals between server frames, especially
+        /// the origin and the orientation of movable NPC entities.
         class ApproxBaseT
         {
             public:
@@ -48,11 +48,12 @@ namespace cf
             /// Re-initializes this interpolator to the variable's current value.
             virtual void ReInit() = 0;
 
-            /// The user calls this method in order to let the interpolator know that the interpolated value was changed externally.
-            virtual void NotifyOverwriteUpdate() = 0;
+            /// Updates the interpolator to interpolate from the current interpolated value to
+            /// the current value of the variable (the new target value).
+            virtual void UpdateTargetValue() = 0;
 
             /// Advances the interpolation over the given time.
-            virtual void Interpolate(float Time) = 0;
+            virtual void AdvanceTime(float Time) = 0;
 
             /// Assigns the interpolation's current value to the variable.
             virtual void SetCurrentValue() = 0;
@@ -95,7 +96,7 @@ namespace cf
                 m_Time  = 0.0f;
             }
 
-            void NotifyOverwriteUpdate() override
+            void UpdateTargetValue() override
             {
                 m_A     = GetCurrentValue();
                 m_B     = m_Value.Get();
@@ -103,7 +104,7 @@ namespace cf
                 m_Time  = 0.0f;
             }
 
-            void Interpolate(float Time) override
+            void AdvanceTime(float Time) override
             {
                 m_Time += Time;
             }
@@ -192,7 +193,7 @@ namespace cf
                 m_Time  = 0.0f;
             }
 
-            void NotifyOverwriteUpdate() override
+            void UpdateTargetValue() override
             {
                 m_A     = m_Total > 0.001f ? slerp(m_A, m_B, m_Time / m_Total) : m_B;
                 m_B     = cf::math::QuaternionfT::FromXYZ(m_Value.Get());
@@ -200,7 +201,7 @@ namespace cf
                 m_Time  = 0.0f;
             }
 
-            void Interpolate(float Time) override
+            void AdvanceTime(float Time) override
             {
                 m_Time += Time;
             }
@@ -280,14 +281,14 @@ namespace cf
             {
             }
 
-            void ReInit()
+            void ReInit() override
             {
                 m_LastValue = m_Value;
                 m_Gradient  = T();
                 m_ExtTime   = 0.0f;
             }
 
-            void NotifyOverwriteUpdate()
+            void UpdateTargetValue() override
             {
                 const T NewRef = m_Value;
                 m_Value = m_LastValue;
@@ -295,7 +296,7 @@ namespace cf
                 UpdateRef(NewRef);
             }
 
-            void Interpolate(float Time)
+            void AdvanceTime(float Time) override
             {
                 m_Value   += m_Gradient*Time;
                 m_ExtTime += Time;
@@ -363,7 +364,7 @@ namespace cf
             }
 
             /// Used to re-initialize this extrapolator at the current value.
-            void ReInit()
+            void ReInit() override
             {
                 m_LastValue = m_Value;
                 m_Gradient  = T();
@@ -372,7 +373,7 @@ namespace cf
             }
 
             /// The user calls this method in order to let the extrapolator know that the extrapolated value was changed externally.
-            void NotifyOverwriteUpdate()
+            void UpdateTargetValue() override
             {
                 const T NewRef = m_Value;
                 m_Value = m_LastValue;
@@ -381,7 +382,7 @@ namespace cf
             }
 
             /// Advances the extrapolation over the given time.
-            void Interpolate(float Time)
+            void AdvanceTime(float Time) override
             {
                 m_Value   += m_Gradient*Time;
                 m_ExtTime += Time;

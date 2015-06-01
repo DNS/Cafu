@@ -623,6 +623,17 @@ void EntityT::InterpolationUpdateTargetValues(bool IsIniting)
 }
 
 
+void EntityT::InterpolationAdvanceTime(float t)
+{
+    if (m_App != NULL) m_App->InterpolationAdvanceTime(t);
+    m_Basics->InterpolationAdvanceTime(t);
+    m_Transform->InterpolationAdvanceTime(t);
+
+    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
+        m_Components[CompNr]->InterpolationAdvanceTime(t);
+}
+
+
 void EntityT::InterpolationSetCurrentValues()
 {
     if (m_App != NULL) m_App->InterpolationSetCurrentValues();

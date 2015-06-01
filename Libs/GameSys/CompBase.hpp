@@ -257,6 +257,10 @@ namespace cf
             void InterpolationUpdateTargetValues(bool IsIniting);
 
             /// For each component variable that is interpolated on the client, this method
+            /// advances the interpolation over the given time.
+            void InterpolationAdvanceTime(float t);
+
+            /// For each component variable that is interpolated on the client, this method
             /// assigns the current, interpolated value to the variable.
             void InterpolationSetCurrentValues();
 
