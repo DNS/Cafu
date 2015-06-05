@@ -29,6 +29,23 @@ Inventory:set("MaxCells",        200)
 Inventory:set("MaxFaceHuggers",    5)
 
 
+function PlayerScript:OnInit()
+    -- TODO: Call InitClientApprox() in some client-init (e.g. OnClientInit()) only?
+
+    -- The client specially accounts for the local human player, so activating
+    -- interpolation here works properly both
+    --   - for the 1st person player entity
+    --     (for whom "reconciliation" after reprediction is applied) and
+    --   - for 3rd person player entities
+    --     (for whom the same interpolation as for NPCs is applied).
+    Trafo:InitClientApprox("Origin")
+
+    -- At this time, interpolating the orientation is not yet fully supported
+    -- for local (1st person) player entities.
+    -- Trafo:InitClientApprox("Orientation")
+end
+
+
 function PlayerScript:AddFrag(NumFrags)
     local NewFrags = PlayerData:get("Frags") + NumFrags
 

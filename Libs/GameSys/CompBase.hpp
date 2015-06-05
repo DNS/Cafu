@@ -256,6 +256,9 @@ namespace cf
             /// The client calls this method after each frame update from the server.
             void InterpolationUpdateTargetValues(bool IsIniting);
 
+            void InterpolationUpdateAfterReprediction();
+            void InterpolationUpdateAfterPrediction();
+
             /// For each component variable that is interpolated on the client, this method
             /// advances the interpolation over the given time.
             void InterpolationAdvanceTime(float t);

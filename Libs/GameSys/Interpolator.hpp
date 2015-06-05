@@ -52,6 +52,14 @@ namespace cf
             /// the current value of the variable (the new target value).
             virtual void UpdateTargetValue() = 0;
 
+            /// Updates the interpolator to account for the new target value after the local
+            /// human player's reprediction has been performed.
+            virtual void UpdateAfterReprediction() = 0;
+
+            /// Updates the interpolator to account for the new target value after the local
+            /// human player's prediction has been performed.
+            virtual void UpdateAfterPrediction() = 0;
+
             /// Advances the interpolation over the given time.
             virtual void AdvanceTime(float Time) = 0;
 
@@ -102,6 +110,18 @@ namespace cf
                 m_B     = m_Value.Get();
                 m_Total = m_Time;
                 m_Time  = 0.0f;
+            }
+
+            void UpdateAfterReprediction() override
+            {
+                m_B = m_Value.Get();
+            }
+
+            void UpdateAfterPrediction() override
+            {
+                // The prediction moved the player from m_B to m_Value.Get().
+                m_A = m_A + (m_Value.Get() - m_B);
+                m_B = m_Value.Get();
             }
 
             void AdvanceTime(float Time) override
@@ -199,6 +219,23 @@ namespace cf
                 m_B     = cf::math::QuaternionfT::FromXYZ(m_Value.Get());
                 m_Total = m_Time;
                 m_Time  = 0.0f;
+            }
+
+            void UpdateAfterReprediction() override
+            {
+                m_B = cf::math::QuaternionfT::FromXYZ(m_Value.Get());
+            }
+
+            void UpdateAfterPrediction() override
+            {
+                const cf::math::QuaternionfT V = cf::math::QuaternionfT::FromXYZ(m_Value.Get());
+
+                // TODO: This method should be properly implemented before use!
+                assert(false);
+
+                // The prediction rotated the player from m_B to V.
+             // m_A = m_A + (V - m_B);      // Well...
+                m_B = V;
             }
 
             void AdvanceTime(float Time) override

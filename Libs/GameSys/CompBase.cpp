@@ -237,6 +237,24 @@ void ComponentBaseT::InterpolationUpdateTargetValues(bool IsIniting)
 }
 
 
+void ComponentBaseT::InterpolationUpdateAfterReprediction()
+{
+    for (unsigned int caNr = 0; caNr < m_ClientApprox.Size(); caNr++)
+    {
+        m_ClientApprox[caNr]->UpdateAfterReprediction();
+    }
+}
+
+
+void ComponentBaseT::InterpolationUpdateAfterPrediction()
+{
+    for (unsigned int caNr = 0; caNr < m_ClientApprox.Size(); caNr++)
+    {
+        m_ClientApprox[caNr]->UpdateAfterPrediction();
+    }
+}
+
+
 void ComponentBaseT::InterpolationAdvanceTime(float t)
 {
     if (clientApproxNPCs.GetValueBool())

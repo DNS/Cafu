@@ -623,6 +623,28 @@ void EntityT::InterpolationUpdateTargetValues(bool IsIniting)
 }
 
 
+void EntityT::InterpolationUpdateAfterReprediction()
+{
+    if (m_App != NULL) m_App->InterpolationUpdateAfterReprediction();
+    m_Basics->InterpolationUpdateAfterReprediction();
+    m_Transform->InterpolationUpdateAfterReprediction();
+
+    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
+        m_Components[CompNr]->InterpolationUpdateAfterReprediction();
+}
+
+
+void EntityT::InterpolationUpdateAfterPrediction()
+{
+    if (m_App != NULL) m_App->InterpolationUpdateAfterPrediction();
+    m_Basics->InterpolationUpdateAfterPrediction();
+    m_Transform->InterpolationUpdateAfterPrediction();
+
+    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
+        m_Components[CompNr]->InterpolationUpdateAfterPrediction();
+}
+
+
 void EntityT::InterpolationAdvanceTime(float t)
 {
     if (m_App != NULL) m_App->InterpolationAdvanceTime(t);

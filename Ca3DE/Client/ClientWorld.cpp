@@ -294,6 +294,8 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
             {
                 m_EngineEntities[OurEntityID]->Predict(m_PlayerCommands[Nr & (m_PlayerCommands.Size() - 1)]);
             }
+
+            m_EngineEntities[OurEntityID]->GetEntity()->InterpolationUpdateAfterReprediction();
         }
         else
         {
@@ -313,7 +315,10 @@ void CaClientWorldT::OurEntity_Predict(const PlayerCommandT& PlayerCommand, unsi
 
     if (OurEntityID<m_EngineEntities.Size())
         if (m_EngineEntities[OurEntityID]!=NULL)
+        {
             m_EngineEntities[OurEntityID]->Predict(PlayerCommand);
+            m_EngineEntities[OurEntityID]->GetEntity()->InterpolationUpdateAfterPrediction();
+        }
 }
 
 
