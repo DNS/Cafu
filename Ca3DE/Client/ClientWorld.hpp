@@ -74,7 +74,7 @@ class CaClientWorldT : public Ca3DEWorldT
     IntrusivePtrT<const cf::GameSys::ComponentTransformT> OurEntity_GetCamera() const;
 
     void ComputeBFSPath(const VectorT& Start, const VectorT& End);
-    void Draw(float FrameTime, IntrusivePtrT<const cf::GameSys::ComponentTransformT> CameraTrafo) const;
+    void Draw(float FrameTime) const;
 
 
     private:

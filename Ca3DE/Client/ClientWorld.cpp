@@ -388,8 +388,53 @@ void CaClientWorldT::ComputeBFSPath(const VectorT& Start, const VectorT& End)
 }
 
 
-void CaClientWorldT::Draw(float FrameTime, IntrusivePtrT<const cf::GameSys::ComponentTransformT> CameraTrafo) const
+void CaClientWorldT::Draw(float FrameTime) const
 {
+    // Note that besides the canonic way in cf::SceneGraph::BspTreeNodeT, there are two other
+    // options for "disabling" the PVS: Either have the server disregard the PVS in the first
+    // place, or have DrawEntities() render all entities that are in the m_EngineEntities
+    // array. The respective effects are subtly different.
+    const FrameInfoT& CurrentFrame = m_FrameInfos[m_ServerFrameNr & (m_FrameInfos.Size() - 1)];
+
+    if (!CurrentFrame.IsValid)
+    {
+        // How we can get here:
+        // After our join request, the server sends us the WorldInfo, the BaseLines, and the
+        // first FrameInfo message. FrameInfo messages however are only transferred "unreliably",
+        // and may be omitted or lost, e.g. if the maximum size of a network packet is exceeded.
+        // This in turn can happen if a world has many entities that are all visible from (in
+        // the PVS of) the player's starting point.
+        // Thus, it is possible getting here without ever having seen a FrameInfo message.
+        // Besides `!CurrentFrame.IsValid`, in such cases also the `m_ServerFrameNr` still has
+        // its initial value 0xDEADBEEF.
+        #ifdef DEBUG
+            EnqueueString("CLIENT WARNING: %s, L %u: Frame %lu was invalid on entity draw attempt!", __FILE__, __LINE__, m_ServerFrameNr);
+        #endif
+
+        return;
+    }
+
+    // Set the interpolated values for rendering the video frame.
+    for (unsigned int i = 0; i < CurrentFrame.EntityIDsInPVS.Size(); i++)
+    {
+        const unsigned int                  ID  = CurrentFrame.EntityIDsInPVS[i];
+        IntrusivePtrT<cf::GameSys::EntityT> Ent = m_EngineEntities[ID]->GetEntity();
+
+        Ent->InterpolationAdvanceTime(FrameTime);
+        Ent->InterpolationSetCurrentValues();
+    }
+
+    IntrusivePtrT<const cf::GameSys::ComponentTransformT> CameraTrafo = OurEntity_GetCamera();
+
+    if (CameraTrafo == NULL)
+    {
+        // This could only happen if we've not yet received the baselines after the
+        // SC1_WorldInfo. But then we should not have received any SC1_FrameInfos either,
+        // and thus have already returned above (because CurrentFrame is not valid).
+        return;
+    }
+
+
     MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());
 
     // In the OpenGL default coordinate system, the camera looks along the negative z-axis.
@@ -426,11 +471,6 @@ void CaClientWorldT::Draw(float FrameTime, IntrusivePtrT<const cf::GameSys::Comp
 #endif
 #endif
 
-    // Es gibt zwei Möglichkeiten, das PVS zu "disablen":
-    // Entweder DrawEntities() veranlassen, alle Entities des m_EngineEntities-Arrays zu zeichnen
-    // (z.B. durch einen Trick, oder explizit ein Array der Größe m_EngineEntities.Size() übergeben, das an der Stelle i der Wert i hat),
-    // oder indem die Beachtung des PVS auf Server-Seite (!) ausgeschaltet wird! Die Effekte sind jeweils verschieden!
-    const FrameInfoT& CurrentFrame = m_FrameInfos[m_ServerFrameNr & (m_FrameInfos.Size() - 1)];
 
     static float TotalTime=0.0;
     TotalTime+=FrameTime;
@@ -442,41 +482,12 @@ void CaClientWorldT::Draw(float FrameTime, IntrusivePtrT<const cf::GameSys::Comp
     MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::AMBIENT);
     MatSys::Renderer->SetCurrentEyePosition(float(DrawOrigin.x), float(DrawOrigin.y), float(DrawOrigin.z)+EyeOffsetZ);    // Also required in some ambient shaders.
 
+
     const cf::SceneGraph::BspTreeNodeT* BspTree = m_World->m_StaticEntityData[0]->m_BspTree;
     BspTree->DrawAmbientContrib(DrawOrigin);
 
-
-    if (!CurrentFrame.IsValid)
-    {
-        // Eine Möglichkeit, wie man zu diesem Fehler kommt:
-        // Bei einer World mit sehr vielen Entities, die auch alle vom Startpunkt aus sichtbar (d.h. im PVS) sind,
-        // schickt uns der Server nach dem Join-Request die WorldInfo, die BaseLines, und auch die erste FrameInfo-Message.
-        // Die FrameInfo-Message wird jedoch nur "unreliable" zu übertragen versucht, und daher vom Protokoll weggelassen,
-        // wenn die max. Größe des Netzwerkpakets überschritten wird.
-        // Somit können wir hierherkommen, ohne jemals eine FrameInfo-Message vom Server gesehen zu haben.
-        // Erkennen kann man diesen Fall daran, daß 'm_ServerFrameNr' noch den Initialisierungswert 0xDEADBEEF enthält.
-        // Das Auftreten dieses Fehlers ist nicht schön, aber auch nicht sehr schlimm, solange es keine sauberere Lösung gibt.
-#ifdef DEBUG
-        EnqueueString("CLIENT WARNING: %s, L %u: Frame %lu was invalid on entity draw attempt!", __FILE__, __LINE__, m_ServerFrameNr);
-#endif
-        return;
-    }
-
-
-    // Set the interpolated values for rendering the video frame.
-    for (unsigned int i = 0; i < CurrentFrame.EntityIDsInPVS.Size(); i++)
-    {
-        const unsigned int                  ID  = CurrentFrame.EntityIDsInPVS[i];
-        IntrusivePtrT<cf::GameSys::EntityT> Ent = m_EngineEntities[ID]->GetEntity();
-
-        Ent->InterpolationAdvanceTime(FrameTime);
-        Ent->InterpolationSetCurrentValues();
-    }
-
-
     // Draw the ambient contribution of the entities.
     DrawEntities(OurEntityID, false, DrawOrigin, CurrentFrame.EntityIDsInPVS);
-
 
 
     // Render the contribution of the point light sources (shadows, normal-maps, specular-maps).
