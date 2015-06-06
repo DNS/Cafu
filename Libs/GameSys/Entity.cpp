@@ -277,6 +277,24 @@ IntrusivePtrT<ComponentBaseT> EntityT::GetComponent(const std::string& TypeName,
 }
 
 
+IntrusivePtrT<ComponentBaseT> EntityT::GetComponent(unsigned int n) const
+{
+    if (m_App != NULL)
+    {
+        if (n == 0) return m_App;
+        n--;
+    }
+
+    if (n == 0) return m_Basics;
+    n--;
+
+    if (n == 0) return m_Transform;
+    n--;
+
+    return n < m_Components.Size() ? m_Components[n] : NULL;
+}
+
+
 bool EntityT::AddComponent(IntrusivePtrT<ComponentBaseT> Comp, unsigned long Index)
 {
     if (Comp->GetEntity()) return false;
@@ -609,82 +627,6 @@ void EntityT::OnClientFrame(float t)
     // Forward the event to the "custom" components.
     for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
         m_Components[CompNr]->OnClientFrame(t);
-}
-
-
-void EntityT::InterpolationUpdateTargetValues(bool IsIniting)
-{
-    if (m_App != NULL) m_App->InterpolationUpdateTargetValues(IsIniting);
-    m_Basics->InterpolationUpdateTargetValues(IsIniting);
-    m_Transform->InterpolationUpdateTargetValues(IsIniting);
-
-    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
-        m_Components[CompNr]->InterpolationUpdateTargetValues(IsIniting);
-}
-
-
-void EntityT::InterpolationUpdateAfterReprediction()
-{
-    if (m_App != NULL) m_App->InterpolationUpdateAfterReprediction();
-    m_Basics->InterpolationUpdateAfterReprediction();
-    m_Transform->InterpolationUpdateAfterReprediction();
-
-    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
-        m_Components[CompNr]->InterpolationUpdateAfterReprediction();
-}
-
-
-void EntityT::InterpolationUpdateAfterPrediction()
-{
-    if (m_App != NULL) m_App->InterpolationUpdateAfterPrediction();
-    m_Basics->InterpolationUpdateAfterPrediction();
-    m_Transform->InterpolationUpdateAfterPrediction();
-
-    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
-        m_Components[CompNr]->InterpolationUpdateAfterPrediction();
-}
-
-
-void EntityT::InterpolationAdvanceTime(float t)
-{
-    if (m_App != NULL) m_App->InterpolationAdvanceTime(t);
-    m_Basics->InterpolationAdvanceTime(t);
-    m_Transform->InterpolationAdvanceTime(t);
-
-    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
-        m_Components[CompNr]->InterpolationAdvanceTime(t);
-}
-
-
-void EntityT::InterpolationSetCurrentValues()
-{
-    if (m_App != NULL) m_App->InterpolationSetCurrentValues();
-    m_Basics->InterpolationSetCurrentValues();
-    m_Transform->InterpolationSetCurrentValues();
-
-    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
-        m_Components[CompNr]->InterpolationSetCurrentValues();
-
-    // Note that no effort is made to inform components that their values may have changed.
-    // For example, ComponentCollisionModelT components are not informed if the origin or
-    // orientation in the entity's ComponentTransformT has changed (and consequently the
-    // ClipModel in the ClipWorld is not updated).
-}
-
-
-void EntityT::InterpolationSetTargetValues()
-{
-    if (m_App != NULL) m_App->InterpolationSetTargetValues();
-    m_Basics->InterpolationSetTargetValues();
-    m_Transform->InterpolationSetTargetValues();
-
-    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
-        m_Components[CompNr]->InterpolationSetTargetValues();
-
-    // Note that no effort is made to inform components that their values may have changed.
-    // For example, ComponentCollisionModelT components are not informed if the origin or
-    // orientation in the entity's ComponentTransformT has changed (and consequently the
-    // ClipModel in the ClipWorld is not updated).
 }
 
 

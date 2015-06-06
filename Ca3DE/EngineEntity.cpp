@@ -29,11 +29,17 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Ca3DEWorld.hpp"
 #include "GameSys/CompHumanPlayer.hpp"
 #include "GameSys/Entity.hpp"
+#include "GameSys/Interpolator.hpp"
 
 
 namespace
 {
-    ConVarT UsePrediction("usePrediction", true, ConVarT::FLAG_MAIN_EXE, "Toggles whether client prediction is used (recommended!).");
+    ConVarT UsePrediction("usePrediction", true, ConVarT::FLAG_MAIN_EXE,
+        "Toggles whether client prediction is used (recommended!).");
+
+    ConVarT clientApproxNPCs("clientApproxNPCs", true, ConVarT::FLAG_MAIN_EXE,
+        "Toggles whether origins and other values are interpolated over client "
+        "frames in order to bridge the larger intervals between server frames.");
 }
 
 
@@ -60,7 +66,24 @@ void EngineEntityT::SetState(const cf::Network::StateT& State, bool IsIniting) c
     m_Entity->Deserialize(Stream, IsIniting);
 
     // Deserialization has brought new reference values for interpolated values.
-    m_Entity->InterpolationUpdateTargetValues(IsIniting);
+    for (unsigned int CompNr = 0; true; CompNr++)
+    {
+        IntrusivePtrT<cf::GameSys::ComponentBaseT> Comp = m_Entity->GetComponent(CompNr);
+
+        if (Comp == NULL) break;
+
+        for (unsigned int i = 0; i < Comp->GetInterpolators().Size(); i++)
+        {
+            if (IsIniting || !clientApproxNPCs.GetValueBool())
+            {
+                Comp->GetInterpolators()[i]->ReInit();
+            }
+            else
+            {
+                Comp->GetInterpolators()[i]->UpdateTargetValue();
+            }
+        }
+    }
 }
 
 

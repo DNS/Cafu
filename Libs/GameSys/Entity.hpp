@@ -162,10 +162,16 @@ namespace cf
             /// "Basics" or "Transform".
             const ArrayT< IntrusivePtrT<ComponentBaseT> >& GetComponents() const { return m_Components; }
 
-            /// Returns the (n-th) component of the given (type) name.
-            /// Covers the "custom" components as well as the application components, "Basics" and "Transform".
+            /// Returns the (`n`-th) component of the given (type) name.
+            /// Covers both the "custom" as well as the fixed components (application, "Basics" and "Transform").
             /// That is, `GetComponent("Basics") == GetBasics()` and `GetComponent("Transform") == GetTransform()`.
             IntrusivePtrT<ComponentBaseT> GetComponent(const std::string& TypeName, unsigned int n=0) const;
+
+            /// Returns the `n`-th component of this entity, covering both the "custom" as well
+            /// as the fixed components (application, "Basics" and "Transform").
+            /// This method facilitates looping over all of the entity's components, especially
+            /// when neither their concrete type nor their concrete order are paramount.
+            IntrusivePtrT<ComponentBaseT> GetComponent(unsigned int n) const;
 
             /// Adds the given component to this entity.
             ///
@@ -290,27 +296,6 @@ namespace cf
             ///
             /// @param t   The time in seconds since the last client frame.
             void OnClientFrame(float t);
-
-            /// For each component variable that is interpolated on the client, this method
-            /// picks up the current value and stores it as the new target value for the
-            /// interpolation. The current value itself is not modified.
-            /// The client calls this method after each frame update from the server.
-            void InterpolationUpdateTargetValues(bool IsIniting);
-
-            /// For each component variable that is interpolated on the client, this method
-            /// advances the interpolation over the given time.
-            void InterpolationAdvanceTime(float t);
-
-            void InterpolationUpdateAfterReprediction();
-            void InterpolationUpdateAfterPrediction();
-
-            /// For each component variable that is interpolated on the client, this method
-            /// assigns the current, interpolated value to the variable.
-            void InterpolationSetCurrentValues();
-
-            /// For each component variable that is interpolated on the client, this method
-            /// assigns the target value of the interpolation to the variable.
-            void InterpolationSetTargetValues();
 
             /// Calls the Lua method with name `MethodName` of this entity.
             /// This method is analogous to UniScriptStateT::CallMethod(), see there for details.

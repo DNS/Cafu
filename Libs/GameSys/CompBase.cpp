@@ -25,7 +25,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Interpolator.hpp"
 #include "World.hpp"
 
-#include "ConsoleCommands/ConVar.hpp"
 #include "UniScriptState.hpp"
 #include "VarVisitorsLua.hpp"
 
@@ -37,13 +36,6 @@ extern "C"
 }
 
 using namespace cf::GameSys;
-
-
-namespace
-{
-    ConVarT clientApproxNPCs("clientApproxNPCs", true, ConVarT::FLAG_MAIN_EXE,
-        "Toggles whether origins and other values are interpolated over client frames in order to bridge the larger intervals between server frames.");
-}
 
 
 const char* ComponentBaseT::DocClass =
@@ -218,66 +210,6 @@ void ComponentBaseT::OnClientFrame(float t)
 {
     // TODO: Do we have to run the pending value interpolations here as well?
     DoClientFrame(t);
-}
-
-
-void ComponentBaseT::InterpolationUpdateTargetValues(bool IsIniting)
-{
-    for (unsigned int caNr = 0; caNr < m_ClientApprox.Size(); caNr++)
-    {
-        if (IsIniting || !clientApproxNPCs.GetValueBool())
-        {
-            m_ClientApprox[caNr]->ReInit();
-        }
-        else
-        {
-            m_ClientApprox[caNr]->UpdateTargetValue();
-        }
-    }
-}
-
-
-void ComponentBaseT::InterpolationUpdateAfterReprediction()
-{
-    for (unsigned int caNr = 0; caNr < m_ClientApprox.Size(); caNr++)
-    {
-        m_ClientApprox[caNr]->UpdateAfterReprediction();
-    }
-}
-
-
-void ComponentBaseT::InterpolationUpdateAfterPrediction()
-{
-    for (unsigned int caNr = 0; caNr < m_ClientApprox.Size(); caNr++)
-    {
-        m_ClientApprox[caNr]->UpdateAfterPrediction();
-    }
-}
-
-
-void ComponentBaseT::InterpolationAdvanceTime(float t)
-{
-    if (clientApproxNPCs.GetValueBool())
-        for (unsigned int caNr = 0; caNr < m_ClientApprox.Size(); caNr++)
-            m_ClientApprox[caNr]->AdvanceTime(t);
-}
-
-
-void ComponentBaseT::InterpolationSetCurrentValues()
-{
-    for (unsigned int caNr = 0; caNr < m_ClientApprox.Size(); caNr++)
-    {
-        m_ClientApprox[caNr]->SetCurrentValue();
-    }
-}
-
-
-void ComponentBaseT::InterpolationSetTargetValues()
-{
-    for (unsigned int caNr = 0; caNr < m_ClientApprox.Size(); caNr++)
-    {
-        m_ClientApprox[caNr]->SetTargetValue();
-    }
 }
 
 

@@ -29,6 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameSys/CompPlayerPhysics.hpp"
 #include "GameSys/Entity.hpp"
 #include "GameSys/EntityCreateParams.hpp"
+#include "GameSys/Interpolator.hpp"
 #include "GameSys/World.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix.hpp"
@@ -295,7 +296,16 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
                 m_EngineEntities[OurEntityID]->Predict(m_PlayerCommands[Nr & (m_PlayerCommands.Size() - 1)]);
             }
 
-            m_EngineEntities[OurEntityID]->GetEntity()->InterpolationUpdateAfterReprediction();
+            // Let all interpolators know about the reprediction.
+            for (unsigned int CompNr = 0; true; CompNr++)
+            {
+                IntrusivePtrT<cf::GameSys::ComponentBaseT> Comp = m_EngineEntities[OurEntityID]->GetEntity()->GetComponent(CompNr);
+
+                if (Comp == NULL) break;
+
+                for (unsigned int i = 0; i < Comp->GetInterpolators().Size(); i++)
+                    Comp->GetInterpolators()[i]->UpdateAfterReprediction();
+            }
         }
         else
         {
@@ -317,7 +327,17 @@ void CaClientWorldT::OurEntity_Predict(const PlayerCommandT& PlayerCommand, unsi
         if (m_EngineEntities[OurEntityID]!=NULL)
         {
             m_EngineEntities[OurEntityID]->Predict(PlayerCommand);
-            m_EngineEntities[OurEntityID]->GetEntity()->InterpolationUpdateAfterPrediction();
+
+            // Let all interpolators know about the prediction step.
+            for (unsigned int CompNr = 0; true; CompNr++)
+            {
+                IntrusivePtrT<cf::GameSys::ComponentBaseT> Comp = m_EngineEntities[OurEntityID]->GetEntity()->GetComponent(CompNr);
+
+                if (Comp == NULL) break;
+
+                for (unsigned int i = 0; i < Comp->GetInterpolators().Size(); i++)
+                    Comp->GetInterpolators()[i]->UpdateAfterPrediction();
+            }
         }
 }
 
@@ -425,8 +445,22 @@ void CaClientWorldT::Draw(float FrameTime) const
         const unsigned int                  ID  = CurrentFrame.EntityIDsInPVS[i];
         IntrusivePtrT<cf::GameSys::EntityT> Ent = m_EngineEntities[ID]->GetEntity();
 
-        Ent->InterpolationAdvanceTime(FrameTime);
-        Ent->InterpolationSetCurrentValues();
+        // Note that no effort is made to inform components that their values may have changed.
+        // For example, ComponentCollisionModelT components are not informed if the origin or
+        // orientation in the entity's ComponentTransformT has changed (and consequently the
+        // ClipModel in the ClipWorld is not updated).
+        for (unsigned int CompNr = 0; true; CompNr++)
+        {
+            IntrusivePtrT<cf::GameSys::ComponentBaseT> Comp = Ent->GetComponent(CompNr);
+
+            if (Comp == NULL) break;
+
+            for (unsigned int i = 0; i < Comp->GetInterpolators().Size(); i++)
+            {
+                Comp->GetInterpolators()[i]->AdvanceTime(FrameTime);
+                Comp->GetInterpolators()[i]->SetCurrentValue();
+            }
+        }
     }
 
     IntrusivePtrT<const cf::GameSys::ComponentTransformT> CameraTrafo = OurEntity_GetCamera();
@@ -589,7 +623,19 @@ void CaClientWorldT::Draw(float FrameTime) const
         const unsigned int                  ID  = CurrentFrame.EntityIDsInPVS[i];
         IntrusivePtrT<cf::GameSys::EntityT> Ent = m_EngineEntities[ID]->GetEntity();
 
-        Ent->InterpolationSetTargetValues();
+        // Note that no effort is made to inform components that their values may have changed.
+        // For example, ComponentCollisionModelT components are not informed if the origin or
+        // orientation in the entity's ComponentTransformT has changed (and consequently the
+        // ClipModel in the ClipWorld is not updated).
+        for (unsigned int CompNr = 0; true; CompNr++)
+        {
+            IntrusivePtrT<cf::GameSys::ComponentBaseT> Comp = Ent->GetComponent(CompNr);
+
+            if (Comp == NULL) break;
+
+            for (unsigned int i = 0; i < Comp->GetInterpolators().Size(); i++)
+                Comp->GetInterpolators()[i]->SetTargetValue();
+        }
     }
 }
 
