@@ -439,6 +439,20 @@ void CaClientWorldT::Draw(float FrameTime) const
         return;
     }
 
+
+    // An early return can only happen if we've not yet received the baselines after the
+    // SC1_WorldInfo. But then we should not have received any SC1_FrameInfos either, and thus
+    // have already returned above (because CurrentFrame is not valid).
+    if (OurEntityID >= m_EngineEntities.Size()) return;
+    if (m_EngineEntities[OurEntityID] == NULL) return;
+
+    IntrusivePtrT<cf::GameSys::EntityT> OurEnt = m_EngineEntities[OurEntityID]->GetEntity();
+
+    if (OurEnt->GetChildren().Size() < 1) return;
+
+    IntrusivePtrT<const cf::GameSys::ComponentTransformT> CameraTrafo = OurEnt->GetChildren()[0]->GetTransform();
+
+
     // Set up the entity state for rendering the video frame:
     //   - advance the interpolations,
     //   - actually set the interpolated values and
@@ -468,14 +482,16 @@ void CaClientWorldT::Draw(float FrameTime) const
         Ent->OnClientFrame(FrameTime);
     }
 
-    IntrusivePtrT<const cf::GameSys::ComponentTransformT> CameraTrafo = OurEntity_GetCamera();
 
-    if (CameraTrafo == NULL)
+    // Update the sound system listener.
     {
-        // This could only happen if we've not yet received the baselines after the
-        // SC1_WorldInfo. But then we should not have received any SC1_FrameInfos either,
-        // and thus have already returned above (because CurrentFrame is not valid).
-        return;
+        IntrusivePtrT<const cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(OurEnt->GetComponent("PlayerPhysics"));
+        const cf::math::Matrix3x3fT                               CameraMat(CameraTrafo->GetQuatWS());
+
+        SoundSystem->UpdateListener(
+            CameraTrafo->GetOriginWS().AsVectorOfDouble(),
+            CompPlayerPhysics != NULL ? CompPlayerPhysics->GetVelocity() : Vector3dT(),
+            CameraMat.GetAxis(0), CameraMat.GetAxis(2));
     }
 
 
@@ -602,7 +618,6 @@ void CaClientWorldT::Draw(float FrameTime) const
                      DrawOrigin,
                      CurrentFrame.EntityIDsInPVS);
     }
-
 
 
     MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::AMBIENT);
@@ -797,19 +812,6 @@ void CaClientWorldT::PostDrawEntities(float FrameTime, const ArrayT<unsigned lon
                 if (Comp == NULL) break;
 
                 Comp->PostRender(FirstPerson);
-            }
-
-            if (FirstPerson && Ent->GetChildren().Size() > 0)
-            {
-                // Update the sound system listener.
-                IntrusivePtrT<const cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(Ent->GetComponent("PlayerPhysics"));
-                IntrusivePtrT<const cf::GameSys::ComponentTransformT>     CameraTrafo = Ent->GetChildren()[0]->GetTransform();
-                const cf::math::Matrix3x3fT                               CameraMat(CameraTrafo->GetQuatWS());
-
-                SoundSystem->UpdateListener(
-                    CameraTrafo->GetOriginWS().AsVectorOfDouble(),
-                    CompPlayerPhysics != NULL ? CompPlayerPhysics->GetVelocity() : Vector3dT(),
-                    CameraMat.GetAxis(0), CameraMat.GetAxis(2));
             }
         }
     }
