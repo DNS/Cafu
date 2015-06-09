@@ -439,7 +439,10 @@ void CaClientWorldT::Draw(float FrameTime) const
         return;
     }
 
-    // Set the interpolated values for rendering the video frame.
+    // Set up the entity state for rendering the video frame:
+    //   - advance the interpolations,
+    //   - actually set the interpolated values and
+    //   - advance and apply and client-side effects.
     for (unsigned int i = 0; i < CurrentFrame.EntityIDsInPVS.Size(); i++)
     {
         const unsigned int                  ID  = CurrentFrame.EntityIDsInPVS[i];
@@ -461,6 +464,8 @@ void CaClientWorldT::Draw(float FrameTime) const
                 Comp->GetInterpolators()[i]->SetCurrentValue();
             }
         }
+
+        Ent->OnClientFrame(FrameTime);
     }
 
     IntrusivePtrT<const cf::GameSys::ComponentTransformT> CameraTrafo = OurEntity_GetCamera();
@@ -785,7 +790,14 @@ void CaClientWorldT::PostDrawEntities(float FrameTime, const ArrayT<unsigned lon
         {
             IntrusivePtrT<cf::GameSys::EntityT> Ent = m_EngineEntities[EntityID]->GetEntity();
 
-            Ent->OnClientFrame(FrameTime);
+            for (unsigned int CompNr = 0; true; CompNr++)
+            {
+                IntrusivePtrT<cf::GameSys::ComponentBaseT> Comp = Ent->GetComponent(CompNr);
+
+                if (Comp == NULL) break;
+
+                Comp->PostRender(FirstPerson);
+            }
 
             if (FirstPerson && Ent->GetChildren().Size() > 0)
             {

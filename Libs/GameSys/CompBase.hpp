@@ -207,6 +207,9 @@ namespace cf
             ///     to render another visual representation of this component's entity).
             virtual bool Render(bool FirstPersonView, float LodDist) const { return false; }
 
+            /// This method provides an opportunity for another render pass.
+            virtual void PostRender(bool FirstPersonView) { }
+
             /// This method is called after all entities and their components have been loaded.
             ///
             /// It is called only once when the static part of world initializatzion is complete, i.e. after the initial
