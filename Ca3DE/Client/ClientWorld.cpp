@@ -558,8 +558,8 @@ void CaClientWorldT::Draw(float FrameTime) const
         unsigned long LightColorDiffuse=0;
         unsigned long LightColorSpecular=0;
         VectorT       LightPosition;
-        float         LightRadius;
-        bool          LightCastsShadows;
+        float         LightRadius = 0.0f;
+        bool          LightCastsShadows = false;
         unsigned long LightEntID = CurrentFrame.EntityIDsInPVS[EntityIDNr];
 
         if (!GetLightSourceInfo(LightEntID, LightColorDiffuse, LightColorSpecular, LightPosition, LightRadius, LightCastsShadows)) continue;
