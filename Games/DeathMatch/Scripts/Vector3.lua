@@ -77,7 +77,7 @@ function Vector3T(v, y, z)
         v = { v, y, z }
     end
 
-    v = v or {}
+    v = v or { 0.0, 0.0, 0.0 }
     setmetatable(v, Vector3T_mt)
 
     return v
