@@ -521,6 +521,9 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT<BoundingBox3dT>& Var)
         const Vector3dT& MinMax = (i == 0) ? Var.Get().Min : Var.Get().Max;
         wxPGProperty*    MinMaxProp = new wxStringProperty(i == 0 ? "Min" : "Max", wxPG_LABEL, "<composed>");
 
+        SetHelpString(MinMaxProp, Prop);
+        m_PropMan.AppendIn(Prop, MinMaxProp);
+
         wxPGProperty* px = new wxFloatProperty("x", wxPG_LABEL, MinMax.x);
         wxPGProperty* py = new wxFloatProperty("y", wxPG_LABEL, MinMax.y);
         wxPGProperty* pz = new wxFloatProperty("z", wxPG_LABEL, MinMax.z);
