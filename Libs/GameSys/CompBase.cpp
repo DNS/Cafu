@@ -210,6 +210,19 @@ void ComponentBaseT::OnClientFrame(float t)
 {
     // TODO: Do we have to run the pending value interpolations here as well?
     DoClientFrame(t);
+
+    // Note that at this time, when the user's `OnClientFrame()` implementation modifies some
+    // variable in this or another component, e.g. the `Origin`, we rely on the user having
+    // registered the variable also for interpolation beforehand, typically by having called
+    // e.g. `InitClientApprox("Origin")`.
+    //
+    // Interpolation is *not* necessary so that setting the custom values works (and doesn't
+    // interfere with it either), but it is only the interpolators that restore each variable's
+    // original ("target") value near the end of `CaClientWorldT::Draw()`.
+    //
+    // This in turn is important so that neither the local human player's prediction nor the
+    // next frame's call to `OnClientFrame()` can experience any rests of the modified values.
+    CallLuaMethod("OnClientFrame", 0, "f", t);
 }
 
 

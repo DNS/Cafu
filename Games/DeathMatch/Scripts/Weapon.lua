@@ -1,5 +1,6 @@
 local Weapon = ...   -- Retrieve the ComponentScriptT instance that is responsible for this script.
 
+Weapon.Trafo                = Weapon:GetEntity():GetTransform()
 Weapon.Model                = Weapon:GetEntity():GetComponent("Model")
 Weapon.EVENT_TYPE_PICKED_UP = 1
 Weapon.EVENT_TYPE_RESPAWN   = 2
@@ -7,14 +8,19 @@ Weapon.TimeLeftNotActive    = 0.0
 
 Weapon:InitEventTypes(2)
 
+-- TODO: Call InitClientApprox() in some client-init (e.g. OnClientInit()) only?
+-- This is needed because client effects are applied to the
+-- transform's origin in Weapon:OnClientFrame().
+Weapon.Trafo:InitClientApprox("Origin")
+
 -- Drop weapons to the ground. It doesn't look good when they hover in the air.
 do
-    local Origin = { Weapon:GetEntity():GetTransform():get("Origin") }
+    local Origin = { Weapon.Trafo:get("Origin") }
     local Result = world:TraceRay(Origin, { 0, 0, -1000.0 })
 
     Origin[3] = Origin[3] - 1000.0 * Result.Fraction
 
-    Weapon:GetEntity():GetTransform():set("Origin", Origin)
+    Weapon.Trafo:set("Origin", Origin)
 end
 
 -- Add a trigger volume to our weapon, or else the OnTrigger() callback below will never be called.
@@ -97,4 +103,19 @@ function Weapon:ProcessEvent(EventType)   -- (EventType, NumEvents)
     --]]
 
     Weapon:GetEntity():GetComponent("Sound", EventType - 1):Play()
+end
+
+
+local arc = 0.0
+local frq = 2.0 + math.random()
+
+function Weapon:OnClientFrame(FrameTime)
+    arc = (arc + frq * FrameTime) % (2.0 * math.pi)
+
+    local Origin = { self.Trafo:get("Origin") }
+    local ofs = math.sin(arc)
+
+    Origin[3] = Origin[3] + 1.5 * (1.0 + ofs)
+
+    self.Trafo:set("Origin", Origin)
 end

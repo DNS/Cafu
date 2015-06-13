@@ -4,6 +4,7 @@ local Trafo        = Entity:GetTransform()
 local Model        = Entity:GetComponent("Model")
 local PlPhysics    = Entity:GetComponent("PlayerPhysics")
 local LanternEnt   = Entity:GetChildren()[1]
+local LanternTrafo = LanternEnt:GetTransform()
 local LanternLight = LanternEnt:GetComponent("PointLight")
 
 CompanyBot.Health = 80
@@ -13,6 +14,12 @@ CompanyBot.Health = 80
 -- TODO: Call InitClientApprox() in some client-init (e.g. OnClientInit()) only?
 Trafo:InitClientApprox("Origin")
 -- Trafo:InitClientApprox("Orientation")  -- We manually update the orientation via LookAt() in Think(), but this looks better uninterpolated.
+
+-- This is needed because client effects are applied to the lantern's origin,
+-- color and radius in LanternTrafo:OnClientFrame() and LanternLight:OnClientFrame().
+LanternTrafo:InitClientApprox("Origin")
+LanternLight:InitClientApprox("Color")
+LanternLight:InitClientApprox("Radius")
 
 
 -- Drop CompanyBots to the ground. It doesn't look good when they hover in the air.
@@ -131,21 +138,6 @@ function CompanyBot:Think(FrameTime)
 end
 
 
-local OscilTime = 0.0
-
--- TODO: At this time, this function is NOT called yet by the Cafu client code!
--- Check: How does OnClientFrame() agree with the client-side approximation/interpolation of variables?
-function CompanyBot:OnClientFrame(FrameTime)
-    OscilTime = (OscilTime + FrameTime) % 4.0
-
-    local lx = 20.0
-    local ly =  3.0 * math.cos(OscilTime / 2.0 * math.pi)   -- OscilTime/4 * 2pi
-    local lz = -9.5 + 0.666 * ly
-
-    LanternEnt:GetTransform():set("Origin", lx, ly, lz)
-end
-
-
 function Model:OnAnimationChange(AnimNr)
     if (AnimNr < 18) or (AnimNr > 24) then
         -- The CompanyBot is "alive", so blend animation sequences in 0.3 seconds,
@@ -159,9 +151,22 @@ function Model:OnAnimationChange(AnimNr)
 end
 
 
+local OscilTime = 0.0
+
+function LanternTrafo:OnClientFrame(FrameTime)
+    OscilTime = (OscilTime + FrameTime) % 4.0
+
+    local lx = 20.0
+    local ly =  3.0 * math.cos(OscilTime / 2.0 * math.pi)   -- OscilTime/4 * 2pi
+    local lz = -9.5 + 0.666 * ly
+
+    self:set("Origin", lx, ly, lz)
+end
+
+
 local LightTime = 0.0
 
-function LanternLight:ClientEffect(t)
+function LanternLight:OnClientFrame(t)
     LightTime = LightTime + t
     if LightTime >= 6.0 then LightTime = LightTime - 4.0 end
 
@@ -179,5 +184,6 @@ function LanternLight:ClientEffect(t)
         g = g * 0.8 + 0.1
     end
 
-    return true, r, g, 0.0, 400.0
+    self:set("Color", r, g, 0.0)
+    self:set("Radius", 400.0)
 end

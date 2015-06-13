@@ -56,20 +56,19 @@ namespace cf
             ComponentPointLightT(const ComponentPointLightT& Comp);
 
             bool IsOn() const { return m_On.Get(); }
-            Vector3fT GetColor() const { return m_UseClientEffects ? m_ClientColor : m_Color.Get(); }
-            float GetRadius() const { return m_UseClientEffects ? m_ClientRadius : m_Radius.Get(); }
+            Vector3fT GetColor() const { return m_Color.Get(); }
+            float GetRadius() const { return m_Radius.Get(); }
             bool CastsShadows() const { return m_ShadowType.Get() != VarShadowTypeT::NONE; }
 
 
             // Base class overrides.
-            ComponentPointLightT* Clone() const;
-            const char* GetName() const { return "PointLight"; }
-            BoundingBox3fT GetCullingBB() const;
-            void DoClientFrame(float t);
+            ComponentPointLightT* Clone() const override;
+            const char* GetName() const override { return "PointLight"; }
+            BoundingBox3fT GetCullingBB() const override;
 
 
             // The TypeSys related declarations for this class.
-            const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
+            const cf::TypeSys::TypeInfoT* GetType() const override { return &TypeInfo; }
             static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
             static const cf::TypeSys::TypeInfoT TypeInfo;
 
@@ -91,10 +90,6 @@ namespace cf
             TypeSys::VarT<Vector3fT> m_Color;
             TypeSys::VarT<float>     m_Radius;
             VarShadowTypeT           m_ShadowType;
-
-            bool                     m_UseClientEffects;
-            Vector3fT                m_ClientColor;
-            float                    m_ClientRadius;
         };
     }
 }
