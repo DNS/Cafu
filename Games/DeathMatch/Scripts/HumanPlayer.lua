@@ -30,8 +30,6 @@ Inventory:set("MaxFaceHuggers",    5)
 
 
 function PlayerScript:OnInit()
-    -- TODO: Call InitClientApprox() in some client-init (e.g. OnClientInit()) only?
-
     -- The client specially accounts for the local human player, so activating
     -- interpolation here works properly both
     --   - for the 1st person player entity

@@ -462,8 +462,10 @@ int ComponentBaseT::InitClientApprox(lua_State* LuaState)   // This method also 
     if (!Var)
         return luaL_argerror(LuaState, 2, (std::string("unknown variable \"") + VarName + "\"").c_str());
 
-    // TODO: Only do this if we're in a client world!
-    // No need to do it on the server, in CaWE, or the map compile tools.
+    // Only do this in client worlds. There is no need to do it
+    // on the server, in CaWE, or the map compile tools.
+    if (!Comp->GetEntity() || Comp->GetEntity()->GetWorld().GetRealm() != WorldT::RealmClient)
+        return 0;
 
     for (unsigned int caNr = 0; caNr < Comp->m_ClientApprox.Size(); caNr++)
         if (Var == Comp->m_ClientApprox[caNr]->GetVar())

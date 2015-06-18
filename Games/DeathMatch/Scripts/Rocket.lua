@@ -9,7 +9,6 @@ Rocket.TimeSinceExploded   = 0.0
 
 Rocket:InitEventTypes(1)
 
--- TODO: Call InitClientApprox() in some client-init (e.g. OnClientInit()) only?
 Trafo:InitClientApprox("Origin")
 
 -- This is needed because client effects are applied to the

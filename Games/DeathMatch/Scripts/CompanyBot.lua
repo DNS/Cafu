@@ -11,7 +11,6 @@ CompanyBot.Health = 80
 
 -- TODO: Should we also have a *Physics* component (of kinematic type)?
 
--- TODO: Call InitClientApprox() in some client-init (e.g. OnClientInit()) only?
 Trafo:InitClientApprox("Origin")
 -- Trafo:InitClientApprox("Orientation")  -- We manually update the orientation via LookAt() in Think(), but this looks better uninterpolated.
 

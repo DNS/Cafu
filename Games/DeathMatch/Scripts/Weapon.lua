@@ -8,7 +8,6 @@ Weapon.TimeLeftNotActive    = 0.0
 
 Weapon:InitEventTypes(2)
 
--- TODO: Call InitClientApprox() in some client-init (e.g. OnClientInit()) only?
 -- This is needed because client effects are applied to the
 -- transform's origin in Weapon:OnClientFrame().
 Weapon.Trafo:InitClientApprox("Origin")
