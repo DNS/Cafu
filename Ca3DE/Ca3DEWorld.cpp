@@ -86,6 +86,7 @@ Ca3DEWorldT::Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiS
         ScriptName = cf::String::Replace(ScriptName, "\\Worlds\\", "\\Maps\\");
 
         m_ScriptWorld = new cf::GameSys::WorldT(
+            InitForGraphics ? cf::GameSys::WorldT::RealmClient : cf::GameSys::WorldT::RealmServer,
             *m_ScriptState_NEW,
             ModelMan,
             GuiRes,

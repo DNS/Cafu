@@ -277,6 +277,24 @@ IntrusivePtrT<ComponentBaseT> EntityT::GetComponent(const std::string& TypeName,
 }
 
 
+IntrusivePtrT<ComponentBaseT> EntityT::GetComponent(unsigned int n) const
+{
+    if (m_App != NULL)
+    {
+        if (n == 0) return m_App;
+        n--;
+    }
+
+    if (n == 0) return m_Basics;
+    n--;
+
+    if (n == 0) return m_Transform;
+    n--;
+
+    return n < m_Components.Size() ? m_Components[n] : NULL;
+}
+
+
 bool EntityT::AddComponent(IntrusivePtrT<ComponentBaseT> Comp, unsigned long Index)
 {
     if (Comp->GetEntity()) return false;

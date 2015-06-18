@@ -113,6 +113,9 @@ namespace cf
                 v->Set(Value);
             }
 
+            /// Returns the interpolators that have been registered with this component.
+            ArrayT<ApproxBaseT*>& GetInterpolators() { return m_ClientApprox; }
+
             /// Registers the member variable with the given name for interpolation over client
             /// frames in order to bridge the larger intervals between server frames.
             /// This method only works with variables whose related type is `float`, `double`,
@@ -203,6 +206,9 @@ namespace cf
             /// @returns `true` if "something" was rendered, `false` otherwise (in this case the Map Editor may choose
             ///     to render another visual representation of this component's entity).
             virtual bool Render(bool FirstPersonView, float LodDist) const { return false; }
+
+            /// This method provides an opportunity for another render pass.
+            virtual void PostRender(bool FirstPersonView) { }
 
             /// This method is called after all entities and their components have been loaded.
             ///

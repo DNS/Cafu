@@ -384,10 +384,10 @@ void ClientStateInGameT::Render(float FrameTime)
                 // A fovY of 67.5 corresponds to a fovX of 90.0 when the aspect ratio is 4:3.
                 MatrixT::GetProjPerspectiveMatrix(67.5f, float(FrameSize.GetWidth())/float(FrameSize.GetHeight()), 4.0f, -1.0f));
 
-            MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());
-            MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW,  MatrixT());
+            // MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());   // Setup by World->Draw().
+            // MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW,  MatrixT());
 
-            World->Draw(FrameTime, CameraTrafo);
+            World->Draw(FrameTime);
 
             MatSys::Renderer->PopMatrix(MatSys::RendererI::PROJECTION    );
             MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);

@@ -29,11 +29,17 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Ca3DEWorld.hpp"
 #include "GameSys/CompHumanPlayer.hpp"
 #include "GameSys/Entity.hpp"
+#include "GameSys/Interpolator.hpp"
 
 
 namespace
 {
-    ConVarT UsePrediction("usePrediction", true, ConVarT::FLAG_MAIN_EXE, "Toggles whether client prediction is used (recommended!).");
+    ConVarT UsePrediction("usePrediction", true, ConVarT::FLAG_MAIN_EXE,
+        "Toggles whether client prediction is used (recommended!).");
+
+    ConVarT clientApproxNPCs("clientApproxNPCs", true, ConVarT::FLAG_MAIN_EXE,
+        "Toggles whether origins and other values are interpolated over client "
+        "frames in order to bridge the larger intervals between server frames.");
 }
 
 
@@ -58,6 +64,26 @@ void EngineEntityT::SetState(const cf::Network::StateT& State, bool IsIniting) c
     cf::Network::InStreamT Stream(State);
 
     m_Entity->Deserialize(Stream, IsIniting);
+
+    // Deserialization has brought new reference values for interpolated values.
+    for (unsigned int CompNr = 0; true; CompNr++)
+    {
+        IntrusivePtrT<cf::GameSys::ComponentBaseT> Comp = m_Entity->GetComponent(CompNr);
+
+        if (Comp == NULL) break;
+
+        for (unsigned int i = 0; i < Comp->GetInterpolators().Size(); i++)
+        {
+            if (IsIniting || !clientApproxNPCs.GetValueBool())
+            {
+                Comp->GetInterpolators()[i]->ReInit();
+            }
+            else
+            {
+                Comp->GetInterpolators()[i]->UpdateTargetValue();
+            }
+        }
+    }
 }
 
 
@@ -223,12 +249,12 @@ bool EngineEntityT::ParseServerDeltaUpdateMessage(unsigned long DeltaFrameNr, un
     }
 
     // Set the result as the new entity state, and record it in the m_OldStates for future reference.
-    EntityStateFrameNr=ServerFrameNr;
+    EntityStateFrameNr = ServerFrameNr;
 
     const cf::Network::StateT NewState = DeltaMessage ? cf::Network::StateT(*DeltaState, *DeltaMessage) : *DeltaState;
 
     m_OldStates[EntityStateFrameNr & (m_OldStates.Size()-1)] = NewState;
-    SetState(NewState, DeltaFrameNr == 0);  // Don't process events if we're delta'ing from the baseline (e.g. when re-entering the PVS).
+    SetState(NewState, DeltaFrameNr == 0);  // Don't process events and don't interpolate if we're delta'ing from the baseline (e.g. when re-entering the PVS).
     return true;
 }
 
@@ -250,19 +276,6 @@ void EngineEntityT::Predict(const PlayerCommandT& PlayerCommand)
     // Note that components other than CompHP should *not* Think/Repredict,
     // e.g. the player's CollisionModel component must not cause OnTrigger() callbacks!
     CompHP->Think(PlayerCommand, false /*ThinkingOnServerSide*/);
-}
-
-
-void EngineEntityT::PostDraw(float FrameTime, bool FirstPersonView)
-{
-    if (!FirstPersonView)
-    {
-        // Using !FirstPersonView is a hack to exclude "our" entity, which is predicted already,
-        // from being interpolated (whereas other player entities should be interpolated normally).
-//        Entity->Interpolate(FrameTime);
-    }
-
-//    Entity->PostDraw(FrameTime, FirstPersonView);
 }
 
 #endif   /* !DEDICATED */

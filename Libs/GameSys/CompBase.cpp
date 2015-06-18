@@ -25,7 +25,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Interpolator.hpp"
 #include "World.hpp"
 
-#include "ConsoleCommands/ConVar.hpp"
 #include "UniScriptState.hpp"
 #include "VarVisitorsLua.hpp"
 
@@ -37,13 +36,6 @@ extern "C"
 }
 
 using namespace cf::GameSys;
-
-
-namespace
-{
-    ConVarT clientApproxNPCs("clientApproxNPCs", true, ConVarT::FLAG_MAIN_EXE,
-        "Toggles whether origins and other values are interpolated over client frames in order to bridge the larger intervals between server frames.");
-}
 
 
 const char* ComponentBaseT::DocClass =
@@ -149,21 +141,6 @@ void ComponentBaseT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
             Vars[VarNr]->Deserialize(Stream);
     }
 
-    // Deserialization has brought new reference values for interpolated values.
-    for (unsigned int caNr = 0; caNr < m_ClientApprox.Size(); caNr++)
-    {
-        if (IsIniting || !clientApproxNPCs.GetValueBool())
-        {
-            m_ClientApprox[caNr]->ReInit();
-        }
-        else
-        {
-            m_ClientApprox[caNr]->NotifyOverwriteUpdate();
-        }
-    }
-
-    // Call this after updating the interpolator updates above, so that code
-    // that implements DoDeserialize() deals with the latest values.
     DoDeserialize(Stream, IsIniting);
 }
 
@@ -231,14 +208,21 @@ void ComponentBaseT::OnServerFrame(float t)
 
 void ComponentBaseT::OnClientFrame(float t)
 {
-    // Note that it is up to human player code to setup interpolation for "other"
-    // player entities, and to *not* set it up for the "local" player entity.
-    if (clientApproxNPCs.GetValueBool())
-        for (unsigned int caNr = 0; caNr < m_ClientApprox.Size(); caNr++)
-            m_ClientApprox[caNr]->Interpolate(t);
-
     // TODO: Do we have to run the pending value interpolations here as well?
     DoClientFrame(t);
+
+    // Note that at this time, when the user's `OnClientFrame()` implementation modifies some
+    // variable in this or another component, e.g. the `Origin`, we rely on the user having
+    // registered the variable also for interpolation beforehand, typically by having called
+    // e.g. `InitClientApprox("Origin")`.
+    //
+    // Interpolation is *not* necessary so that setting the custom values works (and doesn't
+    // interfere with it either), but it is only the interpolators that restore each variable's
+    // original ("target") value near the end of `CaClientWorldT::Draw()`.
+    //
+    // This in turn is important so that neither the local human player's prediction nor the
+    // next frame's call to `OnClientFrame()` can experience any rests of the modified values.
+    CallLuaMethod("OnClientFrame", 0, "f", t);
 }
 
 
@@ -478,8 +462,10 @@ int ComponentBaseT::InitClientApprox(lua_State* LuaState)   // This method also 
     if (!Var)
         return luaL_argerror(LuaState, 2, (std::string("unknown variable \"") + VarName + "\"").c_str());
 
-    // TODO: Only do this if we're in a client world!
-    // No need to do it on the server, in CaWE, or the map compile tools.
+    // Only do this in client worlds. There is no need to do it
+    // on the server, in CaWE, or the map compile tools.
+    if (!Comp->GetEntity() || Comp->GetEntity()->GetWorld().GetRealm() != WorldT::RealmClient)
+        return 0;
 
     for (unsigned int caNr = 0; caNr < Comp->m_ClientApprox.Size(); caNr++)
         if (Var == Comp->m_ClientApprox[caNr]->GetVar())

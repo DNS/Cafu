@@ -57,6 +57,20 @@ namespace cf
 
             class InitErrorT;
 
+            /// A value that indicates where and to which purpose a game world is instantiated.
+            /// The details of a world sometimes depend on its realm:
+            ///   - worlds in the Map Editor don't need their behavior scripts loaded,
+            ///   - client interpolations only need to be accounted for on the clients,
+            ///   - the human player's "think" code sometimes must know whether it is running
+            ///     on the server or in a prediction step on the client.
+            enum RealmT
+            {
+                RealmServer,
+                RealmClient,
+                RealmMapEditor,
+                RealmOther
+            };
+
             /// Flags for initializing a world from a map script.
             enum InitFlagsT
             {
@@ -78,14 +92,19 @@ namespace cf
 
 
             /// Constructor for creating an entity hierarchy (== "a world") from the given script file.
+            /// @param Realm        The realm of this world, indicating where and to which purpose the world is instantiated.
             /// @param ScriptState  The caller will use this world with this script state (binds the world to it).
             /// @param ModelMan     The manager for all models that are used in this world.
             /// @param GuiRes       The provider for resources (fonts and models) for all GUIs in this world.
             /// @param CollModelMan The manager for all collision models that are used in this world.
             /// @param ClipWorld    The clip world, where entities can register their collision models and run collision detection queries. Can be `NULL`, e.g. in CaWE or the map compile tools.
             /// @param PhysicsWorld The physics world, where entities can register their rigid bodies and run collision detection queries. Can be `NULL`, e.g. in CaWE or the map compile tools.
-            WorldT(UniScriptStateT& ScriptState, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes,
+            WorldT(RealmT Realm, UniScriptStateT& ScriptState, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes,
                    cf::ClipSys::CollModelManI& CollModelMan, cf::ClipSys::ClipWorldT* ClipWorld, PhysicsWorldT* PhysicsWorld);
+
+            /// Returns the realm of this world, indicating where and to which purpose the
+            /// world has been instantiated.
+            RealmT GetRealm() const { return m_Realm; }
 
             /// Returns the script state of this world.
             UniScriptStateT& GetScriptState() { return m_ScriptState; }
@@ -166,6 +185,7 @@ namespace cf
             void Init();    ///< Calls the OnInit() script methods of all entities.
 
 
+            const RealmT                m_Realm;        ///< The realm of this world, indicating where and to which purpose the world has been instantiated.
             UniScriptStateT&            m_ScriptState;  ///< The script state that this world is bound to.
             IntrusivePtrT<EntityT>      m_RootEntity;   ///< The root of the entity hierarchy that forms this world.
             unsigned int                m_NextEntID;    ///< The ID that the next newly created entity should get.

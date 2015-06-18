@@ -11,9 +11,8 @@ Eagle.LoopCenter     = Vector3T()
 Eagle.FigureDistance = 0.0
 Eagle.FigureLeft     = 0.0
 
--- TODO: Call InitClientApprox() in some client-init (e.g. OnClientInit()) only?
 Eagle.Trafo:InitClientApprox("Origin")
-Eagle.Trafo:InitClientApprox("Orientation")   -- Is this well visible (e.g. at the wingtips)?
+Eagle.Trafo:InitClientApprox("Orientation")   -- This is well visible (at the wingtips).
 
 
 function Eagle:GetFlightDir()

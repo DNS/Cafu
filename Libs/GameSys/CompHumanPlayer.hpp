@@ -120,15 +120,16 @@ namespace cf
 
 
             // Base class overrides.
-            ComponentHumanPlayerT* Clone() const;
-            const char* GetName() const { return "HumanPlayer"; }
-            BoundingBox3fT GetCullingBB() const;
-            void DoServerFrame(float t);
-            void DoClientFrame(float t);
+            ComponentHumanPlayerT* Clone() const override;
+            const char* GetName() const override { return "HumanPlayer"; }
+            BoundingBox3fT GetCullingBB() const override;
+            void PostRender(bool FirstPersonView) override;
+            void DoServerFrame(float t) override;
+            void DoClientFrame(float t) override;
 
 
             // The TypeSys related declarations for this class.
-            const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
+            const cf::TypeSys::TypeInfoT* GetType() const override { return &TypeInfo; }
             static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
             static const cf::TypeSys::TypeInfoT TypeInfo;
 

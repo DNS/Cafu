@@ -209,6 +209,7 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
     try
     {
         ScriptWorld = new cf::GameSys::WorldT(
+            cf::GameSys::WorldT::RealmOther,
             ScriptState,
             ModelMan,
             GuiRes,

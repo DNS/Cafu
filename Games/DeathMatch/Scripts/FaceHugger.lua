@@ -5,7 +5,6 @@ local Model = FaceHugger:GetEntity():GetComponent("Model")
 local PaSys = FaceHugger:GetEntity():GetComponent("ParticleSystemOld")
 local PlPhy = FaceHugger:GetEntity():GetComponent("PlayerPhysics")
 
--- TODO: Call InitClientApprox() in some client-init (e.g. OnClientInit()) only?
 Trafo:InitClientApprox("Origin")
 
 

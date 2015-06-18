@@ -5,7 +5,6 @@ Butterfly.ArcCenter = { Butterfly.Trafo:get("Origin") }
 Butterfly.ArcRadius = 20.0
 Butterfly.ArcPos    =  0.0
 
--- TODO: Call InitClientApprox() in some client-init (e.g. OnClientInit()) only?
 Butterfly.Trafo:InitClientApprox("Origin")
 Butterfly.Trafo:InitClientApprox("Orientation")   -- A bit overkill for tiny butterflies... ;-)
 

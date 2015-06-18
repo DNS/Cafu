@@ -9,8 +9,12 @@ Rocket.TimeSinceExploded   = 0.0
 
 Rocket:InitEventTypes(1)
 
--- TODO: Call InitClientApprox() in some client-init (e.g. OnClientInit()) only?
 Trafo:InitClientApprox("Origin")
+
+-- This is needed because client effects are applied to the
+-- light's color and radius in Light:OnClientFrame().
+Light:InitClientApprox("Color")
+Light:InitClientApprox("Radius")
 
 
 function Rocket:Think(FrameTime)
@@ -75,20 +79,24 @@ end
 local clTime = 0.0
 local Duration = 3.0
 
-function Light:ClientEffect(t)
+function Light:OnClientFrame(t)
     -- Use the model's "Show" variable in order to learn if we're still under way or exploded already
     -- (alternatively, we could use self:get("ShadowType") as well).
     if Model:get("Show") then
-        return false  -- Use whatever values the light source state has.
+        -- Use whatever values the light source actually has.
+        return
     end
 
     clTime = clTime + t
 
     if clTime >= Duration then
-        return true, 0, 0, 0, 0
+        self:set("Color", 0, 0, 0)
+        self:set("Radius", 0)
+        return
     end
 
     local Amount = 1.0 - clTime/Duration
 
-    return true, Amount, Amount*Amount, 0.0, 1000.0
+    self:set("Color", Amount, Amount*Amount, 0.0)
+    self:set("Radius", 1000.0)
 end

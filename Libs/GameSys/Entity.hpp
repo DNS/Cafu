@@ -162,10 +162,16 @@ namespace cf
             /// "Basics" or "Transform".
             const ArrayT< IntrusivePtrT<ComponentBaseT> >& GetComponents() const { return m_Components; }
 
-            /// Returns the (n-th) component of the given (type) name.
-            /// Covers the "custom" components as well as the application components, "Basics" and "Transform".
+            /// Returns the (`n`-th) component of the given (type) name.
+            /// Covers both the "custom" as well as the fixed components (application, "Basics" and "Transform").
             /// That is, `GetComponent("Basics") == GetBasics()` and `GetComponent("Transform") == GetTransform()`.
             IntrusivePtrT<ComponentBaseT> GetComponent(const std::string& TypeName, unsigned int n=0) const;
+
+            /// Returns the `n`-th component of this entity, covering both the "custom" as well
+            /// as the fixed components (application, "Basics" and "Transform").
+            /// This method facilitates looping over all of the entity's components, especially
+            /// when neither their concrete type nor their concrete order are paramount.
+            IntrusivePtrT<ComponentBaseT> GetComponent(unsigned int n) const;
 
             /// Adds the given component to this entity.
             ///

@@ -205,9 +205,10 @@ WorldT::InitErrorT::InitErrorT(const std::string& Message)
 }
 
 
-WorldT::WorldT(cf::UniScriptStateT& ScriptState, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes,
+WorldT::WorldT(RealmT Realm, cf::UniScriptStateT& ScriptState, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes,
                cf::ClipSys::CollModelManI& CollModelMan, cf::ClipSys::ClipWorldT* ClipWorld, PhysicsWorldT* PhysicsWorld)
-    : m_ScriptState(ScriptState),
+    : m_Realm(Realm),
+      m_ScriptState(ScriptState),
       m_RootEntity(NULL),
       m_NextEntID(0),
       m_ModelMan(ModelMan),

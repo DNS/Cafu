@@ -106,9 +106,6 @@ class EngineEntityT
     /// Updates the (predicted) state of this entity according to the `PlayerCommand`.
     void Predict(const PlayerCommandT& PlayerCommand);
 
-    /// Calls the 'PostDraw()' function of this entity.
-    void PostDraw(float FrameTime, bool FirstPersonView);
-
 
     private:
 
@@ -122,7 +119,7 @@ class EngineEntityT
     /// @param State       The state to assign to the entity.
     /// @param IsIniting   Used to indicate that the call is part of the construction / first-time
     ///     initialization of the entity. The implementation will use this to not wrongly process
-    ///     the event counters.
+    ///     the event counters or to interpolate from stale values.
     void SetState(const cf::Network::StateT& State, bool IsIniting=false) const;
 
 

@@ -1458,6 +1458,7 @@ int main(int ArgC, const char* ArgV[])
         cf::GameSys::WorldT::InitScriptState(ScriptState);
 
         ScriptWorld = new cf::GameSys::WorldT(
+            cf::GameSys::WorldT::RealmOther,
             ScriptState,
             ModelMan,
             GuiRes,

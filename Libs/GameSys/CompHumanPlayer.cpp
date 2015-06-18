@@ -943,6 +943,28 @@ BoundingBox3fT ComponentHumanPlayerT::GetCullingBB() const
 }
 
 
+void ComponentHumanPlayerT::PostRender(bool FirstPersonView)
+{
+    if (GetGuiHUD() == NULL) return;
+
+    MatSys::Renderer->PushMatrix(MatSys::RendererI::PROJECTION);
+    MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
+    MatSys::Renderer->PushMatrix(MatSys::RendererI::WORLD_TO_VIEW);
+
+    const float zNear = 0.0f;
+    const float zFar  = 1.0f;
+    MatSys::Renderer->SetMatrix(MatSys::RendererI::PROJECTION,     MatrixT::GetProjOrthoMatrix(0.0f, cf::GuiSys::VIRTUAL_SCREEN_SIZE_X, cf::GuiSys::VIRTUAL_SCREEN_SIZE_Y, 0.0f, zNear, zFar));
+    MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());
+    MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW,  MatrixT());
+
+    GetGuiHUD()->Render();
+
+    MatSys::Renderer->PopMatrix(MatSys::RendererI::PROJECTION);
+    MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
+    MatSys::Renderer->PopMatrix(MatSys::RendererI::WORLD_TO_VIEW);
+}
+
+
 void ComponentHumanPlayerT::DoServerFrame(float t)
 {
     // **********************************************************************************************************************************************
@@ -1015,25 +1037,6 @@ void ComponentHumanPlayerT::DoClientFrame(float t)
 {
     if (GetGuiHUD() != NULL)
         GetGuiHUD()->DistributeClockTickEvents(t);
-
-    // TODO: Rendering the HUD GUI should probably be moved into some PostRender() method...
-    if (GetGuiHUD() == NULL) return;
-
-    MatSys::Renderer->PushMatrix(MatSys::RendererI::PROJECTION);
-    MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
-    MatSys::Renderer->PushMatrix(MatSys::RendererI::WORLD_TO_VIEW);
-
-    const float zNear = 0.0f;
-    const float zFar  = 1.0f;
-    MatSys::Renderer->SetMatrix(MatSys::RendererI::PROJECTION,     MatrixT::GetProjOrthoMatrix(0.0f, cf::GuiSys::VIRTUAL_SCREEN_SIZE_X, cf::GuiSys::VIRTUAL_SCREEN_SIZE_Y, 0.0f, zNear, zFar));
-    MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());
-    MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW,  MatrixT());
-
-    GetGuiHUD()->Render();
-
-    MatSys::Renderer->PopMatrix(MatSys::RendererI::PROJECTION);
-    MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
-    MatSys::Renderer->PopMatrix(MatSys::RendererI::WORLD_TO_VIEW);
 
     // // Handle any state driven effects of the currently carried weapon.
     // if (GetHaveWeapons() & (1 << GetActiveWeaponSlot()))

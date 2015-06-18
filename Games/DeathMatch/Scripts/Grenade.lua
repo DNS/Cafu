@@ -12,8 +12,12 @@ Grenade.Timer               = 0.0
 
 Grenade:InitEventTypes(1)
 
--- TODO: Call InitClientApprox() in some client-init (e.g. OnClientInit()) only?
 Trafo:InitClientApprox("Origin")
+
+-- This is needed because client effects are applied to the
+-- light's color and radius in Light:OnClientFrame().
+Light:InitClientApprox("Color")
+Light:InitClientApprox("Radius")
 
 
 function Grenade:Think(FrameTime)
@@ -69,20 +73,24 @@ end
 
 local clTime = 0.0
 
-function Light:ClientEffect(t)
+function Light:OnClientFrame(t)
     if not self:get("On") then
+        -- Use whatever values the light source actually has.
         clTime = 0.0
-        return false
+        return
     end
 
     clTime = clTime + t
     local Duration = Grenade.LightDuration or 5.0
 
     if clTime >= Duration then
-        return true, 0, 0, 0, 0
+        self:set("Color", 0, 0, 0)
+        self:set("Radius", 0)
+        return
     end
 
     local Amount = 1.0 - clTime/Duration
 
-    return true, Amount, Amount*Amount, Amount*Amount*Amount, 400.0
+    self:set("Color", Amount, Amount*Amount, Amount*Amount*Amount)
+    self:set("Radius", 400.0)
 end

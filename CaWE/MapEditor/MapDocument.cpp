@@ -328,6 +328,7 @@ void MapDocumentT::Init()
 #endif
 
     m_ScriptWorld = new cf::GameSys::WorldT(
+        cf::GameSys::WorldT::RealmMapEditor,
         m_ScriptState,
         m_GameConfig->GetModelMan(),
         m_GameConfig->GetGuiResources(),

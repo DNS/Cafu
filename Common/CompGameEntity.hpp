@@ -61,8 +61,8 @@ class CompGameEntityT : public cf::GameSys::ComponentBaseT
 
     private:
 
-    void DoDeserialize(cf::Network::InStreamT& Stream, bool IsIniting) /*override*/;
-    void DoServerFrame(float t) /*override*/;
+    void DoDeserialize(cf::Network::InStreamT& Stream, bool IsIniting) override;
+    void DoServerFrame(float t) override;
     void UpdateClipModel();
 
     StaticEntityDataT*       m_StaticEntityData;

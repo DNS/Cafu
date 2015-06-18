@@ -29,6 +29,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GameSys/CompPlayerPhysics.hpp"
 #include "GameSys/Entity.hpp"
 #include "GameSys/EntityCreateParams.hpp"
+#include "GameSys/Interpolator.hpp"
 #include "GameSys/World.hpp"
 #include "MaterialSystem/Renderer.hpp"
 #include "Math3D/Matrix.hpp"
@@ -294,6 +295,17 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
             {
                 m_EngineEntities[OurEntityID]->Predict(m_PlayerCommands[Nr & (m_PlayerCommands.Size() - 1)]);
             }
+
+            // Let all interpolators know about the reprediction.
+            for (unsigned int CompNr = 0; true; CompNr++)
+            {
+                IntrusivePtrT<cf::GameSys::ComponentBaseT> Comp = m_EngineEntities[OurEntityID]->GetEntity()->GetComponent(CompNr);
+
+                if (Comp == NULL) break;
+
+                for (unsigned int i = 0; i < Comp->GetInterpolators().Size(); i++)
+                    Comp->GetInterpolators()[i]->UpdateAfterReprediction();
+            }
         }
         else
         {
@@ -313,7 +325,20 @@ void CaClientWorldT::OurEntity_Predict(const PlayerCommandT& PlayerCommand, unsi
 
     if (OurEntityID<m_EngineEntities.Size())
         if (m_EngineEntities[OurEntityID]!=NULL)
+        {
             m_EngineEntities[OurEntityID]->Predict(PlayerCommand);
+
+            // Let all interpolators know about the prediction step.
+            for (unsigned int CompNr = 0; true; CompNr++)
+            {
+                IntrusivePtrT<cf::GameSys::ComponentBaseT> Comp = m_EngineEntities[OurEntityID]->GetEntity()->GetComponent(CompNr);
+
+                if (Comp == NULL) break;
+
+                for (unsigned int i = 0; i < Comp->GetInterpolators().Size(); i++)
+                    Comp->GetInterpolators()[i]->UpdateAfterPrediction();
+            }
+        }
 }
 
 
@@ -388,8 +413,88 @@ void CaClientWorldT::ComputeBFSPath(const VectorT& Start, const VectorT& End)
 }
 
 
-void CaClientWorldT::Draw(float FrameTime, IntrusivePtrT<const cf::GameSys::ComponentTransformT> CameraTrafo) const
+void CaClientWorldT::Draw(float FrameTime) const
 {
+    // Note that besides the canonic way in cf::SceneGraph::BspTreeNodeT, there are two other
+    // options for "disabling" the PVS: Either have the server disregard the PVS in the first
+    // place, or have DrawEntities() render all entities that are in the m_EngineEntities
+    // array. The respective effects are subtly different.
+    const FrameInfoT& CurrentFrame = m_FrameInfos[m_ServerFrameNr & (m_FrameInfos.Size() - 1)];
+
+    if (!CurrentFrame.IsValid)
+    {
+        // How we can get here:
+        // After our join request, the server sends us the WorldInfo, the BaseLines, and the
+        // first FrameInfo message. FrameInfo messages however are only transferred "unreliably",
+        // and may be omitted or lost, e.g. if the maximum size of a network packet is exceeded.
+        // This in turn can happen if a world has many entities that are all visible from (in
+        // the PVS of) the player's starting point.
+        // Thus, it is possible getting here without ever having seen a FrameInfo message.
+        // Besides `!CurrentFrame.IsValid`, in such cases also the `m_ServerFrameNr` still has
+        // its initial value 0xDEADBEEF.
+        #ifdef DEBUG
+            EnqueueString("CLIENT WARNING: %s, L %u: Frame %lu was invalid on entity draw attempt!", __FILE__, __LINE__, m_ServerFrameNr);
+        #endif
+
+        return;
+    }
+
+
+    // An early return can only happen if we've not yet received the baselines after the
+    // SC1_WorldInfo. But then we should not have received any SC1_FrameInfos either, and thus
+    // have already returned above (because CurrentFrame is not valid).
+    if (OurEntityID >= m_EngineEntities.Size()) return;
+    if (m_EngineEntities[OurEntityID] == NULL) return;
+
+    IntrusivePtrT<cf::GameSys::EntityT> OurEnt = m_EngineEntities[OurEntityID]->GetEntity();
+
+    if (OurEnt->GetChildren().Size() < 1) return;
+
+    IntrusivePtrT<const cf::GameSys::ComponentTransformT> CameraTrafo = OurEnt->GetChildren()[0]->GetTransform();
+
+
+    // Set up the entity state for rendering the video frame:
+    //   - advance the interpolations,
+    //   - actually set the interpolated values and
+    //   - advance and apply and client-side effects.
+    for (unsigned int i = 0; i < CurrentFrame.EntityIDsInPVS.Size(); i++)
+    {
+        const unsigned int                  ID  = CurrentFrame.EntityIDsInPVS[i];
+        IntrusivePtrT<cf::GameSys::EntityT> Ent = m_EngineEntities[ID]->GetEntity();
+
+        // Note that no effort is made to inform components that their values may have changed.
+        // For example, ComponentCollisionModelT components are not informed if the origin or
+        // orientation in the entity's ComponentTransformT has changed (and consequently the
+        // ClipModel in the ClipWorld is not updated).
+        for (unsigned int CompNr = 0; true; CompNr++)
+        {
+            IntrusivePtrT<cf::GameSys::ComponentBaseT> Comp = Ent->GetComponent(CompNr);
+
+            if (Comp == NULL) break;
+
+            for (unsigned int i = 0; i < Comp->GetInterpolators().Size(); i++)
+            {
+                Comp->GetInterpolators()[i]->AdvanceTime(FrameTime);
+                Comp->GetInterpolators()[i]->SetCurrentValue();
+            }
+        }
+
+        Ent->OnClientFrame(FrameTime);
+    }
+
+
+    // Update the sound system listener.
+    {
+        IntrusivePtrT<const cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(OurEnt->GetComponent("PlayerPhysics"));
+        const cf::math::Matrix3x3fT                               CameraMat(CameraTrafo->GetQuatWS());
+
+        SoundSystem->UpdateListener(
+            CameraTrafo->GetOriginWS().AsVectorOfDouble(),
+            CompPlayerPhysics != NULL ? CompPlayerPhysics->GetVelocity() : Vector3dT(),
+            CameraMat.GetAxis(0), CameraMat.GetAxis(2));
+    }
+
+
     MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());
 
     // In the OpenGL default coordinate system, the camera looks along the negative z-axis.
@@ -426,11 +531,6 @@ void CaClientWorldT::Draw(float FrameTime, IntrusivePtrT<const cf::GameSys::Comp
 #endif
 #endif
 
-    // Es gibt zwei Möglichkeiten, das PVS zu "disablen":
-    // Entweder DrawEntities() veranlassen, alle Entities des m_EngineEntities-Arrays zu zeichnen
-    // (z.B. durch einen Trick, oder explizit ein Array der Größe m_EngineEntities.Size() übergeben, das an der Stelle i der Wert i hat),
-    // oder indem die Beachtung des PVS auf Server-Seite (!) ausgeschaltet wird! Die Effekte sind jeweils verschieden!
-    const FrameInfoT& CurrentFrame = m_FrameInfos[m_ServerFrameNr & (m_FrameInfos.Size() - 1)];
 
     static float TotalTime=0.0;
     TotalTime+=FrameTime;
@@ -442,29 +542,12 @@ void CaClientWorldT::Draw(float FrameTime, IntrusivePtrT<const cf::GameSys::Comp
     MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::AMBIENT);
     MatSys::Renderer->SetCurrentEyePosition(float(DrawOrigin.x), float(DrawOrigin.y), float(DrawOrigin.z)+EyeOffsetZ);    // Also required in some ambient shaders.
 
+
     const cf::SceneGraph::BspTreeNodeT* BspTree = m_World->m_StaticEntityData[0]->m_BspTree;
     BspTree->DrawAmbientContrib(DrawOrigin);
 
-
-    if (!CurrentFrame.IsValid)
-    {
-        // Eine Möglichkeit, wie man zu diesem Fehler kommt:
-        // Bei einer World mit sehr vielen Entities, die auch alle vom Startpunkt aus sichtbar (d.h. im PVS) sind,
-        // schickt uns der Server nach dem Join-Request die WorldInfo, die BaseLines, und auch die erste FrameInfo-Message.
-        // Die FrameInfo-Message wird jedoch nur "unreliable" zu übertragen versucht, und daher vom Protokoll weggelassen,
-        // wenn die max. Größe des Netzwerkpakets überschritten wird.
-        // Somit können wir hierherkommen, ohne jemals eine FrameInfo-Message vom Server gesehen zu haben.
-        // Erkennen kann man diesen Fall daran, daß 'm_ServerFrameNr' noch den Initialisierungswert 0xDEADBEEF enthält.
-        // Das Auftreten dieses Fehlers ist nicht schön, aber auch nicht sehr schlimm, solange es keine sauberere Lösung gibt.
-#ifdef DEBUG
-        EnqueueString("CLIENT WARNING: %s, L %u: Frame %lu was invalid on entity draw attempt!", __FILE__, __LINE__, m_ServerFrameNr);
-#endif
-        return;
-    }
-
     // Draw the ambient contribution of the entities.
     DrawEntities(OurEntityID, false, DrawOrigin, CurrentFrame.EntityIDsInPVS);
-
 
 
     // Render the contribution of the point light sources (shadows, normal-maps, specular-maps).
@@ -475,8 +558,8 @@ void CaClientWorldT::Draw(float FrameTime, IntrusivePtrT<const cf::GameSys::Comp
         unsigned long LightColorDiffuse=0;
         unsigned long LightColorSpecular=0;
         VectorT       LightPosition;
-        float         LightRadius;
-        bool          LightCastsShadows;
+        float         LightRadius = 0.0f;
+        bool          LightCastsShadows = false;
         unsigned long LightEntID = CurrentFrame.EntityIDsInPVS[EntityIDNr];
 
         if (!GetLightSourceInfo(LightEntID, LightColorDiffuse, LightColorSpecular, LightPosition, LightRadius, LightCastsShadows)) continue;
@@ -537,7 +620,6 @@ void CaClientWorldT::Draw(float FrameTime, IntrusivePtrT<const cf::GameSys::Comp
     }
 
 
-
     MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::AMBIENT);
 
     // Render translucent nodes back-to-front.
@@ -551,6 +633,30 @@ void CaClientWorldT::Draw(float FrameTime, IntrusivePtrT<const cf::GameSys::Comp
 
     // Zuletzt halbtransparente HUD-Elemente, Fonts usw. zeichnen.
     PostDrawEntities(FrameTime, CurrentFrame.EntityIDsInPVS);
+
+
+    // Restore the values as they were obtained from the last server frame.
+    // This is important for the next prediction step of the local human player entity,
+    // because only with these values can the prediction work as it does on the server.
+    for (unsigned int i = 0; i < CurrentFrame.EntityIDsInPVS.Size(); i++)
+    {
+        const unsigned int                  ID  = CurrentFrame.EntityIDsInPVS[i];
+        IntrusivePtrT<cf::GameSys::EntityT> Ent = m_EngineEntities[ID]->GetEntity();
+
+        // Note that no effort is made to inform components that their values may have changed.
+        // For example, ComponentCollisionModelT components are not informed if the origin or
+        // orientation in the entity's ComponentTransformT has changed (and consequently the
+        // ClipModel in the ClipWorld is not updated).
+        for (unsigned int CompNr = 0; true; CompNr++)
+        {
+            IntrusivePtrT<cf::GameSys::ComponentBaseT> Comp = Ent->GetComponent(CompNr);
+
+            if (Comp == NULL) break;
+
+            for (unsigned int i = 0; i < Comp->GetInterpolators().Size(); i++)
+                Comp->GetInterpolators()[i]->SetTargetValue();
+        }
+    }
 }
 
 
@@ -697,23 +803,15 @@ void CaClientWorldT::PostDrawEntities(float FrameTime, const ArrayT<unsigned lon
 
         if (EntityID < m_EngineEntities.Size() && m_EngineEntities[EntityID] != NULL)
         {
-            m_EngineEntities[EntityID]->PostDraw(FrameTime, FirstPerson);
-
             IntrusivePtrT<cf::GameSys::EntityT> Ent = m_EngineEntities[EntityID]->GetEntity();
 
-            Ent->OnClientFrame(FrameTime);
-
-            if (FirstPerson && Ent->GetChildren().Size() > 0)
+            for (unsigned int CompNr = 0; true; CompNr++)
             {
-                // Update the sound system listener.
-                IntrusivePtrT<const cf::GameSys::ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<cf::GameSys::ComponentPlayerPhysicsT>(Ent->GetComponent("PlayerPhysics"));
-                IntrusivePtrT<const cf::GameSys::ComponentTransformT>     CameraTrafo = Ent->GetChildren()[0]->GetTransform();
-                const cf::math::Matrix3x3fT                               CameraMat(CameraTrafo->GetQuatWS());
+                IntrusivePtrT<cf::GameSys::ComponentBaseT> Comp = Ent->GetComponent(CompNr);
 
-                SoundSystem->UpdateListener(
-                    CameraTrafo->GetOriginWS().AsVectorOfDouble(),
-                    CompPlayerPhysics != NULL ? CompPlayerPhysics->GetVelocity() : Vector3dT(),
-                    CameraMat.GetAxis(0), CameraMat.GetAxis(2));
+                if (Comp == NULL) break;
+
+                Comp->PostRender(FirstPerson);
             }
         }
     }
