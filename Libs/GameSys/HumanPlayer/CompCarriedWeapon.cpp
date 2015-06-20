@@ -109,9 +109,9 @@ ComponentCarriedWeaponT* ComponentCarriedWeaponT::Clone() const
 }
 
 
-void ComponentCarriedWeaponT::OnPostLoad(bool InEditor)
+void ComponentCarriedWeaponT::OnPostLoad(bool OnlyStatic)
 {
-    if (InEditor) return;
+    if (OnlyStatic) return;
     if (!GetEntity()) return;
     if (m_Script.Get() == "") return;
 

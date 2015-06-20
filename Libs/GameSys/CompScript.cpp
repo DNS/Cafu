@@ -103,9 +103,9 @@ ComponentScriptT* ComponentScriptT::Clone() const
 }
 
 
-void ComponentScriptT::OnPostLoad(bool InEditor)
+void ComponentScriptT::OnPostLoad(bool OnlyStatic)
 {
-    if (InEditor) return;
+    if (OnlyStatic) return;
     if (!GetEntity()) return;
 
     cf::UniScriptStateT& ScriptState = GetEntity()->GetWorld().GetScriptState();

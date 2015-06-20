@@ -51,7 +51,7 @@ namespace cf
             // Base class overrides.
             ComponentCarriedWeaponT* Clone() const;
             const char* GetName() const { return "CarriedWeapon"; }
-            void OnPostLoad(bool InEditor);
+            void OnPostLoad(bool OnlyStatic);
 
 
             // The TypeSys related declarations for this class.

@@ -222,7 +222,7 @@ namespace cf
             ///
             /// @param InEditor   `true` if this world is instantiated in the Map Editor. This normally means that
             ///     custom behaviour should *not* run. If `false`, this world is instantiated "live", in-game.
-            virtual void OnPostLoad(bool InEditor) { }
+            virtual void OnPostLoad(bool OnlyStatic) { }
 
             /// This method handles keyboard input events.
             /// @param KE   Keyboard event instance.

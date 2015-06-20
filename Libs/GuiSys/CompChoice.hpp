@@ -50,7 +50,7 @@ namespace cf
             ComponentChoiceT* Clone() const;
             const char* GetName() const { return "Choice"; }
             void UpdateDependencies(WindowT* Window);
-            void OnPostLoad(bool InEditor);
+            void OnPostLoad(bool OnlyStatic);
             bool OnInputEvent(const CaKeyboardEventT& KE);
             bool OnInputEvent(const CaMouseEventT& ME, float PosX, float PosY);
 

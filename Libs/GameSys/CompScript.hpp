@@ -64,7 +64,7 @@ namespace cf
             ComponentScriptT* Clone() const;
             const char* GetName() const { return "Script"; }
             unsigned int GetEditorColor() const { return 0x4482FC; }
-            void OnPostLoad(bool InEditor);
+            void OnPostLoad(bool OnlyStatic);
 
 
             // The TypeSys related declarations for this class.

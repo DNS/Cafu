@@ -96,9 +96,9 @@ void ComponentChoiceT::UpdateDependencies(WindowT* Window)
 }
 
 
-void ComponentChoiceT::OnPostLoad(bool InEditor)
+void ComponentChoiceT::OnPostLoad(bool OnlyStatic)
 {
-    if (!InEditor) Sync();
+    if (!OnlyStatic) Sync();
 }
 
 

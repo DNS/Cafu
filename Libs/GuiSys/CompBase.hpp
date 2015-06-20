@@ -129,7 +129,7 @@ namespace cf
             ///
             /// @param InEditor   `true` if this GUI is instantiated in the GUI Editor. This normally means that
             ///     custom behaviour should *not* run. If `false`, this GUI is instantiated "live", in-game.
-            virtual void OnPostLoad(bool InEditor) { }
+            virtual void OnPostLoad(bool OnlyStatic) { }
 
             /// This method handles keyboard input events.
             /// @param KE   Keyboard event instance.
