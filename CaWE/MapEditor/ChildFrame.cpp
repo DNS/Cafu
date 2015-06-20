@@ -1379,7 +1379,7 @@ namespace
             IntrusivePtrT<cf::GameSys::EntityT> ClipboardRoot = cf::GameSys::WorldT::LoadScript(
                 &MapDoc.GetScriptWorld(),
                 Clipboard_cent,   // Note the important "AsPrefab" flag in the line below!
-                cf::GameSys::WorldT::InitFlag_InlineCode | cf::GameSys::WorldT::InitFlag_InMapEditor | cf::GameSys::WorldT::InitFlag_AsPrefab);
+                cf::GameSys::WorldT::InitFlag_InlineCode | cf::GameSys::WorldT::InitFlag_OnlyStatic | cf::GameSys::WorldT::InitFlag_AsPrefab);
 
             // Assign the "AllMapEnts" to the "AllScriptEnts".
             {
@@ -1992,7 +1992,7 @@ void ChildFrameT::LoadPrefab(const wxString& FileName)
         IntrusivePtrT<cf::GameSys::EntityT> PrefabRoot = cf::GameSys::WorldT::LoadScript(
             &m_Doc->GetScriptWorld(),
             centFileName.ToStdString(),     // Note the important "AsPrefab" flag in the line below!
-            cf::GameSys::WorldT::InitFlag_InMapEditor | cf::GameSys::WorldT::InitFlag_AsPrefab);
+            cf::GameSys::WorldT::InitFlag_OnlyStatic | cf::GameSys::WorldT::InitFlag_AsPrefab);
 
         // Assign the "AllMapEnts" to the "AllScriptEnts".
         {

@@ -97,7 +97,7 @@ Ca3DEWorldT::Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiS
         cf::GameSys::WorldT::LoadScript(
             m_ScriptWorld,
             ScriptName,
-            0 /*cf::GameSys::WorldT::InitFlag_InMapEditor*/);
+            0 /*cf::GameSys::WorldT::InitFlag_OnlyStatic*/);
     }
     catch (const cf::GameSys::WorldT::InitErrorT& IE)
     {

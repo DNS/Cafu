@@ -74,9 +74,9 @@ namespace cf
             /// Flags for initializing a world from a map script.
             enum InitFlagsT
             {
-                InitFlag_InlineCode  = 1,   ///< Normally, the `ScriptName` parameter to the WorldT ctor is a filename. If this is set, it is treated as inline script code.
-                InitFlag_InMapEditor = 2,   ///< Whether the world is instantiated in the Map Editor. If set, only the static data will be loaded, initial behaviour is *not* run.
-                InitFlag_AsPrefab    = 4    ///< This must be set if the map script is loaded for use as a prefab. Can only be used if the world is in realm `RealmMapEditor`.
+                InitFlag_InlineCode = 1,    ///< Normally, the `ScriptName` parameter to the WorldT ctor is a filename. If this is set, it is treated as inline script code.
+                InitFlag_OnlyStatic = 2,    ///< If set, only the static data will be loaded. User-defined scripts with custom, initial behaviour are *not* run.
+                InitFlag_AsPrefab   = 4     ///< This must be set if the map script is loaded for use as a prefab. Can only be used if the world is in realm `RealmMapEditor`.
             };
 
             /// Initializes the given script state for use with WorldT instances.

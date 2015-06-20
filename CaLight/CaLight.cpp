@@ -1469,7 +1469,7 @@ int main(int ArgC, const char* ArgV[])
         cf::GameSys::WorldT::LoadScript(
             ScriptWorld,
             ScriptName,
-            cf::GameSys::WorldT::InitFlag_InMapEditor);
+            cf::GameSys::WorldT::InitFlag_OnlyStatic);
 
         ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
         ScriptWorld->GetRootEntity()->GetAll(AllEnts);

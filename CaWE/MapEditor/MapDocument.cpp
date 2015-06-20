@@ -196,7 +196,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig)
         "Map = world:new('EntityT', 'Map')\n"
         "Map:GetBasics():set('Static', true)\n"
         "world:SetRootEntity(Map)\n",
-        cf::GameSys::WorldT::InitFlag_InlineCode | cf::GameSys::WorldT::InitFlag_InMapEditor);
+        cf::GameSys::WorldT::InitFlag_InlineCode | cf::GameSys::WorldT::InitFlag_OnlyStatic);
 
     IntrusivePtrT<cf::GameSys::EntityT> ScriptRootEnt = m_ScriptWorld->GetRootEntity();
     IntrusivePtrT<CompMapEntityT>       MapEnt        = new CompMapEntityT(*this);
@@ -281,7 +281,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         cf::GameSys::WorldT::LoadScript(
             m_ScriptWorld,
             centFileName.ToStdString(),
-            cf::GameSys::WorldT::InitFlag_InMapEditor);
+            cf::GameSys::WorldT::InitFlag_OnlyStatic);
     }
     else
     {
@@ -291,7 +291,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
             "Map = world:new('EntityT', 'Map')\n"
             "Map:GetBasics():set('Static', true)\n"
             "world:SetRootEntity(Map)\n",
-            cf::GameSys::WorldT::InitFlag_InlineCode | cf::GameSys::WorldT::InitFlag_InMapEditor);
+            cf::GameSys::WorldT::InitFlag_InlineCode | cf::GameSys::WorldT::InitFlag_OnlyStatic);
     }
 
 

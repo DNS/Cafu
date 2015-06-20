@@ -182,7 +182,7 @@ WorldT::InitErrorT::InitErrorT(const std::string& Message)
         const ArrayT< IntrusivePtrT<ComponentBaseT> >& Components = AllEnts[EntNr]->GetComponents();
 
         for (unsigned int CompNr = 0; CompNr < Components.Size(); CompNr++)
-            Components[CompNr]->OnPostLoad((Flags & InitFlag_InMapEditor) != 0);
+            Components[CompNr]->OnPostLoad((Flags & InitFlag_OnlyStatic) != 0);
     }
 
     for (unsigned long EntNr = 0; EntNr < AllEnts.Size(); EntNr++)

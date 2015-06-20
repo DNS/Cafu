@@ -220,7 +220,7 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
         cf::GameSys::WorldT::LoadScript(
             ScriptWorld,
             cf::String::StripExt(LoadName) + ".cent",
-            cf::GameSys::WorldT::InitFlag_InMapEditor);
+            cf::GameSys::WorldT::InitFlag_OnlyStatic);
     }
     catch (const cf::GameSys::WorldT::InitErrorT& IE)
     {
