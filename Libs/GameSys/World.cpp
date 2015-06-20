@@ -87,7 +87,7 @@ WorldT::InitErrorT::InitErrorT(const std::string& Message)
     ScriptBinderT     Binder(LuaState);
 
     // Only the Map Editor should ever load prefabs (which don't have related `cw` world files).
-    if ((Flags & InitFlag_AsPrefab) && !(Flags & InitFlag_InMapEditor))
+    if ((Flags & InitFlag_AsPrefab) && (World->GetRealm() != RealmMapEditor))
         throw InitErrorT("Cannot load prefabs outside of the Map Editor.");
 
     // Add a global variable with name "world" to the Lua state.
