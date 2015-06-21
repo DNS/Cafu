@@ -459,4 +459,4 @@ const cf::TypeSys::MethsDocT ComponentParticleSystemOldT::DocMethods[] =
     { NULL, NULL, NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentParticleSystemOldT::TypeInfo(GetComponentTIM(), "GameSys::ComponentParticleSystemOldT", "GameSys::ComponentBaseT", ComponentParticleSystemOldT::CreateInstance, MethodsList, DocClass, DocMethods, DocVars);
+const cf::TypeSys::TypeInfoT ComponentParticleSystemOldT::TypeInfo(GetComponentTIM(), "GameSys::ComponentParticleSystemOldT", "GameSys::ComponentBaseT", ComponentParticleSystemOldT::CreateInstance, MethodsList, DocClass, DocMethods, NULL, DocVars);

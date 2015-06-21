@@ -281,4 +281,4 @@ const cf::TypeSys::MethsDocT ComponentChoiceT::DocMethods[] =
     { NULL, NULL, NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentChoiceT::TypeInfo(GetComponentTIM(), "GuiSys::ComponentChoiceT", "GuiSys::ComponentBaseT", ComponentChoiceT::CreateInstance, MethodsList, DocClass, DocMethods, DocVars);
+const cf::TypeSys::TypeInfoT ComponentChoiceT::TypeInfo(GetComponentTIM(), "GuiSys::ComponentChoiceT", "GuiSys::ComponentBaseT", ComponentChoiceT::CreateInstance, MethodsList, DocClass, DocMethods, NULL, DocVars);

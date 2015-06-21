@@ -233,4 +233,4 @@ const cf::TypeSys::MethsDocT ComponentSoundT::DocMethods[] =
     { NULL, NULL, NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentSoundT::TypeInfo(GetComponentTIM(), "GameSys::ComponentSoundT", "GameSys::ComponentBaseT", ComponentSoundT::CreateInstance, MethodsList, DocClass, DocMethods, DocVars);
+const cf::TypeSys::TypeInfoT ComponentSoundT::TypeInfo(GetComponentTIM(), "GameSys::ComponentSoundT", "GameSys::ComponentBaseT", ComponentSoundT::CreateInstance, MethodsList, DocClass, DocMethods, NULL, DocVars);

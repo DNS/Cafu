@@ -154,4 +154,4 @@ const cf::TypeSys::MethsDocT ComponentPointLightT::DocMethods[] =
     { NULL, NULL, NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentPointLightT::TypeInfo(GetComponentTIM(), "GameSys::ComponentPointLightT", "GameSys::ComponentLightT", ComponentPointLightT::CreateInstance, MethodsList, DocClass, DocMethods, DocVars);
+const cf::TypeSys::TypeInfoT ComponentPointLightT::TypeInfo(GetComponentTIM(), "GameSys::ComponentPointLightT", "GameSys::ComponentLightT", ComponentPointLightT::CreateInstance, MethodsList, DocClass, DocMethods, NULL, DocVars);

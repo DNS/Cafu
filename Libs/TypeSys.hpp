@@ -106,7 +106,7 @@ namespace cf
             /// The constructor.
             /// This is supposed to be called only by the static TypeInfoT member of each entity class.
             TypeInfoT(TypeInfoManT& TIM, const char* ClassName_, const char* BaseClassName_, CreateInstanceT CreateInstance_, const luaL_Reg MethodsList_[],
-                      const char* DocClass_=NULL, const MethsDocT DocMethods_[]=NULL, const VarsDocT DocVars_[]=NULL);
+                      const char* DocClass_=NULL, const MethsDocT DocMethods_[]=NULL, const MethsDocT DocCallbacks_[]=NULL, const VarsDocT DocVars_[]=NULL);
 
             /// Prints the contents of this node to the console.
             /// @param Recurse    Whether the children (derived classes) of this node should be printed.
@@ -138,6 +138,7 @@ namespace cf
             // that are processed by Doxygen in order to create online scripting reference documentation.
             const char*      DocClass;          ///< Documentation for this class.
             const MethsDocT* DocMethods;        ///< Documentation for the Lua methods in MethodsList.
+            const MethsDocT* DocCallbacks;      ///< Documentation for any Lua methods that we call but expect users to provide implementations for.
             const VarsDocT*  DocVars;           ///< Documentation for the variables in this class. (Used in classes that have `cf::TypeSys::VarT<>` instances.)
 
 
