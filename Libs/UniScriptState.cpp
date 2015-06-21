@@ -777,3 +777,42 @@ bool UniScriptStateT::StartNewCoroutine(int NumExtraArgs, const char* Signature,
     lua_xmove(LuaState, Crt.State, StackSize);
     return 0;
 }
+
+
+#include <fstream>
+#include <map>
+
+/*static*/ void UniScriptStateT::CheckCallbackDoc(const cf::TypeSys::TypeInfoT* TI, const std::string& MethodName, int NumExtraArgs, const char* Signature)
+{
+    const std::string s = std::string(TI->ClassName) + "::" + MethodName + "(" + Signature + ")";
+
+    while (TI)
+    {
+        if (TI->DocCallbacks)
+        {
+            for (unsigned int Nr = 0; TI->DocCallbacks[Nr].Name; Nr++)
+            {
+                if (MethodName == TI->DocCallbacks[Nr].Name)
+                {
+                    // TODO: The method name matches, but does Signature also match
+                    // TI->DocCallbacks[Nr].Parameters?
+                    return;
+                }
+            }
+        }
+
+        TI = TI->Base;
+    }
+
+    static std::map<std::string, bool> UniqueCallbacks;
+
+    if (UniqueCallbacks[s]) return;
+    UniqueCallbacks[s] = true;
+
+    static std::ofstream LogFile("callbacks.txt", std::ios::app);
+
+    if (!LogFile.bad())
+    {
+        LogFile << s << " is not documented!\n";
+    }
+}

@@ -315,6 +315,9 @@ namespace cf
         /// A global Lua function that registers the given Lua function as a new thread.
         static int RegisterThread(lua_State* LuaState);
 
+        /// A helper function for checking if a called Lua function is documented.
+        static void CheckCallbackDoc(const cf::TypeSys::TypeInfoT* TI, const std::string& MethodName, int NumExtraArgs, const char* Signature);
+
         lua_State*         m_LuaState;          ///< The Lua instance. This is what "really" represents the script.
         ArrayT<CoroutineT> m_PendingCoroutines; ///< The list of active, pending coroutines.
         unsigned int       m_CheckCppRefsCount; ///< Call Binder.CheckCppRefs() only every n-th frame.
@@ -542,6 +545,10 @@ template<class T> inline bool cf::UniScriptStateT::CallMethod_Impl(T Object, con
 {
     const StackCheckerT StackChecker(m_LuaState, -NumExtraArgs);
     cf::ScriptBinderT   Binder(m_LuaState);
+
+#ifdef DEBUG
+    CheckCallbackDoc(Object->GetType(), MethodName, NumExtraArgs, Signature);
+#endif
 
     Binder.Push(Object);
 
