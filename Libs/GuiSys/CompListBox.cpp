@@ -426,4 +426,21 @@ const cf::TypeSys::MethsDocT ComponentListBoxT::DocMethods[] =
     { NULL, NULL, NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentListBoxT::TypeInfo(GetComponentTIM(), "GuiSys::ComponentListBoxT", "GuiSys::ComponentBaseT", ComponentListBoxT::CreateInstance, MethodsList, DocClass, DocMethods, NULL, DocVars);
+const cf::TypeSys::MethsDocT ComponentListBoxT::DocCallbacks[] =
+{
+    { "OnSelectionChanged",
+      "This method is called when the list box's selection has changed.",
+      "", "" },
+    { NULL, NULL, NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentListBoxT::TypeInfo(
+    GetComponentTIM(),
+    "GuiSys::ComponentListBoxT",
+    "GuiSys::ComponentBaseT",
+    ComponentListBoxT::CreateInstance,
+    MethodsList,
+    DocClass,
+    DocMethods,
+    DocCallbacks,
+    DocVars);

@@ -814,4 +814,27 @@ const cf::TypeSys::MethsDocT ComponentModelT::DocMethods[] =
     { NULL, NULL, NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentModelT::TypeInfo(GetComponentTIM(), "GameSys::ComponentModelT", "GameSys::ComponentBaseT", ComponentModelT::CreateInstance, MethodsList, DocClass, DocMethods, NULL, DocVars);
+const cf::TypeSys::MethsDocT ComponentModelT::DocCallbacks[] =
+{
+    { "OnAnimationChange",
+      "This method is called when a new animation sequence number is set for this model.",
+      "tuple", "(int AnimNr)" },
+    { "OnSequenceWrap_Sv",
+      "This method is called when playing the model's current animation sequence \"wraps\".",
+      "", "" },
+    { "OnSequenceWrap",
+      "This method is called when playing the model's current animation sequence \"wraps\".",
+      "", "" },
+    { NULL, NULL, NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentModelT::TypeInfo(
+    GetComponentTIM(),
+    "GameSys::ComponentModelT",
+    "GameSys::ComponentBaseT",
+    ComponentModelT::CreateInstance,
+    MethodsList,
+    DocClass,
+    DocMethods,
+    DocCallbacks,
+    DocVars);

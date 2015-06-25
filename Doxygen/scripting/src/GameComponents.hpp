@@ -120,6 +120,14 @@ class ComponentBaseT
      * @{
      */
 
+    /// This method is called for each component of each entity as the last step of
+    /// initializing a newly loaded map.
+    OnInit();
+
+    /// This method is called for each component of each entity before the client renders the
+    /// next frame.
+    OnClientFrame(number t);
+
     /** @} */
 };
 
@@ -143,18 +151,6 @@ class ComponentBasicsT : public ComponentBaseT
 
     public:
 
-    /** @name Event Handlers (Callbacks)
-     *
-     * See the \ref eventhandlers overview page for additional information about the methods in this group.
-     *
-     * @{
-     */
-
-    /** @} */
-
-
-    public:
-
     /// The name of the entity. Entity names must be valid Lua script identifiers and unique among their siblings.
     /// @cppType{std::string}
     string Name;
@@ -162,23 +158,6 @@ class ComponentBasicsT : public ComponentBaseT
     /// Are the map primitives of this entity fixed and immovable, never moving around in the game world?
     /// @cppType{bool}
     boolean Static;
-
-    /// Is this entity currently shown or hidden in the Map Editor's 2D and 3D views?
-    /// @cppType{bool}
-    boolean Show;
-
-    /// In the Map Editor, when the user clicks on an element of the entity, what elements are actually selected?
-    ///
-    /// @par Typical values:
-    /// <table>
-    /// <tr><th>Value</th><th>Description</th></tr>
-    /// <tr><td>0</td><td>single</td></tr>
-    /// <tr><td>1</td><td>group</td></tr>
-    /// <tr><td>2</td><td>locked</td></tr>
-    /// </table>
-    ///
-    /// @cppType{int}
-    number SelMode;
 };
 
 
@@ -210,14 +189,15 @@ class ComponentCarriedWeaponT : public ComponentBaseT
      * @{
      */
 
-    /// This method returns whether the weapon is currently idle.
+    /// This method is called in order to learn if this weapon is currently idle.
     /// The implementation usually determines the idle state of the weapon by the animation sequence
     /// that the related 1st-person weapon model is currently playing.
     ///
     /// @see @ref CarriedWeaponsOverview
-    bool IsIdle();
+    boolean IsIdle();
 
-    /// This method is reponsible for setting up the entity's 1st-person weapon model
+    /// This method is called in order to let this weapon know that it is drawn.
+    /// It is reponsible for setting up the entity's 1st-person weapon model
     /// for drawing this weapon. This possibly includes setting up the 1st-person weapon model's
     /// ComponentModelT::OnSequenceWrap_Sv() callback, which must be implemented to "operate"
     /// this weapon.
@@ -225,16 +205,25 @@ class ComponentCarriedWeaponT : public ComponentBaseT
     /// @see @ref CarriedWeaponsOverview
     Draw();
 
-    /// This method is reponsible for setting up the entity's 1st-person weapon model
+    /// This method is called in order to have this weapon holstered.
+    /// It is reponsible for setting up the entity's 1st-person weapon model
     /// for holstering this weapon. It must return `true` if successful, or `false` to indicate
     /// that holstering is not possible, e.g. because a holstering sequence is not available.
     ///
     /// @see @ref CarriedWeaponsOverview
-    bool Holster();
+    boolean Holster();
+
+    /// This method is called in order to have this weapon emit primary fire.
+    FirePrimary(boolean ThinkingOnServerSide);
+
+    /// This method is called in order to have this weapon emit secondary fire.
+    FireSecondary(boolean ThinkingOnServerSide);
 
     /// This method is called when the player walks over an instance of this weapon in the world.
     /// Its implementation is reponsible for picking up the weapon and for re-stocking the weapon
     /// and the player's inventory with the related ammunition.
+    /// (This method is usually not called directly from Cafu's C++ code, but rather from other
+    /// script code.)
     ///
     /// @see @ref CarriedWeaponsOverview
     bool PickedUp();
@@ -300,18 +289,6 @@ class ComponentCollisionModelT : public ComponentBaseT
     /// Instead of loading a collision model from a file, a script can call this method
     /// to set a bounding-box with the given dimensions as the collision model.
     SetBoundingBox(number min_x, number min_y, number min_z, number max_x, number max_y, number max_z, string MatName);
-
-
-    public:
-
-    /** @name Event Handlers (Callbacks)
-     *
-     * See the \ref eventhandlers overview page for additional information about the methods in this group.
-     *
-     * @{
-     */
-
-    /** @} */
 
 
     public:
@@ -415,18 +392,6 @@ class ComponentHumanPlayerT : public ComponentBaseT
 
     public:
 
-    /** @name Event Handlers (Callbacks)
-     *
-     * See the \ref eventhandlers overview page for additional information about the methods in this group.
-     *
-     * @{
-     */
-
-    /** @} */
-
-
-    public:
-
     /// The name that the player chose for himself.
     /// @cppType{std::string}
     string PlayerName;
@@ -508,18 +473,6 @@ class ComponentInventoryT : public ComponentBaseT
     /// Returns `true` if the inventory count of the specified item is equal to (or even exceeds) its defined maximum.
     /// Returns `false` if no maximum is defined or if the inventory count is below the defined value.@param item_name   The name of the item to check the count for.
     CheckMax(string item_name);
-
-
-    public:
-
-    /** @name Event Handlers (Callbacks)
-     *
-     * See the \ref eventhandlers overview page for additional information about the methods in this group.
-     *
-     * @{
-     */
-
-    /** @} */
 };
 
 
@@ -528,16 +481,6 @@ class ComponentInventoryT : public ComponentBaseT
 /// @cppName{cf,GameSys,ComponentLightT}
 class ComponentLightT : public ComponentBaseT
 {
-    public:
-
-    /** @name Event Handlers (Callbacks)
-     *
-     * See the \ref eventhandlers overview page for additional information about the methods in this group.
-     *
-     * @{
-     */
-
-    /** @} */
 };
 
 
@@ -580,6 +523,15 @@ class ComponentModelT : public ComponentBaseT
      *
      * @{
      */
+
+    /// This method is called when a new animation sequence number is set for this model.
+    tuple OnAnimationChange(int AnimNr);
+
+    /// This method is called when playing the model's current animation sequence "wraps".
+    OnSequenceWrap_Sv();
+
+    /// This method is called when playing the model's current animation sequence "wraps".
+    OnSequenceWrap();
 
     /** @} */
 
@@ -648,18 +600,6 @@ class ComponentMoverT : public ComponentBaseT
     /// This is the main method of this component: [...]
     /// @param FrameTime   The time across which the parts are moved.
     HandleMove(number FrameTime);
-
-
-    public:
-
-    /** @name Event Handlers (Callbacks)
-     *
-     * See the \ref eventhandlers overview page for additional information about the methods in this group.
-     *
-     * @{
-     */
-
-    /** @} */
 
 
     public:
@@ -742,18 +682,6 @@ class ComponentParticleSystemOldT : public ComponentBaseT
 
     public:
 
-    /** @name Event Handlers (Callbacks)
-     *
-     * See the \ref eventhandlers overview page for additional information about the methods in this group.
-     *
-     * @{
-     */
-
-    /** @} */
-
-
-    public:
-
     /// The type of the particles emitted by this system.
     /// @cppType{std::string}
     string Type;
@@ -800,18 +728,6 @@ class ComponentPhysicsT : public ComponentBaseT
 
     public:
 
-    /** @name Event Handlers (Callbacks)
-     *
-     * See the \ref eventhandlers overview page for additional information about the methods in this group.
-     *
-     * @{
-     */
-
-    /** @} */
-
-
-    public:
-
     /// The mass of the entity's body, in kilograms [kg].
     /// @cppType{float}
     number Mass;
@@ -847,18 +763,6 @@ class ComponentPlayerPhysicsT : public ComponentBaseT
     /// @param WishVelLadder   The desired velocity on a ladder as per user input.
     /// @param WishJump        Does the user want the entity to jump?
     MoveHuman(number FrameTime, Vector3T WishVelocity, Vector3T WishVelLadder, bool WishJump);
-
-
-    public:
-
-    /** @name Event Handlers (Callbacks)
-     *
-     * See the \ref eventhandlers overview page for additional information about the methods in this group.
-     *
-     * @{
-     */
-
-    /** @} */
 
 
     public:
@@ -901,18 +805,6 @@ class ComponentPlayerStartT : public ComponentBaseT
 
     public:
 
-    /** @name Event Handlers (Callbacks)
-     *
-     * See the \ref eventhandlers overview page for additional information about the methods in this group.
-     *
-     * @{
-     */
-
-    /** @} */
-
-
-    public:
-
     /// If checked, players can be spawned here in single-player games.
     /// @cppType{bool}
     boolean SinglePlayer;
@@ -938,18 +830,6 @@ class ComponentPlayerStartT : public ComponentBaseT
 class ComponentPointLightT : public ComponentLightT
 {
     public:
-
-
-    public:
-
-    /** @name Event Handlers (Callbacks)
-     *
-     * See the \ref eventhandlers overview page for additional information about the methods in this group.
-     *
-     * @{
-     */
-
-    /** @} */
 
 
     public:
@@ -998,18 +878,6 @@ class ComponentPointLightT : public ComponentLightT
 class ComponentRadiosityLightT : public ComponentLightT
 {
     public:
-
-
-    public:
-
-    /** @name Event Handlers (Callbacks)
-     *
-     * See the \ref eventhandlers overview page for additional information about the methods in this group.
-     *
-     * @{
-     */
-
-    /** @} */
 
 
     public:
@@ -1088,6 +956,33 @@ class ComponentScriptT : public ComponentBaseT
      * @{
      */
 
+    /// This method is called when another entity wants to prompt us to become active.
+    /// Note that this method is usually not called directly from Cafu's C++ code, but rather
+    /// from other script code, e.g. from GUIs whose button has been pressed.
+    OnActivate(EntityT Other);
+
+    /// This method is called when another entity moves into this entity's trigger volume.
+    OnTrigger(EntityT Other);
+
+    /// This method is called on the client in order to process and react to events.
+    ProcessEvent(int EventType, int EventCount);
+
+    /// The server calls this method on each server clock tick, in order to advance the world
+    /// to the next server frame.
+    Think(number FrameTime);
+
+    /// This method is called when there also is a ComponentMoverT component in the entity.
+    /// The mover calls this method in order to learn which of its part to move where over
+    /// the given frame time.
+    tuple GetMove(int PartNr, number FrameTime);
+
+    /// This method is called when the player has pressed a button to change the weapon.
+    /// @param GroupNr   The number of the weapon group from which the next weapon is to be drawn.
+    ChangeWeapon(int GroupNr);
+
+    /// This method is called when another entity caused damage to this entity.
+    TakeDamage(EntityT Other, number Amount, number DirX, number DirY, number DirZ);
+
     /** @} */
 
 
@@ -1125,18 +1020,6 @@ class ComponentSoundT : public ComponentBaseT
 
     public:
 
-    /** @name Event Handlers (Callbacks)
-     *
-     * See the \ref eventhandlers overview page for additional information about the methods in this group.
-     *
-     * @{
-     */
-
-    /** @} */
-
-
-    public:
-
     /// The name of the sound shader or sound file to play.
     /// @cppType{std::string}
     string Name;
@@ -1170,18 +1053,6 @@ class ComponentSoundT : public ComponentBaseT
 class ComponentTargetT : public ComponentBaseT
 {
     public:
-
-
-    public:
-
-    /** @name Event Handlers (Callbacks)
-     *
-     * See the \ref eventhandlers overview page for additional information about the methods in this group.
-     *
-     * @{
-     */
-
-    /** @} */
 
 
     public:
@@ -1269,18 +1140,6 @@ class ComponentTransformT : public ComponentBaseT
     /// @param NoPitch   If `true`, the pitch angle is kept at 0, and the given axis points towards `Pos`
     ///                  only in the XY-Plane and the z-axis points straight up (0, 0, 1).
     LookAt(number PosX, number PosY, number PosZ, integer AxisNr = 0, boolean NoPitch = false);
-
-
-    public:
-
-    /** @name Event Handlers (Callbacks)
-     *
-     * See the \ref eventhandlers overview page for additional information about the methods in this group.
-     *
-     * @{
-     */
-
-    /** @} */
 
 
     public:

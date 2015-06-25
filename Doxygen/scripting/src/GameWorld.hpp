@@ -74,20 +74,6 @@ class WorldT
     /// @param ent   The entity that is set as the root entity of this world.
     SetRootEntity(EntityT ent);
 
-    /// This method calls the `OnInit()` script methods of all entities.
-    ///
-    /// Normally, the `OnInit()` callback is automatically called for each entity as soon as the
-    /// `.cent` file has been read. That is, there is an automatic implicit call to Init()
-    /// at the end of the `.cent` script.
-    /// However, sometimes that's not enough, and you need all the entities' `OnInit()` methods already
-    /// run e.g. at the top of the `.cent` script, e.g. in order to make sure that all components
-    /// of all entities have been created, so that in `.cent` you can grab their instances and
-    /// attach callback methods to them.
-    /// In this case, call Init() manually at the top of `.cent`.
-    /// (It automatically makes sure not to initialize things twice when called multiple times.)
-    // /// See `DeathMatch/GUIs/MainMenu/MainMenu_main.cgui` for an example.
-    Init();
-
     /// Employs m_ClipWorld->Trace() to trace a ray through the (clip) world.
     table TraceRay(table Start, table Ray);
 
@@ -96,18 +82,6 @@ class WorldT
     /// because it currently is not capable to ignore specific collision models (the entity's) for the trace,
     /// which was a necessity in this case.
     table Phys_TraceBB(table BB, table Start, table Ray);
-
-
-    public:
-
-    /** @name Event Handlers (Callbacks)
-     *
-     * See the \ref eventhandlers overview page for additional information about the methods in this group.
-     *
-     * @{
-     */
-
-    /** @} */
 };
 
 

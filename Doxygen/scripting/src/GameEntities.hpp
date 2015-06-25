@@ -96,6 +96,12 @@ class EntityT
      * @{
      */
 
+    /// This method is called for each entity when a new world is loaded.
+    /// Note that these OnInit() methods are automatically written by the Cafu Map Editor
+    /// into a world's `.cent` files, you normally don't write them yourself.
+    /// Use the ComponentBaseT::OnInit() methods instead for custom dynamic initialization.
+    OnInit();
+
     /** @} */
 };
 

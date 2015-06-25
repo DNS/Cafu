@@ -95,18 +95,6 @@ class ComponentBaseT
     /// \param end_value     The end value.
     /// \param time          The time in milliseconds to interpolate the variable from `start_value` to `end_value`.
     interpolate(string var_name, number start_value, number end_value, number time);
-
-
-    public:
-
-    /** @name Event Handlers (Callbacks)
-     *
-     * See the \ref eventhandlers overview page for additional information about the methods in this group.
-     *
-     * @{
-     */
-
-    /** @} */
 };
 
 
@@ -136,7 +124,7 @@ class ComponentBasicsT : public ComponentBaseT
      * @{
      */
 
-    /// This method is called whenever the value of the `Show` member has changed.
+    /// This method is called when the value of the component's `Show` member has changed.
     /// The method has no parameters -- use `self:get("Show")` in order to learn whether the window
     /// has been shown or hidden.
     OnShow();
@@ -171,18 +159,6 @@ class ComponentBasicsT : public ComponentBaseT
 class ComponentBorderT : public ComponentBaseT
 {
     public:
-
-
-    public:
-
-    /** @name Event Handlers (Callbacks)
-     *
-     * See the \ref eventhandlers overview page for additional information about the methods in this group.
-     *
-     * @{
-     */
-
-    /** @} */
 
 
     public:
@@ -235,7 +211,7 @@ class ComponentChoiceT : public ComponentBaseT
      * @{
      */
 
-    /// This method is called whenever the selection in this has changed.
+    /// This method is called when the choice's selection has changed.
     ///
     /// The selection may have changed as the result of a mouse click or a key press,
     /// whereas calling `self:set("Selection", ...)` does *not* trigger this event.
@@ -273,18 +249,6 @@ class ComponentChoiceT : public ComponentBaseT
 class ComponentImageT : public ComponentBaseT
 {
     public:
-
-
-    public:
-
-    /** @name Event Handlers (Callbacks)
-     *
-     * See the \ref eventhandlers overview page for additional information about the methods in this group.
-     *
-     * @{
-     */
-
-    /** @} */
 
 
     public:
@@ -334,7 +298,7 @@ class ComponentListBoxT : public ComponentBaseT
      * @{
      */
 
-    /// This method is called whenever the selection in this has changed.
+    /// This method is called when the list box's selection has changed.
     ///
     /// The selection may have changed as the result of a mouse click or a key press,
     /// whereas calling `self:set("Selection", ...)` does *not* trigger this event.
@@ -420,18 +384,6 @@ class ComponentModelT : public ComponentBaseT
 
     public:
 
-    /** @name Event Handlers (Callbacks)
-     *
-     * See the \ref eventhandlers overview page for additional information about the methods in this group.
-     *
-     * @{
-     */
-
-    /** @} */
-
-
-    public:
-
     /// The file name of the model.
     /// @cppType{std::string}
     string Name;
@@ -486,18 +438,6 @@ class ComponentTextEditT : public ComponentBaseT
 
     public:
 
-    /** @name Event Handlers (Callbacks)
-     *
-     * See the \ref eventhandlers overview page for additional information about the methods in this group.
-     *
-     * @{
-     */
-
-    /** @} */
-
-
-    public:
-
     /// The character position of the text cursor in the text. Valid values are 0 to Text.length().
     /// @cppType{unsigned int}
     number CursorPos;
@@ -543,18 +483,6 @@ class ComponentTextEditT : public ComponentBaseT
 class ComponentTextT : public ComponentBaseT
 {
     public:
-
-
-    public:
-
-    /** @name Event Handlers (Callbacks)
-     *
-     * See the \ref eventhandlers overview page for additional information about the methods in this group.
-     *
-     * @{
-     */
-
-    /** @} */
 
 
     public:
@@ -634,18 +562,6 @@ class ComponentTextT : public ComponentBaseT
 class ComponentTransformT : public ComponentBaseT
 {
     public:
-
-
-    public:
-
-    /** @name Event Handlers (Callbacks)
-     *
-     * See the \ref eventhandlers overview page for additional information about the methods in this group.
-     *
-     * @{
-     */
-
-    /** @} */
 
 
     public:

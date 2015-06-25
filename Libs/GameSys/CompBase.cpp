@@ -533,4 +533,25 @@ const cf::TypeSys::MethsDocT ComponentBaseT::DocMethods[] =
     { NULL, NULL, NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentBaseT::TypeInfo(GetComponentTIM(), "GameSys::ComponentBaseT", NULL /*No base class.*/, ComponentBaseT::CreateInstance, MethodsList, DocClass, DocMethods);
+const cf::TypeSys::MethsDocT ComponentBaseT::DocCallbacks[] =
+{
+    { "OnInit",
+      "This method is called for each component of each entity as the last step of\n"
+      "initializing a newly loaded map.",
+      "", "" },
+    { "OnClientFrame",
+      "This method is called for each component of each entity before the client renders the\n"
+      "next frame.",
+      "", "(number t)" },
+    { NULL, NULL, NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentBaseT::TypeInfo(
+    GetComponentTIM(),
+    "GameSys::ComponentBaseT",
+    NULL /*No base class.*/,
+    ComponentBaseT::CreateInstance,
+    MethodsList,
+    DocClass,
+    DocMethods,
+    DocCallbacks);

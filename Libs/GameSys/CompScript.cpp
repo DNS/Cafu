@@ -379,4 +379,45 @@ const cf::TypeSys::MethsDocT ComponentScriptT::DocMethods[] =
     { NULL, NULL, NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentScriptT::TypeInfo(GetComponentTIM(), "GameSys::ComponentScriptT", "GameSys::ComponentBaseT", ComponentScriptT::CreateInstance, MethodsList, DocClass, DocMethods, NULL, DocVars);
+const cf::TypeSys::MethsDocT ComponentScriptT::DocCallbacks[] =
+{
+    { "OnActivate",
+      "This method is called when another entity wants to prompt us to become active.\n"
+      "Note that this method is usually not called directly from Cafu's C++ code, but rather\n"
+      "from other script code, e.g. from GUIs whose button has been pressed.",
+      "", "(EntityT Other)" },
+    { "OnTrigger",
+      "This method is called when another entity moves into this entity's trigger volume.",
+      "", "(EntityT Other)" },
+    { "ProcessEvent",
+      "This method is called on the client in order to process and react to events.",
+      "", "(int EventType, int EventCount)" },
+    { "Think",
+      "The server calls this method on each server clock tick, in order to advance the world\n"
+      "to the next server frame.",
+      "", "(number FrameTime)" },
+    { "GetMove",
+      "This method is called when there also is a ComponentMoverT component in the entity.\n"
+      "The mover calls this method in order to learn which of its part to move where over\n"
+      "the given frame time.",
+      "tuple", "(int PartNr, number FrameTime)" },
+    { "ChangeWeapon",
+      "This method is called when the player has pressed a button to change the weapon.\n"
+      "@param GroupNr   The number of the weapon group from which the next weapon is to be drawn.",
+      "", "(int GroupNr)" },
+    { "TakeDamage",
+      "This method is called when another entity caused damage to this entity.",
+      "", "(EntityT Other, number Amount, number DirX, number DirY, number DirZ)" },
+    { NULL, NULL, NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentScriptT::TypeInfo(
+    GetComponentTIM(),
+    "GameSys::ComponentScriptT",
+    "GameSys::ComponentBaseT",
+    ComponentScriptT::CreateInstance,
+    MethodsList,
+    DocClass,
+    DocMethods,
+    DocCallbacks,
+    DocVars);

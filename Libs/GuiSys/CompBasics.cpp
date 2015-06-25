@@ -214,4 +214,21 @@ const cf::TypeSys::MethsDocT ComponentBasicsT::DocMethods[] =
     { NULL, NULL, NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentBasicsT::TypeInfo(GetComponentTIM(), "GuiSys::ComponentBasicsT", "GuiSys::ComponentBaseT", ComponentBasicsT::CreateInstance, MethodsList, DocClass, DocMethods, NULL, DocVars);
+const cf::TypeSys::MethsDocT ComponentBasicsT::DocCallbacks[] =
+{
+    { "OnShow",
+      "This method is called when the value of the component's `Show` member has changed.",
+      "", "" },
+    { NULL, NULL, NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentBasicsT::TypeInfo(
+    GetComponentTIM(),
+    "GuiSys::ComponentBasicsT",
+    "GuiSys::ComponentBaseT",
+    ComponentBasicsT::CreateInstance,
+    MethodsList,
+    DocClass,
+    DocMethods,
+    DocCallbacks,
+    DocVars);
