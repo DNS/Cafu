@@ -277,6 +277,7 @@ namespace cf
             static const luaL_Reg               MethodsList[];  ///< The list of Lua methods for this class.
             static const char*                  DocClass;
             static const cf::TypeSys::MethsDocT DocMethods[];
+            static const cf::TypeSys::MethsDocT DocCallbacks[];
 
 
             private:

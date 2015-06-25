@@ -509,12 +509,13 @@ namespace
 
     void WriteDoxyCallbacks(std::ofstream& Out, const cf::TypeSys::TypeInfoT* TI)
     {
+        if (!TI->DocCallbacks) return;
+
         if (TI->MethodsList) Out << "\n\n";
 
-        // This group is created empty, with no items inside it.
-        // Good news is that if this group remains empty (no manually added callbacks in the src/ files),
-        // Doxygen will not generate any output for it. That is, there is no harm in creating it universally
-        // for every class.
+        // We group all callbacks in a named Doxygen group.
+        // Good news is that if the group remains empty for whatever reasons,
+        // Doxygen will not generate any output for it at all.
         Out << "    public:\n";
         Out << "\n";
         Out << "    /** @name Event Handlers (Callbacks)\n";
@@ -523,6 +524,27 @@ namespace
         Out << "     *\n";
         Out << "     * @{\n";
         Out << "     */\n";
+
+        for (unsigned int Nr = 0; TI->DocCallbacks[Nr].Name; Nr++)
+        {
+            const cf::TypeSys::MethsDocT& DocCallback = TI->DocCallbacks[Nr];
+
+            Out << "\n";
+            Out << FormatDoxyComment(DocCallback.Doc, "    ");
+            Out << "    ";
+            if (DocCallback.ReturnType && DocCallback.ReturnType[0]) Out << DocCallback.ReturnType << " ";
+            Out << DocCallback.Name;
+            if (DocCallback.Parameters && DocCallback.Parameters[0])
+            {
+                Out << DocCallback.Parameters;
+            }
+            else
+            {
+                Out << "()";
+            }
+            Out << ";\n";
+        }
+
         Out << "\n";
         Out << "    /** @} */\n";
     }

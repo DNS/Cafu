@@ -225,18 +225,6 @@ class GuiImplT
     /// (It automatically makes sure not to initialize things twice when called multiple times.)
     /// See `DeathMatch/GUIs/MainMenu/MainMenu_main.cgui` for an example.
     Init();
-
-
-    public:
-
-    /** @name Event Handlers (Callbacks)
-     *
-     * See the \ref eventhandlers overview page for additional information about the methods in this group.
-     *
-     * @{
-     */
-
-    /** @} */
 };
 
 

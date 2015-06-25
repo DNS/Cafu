@@ -122,4 +122,4 @@ const cf::TypeSys::MethsDocT ComponentRadiosityLightT::DocMethods[] =
     { NULL, NULL, NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentRadiosityLightT::TypeInfo(GetComponentTIM(), "GameSys::ComponentRadiosityLightT", "GameSys::ComponentLightT", ComponentRadiosityLightT::CreateInstance, MethodsList, DocClass, DocMethods, DocVars);
+const cf::TypeSys::TypeInfoT ComponentRadiosityLightT::TypeInfo(GetComponentTIM(), "GameSys::ComponentRadiosityLightT", "GameSys::ComponentLightT", ComponentRadiosityLightT::CreateInstance, MethodsList, DocClass, DocMethods, NULL, DocVars);

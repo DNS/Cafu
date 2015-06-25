@@ -785,4 +785,74 @@ const cf::TypeSys::MethsDocT WindowT::DocMethods[] =
     { NULL, NULL, NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT WindowT::TypeInfo(GetWindowTIM(), "GuiSys::WindowT", NULL /*No base class.*/, WindowT::CreateInstance, MethodsList, DocClass, DocMethods);
+const cf::TypeSys::MethsDocT WindowT::DocCallbacks[] =
+{
+    { "OnActivate",
+      "Called for each window when the GUI is activated (i.e.\\ switched on for rendering).\n"
+      "For example, when the user toggles the in-game console, this method is called every time the console GUI comes up.",
+      "", "" },
+    { "OnDeactivate",
+      "Called for each window when the GUI is deactivated.",
+      "", "" },
+    { "OnFocusGain",
+      "This method is called when this window gains the keyboard input focus.",
+      "", "" },
+    { "OnFocusLose",
+      "This method is called when this window loses the keyboard input focus.",
+      "", "" },
+    { "OnFrame",
+      "Called on each frame that is rendered by the Cafu engine.",
+      "", "" },
+    { "OnInit",
+      "This is the first method that is called for each window after a GUI has been loaded.\n"
+      "It is only called once for each window.",
+      "", "" },
+    { "OnInit2",
+      "This method is very much like OnInit(), but intended for your own custom use in the\n"
+      "`_main.cgui` file. It is only called once for each window.",
+      "", "" },
+    { "OnKeyPress",
+      "This method is called if a key was pressed and the window has the keyboard input focus.\n\n"
+      "@param Key   The integer number that represents the key that has been pressed.\n"
+      "@returns The method should return `true` if it handled (\"consumed\") this event, `false` otherwise.",
+      "boolean", "(number Key)" },
+    { "OnKeyRelease",
+      "Like OnKeyPress(), but for key releases.",
+      "boolean", "(number Key)" },
+    { "OnChar",
+      "This method is called when a character event occurred and the window has the keyboard input focus.\n\n"
+      "@param ch   The integer number that represents the character.\n"
+      "@returns The method should return `true` if it handled (\"consumed\") this event, `false` otherwise.",
+      "boolean", "(number ch)" },
+    { "OnMouseButtonDown",
+      "This method is called when a mouse button went down (was pressed).\n"
+      "@param button   The number of the mouse button that went down. (Typically 0 for the left, 1 for the right, 2 for the middle, and 3 for extra mouse button.)\n"
+      "@returns The method should return `true` if it handled (\"consumed\") this event, `false` otherwise.",
+      "boolean", "(number button)" },
+    { "OnMouseButtonUp",
+      "This method is called when a mouse button went up (was released).\n"
+      "@param button   The number of the mouse button that went up. (Typically 0 for the left, 1 for the right, 2 for the middle, and 3 for extra mouse button.)\n"
+      "@returns The method should return `true` if it handled (\"consumed\") this event, `false` otherwise.",
+      "boolean", "(number button)" },
+    { "OnMouseEnter",
+      "This method is called when the mouse cursor enters the rectangle of the window.\n\n"
+      "\\note This does currently not take rotation into account, i.e. it acts as if the\n"
+      "rotation was always 0, even if the window rectangle is actually rotating.",
+      "", "" },
+    { "OnMouseLeave",
+      "This method is called when the mouse cursor leaves the rectangle of the window.\n\n"
+      "\\note This does currently not take rotation into account, i.e. it acts as if the\n"
+      "rotation was always 0, even if the window rectangle is actually rotating.",
+      "", "" },
+    { NULL, NULL, NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT WindowT::TypeInfo(
+    GetWindowTIM(),
+    "GuiSys::WindowT",
+    NULL /*No base class.*/,
+    WindowT::CreateInstance,
+    MethodsList,
+    DocClass,
+    DocMethods,
+    DocCallbacks);

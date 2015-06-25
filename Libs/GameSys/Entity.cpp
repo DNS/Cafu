@@ -1101,4 +1101,23 @@ const cf::TypeSys::MethsDocT EntityT::DocMethods[] =
     { NULL, NULL, NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT EntityT::TypeInfo(GetGameSysEntityTIM(), "GameSys::EntityT", NULL /*No base class.*/, EntityT::CreateInstance, MethodsList, DocClass, DocMethods);
+const cf::TypeSys::MethsDocT EntityT::DocCallbacks[] =
+{
+    { "OnInit",
+      "This method is called for each entity when a new world is loaded.\n"
+      "Note that these OnInit() methods are automatically written by the Cafu Map Editor\n"
+      "into a world's `.cent` files, you normally don't write them yourself.\n"
+      "Use the ComponentBaseT::OnInit() methods instead for custom dynamic initialization.",
+      "", "()" },
+    { NULL, NULL, NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT EntityT::TypeInfo(
+    GetGameSysEntityTIM(),
+    "GameSys::EntityT",
+    NULL /*No base class.*/,
+    EntityT::CreateInstance,
+    MethodsList,
+    DocClass,
+    DocMethods,
+    DocCallbacks);

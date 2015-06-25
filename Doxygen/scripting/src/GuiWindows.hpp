@@ -84,7 +84,7 @@ class WindowT
     ///     If you use gui:setFocus(myWin) and want this method called, just call it yourself immediately after the call.
     OnFocusGain();
 
-    /// This method is called when this window gains the keyboard input focus.
+    /// This method is called when this window loses the keyboard input focus.
     ///
     ///   - This \emph{not} called when the focus change was triggered by the script, i.e. by a call to gui:setFocus(myWin).
     ///     That is, this method is only called when the user triggered the focus change by a mouse click.
@@ -107,8 +107,8 @@ class WindowT
     /// same purpose that is available for your customizations.
     OnInit();
 
-    /// This method is very much like OnInit(), but intended for your own custom use in the `_main.cgui` file.
-    /// It is only called once for each window.
+    /// This method is very much like OnInit(), but intended for your own custom use in the
+    /// `_main.cgui` file. It is only called once for each window.
     OnInit2();
 
     /// This method is called if a key was pressed and the window has the keyboard input focus.
@@ -164,14 +164,14 @@ class WindowT
 
     /// This method is called when the mouse cursor enters the rectangle of the window.
     ///
-    /// \note This does currently not take rotation into account, i.e. it acts as if the rotation was always 0,
-    /// even if the window rectangle is actually rotating.
+    /// \note This does currently not take rotation into account, i.e. it acts as if the
+    /// rotation was always 0, even if the window rectangle is actually rotating.
     OnMouseEnter();
 
     /// This method is called when the mouse cursor leaves the rectangle of the window.
     ///
-    /// \note This does currently not take rotation into account, i.e. it acts as if the rotation was always 0,
-    /// even if the window rectangle is actually rotating.
+    /// \note This does currently not take rotation into account, i.e. it acts as if the
+    /// rotation was always 0, even if the window rectangle is actually rotating.
     OnMouseLeave();
 
     // This method is currently not called (commented out in C++ code).

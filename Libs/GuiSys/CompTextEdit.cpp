@@ -392,4 +392,4 @@ const cf::TypeSys::MethsDocT ComponentTextEditT::DocMethods[] =
     { NULL, NULL, NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentTextEditT::TypeInfo(GetComponentTIM(), "GuiSys::ComponentTextEditT", "GuiSys::ComponentBaseT", ComponentTextEditT::CreateInstance, MethodsList, DocClass, DocMethods, DocVars);
+const cf::TypeSys::TypeInfoT ComponentTextEditT::TypeInfo(GetComponentTIM(), "GuiSys::ComponentTextEditT", "GuiSys::ComponentBaseT", ComponentTextEditT::CreateInstance, MethodsList, DocClass, DocMethods, NULL, DocVars);

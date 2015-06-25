@@ -281,4 +281,21 @@ const cf::TypeSys::MethsDocT ComponentChoiceT::DocMethods[] =
     { NULL, NULL, NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentChoiceT::TypeInfo(GetComponentTIM(), "GuiSys::ComponentChoiceT", "GuiSys::ComponentBaseT", ComponentChoiceT::CreateInstance, MethodsList, DocClass, DocMethods, DocVars);
+const cf::TypeSys::MethsDocT ComponentChoiceT::DocCallbacks[] =
+{
+    { "OnSelectionChanged",
+      "This method is called when the choice's selection has changed.",
+      "", "" },
+    { NULL, NULL, NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentChoiceT::TypeInfo(
+    GetComponentTIM(),
+    "GuiSys::ComponentChoiceT",
+    "GuiSys::ComponentBaseT",
+    ComponentChoiceT::CreateInstance,
+    MethodsList,
+    DocClass,
+    DocMethods,
+    DocCallbacks,
+    DocVars);

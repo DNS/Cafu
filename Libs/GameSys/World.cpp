@@ -140,7 +140,7 @@ WorldT::InitErrorT::InitErrorT(const std::string& Message)
 
     for (unsigned long EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
     {
-        // The OnInit() methods are automatically written by the Cafu Map Editor (*_init.cgui files).
+        // The OnInit() methods are automatically written by the Cafu Map Editor (*.cent files).
         AllEnts[EntNr]->CallLuaMethod("OnInit", 0);
     }
 

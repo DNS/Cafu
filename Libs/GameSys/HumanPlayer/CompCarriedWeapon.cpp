@@ -180,4 +180,33 @@ const cf::TypeSys::MethsDocT ComponentCarriedWeaponT::DocMethods[] =
     { NULL, NULL, NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentCarriedWeaponT::TypeInfo(GetComponentTIM(), "GameSys::ComponentCarriedWeaponT", "GameSys::ComponentBaseT", ComponentCarriedWeaponT::CreateInstance, MethodsList, DocClass, DocMethods, DocVars);
+const cf::TypeSys::MethsDocT ComponentCarriedWeaponT::DocCallbacks[] =
+{
+    { "IsIdle",
+      "This method is called in order to learn if this weapon is currently idle.",
+      "boolean", "" },
+    { "Draw",
+      "This method is called in order to let this weapon know that it is drawn.",
+      "", "" },
+    { "Holster",
+      "This method is called in order to have this weapon holstered.",
+      "boolean", "" },
+    { "FirePrimary",
+      "This method is called in order to have this weapon emit primary fire.",
+      "", "(boolean ThinkingOnServerSide)" },
+    { "FireSecondary",
+      "This method is called in order to have this weapon emit secondary fire.",
+      "", "(boolean ThinkingOnServerSide)" },
+    { NULL, NULL, NULL, NULL }
+};
+
+const cf::TypeSys::TypeInfoT ComponentCarriedWeaponT::TypeInfo(
+    GetComponentTIM(),
+    "GameSys::ComponentCarriedWeaponT",
+    "GameSys::ComponentBaseT",
+    ComponentCarriedWeaponT::CreateInstance,
+    MethodsList,
+    DocClass,
+    DocMethods,
+    DocCallbacks,
+    DocVars);

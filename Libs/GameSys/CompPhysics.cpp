@@ -336,4 +336,4 @@ const cf::TypeSys::MethsDocT ComponentPhysicsT::DocMethods[] =
     { NULL, NULL, NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentPhysicsT::TypeInfo(GetComponentTIM(), "GameSys::ComponentPhysicsT", "GameSys::ComponentBaseT", ComponentPhysicsT::CreateInstance, MethodsList, DocClass, DocMethods, DocVars);
+const cf::TypeSys::TypeInfoT ComponentPhysicsT::TypeInfo(GetComponentTIM(), "GameSys::ComponentPhysicsT", "GameSys::ComponentBaseT", ComponentPhysicsT::CreateInstance, MethodsList, DocClass, DocMethods, NULL, DocVars);

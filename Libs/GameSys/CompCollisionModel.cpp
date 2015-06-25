@@ -337,4 +337,4 @@ const cf::TypeSys::MethsDocT ComponentCollisionModelT::DocMethods[] =
     { NULL, NULL, NULL, NULL }
 };
 
-const cf::TypeSys::TypeInfoT ComponentCollisionModelT::TypeInfo(GetComponentTIM(), "GameSys::ComponentCollisionModelT", "GameSys::ComponentBaseT", ComponentCollisionModelT::CreateInstance, MethodsList, DocClass, DocMethods, DocVars);
+const cf::TypeSys::TypeInfoT ComponentCollisionModelT::TypeInfo(GetComponentTIM(), "GameSys::ComponentCollisionModelT", "GameSys::ComponentBaseT", ComponentCollisionModelT::CreateInstance, MethodsList, DocClass, DocMethods, NULL, DocVars);
