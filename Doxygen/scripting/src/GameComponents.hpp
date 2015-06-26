@@ -126,6 +126,23 @@ class ComponentBaseT
 
     /// This method is called for each component of each entity before the client renders the
     /// next frame.
+    ///
+    /// The method is a great opportunity to add eye candy effects to a game world that are
+    /// not synchronized over the network. (Such effects are not necessarily the same for every
+    /// player and thus must not be relevant for the gameplay.)
+    ///
+    /// As it is called for each component of each entity with the client's framerate, the
+    /// implementation must be very careful to keep performance implications light.
+    ///
+    /// While the implementation can generally modify any variable of any component, it is
+    /// important to note that for any such variable, InitClientApprox() should be called
+    /// (once beforehand).
+    /// Even if the implementation is not interested in the so activated interpolation, at this
+    /// time we rely on InitClientApprox() to restore the previous, original value after the
+    /// client frame has been rendered. The calls to InitClientApprox() make sure that any
+    /// changes that the implementation of OnClientFrame() made are properly cleaned up so that
+    /// the *next* call to OnClientFrame() re-starts with the original, unmodified (but
+    /// properly predicted and possibly interpolated) values.
     OnClientFrame(number t);
 
     /** @} */
