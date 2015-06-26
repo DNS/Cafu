@@ -184,8 +184,10 @@ namespace cf
                 /// of this node and all its ancestors, provided that they are wholly or partially in BB.
                 /// When a split plane was found, the PlaneType and PlaneDist members are appropriately set and true is returned,
                 /// otherwise they are initialized with NONE and 0, respectively, and the return value is false.
+                ///
                 /// @param NodeBB   The relevant bounds in which a split plane is to be found from the contents of this node (plus ancestors).
                 /// @param MIN_NODE_SIZE   The minimum size (side length) that a node should not fall below.
+                ///
                 /// @returns whether a split plane has successfully been determined.
                 bool DetermineSplitPlane(const BoundingBox3dT& NodeBB, const double MIN_NODE_SIZE);
 
@@ -233,6 +235,7 @@ namespace cf
             CollisionModelStaticT(std::istream& InFile, cf::SceneGraph::aux::PoolT& Pool, const ArrayT<TerrainRefT>& Terrains);
 
             /// Constructor for creating a collision model from the brushes and patches of a MapFileEntityT.
+            ///
             /// @param Entity              The entity to create the collision model from.
             /// @param Terrains            The pool of references to shared terrain instances.
             /// @param UseGenericBrushes   Whether generic brushes should be used, or variants with precomputed bevel planes.
@@ -240,6 +243,11 @@ namespace cf
             ///     (in the cf::SceneGraph::BspTreeNodeT class) is used, and is thus *very* fast, rock solid and battle proven.
             ///     It also means that internally, only bounding-boxes (but not the true TraceSolidT objects) are traced against
             ///     such created brushes with the BrushT::TraceBevelBB() method.
+            /// @param MAP_ROUND_EPSILON    The epsilon value used in roundoff error checks.
+            /// @param MAP_MIN_VERTEX_DIST  The minimum distance between two vertices.
+            /// @param BP_MAX_CURVE_ERROR   The maximum deviation of a segment against its true shape in an auto-segmented curve.
+            /// @param BP_MAX_CURVE_LENGTH  The maximum length of a segment in an auto-segmented curve.
+            /// @param MIN_NODE_SIZE        The minimum size (side length) that a node should not fall below.
             CollisionModelStaticT(const MapFileEntityT& Entity, const ArrayT<TerrainRefT>& Terrains, bool UseGenericBrushes,
                                   const double MAP_ROUND_EPSILON, const double MAP_MIN_VERTEX_DIST, const double BP_MAX_CURVE_ERROR, const double BP_MAX_CURVE_LENGTH, const double MIN_NODE_SIZE);
 

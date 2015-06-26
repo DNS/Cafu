@@ -72,10 +72,13 @@ namespace cf
             // virtual const CollisionModelT* GetCM(std::istream& InFile, SceneGraph::aux::PoolT& Pool, const ArrayT<CollisionModelStaticT::TerrainRefT>& Terrains)=0;
 
             /// Creates a collision model from the given explicit mesh.
-            /// @param Width    The width of the mesh.
-            /// @param Height   The height of the mesh.
-            /// @param Mesh     The vertices of the mesh.
-            /// @param Material The material reported in collision results when a trace hit.
+            ///
+            /// @param Width      The width of the mesh.
+            /// @param Height     The height of the mesh.
+            /// @param Mesh       The vertices of the mesh.
+            /// @param Material   The material reported in collision results when a trace hit.
+            /// @param MIN_NODE_SIZE   The minimum size (side length) that a node should not fall below.
+            ///
             /// @returns the matching collision model instance.
             virtual const CollisionModelT* GetCM(unsigned long Width, unsigned long Height, const ArrayT<Vector3dT>& Mesh, MaterialT* Material, const double MIN_NODE_SIZE) = 0;
 

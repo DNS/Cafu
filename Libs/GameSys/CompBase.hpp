@@ -220,8 +220,10 @@ namespace cf
             /// selection, a script component can forward it to the script by calling a related script function,
             /// a component that for backwards-compatibility supports reading old variables can convert to new ones, etc.
             ///
-            /// @param InEditor   `true` if this world is instantiated in the Map Editor. This normally means that
-            ///     custom behaviour should *not* run. If `false`, this world is instantiated "live", in-game.
+            /// @param OnlyStatic   `true` if only the loading of static data is desired, e.g.
+            ///     when the world is instantiated in the Map Editor, `false` if also
+            ///     user-defined scripts with custom, initial behaviour should be loaded.
+            ///     Also see WorldT::InitFlagsT::InitFlag_OnlyStatic for related information.
             virtual void OnPostLoad(bool OnlyStatic) { }
 
             /// This method handles keyboard input events.
