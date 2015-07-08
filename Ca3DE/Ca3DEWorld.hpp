@@ -66,7 +66,7 @@ class Ca3DEWorldT
     const WorldT*                      m_World;
     cf::ClipSys::ClipWorldT*           m_ClipWorld;
     PhysicsWorldT                      m_PhysicsWorld;
-    cf::UniScriptStateT*               m_ScriptState_NEW;
+    cf::UniScriptStateT*               m_ScriptState;
     IntrusivePtrT<cf::GameSys::WorldT> m_ScriptWorld;   ///< The "script world" contains the entity hierarchy and their components.
     ArrayT<EngineEntityT*>             m_EngineEntities;
 

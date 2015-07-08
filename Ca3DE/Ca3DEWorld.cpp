@@ -30,9 +30,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ClipSys/TraceSolid.hpp"
 #include "ConsoleCommands/Console.hpp"      // For cf::va().
 #include "GameSys/World.hpp"
-#include "GuiSys/AllComponents.hpp"         // for initing the m_ScriptState_NEW
-#include "GuiSys/GuiImpl.hpp"               // for initing the m_ScriptState_NEW
-#include "GuiSys/Window.hpp"                // for initing the m_ScriptState_NEW
+#include "GuiSys/AllComponents.hpp"         // for initing the m_ScriptState
+#include "GuiSys/GuiImpl.hpp"               // for initing the m_ScriptState
+#include "GuiSys/Window.hpp"                // for initing the m_ScriptState
 #include "MaterialSystem/Material.hpp"
 #include "Models/ModelManager.hpp"
 #include "../Common/CompGameEntity.hpp"
@@ -54,24 +54,24 @@ Ca3DEWorldT::Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiS
     : m_World(WorldMan.LoadWorld(FileName, ModelMan, GuiRes, InitForGraphics, ProgressFunction)),
       m_ClipWorld(new cf::ClipSys::ClipWorldT(m_World->m_StaticEntityData[0]->m_CollModel)),
       m_PhysicsWorld(m_World->m_StaticEntityData[0]->m_CollModel),
-      m_ScriptState_NEW(new cf::UniScriptStateT),   // Need a pointer because the dtor order is important.
+      m_ScriptState(new cf::UniScriptStateT),   // Need a pointer because the dtor order is important.
       m_ScriptWorld(NULL),
       m_EngineEntities()
 {
-    cf::GameSys::WorldT::InitScriptState(*m_ScriptState_NEW);
+    cf::GameSys::WorldT::InitScriptState(*m_ScriptState);
 
 #if 0
     // We cannot use this method, which in fact is kind of obsolete:
     // It would attempt to re-register the Console and ConsoleInterface libraries,
     // which was already done above in cf::GameSys::WorldT::InitScriptState().
     // (Both InitScriptState() methods should probably be removed / refactored.)
-    cf::GuiSys::GuiImplT::InitScriptState(*m_ScriptState_NEW);
+    cf::GuiSys::GuiImplT::InitScriptState(*m_ScriptState);
 #else
     {
         // For each class that the TypeInfoManTs know about, add a (meta-)table to the registry of the LuaState.
         // The (meta-)table holds the Lua methods that the respective class implements in C++,
         // and is to be used as metatable for instances of this class.
-        cf::ScriptBinderT Binder(m_ScriptState_NEW->GetLuaState());
+        cf::ScriptBinderT Binder(m_ScriptState->GetLuaState());
 
         Binder.Init(cf::GuiSys::GetGuiTIM());
         Binder.Init(cf::GuiSys::GetWindowTIM());
@@ -87,7 +87,7 @@ Ca3DEWorldT::Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiS
 
         m_ScriptWorld = new cf::GameSys::WorldT(
             InitForGraphics ? cf::GameSys::WorldT::RealmClient : cf::GameSys::WorldT::RealmServer,
-            *m_ScriptState_NEW,
+            *m_ScriptState,
             ModelMan,
             GuiRes,
             *cf::ClipSys::CollModelMan,   // TODO: The CollModelMan should not be a global, but rather be instantiated along with the ModelMan and GuiRes.
@@ -144,8 +144,8 @@ Ca3DEWorldT::~Ca3DEWorldT()
     // The script state may still hold entities that have collision model components that have registered
     // collision models with the clip world. Thus, make sure to delete the script state before the clip world,
     // so that the clip world is left clean.
-    delete m_ScriptState_NEW;
-    m_ScriptState_NEW = NULL;
+    delete m_ScriptState;
+    m_ScriptState = NULL;
 
     // delete m_PhysicsWorld;
     // m_PhysicsWorld = NULL;
