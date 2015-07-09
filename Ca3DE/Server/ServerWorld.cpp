@@ -361,7 +361,7 @@ void CaServerWorldT::Think(float FrameTime)
     // Must never move this above the PreThink() calls above, because ...(?)
     m_PhysicsWorld.Think(FrameTime);
 
-    m_ScriptWorld->GetScriptState().RunPendingCoroutines(FrameTime);    // Should do this early: new coroutines are usually added "during" thinking.
+    m_ScriptState->RunPendingCoroutines(FrameTime);   // Should do this early: new coroutines are usually added "during" thinking.
 
     for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
         if (m_EngineEntities[EntityNr]!=NULL)

@@ -1028,8 +1028,9 @@ void ComponentHumanPlayerT::DoServerFrame(float t)
     //       Maybe we should move all HUD GUI code into its own component, thereby
     //       isolating it from all other Human Player concerns, especially prediction?!
     //
-    if (GetGuiHUD() != NULL)
-        GetGuiHUD()->DistributeClockTickEvents(t);
+    // if (GetGuiHUD() != NULL)
+    //     GetGuiHUD()->DistributeClockTickEvents(t);
+    assert(m_GuiHUD == NULL);
 }
 
 

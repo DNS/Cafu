@@ -578,8 +578,11 @@ void GuiImplT::DistributeClockTickEvents(float t)
         }
     }
 
-    // Run the pending coroutines always, even if this GUI is currently not active.
-    m_ScriptState->RunPendingCoroutines(t);
+    if (m_IsOwnScriptSt)
+    {
+        // Run the pending coroutines always, even if this GUI is currently not active.
+        m_ScriptState->RunPendingCoroutines(t);
+    }
 }
 
 

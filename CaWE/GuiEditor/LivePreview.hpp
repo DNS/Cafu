@@ -42,6 +42,7 @@ namespace GuiEditor
         LivePreviewT(wxWindow* Parent, cf::UniScriptStateT* ScriptState, IntrusivePtrT<cf::GuiSys::GuiImplT> Gui, const wxString& ScriptFileName);
         ~LivePreviewT();
 
+        cf::UniScriptStateT* GetScriptState() { return m_ScriptState; }
         IntrusivePtrT<cf::GuiSys::GuiImplT> GetGui() { return m_Gui; }
 
 

@@ -415,6 +415,10 @@ void CaClientWorldT::ComputeBFSPath(const VectorT& Start, const VectorT& End)
 
 void CaClientWorldT::Draw(float FrameTime) const
 {
+    // Give all coroutines in the script state a chance to run.
+    m_ScriptState->RunPendingCoroutines(FrameTime);
+
+
     // Note that besides the canonic way in cf::SceneGraph::BspTreeNodeT, there are two other
     // options for "disabling" the PVS: Either have the server disregard the PVS in the first
     // place, or have DrawEntities() render all entities that are in the m_EngineEntities

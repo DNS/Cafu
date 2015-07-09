@@ -263,14 +263,10 @@ bool WorldT::ProcessDeviceEvent(const CaMouseEventT& ME)
 /**
  * At the time of this writing, this method is only called from the Map Editor's
  * ViewWindow3DT::OnPaint() method, because in the Cafu Engine, the `Ca3DEWorldT`s
- * keep explicit lists of entities and call the OnClientFrame() method on them directly
- * (in CaClientWorldT::PostDrawEntities()).
- *
- * As a result, m_ScriptState.RunPendingCoroutines() is currently *not* called for
- * client worlds in the Cafu Engine!
- *
- * Note that on the server side, all this is accounted for by CaServerWorldT::Think()
- * and EngineEntityT::Think() already.
+ * keep explicit lists of entities and run the script state's coroutines and the
+ * entities' OnClientFrame() methods themselves:
+ *   - the client in CaClientWorldT::Draw(),
+ *   - the server in CaServerWorldT::Think() and EngineEntityT::Think().
  */
 void WorldT::OnClientFrame(float t)
 {

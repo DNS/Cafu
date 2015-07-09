@@ -139,7 +139,11 @@ void PreviewCanvasT::OnPaint(wxPaintEvent& PE)
     MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());
     MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW,  MatrixT());
 
-    m_Parent->GetGui()->DistributeClockTickEvents(float(TimeElapsed)/1000.0f);
+    const float FrameTime = float(TimeElapsed) / 1000.0f;
+
+    m_Parent->GetScriptState()->RunPendingCoroutines(FrameTime);
+    m_Parent->GetGui()->DistributeClockTickEvents(FrameTime);
+
     m_Parent->GetGui()->Render();
 
     // Restore the previously active matrices.
