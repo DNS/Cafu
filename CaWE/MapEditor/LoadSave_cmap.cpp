@@ -79,8 +79,14 @@ static std::string serialize(float f1)
 
         s=ss.str();
 
+#if defined(_MSC_VER) && (_MSC_VER <= 1900)     // 1900 == Visual C++ 14.0 (2015)
+        // There is a bug in Microsoft's iostream implementation up to Visual C++ 2015,
+        // see http://trac.cafu.de/ticket/150 for details.
+        const float f2 = float(atof(s.c_str()));
+#else
         float f2;
         ss >> f2;
+#endif
 
         if (f2==f1) break;
     }

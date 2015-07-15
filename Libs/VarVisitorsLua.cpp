@@ -516,8 +516,14 @@ namespace
 
             s = ss.str();
 
-            float f2;
+#if defined(_MSC_VER) && (_MSC_VER <= 1900)     // 1900 == Visual C++ 14.0 (2015)
+            // There is a bug in Microsoft's iostream implementation up to Visual C++ 2015,
+            // see http://trac.cafu.de/ticket/150 for details.
+            const T f2 = T(atof(s.c_str()));
+#else
+            T f2;
             ss >> f2;
+#endif
 
             if (f2 == f1) break;
         }
