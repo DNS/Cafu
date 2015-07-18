@@ -1,0 +1,213 @@
+-- This is a Cafu Entities file, written by the CaWE Map Editor.
+-- The file defines the entity hierarchy and properties of the related game world;
+-- it is used both by the CaWE Map Editor as well as by the Cafu Engine.
+--
+-- You CAN edit this file manually, but note that CaWE may overwrite your changes.
+-- Also note that structural changes to the entity hierarchy will bring this file
+-- out of sync with the related map (cmap) and world (cw) files, effectively
+-- causing LOSS OF WORK (see the documentation for details).
+-- It is therefore recommended that you use CaWE for all changes to this file.
+
+
+-- Instantiation of all entities.
+-- ******************************
+
+local PlayerPrototype = world:new("EntityT", "PlayerPrototype")
+PlayerPrototype.Camera = world:new("EntityT", "Camera")
+PlayerPrototype.FirstPerson = world:new("EntityT", "FirstPerson")
+PlayerPrototype.FirstPerson.WeaponSound = world:new("EntityT", "WeaponSound")
+
+
+-- Set the worlds root entity.
+-- ***************************
+
+world:SetRootEntity(PlayerPrototype)
+
+
+-- Setup the entity hierarchy.
+-- ***************************
+
+PlayerPrototype:AddChild(PlayerPrototype.Camera)
+PlayerPrototype:AddChild(PlayerPrototype.FirstPerson)
+PlayerPrototype.FirstPerson:AddChild(PlayerPrototype.FirstPerson.WeaponSound)
+
+
+-- Initialization of the entity contents ("constructors").
+-- *******************************************************
+
+function PlayerPrototype:OnInit()
+    self:GetTransform():set("Origin", 0, 0, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentHumanPlayerT")
+    c1:set("PlayerName", "PlayerPrototype")
+    c1:set("RandomCount", 0)
+    c1:set("State", 2)
+    c1:set("Health", 100)
+    c1:set("Armor", 0)
+    c1:set("Frags", 0)
+    c1:set("ActiveWeaponNr", 0)
+    c1:set("NextWeaponNr", 0)
+    c1:set("HeadSway", 0)
+
+    local c2 = world:new("ComponentCollisionModelT")
+    c2:set("Name", "")
+    c2:set("IgnoreOrient", false)
+
+    local c3 = world:new("ComponentPlayerPhysicsT")
+    c3:set("Velocity", 0, 0, 0)
+    c3:set("Dimensions", -16, -16, -36, 16, 16, 36)
+    c3:set("StepHeight", 18.5)
+    c3:set("OldWishJump", false)
+
+    local c4 = world:new("ComponentModelT")
+    c4:set("Show", true)
+    c4:set("Name", "Games/DeathMatch/Models/Players/Trinity/Trinity.cmdl")
+    c4:set("Animation", 0)
+    c4:set("Skin", -1)
+    c4:set("Scale", 1)
+    c4:set("Gui", "")
+    c4:set("IsSubmodel", false)
+    c4:set("Is1stPerson", false)
+
+    local c5 = world:new("ComponentInventoryT")
+
+    local c6 = world:new("ComponentScriptT")
+    c6:set("Name", "Games/DeathMatch/Scripts/HumanPlayer.lua")
+    c6:set("ScriptCode", "")
+
+    local c7 = world:new("ComponentCarriedWeaponT")
+    c7:set("Label", "BattleScythe")
+    c7:set("IsAvail", false)
+    c7:set("Script", "Games/DeathMatch/Scripts/cw_BattleScythe.lua")
+    c7:set("PrimaryAmmo", 0)
+    c7:set("MaxPrimaryAmmo", 0)
+    c7:set("SecondaryAmmo", 0)
+    c7:set("MaxSecondaryAmmo", 0)
+
+    local c8 = world:new("ComponentCarriedWeaponT")
+    c8:set("Label", "Beretta")
+    c8:set("IsAvail", false)
+    c8:set("Script", "Games/DeathMatch/Scripts/cw_Beretta.lua")
+    c8:set("PrimaryAmmo", 0)
+    c8:set("MaxPrimaryAmmo", 17)
+    c8:set("SecondaryAmmo", 0)
+    c8:set("MaxSecondaryAmmo", 0)
+
+    local c9 = world:new("ComponentCarriedWeaponT")
+    c9:set("Label", "DesertEagle")
+    c9:set("IsAvail", false)
+    c9:set("Script", "Games/DeathMatch/Scripts/cw_DesertEagle.lua")
+    c9:set("PrimaryAmmo", 0)
+    c9:set("MaxPrimaryAmmo", 6)
+    c9:set("SecondaryAmmo", 0)
+    c9:set("MaxSecondaryAmmo", 0)
+
+    local c10 = world:new("ComponentCarriedWeaponT")
+    c10:set("Label", "Shotgun")
+    c10:set("IsAvail", false)
+    c10:set("Script", "Games/DeathMatch/Scripts/cw_Shotgun.lua")
+    c10:set("PrimaryAmmo", 0)
+    c10:set("MaxPrimaryAmmo", 8)
+    c10:set("SecondaryAmmo", 0)
+    c10:set("MaxSecondaryAmmo", 0)
+
+    local c11 = world:new("ComponentCarriedWeaponT")
+    c11:set("Label", "9mmAR")
+    c11:set("IsAvail", false)
+    c11:set("Script", "Games/DeathMatch/Scripts/cw_9mmAR.lua")
+    c11:set("PrimaryAmmo", 0)
+    c11:set("MaxPrimaryAmmo", 25)
+    c11:set("SecondaryAmmo", 0)
+    c11:set("MaxSecondaryAmmo", 2)
+
+    local c12 = world:new("ComponentCarriedWeaponT")
+    c12:set("Label", "DartGun")
+    c12:set("IsAvail", false)
+    c12:set("Script", "Games/DeathMatch/Scripts/cw_DartGun.lua")
+    c12:set("PrimaryAmmo", 0)
+    c12:set("MaxPrimaryAmmo", 5)
+    c12:set("SecondaryAmmo", 0)
+    c12:set("MaxSecondaryAmmo", 0)
+
+    local c13 = world:new("ComponentCarriedWeaponT")
+    c13:set("Label", "Bazooka")
+    c13:set("IsAvail", false)
+    c13:set("Script", "Games/DeathMatch/Scripts/cw_Bazooka.lua")
+    c13:set("PrimaryAmmo", 0)
+    c13:set("MaxPrimaryAmmo", 1)
+    c13:set("SecondaryAmmo", 0)
+    c13:set("MaxSecondaryAmmo", 0)
+
+    local c14 = world:new("ComponentCarriedWeaponT")
+    c14:set("Label", "Gauss")
+    c14:set("IsAvail", false)
+    c14:set("Script", "Games/DeathMatch/Scripts/cw_Gauss.lua")
+    c14:set("PrimaryAmmo", 0)
+    c14:set("MaxPrimaryAmmo", 20)
+    c14:set("SecondaryAmmo", 0)
+    c14:set("MaxSecondaryAmmo", 0)
+
+    local c15 = world:new("ComponentCarriedWeaponT")
+    c15:set("Label", "Egon")
+    c15:set("IsAvail", false)
+    c15:set("Script", "Games/DeathMatch/Scripts/cw_Egon.lua")
+    c15:set("PrimaryAmmo", 0)
+    c15:set("MaxPrimaryAmmo", 20)
+    c15:set("SecondaryAmmo", 0)
+    c15:set("MaxSecondaryAmmo", 0)
+
+    local c16 = world:new("ComponentCarriedWeaponT")
+    c16:set("Label", "Grenade")
+    c16:set("IsAvail", false)
+    c16:set("Script", "Games/DeathMatch/Scripts/cw_Grenade.lua")
+    c16:set("PrimaryAmmo", 0)
+    c16:set("MaxPrimaryAmmo", 1)
+    c16:set("SecondaryAmmo", 0)
+    c16:set("MaxSecondaryAmmo", 0)
+
+    local c17 = world:new("ComponentCarriedWeaponT")
+    c17:set("Label", "FaceHugger")
+    c17:set("IsAvail", false)
+    c17:set("Script", "Games/DeathMatch/Scripts/cw_FaceHugger.lua")
+    c17:set("PrimaryAmmo", 0)
+    c17:set("MaxPrimaryAmmo", 1)
+    c17:set("SecondaryAmmo", 0)
+    c17:set("MaxSecondaryAmmo", 0)
+
+    self:AddComponent(c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17)
+end
+
+function PlayerPrototype.Camera:OnInit()
+    self:GetTransform():set("Origin", 0, 0, 32)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function PlayerPrototype.FirstPerson:OnInit()
+    self:GetTransform():set("Origin", 0, 0, 31.5)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", false)
+    c1:set("Name", "")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", true)
+
+    self:AddComponent(c1)
+end
+
+function PlayerPrototype.FirstPerson.WeaponSound:OnInit()
+    self:GetTransform():set("Origin", 16, 0, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentSoundT")
+    c1:set("Name", "")
+    c1:set("AutoPlay", false)
+    c1:set("Interval", 0)
+
+    self:AddComponent(c1)
+end
