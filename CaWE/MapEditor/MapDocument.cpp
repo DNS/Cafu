@@ -71,6 +71,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "ClipSys/CollisionModelMan.hpp"
 #include "GameSys/CompCollisionModel.hpp"
+#include "GameSys/CompHumanPlayer.hpp"
+#include "GameSys/HumanPlayer/CompInventory.hpp"
+#include "GameSys/HumanPlayer/CompCarriedWeapon.hpp"
 #include "GameSys/CompLightPoint.hpp"
 #include "GameSys/CompLightRadiosity.hpp"
 #include "GameSys/CompModel.hpp"
@@ -198,11 +201,216 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig)
         "world:SetRootEntity(Map)\n",
         cf::GameSys::WorldT::InitFlag_InlineCode | cf::GameSys::WorldT::InitFlag_OnlyStatic);
 
+    {
     IntrusivePtrT<cf::GameSys::EntityT> ScriptRootEnt = m_ScriptWorld->GetRootEntity();
     IntrusivePtrT<CompMapEntityT>       MapEnt        = new CompMapEntityT(*this);
 
     wxASSERT(ScriptRootEnt->GetApp().IsNull());
     ScriptRootEnt->SetApp(MapEnt);
+    }
+
+/*****************/
+    IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
+    IntrusivePtrT<CompMapEntityT>       PPMapEnt = new CompMapEntityT(*this);
+
+    m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
+
+    NewEnt->SetApp(PPMapEnt);
+    NewEnt->GetBasics()->SetEntityName("PlayerPrototype");
+    // NewEnt->GetTransform()->SetOriginWS(...);
+    // NewEnt->GetTransform()->SetQuatWS(...);
+
+    IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayerComp = new cf::GameSys::ComponentHumanPlayerT();
+    HumanPlayerComp->SetMember("PlayerName", std::string("PlayerPrototype"));
+    NewEnt->AddComponent(HumanPlayerComp);
+
+    IntrusivePtrT<cf::GameSys::ComponentCollisionModelT> CollMdl = new cf::GameSys::ComponentCollisionModelT();
+    // The player script code will set the details of the collision model itself.
+    NewEnt->AddComponent(CollMdl);
+
+    IntrusivePtrT<cf::GameSys::ComponentPlayerPhysicsT> PlayerPhysicsComp = new cf::GameSys::ComponentPlayerPhysicsT();
+    PlayerPhysicsComp->SetMember("Dimensions", BoundingBox3dT(Vector3dT(-16.0, -16.0, -36.0), Vector3dT(16.0,  16.0, 36.0)));
+    PlayerPhysicsComp->SetMember("StepHeight", 18.5);
+    NewEnt->AddComponent(PlayerPhysicsComp);
+
+    IntrusivePtrT<cf::GameSys::ComponentModelT> Model3rdPersonComp = new cf::GameSys::ComponentModelT();
+    Model3rdPersonComp->SetMember("Name", std::string("Games/DeathMatch/Models/Players/Trinity/Trinity.cmdl"));     // TODO... don't hardcode the path!
+    NewEnt->AddComponent(Model3rdPersonComp);
+
+    IntrusivePtrT<cf::GameSys::ComponentInventoryT> InvComp = new cf::GameSys::ComponentInventoryT();
+    // The inventory's maxima e.g. for bullets, shells, etc. are set in `HumanPlayer.lua`.
+    NewEnt->AddComponent(InvComp);
+
+    IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
+    ScriptComp->SetMember("Name", std::string("Games/DeathMatch/Scripts/HumanPlayer.lua"));
+    NewEnt->AddComponent(ScriptComp);
+
+    // Equip the player with components for all the weapons that he can possibly carry.
+    // (What's about the Glock17 model, btw.? It seems we have a model, but no code for it?)
+    {
+        IntrusivePtrT<cf::GameSys::ComponentCarriedWeaponT> CompCW = NULL;
+
+        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
+        CompCW->SetMember("Label",            std::string("BattleScythe"));
+        CompCW->SetMember("IsAvail",          false);
+        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_BattleScythe.lua"));
+        CompCW->SetMember("PrimaryAmmo",      uint16_t(0));
+        CompCW->SetMember("MaxPrimaryAmmo",   uint16_t(0));
+        CompCW->SetMember("SecondaryAmmo",    uint16_t(0));
+        CompCW->SetMember("MaxSecondaryAmmo", uint16_t(0));
+        NewEnt->AddComponent(CompCW);
+
+        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
+        CompCW->SetMember("Label",            std::string("Beretta"));
+        CompCW->SetMember("IsAvail",          false);
+        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_Beretta.lua"));
+        CompCW->SetMember("PrimaryAmmo",      uint16_t(0));
+        CompCW->SetMember("MaxPrimaryAmmo",   uint16_t(17));
+        CompCW->SetMember("SecondaryAmmo",    uint16_t(0));
+        CompCW->SetMember("MaxSecondaryAmmo", uint16_t(0));
+        NewEnt->AddComponent(CompCW);
+
+        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
+        CompCW->SetMember("Label",            std::string("DesertEagle"));
+        CompCW->SetMember("IsAvail",          false);
+        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_DesertEagle.lua"));
+        CompCW->SetMember("PrimaryAmmo",      uint16_t(0));
+        CompCW->SetMember("MaxPrimaryAmmo",   uint16_t(6));
+        CompCW->SetMember("SecondaryAmmo",    uint16_t(0));
+        CompCW->SetMember("MaxSecondaryAmmo", uint16_t(0));
+        NewEnt->AddComponent(CompCW);
+
+        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
+        CompCW->SetMember("Label",            std::string("Shotgun"));
+        CompCW->SetMember("IsAvail",          false);
+        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_Shotgun.lua"));
+        CompCW->SetMember("PrimaryAmmo",      uint16_t(0));
+        CompCW->SetMember("MaxPrimaryAmmo",   uint16_t(8));
+        CompCW->SetMember("SecondaryAmmo",    uint16_t(0));
+        CompCW->SetMember("MaxSecondaryAmmo", uint16_t(0));
+        NewEnt->AddComponent(CompCW);
+
+        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
+        CompCW->SetMember("Label",            std::string("9mmAR"));
+        CompCW->SetMember("IsAvail",          false);
+        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_9mmAR.lua"));
+        CompCW->SetMember("PrimaryAmmo",      uint16_t(0));
+        CompCW->SetMember("MaxPrimaryAmmo",   uint16_t(25));
+        CompCW->SetMember("SecondaryAmmo",    uint16_t(0));
+        CompCW->SetMember("MaxSecondaryAmmo", uint16_t(2));
+        NewEnt->AddComponent(CompCW);
+
+        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
+        CompCW->SetMember("Label",            std::string("DartGun"));
+        CompCW->SetMember("IsAvail",          false);
+        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_DartGun.lua"));
+        CompCW->SetMember("PrimaryAmmo",      uint16_t(0));
+        CompCW->SetMember("MaxPrimaryAmmo",   uint16_t(5));
+        CompCW->SetMember("SecondaryAmmo",    uint16_t(0));
+        CompCW->SetMember("MaxSecondaryAmmo", uint16_t(0));
+        NewEnt->AddComponent(CompCW);
+
+        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
+        CompCW->SetMember("Label",            std::string("Bazooka"));
+        CompCW->SetMember("IsAvail",          false);
+        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_Bazooka.lua"));
+        CompCW->SetMember("PrimaryAmmo",      uint16_t(0));
+        CompCW->SetMember("MaxPrimaryAmmo",   uint16_t(1));
+        CompCW->SetMember("SecondaryAmmo",    uint16_t(0));
+        CompCW->SetMember("MaxSecondaryAmmo", uint16_t(0));
+        NewEnt->AddComponent(CompCW);
+
+        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
+        CompCW->SetMember("Label",            std::string("Gauss"));
+        CompCW->SetMember("IsAvail",          false);
+        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_Gauss.lua"));
+        CompCW->SetMember("PrimaryAmmo",      uint16_t(0));
+        CompCW->SetMember("MaxPrimaryAmmo",   uint16_t(20));
+        CompCW->SetMember("SecondaryAmmo",    uint16_t(0));
+        CompCW->SetMember("MaxSecondaryAmmo", uint16_t(0));
+        NewEnt->AddComponent(CompCW);
+
+        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
+        CompCW->SetMember("Label",            std::string("Egon"));
+        CompCW->SetMember("IsAvail",          false);
+        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_Egon.lua"));
+        CompCW->SetMember("PrimaryAmmo",      uint16_t(0));
+        CompCW->SetMember("MaxPrimaryAmmo",   uint16_t(20));
+        CompCW->SetMember("SecondaryAmmo",    uint16_t(0));
+        CompCW->SetMember("MaxSecondaryAmmo", uint16_t(0));
+        NewEnt->AddComponent(CompCW);
+
+        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
+        CompCW->SetMember("Label",            std::string("Grenade"));
+        CompCW->SetMember("IsAvail",          false);
+        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_Grenade.lua"));
+        CompCW->SetMember("PrimaryAmmo",      uint16_t(0));
+        CompCW->SetMember("MaxPrimaryAmmo",   uint16_t(1));
+        CompCW->SetMember("SecondaryAmmo",    uint16_t(0));
+        CompCW->SetMember("MaxSecondaryAmmo", uint16_t(0));
+        NewEnt->AddComponent(CompCW);
+
+        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
+        CompCW->SetMember("Label",            std::string("FaceHugger"));
+        CompCW->SetMember("IsAvail",          false);
+        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_FaceHugger.lua"));
+        CompCW->SetMember("PrimaryAmmo",      uint16_t(0));
+        CompCW->SetMember("MaxPrimaryAmmo",   uint16_t(1));
+        CompCW->SetMember("SecondaryAmmo",    uint16_t(0));
+        CompCW->SetMember("MaxSecondaryAmmo", uint16_t(0));
+        NewEnt->AddComponent(CompCW);
+    }
+
+    // Add a camera as a child entity of NewEnt.
+    {
+        IntrusivePtrT<cf::GameSys::EntityT> CameraEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
+
+        CameraEnt->SetApp(new CompMapEntityT(*this));
+        CameraEnt->GetBasics()->SetEntityName("Camera");
+        CameraEnt->GetTransform()->SetOriginPS(Vector3fT(0.0f, 0.0f, 32.0f));   // TODO: Hardcoded values here and in the CompHumanPlayer code...
+
+        NewEnt->AddChild(CameraEnt);
+    }
+
+    // Add another child entity for the 1st-person weapon models.
+    // Note that the 1st-person models are *not* attached to the camera's origin.
+    {
+        IntrusivePtrT<cf::GameSys::EntityT> FirstPersonEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
+
+        FirstPersonEnt->SetApp(new CompMapEntityT(*this));
+        FirstPersonEnt->GetBasics()->SetEntityName("FirstPerson");
+
+        // The offset of -0.5 relative to the camera origin gives the weapon a nice
+        // 'shifting' effect when the player looks up/down.
+        FirstPersonEnt->GetTransform()->SetOriginPS(Vector3fT(0.0f, 0.0f, 31.5f));
+
+        IntrusivePtrT<cf::GameSys::ComponentModelT> Model1stPersonComp = new cf::GameSys::ComponentModelT();
+     // Model1stPersonComp->SetMember("Name", ...);     // Initialized and updated by the HumanPlayer code.
+        Model1stPersonComp->SetMember("Show", false);
+        Model1stPersonComp->SetMember("Is1stPerson", true);
+        FirstPersonEnt->AddComponent(Model1stPersonComp);
+
+        NewEnt->AddChild(FirstPersonEnt);
+
+        // Add a child entity to "FirstPersonEnt" that holds a Sound component for the weapons.
+        {
+            IntrusivePtrT<cf::GameSys::EntityT> WeaponSoundEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
+
+            WeaponSoundEnt->SetApp(new CompMapEntityT(*this));
+            WeaponSoundEnt->GetBasics()->SetEntityName("WeaponSound");
+
+            // The offset along the view direction is the relevant reason for introducing the WeaponSoundEnt.
+            WeaponSoundEnt->GetTransform()->SetOriginPS(Vector3fT(16.0f, 0.0f, 0.0f));
+
+            IntrusivePtrT<cf::GameSys::ComponentSoundT> WeaponSoundComp = new cf::GameSys::ComponentSoundT();
+         // WeaponSoundComp->SetMember("Name", ...);    // Initialized and updated by the HumanPlayer (weapon) code.
+            WeaponSoundComp->SetMember("AutoPlay", false);
+            WeaponSoundEnt->AddComponent(WeaponSoundComp);
+
+            FirstPersonEnt->AddChild(WeaponSoundEnt);
+        }
+    }
+/*****************/
 
     ArrayT<MapElementT*> AllElems;
     GetAllElems(AllElems);
