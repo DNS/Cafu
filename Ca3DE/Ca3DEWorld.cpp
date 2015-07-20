@@ -123,9 +123,7 @@ Ca3DEWorldT::Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiS
 
         AllEnts[EntNr]->SetApp(GE);
 
-        // Note that this can fail (and thus not add anything to the m_EngineEntities array),
-        // especially for now unsupported entity classes like "func_group"!
-        CreateNewEntityFromBasicInfo(GE, 1 /*ServerFrameNr*/);
+        CreateNewEntityFromBasicInfo(AllEnts[EntNr], 1 /*ServerFrameNr*/);
     }
 }
 
@@ -228,10 +226,9 @@ Vector3fT Ca3DEWorldT::GetAmbientLightColorFromBB(const BoundingBox3T<double>& D
 }
 
 
-unsigned long Ca3DEWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<const CompGameEntityT> CompGameEnt,
-    unsigned long CreationFrameNr)
+unsigned long Ca3DEWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<cf::GameSys::EntityT> Ent, unsigned long CreationFrameNr)
 {
-    const unsigned long NewEntityID = CompGameEnt->GetEntity()->GetID();
+    const unsigned long NewEntityID = Ent->GetID();
 
     while (m_EngineEntities.Size() <= NewEntityID)
         m_EngineEntities.PushBack(NULL);
@@ -242,7 +239,7 @@ unsigned long Ca3DEWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<const Comp
     // The CaServerWorldT::WriteClientDeltaUpdateMessages() and the related client code *rely* on this order!
     assert(m_EngineEntities[NewEntityID] == NULL);
     delete m_EngineEntities[NewEntityID];
-    m_EngineEntities[NewEntityID] = new EngineEntityT(CompGameEnt->GetEntity(), CreationFrameNr);
+    m_EngineEntities[NewEntityID] = new EngineEntityT(Ent, CreationFrameNr);
 
     return NewEntityID;
 }

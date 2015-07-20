@@ -315,7 +315,7 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
         CompCW->CallLuaMethod("OnInit", 0);
     }
 
-    return CreateNewEntityFromBasicInfo(GameEnt, m_ServerFrameNr + 1);
+    return CreateNewEntityFromBasicInfo(NewEnt, m_ServerFrameNr + 1);
 }
 
 
@@ -411,7 +411,7 @@ void CaServerWorldT::Think(float FrameTime)
             IntrusivePtrT<CompGameEntityT> GameEnt = new CompGameEntityT();
 
             AllEnts[EntNr]->SetApp(GameEnt);
-            CreateNewEntityFromBasicInfo(GameEnt, m_ServerFrameNr);
+            CreateNewEntityFromBasicInfo(AllEnts[EntNr], m_ServerFrameNr);
 
             const ArrayT< IntrusivePtrT<cf::GameSys::ComponentBaseT> >& Components = AllEnts[EntNr]->GetComponents();
 
