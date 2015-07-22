@@ -115,7 +115,7 @@ Ca3DEWorldT::Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiS
     for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
     {
         // This is also checked in the `cf::GameSys::WorldT` ctor, see there for details.
-        // It is repeated here as a remainder: entity IDs are used as indices into m_World->m_StaticEntityData[].
+        // It is repeated here as a reminder: entity IDs are used as indices into m_World->m_StaticEntityData[].
         assert(AllEnts[EntNr]->GetID() == EntNr);
 
         IntrusivePtrT<CompGameEntityT> GE =
