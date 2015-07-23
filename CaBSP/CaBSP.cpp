@@ -257,13 +257,33 @@ int main(int ArgC, const char* ArgV[])
     ModelManagerT             ModelMan;
     cf::GuiSys::GuiResourcesT GuiRes(ModelMan);
     WorldT                    World;
-    ArrayT<Vector3dT>         DrawWorldOutsidePointSamples;
     ArrayT<Vector3dT>         FloodFillSources;
+    ArrayT<Vector3dT>         DrawWorldOutsidePointSamples;
+    unsigned int              NumPlayerPrototypes = 0;
 
-    LoadWorld(ArgV[1], GameDirectory, ModelMan, GuiRes, World, FloodFillSources, DrawWorldOutsidePointSamples);
+    LoadWorld(ArgV[1], GameDirectory, ModelMan, GuiRes, World, FloodFillSources, DrawWorldOutsidePointSamples, NumPlayerPrototypes);
+
+    if (NumPlayerPrototypes == 0)
+    {
+        Console->Print("\nThere is no entity in this map that can act as a player prototype.\n");
+        Console->Print("Technically, a player prototype is an entity with a HumanPlayer component.\n");
+        Console->Print("The server refers to this prototype whenever a new player joins a game.\n");
+        Console->Print("\nYou can fix this problem by inserting a PlayerPrototype prefab into the map\n");
+        Console->Print("(in the Map Editor, use menu \"Prefabs > PlayerPrototype\").\n");
+
+        Error("There is no player prototype entity in this map.");
+    }
 
     if (FloodFillSources.Size() == 0)
-        Error("No entities with PlayerStart component found, expected at least 1.");
+    {
+        Console->Print("\nThere are no entities in this map that have a PlayerStart component.\n");
+        Console->Print("\nYou can fix this problem by inserting one or more PlayerStart prefabs\n");
+        Console->Print("into the map (in the Map Editor, use menu \"Prefabs > PlayerStart\").\n");
+        Console->Print("Alternatively, add a PlayerStart component to a suitable entity,\n");
+        Console->Print("e.g. the one that also acts as the player prototype.\n");
+
+        Error("There are no entities with a PlayerStart component in this map.");
+    }
 
     // What we need:
     // For each entity: The BspTree itself, OutsidePointSamples, FloodFillSources.

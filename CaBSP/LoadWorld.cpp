@@ -195,7 +195,8 @@ void ComputeBrushFaces(const MapFileBrushT& MFBrush, WorldT& World, cf::SceneGra
 
 
 // Liest ein MapFile, das die der Version entsprechenden "MapFile Specifications" erfüllen muß, in die World ein.
-void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes, WorldT& World, ArrayT<Vector3dT>& FloodFillSources, ArrayT<Vector3dT>& DrawWorldOutsidePointSamples)
+void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes,
+               WorldT& World, ArrayT<Vector3dT>& FloodFillSources, ArrayT<Vector3dT>& DrawWorldOutsidePointSamples, unsigned int& NumPlayerPrototypes)
 {
     World.PlantDescrMan.SetModDir(GameDirectory);
 
@@ -326,6 +327,9 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
 
         if (AllScriptEnts[EntNr]->GetComponent("PlayerStart") != NULL)
             FloodFillSources.PushBack(AllScriptEnts[EntNr]->GetTransform()->GetOriginWS().AsVectorOfDouble());
+
+        if (AllScriptEnts[EntNr]->GetComponent("HumanPlayer") != NULL)
+            NumPlayerPrototypes++;
 
 
         // 1. Copy the properties.
