@@ -226,7 +226,7 @@ Vector3fT Ca3DEWorldT::GetAmbientLightColorFromBB(const BoundingBox3T<double>& D
 }
 
 
-unsigned long Ca3DEWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<cf::GameSys::EntityT> Ent, unsigned long CreationFrameNr)
+void Ca3DEWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<cf::GameSys::EntityT> Ent, unsigned long CreationFrameNr)
 {
     const unsigned long NewEntityID = Ent->GetID();
 
@@ -240,6 +240,4 @@ unsigned long Ca3DEWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<cf::GameSy
     assert(m_EngineEntities[NewEntityID] == NULL);
     delete m_EngineEntities[NewEntityID];
     m_EngineEntities[NewEntityID] = new EngineEntityT(Ent, CreationFrameNr);
-
-    return NewEntityID;
 }

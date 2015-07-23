@@ -57,10 +57,7 @@ class Ca3DEWorldT
     ///   - On the server, this method is also called if the Think() code auto-detects that an entity was newly created.
     ///   - Third, this is called by `ServerWorldT::InsertHumanPlayerEntity()` for creating human player entities for
     ///     newly joined clients or after a world-change for the existing clients.
-    ///
-    /// @returns The ID of the newly created entity, so that the server can let the client know which entity the
-    ///     client itself is.
-    unsigned long CreateNewEntityFromBasicInfo(IntrusivePtrT<cf::GameSys::EntityT> Ent, unsigned long CreationFrameNr);
+    void CreateNewEntityFromBasicInfo(IntrusivePtrT<cf::GameSys::EntityT> Ent, unsigned long CreationFrameNr);
 
     const WorldT*                      m_World;
     cf::ClipSys::ClipWorldT*           m_ClipWorld;
