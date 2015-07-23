@@ -55,9 +55,12 @@ CompGameEntityT::CompGameEntityT(const CompGameEntityT& Comp)
       m_ClipPrevOrigin(),
       m_ClipPrevQuat()
 {
-    // A CompGameEntityT should actually never be copied...
-    // (because the m_StaticEntityData cannot be copied -- but see the /*...*/ comment above).
-    assert(false);
+    // The problem with copying CompGameEntityT instances is that the
+    // m_StaticEntityData cannot be copied -- see the /*...*/ comment above.
+    // Therefore, make sure that only such instances are copied that use
+    // "dummy" StaticEntityDataT's anyway.
+    assert(Comp.m_StaticEntityData->m_BspTree == NULL || Comp.m_StaticEntityData->m_BspTree->Nodes.Size() == 0);
+    assert(Comp.m_StaticEntityData->m_CollModel == NULL);
 }
 
 
