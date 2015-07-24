@@ -175,7 +175,11 @@ function PlayerPrototype:OnInit()
     c17:set("SecondaryAmmo", 0)
     c17:set("MaxSecondaryAmmo", 0)
 
-    self:AddComponent(c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17)
+    local c18 = world:new("ComponentPlayerStartT")
+    c18:set("SinglePlayer", true)
+    c18:set("MultiPlayer", true)
+
+    self:AddComponent(c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18)
 end
 
 function PlayerPrototype.Camera:OnInit()
