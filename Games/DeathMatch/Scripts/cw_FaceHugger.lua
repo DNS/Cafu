@@ -21,11 +21,11 @@ local function UpdateChildComponents()
     -- this script has initially been run (and this component's OnInit() has been called).
     -- Therefore, we have to defer the Model1stPerson init until it is first used.
     if not Model1stPerson then
-        Model1stPerson = Entity:FindByName("FirstPersonEnt"):GetComponent("Model")
+        Model1stPerson = Entity:FindByName("FirstPerson"):GetComponent("Model")
     end
 
     if not WeaponSound then
-        WeaponSound = Entity:FindByName("WeaponSoundEnt"):GetComponent("Sound")
+        WeaponSound = Entity:FindByName("WeaponSound"):GetComponent("Sound")
     end
 end
 
