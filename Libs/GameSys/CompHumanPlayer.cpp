@@ -153,12 +153,19 @@ ComponentHumanPlayerT::~ComponentHumanPlayerT()
 }
 
 
+bool ComponentHumanPlayerT::IsPlayerPrototype() const
+{
+    return m_PlayerName.Get() == "PlayerPrototype";
+}
+
+
 // The HUD GUI is intentionally not initialized in the constructors above, but only lazily
 // when the GetGui() method is called, because in the constructors it is impossile to know
 // or to learn if this ComponentHumanPlayerT instance is created on the server or the client,
 // and if it is the local, first-person human player, or somebody else.
 IntrusivePtrT<cf::GuiSys::GuiImplT> ComponentHumanPlayerT::GetGuiHUD()
 {
+    if (IsPlayerPrototype()) return NULL;
     if (m_GuiHUD != NULL) return m_GuiHUD;
 
     // TODO:
@@ -479,6 +486,8 @@ void ComponentHumanPlayerT::CheckGUIs(bool ThinkingOnServerSide, bool HaveButton
 
 void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide)
 {
+    if (IsPlayerPrototype()) return;
+
     IntrusivePtrT<ComponentPlayerPhysicsT> CompPlayerPhysics = dynamic_pointer_cast<ComponentPlayerPhysicsT>(GetEntity()->GetComponent("PlayerPhysics"));
     IntrusivePtrT<ComponentModelT> Model3rdPerson = dynamic_pointer_cast<ComponentModelT>(GetEntity()->GetComponent("Model"));
 
@@ -945,6 +954,7 @@ BoundingBox3fT ComponentHumanPlayerT::GetCullingBB() const
 
 void ComponentHumanPlayerT::PostRender(bool FirstPersonView)
 {
+    if (IsPlayerPrototype()) return;
     if (GetGuiHUD() == NULL) return;
 
     MatSys::Renderer->PushMatrix(MatSys::RendererI::PROJECTION);

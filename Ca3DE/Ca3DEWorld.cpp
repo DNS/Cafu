@@ -108,6 +108,22 @@ Ca3DEWorldT::Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiS
     ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
     m_ScriptWorld->GetRootEntity()->GetAll(AllEnts);
 
+    // For player prototype entities make sure that their models are not shown.
+    // Showing their models may be desirable in the Map Editor, but not in the Engine.
+    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
+    {
+        if (AllEnts[EntNr]->GetComponent("HumanPlayer") != NULL)
+        {
+            for (unsigned int i = 0; true; i++)
+            {
+                IntrusivePtrT<cf::GameSys::ComponentBaseT> ModelComp = AllEnts[EntNr]->GetComponent("Model", i);
+
+                if (ModelComp == NULL) break;
+                ModelComp->SetMember("Show", false);
+            }
+        }
+    }
+
     // Create a matching
     //     - CompGameEntityT instance and
     //     - EngineEntityT instance
