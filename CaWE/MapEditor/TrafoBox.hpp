@@ -134,6 +134,8 @@ class TrafoBoxT
     /// handle in window space the proper handle in world space.
     static TrafoHandleT GetWorldSpaceHandle(TrafoHandleT WindowSpaceHandle, const AxesInfoT& Axes);
 
+    void RenderRefPosHint(Renderer2DT& Renderer) const;
+
     /// Computes the matrix for the shear transformation that is currently in progress.
     /// @param ShearMatrix   The computed matrix is returned here.
     /// @returns whether the shear matrix could be computed.

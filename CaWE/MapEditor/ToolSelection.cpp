@@ -402,6 +402,15 @@ bool ToolSelectionT::OnMouseMove2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
     {
         case TS_IDLE:
         {
+            // Run a "null Trafo" in order to update the m_TrafoBox's internal values.
+            // The m_TrafoBox then uses this information for rendering: If we are idle, but
+            // TH_BODY dragging *would* be possible, the related RefPos hints are rendered
+            // according to the current mouse position.
+            m_TrafoBox.BeginTrafo(ViewWindow, MousePosTS);
+            m_TrafoBox.FinishTrafo();
+
+            m_ToolMan.UpdateAllObservers(this, UPDATE_NOW);
+
             // Determine the objects under the cursor, and update it as required.
             // If there is a transformation box, it takes precedence.
             const TrafoBoxT::TrafoHandleT TrafoHandle=m_TrafoBox.CheckForHandle(ViewWindow, MousePosTS);
