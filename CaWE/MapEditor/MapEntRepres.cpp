@@ -433,6 +433,22 @@ void MapEntRepresT::Transform(const MatrixT& Matrix, bool LockTexCoords)
 }
 
 
+bool MapEntRepresT::IsPlayerPrototypeChild() const
+{
+    IntrusivePtrT<cf::GameSys::EntityT> Ent = m_Parent->GetEntity();
+
+    if (Ent->GetParent() == NULL) return false;
+    Ent = Ent->GetParent();
+    if (Ent->GetComponent("HumanPlayer") != NULL) return true;
+
+    if (Ent->GetParent() == NULL) return false;
+    Ent = Ent->GetParent();
+    if (Ent->GetComponent("HumanPlayer") != NULL) return true;
+
+    return false;
+}
+
+
 BoundingBox3fT MapEntRepresT::GetRepresBB() const
 {
     IntrusivePtrT<cf::GameSys::EntityT> Ent = m_Parent->GetEntity();
@@ -450,8 +466,17 @@ BoundingBox3fT MapEntRepresT::GetRepresBB() const
 
     BoundingBox3fT BB = Ent->GetBasics()->GetEditorBB();
 
-    if (Ent->GetComponents().Size() > 0)
-        BB = Ent->GetComponents()[0]->GetEditorBB();
+    if (IsPlayerPrototypeChild())
+    {
+        // Special case: Ent is a child or grand-child of a PlayerPrototype entity.
+        BB = BoundingBox3fT(Vector3fT(-2, -2, -2), Vector3fT(2, 2, 2));
+    }
+    else
+    {
+        // The normal, usual case.
+        if (Ent->GetComponents().Size() > 0)
+            BB = Ent->GetComponents()[0]->GetEditorBB();
+    }
 
     wxASSERT(BB.IsInited());
 

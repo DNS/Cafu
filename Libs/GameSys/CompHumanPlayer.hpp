@@ -155,6 +155,7 @@ namespace cf
             private:
 
             void FillMemberVars();                              ///< A helper method for the constructors.
+            bool IsPlayerPrototype() const;                     ///< Is this component in a player prototype entity, or in a concrete player instance?
             IntrusivePtrT<cf::GuiSys::GuiImplT> GetGuiHUD();    ///< Returns the GUI instance for the player's Head-Up Display.
 
             TypeSys::VarT<std::string>   m_PlayerName;          ///< The name that the player chose for himself.

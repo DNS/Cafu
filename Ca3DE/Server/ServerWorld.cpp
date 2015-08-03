@@ -22,24 +22,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "ServerWorld.hpp"
 #include "ClientInfo.hpp"
 #include "../EngineEntity.hpp"
-#include "ConsoleCommands/ConVar.hpp"
 #include "ConsoleCommands/Console.hpp"      // For cf::va().
-#include "GameSys/HumanPlayer/CompCarriedWeapon.hpp"
-#include "GameSys/HumanPlayer/CompInventory.hpp"
-#include "GameSys/CompCollisionModel.hpp"
 #include "GameSys/CompHumanPlayer.hpp"
 #include "GameSys/CompModel.hpp"
-#include "GameSys/CompPlayerPhysics.hpp"
-#include "GameSys/CompScript.hpp"
-#include "GameSys/CompSound.hpp"
 #include "GameSys/Entity.hpp"
-#include "GameSys/EntityCreateParams.hpp"
 #include "GameSys/World.hpp"
-#include "Math3D/Matrix3x3.hpp"
-#include "Network/Network.hpp"
 #include "SceneGraph/BspTreeNode.hpp"
 #include "Win32/Win32PrintHelp.hpp"
-#include "TypeSys.hpp"
 #include "../NetConst.hpp"
 #include "../Common/CompGameEntity.hpp"
 
@@ -93,229 +82,96 @@ void CaServerWorldT::RemoveEntity(unsigned long EntityID)
 
 unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* PlayerName, const char* ModelName, unsigned long ClientInfoNr)
 {
-    IntrusivePtrT<cf::GameSys::EntityT> NewEnt  = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
-    IntrusivePtrT<CompGameEntityT>      GameEnt = new CompGameEntityT();
-
     ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > PlayerStarts;
+    IntrusivePtrT<cf::GameSys::EntityT>           PlayerPrototype = NULL;
+
     m_ScriptWorld->GetRootEntity()->GetAll(AllEnts);
 
+    // Find at least one player prototype and at least one player start
+    // (a single entity may act as both).
     for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
+    {
         if (AllEnts[EntNr]->GetComponent("PlayerStart") != NULL)
+            PlayerStarts.PushBack(AllEnts[EntNr]);
+
+        if (AllEnts[EntNr]->GetComponent("HumanPlayer") != NULL)
+            if (PlayerPrototype == NULL)
+                PlayerPrototype = AllEnts[EntNr];
+    }
+
+    if (PlayerStarts.Size() == 0) return 0xFFFFFFFF;
+    if (PlayerPrototype == NULL)  return 0xFFFFFFFF;
+
+
+    // Create a new player entity from the prototype, then initialize it.
+    IntrusivePtrT<cf::GameSys::EntityT> PlayerEnt = PlayerPrototype->Clone(true /*Recursive?*/);
+
+    AllEnts.Overwrite();
+    PlayerEnt->GetAll(AllEnts);
+
+    // Filter/remove "PlayerStart" components from PlayerEnt.
+    // Such a component can be useful in the player prototype, but not in the player.
+    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
+    {
+        const ArrayT< IntrusivePtrT<cf::GameSys::ComponentBaseT> >& Components = AllEnts[EntNr]->GetComponents();
+
+        for (unsigned int CompNr = 0; CompNr < Components.Size(); CompNr++)
         {
-            NewEnt->GetTransform()->SetOriginWS(AllEnts[EntNr]->GetTransform()->GetOriginWS() + Vector3fT(0, 0, 40));
-            NewEnt->GetTransform()->SetQuatWS(AllEnts[EntNr]->GetTransform()->GetQuatWS());
-            break;
+            if (strcmp(Components[CompNr]->GetName(), "PlayerStart") == 0)
+            {
+                AllEnts[EntNr]->DeleteComponent(CompNr);
+                CompNr--;
+            }
         }
+    }
 
-    NewEnt->GetBasics()->SetEntityName(cf::va("Player_%lu", ClientInfoNr+1));
-    NewEnt->SetApp(GameEnt);
+    assert(PlayerEnt->GetComponent("PlayerStart") == NULL);
 
-    IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayerComp = new cf::GameSys::ComponentHumanPlayerT();
+    // Set the entity name and initial transform.
+    PlayerEnt->GetBasics()->SetEntityName(cf::va("Player_%lu", ClientInfoNr + 1));
+
+    PlayerEnt->GetTransform()->SetOriginWS(PlayerStarts[0]->GetTransform()->GetOriginWS() + Vector3fT(0, 0, 40));
+    PlayerEnt->GetTransform()->SetQuatWS(PlayerStarts[0]->GetTransform()->GetQuatWS());
+
+    // Set the player's name.
+    IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayerComp =
+        dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(PlayerEnt->GetComponent("HumanPlayer"));
+
     HumanPlayerComp->SetMember("PlayerName", std::string(PlayerName));
-    NewEnt->AddComponent(HumanPlayerComp);
 
-    IntrusivePtrT<cf::GameSys::ComponentCollisionModelT> CollMdl = new cf::GameSys::ComponentCollisionModelT();
-    // The player script code will set the details of the collision model itself.
-    NewEnt->AddComponent(CollMdl);
+    // Set the 3rd person player model.
+    IntrusivePtrT<cf::GameSys::ComponentModelT> Model3rdPersonComp =
+        dynamic_pointer_cast<cf::GameSys::ComponentModelT>(PlayerEnt->GetComponent("Model"));
 
-    IntrusivePtrT<cf::GameSys::ComponentPlayerPhysicsT> PlayerPhysicsComp = new cf::GameSys::ComponentPlayerPhysicsT();
-    PlayerPhysicsComp->SetMember("Dimensions", BoundingBox3dT(Vector3dT(-16.0, -16.0, -36.0), Vector3dT(16.0,  16.0, 36.0)));
-    PlayerPhysicsComp->SetMember("StepHeight", 18.5);
-    NewEnt->AddComponent(PlayerPhysicsComp);
+    if (Model3rdPersonComp != NULL)   // This is optional.
+        Model3rdPersonComp->SetMember("Name", std::string("Games/DeathMatch/Models/Players/") + ModelName + "/" + ModelName + ".cmdl");     // TODO... don't hardcode the path!
 
-    IntrusivePtrT<cf::GameSys::ComponentModelT> Model3rdPersonComp = new cf::GameSys::ComponentModelT();
-    Model3rdPersonComp->SetMember("Name", std::string("Games/DeathMatch/Models/Players/") + ModelName + "/" + ModelName + ".cmdl");     // TODO... don't hardcode the path!
-    NewEnt->AddComponent(Model3rdPersonComp);
+    // The implementation of ComponentHumanPlayerT will set the details of the collision model.
+    // The inventory's maxima e.g. for bullets, shells, etc. are set by `HumanPlayer.lua`.
 
-    IntrusivePtrT<cf::GameSys::ComponentInventoryT> InvComp = new cf::GameSys::ComponentInventoryT();
-    // The inventory's maxima e.g. for bullets, shells, etc. are set in `HumanPlayer.lua`.
-    NewEnt->AddComponent(InvComp);
+    // Insert the new player entity into the world.
+    m_ScriptWorld->GetRootEntity()->AddChild(PlayerEnt);
 
-    IntrusivePtrT<cf::GameSys::ComponentScriptT> ScriptComp = new cf::GameSys::ComponentScriptT();
-    ScriptComp->SetMember("Name", std::string("Games/DeathMatch/Scripts/HumanPlayer.lua"));
-    NewEnt->AddComponent(ScriptComp);
-
-    // Equip the player with components for all the weapons that he can possibly carry.
-    // (What's about the Glock17 model, btw.? It seems we have a model, but no code for it?)
+    // Create matching EngineEntityT instances for PlayerEnt and all of its children.
+    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
     {
-        IntrusivePtrT<cf::GameSys::ComponentCarriedWeaponT> CompCW = NULL;
-
-        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
-        CompCW->SetMember("Label",            std::string("BattleScythe"));
-        CompCW->SetMember("IsAvail",          false);
-        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_BattleScythe.lua"));
-        CompCW->SetMember("PrimaryAmmo",      uint16_t(0));
-        CompCW->SetMember("MaxPrimaryAmmo",   uint16_t(0));
-        CompCW->SetMember("SecondaryAmmo",    uint16_t(0));
-        CompCW->SetMember("MaxSecondaryAmmo", uint16_t(0));
-        NewEnt->AddComponent(CompCW);
-
-        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
-        CompCW->SetMember("Label",            std::string("Beretta"));
-        CompCW->SetMember("IsAvail",          false);
-        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_Beretta.lua"));
-        CompCW->SetMember("PrimaryAmmo",      uint16_t(0));
-        CompCW->SetMember("MaxPrimaryAmmo",   uint16_t(17));
-        CompCW->SetMember("SecondaryAmmo",    uint16_t(0));
-        CompCW->SetMember("MaxSecondaryAmmo", uint16_t(0));
-        NewEnt->AddComponent(CompCW);
-
-        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
-        CompCW->SetMember("Label",            std::string("DesertEagle"));
-        CompCW->SetMember("IsAvail",          false);
-        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_DesertEagle.lua"));
-        CompCW->SetMember("PrimaryAmmo",      uint16_t(0));
-        CompCW->SetMember("MaxPrimaryAmmo",   uint16_t(6));
-        CompCW->SetMember("SecondaryAmmo",    uint16_t(0));
-        CompCW->SetMember("MaxSecondaryAmmo", uint16_t(0));
-        NewEnt->AddComponent(CompCW);
-
-        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
-        CompCW->SetMember("Label",            std::string("Shotgun"));
-        CompCW->SetMember("IsAvail",          false);
-        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_Shotgun.lua"));
-        CompCW->SetMember("PrimaryAmmo",      uint16_t(0));
-        CompCW->SetMember("MaxPrimaryAmmo",   uint16_t(8));
-        CompCW->SetMember("SecondaryAmmo",    uint16_t(0));
-        CompCW->SetMember("MaxSecondaryAmmo", uint16_t(0));
-        NewEnt->AddComponent(CompCW);
-
-        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
-        CompCW->SetMember("Label",            std::string("9mmAR"));
-        CompCW->SetMember("IsAvail",          false);
-        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_9mmAR.lua"));
-        CompCW->SetMember("PrimaryAmmo",      uint16_t(0));
-        CompCW->SetMember("MaxPrimaryAmmo",   uint16_t(25));
-        CompCW->SetMember("SecondaryAmmo",    uint16_t(0));
-        CompCW->SetMember("MaxSecondaryAmmo", uint16_t(2));
-        NewEnt->AddComponent(CompCW);
-
-        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
-        CompCW->SetMember("Label",            std::string("DartGun"));
-        CompCW->SetMember("IsAvail",          false);
-        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_DartGun.lua"));
-        CompCW->SetMember("PrimaryAmmo",      uint16_t(0));
-        CompCW->SetMember("MaxPrimaryAmmo",   uint16_t(5));
-        CompCW->SetMember("SecondaryAmmo",    uint16_t(0));
-        CompCW->SetMember("MaxSecondaryAmmo", uint16_t(0));
-        NewEnt->AddComponent(CompCW);
-
-        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
-        CompCW->SetMember("Label",            std::string("Bazooka"));
-        CompCW->SetMember("IsAvail",          false);
-        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_Bazooka.lua"));
-        CompCW->SetMember("PrimaryAmmo",      uint16_t(0));
-        CompCW->SetMember("MaxPrimaryAmmo",   uint16_t(1));
-        CompCW->SetMember("SecondaryAmmo",    uint16_t(0));
-        CompCW->SetMember("MaxSecondaryAmmo", uint16_t(0));
-        NewEnt->AddComponent(CompCW);
-
-        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
-        CompCW->SetMember("Label",            std::string("Gauss"));
-        CompCW->SetMember("IsAvail",          false);
-        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_Gauss.lua"));
-        CompCW->SetMember("PrimaryAmmo",      uint16_t(0));
-        CompCW->SetMember("MaxPrimaryAmmo",   uint16_t(20));
-        CompCW->SetMember("SecondaryAmmo",    uint16_t(0));
-        CompCW->SetMember("MaxSecondaryAmmo", uint16_t(0));
-        NewEnt->AddComponent(CompCW);
-
-        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
-        CompCW->SetMember("Label",            std::string("Egon"));
-        CompCW->SetMember("IsAvail",          false);
-        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_Egon.lua"));
-        CompCW->SetMember("PrimaryAmmo",      uint16_t(0));
-        CompCW->SetMember("MaxPrimaryAmmo",   uint16_t(20));
-        CompCW->SetMember("SecondaryAmmo",    uint16_t(0));
-        CompCW->SetMember("MaxSecondaryAmmo", uint16_t(0));
-        NewEnt->AddComponent(CompCW);
-
-        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
-        CompCW->SetMember("Label",            std::string("Grenade"));
-        CompCW->SetMember("IsAvail",          false);
-        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_Grenade.lua"));
-        CompCW->SetMember("PrimaryAmmo",      uint16_t(0));
-        CompCW->SetMember("MaxPrimaryAmmo",   uint16_t(1));
-        CompCW->SetMember("SecondaryAmmo",    uint16_t(0));
-        CompCW->SetMember("MaxSecondaryAmmo", uint16_t(0));
-        NewEnt->AddComponent(CompCW);
-
-        CompCW = new cf::GameSys::ComponentCarriedWeaponT();
-        CompCW->SetMember("Label",            std::string("FaceHugger"));
-        CompCW->SetMember("IsAvail",          false);
-        CompCW->SetMember("Script",           std::string("Games/DeathMatch/Scripts/cw_FaceHugger.lua"));
-        CompCW->SetMember("PrimaryAmmo",      uint16_t(0));
-        CompCW->SetMember("MaxPrimaryAmmo",   uint16_t(1));
-        CompCW->SetMember("SecondaryAmmo",    uint16_t(0));
-        CompCW->SetMember("MaxSecondaryAmmo", uint16_t(0));
-        NewEnt->AddComponent(CompCW);
+        CreateNewEntityFromBasicInfo(AllEnts[EntNr], m_ServerFrameNr + 1);
     }
-
-    // Add a camera as a child entity of NewEnt.
-    {
-        IntrusivePtrT<cf::GameSys::EntityT> CameraEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
-
-        CameraEnt->GetBasics()->SetEntityName("Camera");
-        CameraEnt->GetTransform()->SetOriginPS(Vector3fT(0.0f, 0.0f, 32.0f));   // TODO: Hardcoded values here and in the CompHumanPlayer code...
-
-        NewEnt->AddChild(CameraEnt);
-    }
-
-    // Add another child entity for the 1st-person weapon models.
-    // Note that the 1st-person models are *not* attached to the camera's origin.
-    {
-        IntrusivePtrT<cf::GameSys::EntityT> FirstPersonEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
-
-        FirstPersonEnt->GetBasics()->SetEntityName("FirstPersonEnt");
-
-        // The offset of -0.5 relative to the camera origin gives the weapon a nice
-        // 'shifting' effect when the player looks up/down.
-        FirstPersonEnt->GetTransform()->SetOriginPS(Vector3fT(0.0f, 0.0f, 31.5f));
-
-        IntrusivePtrT<cf::GameSys::ComponentModelT> Model1stPersonComp = new cf::GameSys::ComponentModelT();
-     // Model1stPersonComp->SetMember("Name", ...);     // Initialized and updated by the HumanPlayer code.
-        Model1stPersonComp->SetMember("Show", false);
-        Model1stPersonComp->SetMember("Is1stPerson", true);
-        FirstPersonEnt->AddComponent(Model1stPersonComp);
-
-        NewEnt->AddChild(FirstPersonEnt);
-
-        // Add a child entity to "FirstPersonEnt" that holds a Sound component for the weapons.
-        {
-            IntrusivePtrT<cf::GameSys::EntityT> WeaponSoundEnt = new cf::GameSys::EntityT(cf::GameSys::EntityCreateParamsT(*m_ScriptWorld));
-
-            WeaponSoundEnt->GetBasics()->SetEntityName("WeaponSoundEnt");
-
-            // The offset along the view direction is the relevant reason for introducing the WeaponSoundEnt.
-            WeaponSoundEnt->GetTransform()->SetOriginPS(Vector3fT(16.0f, 0.0f, 0.0f));
-
-            IntrusivePtrT<cf::GameSys::ComponentSoundT> WeaponSoundComp = new cf::GameSys::ComponentSoundT();
-         // WeaponSoundComp->SetMember("Name", ...);    // Initialized and updated by the HumanPlayer (weapon) code.
-            WeaponSoundComp->SetMember("AutoPlay", false);
-            WeaponSoundEnt->AddComponent(WeaponSoundComp);
-
-            FirstPersonEnt->AddChild(WeaponSoundEnt);
-        }
-    }
-
-    m_ScriptWorld->GetRootEntity()->AddChild(NewEnt);
 
     // As we're inserting a new entity into a live map, post-load stuff must be run here.
-    ScriptComp->OnPostLoad(false);
-    ScriptComp->CallLuaMethod("OnInit", 0);
-
-    for (unsigned int i = 0; i < 99; i++)
+    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
     {
-        IntrusivePtrT<cf::GameSys::ComponentCarriedWeaponT> CompCW =
-            dynamic_pointer_cast<cf::GameSys::ComponentCarriedWeaponT>(NewEnt->GetComponent("CarriedWeapon", i));
+        const ArrayT< IntrusivePtrT<cf::GameSys::ComponentBaseT> >& Components = AllEnts[EntNr]->GetComponents();
 
-        if (CompCW == NULL) break;
-
-        CompCW->OnPostLoad(false);
-        CompCW->CallLuaMethod("OnInit", 0);
+        for (unsigned int CompNr = 0; CompNr < Components.Size(); CompNr++)
+        {
+            Components[CompNr]->OnPostLoad(false /*OnlyStatic?*/);
+            Components[CompNr]->CallLuaMethod("OnInit", 0);
+        }
     }
 
-    return CreateNewEntityFromBasicInfo(GameEnt, m_ServerFrameNr + 1);
+    return PlayerEnt->GetID();
 }
 
 
@@ -411,7 +267,7 @@ void CaServerWorldT::Think(float FrameTime)
             IntrusivePtrT<CompGameEntityT> GameEnt = new CompGameEntityT();
 
             AllEnts[EntNr]->SetApp(GameEnt);
-            CreateNewEntityFromBasicInfo(GameEnt, m_ServerFrameNr);
+            CreateNewEntityFromBasicInfo(AllEnts[EntNr], m_ServerFrameNr);
 
             const ArrayT< IntrusivePtrT<cf::GameSys::ComponentBaseT> >& Components = AllEnts[EntNr]->GetComponents();
 

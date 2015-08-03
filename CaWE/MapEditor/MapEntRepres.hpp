@@ -71,6 +71,7 @@ class MapEntRepresT : public MapElementT
     MapEntRepresT(const MapEntRepresT&);        ///< Use of the Copy    Constructor is not allowed.
     void operator = (const MapEntRepresT&);     ///< Use of the Assignment Operator is not allowed.
 
+    bool           IsPlayerPrototypeChild() const;
     BoundingBox3fT GetRepresBB() const;
 };
 

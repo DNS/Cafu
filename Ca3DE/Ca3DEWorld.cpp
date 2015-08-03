@@ -108,6 +108,22 @@ Ca3DEWorldT::Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiS
     ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
     m_ScriptWorld->GetRootEntity()->GetAll(AllEnts);
 
+    // For player prototype entities make sure that their models are not shown.
+    // Showing their models may be desirable in the Map Editor, but not in the Engine.
+    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
+    {
+        if (AllEnts[EntNr]->GetComponent("HumanPlayer") != NULL)
+        {
+            for (unsigned int i = 0; true; i++)
+            {
+                IntrusivePtrT<cf::GameSys::ComponentBaseT> ModelComp = AllEnts[EntNr]->GetComponent("Model", i);
+
+                if (ModelComp == NULL) break;
+                ModelComp->SetMember("Show", false);
+            }
+        }
+    }
+
     // Create a matching
     //     - CompGameEntityT instance and
     //     - EngineEntityT instance
@@ -115,7 +131,7 @@ Ca3DEWorldT::Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiS
     for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
     {
         // This is also checked in the `cf::GameSys::WorldT` ctor, see there for details.
-        // It is repeated here as a remainder: entity IDs are used as indices into m_World->m_StaticEntityData[].
+        // It is repeated here as a reminder: entity IDs are used as indices into m_World->m_StaticEntityData[].
         assert(AllEnts[EntNr]->GetID() == EntNr);
 
         IntrusivePtrT<CompGameEntityT> GE =
@@ -123,9 +139,7 @@ Ca3DEWorldT::Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiS
 
         AllEnts[EntNr]->SetApp(GE);
 
-        // Note that this can fail (and thus not add anything to the m_EngineEntities array),
-        // especially for now unsupported entity classes like "func_group"!
-        CreateNewEntityFromBasicInfo(GE, 1 /*ServerFrameNr*/);
+        CreateNewEntityFromBasicInfo(AllEnts[EntNr], 1 /*ServerFrameNr*/);
     }
 }
 
@@ -228,10 +242,9 @@ Vector3fT Ca3DEWorldT::GetAmbientLightColorFromBB(const BoundingBox3T<double>& D
 }
 
 
-unsigned long Ca3DEWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<const CompGameEntityT> CompGameEnt,
-    unsigned long CreationFrameNr)
+void Ca3DEWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<cf::GameSys::EntityT> Ent, unsigned long CreationFrameNr)
 {
-    const unsigned long NewEntityID = CompGameEnt->GetEntity()->GetID();
+    const unsigned long NewEntityID = Ent->GetID();
 
     while (m_EngineEntities.Size() <= NewEntityID)
         m_EngineEntities.PushBack(NULL);
@@ -242,7 +255,5 @@ unsigned long Ca3DEWorldT::CreateNewEntityFromBasicInfo(IntrusivePtrT<const Comp
     // The CaServerWorldT::WriteClientDeltaUpdateMessages() and the related client code *rely* on this order!
     assert(m_EngineEntities[NewEntityID] == NULL);
     delete m_EngineEntities[NewEntityID];
-    m_EngineEntities[NewEntityID] = new EngineEntityT(CompGameEnt->GetEntity(), CreationFrameNr);
-
-    return NewEntityID;
+    m_EngineEntities[NewEntityID] = new EngineEntityT(Ent, CreationFrameNr);
 }

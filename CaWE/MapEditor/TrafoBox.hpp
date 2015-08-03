@@ -77,7 +77,7 @@ class TrafoBoxT
     const BoundingBox3fT& GetBB() const { return m_BB; }
 
     /// Sets new spatial dimensions for this trafo box. Can only be called when no drag is currently in progress (GetDragState() returns TH_NONE).
-    void SetBB(const BoundingBox3fT& BB);
+    void SetBB(const BoundingBox3fT& BB, const ArrayT<Vector3fT>& ExtraRefPos);
 
     /// Cycles the transformation modes. Can only be called when no drag is currently in progress (GetDragState() returns TH_NONE).
     void SetNextTrafoMode();
@@ -100,7 +100,7 @@ class TrafoBoxT
     wxCursor SuggestCursor(TrafoHandleT TrafoHandle) const;
 
 
-    bool BeginTrafo(const ViewWindow2DT& ViewWindow, const wxPoint& PointTS, const Vector3fT* UseRefPos=NULL);
+    bool BeginTrafo(const ViewWindow2DT& ViewWindow, const wxPoint& PointTS);
     bool UpdateTrafo(const ViewWindow2DT& ViewWindow, const wxPoint& PointTS, bool ToggleGrid);
 
     /// This method creates a transform command, according to the current state of the box.
@@ -134,27 +134,30 @@ class TrafoBoxT
     /// handle in window space the proper handle in world space.
     static TrafoHandleT GetWorldSpaceHandle(TrafoHandleT WindowSpaceHandle, const AxesInfoT& Axes);
 
+    void RenderRefPosHint(Renderer2DT& Renderer) const;
+
     /// Computes the matrix for the shear transformation that is currently in progress.
     /// @param ShearMatrix   The computed matrix is returned here.
     /// @returns whether the shear matrix could be computed.
     bool GetShearMatrix(Matrix4x4fT& ShearMatrix) const;
 
     // The overall state of the box is defined by these members:
-    BoundingBox3fT m_BB;            ///< The spatial dimensions of the transformation box. m_BB.IsInited()==false is possible, e.g. when there is no selection.
-    TrafoModeT     m_TrafoMode;     ///< The mode of transformation that the box is currently in: scale, rotate or shear. Translation is always possible by grabbing the box's body.
-    TrafoHandleT   m_DragState;     ///< Which of our handles (if any) is currently being dragged by the user.
+    BoundingBox3fT    m_BB;             ///< The spatial dimensions of the transformation box. m_BB.IsInited()==false is possible, e.g. when there is no selection.
+    ArrayT<Vector3fT> m_ExtraRefPos;    ///< Extra reference points that we may use (besides the m_BB corners) for grid snapping in TH_BODY dragging mode.
+    TrafoModeT        m_TrafoMode;      ///< The mode of transformation that the box is currently in: scale, rotate or shear. Translation is always possible by grabbing the box's body.
+    TrafoHandleT      m_DragState;      ///< Which of our handles (if any) is currently being dragged by the user.
 
     // This data is initialized in BeginTrafo() and used while a handle is being dragged.
     // It is independent of and commonly used by all trafo modes.
-    AxesInfoT      m_DragAxes;      ///< The drag axes with which the drag was started and initialized.
-    Vector3fT      m_LDownPosWorld; ///< The mouse cursor position in world space when BeginTrafo() was called for beginning the drag.
+    AxesInfoT         m_DragAxes;       ///< The drag axes with which the drag was started and initialized.
+    Vector3fT         m_LDownPosWorld;  ///< The mouse cursor position in world space when BeginTrafo() was called for beginning the drag.
 
     // Data for the specific transformations. Initialized in BeginTrafo(), then updated in UpdateTrafo() while the drag is active.
-    Vector3fT      m_RefPos;        ///< A multi-purpose reference point in world space used for translations, scales and rotations.
-    Vector3fT      m_Translate;     ///< The translation delta in world space as defined by the current drag operation.
-    Vector3fT      m_Scale;         ///< The scale as defined by the current drag operation.
-    float          m_RotAngle;      ///< The angle of rotation around m_RefPos as defined by the current drag operation. The axis of rotation is m_DragAxis.ThirdAxis.
-    float          m_Shear;         ///< The amount of shear in world space as defined by the current drag operation. The direction of the shear depends on the handle that is being dragged.
+    Vector3fT         m_RefPos;         ///< A multi-purpose reference point in world space used for translations, scales and rotations.
+    Vector3fT         m_Translate;      ///< The translation delta in world space as defined by the current drag operation.
+    Vector3fT         m_Scale;          ///< The scale as defined by the current drag operation.
+    float             m_RotAngle;       ///< The angle of rotation around m_RefPos as defined by the current drag operation. The axis of rotation is m_DragAxis.ThirdAxis.
+    float             m_Shear;          ///< The amount of shear in world space as defined by the current drag operation. The direction of the shear depends on the handle that is being dragged.
 };
 
 #endif

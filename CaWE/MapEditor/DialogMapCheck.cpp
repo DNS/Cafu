@@ -98,7 +98,28 @@ class MC_WorldHasPlayerStartT : public MapCheckerT
     }
 
     wxString GetInfo() const { return "No player start."; }
-    wxString GetHelpText() const { return "There is no player start in the map. Use the \"New Entity\" tool in order to add one."; }
+    wxString GetHelpText() const { return "There is no player start in the map. Use menu \"Prefabs > PlayerStart\" in order to add one."; }
+};
+
+
+class MC_WorldHasPlayerPrototypeT : public MapCheckerT
+{
+    public:
+
+    MC_WorldHasPlayerPrototypeT(MapDocumentT& MapDoc, IntrusivePtrT<CompMapEntityT> Ent) : MapCheckerT(MapDoc, Ent) { }
+
+    bool HasProblem() const
+    {
+        if (!m_Ent->IsWorld()) return false;
+
+        ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > Result;
+        m_Ent->GetEntity()->FindByComponent("HumanPlayer", Result);
+
+        return Result.Size() == 0;
+    }
+
+    wxString GetInfo() const { return "No player prototype."; }
+    wxString GetHelpText() const { return "There is no player prototype in the map. Use menu \"Prefabs > PlayerPrototype\" in order to add one."; }
 };
 
 
@@ -180,11 +201,9 @@ void MapCheckDialogT::UpdateProblems()
 
         // IMPORTANT NOTE: Register at most ONE problem for each Ent.
         // This is supposed to avoid problems with CommandTs...
-     // MC_UnknownTargetT        MC1(m_MapDoc, Ent); if (MC1.HasProblem()) { m_Problems.PushBack(new MC_UnknownTargetT       (MC1)); continue; }
-     // MC_UndefinedClassOrKeysT MC2(m_MapDoc, Ent); if (MC2.HasProblem()) { m_Problems.PushBack(new MC_UndefinedClassOrKeysT(MC2)); continue; }
-     // MC_DuplicateKeysT        MC3(m_MapDoc, Ent); if (MC3.HasProblem()) { m_Problems.PushBack(new MC_DuplicateKeysT       (MC3)); continue; }
-     // MC_EmptySolidEntityT     MC4(m_MapDoc, Ent); if (MC4.HasProblem()) { m_Problems.PushBack(new MC_EmptySolidEntityT    (MC4)); continue; }
-        MC_WorldHasPlayerStartT  MC5(m_MapDoc, Ent); if (MC5.HasProblem()) { m_Problems.PushBack(new MC_WorldHasPlayerStartT (MC5)); continue; }
+     // MC_UnknownTargetT           MC1(m_MapDoc, Ent); if (MC1.HasProblem()) { m_Problems.PushBack(new MC_UnknownTargetT          (MC1)); continue; }
+        MC_WorldHasPlayerStartT     MC5(m_MapDoc, Ent); if (MC5.HasProblem()) { m_Problems.PushBack(new MC_WorldHasPlayerStartT    (MC5)); continue; }
+        MC_WorldHasPlayerPrototypeT MC6(m_MapDoc, Ent); if (MC6.HasProblem()) { m_Problems.PushBack(new MC_WorldHasPlayerPrototypeT(MC6)); continue; }
     }
 
     // If no problems were found, add the "no problem" problem.

@@ -58,9 +58,14 @@ for MapName in MapList:
 
     exeSuffix = ".exe" if sys.platform == "win32" else ""
 
-    call([ToolPath + '/CaBSP/CaBSP' + exeSuffix, 'Games/DeathMatch/Maps/%s.cmap' % MapName, 'Games/DeathMatch/Worlds/%s.cw' % MapName] + Params[0])
-    call([ToolPath + '/CaPVS/CaPVS' + exeSuffix, 'Games/DeathMatch/Worlds/%s.cw' % MapName] + Params[1])
-    call([ToolPath + '/CaLight/CaLight' + exeSuffix, 'Games/DeathMatch/Worlds/%s.cw' % MapName, '-gd=Games/DeathMatch'] + Params[2])
+    if call([ToolPath + '/CaBSP/CaBSP' + exeSuffix, 'Games/DeathMatch/Maps/%s.cmap' % MapName, 'Games/DeathMatch/Worlds/%s.cw' % MapName] + Params[0]):
+        continue
+
+    if call([ToolPath + '/CaPVS/CaPVS' + exeSuffix, 'Games/DeathMatch/Worlds/%s.cw' % MapName] + Params[1]):
+        continue
+
+    if call([ToolPath + '/CaLight/CaLight' + exeSuffix, 'Games/DeathMatch/Worlds/%s.cw' % MapName, '-gd=Games/DeathMatch'] + Params[2]):
+        pass
 
 
 # Finally shutdown the computer.

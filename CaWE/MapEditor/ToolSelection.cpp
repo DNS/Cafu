@@ -402,6 +402,15 @@ bool ToolSelectionT::OnMouseMove2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
     {
         case TS_IDLE:
         {
+            // Run a "null Trafo" in order to update the m_TrafoBox's internal values.
+            // The m_TrafoBox then uses this information for rendering: If we are idle, but
+            // TH_BODY dragging *would* be possible, the related RefPos hints are rendered
+            // according to the current mouse position.
+            m_TrafoBox.BeginTrafo(ViewWindow, MousePosTS);
+            m_TrafoBox.FinishTrafo();
+
+            m_ToolMan.UpdateAllObservers(this, UPDATE_NOW);
+
             // Determine the objects under the cursor, and update it as required.
             // If there is a transformation box, it takes precedence.
             const TrafoBoxT::TrafoHandleT TrafoHandle=m_TrafoBox.CheckForHandle(ViewWindow, MousePosTS);
@@ -448,20 +457,7 @@ bool ToolSelectionT::OnMouseMove2D(ViewWindow2DT& ViewWindow, wxMouseEvent& ME)
             if (m_TrafoBox.CheckForHandle(ViewWindow, LDownPosTS)==TrafoBoxT::TH_BODY)
             {
                 // Start translating the selection.
-                Vector3fT        RefPoint;
-                const Vector3fT* RefPointPtr=NULL;
-
-                // When exactly one entity is selected, use its origin as the reference point for the
-                // transformation, not the transformation box's center.
-                if (m_MapDoc.GetSelection().Size() == 1 && m_MapDoc.GetSelection()[0]->GetType() == &MapEntRepresT::TypeInfo)
-                {
-                    IntrusivePtrT<CompMapEntityT> Entity = m_MapDoc.GetSelection()[0]->GetParent();
-
-                    RefPoint    = Entity->GetEntity()->GetTransform()->GetOriginWS();
-                    RefPointPtr = &RefPoint;
-                }
-
-                const bool Result=m_TrafoBox.BeginTrafo(ViewWindow, LDownPosTS, RefPointPtr);
+                const bool Result = m_TrafoBox.BeginTrafo(ViewWindow, LDownPosTS);
 
                 wxASSERT(Result);
                 wxASSERT(m_TrafoBox.GetDragState()==TrafoBoxT::TH_BODY);
@@ -873,12 +869,26 @@ void ToolSelectionT::OnEscape(ViewWindowT& ViewWindow)
 
 void ToolSelectionT::UpdateTrafoBox()
 {
-    BoundingBox3fT NewBB;
+    BoundingBox3fT    NewBB;
+    ArrayT<Vector3fT> ExtraRefPos;
 
-    for (unsigned long SelNr=0; SelNr<m_MapDoc.GetSelection().Size(); SelNr++)
-        NewBB.InsertValid(m_MapDoc.GetSelection()[SelNr]->GetBB());
+    for (unsigned long SelNr = 0; SelNr < m_MapDoc.GetSelection().Size(); SelNr++)
+    {
+        MapElementT* Elem = m_MapDoc.GetSelection()[SelNr];
 
-    m_TrafoBox.SetBB(NewBB);
+        NewBB.InsertValid(Elem->GetBB());
+
+        // Pick up some extra reference points that the m_TrafoBox can use
+        // (besides the box corners) for grid snapping in body dragging mode.
+        if (Elem->GetType() == &MapEntRepresT::TypeInfo)
+        {
+            IntrusivePtrT<CompMapEntityT> Entity = Elem->GetParent();
+
+            ExtraRefPos.PushBack(Entity->GetEntity()->GetTransform()->GetOriginWS());
+        }
+    }
+
+    m_TrafoBox.SetBB(NewBB, ExtraRefPos);
 }
 
 

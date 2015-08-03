@@ -66,6 +66,7 @@ static const int HandleRadius =4;
 
 TrafoBoxT::TrafoBoxT()
     : m_BB(),
+      m_ExtraRefPos(),
       m_TrafoMode(TM_SCALE),
       m_DragState(TH_NONE),
       m_DragAxes(0, false, 1, false),
@@ -79,13 +80,22 @@ TrafoBoxT::TrafoBoxT()
 }
 
 
-void TrafoBoxT::SetBB(const BoundingBox3fT& BB)
+void TrafoBoxT::SetBB(const BoundingBox3fT& BB, const ArrayT<Vector3fT>& ExtraRefPos)
 {
     // Can only reset the m_BB when no drag is currently in progress.
-    wxASSERT(m_DragState==TH_NONE);
-    if (m_DragState!=TH_NONE) return;
+    wxASSERT(m_DragState == TH_NONE);
+    if (m_DragState != TH_NONE) return;
 
-    m_BB=BB;
+    m_BB = BB;
+
+    // Don't use `m_ExtraRefPos = ExtraRefPos;` in order to avoid memory reallocation.
+    m_ExtraRefPos.Overwrite();
+
+    for (unsigned int i = 0; i < ExtraRefPos.Size(); i++)
+        m_ExtraRefPos.PushBack(ExtraRefPos[i]);
+
+    if (m_ExtraRefPos.Size() == 0 && m_BB.IsInited())
+        m_ExtraRefPos.PushBack(m_BB.GetCenter());
 }
 
 
@@ -215,7 +225,7 @@ static float GetAngle(float x1, float y1, float x2, float y2)
 }
 
 
-bool TrafoBoxT::BeginTrafo(const ViewWindow2DT& ViewWindow, const wxPoint& PointTS /*Tool Space*/, const Vector3fT* UseRefPos)
+bool TrafoBoxT::BeginTrafo(const ViewWindow2DT& ViewWindow, const wxPoint& PointTS /*Tool Space*/)
 {
     const int HorzAxis =ViewWindow.GetAxesInfo().HorzAxis;
     const int VertAxis =ViewWindow.GetAxesInfo().VertAxis;
@@ -225,61 +235,75 @@ bool TrafoBoxT::BeginTrafo(const ViewWindow2DT& ViewWindow, const wxPoint& Point
     // Note that this check is redundant - CheckForHandle() returns TH_NONE when m_BB is not initialized anyway.
     if (!m_BB.IsInited()) return false;
 
-    // // Cannot begin a new transformation when another one is currently in progress.
-    // wxASSERT(m_DragState==TH_NONE);
-    // if (m_DragState!=TH_NONE) return false;
+    // Cannot begin a new transformation when another one is currently in progress.
+    wxASSERT(m_DragState == TH_NONE);
+    if (m_DragState != TH_NONE) return false;
 
-    const TrafoHandleT NewDragState=CheckForHandle(ViewWindow, PointTS);
+    m_DragState     = CheckForHandle(ViewWindow, PointTS);
+    m_DragAxes      = ViewWindow.GetAxesInfo();
+    m_LDownPosWorld = ViewWindow.ToolToWorld(PointTS, 0.0f);    // m_LDownPosWorld[ThirdAxis] is set to 0.
+    m_RefPos        = m_BB.GetCenter();                         // Re-assigned below if necessary for the specific trafo.
+    m_Translate     = Vector3fT(0.0f, 0.0f, 0.0f);
+    m_Scale         = Vector3fT(1.0f, 1.0f, 1.0f);
+    m_RotAngle      = 0.0f;
+    m_Shear         = 0.0f;
 
-    if (NewDragState==TH_NONE) return false;
+    // Cannot begin a new transformation when the mouse is not over anything.
+    // This is intentionally checked late, so that the above values are updated
+    // even if `m_DragState == TH_NONE`.
+    if (m_DragState == TH_NONE)
+    {
+        return false;
+    }
 
-    m_DragState    =NewDragState;
-    m_DragAxes     =ViewWindow.GetAxesInfo();
-    m_LDownPosWorld=ViewWindow.ToolToWorld(PointTS, 0.0f);              // m_LDownPosWorld[ThirdAxis] is set to 0.
-    m_RefPos       =(UseRefPos==NULL) ? m_BB.GetCenter() : *UseRefPos;  // Re-assigned below if necessary for the specific trafo.
-    m_Translate    =Vector3fT(0.0f, 0.0f, 0.0f);
-    m_Scale        =Vector3fT(1.0f, 1.0f, 1.0f);
-    m_RotAngle     =0.0f;
-    m_Shear        =0.0f;
-
-
+    // We've started dragging the body.
     if (m_DragState==TH_BODY)
     {
-        if (UseRefPos==NULL)
+        // Set m_RefPos to the corner of m_BB that is nearest to m_LDownPosWorld (all in world space).
+        float SmallestDist;
+
+        float Dist=GetDistSqr(m_BB.Min[HorzAxis], m_BB.Min[VertAxis], m_LDownPosWorld[HorzAxis], m_LDownPosWorld[VertAxis]);
+        if (true)
         {
-            // Set m_RefPos to the corner of m_BB that is nearest to m_LDownPosWorld (all in world space).
-            float SmallestDist;
+            SmallestDist=Dist;
+            m_RefPos[HorzAxis]=m_BB.Min[HorzAxis];
+            m_RefPos[VertAxis]=m_BB.Min[VertAxis];
+        }
 
-            float Dist=GetDistSqr(m_BB.Min[HorzAxis], m_BB.Min[VertAxis], m_LDownPosWorld[HorzAxis], m_LDownPosWorld[VertAxis]);
-            if (true)
-            {
-                SmallestDist=Dist;
-                m_RefPos[HorzAxis]=m_BB.Min[HorzAxis];
-                m_RefPos[VertAxis]=m_BB.Min[VertAxis];
-            }
+        Dist=GetDistSqr(m_BB.Max[HorzAxis], m_BB.Min[VertAxis], m_LDownPosWorld[HorzAxis], m_LDownPosWorld[VertAxis]);
+        if (Dist<SmallestDist)
+        {
+            SmallestDist=Dist;
+            m_RefPos[HorzAxis]=m_BB.Max[HorzAxis];
+            m_RefPos[VertAxis]=m_BB.Min[VertAxis];
+        }
 
-            Dist=GetDistSqr(m_BB.Max[HorzAxis], m_BB.Min[VertAxis], m_LDownPosWorld[HorzAxis], m_LDownPosWorld[VertAxis]);
-            if (Dist<SmallestDist)
-            {
-                SmallestDist=Dist;
-                m_RefPos[HorzAxis]=m_BB.Max[HorzAxis];
-                m_RefPos[VertAxis]=m_BB.Min[VertAxis];
-            }
+        Dist=GetDistSqr(m_BB.Max[HorzAxis], m_BB.Max[VertAxis], m_LDownPosWorld[HorzAxis], m_LDownPosWorld[VertAxis]);
+        if (Dist<SmallestDist)
+        {
+            SmallestDist=Dist;
+            m_RefPos[HorzAxis]=m_BB.Max[HorzAxis];
+            m_RefPos[VertAxis]=m_BB.Max[VertAxis];
+        }
 
-            Dist=GetDistSqr(m_BB.Max[HorzAxis], m_BB.Max[VertAxis], m_LDownPosWorld[HorzAxis], m_LDownPosWorld[VertAxis]);
-            if (Dist<SmallestDist)
-            {
-                SmallestDist=Dist;
-                m_RefPos[HorzAxis]=m_BB.Max[HorzAxis];
-                m_RefPos[VertAxis]=m_BB.Max[VertAxis];
-            }
+        Dist=GetDistSqr(m_BB.Min[HorzAxis], m_BB.Max[VertAxis], m_LDownPosWorld[HorzAxis], m_LDownPosWorld[VertAxis]);
+        if (Dist<SmallestDist)
+        {
+            SmallestDist=Dist;
+            m_RefPos[HorzAxis]=m_BB.Min[HorzAxis];
+            m_RefPos[VertAxis]=m_BB.Max[VertAxis];
+        }
 
-            Dist=GetDistSqr(m_BB.Min[HorzAxis], m_BB.Max[VertAxis], m_LDownPosWorld[HorzAxis], m_LDownPosWorld[VertAxis]);
-            if (Dist<SmallestDist)
+        for (unsigned int i = 0; i < m_ExtraRefPos.Size(); i++)
+        {
+            const Vector3fT& Pos = m_ExtraRefPos[i];
+            Dist = GetDistSqr(Pos[HorzAxis], Pos[VertAxis], m_LDownPosWorld[HorzAxis], m_LDownPosWorld[VertAxis]);
+
+            if (Dist < SmallestDist)
             {
-                SmallestDist=Dist;
-                m_RefPos[HorzAxis]=m_BB.Min[HorzAxis];
-                m_RefPos[VertAxis]=m_BB.Max[VertAxis];
+                SmallestDist = Dist;
+                m_RefPos[HorzAxis] = Pos[HorzAxis];
+                m_RefPos[VertAxis] = Pos[VertAxis];
             }
         }
 
@@ -287,6 +311,7 @@ bool TrafoBoxT::BeginTrafo(const ViewWindow2DT& ViewWindow, const wxPoint& Point
         return true;
     }
 
+    // We've started dragging one of the handles (not the body).
     if (m_TrafoMode==TM_SCALE)
     {
         // The m_RefPos is the corner opposite the grabbed handle.
@@ -527,6 +552,50 @@ void TrafoBoxT::FinishTrafo()
 }
 
 
+void TrafoBoxT::RenderRefPosHint(Renderer2DT& Renderer) const
+{
+    const ViewWindow2DT& ViewWindow = Renderer.GetViewWin2D();
+
+    if (ViewWindow.GetAxesInfo().ThirdAxis != m_DragAxes.ThirdAxis)
+        return;
+
+    if (m_DragState == TH_NONE)
+    {
+        // This assumes that even in the TH_NONE (idle) state, our member variables are
+        // properly updated. The Selection tool achieves this by calling BeginTrafo() and
+        // FinishTrafo() appropriately.
+        // Note that there is little use in keeping something like `m_LDownPosTS`. While this
+        // avoids the round-off error from conversion, it is also specific to the ViewWindow's
+        // tool space it was recorded at. Despite compatible axes, the tool space of other
+        // ViewWindows is still different, rendering a pre-stored `m_LDownPosTS` useless.
+        const wxPoint      LDownPosTS = ViewWindow.WorldToTool(m_LDownPosWorld);
+        const TrafoHandleT PossibleDragState = CheckForHandle(ViewWindow, LDownPosTS);
+
+        if (PossibleDragState != TH_BODY)
+        {
+            // There is no need to indicate/preview the possible RefPos for TH_BODY dragging
+            // if such a drag state is at the current mouse position out of the question anyway.
+            return;
+        }
+    }
+    else
+    {
+        // If the drag state is TH_BODY, there is no doubt that we should render the
+        // RefPos indicator, because that is natural whenever we drag by TH_BODY.
+        wxASSERT(m_DragState == TH_BODY);
+    }
+
+    const wxPoint RefPos = ViewWindow.WorldToTool(m_RefPos + m_Translate);
+
+    Renderer.SetLineType(wxPENSTYLE_SOLID, Renderer2DT::LINE_THIN, wxColor(128, 128, 0));   // "dirty yellow"
+
+    Renderer.DrawLine(RefPos + wxPoint(-14, 0), RefPos + wxPoint(-4, 0));
+    Renderer.DrawLine(RefPos + wxPoint(  5, 0), RefPos + wxPoint(15, 0));
+    Renderer.DrawLine(RefPos + wxPoint(0, -14), RefPos + wxPoint(0, -4));
+    Renderer.DrawLine(RefPos + wxPoint(0,   5), RefPos + wxPoint(0, 15));
+}
+
+
 void TrafoBoxT::Render(Renderer2DT& Renderer, const wxColour& OutlineColor, const wxColour& HandleColor) const
 {
     // When m_BB is not initialized, draw nothing.
@@ -540,12 +609,16 @@ void TrafoBoxT::Render(Renderer2DT& Renderer, const wxColour& OutlineColor, cons
 
     if (m_DragState==TH_NONE)
     {
-        // Draw the basic outline and the handles corresponding to the current m_TrafoMode.
+        // Draw the basic outline rectangle.
         Renderer.SetLineType(wxPENSTYLE_DOT, Renderer2DT::LINE_THIN, OutlineColor);
         Renderer.Rectangle(Rect, false);
 
         Renderer.DrawBoxDims(m_BB, wxTOP | wxLEFT);
 
+        // Draw the RefPos indicator (if TH_BODY dragging would be possible).
+        RenderRefPosHint(Renderer);
+
+        // Draw the handles corresponding to the current m_TrafoMode.
         Renderer.SetFillColor(HandleColor);
         Renderer.SetLineType(wxPENSTYLE_SOLID, Renderer2DT::LINE_THIN, wxColour(0, 0, 0));
 
@@ -588,24 +661,7 @@ void TrafoBoxT::Render(Renderer2DT& Renderer, const wxColour& OutlineColor, cons
         Renderer.Rectangle(TranslatedRect, false);
         Renderer.DrawBoxDims(TranslatedBB, wxTOP | wxLEFT);
 
-        if (ViewWindow.GetAxesInfo().ThirdAxis==m_DragAxes.ThirdAxis)
-        {
-            const wxPoint RefPos=ViewWindow.WorldToTool(m_RefPos+m_Translate);
-            const wxPoint Center=ViewWindow.WorldToTool(m_BB.GetCenter()+m_Translate);
-            const wxPoint Arrow =Center-RefPos;     // The vector from RefPos to Center.
-
-         // if (Arrow.x==0 || Arrow.y==0) return;
-            if (abs(Arrow.x)<10 || abs(Arrow.y)<10) return;
-
-            const wxPoint Signs(Arrow.x>0 ? 1 : -1, Arrow.y>0 ? 1 : -1);
-
-            Renderer.SetLineType(wxPENSTYLE_SOLID, Renderer2DT::LINE_THIN, wxColor(128, 128, 0));    // I want "dirty yellow".
-
-            Renderer.DrawLine(RefPos+Signs, RefPos+Signs+wxPoint(Signs.x*8, 0));
-            Renderer.DrawLine(RefPos+Signs, RefPos+Signs+wxPoint(0, Signs.y*8));
-            Renderer.DrawLine(RefPos+Signs, RefPos+Signs+wxPoint(Signs.x*16, Signs.y*16));
-        }
-
+        RenderRefPosHint(Renderer);
         return;
     }
 
