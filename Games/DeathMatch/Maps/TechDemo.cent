@@ -1497,6 +1497,10 @@ Map.HeavyGate.LeftWing = world:new("EntityT", "LeftWing")
 Map.HeavyGate.LeftWing.move_dest = world:new("EntityT", "move_dest")
 Map.HeavyGate.RightWing = world:new("EntityT", "RightWing")
 Map.HeavyGate.RightWing.move_dest = world:new("EntityT", "move_dest")
+Map.PlayerPrototype = world:new("EntityT", "PlayerPrototype")
+Map.PlayerPrototype.Camera = world:new("EntityT", "Camera")
+Map.PlayerPrototype.FirstPerson = world:new("EntityT", "FirstPerson")
+Map.PlayerPrototype.FirstPerson.WeaponSound = world:new("EntityT", "WeaponSound")
 
 
 -- Set the worlds root entity.
@@ -2992,6 +2996,10 @@ Map.HeavyGate:AddChild(Map.HeavyGate.LeftWing)
 Map.HeavyGate.LeftWing:AddChild(Map.HeavyGate.LeftWing.move_dest)
 Map.HeavyGate:AddChild(Map.HeavyGate.RightWing)
 Map.HeavyGate.RightWing:AddChild(Map.HeavyGate.RightWing.move_dest)
+Map:AddChild(Map.PlayerPrototype)
+Map.PlayerPrototype:AddChild(Map.PlayerPrototype.Camera)
+Map.PlayerPrototype:AddChild(Map.PlayerPrototype.FirstPerson)
+Map.PlayerPrototype.FirstPerson:AddChild(Map.PlayerPrototype.FirstPerson.WeaponSound)
 
 
 -- Initialization of the entity contents ("constructors").
@@ -20392,6 +20400,7 @@ function Map.static_detail_model:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/Static/Lampe01.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -20424,7 +20433,7 @@ function Map.func_ladder_3:OnInit()
 end
 
 function Map.func_ladder_4:OnInit()
-    self:GetTransform():set("Origin", 3477.9998, -1919.99988, -2224)
+    self:GetTransform():set("Origin", 3477.9998, -1919.9999, -2224)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
@@ -20469,6 +20478,7 @@ function Map.static_detail_model_1:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_2.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -20489,13 +20499,14 @@ function Map.static_detail_model_2:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/Static/Tonne02.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
 
 function Map.static_detail_model_3:OnInit()
     self:GetTransform():set("Origin", -3460, 1408, 2144)
-    self:GetTransform():set("Orientation", 0, 0, 0.60876143)
+    self:GetTransform():set("Orientation", 0, 0, 0.6087614)
 
     local c1 = world:new("ComponentModelT")
     c1:set("Show", true)
@@ -20577,6 +20588,7 @@ function Map.static_detail_model_7:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/Static/Tonne01.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -20651,7 +20663,7 @@ end
 
 function Map.static_detail_model_12:OnInit()
     self:GetTransform():set("Origin", -3332, 1520, 2156)
-    self:GetTransform():set("Orientation", 0, 0, -0.60876143)
+    self:GetTransform():set("Orientation", 0, 0, -0.6087614)
 
     local c1 = world:new("ComponentModelT")
     c1:set("Show", true)
@@ -20923,7 +20935,7 @@ end
 
 function Map.static_detail_model_28:OnInit()
     self:GetTransform():set("Origin", -1800, 2408, 2108)
-    self:GetTransform():set("Orientation", 0, 0, 0.60876143)
+    self:GetTransform():set("Orientation", 0, 0, 0.6087614)
 
     local c1 = world:new("ComponentModelT")
     c1:set("Show", true)
@@ -21022,6 +21034,7 @@ function Map.static_detail_model_33:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/Static/Palette01.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -21042,6 +21055,7 @@ function Map.static_detail_model_34:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_2.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -21940,7 +21954,7 @@ function Map.weapon_facehugger:OnInit()
 end
 
 function Map.weapon_crossbow:OnInit()
-    self:GetTransform():set("Origin", 1944.95886, -353.83066, 561)
+    self:GetTransform():set("Origin", 1944.9589, -353.83066, 561)
     self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentModelT")
@@ -22096,6 +22110,7 @@ function Map.static_detail_model_42:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/Static/WeldTank.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -22116,6 +22131,7 @@ function Map.static_detail_model_43:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/Static/WeldTank.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -22139,7 +22155,7 @@ end
 
 function Map.static_detail_model_45:OnInit()
     self:GetTransform():set("Origin", -1573, 372, 1334)
-    self:GetTransform():set("Orientation", 0, 0, -0.60876143)
+    self:GetTransform():set("Orientation", 0, 0, -0.6087614)
 
     local c1 = world:new("ComponentModelT")
     c1:set("Show", true)
@@ -22153,6 +22169,7 @@ function Map.static_detail_model_45:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/TechDemo/Regal/regal_dirt.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -22173,6 +22190,7 @@ function Map.static_detail_model_46:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/TechDemo/Barrels/barrel1.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -22193,6 +22211,7 @@ function Map.static_detail_model_47:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/TechDemo/Barrels/barrel1.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -22213,6 +22232,7 @@ function Map.static_detail_model_48:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/TechDemo/Barrels/barrel1.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -22233,6 +22253,7 @@ function Map.static_detail_model_49:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/TechDemo/Regal/regal_dirt.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -22253,6 +22274,7 @@ function Map.static_detail_model_50:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/TechDemo/Regal/regal_dirt.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -22273,6 +22295,7 @@ function Map.static_detail_model_51:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/TechDemo/Barrels/barrel1.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -22293,6 +22316,7 @@ function Map.static_detail_model_52:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/TechDemo/Barrels/barrel1.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -22313,6 +22337,7 @@ function Map.static_detail_model_53:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/TechDemo/Barrels/barrel1.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -22333,6 +22358,7 @@ function Map.static_detail_model_54:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/TechDemo/Crates/box2a.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -22353,6 +22379,7 @@ function Map.static_detail_model_55:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/TechDemo/Crates/box2a.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -22373,6 +22400,7 @@ function Map.static_detail_model_56:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/TechDemo/Crates/box1a.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -22393,13 +22421,14 @@ function Map.static_detail_model_57:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/TechDemo/Crates/box3.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
 
 function Map.static_detail_model_58:OnInit()
     self:GetTransform():set("Origin", 736, 954, 554)
-    self:GetTransform():set("Orientation", 0, 0, 0.195090309)
+    self:GetTransform():set("Orientation", 0, 0, 0.19509031)
 
     local c1 = world:new("ComponentModelT")
     c1:set("Show", true)
@@ -22413,6 +22442,7 @@ function Map.static_detail_model_58:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/TechDemo/Crates/box3b.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -22433,6 +22463,7 @@ function Map.static_detail_model_59:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/TechDemo/Crates/box4.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -22464,6 +22495,7 @@ function Map.static_detail_model_60:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_2.cmap")
+    c2:set("IgnoreOrient", false)
 
     local c3 = world:new("ComponentScriptT")
     c3:set("Name", "")
@@ -22497,6 +22529,7 @@ function Map.static_detail_model_61:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/TechDemo/Crates/crate2.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -22610,6 +22643,7 @@ function Map.static_detail_model_62:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/TechDemo/Crates/box1a.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -22630,13 +22664,14 @@ function Map.static_detail_model_63:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/TechDemo/Crates/box3.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
 
 function Map.static_detail_model_64:OnInit()
     self:GetTransform():set("Origin", -909, 771, 1281)
-    self:GetTransform():set("Orientation", 0.085831784, -0.01513447, 0.1729875)
+    self:GetTransform():set("Orientation", 0.08583178, -0.01513447, 0.1729875)
 
     local c1 = world:new("ComponentModelT")
     c1:set("Show", true)
@@ -22650,6 +22685,7 @@ function Map.static_detail_model_64:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/Static/WeldTank.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -22965,6 +23001,7 @@ function Map.static_detail_model_65:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/Static/Palette01.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -23002,6 +23039,7 @@ function Map.static_detail_model_67:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/Static/Palette01.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -23022,6 +23060,7 @@ function Map.static_detail_model_68:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_7.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -23179,6 +23218,7 @@ function Map.static_detail_model_001:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_7.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -23277,6 +23317,7 @@ function Map.static_detail_model_002:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_7.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -23297,6 +23338,7 @@ function Map.static_detail_model_003:OnInit()
 
     local c2 = world:new("ComponentCollisionModelT")
     c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_7.cmap")
+    c2:set("IgnoreOrient", false)
 
     self:AddComponent(c1, c2)
 end
@@ -23751,4 +23793,185 @@ end
 function Map.HeavyGate.RightWing.move_dest:OnInit()
     self:GetTransform():set("Origin", 0, -112, 0)
     self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.PlayerPrototype:OnInit()
+    self:GetTransform():set("Origin", -1512, 280, 1320)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Players/Trinity/Trinity.cmdl")
+    c1:set("Animation", 0)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentHumanPlayerT")
+    c2:set("PlayerName", "PlayerPrototype")
+    c2:set("RandomCount", 0)
+    c2:set("State", 2)
+    c2:set("Health", 100)
+    c2:set("Armor", 0)
+    c2:set("Frags", 0)
+    c2:set("ActiveWeaponNr", 0)
+    c2:set("NextWeaponNr", 0)
+    c2:set("HeadSway", 0)
+
+    local c3 = world:new("ComponentCollisionModelT")
+    c3:set("Name", "")
+    c3:set("IgnoreOrient", false)
+
+    local c4 = world:new("ComponentPlayerPhysicsT")
+    c4:set("Velocity", 0, 0, 0)
+    c4:set("Dimensions", -16, -16, -36, 16, 16, 36)
+    c4:set("StepHeight", 18.5)
+    c4:set("OldWishJump", false)
+
+    local c5 = world:new("ComponentInventoryT")
+
+    local c6 = world:new("ComponentScriptT")
+    c6:set("Name", "Games/DeathMatch/Scripts/HumanPlayer.lua")
+    c6:set("ScriptCode", "")
+
+    local c7 = world:new("ComponentCarriedWeaponT")
+    c7:set("Label", "BattleScythe")
+    c7:set("IsAvail", false)
+    c7:set("Script", "Games/DeathMatch/Scripts/cw_BattleScythe.lua")
+    c7:set("PrimaryAmmo", 0)
+    c7:set("MaxPrimaryAmmo", 0)
+    c7:set("SecondaryAmmo", 0)
+    c7:set("MaxSecondaryAmmo", 0)
+
+    local c8 = world:new("ComponentCarriedWeaponT")
+    c8:set("Label", "Beretta")
+    c8:set("IsAvail", false)
+    c8:set("Script", "Games/DeathMatch/Scripts/cw_Beretta.lua")
+    c8:set("PrimaryAmmo", 0)
+    c8:set("MaxPrimaryAmmo", 17)
+    c8:set("SecondaryAmmo", 0)
+    c8:set("MaxSecondaryAmmo", 0)
+
+    local c9 = world:new("ComponentCarriedWeaponT")
+    c9:set("Label", "DesertEagle")
+    c9:set("IsAvail", false)
+    c9:set("Script", "Games/DeathMatch/Scripts/cw_DesertEagle.lua")
+    c9:set("PrimaryAmmo", 0)
+    c9:set("MaxPrimaryAmmo", 6)
+    c9:set("SecondaryAmmo", 0)
+    c9:set("MaxSecondaryAmmo", 0)
+
+    local c10 = world:new("ComponentCarriedWeaponT")
+    c10:set("Label", "Shotgun")
+    c10:set("IsAvail", false)
+    c10:set("Script", "Games/DeathMatch/Scripts/cw_Shotgun.lua")
+    c10:set("PrimaryAmmo", 0)
+    c10:set("MaxPrimaryAmmo", 8)
+    c10:set("SecondaryAmmo", 0)
+    c10:set("MaxSecondaryAmmo", 0)
+
+    local c11 = world:new("ComponentCarriedWeaponT")
+    c11:set("Label", "9mmAR")
+    c11:set("IsAvail", false)
+    c11:set("Script", "Games/DeathMatch/Scripts/cw_9mmAR.lua")
+    c11:set("PrimaryAmmo", 0)
+    c11:set("MaxPrimaryAmmo", 25)
+    c11:set("SecondaryAmmo", 0)
+    c11:set("MaxSecondaryAmmo", 2)
+
+    local c12 = world:new("ComponentCarriedWeaponT")
+    c12:set("Label", "DartGun")
+    c12:set("IsAvail", false)
+    c12:set("Script", "Games/DeathMatch/Scripts/cw_DartGun.lua")
+    c12:set("PrimaryAmmo", 0)
+    c12:set("MaxPrimaryAmmo", 5)
+    c12:set("SecondaryAmmo", 0)
+    c12:set("MaxSecondaryAmmo", 0)
+
+    local c13 = world:new("ComponentCarriedWeaponT")
+    c13:set("Label", "Bazooka")
+    c13:set("IsAvail", false)
+    c13:set("Script", "Games/DeathMatch/Scripts/cw_Bazooka.lua")
+    c13:set("PrimaryAmmo", 0)
+    c13:set("MaxPrimaryAmmo", 1)
+    c13:set("SecondaryAmmo", 0)
+    c13:set("MaxSecondaryAmmo", 0)
+
+    local c14 = world:new("ComponentCarriedWeaponT")
+    c14:set("Label", "Gauss")
+    c14:set("IsAvail", false)
+    c14:set("Script", "Games/DeathMatch/Scripts/cw_Gauss.lua")
+    c14:set("PrimaryAmmo", 0)
+    c14:set("MaxPrimaryAmmo", 20)
+    c14:set("SecondaryAmmo", 0)
+    c14:set("MaxSecondaryAmmo", 0)
+
+    local c15 = world:new("ComponentCarriedWeaponT")
+    c15:set("Label", "Egon")
+    c15:set("IsAvail", false)
+    c15:set("Script", "Games/DeathMatch/Scripts/cw_Egon.lua")
+    c15:set("PrimaryAmmo", 0)
+    c15:set("MaxPrimaryAmmo", 20)
+    c15:set("SecondaryAmmo", 0)
+    c15:set("MaxSecondaryAmmo", 0)
+
+    local c16 = world:new("ComponentCarriedWeaponT")
+    c16:set("Label", "Grenade")
+    c16:set("IsAvail", false)
+    c16:set("Script", "Games/DeathMatch/Scripts/cw_Grenade.lua")
+    c16:set("PrimaryAmmo", 0)
+    c16:set("MaxPrimaryAmmo", 1)
+    c16:set("SecondaryAmmo", 0)
+    c16:set("MaxSecondaryAmmo", 0)
+
+    local c17 = world:new("ComponentCarriedWeaponT")
+    c17:set("Label", "FaceHugger")
+    c17:set("IsAvail", false)
+    c17:set("Script", "Games/DeathMatch/Scripts/cw_FaceHugger.lua")
+    c17:set("PrimaryAmmo", 0)
+    c17:set("MaxPrimaryAmmo", 1)
+    c17:set("SecondaryAmmo", 0)
+    c17:set("MaxSecondaryAmmo", 0)
+
+    local c18 = world:new("ComponentPlayerStartT")
+    c18:set("SinglePlayer", true)
+    c18:set("MultiPlayer", true)
+
+    self:AddComponent(c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18)
+end
+
+function Map.PlayerPrototype.Camera:OnInit()
+    self:GetTransform():set("Origin", 0, 0, 32)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.PlayerPrototype.FirstPerson:OnInit()
+    self:GetTransform():set("Origin", 0, 0, 31.5)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", false)
+    c1:set("Name", "")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", true)
+
+    self:AddComponent(c1)
+end
+
+function Map.PlayerPrototype.FirstPerson.WeaponSound:OnInit()
+    self:GetTransform():set("Origin", 16, 0, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentSoundT")
+    c1:set("Name", "")
+    c1:set("AutoPlay", false)
+    c1:set("Interval", 0)
+
+    self:AddComponent(c1)
 end
