@@ -664,7 +664,7 @@ void ViewWindow2DT::Render(const wxRect& UpdateRect)
                     // Reduce resetting the pen.
                     if (DotColor!=OldColor)
                     {
-                        dc.SetPen(wxPen(DotColor, 1, wxSOLID));
+                        dc.SetPen(wxPen(DotColor, 1, wxPENSTYLE_SOLID));
                         OldColor=DotColor;
                     }
 
@@ -674,7 +674,7 @@ void ViewWindow2DT::Render(const wxRect& UpdateRect)
         else
         {
             // 1. Draw the basic background grid.
-            dc.SetPen(wxPen(Options.Grid.ColorBaseGrid, 1, wxSOLID));
+            dc.SetPen(wxPen(Options.Grid.ColorBaseGrid, 1, wxPENSTYLE_SOLID));
 
             for (int y=MinY; y<=MaxY; y+=GridSpacing) dc.DrawLine(int(MinX*m_ZoomFactor), int(y*m_ZoomFactor), int(MaxX*m_ZoomFactor), int(y*m_ZoomFactor));
             for (int x=MinX; x<=MaxX; x+=GridSpacing) dc.DrawLine(int(x*m_ZoomFactor), int(MinY*m_ZoomFactor), int(x*m_ZoomFactor), int(MaxY*m_ZoomFactor));
@@ -682,7 +682,7 @@ void ViewWindow2DT::Render(const wxRect& UpdateRect)
             // 2. Draw the first set of highlight lines (usually every 64 world units).
             if (hl1>0)
             {
-                dc.SetPen(wxPen(Options.Grid.ColorHighlight1, 1, wxSOLID));
+                dc.SetPen(wxPen(Options.Grid.ColorHighlight1, 1, wxPENSTYLE_SOLID));
 
                 // This is probably not the best way to write this loop, but it works even if GridSpacing>hl1.
                 for (int y=MinY; y<=MaxY; y+=GridSpacing) if ((y % hl1)==0) dc.DrawLine(int(MinX*m_ZoomFactor), int(y*m_ZoomFactor), int(MaxX*m_ZoomFactor), int(y*m_ZoomFactor));
@@ -692,7 +692,7 @@ void ViewWindow2DT::Render(const wxRect& UpdateRect)
             // 3. Draw the second set of highlight lines (usually every 1024 world units).
             if (hl2>0)
             {
-                dc.SetPen(wxPen(Options.Grid.ColorHighlight2, 1, wxSOLID));
+                dc.SetPen(wxPen(Options.Grid.ColorHighlight2, 1, wxPENSTYLE_SOLID));
 
                 // This is probably not the best way to write this loop, but it works even if GridSpacing>hl2.
                 for (int y=MinY; y<=MaxY; y+=GridSpacing) if ((y % hl2)==0) dc.DrawLine(int(MinX*m_ZoomFactor), int(y*m_ZoomFactor), int(MaxX*m_ZoomFactor), int(y*m_ZoomFactor));
@@ -700,7 +700,7 @@ void ViewWindow2DT::Render(const wxRect& UpdateRect)
             }
 
             // 4. Draw the major axes through the origin.
-            dc.SetPen(wxPen(Options.Grid.ColorAxes, 1, wxSOLID));
+            dc.SetPen(wxPen(Options.Grid.ColorAxes, 1, wxPENSTYLE_SOLID));
 
             dc.DrawLine(int(MinX*m_ZoomFactor), 0, int(MaxX*m_ZoomFactor), 0);
             dc.DrawLine(0, int(MinY*m_ZoomFactor), 0, int(MaxY*m_ZoomFactor));
@@ -837,8 +837,8 @@ void ViewWindow2DT::DoPaint(LayerT Layer, wxDC& dc, wxRegion* UpdateRegion)
         // We could also loop over the rectangles that for the UpdateRegion, see wxRegionIterator documentation for more details.
         wxRect UpdateRectangle=(UpdateRegion!=NULL) ? UpdateRegion->GetBox() : wxRect(wxPoint(0, 0), ClientSize);
 
-        MapOnlyDC.SetPen(wxPen(wxColor(0, 0, 0), 1, wxSOLID));
-        MapOnlyDC.SetBrush(wxBrush(Options.Grid.ColorBackground, wxSOLID));
+        MapOnlyDC.SetPen(wxPen(wxColor(0, 0, 0), 1, wxPENSTYLE_SOLID));
+        MapOnlyDC.SetBrush(wxBrush(Options.Grid.ColorBackground, wxBRUSHSTYLE_SOLID));
         MapOnlyDC.DrawRectangle(UpdateRectangle);
 #ifndef __WXGTK__
         // On Linux, this seems to invalidate the memory dc(??) for some reason...

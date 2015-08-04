@@ -303,11 +303,11 @@ void ScrolledMaterialWindowT::ExportDiffuseMaps(const wxString& DestinationDir) 
 
 void ScrolledMaterialWindowT::OnDraw(wxDC& dc)
 {
-    wxPen   NameBoxFramePen (wxColor(0, 0, 128), 1, wxSOLID);
-    wxBrush NameBoxFillBrush(wxColor(0, 0, 128),    wxSOLID);
+    wxPen   NameBoxFramePen (wxColor(0, 0, 128), 1, wxPENSTYLE_SOLID);
+    wxBrush NameBoxFillBrush(wxColor(0, 0, 128),    wxBRUSHSTYLE_SOLID);
 
-    wxPen   SelectionIndicatorFramePen (wxColor(255, 255, 255), 1, wxSOLID      );
-    wxBrush SelectionIndicatorFillBrush(wxColor(  0,   0,   0),    wxTRANSPARENT);
+    wxPen   SelectionIndicatorFramePen (wxColor(255, 255, 255), 1, wxPENSTYLE_SOLID);
+    wxBrush SelectionIndicatorFillBrush(wxColor(  0,   0,   0),    wxBRUSHSTYLE_TRANSPARENT);
 
     // Determine the visible portion of the scroll window.
     int ViewStartX;

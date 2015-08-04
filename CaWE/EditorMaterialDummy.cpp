@@ -43,7 +43,7 @@ void DummyMaterialT::Draw(wxDC& dc, const wxRect& DestRect, int NameBoxHeight, b
     dc.DrawText(m_Name, NameBoxRect.x+4, NameBoxRect.y+1);
 
 
-    static wxBrush DummyBrush(wxColour(64, 64, 64), wxCROSSDIAG_HATCH);
+    static wxBrush DummyBrush(wxColour(64, 64, 64), wxBRUSHSTYLE_CROSSDIAG_HATCH);
 
     dc.SetPen(*wxBLACK_PEN);
     dc.SetBrush(DummyBrush);

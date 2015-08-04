@@ -38,7 +38,7 @@ Renderer2DT::Renderer2DT(const ViewWindow2DT& ViewWin2D, wxDC& dc)
 
 void Renderer2DT::SetFillColor(const wxColour& Color)
 {
-    m_Brush=wxBrush(Color, wxSOLID);
+    m_Brush=wxBrush(Color, wxBRUSHSTYLE_SOLID);
 }
 
 
@@ -60,7 +60,7 @@ void Renderer2DT::SetLineType(wxPenStyle Style, int Width, const wxColour& Color
 
 void Renderer2DT::DrawPoint(const wxPoint& Point, int Radius)
 {
-    m_Brush.SetStyle(wxSOLID);
+    m_Brush.SetStyle(wxBRUSHSTYLE_SOLID);
     m_DC.SetBrush(m_Brush);
     m_DC.DrawRectangle(Point.x-Radius, Point.y-Radius, Radius*2+1, Radius*2+1);
 }
@@ -108,7 +108,7 @@ void Renderer2DT::DrawLineLoop(const ArrayT<Vector3fT>& Points, int Radius)
 
 void Renderer2DT::DrawEllipse(const wxPoint& Center, int RadiusX, int RadiusY, bool Fill)
 {
-    m_Brush.SetStyle(Fill ? wxSOLID : wxTRANSPARENT);
+    m_Brush.SetStyle(Fill ? wxBRUSHSTYLE_SOLID : wxBRUSHSTYLE_TRANSPARENT);
     m_DC.SetBrush(m_Brush);
 
     wxRect Rect(Center.x-RadiusX, Center.y-RadiusY, 2*RadiusX, 2*RadiusY);
@@ -118,7 +118,7 @@ void Renderer2DT::DrawEllipse(const wxPoint& Center, int RadiusX, int RadiusY, b
 
 void Renderer2DT::Rectangle(const wxRect& Rect, bool Fill)
 {
-    m_Brush.SetStyle(Fill ? wxSOLID : wxTRANSPARENT);
+    m_Brush.SetStyle(Fill ? wxBRUSHSTYLE_SOLID : wxBRUSHSTYLE_TRANSPARENT);
     m_DC.SetBrush(m_Brush);
 
     m_DC.DrawRectangle(Rect.x, Rect.y, Rect.width, Rect.height);
