@@ -109,6 +109,12 @@ ComponentCarriedWeaponT* ComponentCarriedWeaponT::Clone() const
 }
 
 
+void ComponentCarriedWeaponT::PreCache()
+{
+    CallLuaMethod("PreCache", 0);
+}
+
+
 void ComponentCarriedWeaponT::OnPostLoad(bool OnlyStatic)
 {
     if (OnlyStatic) return;
@@ -197,6 +203,9 @@ const cf::TypeSys::MethsDocT ComponentCarriedWeaponT::DocCallbacks[] =
     { "FireSecondary",
       "This method is called in order to have this weapon emit secondary fire.",
       "", "(boolean ThinkingOnServerSide)" },
+    { "PreCache",
+      "This method is called in order to have the weapon pre-cache its resources.",
+      "", "" },
     { NULL, NULL, NULL, NULL }
 };
 

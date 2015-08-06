@@ -141,6 +141,17 @@ Ca3DEWorldT::Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiS
 
         CreateNewEntityFromBasicInfo(AllEnts[EntNr], 1 /*ServerFrameNr*/);
     }
+
+    // Have all components of all entities precache their resources.
+    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
+    {
+        const ArrayT< IntrusivePtrT<cf::GameSys::ComponentBaseT> >& Components = AllEnts[EntNr]->GetComponents();
+
+        for (unsigned int CompNr = 0; CompNr < Components.Size(); CompNr++)
+        {
+            Components[CompNr]->PreCache();
+        }
+    }
 }
 
 

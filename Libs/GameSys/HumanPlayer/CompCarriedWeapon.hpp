@@ -49,9 +49,10 @@ namespace cf
             bool IsAvail() const { return m_IsAvail.Get(); }
 
             // Base class overrides.
-            ComponentCarriedWeaponT* Clone() const;
-            const char* GetName() const { return "CarriedWeapon"; }
-            void OnPostLoad(bool OnlyStatic);
+            ComponentCarriedWeaponT* Clone() const override;
+            const char* GetName() const override { return "CarriedWeapon"; }
+            void PreCache() override;
+            void OnPostLoad(bool OnlyStatic) override;
 
 
             // The TypeSys related declarations for this class.

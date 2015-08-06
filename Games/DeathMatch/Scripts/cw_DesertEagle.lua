@@ -83,6 +83,15 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
 end
 
 
+function DesertEagle:PreCache()
+    UpdateChildComponents()
+
+    self:Draw()
+    Model1stPerson:set("Show", false)
+    Model1stPerson:set("Name", "")
+end
+
+
 function DesertEagle:GetGroup()
     -- The weapon group and keyboard key that this weapon shares with other weapons.
     return 2

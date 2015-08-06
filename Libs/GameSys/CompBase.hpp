@@ -200,6 +200,10 @@ namespace cf
             /// This method returns the clip model of this component, if any.
             virtual const cf::ClipSys::ClipModelT* GetClipModel() { return NULL; }
 
+            /// Initializes any resources that may be needed on the client or server ahead of time.
+            /// The goal is to avoid in-game disruptions on frame-rate caused by lazily loaded assets.
+            virtual void PreCache() { }
+
             /// This method implements the graphical output of this component.
             /// @param FirstPersonView   If the world is rendered from the perspective of this component's entity.
             /// @param LodDist           The distance of the viewer entity to this component's entity.

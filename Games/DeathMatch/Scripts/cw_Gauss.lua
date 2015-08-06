@@ -55,6 +55,15 @@ local function OnSequenceWrap_Sv(Model)     -- Model == Model1stPerson as assign
 end
 
 
+function Gauss:PreCache()
+    UpdateChildComponents()
+
+    self:Draw()
+    Model1stPerson:set("Show", false)
+    Model1stPerson:set("Name", "")
+end
+
+
 function Gauss:GetGroup()
     -- The weapon group and keyboard key that this weapon shares with other weapons.
     return 4
