@@ -236,6 +236,9 @@ class ComponentCarriedWeaponT : public ComponentBaseT
     /// This method is called in order to have this weapon emit secondary fire.
     FireSecondary(boolean ThinkingOnServerSide);
 
+    /// This method is called in order to have the weapon pre-cache its resources.
+    PreCache();
+
     /// This method is called when the player walks over an instance of this weapon in the world.
     /// Its implementation is reponsible for picking up the weapon and for re-stocking the weapon
     /// and the player's inventory with the related ammunition.
