@@ -1152,8 +1152,12 @@ unsigned long BounceLighting(const CaLightWorldT& CaLightWorld, const char BLOCK
                 for (unsigned long s=0; s<PM.Width; s++)
                     for (unsigned long t=0; t<PM.Height; t++)
                     {
-                        const VectorT& E     =PM.Patches[t*PM.Width+s].UnradiatedEnergy;
-                        double         ThisUE=E.x+E.y+E.z;
+                        const cf::PatchT& Patch = PM.Patches[t*PM.Width + s];
+
+                        if (!Patch.InsideFace) continue;
+
+                        const VectorT& E      = Patch.UnradiatedEnergy;
+                        const double   ThisUE = E.x + E.y + E.z;
 
                         if (ThisUE>BestUE)
                         {
@@ -1489,6 +1493,22 @@ int main(int ArgC, const char* ArgV[])
 
             // Initialize
             InitializePatches(CaLightWorld);                // Init2.cpp
+
+            // Assert that "outer" patches don't have any energy.
+            for (unsigned long PatchMeshNr = 0; PatchMeshNr < PatchMeshes.Size(); PatchMeshNr++)
+            {
+                const cf::PatchMeshT& PM = PatchMeshes[PatchMeshNr];
+
+                for (unsigned long PatchNr = 0; PatchNr < PM.Patches.Size(); PatchNr++)
+                {
+                    const cf::PatchT& Patch = PM.Patches[PatchNr];
+
+                    if (!Patch.InsideFace && (Patch.UnradiatedEnergy != Vector3dT() || Patch.TotalEnergy != Vector3dT()))
+                    {
+                        Error("There is a patch that is not inside its face, but has energy!");
+                    }
+                }
+            }
 
             // Create a mapping from NodeTs to their patch meshes, with the patch meshes being given as a list of indices into the PatchMeshes array.
             for (unsigned long PatchMeshNr=0; PatchMeshNr<PatchMeshes.Size(); PatchMeshNr++)

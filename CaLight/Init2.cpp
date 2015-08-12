@@ -34,6 +34,7 @@ void InitSunlight(cf::PatchMeshT& PatchMesh, const ArrayT< ArrayT<Vector3dT> >& 
         cf::PatchT&              Patch=PatchMesh.Patches[PatchNr];
         const ArrayT<Vector3dT>& sc   =SampleCoords[PatchNr];
 
+        if (!Patch.InsideFace) continue;
         if (sc.Size()==0) continue;
 
         for (unsigned long SunNr=0; SunNr<Suns.Size(); SunNr++)
