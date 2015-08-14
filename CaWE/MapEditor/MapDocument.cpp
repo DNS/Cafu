@@ -1599,12 +1599,17 @@ void MapDocumentT::SetSelection(const ArrayT<MapElementT*>& NewSelection)
 
     if (m_Selection.Size() > 0)
     {
-        MapElementT* SelElem = m_Selection[m_Selection.Size() - 1];
+        MapElementT*                        SelElem = m_Selection[m_Selection.Size() - 1];
+        IntrusivePtrT<cf::GameSys::EntityT> SelEnt  = SelElem->GetParent()->GetEntity();
+
+        // As long as the parent entity is selected, too, bubble up.
+        while (SelEnt->GetParent() != NULL && GetMapEnt(SelEnt->GetParent())->GetRepres()->IsSelected())
+            SelEnt = SelEnt->GetParent();
 
         // If the new selection is empty, the m_PasteParentID is (intentionally) not updated.
         // If SelElem is a primitive, a "Paste" will insert the new objects *next* to it.
         // If SelElem is an entity,   a "Paste" will insert the new objects *into* to it.
-        m_PasteParentID = SelElem->GetParent()->GetEntity()->GetID();
+        m_PasteParentID = SelEnt->GetID();
     }
 }
 
