@@ -726,27 +726,42 @@ void EntityHierarchyDialogT::OnTreeItemRightClick(wxTreeEvent& TE)
         case ID_MENU_MOVE_ENTITY_UP:
         case ID_MENU_MOVE_ENTITY_DOWN:
         {
-            const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > Sel = m_MapDoc->GetSelectedEntities();
+            ArrayT<MapElementT*> Selection = m_MapDoc->GetSelection();
 
-            if (Sel.Size() == 0)
+            // Remove all entities (and primitives) whose parents are in the selection as well.
+            MapDocumentT::Reduce(Selection);
+
+            // Remove all remaining primitives from the Selection, keep only the entities.
+            for (unsigned int SelNr = 0; SelNr < Selection.Size(); SelNr++)
+            {
+                if (Selection[SelNr]->GetType() != &MapEntRepresT::TypeInfo)
+                {
+                    Selection.RemoveAt(SelNr);
+                    SelNr--;
+                }
+            }
+
+            if (Selection.Size() == 0)
             {
                 wxMessageBox("Select an entity first.\n\nIn order to move an entity, you must select it first.");
                 break;
             }
 
-            if (Sel.Size() > 1)
+            if (Selection.Size() > 1)
             {
                 wxMessageBox("Only one entity can be moved at a time.");
                 break;
             }
 
-            if (Sel[0]->GetParent().IsNull())
+            const IntrusivePtrT<cf::GameSys::EntityT> SelEnt = Selection[0]->GetParent()->GetEntity();
+
+            if (SelEnt->GetParent().IsNull())
             {
                 wxMessageBox("The map's topmost (root) entity cannot be moved.");
                 break;
             }
 
-            const int NewPos = Sel[0]->GetParent()->GetChildren().Find(Sel[0]) + (MenuSelID == ID_MENU_MOVE_ENTITY_UP ? -1 : 1);
+            const int NewPos = SelEnt->GetParent()->GetChildren().Find(SelEnt) + (MenuSelID == ID_MENU_MOVE_ENTITY_UP ? -1 : 1);
 
             if (NewPos < 0)
             {
@@ -754,13 +769,13 @@ void EntityHierarchyDialogT::OnTreeItemRightClick(wxTreeEvent& TE)
                 break;
             }
 
-            if (NewPos >= int(Sel[0]->GetParent()->GetChildren().Size()))
+            if (NewPos >= int(SelEnt->GetParent()->GetChildren().Size()))
             {
                 wxMessageBox("This entity is already the last child of its parent.\n\nUse drag-and-drop or cut-and-paste if you would like to assign the entity to another parent.");
                 break;
             }
 
-            m_Parent->SubmitCommand(new CommandChangeEntityHierarchyT(m_MapDoc, Sel[0], Sel[0]->GetParent(), NewPos));
+            m_Parent->SubmitCommand(new CommandChangeEntityHierarchyT(m_MapDoc, SelEnt, SelEnt->GetParent(), NewPos));
             break;
         }
 
