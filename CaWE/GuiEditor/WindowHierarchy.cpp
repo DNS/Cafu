@@ -301,6 +301,15 @@ void WindowHierarchyT::RefreshTree()
             Expand(Result);
     }
 
+    // Make sure that the selected elements are visible.
+    for (unsigned long SelNr = 0; SelNr < Selection.Size(); SelNr++)
+    {
+        wxTreeItemId Result = FindTreeItem(ID, Selection[SelNr]);
+
+        if (Result.IsOk())
+            EnsureVisible(Result);
+    }
+
     Thaw();
 }
 
