@@ -757,8 +757,8 @@ bool ChildFrameT::SubmitCommand(CommandT* Command)
 
 Vector3fT ChildFrameT::GuessUserVisiblePoint() const
 {
-    Vector3fT     Point(0, 0, 0);   // TODO: Init along the view dir of the MRU camera instead? Or m_SelectionBB.GetCenter()?
-    unsigned long HaveAxes=0;       // Bit i is set if we have a coordinate for the i-th axis.
+    Vector3fT     Point(m_Doc->GetMostRecentSelBB().GetCenter());
+    unsigned long HaveAxes = 0;     // Bit i is set if we have a coordinate for the i-th axis.
 
     for (unsigned long ViewWinNr=0; ViewWinNr<m_ViewWindows.Size() && HaveAxes<7; ViewWinNr++)
     {
