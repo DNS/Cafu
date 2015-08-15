@@ -76,10 +76,10 @@ namespace MapEditor
         /// Updates the colors of all items in the tree.
         void UpdateAllGroupColors();
 
-        MapDocumentT*                       m_MapDoc;
-        ChildFrameT*                        m_Parent;
-        bool                                m_IsRecursiveSelfNotify;
-        IntrusivePtrT<cf::GameSys::EntityT> m_DraggedEntity;
+        MapDocumentT*                                 m_MapDoc;
+        ChildFrameT*                                  m_Parent;
+        bool                                          m_IsRecursiveSelfNotify;
+        ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > m_DraggedEntities;
 
         void OnKeyDown           (wxKeyEvent&   KE);
         void OnTreeLeftClick     (wxMouseEvent& ME);

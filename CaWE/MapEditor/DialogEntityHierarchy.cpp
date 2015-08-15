@@ -94,7 +94,7 @@ EntityHierarchyDialogT::EntityHierarchyDialogT(ChildFrameT* Parent, wxWindow* Wi
       m_MapDoc(Parent->GetDoc()),
       m_Parent(Parent),
       m_IsRecursiveSelfNotify(false),
-      m_DraggedEntity(NULL)
+      m_DraggedEntities()
 {
     // // Build list of entity hierarchy icons.
     // wxImageList* TreeIcons = new wxImageList(16, 16);
@@ -780,21 +780,39 @@ void EntityHierarchyDialogT::OnTreeItemRightClick(wxTreeEvent& TE)
 
 void EntityHierarchyDialogT::OnBeginDrag(wxTreeEvent& TE)
 {
-    wxASSERT(m_DraggedEntity == NULL);
+    wxASSERT(m_DraggedEntities.Size() == 0);
 
-    // Unfortunately we need this array in order to call the method below.
-    // This is the only way to get the number of selected tree items.
-    wxArrayTreeItemIds SelectedItems;
+    ArrayT<MapElementT*> Selection = m_MapDoc->GetSelection();
 
-    if (GetSelections(SelectedItems) > 1)
+    // Remove all entities (and primitives) whose parents are in the selection as well.
+    MapDocumentT::Reduce(Selection);
+
+    // Copy all remaining entities into m_DraggedEntities (skipping any primitives).
+    for (unsigned int SelNr = 0; SelNr < Selection.Size(); SelNr++)
     {
-        wxMessageBox("Sorry, you can only drag one entity at a time.");
+        if (Selection[SelNr]->GetType() == &MapEntRepresT::TypeInfo)
+        {
+            // Double-check that this is really a MapEntRepresT.
+            wxASSERT(Selection[SelNr]->GetParent()->GetRepres() == Selection[SelNr]);
+
+            m_DraggedEntities.PushBack(Selection[SelNr]->GetParent()->GetEntity());
+        }
+    }
+
+    if (m_DraggedEntities.Size() == 0)
+    {
         return;
     }
 
+    // The entity that is related to TE is somewhat unrelated to our current selection.
+    // However, if we start a drag at a previously unselected entity, the wxTreeCtrl
+    // preceeds the begin of the drag with an update of the selection. As a result, the
+    // entity [ ((EntityTreeItemT*)GetItemData(TE.GetItem()))->GetEntity() ] *should* be
+    // in (the hierarchies of) the m_DraggedEntities, but we don't bother checking it.
     if (!TE.GetItem().IsOk())   // Should never happen.
     {
         wxMessageBox("Sorry, this entity cannot be dragged.");
+        m_DraggedEntities.Clear();
         return;
     }
 
@@ -802,48 +820,74 @@ void EntityHierarchyDialogT::OnBeginDrag(wxTreeEvent& TE)
     // if (TE.GetItem() == GetRootItem())
     // {
     //     wxMessageBox("Sorry, the root entity cannot be dragged.");
+    //     m_DraggedEntities.Clear();
     //     return;
     // }
 
-    IntrusivePtrT<cf::GameSys::EntityT> Entity = ((EntityTreeItemT*)GetItemData(TE.GetItem()))->GetEntity();
-    MapEntRepresT*                      Repres = GetMapEnt(Entity)->GetRepres();
-
-    if (!Repres->CanSelect())
-    {
-        return;
-    }
-
-    m_DraggedEntity = Entity;
     TE.Allow();
 }
 
 
 void EntityHierarchyDialogT::OnEndDrag(wxTreeEvent& TE)
 {
-    wxASSERT(!m_DraggedEntity.IsNull());
-    if (m_DraggedEntity.IsNull()) return;
-    IntrusivePtrT<cf::GameSys::EntityT> SourceEntity = m_DraggedEntity;
-    m_DraggedEntity = NULL;
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > SourceEntities = m_DraggedEntities;
+
+    m_DraggedEntities.Clear();
 
     if (!TE.GetItem().IsOk()) return;
+
     IntrusivePtrT<cf::GameSys::EntityT> TargetEntity = ((EntityTreeItemT*)GetItemData(TE.GetItem()))->GetEntity();
     MapEntRepresT*                      TargetRepres = GetMapEnt(TargetEntity)->GetRepres();
 
-    // If the target entity is locked, don't modify it.
+    // If the target entity is locked, don't drag anything into it.
     if (!TargetRepres->CanSelect()) return;
 
-    // If SourceEntity is already an immediate child of TargetEntity, do nothing.
-    if (SourceEntity->GetParent() == TargetEntity) return;
+    // "Validate" the source entities.
+    for (unsigned int EntNr = 0; EntNr < SourceEntities.Size(); EntNr++)
+    {
+        // If a source entity is already an immediate child of TargetEntity,
+        // there is nothing to do with it -- let's just remove it from the list.
+        if (SourceEntities[EntNr]->GetParent() == TargetEntity)
+        {
+            SourceEntities.RemoveAtAndKeepOrder(EntNr);
+            EntNr--;
+            continue;
+        }
 
-    // Make sure that TargetEntity is not in the subtree of SourceEntity (or else the reparenting would create invalid cycles).
-    // Although the command below does the same check redundantly again, we also want to have it here for clarity.
-    // Note that the TargetEntity can still be a child in a different subtree of SourceEntity->Parent.
-    if (SourceEntity->Has(TargetEntity)) return;
+        // Make sure that TargetEntity is not in the subtree of a source entity (or else the
+        // reparenting would create invalid cycles). Although the command below does the same
+        // check redundantly again, we also want to have it here for clarity. Note that the
+        // TargetEntity can still be a child in a different subtree of SourceEntities[EntNr]->Parent.
+        if (SourceEntities[EntNr]->Has(TargetEntity))
+        {
+            wxMessageBox(wxString::Format(
+                "An entity cannot be dragged into one of its children.\n\n"
+                "You cannot drag a parent entity (\"%s\") into one of its children (\"%s\").",
+                    SourceEntities[EntNr]->GetBasics()->GetEntityName().c_str(),
+                    TargetEntity->GetBasics()->GetEntityName().c_str()));
+            return;
+        }
+    }
 
-    // Make SourceEntity a child of TargetEntity.
+    // Make all remaining source entities children of TargetEntity.
+    ArrayT<CommandT*>   Commands;
     const unsigned long NewPos = TargetEntity->GetChildren().Size();
 
-    m_Parent->SubmitCommand(new CommandChangeEntityHierarchyT(m_MapDoc, SourceEntity, TargetEntity, NewPos));
+    for (unsigned int EntNr = 0; EntNr < SourceEntities.Size(); EntNr++)
+    {
+        Commands.PushBack(new CommandChangeEntityHierarchyT(m_MapDoc, SourceEntities[EntNr], TargetEntity, NewPos + EntNr));
+    }
+
+    if (Commands.Size() == 1)
+    {
+        m_Parent->SubmitCommand(new CommandMacroT(Commands,
+            wxString::Format("Drag entity \"%s\"", SourceEntities[0]->GetBasics()->GetEntityName().c_str())));
+    }
+    else if (Commands.Size() > 1)
+    {
+        m_Parent->SubmitCommand(new CommandMacroT(Commands,
+            wxString::Format("Drag %lu entities", Commands.Size())));
+    }
 }
 
 
