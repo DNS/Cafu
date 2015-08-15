@@ -83,7 +83,6 @@ Map.ammo_clip_large_6 = world:new("EntityT", "ammo_clip_large_6")
 Map.item_medkit_2 = world:new("EntityT", "item_medkit_2")
 Map.moveable_barrel3_29 = world:new("EntityT", "moveable_barrel3_29")
 Map.func_static_53467 = world:new("EntityT", "func_static_53467")
-Map.func_static_53531 = world:new("EntityT", "func_static_53531")
 Map.moveable_barrel3_24 = world:new("EntityT", "moveable_barrel3_24")
 Map.light_5818 = world:new("EntityT", "light_5818")
 Map.item_pda_1 = world:new("EntityT", "item_pda_1")
@@ -522,7 +521,6 @@ Map.hallway_bigdoor4_light1 = world:new("EntityT", "hallway_bigdoor4_light1")
 Map.light_5842 = world:new("EntityT", "light_5842")
 Map.light_5843 = world:new("EntityT", "light_5843")
 Map.hallway_skylight = world:new("EntityT", "hallway_skylight")
-Map.func_static_53533 = world:new("EntityT", "func_static_53533")
 Map.hallway_row4_light3 = world:new("EntityT", "hallway_row4_light3")
 Map.hallway_bubbles2_1 = world:new("EntityT", "hallway_bubbles2_1")
 Map.hallway_bubbles2_2 = world:new("EntityT", "hallway_bubbles2_2")
@@ -1493,14 +1491,18 @@ Map.PlayerPrototype = world:new("EntityT", "PlayerPrototype")
 Map.PlayerPrototype.Camera = world:new("EntityT", "Camera")
 Map.PlayerPrototype.FirstPerson = world:new("EntityT", "FirstPerson")
 Map.PlayerPrototype.FirstPerson.WeaponSound = world:new("EntityT", "WeaponSound")
-Map.Platform = world:new("EntityT", "Platform")
-Map.Platform.ammo_shells_large_4 = world:new("EntityT", "ammo_shells_large_4")
-Map.Platform.ammo_grenade_small_3 = world:new("EntityT", "ammo_grenade_small_3")
-Map.Platform.ammo_cells_large_1 = world:new("EntityT", "ammo_cells_large_1")
-Map.Platform.func_static_53532 = world:new("EntityT", "func_static_53532")
-Map.Platform.func_static_53612 = world:new("EntityT", "func_static_53612")
-Map.Platform.weapon_crossbow = world:new("EntityT", "weapon_crossbow")
-Map.Platform.ammo_crossbow_arrows = world:new("EntityT", "ammo_crossbow_arrows")
+Map.HallwayLift = world:new("EntityT", "HallwayLift")
+Map.HallwayLift.Platform = world:new("EntityT", "Platform")
+Map.HallwayLift.Platform.Call_Panel = world:new("EntityT", "Call_Panel")
+Map.HallwayLift.Platform.ammo_shells_large_4 = world:new("EntityT", "ammo_shells_large_4")
+Map.HallwayLift.Platform.ammo_grenade_small_3 = world:new("EntityT", "ammo_grenade_small_3")
+Map.HallwayLift.Platform.ammo_cells_large_1 = world:new("EntityT", "ammo_cells_large_1")
+Map.HallwayLift.Platform.func_static_53532 = world:new("EntityT", "func_static_53532")
+Map.HallwayLift.Platform.func_static_53612 = world:new("EntityT", "func_static_53612")
+Map.HallwayLift.Platform.weapon_crossbow = world:new("EntityT", "weapon_crossbow")
+Map.HallwayLift.Platform.ammo_crossbow_arrows = world:new("EntityT", "ammo_crossbow_arrows")
+Map.HallwayLift_Call_0 = world:new("EntityT", "HallwayLift_Call_0")
+Map.HallwayLift_Call_1 = world:new("EntityT", "HallwayLift_Call_1")
 
 
 -- Set the worlds root entity.
@@ -1582,7 +1584,6 @@ Map:AddChild(Map.ammo_clip_large_6)
 Map:AddChild(Map.item_medkit_2)
 Map:AddChild(Map.moveable_barrel3_29)
 Map:AddChild(Map.func_static_53467)
-Map:AddChild(Map.func_static_53531)
 Map:AddChild(Map.moveable_barrel3_24)
 Map:AddChild(Map.light_5818)
 Map:AddChild(Map.item_pda_1)
@@ -2021,7 +2022,6 @@ Map:AddChild(Map.hallway_bigdoor4_light1)
 Map:AddChild(Map.light_5842)
 Map:AddChild(Map.light_5843)
 Map:AddChild(Map.hallway_skylight)
-Map:AddChild(Map.func_static_53533)
 Map:AddChild(Map.hallway_row4_light3)
 Map:AddChild(Map.hallway_bubbles2_1)
 Map:AddChild(Map.hallway_bubbles2_2)
@@ -2992,14 +2992,18 @@ Map:AddChild(Map.PlayerPrototype)
 Map.PlayerPrototype:AddChild(Map.PlayerPrototype.Camera)
 Map.PlayerPrototype:AddChild(Map.PlayerPrototype.FirstPerson)
 Map.PlayerPrototype.FirstPerson:AddChild(Map.PlayerPrototype.FirstPerson.WeaponSound)
-Map:AddChild(Map.Platform)
-Map.Platform:AddChild(Map.Platform.ammo_shells_large_4)
-Map.Platform:AddChild(Map.Platform.ammo_grenade_small_3)
-Map.Platform:AddChild(Map.Platform.ammo_cells_large_1)
-Map.Platform:AddChild(Map.Platform.func_static_53532)
-Map.Platform:AddChild(Map.Platform.func_static_53612)
-Map.Platform:AddChild(Map.Platform.weapon_crossbow)
-Map.Platform:AddChild(Map.Platform.ammo_crossbow_arrows)
+Map:AddChild(Map.HallwayLift)
+Map.HallwayLift:AddChild(Map.HallwayLift.Platform)
+Map.HallwayLift.Platform:AddChild(Map.HallwayLift.Platform.Call_Panel)
+Map.HallwayLift.Platform:AddChild(Map.HallwayLift.Platform.ammo_shells_large_4)
+Map.HallwayLift.Platform:AddChild(Map.HallwayLift.Platform.ammo_grenade_small_3)
+Map.HallwayLift.Platform:AddChild(Map.HallwayLift.Platform.ammo_cells_large_1)
+Map.HallwayLift.Platform:AddChild(Map.HallwayLift.Platform.func_static_53532)
+Map.HallwayLift.Platform:AddChild(Map.HallwayLift.Platform.func_static_53612)
+Map.HallwayLift.Platform:AddChild(Map.HallwayLift.Platform.weapon_crossbow)
+Map.HallwayLift.Platform:AddChild(Map.HallwayLift.Platform.ammo_crossbow_arrows)
+Map:AddChild(Map.HallwayLift_Call_0)
+Map:AddChild(Map.HallwayLift_Call_1)
 
 
 -- Initialization of the entity contents ("constructors").
@@ -4081,23 +4085,6 @@ function Map.func_static_53467:OnInit()
     c1:set("Skin", -1)
     c1:set("Scale", 1)
     c1:set("Gui", "Games/DeathMatch/guis/doors/pda_door.gui")
-    c1:set("IsSubmodel", false)
-    c1:set("Is1stPerson", false)
-
-    self:AddComponent(c1)
-end
-
-function Map.func_static_53531:OnInit()
-    self:GetTransform():set("Origin", 2112, -398, 555)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-
-    local c1 = world:new("ComponentModelT")
-    c1:set("Show", true)
-    c1:set("Name", "Games/DeathMatch/models/mapobjects/com/elevguistand/elevguistand.lwo")
-    c1:set("Animation", -1)
-    c1:set("Skin", -1)
-    c1:set("Scale", 1)
-    c1:set("Gui", "Games/DeathMatch/guis/doors/liftcall.gui")
     c1:set("IsSubmodel", false)
     c1:set("Is1stPerson", false)
 
@@ -9679,23 +9666,6 @@ function Map.hallway_skylight:OnInit()
     self:GetBasics():set("Static", true)
     self:GetTransform():set("Origin", 1792, -448, 960)
     self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
-function Map.func_static_53533:OnInit()
-    self:GetTransform():set("Origin", 1928, -606, 651)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-
-    local c1 = world:new("ComponentModelT")
-    c1:set("Show", true)
-    c1:set("Name", "Games/DeathMatch/models/mapobjects/com/elevguistand/elevguistand.lwo")
-    c1:set("Animation", -1)
-    c1:set("Skin", -1)
-    c1:set("Scale", 1)
-    c1:set("Gui", "Games/DeathMatch/guis/doors/liftcall.gui")
-    c1:set("IsSubmodel", false)
-    c1:set("Is1stPerson", false)
-
-    self:AddComponent(c1)
 end
 
 function Map.hallway_row4_light3:OnInit()
@@ -23756,12 +23726,41 @@ function Map.PlayerPrototype.FirstPerson.WeaponSound:OnInit()
     self:AddComponent(c1)
 end
 
-function Map.Platform:OnInit()
-    self:GetTransform():set("Origin", 2016, -544, 552)
+function Map.HallwayLift:OnInit()
+    self:GetTransform():set("Origin", 1992, -544, 552)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
-function Map.Platform.ammo_shells_large_4:OnInit()
+function Map.HallwayLift.Platform:OnInit()
+    self:GetTransform():set("Origin", 24, 0, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.HallwayLift.Platform.Call_Panel:OnInit()
+    self:GetTransform():set("Origin", -64, 200, -8)
+    self:GetTransform():set("Orientation", 0, 0, -4.371139e-008)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_7.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "Games/DeathMatch/GUIs/Activate_main.cgui")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentCollisionModelT")
+    c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_7.cmap")
+    c2:set("IgnoreOrient", false)
+
+    local c3 = world:new("ComponentTargetT")
+    c3:set("Target", "HallwayLift")
+
+    self:AddComponent(c1, c2, c3)
+end
+
+function Map.HallwayLift.Platform.ammo_shells_large_4:OnInit()
     self:GetTransform():set("Origin", -72, 172, -8)
     self:GetTransform():set("Orientation", 0, 0, 0)
 
@@ -23792,7 +23791,7 @@ function Map.Platform.ammo_shells_large_4:OnInit()
     self:AddComponent(c1, c2, c3, c4)
 end
 
-function Map.Platform.ammo_grenade_small_3:OnInit()
+function Map.HallwayLift.Platform.ammo_grenade_small_3:OnInit()
     self:GetTransform():set("Origin", -48, 180, -8)
     self:GetTransform():set("Orientation", 0, 0, 0)
 
@@ -23823,7 +23822,7 @@ function Map.Platform.ammo_grenade_small_3:OnInit()
     self:AddComponent(c1, c2, c3, c4)
 end
 
-function Map.Platform.ammo_cells_large_1:OnInit()
+function Map.HallwayLift.Platform.ammo_cells_large_1:OnInit()
     self:GetTransform():set("Origin", -16, 172, -7)
     self:GetTransform():set("Orientation", 0, 0, 0)
 
@@ -23854,7 +23853,7 @@ function Map.Platform.ammo_cells_large_1:OnInit()
     self:AddComponent(c1, c2, c3, c4)
 end
 
-function Map.Platform.func_static_53532:OnInit()
+function Map.HallwayLift.Platform.func_static_53532:OnInit()
     self:GetTransform():set("Origin", -56, 194, 3)
     self:GetTransform():set("Orientation", 0, 0, 0)
 
@@ -23871,7 +23870,7 @@ function Map.Platform.func_static_53532:OnInit()
     self:AddComponent(c1)
 end
 
-function Map.Platform.func_static_53612:OnInit()
+function Map.HallwayLift.Platform.func_static_53612:OnInit()
     self:GetTransform():set("Origin", -104, 120, -8)
     self:GetTransform():set("Orientation", 0, 0, 0)
 
@@ -23888,7 +23887,7 @@ function Map.Platform.func_static_53612:OnInit()
     self:AddComponent(c1)
 end
 
-function Map.Platform.weapon_crossbow:OnInit()
+function Map.HallwayLift.Platform.weapon_crossbow:OnInit()
     self:GetTransform():set("Origin", -23.231445, 136, -8)
     self:GetTransform():set("Orientation", 0, 0, 0)
 
@@ -23919,7 +23918,7 @@ function Map.Platform.weapon_crossbow:OnInit()
     self:AddComponent(c1, c2, c3, c4)
 end
 
-function Map.Platform.ammo_crossbow_arrows:OnInit()
+function Map.HallwayLift.Platform.ammo_crossbow_arrows:OnInit()
     self:GetTransform():set("Origin", -8, 174, 9)
     self:GetTransform():set("Orientation", 0, 0, 0)
 
@@ -23948,4 +23947,52 @@ function Map.Platform.ammo_crossbow_arrows:OnInit()
     c4:set("Interval", 0)
 
     self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.HallwayLift_Call_0:OnInit()
+    self:GetTransform():set("Origin", 2112, -400, 544)
+    self:GetTransform():set("Orientation", 0, 0, -4.371139e-008)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_7.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "Games/DeathMatch/GUIs/Activate_main.cgui")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentCollisionModelT")
+    c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_7.cmap")
+    c2:set("IgnoreOrient", false)
+
+    local c3 = world:new("ComponentTargetT")
+    c3:set("Target", "HallwayLift")
+
+    self:AddComponent(c1, c2, c3)
+end
+
+function Map.HallwayLift_Call_1:OnInit()
+    self:GetTransform():set("Origin", 1928, -608, 640)
+    self:GetTransform():set("Orientation", 0, 0, 0.7071067)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_7.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "Games/DeathMatch/GUIs/Activate_main.cgui")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentCollisionModelT")
+    c2:set("Name", "Games/DeathMatch/Models/Terminals/Terminal_7.cmap")
+    c2:set("IgnoreOrient", false)
+
+    local c3 = world:new("ComponentTargetT")
+    c3:set("Target", "HallwayLift")
+
+    self:AddComponent(c1, c2, c3)
 end
