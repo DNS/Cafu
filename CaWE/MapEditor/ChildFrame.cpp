@@ -1886,7 +1886,20 @@ void ChildFrameT::OnMenuComponents(wxCommandEvent& CE)
         return;
     }
 
-    const ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > Selection = m_Doc->GetSelectedEntities();
+    ArrayT<MapElementT*> Selection = m_Doc->GetSelection();
+
+    // Remove all entities (and primitives) whose parents are in the selection as well.
+    MapDocumentT::Reduce(Selection);
+
+    // Remove all remaining primitives from the Selection, keep only the entities.
+    for (unsigned int SelNr = 0; SelNr < Selection.Size(); SelNr++)
+    {
+        if (Selection[SelNr]->GetType() != &MapEntRepresT::TypeInfo)
+        {
+            Selection.RemoveAt(SelNr);
+            SelNr--;
+        }
+    }
 
     if (Selection.Size() != 1)
     {
@@ -1904,7 +1917,7 @@ void ChildFrameT::OnMenuComponents(wxCommandEvent& CE)
         return;
     }
 
-    SubmitCommand(new MapEditor::CommandAddComponentT(m_Doc, Selection[0], Comp));
+    SubmitCommand(new MapEditor::CommandAddComponentT(m_Doc, Selection[0]->GetParent()->GetEntity(), Comp));
 }
 
 
