@@ -46,6 +46,9 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
     /// The constructor.
     EditSurfacePropsDialogT(wxWindow* Parent, MapDocumentT* MapDoc);
 
+    /// The destructor.
+    ~EditSurfacePropsDialogT();
+
     // Implementation of the ObserverT interface.
     void NotifySubjectDies(SubjectT* Subject);
 

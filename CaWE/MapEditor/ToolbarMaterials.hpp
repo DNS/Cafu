@@ -40,6 +40,9 @@ class MaterialsToolbarT : public wxPanel, public ObserverT
     /// The constructor.
     MaterialsToolbarT(wxWindow* Parent, MapDocumentT* MapDoc);
 
+    /// The destructor.
+    ~MaterialsToolbarT();
+
     // Implementation of the ObserverT interface.
     void NotifySubjectDies(SubjectT* Subject);
 

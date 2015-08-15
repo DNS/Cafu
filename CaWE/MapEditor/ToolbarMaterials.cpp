@@ -138,6 +138,13 @@ MaterialsToolbarT::MaterialsToolbarT(wxWindow* Parent, MapDocumentT* MapDoc)
 }
 
 
+MaterialsToolbarT::~MaterialsToolbarT()
+{
+    if (m_MapDoc)
+        m_MapDoc->UnregisterObserver(this);
+}
+
+
 /************************/
 /*** Public Functions ***/
 /************************/

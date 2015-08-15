@@ -314,6 +314,13 @@ EditSurfacePropsDialogT::EditSurfacePropsDialogT(wxWindow* Parent, MapDocumentT*
 }
 
 
+EditSurfacePropsDialogT::~EditSurfacePropsDialogT()
+{
+    if (m_MapDoc)
+        m_MapDoc->UnregisterObserver(this);
+}
+
+
 void EditSurfacePropsDialogT::NotifySubjectDies(SubjectT* Subject)
 {
     wxASSERT(Subject==m_MapDoc);
