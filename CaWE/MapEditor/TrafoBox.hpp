@@ -79,6 +79,9 @@ class TrafoBoxT
     /// Sets new spatial dimensions for this trafo box. Can only be called when no drag is currently in progress (GetDragState() returns TH_NONE).
     void SetBB(const BoundingBox3fT& BB, const ArrayT<Vector3fT>& ExtraRefPos);
 
+    /// Sets the specified transformation mode. Can only be called when no drag is currently in progress (GetDragState() returns TH_NONE).
+    void SetTrafoMode(TrafoModeT TM);
+
     /// Cycles the transformation modes. Can only be called when no drag is currently in progress (GetDragState() returns TH_NONE).
     void SetNextTrafoMode();
 

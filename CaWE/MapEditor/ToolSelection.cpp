@@ -125,6 +125,7 @@ wxWindow* ToolSelectionT::GetOptionsBar()
 void ToolSelectionT::OnActivate(ToolT* OldTool)
 {
     UpdateTrafoBox();
+    m_TrafoBox.SetTrafoMode(TrafoBoxT::TM_SCALE);
 }
 
 

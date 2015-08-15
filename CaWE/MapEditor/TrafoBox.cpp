@@ -99,6 +99,16 @@ void TrafoBoxT::SetBB(const BoundingBox3fT& BB, const ArrayT<Vector3fT>& ExtraRe
 }
 
 
+void TrafoBoxT::SetTrafoMode(TrafoModeT TM)
+{
+    // Can only change the transformation mode when no drag is currently in progress.
+    wxASSERT(m_DragState == TH_NONE);
+    if (m_DragState != TH_NONE) return;
+
+    m_TrafoMode = TM;
+}
+
+
 void TrafoBoxT::SetNextTrafoMode()
 {
     // Can only change the transformation mode when no drag is currently in progress.
