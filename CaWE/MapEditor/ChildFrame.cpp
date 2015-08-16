@@ -1462,11 +1462,14 @@ void ChildFrameT::OnMenuEditPaste(wxCommandEvent& CE)
 
     if (Clipboard == NULL) return;
 
-    // Primitives must be transformed from world-space into the local space of the clipboard,
-    // which happens to be the same as the local space of the PasteParent, and from there
-    // (relative to PasteParent) back into world-space.
+    // Primitives must be transformed from world-space (in which they are defined) into the
+    // local space of the clipboard entity. As the clipboard entity's local space is then
+    // mentally aligned to that of the PasteParent (the clipboard entity is oriented such that
+    // its axes are congruent with that of the PasteParent), the primitives must from there be
+    // transformed back into world-space.
+    // Note that we right-multiply, that is, PP2W * W2Cb * v, thus the matrix order.
     bool          InvResult    = true;
-    const MatrixT WorldToWorld = Clipboard->GetTransform()->GetEntityToWorld().GetInverse(&InvResult) * PasteParent->GetTransform()->GetEntityToWorld();
+    const MatrixT WorldToWorld = PasteParent->GetTransform()->GetEntityToWorld() * Clipboard->GetTransform()->GetEntityToWorld().GetInverse(&InvResult);
 
     if (WorldToWorld.IsEqual(MatrixT(), 0.001f))
     {
