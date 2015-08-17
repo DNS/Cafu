@@ -548,14 +548,21 @@ bool EntityT::RenderComponents(bool FirstPersonView, float LodDist) const
 {
     bool b = false;
 
+    /*
+     * Note that operator || short-circuits! Therefore:
+     *
+     * b = b || Render();   // Wrong, possibly doesn't call Render()!
+     * b = Render() || b;   // Ok, calls Render().
+     */
+
     // Render the "custom" components in the proper order -- bottom-up.
     for (unsigned long CompNr = m_Components.Size(); CompNr > 0; CompNr--)
-        b = b || m_Components[CompNr-1]->Render(FirstPersonView, LodDist);
+        b = m_Components[CompNr-1]->Render(FirstPersonView, LodDist) || b;
 
     // Render the "fixed" components.
-    // b = b || m_Transform->Render(FirstPersonView, LodDist);
-    // b = b || m_Basics->Render(FirstPersonView, LodDist);
-    if (m_App != NULL) b = b || m_App->Render(FirstPersonView, LodDist);
+    // b = m_Transform->Render(FirstPersonView, LodDist) || b;
+    // b = m_Basics->Render(FirstPersonView, LodDist) || b;
+    if (m_App != NULL) b = m_App->Render(FirstPersonView, LodDist) || b;
 
     return b;
 }
