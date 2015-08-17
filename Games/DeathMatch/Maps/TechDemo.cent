@@ -534,7 +534,6 @@ Map.hallway_bubbles2_steam2 = world:new("EntityT", "hallway_bubbles2_steam2")
 Map.hallway_bubbles2_steam1 = world:new("EntityT", "hallway_bubbles2_steam1")
 Map.hallway_bubbles1_steam2 = world:new("EntityT", "hallway_bubbles1_steam2")
 Map.hallway_bubbles1_steam1 = world:new("EntityT", "hallway_bubbles1_steam1")
-Map.light_5875 = world:new("EntityT", "light_5875")
 Map.light_5877 = world:new("EntityT", "light_5877")
 Map.light_5878 = world:new("EntityT", "light_5878")
 Map.hallway_bubbles2_sound1 = world:new("EntityT", "hallway_bubbles2_sound1")
@@ -668,7 +667,6 @@ Map.light_5933 = world:new("EntityT", "light_5933")
 Map.light_5934 = world:new("EntityT", "light_5934")
 Map.moveable_barrel3_42 = world:new("EntityT", "moveable_barrel3_42")
 Map.speaker_59 = world:new("EntityT", "speaker_59")
-Map.light_5935 = world:new("EntityT", "light_5935")
 Map.speaker_61 = world:new("EntityT", "speaker_61")
 Map.speaker_62 = world:new("EntityT", "speaker_62")
 Map.func_emitter_60 = world:new("EntityT", "func_emitter_60")
@@ -1493,7 +1491,9 @@ Map.PlayerPrototype.FirstPerson = world:new("EntityT", "FirstPerson")
 Map.PlayerPrototype.FirstPerson.WeaponSound = world:new("EntityT", "WeaponSound")
 Map.HallwayLift = world:new("EntityT", "HallwayLift")
 Map.HallwayLift.Platform = world:new("EntityT", "Platform")
+Map.HallwayLift.Platform.move_dest = world:new("EntityT", "move_dest")
 Map.HallwayLift.Platform.Call_Panel = world:new("EntityT", "Call_Panel")
+Map.HallwayLift.Platform.Call_Panel.Light = world:new("EntityT", "Light")
 Map.HallwayLift.Platform.ammo_shells_large_4 = world:new("EntityT", "ammo_shells_large_4")
 Map.HallwayLift.Platform.ammo_grenade_small_3 = world:new("EntityT", "ammo_grenade_small_3")
 Map.HallwayLift.Platform.ammo_cells_large_1 = world:new("EntityT", "ammo_cells_large_1")
@@ -1502,7 +1502,9 @@ Map.HallwayLift.Platform.func_static_53612 = world:new("EntityT", "func_static_5
 Map.HallwayLift.Platform.weapon_crossbow = world:new("EntityT", "weapon_crossbow")
 Map.HallwayLift.Platform.ammo_crossbow_arrows = world:new("EntityT", "ammo_crossbow_arrows")
 Map.HallwayLift_Call_0 = world:new("EntityT", "HallwayLift_Call_0")
+Map.HallwayLift_Call_0.Light = world:new("EntityT", "Light")
 Map.HallwayLift_Call_1 = world:new("EntityT", "HallwayLift_Call_1")
+Map.HallwayLift_Call_1.Light = world:new("EntityT", "Light")
 
 
 -- Set the worlds root entity.
@@ -2035,7 +2037,6 @@ Map:AddChild(Map.hallway_bubbles2_steam2)
 Map:AddChild(Map.hallway_bubbles2_steam1)
 Map:AddChild(Map.hallway_bubbles1_steam2)
 Map:AddChild(Map.hallway_bubbles1_steam1)
-Map:AddChild(Map.light_5875)
 Map:AddChild(Map.light_5877)
 Map:AddChild(Map.light_5878)
 Map:AddChild(Map.hallway_bubbles2_sound1)
@@ -2169,7 +2170,6 @@ Map:AddChild(Map.light_5933)
 Map:AddChild(Map.light_5934)
 Map:AddChild(Map.moveable_barrel3_42)
 Map:AddChild(Map.speaker_59)
-Map:AddChild(Map.light_5935)
 Map:AddChild(Map.speaker_61)
 Map:AddChild(Map.speaker_62)
 Map:AddChild(Map.func_emitter_60)
@@ -2994,7 +2994,9 @@ Map.PlayerPrototype:AddChild(Map.PlayerPrototype.FirstPerson)
 Map.PlayerPrototype.FirstPerson:AddChild(Map.PlayerPrototype.FirstPerson.WeaponSound)
 Map:AddChild(Map.HallwayLift)
 Map.HallwayLift:AddChild(Map.HallwayLift.Platform)
+Map.HallwayLift.Platform:AddChild(Map.HallwayLift.Platform.move_dest)
 Map.HallwayLift.Platform:AddChild(Map.HallwayLift.Platform.Call_Panel)
+Map.HallwayLift.Platform.Call_Panel:AddChild(Map.HallwayLift.Platform.Call_Panel.Light)
 Map.HallwayLift.Platform:AddChild(Map.HallwayLift.Platform.ammo_shells_large_4)
 Map.HallwayLift.Platform:AddChild(Map.HallwayLift.Platform.ammo_grenade_small_3)
 Map.HallwayLift.Platform:AddChild(Map.HallwayLift.Platform.ammo_cells_large_1)
@@ -3003,7 +3005,9 @@ Map.HallwayLift.Platform:AddChild(Map.HallwayLift.Platform.func_static_53612)
 Map.HallwayLift.Platform:AddChild(Map.HallwayLift.Platform.weapon_crossbow)
 Map.HallwayLift.Platform:AddChild(Map.HallwayLift.Platform.ammo_crossbow_arrows)
 Map:AddChild(Map.HallwayLift_Call_0)
+Map.HallwayLift_Call_0:AddChild(Map.HallwayLift_Call_0.Light)
 Map:AddChild(Map.HallwayLift_Call_1)
+Map.HallwayLift_Call_1:AddChild(Map.HallwayLift_Call_1.Light)
 
 
 -- Initialization of the entity contents ("constructors").
@@ -9890,12 +9894,6 @@ function Map.hallway_bubbles1_steam1:OnInit()
     self:AddComponent(c1)
 end
 
-function Map.light_5875:OnInit()
-    self:GetBasics():set("Static", true)
-    self:GetTransform():set("Origin", 1920, -360, 576)
-    self:GetTransform():set("Orientation", 0, 0, 0)
-end
-
 function Map.light_5877:OnInit()
     self:GetBasics():set("Static", true)
     self:GetTransform():set("Origin", 1544, 120, 752)
@@ -11571,12 +11569,6 @@ function Map.speaker_59:OnInit()
     c1:set("Interval", 5)
 
     self:AddComponent(c1)
-end
-
-function Map.light_5935:OnInit()
-    self:GetBasics():set("Static", true)
-    self:GetTransform():set("Origin", 1920, -536, 576)
-    self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
 function Map.speaker_61:OnInit()
@@ -22441,7 +22433,7 @@ function Map.static_detail_model_64:OnInit()
 end
 
 function Map.monster_companybot:OnInit()
-    self:GetTransform():set("Origin", 1960, -428.67184, 600)
+    self:GetTransform():set("Origin", 2128, -432, 600)
     self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentModelT")
@@ -23727,17 +23719,36 @@ function Map.PlayerPrototype.FirstPerson.WeaponSound:OnInit()
 end
 
 function Map.HallwayLift:OnInit()
-    self:GetTransform():set("Origin", 1992, -544, 552)
+    self:GetTransform():set("Origin", 1896, -544, 552)
     self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentMoverT")
+    c1:set("moveDuration", 3)
+    c1:set("destActivated", 0)
+    c1:set("destTimeout", -1)
+    c1:set("otherEntities", 2)
+    c1:set("trajFunc", 1)
+    c1:set("trajExp", 2)
+
+    local c2 = world:new("ComponentScriptT")
+    c2:set("Name", "Games/DeathMatch/Scripts/MoverBinary.lua")
+    c2:set("ScriptCode", "")
+
+    self:AddComponent(c1, c2)
 end
 
 function Map.HallwayLift.Platform:OnInit()
-    self:GetTransform():set("Origin", 24, 0, 0)
+    self:GetTransform():set("Origin", -24, 0, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+end
+
+function Map.HallwayLift.Platform.move_dest:OnInit()
+    self:GetTransform():set("Origin", 0, 0, 96)
     self:GetTransform():set("Orientation", 0, 0, 0)
 end
 
 function Map.HallwayLift.Platform.Call_Panel:OnInit()
-    self:GetTransform():set("Origin", -64, 200, -8)
+    self:GetTransform():set("Origin", 80, 200, -8)
     self:GetTransform():set("Orientation", 0, 0, -4.371139e-008)
 
     local c1 = world:new("ComponentModelT")
@@ -23760,8 +23771,21 @@ function Map.HallwayLift.Platform.Call_Panel:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
+function Map.HallwayLift.Platform.Call_Panel.Light:OnInit()
+    self:GetTransform():set("Origin", -10, -32, 64)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentPointLightT")
+    c1:set("On", true)
+    c1:set("Color", 0, 0.5019608, 0.7529412)
+    c1:set("Radius", 96)
+    c1:set("ShadowType", 0)
+
+    self:AddComponent(c1)
+end
+
 function Map.HallwayLift.Platform.ammo_shells_large_4:OnInit()
-    self:GetTransform():set("Origin", -72, 172, -8)
+    self:GetTransform():set("Origin", 72, 172, -8)
     self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentModelT")
@@ -23792,7 +23816,7 @@ function Map.HallwayLift.Platform.ammo_shells_large_4:OnInit()
 end
 
 function Map.HallwayLift.Platform.ammo_grenade_small_3:OnInit()
-    self:GetTransform():set("Origin", -48, 180, -8)
+    self:GetTransform():set("Origin", 96, 180, -8)
     self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentModelT")
@@ -23823,7 +23847,7 @@ function Map.HallwayLift.Platform.ammo_grenade_small_3:OnInit()
 end
 
 function Map.HallwayLift.Platform.ammo_cells_large_1:OnInit()
-    self:GetTransform():set("Origin", -16, 172, -7)
+    self:GetTransform():set("Origin", 128, 172, -7)
     self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentModelT")
@@ -23854,7 +23878,7 @@ function Map.HallwayLift.Platform.ammo_cells_large_1:OnInit()
 end
 
 function Map.HallwayLift.Platform.func_static_53532:OnInit()
-    self:GetTransform():set("Origin", -56, 194, 3)
+    self:GetTransform():set("Origin", 88, 194, 3)
     self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentModelT")
@@ -23871,7 +23895,7 @@ function Map.HallwayLift.Platform.func_static_53532:OnInit()
 end
 
 function Map.HallwayLift.Platform.func_static_53612:OnInit()
-    self:GetTransform():set("Origin", -104, 120, -8)
+    self:GetTransform():set("Origin", 40, 120, -8)
     self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentModelT")
@@ -23888,7 +23912,7 @@ function Map.HallwayLift.Platform.func_static_53612:OnInit()
 end
 
 function Map.HallwayLift.Platform.weapon_crossbow:OnInit()
-    self:GetTransform():set("Origin", -23.231445, 136, -8)
+    self:GetTransform():set("Origin", 120.768555, 136, -8)
     self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentModelT")
@@ -23919,7 +23943,7 @@ function Map.HallwayLift.Platform.weapon_crossbow:OnInit()
 end
 
 function Map.HallwayLift.Platform.ammo_crossbow_arrows:OnInit()
-    self:GetTransform():set("Origin", -8, 174, 9)
+    self:GetTransform():set("Origin", 136, 174, 9)
     self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentModelT")
@@ -23973,6 +23997,19 @@ function Map.HallwayLift_Call_0:OnInit()
     self:AddComponent(c1, c2, c3)
 end
 
+function Map.HallwayLift_Call_0.Light:OnInit()
+    self:GetTransform():set("Origin", -10, -32, 64)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentPointLightT")
+    c1:set("On", true)
+    c1:set("Color", 0, 0.5019608, 0.7529412)
+    c1:set("Radius", 96)
+    c1:set("ShadowType", 0)
+
+    self:AddComponent(c1)
+end
+
 function Map.HallwayLift_Call_1:OnInit()
     self:GetTransform():set("Origin", 1928, -608, 640)
     self:GetTransform():set("Orientation", 0, 0, 0.7071067)
@@ -23995,4 +24032,17 @@ function Map.HallwayLift_Call_1:OnInit()
     c3:set("Target", "HallwayLift")
 
     self:AddComponent(c1, c2, c3)
+end
+
+function Map.HallwayLift_Call_1.Light:OnInit()
+    self:GetTransform():set("Origin", -10, -32, 64)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentPointLightT")
+    c1:set("On", true)
+    c1:set("Color", 0, 0.5019608, 0.7529412)
+    c1:set("Radius", 96)
+    c1:set("ShadowType", 0)
+
+    self:AddComponent(c1)
 end
