@@ -19,10 +19,6 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 =================================================================================
 */
 
-/*************/
-/*** Brush ***/
-/*************/
-
 #ifndef CAFU_MATH_BRUSH_HPP_INCLUDED
 #define CAFU_MATH_BRUSH_HPP_INCLUDED
 
@@ -38,7 +34,7 @@ class VB_Trace3T
 {
     public:
 
-    T           Fraction;       ///< This is how far we got, 0<=Fraction<=1.
+    T           Fraction;       ///< This is how far we got, 0 <= Fraction <= 1.
     bool        StartSolid;     ///< Did the movement start inside the brush, "in solid"?
     Vector3T<T> ImpactNormal;   ///< On impact, this is the normal vector of the hit plane.
 
@@ -78,7 +74,7 @@ class Brush3T
     /// @param Epsilon Tolerance value.
     /// @param IncludeBevelPlanes If false, only five planes (two for the sides and three for the edges) will be created.
     ///                           If true, also bevel planes will be included.
-    Brush3T(const Vector3T<T>& A, const Vector3T<T>& B, const Vector3T<T>& C, const T Epsilon, bool IncludeBevelPlanes=true);
+    Brush3T(const Vector3T<T>& A, const Vector3T<T>& B, const Vector3T<T>& C, const T Epsilon, bool IncludeBevelPlanes = true);
 
     /// Traces the (relative) bounding box 'BB' from the (absolute) 'Origin' along 'Dir' towards the end position 'Origin+VectorScale(Dir, Trace.Fraction)'.
     /// The result is returned in 'Trace'.
