@@ -58,6 +58,7 @@ template<class T> Brush3T<T>::Brush3T(const Vector3T<T>& A, const Vector3T<T>& B
 template<class T> void Brush3T<T>::TraceBoundingBox(const BoundingBox3T<T>& BB, const Vector3T<T>& Origin, const Vector3T<T>& Dir, VB_Trace3T<T>& Trace) const
 {
     static ArrayT<T> BloatDistanceOffsets;
+    const T Epsilon = T(0.0625);
 
     // Bloat-Distance-Offsets für alle Planes dieses Brushs bestimmen.
     while (BloatDistanceOffsets.Size() < Planes.Size())
@@ -75,21 +76,54 @@ template<class T> void Brush3T<T>::TraceBoundingBox(const BoundingBox3T<T>& BB, 
 
     // Wenn 'Origin' im Inneren des (soliden) Brushs liegt, sitzen wir fest.
     unsigned long PlaneNr;
+    const Plane3T<T>* StuckOnSurface = NULL;
 
     for (PlaneNr = 0; PlaneNr < Planes.Size(); PlaneNr++)
-        if (Planes[PlaneNr].GetDistance(Origin) + BloatDistanceOffsets[PlaneNr] >= 0) break;
+    {
+        const T Dist = Planes[PlaneNr].GetDistance(Origin) + BloatDistanceOffsets[PlaneNr];
+
+        if (Dist >= 0)
+        {
+            // Definitively not stuck inside.
+            break;
+        }
+
+        if (Dist > -Epsilon)
+        {
+            // We are slightly inside the brush (probably due to rounding errors).
+            const T Nenner = dot(Planes[PlaneNr].Normal, Dir);    // Computed exactly as below.
+
+            if (Nenner >= 0)
+            {
+                // Slightly inside, but moving out. As moving out makes matters better,
+                // not worse, let's consider this case as "not stuck inside" as well.
+                // Note that we must be able to reproduce the same conclusion below, so here
+                // and there, the computation of Nenner must be exactly the same!
+                break;
+            }
+            else
+            {
+                // Slightly inside, and moving further in. As we *would* get out if Dir was
+                // in another direction, flag this case explicitly, so that the result is a
+                // Trace.Fraction of 0, but Trace.StartSolid is false.
+                // Note that another plane might still clear us entirely.
+                StuckOnSurface = &Planes[PlaneNr];
+            }
+        }
+    }
 
     if (PlaneNr == Planes.Size())
     {
-        Trace.StartSolid = true;
+        Trace.StartSolid = (StuckOnSurface == NULL);
         Trace.Fraction   = 0;
+        if (StuckOnSurface) Trace.ImpactNormal = StuckOnSurface->Normal;
         return;
     }
 
     for (PlaneNr = 0; PlaneNr < Planes.Size(); PlaneNr++)
     {
         // Bestimmen, bei welchem Bruchteil (Fraction F) von Dir wir die Plane schneiden.
-        const T Nenner = dot(Planes[PlaneNr].Normal, Dir);
+        const T Nenner = dot(Planes[PlaneNr].Normal, Dir);    // Computed exactly as above.
 
         // Dir muß dem Normalenvektor der Ebene wirklich entgegenzeigen! Ist der Nenner==0, so ist Dir parallel zur Plane,
         // und mit dieser Plane ex. kein Schnittpunkt. Ist der Nenner>0, nutzen wir die Konvexität des Brushs aus:
@@ -108,8 +142,15 @@ template<class T> void Brush3T<T>::TraceBoundingBox(const BoundingBox3T<T>& BB, 
         unsigned long PNr;
 
         for (PNr = 0; PNr < Planes.Size(); PNr++)
-            if (PNr != PlaneNr /*Rundungsfehlern zuvorkommen!*/ && Planes[PNr].GetDistance(HitPos) + BloatDistanceOffsets[PNr] > 0.01)
+        {
+            const T d = Planes[PNr].GetDistance(HitPos) + BloatDistanceOffsets[PNr];
+
+            // The (PNr != PlaneNr) part is for anticipating rounding errors.
+            // In the (d > 0) part, there is no need to use Epsilon in place of the 0,
+            // because HitPos is supposed to be at 0 distance of Planes[PlaneNr] anyway.
+            if (PNr != PlaneNr /*Rundungsfehlern zuvorkommen!*/ && d > 0)
                 break;
+        }
 
         if (PNr < Planes.Size()) continue;
 
@@ -128,7 +169,7 @@ template<class T> void Brush3T<T>::TraceBoundingBox(const BoundingBox3T<T>& BB, 
         // es nicht zu einem Schnitt kam und Dir zufällig dort endet. Wir ignorieren diese Möglichkeit: Kommt es doch
         // noch zu einem Schnitt, wird eben F==0. Deshalb können wir uns auch in diesem Fall nicht durch Rundungsfehler
         // ins Innere des Brushs schaukeln.
-        F = -(Dist - (T)0.03125) / Nenner;              // Vgl. Berechnung von F oben!
+        F = -(Dist - Epsilon) / Nenner;                 // Vgl. Berechnung von F oben!
 
         if (F < 0             ) F = 0;
         if (F > Trace.Fraction) F = Trace.Fraction;     // Pro forma.
