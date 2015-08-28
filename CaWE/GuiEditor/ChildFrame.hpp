@@ -31,6 +31,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/Vector2.hpp"
 
 
+namespace cf { namespace TypeSys { class TypeInfoT; } }
+
 class ParentFrameT;
 class GameConfigT;
 class wxAuiToolBar;
@@ -75,6 +77,9 @@ namespace GuiEditor
 
 
         private:
+
+        /// Recursively builds the "Components" menu, traversing the given TypeInfoT hierarchy.
+        static void BuildComponentsMenu(wxMenu* MenuParent, const cf::TypeSys::TypeInfoT* TypeParent);
 
         GuiDocumentT*     m_GuiDocument;
         wxString          m_FileName;

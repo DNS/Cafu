@@ -282,6 +282,55 @@ namespace
 }
 
 
+/*static*/ void ChildFrameT::BuildComponentsMenu(wxMenu* MenuParent, const cf::TypeSys::TypeInfoT* TypeParent)
+{
+    // For each child of TypeParent (but not TypeParent itself), add an item to MenuParent.
+    ArrayT<const cf::TypeSys::TypeInfoT*> CompTIs;
+
+    for (const cf::TypeSys::TypeInfoT* TI = TypeParent->Child; TI; TI = TI->Sibling)
+    {
+        // The topmost root and thus the ComponentBaseT class is never added.
+        wxASSERT(TI->Base);
+
+        // Skip fundamental component types (each entity has one instance anyway).
+        if (cf::GameSys::IsFundamental(TI)) continue;
+
+        // // Skip the ComponentSelectionT class, that is specific to this GUI Editor application.
+        // if (TI == &ComponentSelectionT::TypeInfo) continue;
+
+        CompTIs.PushBack(TI);
+    }
+
+    CompTIs.QuickSort(CompareTypeInfoNames);
+
+    for (unsigned int TINr = 0; TINr < CompTIs.Size(); TINr++)
+    {
+        const cf::TypeSys::TypeInfoT* TI   = CompTIs[TINr];
+        wxString                      Name = TI->ClassName;
+
+        if (Name.StartsWith("Component") && Name.EndsWith("T"))
+            Name = Name.SubString(9, Name.length() - 2);
+
+        if (Name.StartsWith("GameSys::Component") && Name.EndsWith("T"))
+            Name = Name.SubString(18, Name.length() - 2);
+
+        wxASSERT(ID_MENU_COMPONENTS_FIRST + TI->TypeNr <= ID_MENU_COMPONENTS_MAX);
+
+        if (TI->Child)
+        {
+            wxMenu* SubMenu = new wxMenu;
+
+            BuildComponentsMenu(SubMenu, TI);
+            MenuParent->AppendSubMenu(SubMenu, "&" + Name);
+        }
+        else
+        {
+            MenuParent->Append(ID_MENU_COMPONENTS_FIRST + TI->TypeNr, "&" + Name, "Add component to the selected entity");
+        }
+    }
+}
+
+
 // About the wxMDIChildFrame constructor:
 // Although the parent should actually be the parent frames MDI *client* (sub-)window, according to wx documentation
 // it is fine to pass the MDI parent window itself (rather than its client window) here. See wxMDIChildFrame documentation.
@@ -464,40 +513,13 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumen
 
     m_ComponentsMenu = new wxMenu;
     const ArrayT<const cf::TypeSys::TypeInfoT*>& CompRoots = cf::GameSys::GetComponentTIM().GetTypeInfoRoots();
-    ArrayT<const cf::TypeSys::TypeInfoT*>        CompTIs;
 
     for (unsigned long RootNr = 0; RootNr < CompRoots.Size(); RootNr++)
     {
-        for (const cf::TypeSys::TypeInfoT* TI = CompRoots[RootNr]; TI; TI = TI->GetNext())
-        {
-            // Skip the ComponentBaseT class.
-            if (!TI->Base) continue;
+        BuildComponentsMenu(m_ComponentsMenu, CompRoots[RootNr]);
 
-            // Skip fundamental component types (each entity has one instance anyway).
-            if (cf::GameSys::IsFundamental(TI)) continue;
-
-            // // Skip the ComponentSelectionT class, that is specific to this GUI Editor application.
-            // if (TI == &ComponentSelectionT::TypeInfo) continue;
-
-            CompTIs.PushBack(TI);
-        }
-    }
-
-    CompTIs.QuickSort(CompareTypeInfoNames);
-
-    for (unsigned long TINr = 0; TINr < CompTIs.Size(); TINr++)
-    {
-        const cf::TypeSys::TypeInfoT* TI   = CompTIs[TINr];
-        wxString                      Name = TI->ClassName;
-
-        if (Name.StartsWith("Component") && Name.EndsWith("T"))
-            Name = Name.SubString(9, Name.length() - 2);
-
-        if (Name.StartsWith("GameSys::Component") && Name.EndsWith("T"))
-            Name = Name.SubString(18, Name.length() - 2);
-
-        wxASSERT(ID_MENU_COMPONENTS_FIRST + TI->TypeNr <= ID_MENU_COMPONENTS_MAX);
-        m_ComponentsMenu->Append(ID_MENU_COMPONENTS_FIRST + TI->TypeNr, "&" + Name, "Add component to the selected entity");
+        if (RootNr + 1 < CompRoots.Size())
+            m_ComponentsMenu->AppendSeparator();
     }
 
     item0->Append(m_ComponentsMenu, "&Components");

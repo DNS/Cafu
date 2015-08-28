@@ -33,6 +33,9 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/aui/framemanager.h"
 
 
+namespace cf { namespace TypeSys { class TypeInfoT; } }
+namespace MapEditor { class EntityHierarchyPanelT; }
+
 class ConsoleDialogT;
 class EditSurfacePropsDialogT;
 class InspectorDialogT;
@@ -44,7 +47,6 @@ class ParentFrameT;
 class ToolManagerT;
 class ViewWindowT;
 class wxProcessEvent;
-namespace MapEditor { class EntityHierarchyPanelT; }
 
 
 class AutoSaveTimerT : public wxTimer
@@ -258,6 +260,9 @@ class ChildFrameT : public wxMDIChildFrame
     ArrayT<wxString>         PendingCompileCommands;    ///< Pending console commands for map compilation.
     ArrayT<ViewWindowT*>     m_ViewWindows;             ///< The list of all (2D and 3D) view windows that are currently open in this frame. Managed/maintained by the ViewWindowTs themselves.
 
+
+    /// Recursively builds the "Components" menu, traversing the given TypeInfoT hierarchy.
+    static void BuildComponentsMenu(wxMenu* MenuParent, const cf::TypeSys::TypeInfoT* TypeParent);
 
     /// Updates the quick-load items in the "Prefabs" menu.
     void UpdatePrefabsMenu();

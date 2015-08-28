@@ -88,6 +88,55 @@ namespace
 }
 
 
+/*static*/ void GuiEditor::ChildFrameT::BuildComponentsMenu(wxMenu* MenuParent, const cf::TypeSys::TypeInfoT* TypeParent)
+{
+    // For each child of TypeParent (but not TypeParent itself), add an item to MenuParent.
+    ArrayT<const cf::TypeSys::TypeInfoT*> CompTIs;
+
+    for (const cf::TypeSys::TypeInfoT* TI = TypeParent->Child; TI; TI = TI->Sibling)
+    {
+        // The topmost root and thus the ComponentBaseT class is never added.
+        wxASSERT(TI->Base);
+
+        // Skip fundamental component types (each window has one instance anyway).
+        if (cf::GuiSys::IsFundamental(TI)) continue;
+
+        // Skip the ComponentSelectionT class, that is specific to this GUI Editor application.
+        if (TI == &ComponentSelectionT::TypeInfo) continue;
+
+        CompTIs.PushBack(TI);
+    }
+
+    CompTIs.QuickSort(CompareTypeInfoNames);
+
+    for (unsigned int TINr = 0; TINr < CompTIs.Size(); TINr++)
+    {
+        const cf::TypeSys::TypeInfoT* TI   = CompTIs[TINr];
+        wxString                      Name = TI->ClassName;
+
+        if (Name.StartsWith("Component") && Name.EndsWith("T"))
+            Name = Name.SubString(9, Name.length() - 2);
+
+        if (Name.StartsWith("GuiSys::Component") && Name.EndsWith("T"))
+            Name = Name.SubString(17, Name.length() - 2);
+
+        wxASSERT(ID_MENU_CREATE_COMPONENT_FIRST + TI->TypeNr <= ID_MENU_CREATE_COMPONENT_MAX);
+
+        if (TI->Child)
+        {
+            wxMenu* SubMenu = new wxMenu;
+
+            BuildComponentsMenu(SubMenu, TI);
+            MenuParent->AppendSubMenu(SubMenu, "&" + Name);
+        }
+        else
+        {
+            MenuParent->Append(ID_MENU_CREATE_COMPONENT_FIRST + TI->TypeNr, "&" + Name, "Add component to the selected window");
+        }
+    }
+}
+
+
 BEGIN_EVENT_TABLE(GuiEditor::ChildFrameT, wxMDIChildFrame)
     EVT_MENU_RANGE     (ID_MENU_FILE_CLOSE,            ID_MENU_FILE_SAVEAS,           GuiEditor::ChildFrameT::OnMenuFile)
     EVT_UPDATE_UI_RANGE(ID_MENU_FILE_CLOSE,            ID_MENU_FILE_SAVEAS,           GuiEditor::ChildFrameT::OnMenuFileUpdate)
@@ -175,40 +224,13 @@ GuiEditor::ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& FileNa
     m_CreateMenu->AppendSeparator();
 
     const ArrayT<const cf::TypeSys::TypeInfoT*>& CompRoots = cf::GuiSys::GetComponentTIM().GetTypeInfoRoots();
-    ArrayT<const cf::TypeSys::TypeInfoT*>        CompTIs;
 
     for (unsigned long RootNr = 0; RootNr < CompRoots.Size(); RootNr++)
     {
-        for (const cf::TypeSys::TypeInfoT* TI = CompRoots[RootNr]; TI; TI = TI->GetNext())
-        {
-            // Skip the ComponentBaseT class.
-            if (!TI->Base) continue;
+        BuildComponentsMenu(m_CreateMenu, CompRoots[RootNr]);
 
-            // Skip fundamental component types (each window has one instance anyway).
-            if (cf::GuiSys::IsFundamental(TI)) continue;
-
-            // Skip the ComponentSelectionT class, that is specific to this GUI Editor application.
-            if (TI == &ComponentSelectionT::TypeInfo) continue;
-
-            CompTIs.PushBack(TI);
-        }
-    }
-
-    CompTIs.QuickSort(CompareTypeInfoNames);
-
-    for (unsigned long TINr = 0; TINr < CompTIs.Size(); TINr++)
-    {
-        const cf::TypeSys::TypeInfoT* TI   = CompTIs[TINr];
-        wxString                      Name = TI->ClassName;
-
-        if (Name.StartsWith("Component") && Name.EndsWith("T"))
-            Name = Name.SubString(9, Name.length() - 2);
-
-        if (Name.StartsWith("GuiSys::Component") && Name.EndsWith("T"))
-            Name = Name.SubString(17, Name.length() - 2);
-
-        wxASSERT(ID_MENU_CREATE_COMPONENT_FIRST + TI->TypeNr <= ID_MENU_CREATE_COMPONENT_MAX);
-        m_CreateMenu->Append(ID_MENU_CREATE_COMPONENT_FIRST + TI->TypeNr, "&" + Name, "Add component to the selected window");
+        if (RootNr + 1 < CompRoots.Size())
+            m_CreateMenu->AppendSeparator();
     }
 
     item0->Append(m_CreateMenu, "&Create");
