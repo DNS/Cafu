@@ -101,7 +101,6 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
         ApplyShiftX  =0x04,
         ApplyShiftY  =0x08,
         ApplyRotation=0x10,
-        ApplyMaterial=0x20,
         ApplyAll     =0xFF
     };
 
@@ -120,11 +119,14 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
     ArrayT<SelectedFaceT>    m_SelectedFaces;       ///< The list of selected faces.
     ArrayT<MapBezierPatchT*> m_SelectedPatches;     ///< The list of selected patches.
 
+    /// Returns the material that is currently set in the ChoiceCurrentMat (or NULL for none).
+    EditorMaterialI* GetCurrentMaterial() const;
+
     /// Applies the dialogs data to a face/patch using a specific ApplyMode, that decides how the data is applied.
     /// The ApplySetting is only used if ApplyMode is ApplyNormal to specify which data should be applied (e.g. only
     /// scale values). The ApplySetting should never be set when calling an ApplyMode other than ApplyNormal.
-    void SetSurfaceInfo(const MapFaceT*        Face,  SurfaceInfoT& SI, EditorMaterialI** Material, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, ViewWindow3DT* ViewWin3D=NULL) const;
-    void SetSurfaceInfo(const MapBezierPatchT* Patch, SurfaceInfoT& SI, EditorMaterialI** Material, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, ViewWindow3DT* ViewWin3D=NULL) const;
+    void SetSurfaceInfo(const MapFaceT*        Face,  SurfaceInfoT& SI, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, ViewWindow3DT* ViewWin3D=NULL) const;
+    void SetSurfaceInfo(const MapBezierPatchT* Patch, SurfaceInfoT& SI, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, ViewWindow3DT* ViewWin3D=NULL) const;
 
     // Updates the face normal and material vector info in the dialog.
     void UpdateVectorInfo();

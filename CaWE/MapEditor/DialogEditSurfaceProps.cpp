@@ -492,35 +492,35 @@ void EditSurfacePropsDialogT::ApplyClick(ViewWindow3DT& ViewWin3D, MapElementT* 
         {
             for (unsigned long FaceNr=0; FaceNr<Brush->GetFaces().Size(); FaceNr++)
             {
-                EditorMaterialI* Material=NULL;
+                EditorMaterialI* Material = GetCurrentMaterial();
                 SurfaceInfoT     SI=Brush->GetFaces()[FaceNr].GetSurfaceInfo();
 
-                SetSurfaceInfo(&Brush->GetFaces()[FaceNr], SI, &Material, ApplyMode, ApplyAll, &ViewWin3D);
+                SetSurfaceInfo(&Brush->GetFaces()[FaceNr], SI, ApplyMode, ApplyAll, &ViewWin3D);
                 SurfaceCommands.PushBack(new CommandUpdateSurfaceFaceT(*m_MapDoc, Brush, FaceNr, SI, Material));
             }
         }
         else // Just apply on face at FaceIndex.
         {
-            EditorMaterialI* Material=NULL;
+            EditorMaterialI* Material = GetCurrentMaterial();
             SurfaceInfoT     SI=Brush->GetFaces()[FaceIndex].GetSurfaceInfo();
 
-            SetSurfaceInfo(&Brush->GetFaces()[FaceIndex], SI, &Material, ApplyMode, ApplyAll, &ViewWin3D);
+            SetSurfaceInfo(&Brush->GetFaces()[FaceIndex], SI, ApplyMode, ApplyAll, &ViewWin3D);
             SurfaceCommands.PushBack(new CommandUpdateSurfaceFaceT(*m_MapDoc, Brush, FaceIndex, SI, Material));
         }
     }
 
     if (Patch!=NULL)
     {
-        EditorMaterialI* Material=NULL;
+        EditorMaterialI* Material = GetCurrentMaterial();
         SurfaceInfoT     SI=Patch->GetSurfaceInfo();
 
-        SetSurfaceInfo(Patch, SI, &Material, ApplyMode, ApplyAll, &ViewWin3D);
+        SetSurfaceInfo(Patch, SI, ApplyMode, ApplyAll, &ViewWin3D);
         SurfaceCommands.PushBack(new CommandUpdateSurfaceBezierPatchT(*m_MapDoc, Patch, SI, Material));
     }
 
     if (Terrain!=NULL)
     {
-        EditorMaterialI* Material=(EditorMaterialI*)ChoiceCurrentMat->GetClientData(ChoiceCurrentMat->GetSelection());
+        EditorMaterialI* Material = GetCurrentMaterial();
 
         SurfaceCommands.PushBack(new CommandUpdateSurfaceTerrainT(*m_MapDoc, Terrain, Material));
     }
@@ -635,23 +635,21 @@ void EditSurfacePropsDialogT::EyeDropperClick(MapElementT* Object, unsigned long
 /*** Private Helper Functions ***/
 /********************************/
 
-void EditSurfacePropsDialogT::SetSurfaceInfo(const MapFaceT* Face, SurfaceInfoT& SI, EditorMaterialI** Material, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, ViewWindow3DT* ViewWin3D) const
+EditorMaterialI* EditSurfacePropsDialogT::GetCurrentMaterial() const
 {
-    // If this method is called without ApplyNormal as ApplyMode, the ApplySetting should have it's default value
-    // (ApplyAll) since it isn't used anyway in those apply modes directly.
-    // An important consequence is, that the ApplyMaterial flag is set in all the cases, so we can be sure that the
-    // material will always be set, if the ApplyMode is != ApplyNormal.
-    if (ApplyMode!=ApplyNormal) assert(Setting==ApplyAll);
+    const int CurrentMatIndex = ChoiceCurrentMat->GetSelection();
 
+    if (CurrentMatIndex == -1) return NULL;
+
+    return (EditorMaterialI*)ChoiceCurrentMat->GetClientData(CurrentMatIndex);
+}
+
+
+void EditSurfacePropsDialogT::SetSurfaceInfo(const MapFaceT* Face, SurfaceInfoT& SI, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, ViewWindow3DT* ViewWin3D) const
+{
     if (m_MapDoc==NULL) return;
 
-    // Update the material (commonly done in all ApplyModes).
-    const int CurrentMatIndex=ChoiceCurrentMat->GetSelection();
-
-    if (CurrentMatIndex!=-1 && Face->GetMaterial()!=NULL)
-        if (ApplyMode!=ApplyNormal || (Setting & ApplyMaterial))    // See comment above for rationale.
-            if (wxStricmp(Face->GetMaterial()->GetName(), ((EditorMaterialI*)ChoiceCurrentMat->GetClientData(CurrentMatIndex))->GetName())!=0)
-                *Material=(EditorMaterialI*)ChoiceCurrentMat->GetClientData(CurrentMatIndex);
+    wxASSERT(ApplyMode == ApplyNormal || Setting == ApplyAll);
 
     // Fetch the scale values from the dialog.
     float DialogScaleX=m_SpinCtrlScaleX->GetValue();
@@ -692,7 +690,7 @@ void EditSurfacePropsDialogT::SetSurfaceInfo(const MapFaceT* Face, SurfaceInfoT&
             // Set rotation to zero, so the whole rotation value from the dialog is applied below.
             SI.Rotate=0.0f;
 
-            SetSurfaceInfo(Face, SI, Material, ApplyNormal, ApplySettingT(ApplyAll & ~ApplyMaterial), ViewWin3D);
+            SetSurfaceInfo(Face, SI, ApplyNormal, ApplyAll, ViewWin3D);
             break;
         }
 
@@ -748,30 +746,18 @@ void EditSurfacePropsDialogT::SetSurfaceInfo(const MapFaceT* Face, SurfaceInfoT&
             // Set rotation to zero, so the whole rotation value from the dialog is applied below.
             SI.Rotate=0.0f;
 
-            SetSurfaceInfo(Face, SI, Material, ApplyNormal, ApplySettingT(ApplyAll & ~ApplyMaterial), ViewWin3D);
+            SetSurfaceInfo(Face, SI, ApplyNormal, ApplyAll, ViewWin3D);
             break;
         }
     }
 }
 
 
-void EditSurfacePropsDialogT::SetSurfaceInfo(const MapBezierPatchT* Patch, SurfaceInfoT& SI, EditorMaterialI** Material, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, ViewWindow3DT* ViewWin3D) const
+void EditSurfacePropsDialogT::SetSurfaceInfo(const MapBezierPatchT* Patch, SurfaceInfoT& SI, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, ViewWindow3DT* ViewWin3D) const
 {
-    // If this method is called without ApplyNormal as ApplyMode, the ApplySetting should have it's default value
-    // (ApplyAll) since it isn't used anyway in those apply modes directly.
-    // An important consequence is, that the ApplyMaterial flag is set in all the cases, so we can be sure that the
-    // material will always be set, if the ApplyMode is != ApplyNormal.
-    if (ApplyMode!=ApplyNormal) assert(Setting==ApplyAll);
-
     if (m_MapDoc==NULL) return;
 
-    // Update the material (commonly done in all ApplyModes).
-    const int CurrentMatIndex=ChoiceCurrentMat->GetSelection();
-
-    if (CurrentMatIndex!=-1 && Patch->GetMaterial()!=NULL && ApplyMode!=ApplyEdgeAligned) // Edge aligned doesn't work on bezier patches.
-        if (ApplyMode!=ApplyNormal || (Setting & ApplyMaterial))    // See comment above for rationale.
-            if (wxStricmp(Patch->GetMaterial()->GetName(), ((EditorMaterialI*)ChoiceCurrentMat->GetClientData(CurrentMatIndex))->GetName())!=0)
-                *Material=(EditorMaterialI*)ChoiceCurrentMat->GetClientData(CurrentMatIndex);
+    wxASSERT(ApplyMode == ApplyNormal || Setting == ApplyAll);
 
     // Fetch the scale values from the dialog.
     float DialogScaleX=m_SpinCtrlScaleX->GetValue();
@@ -814,7 +800,7 @@ void EditSurfacePropsDialogT::SetSurfaceInfo(const MapBezierPatchT* Patch, Surfa
             // Set rotation to zero, so the whole rotation value from the dialog is applied below.
             SI.Rotate=0.0f;
 
-            SetSurfaceInfo(Patch, SI, Material, ApplyNormal, ApplySettingT(ApplyAll & ~ApplyMaterial), ViewWin3D);
+            SetSurfaceInfo(Patch, SI, ApplyNormal, ApplyAll, ViewWin3D);
             break;
         }
 
@@ -835,7 +821,7 @@ void EditSurfacePropsDialogT::SetSurfaceInfo(const MapBezierPatchT* Patch, Surfa
             // Set rotation to zero, so the whole rotation value from the dialog is applied below.
             SI.Rotate=0.0f;
 
-            SetSurfaceInfo(Patch, SI, Material, ApplyNormal, ApplySettingT(ApplyAll & ~ApplyMaterial), ViewWin3D);
+            SetSurfaceInfo(Patch, SI, ApplyNormal, ApplyAll, ViewWin3D);
             break;
         }
     }
@@ -876,7 +862,7 @@ void EditSurfacePropsDialogT::OnSpinCtrlValueChanged(wxSpinDoubleEvent& Event)
         EditorMaterialI* Material=NULL;
         SurfaceInfoT     SI=m_SelectedFaces[FaceNr].Face->GetSurfaceInfo();
 
-        SetSurfaceInfo(m_SelectedFaces[FaceNr].Face, SI, &Material, ApplyNormal, Setting);
+        SetSurfaceInfo(m_SelectedFaces[FaceNr].Face, SI, ApplyNormal, Setting);
         SurfaceCommands.PushBack(new CommandUpdateSurfaceFaceT(*m_MapDoc, m_SelectedFaces[FaceNr].Brush, m_SelectedFaces[FaceNr].FaceIndex, SI, Material));
     }
 
@@ -885,7 +871,7 @@ void EditSurfacePropsDialogT::OnSpinCtrlValueChanged(wxSpinDoubleEvent& Event)
         EditorMaterialI* Material=NULL;
         SurfaceInfoT     SI=m_SelectedPatches[PatchNr]->GetSurfaceInfo();
 
-        SetSurfaceInfo(m_SelectedPatches[PatchNr], SI, &Material, ApplyNormal, Setting);
+        SetSurfaceInfo(m_SelectedPatches[PatchNr], SI, ApplyNormal, Setting);
         SurfaceCommands.PushBack(new CommandUpdateSurfaceBezierPatchT(*m_MapDoc, m_SelectedPatches[PatchNr], SI, Material));
     }
 
@@ -960,7 +946,7 @@ void EditSurfacePropsDialogT::OnButtonAlign(wxCommandEvent& Event)
 
             SI.TexCoordGenMode=MatFit;
 
-            SetSurfaceInfo(m_SelectedPatches[PatchNr], SI, &Material, ApplyNormal, ApplyAll);
+            SetSurfaceInfo(m_SelectedPatches[PatchNr], SI, ApplyNormal, ApplyAll);
             SurfaceCommands.PushBack(new CommandUpdateSurfaceBezierPatchT(*m_MapDoc, m_SelectedPatches[PatchNr], SI, Material));
         }
 
@@ -1076,20 +1062,21 @@ void EditSurfacePropsDialogT::OnSelChangeCurrentMat(wxCommandEvent& Event)
 
             for (unsigned long FaceNr=0; FaceNr<m_SelectedFaces.Size(); FaceNr++)
             {
-                EditorMaterialI* Material=NULL;
-                SurfaceInfoT     SI=m_SelectedFaces[FaceNr].Face->GetSurfaceInfo();
-
-                SetSurfaceInfo(m_SelectedFaces[FaceNr].Face, SI, &Material, ApplyNormal, ApplyMaterial);
-                SurfaceCommands.PushBack(new CommandUpdateSurfaceFaceT(*m_MapDoc, m_SelectedFaces[FaceNr].Brush, m_SelectedFaces[FaceNr].FaceIndex, SI, Material));
+                SurfaceCommands.PushBack(new CommandUpdateSurfaceFaceT(
+                    *m_MapDoc,
+                    m_SelectedFaces[FaceNr].Brush,
+                    m_SelectedFaces[FaceNr].FaceIndex,
+                    m_SelectedFaces[FaceNr].Face->GetSurfaceInfo(),   // no change
+                    CurrentMaterial));
             }
 
             for (unsigned long PatchNr=0; PatchNr<m_SelectedPatches.Size(); PatchNr++)
             {
-                EditorMaterialI* Material=NULL;
-                SurfaceInfoT     SI=m_SelectedPatches[PatchNr]->GetSurfaceInfo();
-
-                SetSurfaceInfo(m_SelectedPatches[PatchNr], SI, &Material, ApplyNormal, ApplyMaterial);
-                SurfaceCommands.PushBack(new CommandUpdateSurfaceBezierPatchT(*m_MapDoc, m_SelectedPatches[PatchNr], SI, Material));
+                SurfaceCommands.PushBack(new CommandUpdateSurfaceBezierPatchT(
+                    *m_MapDoc,
+                    m_SelectedPatches[PatchNr],
+                    m_SelectedPatches[PatchNr]->GetSurfaceInfo(),     // no change
+                    CurrentMaterial));
             }
 
             if (SurfaceCommands.Size()>0)
@@ -1190,19 +1177,19 @@ void EditSurfacePropsDialogT::OnButtonApplyToAllSelected(wxCommandEvent& Event)
 
     for (unsigned long FaceNr=0; FaceNr<m_SelectedFaces.Size(); FaceNr++)
     {
-        EditorMaterialI* Material=NULL;
+        EditorMaterialI* Material = GetCurrentMaterial();
         SurfaceInfoT     SI=m_SelectedFaces[FaceNr].Face->GetSurfaceInfo();
 
-        SetSurfaceInfo(m_SelectedFaces[FaceNr].Face, SI, &Material, ApplyMode, ApplyAll);
+        SetSurfaceInfo(m_SelectedFaces[FaceNr].Face, SI, ApplyMode, ApplyAll);
         SurfaceCommands.PushBack(new CommandUpdateSurfaceFaceT(*m_MapDoc, m_SelectedFaces[FaceNr].Brush, m_SelectedFaces[FaceNr].FaceIndex, SI, Material));
     }
 
     for (unsigned long PatchNr=0; PatchNr<m_SelectedPatches.Size(); PatchNr++)
     {
-        EditorMaterialI* Material=NULL;
+        EditorMaterialI* Material = GetCurrentMaterial();
         SurfaceInfoT     SI=m_SelectedPatches[PatchNr]->GetSurfaceInfo();
 
-        SetSurfaceInfo(m_SelectedPatches[PatchNr], SI, &Material, ApplyMode, ApplyAll);
+        SetSurfaceInfo(m_SelectedPatches[PatchNr], SI, ApplyMode, ApplyAll);
         SurfaceCommands.PushBack(new CommandUpdateSurfaceBezierPatchT(*m_MapDoc, m_SelectedPatches[PatchNr], SI, Material));
     }
 
