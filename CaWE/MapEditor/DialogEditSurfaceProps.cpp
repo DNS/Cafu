@@ -475,10 +475,12 @@ void EditSurfacePropsDialogT::ApplyClick(ViewWindow3DT& ViewWin3D, MapElementT* 
 
     if (ApplyMode==ApplyProjective && m_CurrentTexGenMode!=PlaneProj)   // Only apply projective if there is a projection plane.
     {
-        wxMessageBox("When the texture-coordinate mode is Fit or Custom,\n"
-            "there is no reference plane for projective material application.\n\n"
-            "Please use another apply mode for the right mouse button,\n"
-            "or pick a regular brush face in order to apply its material projectively.");
+        wxMessageBox("Cannot project this surface orientation.\n\n"
+            "The current orientation describes how the material is \"fit\" into a surface.\n"
+            "In this case, there is no reference plane available that is needed for projective material application.\n\n"
+            "Either choose a different \"Right MB mode\" for applying the current material, or pick a regular\n"
+            "brush face first (whose surface orientation will provide a reference plane), then try again.");
+
         return;
     }
 
@@ -569,8 +571,12 @@ void EditSurfacePropsDialogT::EyeDropperClick(MapElementT* Object, unsigned long
 
         if (SI.TexCoordGenMode==Custom)
         {
-            wxMessageBox("The texture information on this Bezier patch is in a custom format that cannot be picked into the dialog.\n"
-                "You can fix the problem by assigning new texture information (using the right mouse button) to the patch.");
+            wxMessageBox("Cannot pick the surface orientation from this Bezier patch.\n\n"
+                "The texture coordinates of this Bezier Patch are in a custom\n"
+                "format that cannot be picked into the dialog.\n"
+                "Therefore, only the material is picked, but not the orientation.\n\n"
+                "You can fix this problem by applying new surface information to\n"
+                "the Bezier patch, using the right mouse button.");
         }
         else
         {
@@ -589,7 +595,7 @@ void EditSurfacePropsDialogT::EyeDropperClick(MapElementT* Object, unsigned long
 
             switch (m_CurrentTexGenMode)
             {
-                case Custom: m_TexGenModeInfo->SetLabel("Mode: Custom"); break;
+                case Custom: m_TexGenModeInfo->SetLabel("Mode: Custom"); break;   // This is already caught above.
                 case MatFit: m_TexGenModeInfo->SetLabel("Mode: Fit");    break;
                 default:     m_TexGenModeInfo->SetLabel("");             break;
             }
@@ -647,25 +653,25 @@ void EditSurfacePropsDialogT::SetSurfaceInfo(const MapFaceT* Face, SurfaceInfoT&
             if (wxStricmp(Face->GetMaterial()->GetName(), ((EditorMaterialI*)ChoiceCurrentMat->GetClientData(CurrentMatIndex))->GetName())!=0)
                 *Material=(EditorMaterialI*)ChoiceCurrentMat->GetClientData(CurrentMatIndex);
 
-    // Scale values currently stored in the dialog.
+    // Fetch the scale values from the dialog.
     float DialogScaleX=m_SpinCtrlScaleX->GetValue();
     float DialogScaleY=m_SpinCtrlScaleY->GetValue();
 
-    // See that scale values are always 0.01 or greater if positive or -0.01 or smaller if negative.
-    if(DialogScaleX>=0.0f && DialogScaleX < 0.01f) DialogScaleX= 0.01f;
-    if(DialogScaleX< 0.0f && DialogScaleX >-0.01f) DialogScaleX=-0.01f;
-    if(DialogScaleY>=0.0f && DialogScaleY < 0.01f) DialogScaleY= 0.01f;
-    if(DialogScaleY< 0.0f && DialogScaleY <-0.01f) DialogScaleY=-0.01f;
+    // Make sure that the scale values don't get too close to 0.
+    if (DialogScaleX >= 0.0f && DialogScaleX <  0.01f) DialogScaleX =  0.01f;
+    if (DialogScaleX <  0.0f && DialogScaleX > -0.01f) DialogScaleX = -0.01f;
+    if (DialogScaleY >= 0.0f && DialogScaleY <  0.01f) DialogScaleY =  0.01f;
+    if (DialogScaleY <  0.0f && DialogScaleY < -0.01f) DialogScaleY = -0.01f;
 
     switch (ApplyMode)
     {
         case ApplyNormal:
         {
             // Apply the normal "orientation" settings depending on the choosen ApplySetting.
-            if (Setting & ApplyScaleX) SI.Scale[0]=1.0/(DialogScaleX * Face->GetMaterial()->GetWidth());
-            if (Setting & ApplyScaleY) SI.Scale[1]=1.0/(DialogScaleY * Face->GetMaterial()->GetHeight());
-            if (Setting & ApplyShiftX) SI.Trans[0]=m_SpinCtrlShiftX->GetValue() / Face->GetMaterial()->GetWidth();
-            if (Setting & ApplyShiftY) SI.Trans[1]=m_SpinCtrlShiftY->GetValue() / Face->GetMaterial()->GetHeight();
+            if (Setting & ApplyScaleX) SI.Scale[0] = 1.0/(DialogScaleX * Face->GetMaterial()->GetWidth());
+            if (Setting & ApplyScaleY) SI.Scale[1] = 1.0/(DialogScaleY * Face->GetMaterial()->GetHeight());
+            if (Setting & ApplyShiftX) SI.Trans[0] = m_SpinCtrlShiftX->GetValue() / Face->GetMaterial()->GetWidth();
+            if (Setting & ApplyShiftY) SI.Trans[1] = m_SpinCtrlShiftY->GetValue() / Face->GetMaterial()->GetHeight();
             if (Setting & ApplyRotation)
             {
                 SI.RotateUVAxes(m_SpinCtrlRotation->GetValue() - Face->GetSurfaceInfo().Rotate);
@@ -767,27 +773,28 @@ void EditSurfacePropsDialogT::SetSurfaceInfo(const MapBezierPatchT* Patch, Surfa
             if (wxStricmp(Patch->GetMaterial()->GetName(), ((EditorMaterialI*)ChoiceCurrentMat->GetClientData(CurrentMatIndex))->GetName())!=0)
                 *Material=(EditorMaterialI*)ChoiceCurrentMat->GetClientData(CurrentMatIndex);
 
+    // Fetch the scale values from the dialog.
     float DialogScaleX=m_SpinCtrlScaleX->GetValue();
     float DialogScaleY=m_SpinCtrlScaleY->GetValue();
 
-    // See that scale values are always 0.01 or greater if positive or -0.01 or smaller if negative.
-    if(DialogScaleX>=0.0f && DialogScaleX < 0.01f) DialogScaleX= 0.01f;
-    if(DialogScaleX< 0.0f && DialogScaleX >-0.01f) DialogScaleX=-0.01f;
-    if(DialogScaleY>=0.0f && DialogScaleY < 0.01f) DialogScaleY= 0.01f;
-    if(DialogScaleY< 0.0f && DialogScaleY <-0.01f) DialogScaleY=-0.01f;
+    // Make sure that the scale values don't get too close to 0.
+    if (DialogScaleX >= 0.0f && DialogScaleX <  0.01f) DialogScaleX =  0.01f;
+    if (DialogScaleX <  0.0f && DialogScaleX > -0.01f) DialogScaleX = -0.01f;
+    if (DialogScaleY >= 0.0f && DialogScaleY <  0.01f) DialogScaleY =  0.01f;
+    if (DialogScaleY <  0.0f && DialogScaleY < -0.01f) DialogScaleY = -0.01f;
 
     switch (ApplyMode)
     {
         case ApplyNormal:
         {
             // Apply current orientation values to the patch.
-            if (Setting & ApplyScaleX)   SI.Scale[0]=(SI.TexCoordGenMode==MatFit) ? DialogScaleX : 1.0/(DialogScaleX*Patch->GetMaterial()->GetWidth());
-            if (Setting & ApplyScaleY)   SI.Scale[1]=(SI.TexCoordGenMode==MatFit) ? DialogScaleY : 1.0/(DialogScaleY*Patch->GetMaterial()->GetHeight());
-            if (Setting & ApplyShiftX)   SI.Trans[0]=m_SpinCtrlShiftX->GetValue()/Patch->GetMaterial()->GetWidth();
-            if (Setting & ApplyShiftY)   SI.Trans[1]=m_SpinCtrlShiftY->GetValue()/Patch->GetMaterial()->GetHeight();
+            if (Setting & ApplyScaleX) SI.Scale[0] = (SI.TexCoordGenMode==MatFit) ? DialogScaleX : 1.0/(DialogScaleX*Patch->GetMaterial()->GetWidth());
+            if (Setting & ApplyScaleY) SI.Scale[1] = (SI.TexCoordGenMode==MatFit) ? DialogScaleY : 1.0/(DialogScaleY*Patch->GetMaterial()->GetHeight());
+            if (Setting & ApplyShiftX) SI.Trans[0] = m_SpinCtrlShiftX->GetValue()/Patch->GetMaterial()->GetWidth();
+            if (Setting & ApplyShiftY) SI.Trans[1] = m_SpinCtrlShiftY->GetValue()/Patch->GetMaterial()->GetHeight();
             if (Setting & ApplyRotation)
             {
-                SI.RotateUVAxes(m_SpinCtrlRotation->GetValue()-SI.Rotate);
+                SI.RotateUVAxes(m_SpinCtrlRotation->GetValue() - SI.Rotate);
                 SI.Rotate=m_SpinCtrlRotation->GetValue();
             }
 
@@ -1168,12 +1175,14 @@ void EditSurfacePropsDialogT::OnButtonApplyToAllSelected(wxCommandEvent& Event)
 {
     const RightMBClickModeT ApplyMode=(RightMBClickModeT)(unsigned long)ChoiceRightMBMode->GetClientData(ChoiceRightMBMode->GetSelection());
 
-    if (ApplyMode==ApplyProjective && m_CurrentTexGenMode!=PlaneProj)   // Only apply projective, if there is an projection plane.
+    if (ApplyMode==ApplyProjective && m_CurrentTexGenMode!=PlaneProj)   // Only apply projective if there is a projection plane.
     {
-        wxMessageBox("When the texture-coordinate mode is Fit or Custom,\n"
-            "there is no reference plane for projective material application.\n\n"
-            "Please use another apply mode for the right mouse button,\n"
-            "or pick a regular brush face in order to apply its material projectively.");
+        wxMessageBox("Cannot project this surface orientation.\n\n"
+            "The current orientation describes how the material is \"fit\" into a surface.\n"
+            "In this case, there is no reference plane available that is needed for projective material application.\n\n"
+            "Either choose a different \"Right MB mode\" for applying the current material, or pick a regular\n"
+            "brush face first (whose surface orientation will provide a reference plane), then try again.");
+
         return;
     }
 
