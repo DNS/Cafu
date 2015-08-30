@@ -125,8 +125,10 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
     /// Applies the dialogs data to a face/patch using a specific ApplyMode, that decides how the data is applied.
     /// The ApplySetting is only used if ApplyMode is ApplyNormal to specify which data should be applied (e.g. only
     /// scale values). The ApplySetting should never be set when calling an ApplyMode other than ApplyNormal.
-    void SetSurfaceInfo(const MapFaceT*        Face,  SurfaceInfoT& SI, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, ViewWindow3DT* ViewWin3D=NULL) const;
-    void SetSurfaceInfo(const MapBezierPatchT* Patch, SurfaceInfoT& SI, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, ViewWindow3DT* ViewWin3D=NULL) const;
+    /// Note that there are already GetSurfaceInfo() methods in MapFaceT and MapBezierPatchT,
+    /// so for clarity, we use a different name here.
+    SurfaceInfoT ObtainSurfaceInfo(const MapFaceT*        Face,  const RightMBClickModeT ApplyMode, const ApplySettingT Setting, ViewWindow3DT* ViewWin3D = NULL) const;
+    SurfaceInfoT ObtainSurfaceInfo(const MapBezierPatchT* Patch, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, ViewWindow3DT* ViewWin3D = NULL) const;
 
     // Updates the face normal and material vector info in the dialog.
     void UpdateVectorInfo();
