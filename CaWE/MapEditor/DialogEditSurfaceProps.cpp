@@ -839,7 +839,7 @@ SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapBezierPatchT* P
         {
             wxMessageBox("Apply Edge Aligned is not available for bezier patches.");
 
-            return ObtainSurfaceInfo(Patch, Mat, ApplyNormal, ApplyAll, ViewWin3D);
+            return Patch->GetSurfaceInfo();
         }
 
         case ApplyProjective:
@@ -1102,27 +1102,33 @@ void EditSurfacePropsDialogT::OnSelChangeCurrentMat(wxCommandEvent& Event)
 
         assert(Event.GetExtraLong()==-1 || Event.GetExtraLong()==0);
 
-        // Apply the new material to the selection.
-        if (Event.GetExtraLong()!=-1) // Don't update selected faces/patches if not allowed (ExtraLong=-1).
+        // Apply the new material to the selection (unless ExtraLong indicates that it is not desired).
+        if (Event.GetExtraLong() != -1)
         {
             ArrayT<CommandT*> SurfaceCommands;
 
             for (unsigned long FaceNr=0; FaceNr<m_SelectedFaces.Size(); FaceNr++)
             {
+                // SI must be recomputed as well, because the material's width and height may have changed.
+                const SurfaceInfoT SI = ObtainSurfaceInfo(m_SelectedFaces[FaceNr].Face, CurrentMaterial, ApplyNormal, ApplyAll);
+
                 SurfaceCommands.PushBack(new CommandUpdateSurfaceFaceT(
                     *m_MapDoc,
                     m_SelectedFaces[FaceNr].Brush,
                     m_SelectedFaces[FaceNr].FaceIndex,
-                    m_SelectedFaces[FaceNr].Face->GetSurfaceInfo(),   // no change
+                    SI,
                     CurrentMaterial));
             }
 
             for (unsigned long PatchNr=0; PatchNr<m_SelectedPatches.Size(); PatchNr++)
             {
+                // SI must be recomputed as well, because the material's width and height may have changed.
+                const SurfaceInfoT SI = ObtainSurfaceInfo(m_SelectedPatches[PatchNr], CurrentMaterial, ApplyNormal, ApplyAll);
+
                 SurfaceCommands.PushBack(new CommandUpdateSurfaceBezierPatchT(
                     *m_MapDoc,
                     m_SelectedPatches[PatchNr],
-                    m_SelectedPatches[PatchNr]->GetSurfaceInfo(),     // no change
+                    SI,
                     CurrentMaterial));
             }
 
