@@ -122,13 +122,35 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
     /// Returns the material that is currently set in the ChoiceCurrentMat (or NULL for none).
     EditorMaterialI* GetCurrentMaterial() const;
 
-    /// Applies the dialogs data to a face/patch using a specific ApplyMode, that decides how the data is applied.
-    /// The ApplySetting is only used if ApplyMode is ApplyNormal to specify which data should be applied (e.g. only
-    /// scale values). The ApplySetting should never be set when calling an ApplyMode other than ApplyNormal.
-    /// Note that there are already GetSurfaceInfo() methods in MapFaceT and MapBezierPatchT,
-    /// so for clarity, we use a different name here.
-    SurfaceInfoT ObtainSurfaceInfo(const MapFaceT*        Face,  const RightMBClickModeT ApplyMode, const ApplySettingT Setting, ViewWindow3DT* ViewWin3D = NULL) const;
-    SurfaceInfoT ObtainSurfaceInfo(const MapBezierPatchT* Patch, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, ViewWindow3DT* ViewWin3D = NULL) const;
+    /// Computes a SurfaceInfoT instance for a MapFaceT according to the current dialog
+    /// settings and the given parameters.
+    ///
+    /// @param Face
+    ///     The face to compute a new SurfaceInfoT for. The defaults for all values that don't
+    ///     change are copied from the existing SurfaceInfoT instance of this face.
+    ///
+    /// @param Mat
+    ///     The "reference" material that provides the material's width and height values that
+    ///     are needed for some of the computations. This can be `NULL` or `Face->GetMaterial()`
+    ///     whenever the material is not intended to be replaced by the caller. If however the
+    ///     caller intends to replace the face's material anyway, it must be the new material!
+    ///
+    /// @param ApplyMode
+    ///     The algorithm that is used for computing the details of the new SurfaceInfoT
+    ///     instance.
+    ///
+    /// @param Setting
+    ///     If `ApplyMode` is `ApplyNormal`, `Setting` determines the subset of values to
+    ///     account for. Must be `ApplyAll` in in all other `ApplyModes`.
+    ///
+    /// @param ViewWin3D
+    ///     The 3D view that is needed for the computations when `ApplyMode` is
+    ///     `ApplyViewAligned`.
+    SurfaceInfoT ObtainSurfaceInfo(const MapFaceT*        Face,  EditorMaterialI* Mat, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, ViewWindow3DT* ViewWin3D = NULL) const;
+
+    /// Computes a SurfaceInfoT instance for a MapBezierPatchT according to the current dialog
+    /// settings and the given parameters. For details, see ObtainSurfaceInfo() above.
+    SurfaceInfoT ObtainSurfaceInfo(const MapBezierPatchT* Patch, EditorMaterialI* Mat, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, ViewWindow3DT* ViewWin3D = NULL) const;
 
     // Updates the face normal and material vector info in the dialog.
     void UpdateVectorInfo();
