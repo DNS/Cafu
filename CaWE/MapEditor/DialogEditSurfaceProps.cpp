@@ -87,9 +87,9 @@ EditSurfacePropsDialogT::EditSurfacePropsDialogT(wxWindow* Parent, MapDocumentT*
       m_SpinCtrlShiftY(NULL),
       m_SpinCtrlRotation(NULL),
       m_TexGenModeInfo(NULL),
-      CheckBoxAlignWrtWorld(NULL),
-      CheckBoxAlignWrtFace(NULL),
-      CheckBoxTreatMultipleAsOne(NULL),
+      m_CheckBoxAlignWrtWorld(NULL),
+      m_CheckBoxAlignWrtFace(NULL),
+      m_CheckBoxTreatMultipleAsOne(NULL),
       ChoiceCurrentMat(NULL),
       m_BitmapCurrentMat(NULL),
       StaticTextCurrentMatSize(NULL),
@@ -251,16 +251,16 @@ EditSurfacePropsDialogT::EditSurfacePropsDialogT(wxWindow* Parent, MapDocumentT*
 
     wxBoxSizer *item25 = new wxBoxSizer( wxVERTICAL );
 
-    CheckBoxAlignWrtWorld=new wxCheckBox(this, ID_CHECKBOX_ALIGN_WRT_WORLD, wxT("wrt. World axes"), wxDefaultPosition, wxDefaultSize, wxCHK_3STATE);
-    item25->Add(CheckBoxAlignWrtWorld, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP, 5 );
+    m_CheckBoxAlignWrtWorld = new wxCheckBox(this, ID_CHECKBOX_ALIGN_WRT_WORLD, wxT("wrt. World axes"), wxDefaultPosition, wxDefaultSize, wxCHK_3STATE);
+    item25->Add(m_CheckBoxAlignWrtWorld, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP, 5);
 
-    CheckBoxAlignWrtFace=new wxCheckBox(this, ID_CHECKBOX_ALIGN_WRT_FACE, wxT("wrt. Face plane"), wxDefaultPosition, wxDefaultSize, wxCHK_3STATE);
-    item25->Add(CheckBoxAlignWrtFace, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP, 5 );
+    m_CheckBoxAlignWrtFace = new wxCheckBox(this, ID_CHECKBOX_ALIGN_WRT_FACE, wxT("wrt. Face plane"), wxDefaultPosition, wxDefaultSize, wxCHK_3STATE);
+    item25->Add(m_CheckBoxAlignWrtFace, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP, 5);
 
     item25->Add( 15, 15, 0, wxALIGN_CENTER, 5 );
 
-    CheckBoxTreatMultipleAsOne= new wxCheckBox(this, ID_CHECKBOX_TREAT_MULTIPLE_AS_ONE, wxT("Treat multiple as one"), wxDefaultPosition, wxDefaultSize, 0 );
-    item25->Add(CheckBoxTreatMultipleAsOne, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxBOTTOM, 5 );
+    m_CheckBoxTreatMultipleAsOne = new wxCheckBox(this, ID_CHECKBOX_TREAT_MULTIPLE_AS_ONE, wxT("Treat multiple as one"), wxDefaultPosition, wxDefaultSize, 0 );
+    item25->Add(m_CheckBoxTreatMultipleAsOne, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxBOTTOM, 5);
 
     item16->Add( item25, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 );
 
@@ -296,6 +296,8 @@ EditSurfacePropsDialogT::EditSurfacePropsDialogT(wxWindow* Parent, MapDocumentT*
     this->SetSizer(item0);
     item0->SetSizeHints(this);
 
+
+    UpdateAlignWrtCheckBoxes();
 
     // Update selected material.
     EditorMaterialI* DefaultMat=m_MapDoc->GetGameConfig()->GetMatMan().GetDefaultMaterial();
@@ -333,6 +335,8 @@ bool EditSurfacePropsDialogT::Show(bool show)
 {
     if (show)
     {
+        UpdateAlignWrtCheckBoxes();
+
         wxASSERT(m_MapDoc->GetChildFrame()->GetMaterialsToolbar()!=NULL);
 
         // Synchronize with materials toolbar.
@@ -368,74 +372,56 @@ void EditSurfacePropsDialogT::ClearSelection()
         m_SelectedPatches[PatchNr]->SetSelected(false);
 
     m_SelectedPatches.Overwrite();
+
+    UpdateAlignWrtCheckBoxes();
 }
 
 
-void EditSurfacePropsDialogT::ToggleClick(MapElementT* Object, unsigned long FaceIndex)
+void EditSurfacePropsDialogT::ToggleClick(MapElementT* Object, unsigned long FaceIndex, bool IsRecursive)
 {
-    if (Object==NULL) return;
+    if (!Object) return;
 
     MapBrushT*       Brush=dynamic_cast<MapBrushT*>(Object);
     MapBezierPatchT* Patch=dynamic_cast<MapBezierPatchT*>(Object);
 
-    if (Brush!=NULL)
+    if (Brush)
     {
-        if (FaceIndex==ALL_FACES)
+        if (FaceIndex == ALL_FACES)
         {
-            // Solve the problem recursively.
-            for (unsigned long FaceNr=0; FaceNr<Brush->GetFaces().Size(); FaceNr++)
-                ToggleClick(Object, FaceNr);
-
-            return;
-        }
-
-        MapFaceT*     Face=&Brush->GetFaces()[FaceIndex];
-        unsigned long FaceNr;
-
-        for (FaceNr=0; FaceNr<m_SelectedFaces.Size(); FaceNr++)
-            if (m_SelectedFaces[FaceNr].Face==Face)
-                break;
-
-        if (FaceNr>=m_SelectedFaces.Size())
-        {
-            // Add face to list of selected faces.
-            m_SelectedFaces.PushBackEmpty();
-
-            m_SelectedFaces[m_SelectedFaces.Size()-1].Face     =Face;
-            m_SelectedFaces[m_SelectedFaces.Size()-1].Brush    =Brush;
-            m_SelectedFaces[m_SelectedFaces.Size()-1].FaceIndex=FaceIndex;
-
-            Face->m_IsSelected=true;
+            // Solve the problem "recursively".
+            for (unsigned long FaceNr = 0; FaceNr < Brush->GetFaces().Size(); FaceNr++)
+                ToggleClick(Object, FaceNr, true);
         }
         else
         {
-            // Remove face from list of selected faces.
-            m_SelectedFaces[FaceNr].Face->m_IsSelected=false;
-            m_SelectedFaces.RemoveAtAndKeepOrder(FaceNr);
+            MapFaceT*     Face=&Brush->GetFaces()[FaceIndex];
+            unsigned long FaceNr;
+
+            for (FaceNr=0; FaceNr<m_SelectedFaces.Size(); FaceNr++)
+                if (m_SelectedFaces[FaceNr].Face==Face)
+                    break;
+
+            if (FaceNr>=m_SelectedFaces.Size())
+            {
+                // Add face to list of selected faces.
+                m_SelectedFaces.PushBackEmpty();
+
+                m_SelectedFaces[m_SelectedFaces.Size()-1].Face     =Face;
+                m_SelectedFaces[m_SelectedFaces.Size()-1].Brush    =Brush;
+                m_SelectedFaces[m_SelectedFaces.Size()-1].FaceIndex=FaceIndex;
+
+                Face->m_IsSelected=true;
+            }
+            else
+            {
+                // Remove face from list of selected faces.
+                m_SelectedFaces[FaceNr].Face->m_IsSelected=false;
+                m_SelectedFaces.RemoveAtAndKeepOrder(FaceNr);
+            }
         }
-
-
-        unsigned long WorldAlignCount=0;
-        unsigned long FaceAlignCount =0;
-
-        for (FaceNr=0; FaceNr<m_SelectedFaces.Size(); FaceNr++)
-        {
-            if (m_SelectedFaces[FaceNr].Face->IsUVSpaceWorldAligned()) WorldAlignCount++;
-            if (m_SelectedFaces[FaceNr].Face->IsUVSpaceFaceAligned() ) FaceAlignCount ++;
-        }
-
-        // Set the state of the "Is aligned wrt. the world axes?" checkbox.
-             if (WorldAlignCount==                     0) CheckBoxAlignWrtWorld->Set3StateValue(wxCHK_UNCHECKED);
-        else if (WorldAlignCount==m_SelectedFaces.Size()) CheckBoxAlignWrtWorld->Set3StateValue(wxCHK_CHECKED);
-        else                                              CheckBoxAlignWrtWorld->Set3StateValue(wxCHK_UNDETERMINED);
-
-        // Set the state of the "Is aligned wrt. the face plane?" checkbox.
-             if (FaceAlignCount==                     0) CheckBoxAlignWrtFace->Set3StateValue(wxCHK_UNCHECKED);
-        else if (FaceAlignCount==m_SelectedFaces.Size()) CheckBoxAlignWrtFace->Set3StateValue(wxCHK_CHECKED);
-        else                                             CheckBoxAlignWrtFace->Set3StateValue(wxCHK_UNDETERMINED);
     }
 
-    if (Patch!=NULL)
+    if (Patch)
     {
         unsigned long PatchNr;
 
@@ -455,11 +441,15 @@ void EditSurfacePropsDialogT::ToggleClick(MapElementT* Object, unsigned long Fac
         }
     }
 
+    if (!IsRecursive)
+    {
+        UpdateAlignWrtCheckBoxes();
 
-    ArrayT<MapElementT*> UpdateObjects;
-    UpdateObjects.PushBack(Object);
+        ArrayT<MapElementT*> UpdateObjects;
+        UpdateObjects.PushBack(Object);
 
-    m_MapDoc->UpdateAllObservers_Modified(UpdateObjects, MEMD_SURFACE_INFO_CHANGED);
+        m_MapDoc->UpdateAllObservers_Modified(UpdateObjects, MEMD_SURFACE_INFO_CHANGED);
+    }
 }
 
 
@@ -553,7 +543,10 @@ void EditSurfacePropsDialogT::EyeDropperClick(MapElementT* Object, unsigned long
 
         Material=Face->GetMaterial();
 
-        m_CurrentTexGenMode=SI.TexCoordGenMode;
+        // Faces should never have anything other than PlaneProj mode.
+        wxASSERT(SI.TexCoordGenMode == PlaneProj);
+        m_CurrentTexGenMode = SI.TexCoordGenMode;
+
         m_CurrentUAxis=SI.UAxis;
         m_CurrentVAxis=SI.VAxis;
 
@@ -873,6 +866,52 @@ void EditSurfacePropsDialogT::UpdateVectorInfo()
 }
 
 
+void EditSurfacePropsDialogT::UpdateAlignWrtCheckBoxes()
+{
+    // It is certainly possible to implement this a bit more efficiently, e.g. by cutting the
+    // loops short whenever both aligned and non-aligned faces have been found, but the code
+    // as-is is short and easy to understand, and still in the same order of magnitude.
+    unsigned int WorldAlignCount = 0;
+    unsigned int FaceAlignCount  = 0;
+
+    for (unsigned int FaceNr = 0; FaceNr < m_SelectedFaces.Size(); FaceNr++)
+    {
+        if (m_SelectedFaces[FaceNr].Face->IsUVSpaceWorldAligned()) WorldAlignCount++;
+        if (m_SelectedFaces[FaceNr].Face->IsUVSpaceFaceAligned() ) FaceAlignCount++;
+    }
+
+    if (m_SelectedFaces.Size() == 0)
+    {
+        m_CheckBoxAlignWrtWorld->Disable();
+        m_CheckBoxAlignWrtWorld->Set3StateValue(wxCHK_UNCHECKED);
+    }
+    else
+    {
+        m_CheckBoxAlignWrtWorld->Enable();
+
+        // Set the state of the "Is aligned wrt. the world axes?" checkbox.
+             if (WorldAlignCount ==                      0) m_CheckBoxAlignWrtWorld->Set3StateValue(wxCHK_UNCHECKED);
+        else if (WorldAlignCount == m_SelectedFaces.Size()) m_CheckBoxAlignWrtWorld->Set3StateValue(wxCHK_CHECKED);
+        else                                                m_CheckBoxAlignWrtWorld->Set3StateValue(wxCHK_UNDETERMINED);
+    }
+
+    if (m_SelectedFaces.Size() == 0)
+    {
+        m_CheckBoxAlignWrtFace->Disable();
+        m_CheckBoxAlignWrtFace->Set3StateValue(wxCHK_UNCHECKED);
+    }
+    else
+    {
+        m_CheckBoxAlignWrtFace->Enable();
+
+        // Set the state of the "Is aligned wrt. the face plane?" checkbox.
+             if (FaceAlignCount ==                      0) m_CheckBoxAlignWrtFace->Set3StateValue(wxCHK_UNCHECKED);
+        else if (FaceAlignCount == m_SelectedFaces.Size()) m_CheckBoxAlignWrtFace->Set3StateValue(wxCHK_CHECKED);
+        else                                               m_CheckBoxAlignWrtFace->Set3StateValue(wxCHK_UNDETERMINED);
+    }
+}
+
+
 /**********************/
 /*** Event Handlers ***/
 /**********************/
@@ -941,13 +980,13 @@ void EditSurfacePropsDialogT::OnButtonAlign(wxCommandEvent& Event)
         ArrayT<CommandT*> SurfaceCommands;
 
         // If all the selected faces are to be treated "as one", prepare the array with the union of their vertices.
-        if (CheckBoxTreatMultipleAsOne->IsChecked())
+        if (m_CheckBoxTreatMultipleAsOne->IsChecked())
             for (unsigned long FaceNr=0; FaceNr<m_SelectedFaces.Size(); FaceNr++)
                 CombinedVertices.PushBack(m_SelectedFaces[FaceNr].Face->GetVertices());
 
         for (unsigned long FaceNr=0; FaceNr<m_SelectedFaces.Size(); FaceNr++)
         {
-            const ArrayT<Vector3fT>& Vertices=CheckBoxTreatMultipleAsOne->IsChecked() ? CombinedVertices : m_SelectedFaces[FaceNr].Face->GetVertices();
+            const ArrayT<Vector3fT>& Vertices=m_CheckBoxTreatMultipleAsOne->IsChecked() ? CombinedVertices : m_SelectedFaces[FaceNr].Face->GetVertices();
             SurfaceInfoT             SI      =m_SelectedFaces[FaceNr].Face->GetSurfaceInfo();
 
             switch (Event.GetId())

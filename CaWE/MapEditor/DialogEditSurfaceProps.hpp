@@ -37,6 +37,14 @@ class MapFaceT;
 class ViewWindow3DT;
 
 
+/**
+ * The "Edit Surface Properties" dialog is the counterpart of the ToolEditSurfaceT tool.
+ *
+ * Its state is comprised of two largely independent sub-states:
+ *   - the set of selected faces and Bezier patches,
+ *   - the surface information of the last picked face or Bezier patch, some of
+ *     which is kept in explicit members, some as values of the dialog controls.
+ */
 class EditSurfacePropsDialogT : public wxPanel, public ObserverT
 {
     public:
@@ -59,9 +67,15 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
     /// Clears the list of faces and patches that were selected for surface-editing.
     void ClearSelection();
 
-    /// Called when the user left clicked on a face/patch in the 3D view in order to toggle (select) it.
-    /// FaceIndex==ALL_FACES will toggle all faces of a brush (if Object is a brush).
-    void ToggleClick(MapElementT* Object, unsigned long FaceIndex);
+    /// This method toggles the selection status of the given object.
+    /// It is called when the user left-clicked a face, Bezier patch or terrain in the 3D view.
+    ///
+    /// @param Object        The basic map object that is to be toggled.
+    /// @param FaceIndex     If `Object` is a brush, `FaceIndex` indicates which face of the
+    ///     brush is to be toggled, or `ALL_FACES` for all faces.
+    /// @param IsRecursive   Used for implementation purposes only, user code should always
+    ///     pass the default value (`false`).
+    void ToggleClick(MapElementT* Object, unsigned long FaceIndex, bool IsRecursive = false);
 
     /// Called when the user right clicked on a face/patch in the 3D view to apply a material.
     /// FaceIndex==ALL_FACES will perform the apply click on all faces of a brush (if Object is a brush).
@@ -113,7 +127,7 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
     };
 
     MapDocumentT*            m_MapDoc;              ///< Pointer to the currently active document, or NULL when no document active.
-    TexCoordGenModeT         m_CurrentTexGenMode;   ///< The texture coordinates generation mode for the currently (i.e. last) picked face/patch.
+    TexCoordGenModeT         m_CurrentTexGenMode;   ///< The tex-coords generation mode for the currently (i.e. last) picked face/patch (`PlaneProj` or `MatFit`, never `Custom`).
     Vector3fT                m_CurrentUAxis;        ///< The u-axis of the currently (i.e. last) picked face/patch.
     Vector3fT                m_CurrentVAxis;        ///< The v-axis of the currently (i.e. last) picked face/patch.
     ArrayT<SelectedFaceT>    m_SelectedFaces;       ///< The list of selected faces.
@@ -155,6 +169,9 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
     // Updates the face normal and material vector info in the dialog.
     void UpdateVectorInfo();
 
+    /// Updates the "Align(ed) wrt. world/face" checkboxes, depending on the current selection.
+    void UpdateAlignWrtCheckBoxes();
+
     // "Orientation" section controls.
     wxSpinCtrlDouble* m_SpinCtrlScaleX;
     wxSpinCtrlDouble* m_SpinCtrlScaleY;
@@ -168,9 +185,9 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
     wxStaticText*     MaterialYInfo;
 
     // "Alignment" section controls.
-    wxCheckBox*       CheckBoxAlignWrtWorld;
-    wxCheckBox*       CheckBoxAlignWrtFace;
-    wxCheckBox*       CheckBoxTreatMultipleAsOne;
+    wxCheckBox*       m_CheckBoxAlignWrtWorld;
+    wxCheckBox*       m_CheckBoxAlignWrtFace;
+    wxCheckBox*       m_CheckBoxTreatMultipleAsOne;
 
     // "Material" section controls.
     wxChoice*         ChoiceCurrentMat;
