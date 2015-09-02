@@ -169,8 +169,8 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
     // Updates the face normal and material vector info in the dialog.
     void UpdateVectorInfo();
 
-    /// Updates the "Align(ed) wrt. world/face" checkboxes, depending on the current selection.
-    void UpdateAlignWrtCheckBoxes();
+    /// Updates the dialog controls depending on the current selection.
+    void UpdateAfterSelChange();
 
     // "Orientation" section controls.
     wxSpinCtrlDouble* m_SpinCtrlScaleX;

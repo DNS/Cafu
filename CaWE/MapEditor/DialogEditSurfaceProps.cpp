@@ -297,7 +297,7 @@ EditSurfacePropsDialogT::EditSurfacePropsDialogT(wxWindow* Parent, MapDocumentT*
     item0->SetSizeHints(this);
 
 
-    UpdateAlignWrtCheckBoxes();
+    UpdateAfterSelChange();
 
     // Update selected material.
     EditorMaterialI* DefaultMat=m_MapDoc->GetGameConfig()->GetMatMan().GetDefaultMaterial();
@@ -335,7 +335,7 @@ bool EditSurfacePropsDialogT::Show(bool show)
 {
     if (show)
     {
-        UpdateAlignWrtCheckBoxes();
+        UpdateAfterSelChange();
 
         wxASSERT(m_MapDoc->GetChildFrame()->GetMaterialsToolbar()!=NULL);
 
@@ -373,7 +373,7 @@ void EditSurfacePropsDialogT::ClearSelection()
 
     m_SelectedPatches.Overwrite();
 
-    UpdateAlignWrtCheckBoxes();
+    UpdateAfterSelChange();
 }
 
 
@@ -443,7 +443,7 @@ void EditSurfacePropsDialogT::ToggleClick(MapElementT* Object, unsigned long Fac
 
     if (!IsRecursive)
     {
-        UpdateAlignWrtCheckBoxes();
+        UpdateAfterSelChange();
 
         ArrayT<MapElementT*> UpdateObjects;
         UpdateObjects.PushBack(Object);
@@ -866,7 +866,7 @@ void EditSurfacePropsDialogT::UpdateVectorInfo()
 }
 
 
-void EditSurfacePropsDialogT::UpdateAlignWrtCheckBoxes()
+void EditSurfacePropsDialogT::UpdateAfterSelChange()
 {
     // It is certainly possible to implement this a bit more efficiently, e.g. by cutting the
     // loops short whenever both aligned and non-aligned faces have been found, but the code
@@ -909,6 +909,10 @@ void EditSurfacePropsDialogT::UpdateAlignWrtCheckBoxes()
         else if (FaceAlignCount == m_SelectedFaces.Size()) m_CheckBoxAlignWrtFace->Set3StateValue(wxCHK_CHECKED);
         else                                               m_CheckBoxAlignWrtFace->Set3StateValue(wxCHK_UNDETERMINED);
     }
+
+    // Also deal with the "Treat multiple as one" checkbox. We better don't change it's state
+    // (checked/unchecked), because the user may wish to keep it even across selection changes.
+    m_CheckBoxTreatMultipleAsOne->Enable(m_SelectedFaces.Size() > 1);
 }
 
 
