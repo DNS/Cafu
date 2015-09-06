@@ -515,7 +515,7 @@ void EditSurfacePropsDialogT::ApplyClick(ViewWindow3DT& ViewWin3D, MapElementT* 
 
     if (SurfaceCommands.Size()>0)
     {
-        CommandMacroT* Macro=new CommandMacroT(SurfaceCommands, "Right-click apply");
+        CommandMacroT* Macro=new CommandMacroT(SurfaceCommands, "Apply material");
 
         m_MapDoc->CompatSubmitCommand(Macro);
     }
@@ -562,11 +562,11 @@ void EditSurfacePropsDialogT::EyeDropperClick(MapElementT* Object, unsigned long
 
         if (SI.TexCoordGenMode==Custom)
         {
-            wxMessageBox("Cannot pick the surface orientation from this Bezier patch.\n\n"
+            wxMessageBox("Cannot pick the surface orientation of this Bezier patch.\n\n"
                 "The texture coordinates of this Bezier Patch are in a custom\n"
                 "format that cannot be picked into the dialog.\n"
                 "Therefore, only the material is picked, but not the orientation.\n\n"
-                "You can fix this problem by applying new surface information to\n"
+                "You can fix this problem by assigning new surface information to\n"
                 "the Bezier patch, using the right mouse button.");
         }
         else
@@ -579,6 +579,8 @@ void EditSurfacePropsDialogT::EyeDropperClick(MapElementT* Object, unsigned long
             m_TexGenModeInfo  ->SetLabel("");   // The proper value is set below.
 
             m_CurrentTexGenMode=SI.TexCoordGenMode;
+
+            // If SI.TexCoordGenMode == MatFit, the axes are of zero-length and thus invalid.
             m_CurrentUAxis=SI.UAxis;
             m_CurrentVAxis=SI.VAxis;
 
@@ -708,7 +710,8 @@ SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapFaceT* Face, Ed
 
         case ApplyEdgeAligned:
         {
-            // Take the last selected face as the required reference face.
+            // This case is special: It ignores our dialog's settings quasi entirely,
+            // using only the first selected face as the (required) reference face.
             if (m_SelectedFaces.Size() < 1)
             {
                 if (!MsgCounts.NoCenterFace)
@@ -859,6 +862,9 @@ SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapBezierPatchT* P
 
             MsgCounts.NoEdgeAlign++;
 
+            // Here is an idea how this could be overcome (or rather, worked around):
+            // Find the bounding-box of the Bezier patch, and build the relevant plane
+            // from its two longest sides. Done.
             return Patch->GetSurfaceInfo();
         }
 
