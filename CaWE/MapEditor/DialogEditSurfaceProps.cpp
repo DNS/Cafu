@@ -636,6 +636,19 @@ EditorMaterialI* EditSurfacePropsDialogT::GetCurrentMaterial() const
 }
 
 
+namespace
+{
+    // Make sure that the given value doesn't get too close to 0.
+    float NonZero(float f)
+    {
+        if (f >= 0.0f && f <  0.01f) return  0.01f;
+        if (f <  0.0f && f > -0.01f) return -0.01f;
+
+        return f;
+    }
+}
+
+
 SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapFaceT* Face, EditorMaterialI* Mat, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, MsgCountsT& MsgCounts, ViewWindow3DT* ViewWin3D) const
 {
     wxASSERT(ApplyMode == ApplyNormal || Setting == ApplyAll);
@@ -646,21 +659,15 @@ SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapFaceT* Face, Ed
         Mat = Face->GetMaterial();
     }
 
+    // Fetch the scale values from the dialog, making sure that they don't get too close to 0.
+    const float DialogScaleX = NonZero(m_SpinCtrlScaleX->GetValue());
+    const float DialogScaleY = NonZero(m_SpinCtrlScaleY->GetValue());
+
     switch (ApplyMode)
     {
         case ApplyNormal:
         {
             SurfaceInfoT SI = Face->GetSurfaceInfo();
-
-            // Fetch the scale values from the dialog.
-            float DialogScaleX = m_SpinCtrlScaleX->GetValue();
-            float DialogScaleY = m_SpinCtrlScaleY->GetValue();
-
-            // Make sure that the scale values don't get too close to 0.
-            if (DialogScaleX >= 0.0f && DialogScaleX <  0.01f) DialogScaleX =  0.01f;
-            if (DialogScaleX <  0.0f && DialogScaleX > -0.01f) DialogScaleX = -0.01f;
-            if (DialogScaleY >= 0.0f && DialogScaleY <  0.01f) DialogScaleY =  0.01f;
-            if (DialogScaleY <  0.0f && DialogScaleY < -0.01f) DialogScaleY = -0.01f;
 
             // Apply current orientation values to the SI.
             if (Setting & ApplyScaleX) SI.Scale[0] = 1.0 / (DialogScaleX * Mat->GetWidth());
@@ -790,21 +797,17 @@ SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapBezierPatchT* P
         Mat = Patch->GetMaterial();
     }
 
+    // Fetch the scale values from the dialog, making sure that they don't get too close to 0.
+    const float DialogScaleX = NonZero(m_SpinCtrlScaleX->GetValue());
+    const float DialogScaleY = NonZero(m_SpinCtrlScaleY->GetValue());
+
     switch (ApplyMode)
     {
         case ApplyNormal:
         {
             SurfaceInfoT SI = Patch->GetSurfaceInfo();
 
-            // Fetch the scale values from the dialog.
-            float DialogScaleX = m_SpinCtrlScaleX->GetValue();
-            float DialogScaleY = m_SpinCtrlScaleY->GetValue();
 
-            // Make sure that the scale values don't get too close to 0.
-            if (DialogScaleX >= 0.0f && DialogScaleX <  0.01f) DialogScaleX =  0.01f;
-            if (DialogScaleX <  0.0f && DialogScaleX > -0.01f) DialogScaleX = -0.01f;
-            if (DialogScaleY >= 0.0f && DialogScaleY <  0.01f) DialogScaleY =  0.01f;
-            if (DialogScaleY <  0.0f && DialogScaleY < -0.01f) DialogScaleY = -0.01f;
 
             // Apply current orientation values to the SI.
             if (Setting & ApplyScaleX) SI.Scale[0] = (SI.TexCoordGenMode == MatFit) ? DialogScaleX : 1.0 / (DialogScaleX * Mat->GetWidth());
