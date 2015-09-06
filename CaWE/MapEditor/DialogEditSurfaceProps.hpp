@@ -126,6 +126,19 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
         unsigned long FaceIndex;
     };
 
+    /// This struct helps to provide a better user experience when a material is applied to
+    /// several faces or patches: If the application is not possible for some reason, we want
+    /// to inform the user only once, not once per face or patch.
+    struct MsgCountsT
+    {
+        MsgCountsT()
+            : NoRefPlane(0), NoCenterFace(0), NoEdgeAlign(0) {}
+
+        unsigned int NoRefPlane;
+        unsigned int NoCenterFace;
+        unsigned int NoEdgeAlign;
+    };
+
     MapDocumentT*            m_MapDoc;              ///< Pointer to the currently active document, or NULL when no document active.
     TexCoordGenModeT         m_CurrentTexGenMode;   ///< The tex-coords generation mode for the currently (i.e. last) picked face/patch (`PlaneProj` or `MatFit`, never `Custom`).
     Vector3fT                m_CurrentUAxis;        ///< The u-axis of the currently (i.e. last) picked face/patch.
@@ -157,14 +170,17 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
     ///     If `ApplyMode` is `ApplyNormal`, `Setting` determines the subset of values to
     ///     account for. Must be `ApplyAll` in in all other `ApplyModes`.
     ///
+    /// @param MsgCounts
+    ///     If problems occur, this helps to inform the user about each problem only once.
+    ///
     /// @param ViewWin3D
     ///     The 3D view that is needed for the computations when `ApplyMode` is
     ///     `ApplyViewAligned`.
-    SurfaceInfoT ObtainSurfaceInfo(const MapFaceT*        Face,  EditorMaterialI* Mat, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, ViewWindow3DT* ViewWin3D = NULL) const;
+    SurfaceInfoT ObtainSurfaceInfo(const MapFaceT*        Face,  EditorMaterialI* Mat, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, MsgCountsT& MsgCounts, ViewWindow3DT* ViewWin3D = NULL) const;
 
     /// Computes a SurfaceInfoT instance for a MapBezierPatchT according to the current dialog
     /// settings and the given parameters. For details, see ObtainSurfaceInfo() above.
-    SurfaceInfoT ObtainSurfaceInfo(const MapBezierPatchT* Patch, EditorMaterialI* Mat, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, ViewWindow3DT* ViewWin3D = NULL) const;
+    SurfaceInfoT ObtainSurfaceInfo(const MapBezierPatchT* Patch, EditorMaterialI* Mat, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, MsgCountsT& MsgCounts, ViewWindow3DT* ViewWin3D = NULL) const;
 
     // Updates the face normal and material vector info in the dialog.
     void UpdateVectorInfo();
