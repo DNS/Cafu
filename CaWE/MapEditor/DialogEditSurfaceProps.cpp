@@ -463,17 +463,6 @@ void EditSurfacePropsDialogT::ApplyClick(ViewWindow3DT& ViewWin3D, MapElementT* 
     MapBezierPatchT* Patch  =dynamic_cast<MapBezierPatchT*>(Object);
     MapTerrainT*     Terrain=dynamic_cast<MapTerrainT*>(Object);
 
-    if (ApplyMode==ApplyProjective && m_CurrentTexGenMode!=PlaneProj)   // Only apply projective if there is a projection plane.
-    {
-        wxMessageBox("Cannot project this surface orientation.\n\n"
-            "The current orientation describes how the material is \"fit\" into a surface.\n"
-            "In this case, there is no reference plane available that is needed for projective material application.\n\n"
-            "Either choose a different \"Right MB mode\" for applying the current material, or pick a regular\n"
-            "brush face first (whose surface orientation will provide a reference plane), then try again.");
-
-        return;
-    }
-
     MsgCountsT        MsgCounts;
     ArrayT<CommandT*> SurfaceCommands;
 
@@ -651,6 +640,18 @@ namespace
 }
 
 
+/**
+ * When a material is applied to the Face instance, the following combinations of ApplyMode
+ * and m_CurrentTexGenMode ("What was last picked into the dialog?") must be considered:
+ *
+ *                                    Apply to Face instance using mode:
+ *                            +--------+--------------+--------------+-----------+
+ *                            | Normal | View Aligned | Edge Aligned | Projected |
+ *                +-----------+--------+--------------+--------------+-----------+
+ *   last picked  | PlaneProj |   ok   |      ok      |      ok      |    ok     |
+ *   m_CurrTexGM  | MatFit    |   ok   |      ok      |      ok      |    -/-    |
+ *                +-----------+--------+--------------+--------------+-----------+
+ */
 SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapFaceT* Face, EditorMaterialI* Mat, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, MsgCountsT& MsgCounts, ViewWindow3DT* ViewWin3D) const
 {
     wxASSERT(ApplyMode == ApplyNormal || Setting == ApplyAll);
@@ -672,8 +673,21 @@ SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapFaceT* Face, Ed
             SurfaceInfoT SI = Face->GetSurfaceInfo();
 
             // Apply current orientation values to the SI.
-            if (Setting & ApplyScaleX) SI.Scale[0] = 1.0 / (DialogScaleX * Mat->GetWidth());
-            if (Setting & ApplyScaleY) SI.Scale[1] = 1.0 / (DialogScaleY * Mat->GetHeight());
+            // Note that this is equivalent to ObtainSurfaceInfo(Patch, ...), because always SI.TexCoordGenMode == PlaneProj.
+            if (m_CurrentTexGenMode == PlaneProj)
+            {
+                // Our values were picked from a face or patch in PlaneProj mode.
+                if (Setting & ApplyScaleX) SI.Scale[0] = 1.0 / (DialogScaleX * Mat->GetWidth());
+                if (Setting & ApplyScaleY) SI.Scale[1] = 1.0 / (DialogScaleY * Mat->GetHeight());
+            }
+            else
+            {
+                // In this case, the scale values from our spin controls have different meaning
+                // and are thus not very useful, so just keep whatever Face had.
+                wxASSERT(m_CurrentTexGenMode == MatFit);
+            }
+
+            // The meaning of the translation values is the same for all m_CurrentTexGenMode.
             if (Setting & ApplyShiftX) SI.Trans[0] = m_SpinCtrlShiftX->GetValue() / Mat->GetWidth();
             if (Setting & ApplyShiftY) SI.Trans[1] = m_SpinCtrlShiftY->GetValue() / Mat->GetHeight();
 
@@ -696,13 +710,6 @@ SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapFaceT* Face, Ed
                 // Augment the SI obtained from ApplyNormal.
                 SI.UAxis = ViewWin3D->GetCamera().GetXAxis();
                 SI.VAxis = ViewWin3D->GetCamera().GetZAxis();
-
-                // wxASSERT(SI.TexCoordGenMode == PlaneProj);   // ???
-
-                // Don't rotate relatively as ApplyNormal does. Use the absolute value instead.
-                // TODO: Should we really apply rotation here at all?
-                SI.RotateUVAxes(m_SpinCtrlRotation->GetValue());
-                SI.Rotate = m_SpinCtrlRotation->GetValue();
             }
 
             return SI;
@@ -728,7 +735,7 @@ SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapFaceT* Face, Ed
                 return Face->GetSurfaceInfo();
             }
 
-            const MapFaceT* RefFace = m_SelectedFaces[m_SelectedFaces.Size()-1].Face;
+            const MapFaceT* RefFace = m_SelectedFaces[0].Face;
 
             if (RefFace == Face) return Face->GetSurfaceInfo();
 
@@ -774,13 +781,37 @@ SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapFaceT* Face, Ed
             SurfaceInfoT SI = ObtainSurfaceInfo(Face, Mat, ApplyNormal, ApplyAll, MsgCounts, ViewWin3D);
 
             // Augment the SI obtained from ApplyNormal.
-            SI.UAxis = m_CurrentUAxis;
-            SI.VAxis = m_CurrentVAxis;
+            if (m_CurrentTexGenMode == PlaneProj)
+            {
+                // The previous pick brought good axes.
+                SI.UAxis = m_CurrentUAxis;
+                SI.VAxis = m_CurrentVAxis;
+            }
+            else
+            {
+                // Our m_CurrentUAxis and m_CurrentVAxis are of zero-length and thus invalid.
+                // Whatever we do here, it is wrong in the general case and may confuse the
+                // user, even if we provided some default/fallback axes or simply did nothing
+                // (that is, keep the Face's original axes or figure out something for Patch).
+                // Letting the user know about the problem seems to be the best compromise.
+                wxASSERT(m_CurrentTexGenMode == MatFit);
 
-            // Don't rotate relatively as ApplyNormal does. Use the absolute value instead.
-            // TODO: Should we really apply rotation here at all?
-            SI.RotateUVAxes(m_SpinCtrlRotation->GetValue());
-            SI.Rotate = m_SpinCtrlRotation->GetValue();
+                if (!MsgCounts.NoRefPlane)
+                {
+                    wxMessageBox("There is no reference plane available.\n\n"
+                        "The current surface information was picked from a Bezier patch whose\n"
+                        "material was set to \"fit\" onto its surface. In this exceptional case,\n"
+                        "there is no reference plane available that is needed for projective\n"
+                        "material application.\n\n"
+                        "The material is therefore applied normally now (non-projective).\n"
+                        "You may next wish to choose a different \"Right MB mode\" for applying\n"
+                        "the current material, or pick a regular brush face. (The surface\n"
+                        "orientation of a brush face provides the required reference plane.)",
+                        "Apply Projective");
+                }
+
+                MsgCounts.NoRefPlane++;
+            }
 
             return SI;
         }
@@ -790,6 +821,23 @@ SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapFaceT* Face, Ed
 }
 
 
+/**
+ * When a material is applied to the Patch instance, the following combinations of ApplyMode
+ * and m_CurrentTexGenMode ("What was last picked into the dialog?") must be considered:
+ *
+ *                                    Apply to Patch instance using mode:
+ *                            +--------+--------------+--------------+-----------+
+ *                            | Normal | View Aligned | Edge Aligned | Projected |
+ *                +-----------+--------+--------------+--------------+-----------+
+ *   last picked  | PlaneProj |   ok   |      ok      |      -/-     |    ok     |
+ *   m_CurrTexGM  | MatFit    |   ok   |      ok      |      -/-     |    -/-    |
+ *                +-----------+--------+--------------+--------------+-----------+
+ *
+ * The combinations are the same as for faces (the table structure is the same), but here we
+ * have no implementation for "Edge Aligned".
+ * Note that while Face->GetSurfaceInfo().TexCoordGenMode is always PlaneProj, with Patch it
+ * can be anything (PlaneProj, MatFit or Custom), which complicates the implementation.
+ */
 SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapBezierPatchT* Patch, EditorMaterialI* Mat, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, MsgCountsT& MsgCounts, ViewWindow3DT* ViewWin3D) const
 {
     wxASSERT(ApplyMode == ApplyNormal || Setting == ApplyAll);
@@ -810,11 +858,33 @@ SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapBezierPatchT* P
         {
             SurfaceInfoT SI = Patch->GetSurfaceInfo();
 
+            if (SI.TexCoordGenMode == Custom)
+            {
+                // Get rid of the unmanageable mode Custom.
+                // We assume that Setting == ApplyAll. If it is not, just ignore the problem.
+                SI.TexCoordGenMode = m_CurrentTexGenMode;
 
+                // The axes are good if m_CurrentTexGenMode == PlaneProj, ignored otherwise.
+                SI.UAxis = m_CurrentUAxis;
+                SI.VAxis = m_CurrentVAxis;
+            }
 
             // Apply current orientation values to the SI.
-            if (Setting & ApplyScaleX) SI.Scale[0] = (SI.TexCoordGenMode == MatFit) ? DialogScaleX : 1.0 / (DialogScaleX * Mat->GetWidth());
-            if (Setting & ApplyScaleY) SI.Scale[1] = (SI.TexCoordGenMode == MatFit) ? DialogScaleY : 1.0 / (DialogScaleY * Mat->GetHeight());
+            // Note that this is equivalent to ObtainSurfaceInfo(Face, ...), where always SI.TexCoordGenMode == PlaneProj.
+            if (m_CurrentTexGenMode == SI.TexCoordGenMode)
+            {
+                // The tex-gen modes match, thus our picked values are compatible to those of the target Patch.
+                if (Setting & ApplyScaleX) SI.Scale[0] = (SI.TexCoordGenMode == MatFit) ? DialogScaleX : 1.0 / (DialogScaleX * Mat->GetWidth());
+                if (Setting & ApplyScaleY) SI.Scale[1] = (SI.TexCoordGenMode == MatFit) ? DialogScaleY : 1.0 / (DialogScaleY * Mat->GetHeight());
+            }
+            else
+            {
+                // In this case, the scale values from our spin controls have different meaning
+                // and are thus not very useful, so just keep whatever Patch had.
+                wxASSERT(m_CurrentTexGenMode != SI.TexCoordGenMode);
+            }
+
+            // The meaning of the translation values is the same for all m_CurrentTexGenMode.
             if (Setting & ApplyShiftX) SI.Trans[0] = m_SpinCtrlShiftX->GetValue() / Mat->GetWidth();
             if (Setting & ApplyShiftY) SI.Trans[1] = m_SpinCtrlShiftY->GetValue() / Mat->GetHeight();
 
@@ -837,13 +907,38 @@ SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapBezierPatchT* P
                 // Augment the SI obtained from ApplyNormal.
                 SI.UAxis = ViewWin3D->GetCamera().GetXAxis();
                 SI.VAxis = ViewWin3D->GetCamera().GetZAxis();
+            }
 
+            if (m_CurrentTexGenMode == PlaneProj)
+            {
+                // No matter what the value of SI.TexCoordGenMode was (PlaneProj or MatFit),
+                // it is set to PlaneProj and thus we (re-)assign our scale values accordingly.
                 SI.TexCoordGenMode = PlaneProj;
 
-                // Don't rotate relatively as ApplyNormal does. Use the absolute value instead.
-                // TODO: Should we really apply rotation here at all?
-                SI.RotateUVAxes(m_SpinCtrlRotation->GetValue());
-                SI.Rotate = m_SpinCtrlRotation->GetValue();
+                SI.Scale[0] = 1.0 / (DialogScaleX * Mat->GetWidth());
+                SI.Scale[1] = 1.0 / (DialogScaleY * Mat->GetHeight());
+            }
+            else
+            {
+                if (SI.TexCoordGenMode == PlaneProj)
+                {
+                    wxASSERT(m_CurrentTexGenMode == MatFit && SI.TexCoordGenMode == PlaneProj);
+
+                    // Our dialog's scale value are incompatible to those of Patch, and thus
+                    // not useful. But with m_CurrentTexGenMode != SI.TexCoordGenMode, SI still
+                    // has its original scale values of Patch, so we just continue using these.
+                    // Thus, there is nothing else to do.
+                }
+                else
+                {
+                    wxASSERT(m_CurrentTexGenMode == MatFit && SI.TexCoordGenMode == MatFit);
+
+                    // MatFit everywhere? Well... what else could we do but guess?
+                    SI.TexCoordGenMode = PlaneProj;
+
+                    SI.Scale[0] = 0.25f;
+                    SI.Scale[1] = 0.25f;
+                }
             }
 
             return SI;
@@ -874,15 +969,44 @@ SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapBezierPatchT* P
             SurfaceInfoT SI = ObtainSurfaceInfo(Patch, Mat, ApplyNormal, ApplyAll, MsgCounts, ViewWin3D);
 
             // Augment the SI obtained from ApplyNormal.
-            SI.UAxis = m_CurrentUAxis;
-            SI.VAxis = m_CurrentVAxis;
+            if (m_CurrentTexGenMode == PlaneProj)
+            {
+                // The previous pick brought good axes.
+                SI.UAxis = m_CurrentUAxis;
+                SI.VAxis = m_CurrentVAxis;
 
-            SI.TexCoordGenMode = PlaneProj;
+                // No matter what the value of SI.TexCoordGenMode was (PlaneProj or MatFit),
+                // it is set to PlaneProj and thus we (re-)assign our scale values accordingly.
+                SI.TexCoordGenMode = PlaneProj;
 
-            // Don't rotate relatively as ApplyNormal does. Use the absolute value instead.
-            // TODO: Should we really apply rotation here at all?
-            SI.RotateUVAxes(m_SpinCtrlRotation->GetValue());
-            SI.Rotate = m_SpinCtrlRotation->GetValue();
+                SI.Scale[0] = 1.0 / (DialogScaleX * Mat->GetWidth());
+                SI.Scale[1] = 1.0 / (DialogScaleY * Mat->GetHeight());
+            }
+            else
+            {
+                // Our m_CurrentUAxis and m_CurrentVAxis are of zero-length and thus invalid.
+                // Whatever we do here, it is wrong in the general case and may confuse the
+                // user, even if we provided some default/fallback axes or simply did nothing
+                // (that is, keep the Face's original axes or figure out something for Patch).
+                // Letting the user know about the problem seems to be the best compromise.
+                wxASSERT(m_CurrentTexGenMode == MatFit);
+
+                if (!MsgCounts.NoRefPlane)
+                {
+                    wxMessageBox("There is no reference plane available.\n\n"
+                        "The current surface information was picked from a Bezier patch whose\n"
+                        "material was set to \"fit\" onto its surface. In this exceptional case,\n"
+                        "there is no reference plane available that is needed for projective\n"
+                        "material application.\n\n"
+                        "The material is therefore applied normally now (non-projective).\n"
+                        "You may next wish to choose a different \"Right MB mode\" for applying\n"
+                        "the current material, or pick a regular brush face. (The surface\n"
+                        "orientation of a brush face provides the required reference plane.)",
+                        "Apply Projective");
+                }
+
+                MsgCounts.NoRefPlane++;
+            }
 
             return SI;
         }
@@ -1292,17 +1416,6 @@ void EditSurfacePropsDialogT::OnSelChangeRightMB(wxCommandEvent& Event)
 void EditSurfacePropsDialogT::OnButtonApplyToAllSelected(wxCommandEvent& Event)
 {
     const RightMBClickModeT ApplyMode=(RightMBClickModeT)(unsigned long)ChoiceRightMBMode->GetClientData(ChoiceRightMBMode->GetSelection());
-
-    if (ApplyMode==ApplyProjective && m_CurrentTexGenMode!=PlaneProj)   // Only apply projective if there is a projection plane.
-    {
-        wxMessageBox("Cannot project this surface orientation.\n\n"
-            "The current orientation describes how the material is \"fit\" into a surface.\n"
-            "In this case, there is no reference plane available that is needed for projective material application.\n\n"
-            "Either choose a different \"Right MB mode\" for applying the current material, or pick a regular\n"
-            "brush face first (whose surface orientation will provide a reference plane), then try again.");
-
-        return;
-    }
 
     MsgCountsT        MsgCounts;
     ArrayT<CommandT*> SurfaceCommands;
