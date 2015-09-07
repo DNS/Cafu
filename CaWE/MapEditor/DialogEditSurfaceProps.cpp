@@ -457,7 +457,7 @@ void EditSurfacePropsDialogT::ApplyClick(ViewWindow3DT& ViewWin3D, MapElementT* 
 {
     if (Object==NULL) return;
 
-    const RightMBClickModeT ApplyMode=(RightMBClickModeT)(unsigned long)ChoiceRightMBMode->GetClientData(ChoiceRightMBMode->GetSelection());
+    const ApplyModeT ApplyMode = (ApplyModeT)(unsigned long)ChoiceRightMBMode->GetClientData(ChoiceRightMBMode->GetSelection());
 
     MapBrushT*       Brush  =dynamic_cast<MapBrushT*>(Object);
     MapBezierPatchT* Patch  =dynamic_cast<MapBezierPatchT*>(Object);
@@ -652,9 +652,9 @@ namespace
  *   m_CurrTexGM  | MatFit    |   ok   |      ok      |      ok      |    -/-    |
  *                +-----------+--------+--------------+--------------+-----------+
  */
-SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapFaceT* Face, EditorMaterialI* Mat, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, MsgCountsT& MsgCounts, ViewWindow3DT* ViewWin3D) const
+SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapFaceT* Face, EditorMaterialI* Mat, const ApplyModeT ApplyMode, const ApplyDetailT Detail, MsgCountsT& MsgCounts, ViewWindow3DT* ViewWin3D) const
 {
-    wxASSERT(ApplyMode == ApplyNormal || Setting == ApplyAll);
+    wxASSERT(ApplyMode == ApplyNormal || Detail == ApplyAll);
 
     if (!Mat)
     {
@@ -677,8 +677,8 @@ SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapFaceT* Face, Ed
             if (m_CurrentTexGenMode == PlaneProj)
             {
                 // Our values were picked from a face or patch in PlaneProj mode.
-                if (Setting & ApplyScaleX) SI.Scale[0] = 1.0 / (DialogScaleX * Mat->GetWidth());
-                if (Setting & ApplyScaleY) SI.Scale[1] = 1.0 / (DialogScaleY * Mat->GetHeight());
+                if (Detail & ApplyScaleX) SI.Scale[0] = 1.0 / (DialogScaleX * Mat->GetWidth());
+                if (Detail & ApplyScaleY) SI.Scale[1] = 1.0 / (DialogScaleY * Mat->GetHeight());
             }
             else
             {
@@ -688,10 +688,10 @@ SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapFaceT* Face, Ed
             }
 
             // The meaning of the translation values is the same for all m_CurrentTexGenMode.
-            if (Setting & ApplyShiftX) SI.Trans[0] = m_SpinCtrlShiftX->GetValue() / Mat->GetWidth();
-            if (Setting & ApplyShiftY) SI.Trans[1] = m_SpinCtrlShiftY->GetValue() / Mat->GetHeight();
+            if (Detail & ApplyShiftX) SI.Trans[0] = m_SpinCtrlShiftX->GetValue() / Mat->GetWidth();
+            if (Detail & ApplyShiftY) SI.Trans[1] = m_SpinCtrlShiftY->GetValue() / Mat->GetHeight();
 
-            if (Setting & ApplyRotation)
+            if (Detail & ApplyRotation)
             {
                 SI.RotateUVAxes(m_SpinCtrlRotation->GetValue() - SI.Rotate);
                 SI.Rotate = m_SpinCtrlRotation->GetValue();
@@ -838,9 +838,9 @@ SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapFaceT* Face, Ed
  * Note that while Face->GetSurfaceInfo().TexCoordGenMode is always PlaneProj, with Patch it
  * can be anything (PlaneProj, MatFit or Custom), which complicates the implementation.
  */
-SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapBezierPatchT* Patch, EditorMaterialI* Mat, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, MsgCountsT& MsgCounts, ViewWindow3DT* ViewWin3D) const
+SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapBezierPatchT* Patch, EditorMaterialI* Mat, const ApplyModeT ApplyMode, const ApplyDetailT Detail, MsgCountsT& MsgCounts, ViewWindow3DT* ViewWin3D) const
 {
-    wxASSERT(ApplyMode == ApplyNormal || Setting == ApplyAll);
+    wxASSERT(ApplyMode == ApplyNormal || Detail == ApplyAll);
 
     if (!Mat)
     {
@@ -861,7 +861,7 @@ SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapBezierPatchT* P
             if (SI.TexCoordGenMode == Custom)
             {
                 // Get rid of the unmanageable mode Custom.
-                // We assume that Setting == ApplyAll. If it is not, just ignore the problem.
+                // We assume that Detail == ApplyAll. If it is not, just ignore the problem.
                 SI.TexCoordGenMode = m_CurrentTexGenMode;
 
                 // The axes are good if m_CurrentTexGenMode == PlaneProj, ignored otherwise.
@@ -874,8 +874,8 @@ SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapBezierPatchT* P
             if (m_CurrentTexGenMode == SI.TexCoordGenMode)
             {
                 // The tex-gen modes match, thus our picked values are compatible to those of the target Patch.
-                if (Setting & ApplyScaleX) SI.Scale[0] = (SI.TexCoordGenMode == MatFit) ? DialogScaleX : 1.0 / (DialogScaleX * Mat->GetWidth());
-                if (Setting & ApplyScaleY) SI.Scale[1] = (SI.TexCoordGenMode == MatFit) ? DialogScaleY : 1.0 / (DialogScaleY * Mat->GetHeight());
+                if (Detail & ApplyScaleX) SI.Scale[0] = (SI.TexCoordGenMode == MatFit) ? DialogScaleX : 1.0 / (DialogScaleX * Mat->GetWidth());
+                if (Detail & ApplyScaleY) SI.Scale[1] = (SI.TexCoordGenMode == MatFit) ? DialogScaleY : 1.0 / (DialogScaleY * Mat->GetHeight());
             }
             else
             {
@@ -885,10 +885,10 @@ SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapBezierPatchT* P
             }
 
             // The meaning of the translation values is the same for all m_CurrentTexGenMode.
-            if (Setting & ApplyShiftX) SI.Trans[0] = m_SpinCtrlShiftX->GetValue() / Mat->GetWidth();
-            if (Setting & ApplyShiftY) SI.Trans[1] = m_SpinCtrlShiftY->GetValue() / Mat->GetHeight();
+            if (Detail & ApplyShiftX) SI.Trans[0] = m_SpinCtrlShiftX->GetValue() / Mat->GetWidth();
+            if (Detail & ApplyShiftY) SI.Trans[1] = m_SpinCtrlShiftY->GetValue() / Mat->GetHeight();
 
-            if (Setting & ApplyRotation)
+            if (Detail & ApplyRotation)
             {
                 SI.RotateUVAxes(m_SpinCtrlRotation->GetValue() - SI.Rotate);
                 SI.Rotate = m_SpinCtrlRotation->GetValue();
@@ -1079,16 +1079,16 @@ void EditSurfacePropsDialogT::UpdateAfterSelChange()
 
 void EditSurfacePropsDialogT::OnSpinCtrlValueChanged(wxSpinDoubleEvent& Event)
 {
-    ApplySettingT Setting=ApplyNone;
+    ApplyDetailT Detail = ApplyNone;
 
-    // Choose apply setting depending on the changed spin ctrl.
+    // Determine the proper value for Detail based on the spin control whose value changed.
     switch (Event.GetId())
     {
-        case ID_SPINCTRL_SCALE_X:  Setting=ApplyScaleX;   break;
-        case ID_SPINCTRL_SCALE_Y:  Setting=ApplyScaleY;   break;
-        case ID_SPINCTRL_SHIFT_X:  Setting=ApplyShiftX;   break;
-        case ID_SPINCTRL_SHIFT_Y:  Setting=ApplyShiftY;   break;
-        case ID_SPINCTRL_ROTATION: Setting=ApplyRotation; break;
+        case ID_SPINCTRL_SCALE_X:  Detail = ApplyScaleX;   break;
+        case ID_SPINCTRL_SCALE_Y:  Detail = ApplyScaleY;   break;
+        case ID_SPINCTRL_SHIFT_X:  Detail = ApplyShiftX;   break;
+        case ID_SPINCTRL_SHIFT_Y:  Detail = ApplyShiftY;   break;
+        case ID_SPINCTRL_ROTATION: Detail = ApplyRotation; break;
     }
 
     // The value in one of the spin controls changed, and thus the orientation of the material on the selected face(s)/patch(es).
@@ -1098,7 +1098,7 @@ void EditSurfacePropsDialogT::OnSpinCtrlValueChanged(wxSpinDoubleEvent& Event)
     for (unsigned long FaceNr=0; FaceNr<m_SelectedFaces.Size(); FaceNr++)
     {
         EditorMaterialI*   Material = NULL;     // The material doesn't change.
-        const SurfaceInfoT SI = ObtainSurfaceInfo(m_SelectedFaces[FaceNr].Face, Material, ApplyNormal, Setting, MsgCounts);
+        const SurfaceInfoT SI = ObtainSurfaceInfo(m_SelectedFaces[FaceNr].Face, Material, ApplyNormal, Detail, MsgCounts);
 
         SurfaceCommands.PushBack(new CommandUpdateSurfaceFaceT(*m_MapDoc, m_SelectedFaces[FaceNr].Brush, m_SelectedFaces[FaceNr].FaceIndex, SI, Material));
     }
@@ -1106,7 +1106,7 @@ void EditSurfacePropsDialogT::OnSpinCtrlValueChanged(wxSpinDoubleEvent& Event)
     for (unsigned long PatchNr=0; PatchNr<m_SelectedPatches.Size(); PatchNr++)
     {
         EditorMaterialI*   Material = NULL;     // The material doesn't change.
-        const SurfaceInfoT SI = ObtainSurfaceInfo(m_SelectedPatches[PatchNr], Material, ApplyNormal, Setting, MsgCounts);
+        const SurfaceInfoT SI = ObtainSurfaceInfo(m_SelectedPatches[PatchNr], Material, ApplyNormal, Detail, MsgCounts);
 
         SurfaceCommands.PushBack(new CommandUpdateSurfaceBezierPatchT(*m_MapDoc, m_SelectedPatches[PatchNr], SI, Material));
     }
@@ -1415,7 +1415,7 @@ void EditSurfacePropsDialogT::OnSelChangeRightMB(wxCommandEvent& Event)
 
 void EditSurfacePropsDialogT::OnButtonApplyToAllSelected(wxCommandEvent& Event)
 {
-    const RightMBClickModeT ApplyMode=(RightMBClickModeT)(unsigned long)ChoiceRightMBMode->GetClientData(ChoiceRightMBMode->GetSelection());
+    const ApplyModeT ApplyMode = (ApplyModeT)(unsigned long)ChoiceRightMBMode->GetClientData(ChoiceRightMBMode->GetSelection());
 
     MsgCountsT        MsgCounts;
     ArrayT<CommandT*> SurfaceCommands;

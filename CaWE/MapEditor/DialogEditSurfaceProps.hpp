@@ -99,7 +99,9 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
 
     private:
 
-    enum RightMBClickModeT  // For SetSurfaceInfo().
+    /// This enum describes how previously picked surface details
+    /// are to be applied to another surface.
+    enum ApplyModeT
     {
         ApplyNormal,
         ApplyViewAligned,
@@ -107,7 +109,9 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
         ApplyProjective
     };
 
-    enum ApplySettingT      // Determines which value is applied if ApplyNormal is called.
+    /// This enum describes what surface detail (or combination of details)
+    /// is to be applied to a face or patch.
+    enum ApplyDetailT
     {
         ApplyNone    =0x00,
         ApplyScaleX  =0x01,
@@ -166,8 +170,8 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
     ///     The algorithm that is used for computing the details of the new SurfaceInfoT
     ///     instance.
     ///
-    /// @param Setting
-    ///     If `ApplyMode` is `ApplyNormal`, `Setting` determines the subset of values to
+    /// @param Detail
+    ///     If `ApplyMode` is `ApplyNormal`, `Detail` determines the subset of values to
     ///     account for. Must be `ApplyAll` in in all other `ApplyModes`.
     ///
     /// @param MsgCounts
@@ -176,11 +180,11 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
     /// @param ViewWin3D
     ///     The 3D view that is needed for the computations when `ApplyMode` is
     ///     `ApplyViewAligned`.
-    SurfaceInfoT ObtainSurfaceInfo(const MapFaceT*        Face,  EditorMaterialI* Mat, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, MsgCountsT& MsgCounts, ViewWindow3DT* ViewWin3D = NULL) const;
+    SurfaceInfoT ObtainSurfaceInfo(const MapFaceT*        Face,  EditorMaterialI* Mat, const ApplyModeT ApplyMode, const ApplyDetailT Detail, MsgCountsT& MsgCounts, ViewWindow3DT* ViewWin3D = NULL) const;
 
     /// Computes a SurfaceInfoT instance for a MapBezierPatchT according to the current dialog
     /// settings and the given parameters. For details, see ObtainSurfaceInfo() above.
-    SurfaceInfoT ObtainSurfaceInfo(const MapBezierPatchT* Patch, EditorMaterialI* Mat, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, MsgCountsT& MsgCounts, ViewWindow3DT* ViewWin3D = NULL) const;
+    SurfaceInfoT ObtainSurfaceInfo(const MapBezierPatchT* Patch, EditorMaterialI* Mat, const ApplyModeT ApplyMode, const ApplyDetailT Detail, MsgCountsT& MsgCounts, ViewWindow3DT* ViewWin3D = NULL) const;
 
     // Updates the face normal and material vector info in the dialog.
     void UpdateVectorInfo();
