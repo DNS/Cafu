@@ -166,7 +166,7 @@ ReplaceMaterialsDialogT::ReplaceMaterialsDialogT(bool IsSomethingSelected, MapDo
 
     wxString strs26[] =
     {
-        wxT("do rescale (texture is repeated/tiled as often as before)"),
+        wxT("rescale (texture is repeated/tiled as often as before)"),
         wxT("do not rescale (pixels don't change their size)")
     };
     RadioBoxReplaceRescaleMode= new wxRadioBox(this, -1, wxT("Replace and"), wxDefaultPosition, wxDefaultSize, 2, strs26, 1, wxRA_SPECIFY_COLS );
