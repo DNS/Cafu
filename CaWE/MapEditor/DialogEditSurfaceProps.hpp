@@ -233,9 +233,8 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
     void OnButtonReplaceMats  (wxCommandEvent& Event);
 
     // "Tool Mode" section event handlers.
-    void OnCheckBoxHideSelMask     (wxCommandEvent& Event);
-    void OnSelChangeRightMB        (wxCommandEvent& Event);
-    void OnButtonApplyToAllSelected(wxCommandEvent& Event);
+    void OnCheckBoxHideSelMask(wxCommandEvent& Event);
+    void OnSelChangeRightMB   (wxCommandEvent& Event);
 
 
     // IDs for the controls whose events we are interested in.
@@ -259,8 +258,7 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
         ID_BUTTON_BROWSE_MATS,
         ID_BUTTON_REPLACE_MATS,
         ID_CHECKBOX_HIDE_SEL_MASK,
-        ID_CHOICE_RIGHT_MB_MODE,
-        ID_BUTTON_APPLY_TO_ALL_SELECTED
+        ID_CHOICE_RIGHT_MB_MODE
     };
 
     DECLARE_EVENT_TABLE()

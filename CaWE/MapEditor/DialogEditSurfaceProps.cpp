@@ -71,7 +71,6 @@ BEGIN_EVENT_TABLE(EditSurfacePropsDialogT, wxPanel)
     EVT_BUTTON        (EditSurfacePropsDialogT::ID_BUTTON_REPLACE_MATS,            EditSurfacePropsDialogT::OnButtonReplaceMats)
     EVT_CHECKBOX      (EditSurfacePropsDialogT::ID_CHECKBOX_HIDE_SEL_MASK,         EditSurfacePropsDialogT::OnCheckBoxHideSelMask)
     EVT_CHOICE        (EditSurfacePropsDialogT::ID_CHOICE_RIGHT_MB_MODE,           EditSurfacePropsDialogT::OnSelChangeRightMB)
-    EVT_BUTTON        (EditSurfacePropsDialogT::ID_BUTTON_APPLY_TO_ALL_SELECTED,   EditSurfacePropsDialogT::OnButtonApplyToAllSelected)
 END_EVENT_TABLE()
 
 
@@ -272,11 +271,11 @@ EditSurfacePropsDialogT::EditSurfacePropsDialogT(wxWindow* Parent, MapDocumentT*
     CheckBoxHideSelMask= new wxCheckBox(this, ID_CHECKBOX_HIDE_SEL_MASK, wxT("Hide Selection Overlay"), wxDefaultPosition, wxDefaultSize, 0 );
     item54->Add(CheckBoxHideSelMask, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
-    wxFlexGridSizer *item57 = new wxFlexGridSizer( 3, 0, 0 );
+    wxFlexGridSizer *item57 = new wxFlexGridSizer( 2, 0, 0 );
     item57->AddGrowableCol( 1 );
 
     wxStaticText *item60 = new wxStaticText(this, -1, wxT("Right MB mode:"), wxDefaultPosition, wxDefaultSize, 0 );
-    item57->Add( item60, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxBOTTOM, 5 );
+    item57->Add( item60, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxBOTTOM|wxTOP, 5 );
 
     ChoiceRightMBMode= new wxChoice(this, ID_CHOICE_RIGHT_MB_MODE, wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
     ChoiceRightMBMode->Append("Apply Normal"       , (void*)ApplyNormal     );
@@ -284,10 +283,7 @@ EditSurfacePropsDialogT::EditSurfacePropsDialogT(wxWindow* Parent, MapDocumentT*
     ChoiceRightMBMode->Append("Apply Edge Aligned" , (void*)ApplyEdgeAligned);
     ChoiceRightMBMode->Append("Apply Projective"   , (void*)ApplyProjective );
     ChoiceRightMBMode->SetSelection(0);
-    item57->Add(ChoiceRightMBMode, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxBOTTOM, 5 );
-
-    wxButton *item62 = new wxButton(this, ID_BUTTON_APPLY_TO_ALL_SELECTED, wxT("to all Sel."), wxDefaultPosition, wxSize(55, -1), 0 );
-    item57->Add( item62, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT|wxBOTTOM, 5 );
+    item57->Add(ChoiceRightMBMode, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
     item54->Add( item57, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
@@ -1410,38 +1406,6 @@ void EditSurfacePropsDialogT::OnSelChangeRightMB(wxCommandEvent& Event)
 {
     // Afaics, no need for any action here.
     // Those who are interested in the selected value of the ChoiceBox should query it directly.
-}
-
-
-void EditSurfacePropsDialogT::OnButtonApplyToAllSelected(wxCommandEvent& Event)
-{
-    const ApplyModeT ApplyMode = (ApplyModeT)(unsigned long)ChoiceRightMBMode->GetClientData(ChoiceRightMBMode->GetSelection());
-
-    MsgCountsT        MsgCounts;
-    ArrayT<CommandT*> SurfaceCommands;
-
-    for (unsigned long FaceNr=0; FaceNr<m_SelectedFaces.Size(); FaceNr++)
-    {
-        EditorMaterialI*   Material = GetCurrentMaterial();
-        const SurfaceInfoT SI = ObtainSurfaceInfo(m_SelectedFaces[FaceNr].Face, Material, ApplyMode, ApplyAll, MsgCounts);
-
-        SurfaceCommands.PushBack(new CommandUpdateSurfaceFaceT(*m_MapDoc, m_SelectedFaces[FaceNr].Brush, m_SelectedFaces[FaceNr].FaceIndex, SI, Material));
-    }
-
-    for (unsigned long PatchNr=0; PatchNr<m_SelectedPatches.Size(); PatchNr++)
-    {
-        EditorMaterialI*   Material = GetCurrentMaterial();
-        const SurfaceInfoT SI = ObtainSurfaceInfo(m_SelectedPatches[PatchNr], Material, ApplyMode, ApplyAll, MsgCounts);
-
-        SurfaceCommands.PushBack(new CommandUpdateSurfaceBezierPatchT(*m_MapDoc, m_SelectedPatches[PatchNr], SI, Material));
-    }
-
-    if (SurfaceCommands.Size()>0)
-    {
-        CommandMacroT* Macro=new CommandMacroT(SurfaceCommands, "Apply to all selected");
-
-        m_MapDoc->CompatSubmitCommand(Macro);
-    }
 }
 
 
