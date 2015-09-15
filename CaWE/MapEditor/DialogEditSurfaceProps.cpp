@@ -63,8 +63,8 @@ BEGIN_EVENT_TABLE(EditSurfacePropsDialogT, wxPanel)
     EVT_BUTTON        (EditSurfacePropsDialogT::ID_BUTTON_ALIGN2CENTER,            EditSurfacePropsDialogT::OnButtonAlign)
     EVT_BUTTON        (EditSurfacePropsDialogT::ID_BUTTON_ALIGN2RIGHT,             EditSurfacePropsDialogT::OnButtonAlign)
     EVT_BUTTON        (EditSurfacePropsDialogT::ID_BUTTON_ALIGN2BOTTOM,            EditSurfacePropsDialogT::OnButtonAlign)
-    EVT_CHECKBOX      (EditSurfacePropsDialogT::ID_CHECKBOX_ALIGN_WRT_WORLD,       EditSurfacePropsDialogT::OnCheckBoxAlignWorld)
-    EVT_CHECKBOX      (EditSurfacePropsDialogT::ID_CHECKBOX_ALIGN_WRT_FACE,        EditSurfacePropsDialogT::OnCheckBoxAlignFace)
+    EVT_BUTTON        (EditSurfacePropsDialogT::ID_BUTTON_ALIGN_WRT_WORLD,         EditSurfacePropsDialogT::OnButtonAlignWrtAxes)
+    EVT_BUTTON        (EditSurfacePropsDialogT::ID_BUTTON_ALIGN_WRT_FACE,          EditSurfacePropsDialogT::OnButtonAlignWrtAxes)
     EVT_CHECKBOX      (EditSurfacePropsDialogT::ID_CHECKBOX_TREAT_MULTIPLE_AS_ONE, EditSurfacePropsDialogT::OnCheckBoxTreatMultipleAsOne)
     EVT_CHOICE        (EditSurfacePropsDialogT::ID_CHOICE_CURRENT_MAT,             EditSurfacePropsDialogT::OnSelChangeCurrentMat)
     EVT_BUTTON        (EditSurfacePropsDialogT::ID_BUTTON_BROWSE_MATS,             EditSurfacePropsDialogT::OnButtonBrowseMats)
@@ -86,8 +86,14 @@ EditSurfacePropsDialogT::EditSurfacePropsDialogT(wxWindow* Parent, MapDocumentT*
       m_SpinCtrlShiftY(NULL),
       m_SpinCtrlRotation(NULL),
       m_TexGenModeInfo(NULL),
-      m_CheckBoxAlignWrtWorld(NULL),
-      m_CheckBoxAlignWrtFace(NULL),
+      MaterialXInfo(NULL),
+      MaterialYInfo(NULL),
+      m_wrtWorldAxesText(NULL),
+      m_wrtWorldAxesInfo(NULL),
+      m_wrtWorldAxesButton(NULL),
+      m_wrtFacePlaneText(NULL),
+      m_wrtFacePlaneInfo(NULL),
+      m_wrtFacePlaneButton(NULL),
       m_CheckBoxTreatMultipleAsOne(NULL),
       ChoiceCurrentMat(NULL),
       m_BitmapCurrentMat(NULL),
@@ -250,16 +256,39 @@ EditSurfacePropsDialogT::EditSurfacePropsDialogT(wxWindow* Parent, MapDocumentT*
 
     wxBoxSizer *item25 = new wxBoxSizer( wxVERTICAL );
 
-    m_CheckBoxAlignWrtWorld = new wxCheckBox(this, ID_CHECKBOX_ALIGN_WRT_WORLD, wxT("wrt. World axes"), wxDefaultPosition, wxDefaultSize, wxCHK_3STATE);
-    item25->Add(m_CheckBoxAlignWrtWorld, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP, 5);
 
-    m_CheckBoxAlignWrtFace = new wxCheckBox(this, ID_CHECKBOX_ALIGN_WRT_FACE, wxT("wrt. Face plane"), wxDefaultPosition, wxDefaultSize, wxCHK_3STATE);
-    item25->Add(m_CheckBoxAlignWrtFace, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP, 5);
+    wxFlexGridSizer* AlignWrtSizer = new wxFlexGridSizer(3, 0, 0);
+    // AlignWrtSizer->AddGrowableCol(2);
+
+    // Init the "wrt. world axes" row.
+    // The text for wrtWorldAxesInfo is properly set in UpdateAfterSelChange().
+    m_wrtWorldAxesText = new wxStaticText(this, -1, "wrt. world axes:", wxDefaultPosition, wxDefaultSize, 0 );
+    AlignWrtSizer->Add(m_wrtWorldAxesText, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 4);
+
+    m_wrtWorldAxesInfo = new wxStaticText(this, -1, "", wxDefaultPosition, wxSize(35, -1), 0 );
+    AlignWrtSizer->Add(m_wrtWorldAxesInfo, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+
+    m_wrtWorldAxesButton = new wxButton(this, ID_BUTTON_ALIGN_WRT_WORLD, "Align", wxDefaultPosition, wxSize(42, 21), 0);
+    AlignWrtSizer->Add(m_wrtWorldAxesButton, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+
+    // Init the "wrt. face plane" row.
+    // The text for wrtFacePlaneInfo is properly set in UpdateAfterSelChange().
+    m_wrtFacePlaneText = new wxStaticText(this, -1, "wrt. face plane:", wxDefaultPosition, wxDefaultSize, 0 );
+    AlignWrtSizer->Add(m_wrtFacePlaneText, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 4);
+
+    m_wrtFacePlaneInfo = new wxStaticText(this, -1, "", wxDefaultPosition, wxSize(35, -1), 0 );
+    AlignWrtSizer->Add(m_wrtFacePlaneInfo, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+
+    m_wrtFacePlaneButton = new wxButton(this, ID_BUTTON_ALIGN_WRT_FACE, "Align", wxDefaultPosition, wxSize(42, 21), 0);
+    AlignWrtSizer->Add(m_wrtFacePlaneButton, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+
+    item25->Add(AlignWrtSizer);
+
 
     item25->Add( 15, 15, 0, wxALIGN_CENTER, 5 );
 
     m_CheckBoxTreatMultipleAsOne = new wxCheckBox(this, ID_CHECKBOX_TREAT_MULTIPLE_AS_ONE, wxT("Treat multiple as one"), wxDefaultPosition, wxDefaultSize, 0 );
-    item25->Add(m_CheckBoxTreatMultipleAsOne, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxBOTTOM, 5);
+    item25->Add(m_CheckBoxTreatMultipleAsOne, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxBOTTOM, 5);
 
     item16->Add( item25, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 );
 
@@ -1035,32 +1064,42 @@ void EditSurfacePropsDialogT::UpdateAfterSelChange()
 
     if (m_SelectedFaces.Size() == 0)
     {
-        m_CheckBoxAlignWrtWorld->Disable();
-        m_CheckBoxAlignWrtWorld->Set3StateValue(wxCHK_UNCHECKED);
+        m_wrtWorldAxesText->Disable();
+        m_wrtWorldAxesInfo->Disable();
+        m_wrtWorldAxesButton->Disable();
+
+        m_wrtWorldAxesInfo->SetLabel("none");
     }
     else
     {
-        m_CheckBoxAlignWrtWorld->Enable();
+        m_wrtWorldAxesText->Enable();
+        m_wrtWorldAxesInfo->Enable();
+        m_wrtWorldAxesButton->Enable();
 
-        // Set the state of the "Is aligned wrt. the world axes?" checkbox.
-             if (WorldAlignCount ==                      0) m_CheckBoxAlignWrtWorld->Set3StateValue(wxCHK_UNCHECKED);
-        else if (WorldAlignCount == m_SelectedFaces.Size()) m_CheckBoxAlignWrtWorld->Set3StateValue(wxCHK_CHECKED);
-        else                                                m_CheckBoxAlignWrtWorld->Set3StateValue(wxCHK_UNDETERMINED);
+        // Set the "Is aligned wrt. the world axes?" info text.
+             if (WorldAlignCount ==                      0) m_wrtWorldAxesInfo->SetLabel("none");
+        else if (WorldAlignCount == m_SelectedFaces.Size()) m_wrtWorldAxesInfo->SetLabel("all");
+        else                                                m_wrtWorldAxesInfo->SetLabel("mixed");
     }
 
     if (m_SelectedFaces.Size() == 0)
     {
-        m_CheckBoxAlignWrtFace->Disable();
-        m_CheckBoxAlignWrtFace->Set3StateValue(wxCHK_UNCHECKED);
+        m_wrtFacePlaneText->Disable();
+        m_wrtFacePlaneInfo->Disable();
+        m_wrtFacePlaneButton->Disable();
+
+        m_wrtFacePlaneInfo->SetLabel("none");
     }
     else
     {
-        m_CheckBoxAlignWrtFace->Enable();
+        m_wrtFacePlaneText->Enable();
+        m_wrtFacePlaneInfo->Enable();
+        m_wrtFacePlaneButton->Enable();
 
-        // Set the state of the "Is aligned wrt. the face plane?" checkbox.
-             if (FaceAlignCount ==                      0) m_CheckBoxAlignWrtFace->Set3StateValue(wxCHK_UNCHECKED);
-        else if (FaceAlignCount == m_SelectedFaces.Size()) m_CheckBoxAlignWrtFace->Set3StateValue(wxCHK_CHECKED);
-        else                                               m_CheckBoxAlignWrtFace->Set3StateValue(wxCHK_UNDETERMINED);
+        // Set the "Is aligned wrt. the face plane?" info text.
+             if (FaceAlignCount ==                      0) m_wrtFacePlaneInfo->SetLabel("none");
+        else if (FaceAlignCount == m_SelectedFaces.Size()) m_wrtFacePlaneInfo->SetLabel("all");
+        else                                               m_wrtFacePlaneInfo->SetLabel("mixed");
     }
 
     // Also deal with the "Treat multiple as one" checkbox. We better don't change it's state
@@ -1201,53 +1240,45 @@ void EditSurfacePropsDialogT::OnButtonAlign(wxCommandEvent& Event)
 }
 
 
-// The OnCheckBoxAlign*() methods are the only way to reset a faces UV-axes (besides Apply Projective mode).
-// As such, the checkboxes act both as indicators of the current state, as well as controls to change it.
-void EditSurfacePropsDialogT::OnCheckBoxAlignWorld(wxCommandEvent& Event)
+// The buttons "wrt. world axes" and "wrt. face plane" are (besides "Apply Projective")
+// the only way to reset a face's u/v-axes.
+void EditSurfacePropsDialogT::OnButtonAlignWrtAxes(wxCommandEvent& Event)
 {
-    if (m_MapDoc==0) return;
+    wxASSERT(Event.GetId() == ID_BUTTON_ALIGN_WRT_WORLD ||
+             Event.GetId() == ID_BUTTON_ALIGN_WRT_FACE);
 
-    if (m_SelectedFaces.Size()>0)
+    if (!m_MapDoc) return;
+
+    ArrayT<CommandT*> SurfaceCommands;
+
+    for (unsigned int FaceNr = 0; FaceNr < m_SelectedFaces.Size(); FaceNr++)
     {
-        ArrayT<CommandT*> SurfaceCommands;
+        SurfaceInfoT SI = m_SelectedFaces[FaceNr].Face->GetSurfaceInfo();
 
-        for (unsigned long FaceNr=0; FaceNr<m_SelectedFaces.Size(); FaceNr++)
-        {
-            SurfaceInfoT SI=m_SelectedFaces[FaceNr].Face->GetSurfaceInfo();
+        SI.ResetUVAxes(
+            m_SelectedFaces[FaceNr].Face->GetPlane(),
+            Event.GetId() == ID_BUTTON_ALIGN_WRT_FACE);
 
-            SI.ResetUVAxes(m_SelectedFaces[FaceNr].Face->GetPlane(), false /*not FaceAligned*/);
-            SurfaceCommands.PushBack(new CommandUpdateSurfaceFaceT(*m_MapDoc, m_SelectedFaces[FaceNr].Brush, m_SelectedFaces[FaceNr].FaceIndex, SI, NULL));
-        }
+        SurfaceCommands.PushBack(new CommandUpdateSurfaceFaceT(
+            *m_MapDoc,
+            m_SelectedFaces[FaceNr].Brush,
+            m_SelectedFaces[FaceNr].FaceIndex,
+            SI,
+            NULL));
+    }
 
-        CommandMacroT* Macro=new CommandMacroT(SurfaceCommands, "Align Material wrt. World Axes");
+    if (SurfaceCommands.Size() > 0)
+    {
+        CommandMacroT* Macro = new CommandMacroT(
+            SurfaceCommands,
+            Event.GetId() == ID_BUTTON_ALIGN_WRT_FACE
+                ? "Align material wrt. face plane"
+                : "Align material wrt. world axes");
 
         m_MapDoc->CompatSubmitCommand(Macro);
     }
-}
 
-
-// The OnCheckBoxAlign*() methods are the only way to reset a faces UV-axes (besides Apply Projective mode).
-// As such, the checkboxes act both as indicators of the current state, as well as controls to change it.
-void EditSurfacePropsDialogT::OnCheckBoxAlignFace(wxCommandEvent& Event)
-{
-    if (m_MapDoc==0) return;
-
-    if (m_SelectedFaces.Size()>0)
-    {
-        ArrayT<CommandT*> SurfaceCommands;
-
-        for (unsigned long FaceNr=0; FaceNr<m_SelectedFaces.Size(); FaceNr++)
-        {
-            SurfaceInfoT SI=m_SelectedFaces[FaceNr].Face->GetSurfaceInfo();
-
-            SI.ResetUVAxes(m_SelectedFaces[FaceNr].Face->GetPlane(), true /*FaceAligned*/);
-            SurfaceCommands.PushBack(new CommandUpdateSurfaceFaceT(*m_MapDoc, m_SelectedFaces[FaceNr].Brush, m_SelectedFaces[FaceNr].FaceIndex, SI, NULL));
-        }
-
-        CommandMacroT* Macro=new CommandMacroT(SurfaceCommands, "Align Material wrt. Face Plane");
-
-        m_MapDoc->CompatSubmitCommand(Macro);
-    }
+    UpdateAfterSelChange();
 }
 
 

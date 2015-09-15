@@ -205,8 +205,12 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
     wxStaticText*     MaterialYInfo;
 
     // "Alignment" section controls.
-    wxCheckBox*       m_CheckBoxAlignWrtWorld;
-    wxCheckBox*       m_CheckBoxAlignWrtFace;
+    wxStaticText*     m_wrtWorldAxesText;
+    wxStaticText*     m_wrtWorldAxesInfo;
+    wxButton*         m_wrtWorldAxesButton;
+    wxStaticText*     m_wrtFacePlaneText;
+    wxStaticText*     m_wrtFacePlaneInfo;
+    wxButton*         m_wrtFacePlaneButton;
     wxCheckBox*       m_CheckBoxTreatMultipleAsOne;
 
     // "Material" section controls.
@@ -223,8 +227,7 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
 
     // "Alignment" section event handlers.
     void OnButtonAlign               (wxCommandEvent& Event);
-    void OnCheckBoxAlignWorld        (wxCommandEvent& Event);
-    void OnCheckBoxAlignFace         (wxCommandEvent& Event);
+    void OnButtonAlignWrtAxes        (wxCommandEvent& Event);
     void OnCheckBoxTreatMultipleAsOne(wxCommandEvent& Event);
 
     // "Material" section event handlers.
@@ -251,8 +254,8 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
         ID_BUTTON_ALIGN2CENTER,
         ID_BUTTON_ALIGN2RIGHT,
         ID_BUTTON_ALIGN2BOTTOM,
-        ID_CHECKBOX_ALIGN_WRT_WORLD,
-        ID_CHECKBOX_ALIGN_WRT_FACE,
+        ID_BUTTON_ALIGN_WRT_WORLD,
+        ID_BUTTON_ALIGN_WRT_FACE,
         ID_CHECKBOX_TREAT_MULTIPLE_AS_ONE,
         ID_CHOICE_CURRENT_MAT,
         ID_BUTTON_BROWSE_MATS,
