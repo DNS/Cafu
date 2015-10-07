@@ -396,9 +396,11 @@ void MapBezierPatchT::Save_cmap(std::ostream& OutFile, unsigned long PrimitiveNr
             const Vector3fT& TexCoord=GetCvUV (x, y);
 
             // Note that since mapfile_version 7, we no longer scale the vertex coordinates by CAFU_ENG_SCALE.
+            // Note that saving the TexCoord values with reduced/default precision analogous to
+            // SurfaceInfoT::Save_cmap() seems to be more useful than saving them with serialize().
             OutFile << " ( " << serialize(Pos)
-                    << " " << serialize(TexCoord.x)
-                    << " " << serialize(TexCoord.y) << " )";
+                    << " " << (fabs(TexCoord.x) < 0.00001f ? 0.0f : TexCoord.x)
+                    << " " << (fabs(TexCoord.y) < 0.00001f ? 0.0f : TexCoord.y) << " )";
         }
 
         OutFile << "\n";
