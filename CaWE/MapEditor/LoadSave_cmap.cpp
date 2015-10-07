@@ -363,6 +363,14 @@ void MapBezierPatchT::Load_cmap(TextParserT& TP, MapDocumentT& MapDoc, bool Igno
     }
 
     TP.AssertAndSkipToken("}");
+
+    if (SurfaceInfo.TexCoordGenMode == Custom)
+    {
+        ReconstructSI();
+
+        const char* Names[] = { "Custom", "MatFit", "PlaneProj" };
+        wxLogDebug("ReconstructSI() resulted in: %s", Names[SurfaceInfo.TexCoordGenMode]);
+    }
 }
 
 

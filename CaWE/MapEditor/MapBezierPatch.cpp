@@ -1001,6 +1001,207 @@ void MapBezierPatchT::Transform(const MatrixT& Matrix, bool LockTexCoords)
 }
 
 
+bool MapBezierPatchT::ReconstructMatFit()
+{
+    const Vector3fT MinUV = GetCvUV(0, 0);
+    const Vector3fT VecU  = GetCvUV(cv_Width - 1,  0) - MinUV;
+    const Vector3fT VecV  = GetCvUV(0, cv_Height - 1) - MinUV;
+
+    float tx, ty, sx, sy, r;
+
+    if (fabs(VecU.x) > fabs(VecU.y))
+    {
+        // Ok, this is the normal case:
+        // VecU grows along the x-axis (and VecV supposedly along the y-axis).
+        tx = MinUV.x;
+        ty = MinUV.y;
+        sx = VecU.x;
+        sy = VecV.y;
+        r  = 0.0f;
+    }
+    else
+    {
+        // This is the special case:
+        // In the cv_UVs, the u- and v-coordinates are *swapped*.
+        tx = -MinUV.y;
+        ty =  MinUV.x;
+        sx = -VecU.y;
+        sy =  VecV.x;
+        r  = -90.0f;
+    }
+
+    wxLogDebug("MinUV (%f %f), VecU (%f %f), VecV (%f %f)", MinUV.x, MinUV.y, VecU.x, VecU.y, VecV.x, VecV.y);
+    wxLogDebug("t (%f, %f);  s (%f, %f);  r %f", tx, ty, sx, sy, r);
+
+    for (unsigned int y = 0; y < cv_Height; y++)
+    {
+        const float dy = ty + sy * y / (cv_Height - 1);
+
+        for (unsigned int x = 0 ; x < cv_Width; x++)
+        {
+            const float      dx  = tx + sx * x / (cv_Width - 1);
+            const Vector3fT& Is  = GetCvUV(x, y);
+            const Vector3fT  Fit = Vector3fT(dx, dy, 0.0f).GetRotZ(r);
+
+            wxLogDebug("%u %u -- Is (%f %f), Fit (%f %f)", x, y, Is.x, Is.y, Fit.x, Fit.y);
+
+            if (fabs(Fit.x - Is.x) > 0.1f || fabs(Fit.y - Is.y) > 0.1f)
+                return false;
+        }
+    }
+
+    SurfaceInfo.TexCoordGenMode = MatFit;
+
+    SurfaceInfo.Trans[0] = tx;
+    SurfaceInfo.Trans[1] = ty;
+    SurfaceInfo.Scale[0] = sx;
+    SurfaceInfo.Scale[1] = sy;
+    SurfaceInfo.Rotate   = r;
+
+#ifdef DEBUG
+    // Assert that the above produced indeed the expected results.
+    const ArrayT<Vector3fT> PrevUVs = cv_UVs;
+
+    UpdateTextureSpace();
+
+    for (unsigned int i = 0; i < cv_UVs.Size(); i++)
+        assert(fabs(cv_UVs[i].x - PrevUVs[i].x) < 0.1f &&
+               fabs(cv_UVs[i].y - PrevUVs[i].y) < 0.1f);
+#endif
+
+    return true;
+}
+
+
+bool MapBezierPatchT::ReconstructPlaneProj(bool AltOrigin)
+{
+    wxLogDebug("");
+    wxLogDebug("MatFit didn't work out, now try PlaneProj instead (%s origin).", AltOrigin ? "alternate" : "normal");
+
+    // Patches may have several control vertices at the same coordinates.
+    // Thus, if the vertex at (0, 0) doesn't work out, try the diagonally opposite one.
+    const Vector3fT CvPos00 = AltOrigin ? GetCvPos(cv_Width - 1, cv_Height - 1) : GetCvPos(0, 0);
+    const Vector3fT CvUV_00 = AltOrigin ? GetCvUV (cv_Width - 1, cv_Height - 1) : GetCvUV (0, 0);
+
+    // This is quasi the same as computing the tangent and bi-tangent vectors for a model.
+    // Thus, just reuse the same code here.
+    //
+    // Understanding what's going on here is easy. The key statement is
+    // "The tangent vector is parallel to the direction of increasing S on a parametric surface."
+    // First, there is a short explanation in "The Cg Tutorial", chapter 8.
+    // Second, I have drawn a simple figure that leads to a simple 2x2 system of Gaussian equations, see my TechArchive.
+    const Vector3fT Edge01 = GetCvPos(cv_Width - 1,  0) - CvPos00;
+    const Vector3fT Edge02 = GetCvPos(0, cv_Height - 1) - CvPos00;
+    const Vector3fT uv01   = GetCvUV(cv_Width - 1,  0) - CvUV_00;
+    const Vector3fT uv02   = GetCvUV(0, cv_Height - 1) - CvUV_00;
+    const float     d      = uv01.x*uv02.y - uv01.y*uv02.x;
+
+    if (fabs(d) < 0.01f) return false;
+
+    const Vector3fT VecS = (scale(Edge02, -uv01.y) + scale(Edge01, uv02.y)) / d;
+    const Vector3fT VecT = (scale(Edge02,  uv01.x) - scale(Edge01, uv02.x)) / d;
+
+    const float LenS = length(VecS);
+    const float LenT = length(VecT);
+
+    wxLogDebug("VecS (%f %f %f), len %f", VecS.x, VecS.y, VecS.z, LenS);
+    wxLogDebug("VecT (%f %f %f), len %f", VecT.x, VecT.y, VecT.z, LenT);
+
+    if (LenS < 0.01f || LenT < 0.01f) return false;
+
+    // UpdateTextureSpace() will use this code to compute the uv-coordinates:
+    // cv_uvw.x = dot(SurfaceInfo.UAxis, cv_xyz) * SurfaceInfo.Scale[0] + SurfaceInfo.Trans[0];
+    // cv_uvw.y = dot(SurfaceInfo.VAxis, cv_xyz) * SurfaceInfo.Scale[1] + SurfaceInfo.Trans[1];
+
+    const float tx = CvUV_00.x - dot(VecS, CvPos00) / LenS / LenS;
+    const float ty = CvUV_00.y - dot(VecT, CvPos00) / LenT / LenT;
+
+    wxLogDebug("tx %f", tx);
+    wxLogDebug("ty %f", ty);
+
+    bool IsSuccess = true;
+
+    for (unsigned int y = 0; y < cv_Height; y++)
+    {
+        for (unsigned int x = 0 ; x < cv_Width; x++)
+        {
+            const Vector3fT& cv_xyz = GetCvPos(x, y);
+            const Vector3fT& cv_uv  = GetCvUV(x, y);
+
+            const Vector3fT Fit(
+                dot(VecS, cv_xyz) / LenS / LenS + tx,
+                dot(VecT, cv_xyz) / LenT / LenT + ty,
+                0.0f
+            );
+
+            const bool fail = fabs(Fit.x - cv_uv.x) > 0.1f || fabs(Fit.y - cv_uv.y) > 0.1f;
+
+            wxLogDebug("%u %u -- Is (%f %f), Fit (%f %f), %s    -- xyz (%f %f %f)", x, y, cv_uv.x, cv_uv.y, Fit.x, Fit.y, fail ? "fail" : "ok  ", cv_xyz.x, cv_xyz.y, cv_xyz.z);
+
+            if (fail)
+                IsSuccess = false;
+        }
+    }
+
+    if (!IsSuccess) return false;
+
+    SurfaceInfo.TexCoordGenMode = PlaneProj;
+
+    SurfaceInfo.Trans[0] = tx;
+    SurfaceInfo.Trans[1] = ty;
+    SurfaceInfo.Scale[0] = 1.0f / LenS;
+    SurfaceInfo.Scale[1] = 1.0f / LenT;
+    SurfaceInfo.Rotate   = 0.0f;
+    SurfaceInfo.UAxis    = VecS / LenS;
+    SurfaceInfo.VAxis    = VecT / LenT;
+
+#ifdef DEBUG
+    // Assert that the above produced indeed the expected results.
+    const ArrayT<Vector3fT> PrevUVs = cv_UVs;
+
+    UpdateTextureSpace();
+
+    for (unsigned int i = 0; i < cv_UVs.Size(); i++)
+        assert(fabs(cv_UVs[i].x - PrevUVs[i].x) < 0.1f &&
+               fabs(cv_UVs[i].y - PrevUVs[i].y) < 0.1f);
+#endif
+
+    return true;
+}
+
+
+bool MapBezierPatchT::ReconstructSI()
+{
+    if (SurfaceInfo.TexCoordGenMode != Custom) return false;
+
+    if (cv_Width  < 2) return false;
+    if (cv_Height < 2) return false;
+
+    wxLogDebug("");
+    wxLogDebug("----");
+    wxLogDebug(Material->GetName());
+
+    // For debugging, output the uv-coordinates of the entire patch.
+    for (unsigned int y = 0; y < cv_Height; y++)
+    {
+        const unsigned int y_ = cv_Height - y - 1;
+
+        wxString line = wxString::Format("    %u:    ", y_);
+
+        for (unsigned int x = 0 ; x < cv_Width; x++)
+        {
+            const Vector3fT& uv = GetCvUV(x, y_);
+
+            line += wxString::Format("(%7.5f, %7.5f)    ", uv.x, uv.y);
+        }
+
+        wxLogDebug(line);
+    }
+
+    return ReconstructMatFit() || ReconstructPlaneProj(false) || ReconstructPlaneProj(true);
+}
+
+
 // This method is const, so that it can be called from other const methods.
 void MapBezierPatchT::UpdateRenderMesh() const
 {
