@@ -1102,9 +1102,11 @@ void EditSurfacePropsDialogT::UpdateAfterSelChange()
         else                                               m_wrtFacePlaneInfo->SetLabel("mixed");
     }
 
-    // Also deal with the "Treat multiple as one" checkbox. We better don't change it's state
+    // Also deal with the "Treat multiple as one" checkbox. We better don't change its state
     // (checked/unchecked), because the user may wish to keep it even across selection changes.
-    m_CheckBoxTreatMultipleAsOne->Enable(m_SelectedFaces.Size() > 1);
+    // Disabling it whenever the OnButtonAlign() handler cannot (fully) make use of it should
+    // be enough to let the user know that some limitations apply.
+    m_CheckBoxTreatMultipleAsOne->Enable(m_SelectedFaces.Size() > 1 && m_SelectedPatches.Size() == 0);
 }
 
 
@@ -1170,6 +1172,17 @@ void EditSurfacePropsDialogT::OnButtonAlign(wxCommandEvent& Event)
 {
     if (m_MapDoc==0) return;
 
+    if (m_SelectedPatches.Size() > 0 && Event.GetId() != ID_BUTTON_ALIGN2FITFACE)
+    {
+        wxMessageBox("With Bezier patches, only \"Fit\" can be used.\n\n"
+            "It is usually not possible with Bezier patches to compute the required\n"
+            "reference point for the other alignment options. However, after \"Fit\"\n"
+            "you can use the orientation controls to fine-tune the result.",
+            "Fit material to surface");
+
+        return;
+    }
+
     if (m_SelectedFaces.Size()>0)
     {
         ArrayT<Vector3fT> CombinedVertices;
@@ -1198,50 +1211,31 @@ void EditSurfacePropsDialogT::OnButtonAlign(wxCommandEvent& Event)
             SurfaceCommands.PushBack(new CommandUpdateSurfaceFaceT(*m_MapDoc, m_SelectedFaces[FaceNr].Brush, m_SelectedFaces[FaceNr].FaceIndex, SI, NULL));
         }
 
-        m_MapDoc->CompatSubmitCommand(new CommandMacroT(SurfaceCommands, "Align Material"));
+        m_MapDoc->CompatSubmitCommand(new CommandMacroT(SurfaceCommands, "Align material"));
     }
-    else if (m_SelectedPatches.Size()>0)
+
+    if (m_SelectedPatches.Size() > 0)
     {
-        if (Event.GetId()!=ID_BUTTON_ALIGN2FITFACE)
-        {
-            wxMessageBox("With Bezier patches, only the Fit button is available for material alignment.\n");
-            return;
-        }
+        wxASSERT(Event.GetId() == ID_BUTTON_ALIGN2FITFACE);
 
-        MsgCountsT        MsgCounts;
         ArrayT<CommandT*> SurfaceCommands;
+        EditorMaterialI* Material = NULL;   // The material doesn't change.
+        SurfaceInfoT SI;
+        SI.TexCoordGenMode = MatFit;
 
-        for (unsigned long PatchNr=0; PatchNr<m_SelectedPatches.Size(); ++PatchNr)
+        for (unsigned long PatchNr = 0; PatchNr < m_SelectedPatches.Size(); PatchNr++)
         {
-            EditorMaterialI* Material = NULL;   // The material doesn't change.
-            SurfaceInfoT     SI = ObtainSurfaceInfo(m_SelectedPatches[PatchNr], Material, ApplyNormal, ApplyAll, MsgCounts);
-
-            if (SI.TexCoordGenMode != MatFit)
-            {
-                // Fetch the scale values from the dialog.
-                const float DialogScaleX = m_SpinCtrlScaleX->GetValue();
-                const float DialogScaleY = m_SpinCtrlScaleY->GetValue();
-
-                // The patch may or may not have been in MatFit mode before,
-                // thus update the SI obtained from ApplyNormal accordingly.
-                SI.TexCoordGenMode = MatFit;
-
-                SI.Scale[0] = DialogScaleX;
-                SI.Scale[1] = DialogScaleY;
-            }
-
             SurfaceCommands.PushBack(new CommandUpdateSurfaceBezierPatchT(*m_MapDoc, m_SelectedPatches[PatchNr], SI, Material));
         }
 
-        CommandMacroT* Macro=new CommandMacroT(SurfaceCommands, "Justify Material");
-
-        m_MapDoc->CompatSubmitCommand(Macro);
+        m_MapDoc->CompatSubmitCommand(new CommandMacroT(SurfaceCommands, "Align material"));
     }
 }
 
 
-// The buttons "wrt. world axes" and "wrt. face plane" are (besides "Apply Projective")
-// the only way to reset a face's u/v-axes.
+// The buttons "wrt. world axes" and "wrt. face plane" are (besides "Apply Projective") the
+// only way to reset a face's u/v-axes. Both buttons are disabled by UpdateAfterSelChange()
+// whenever no faces are selected.
 void EditSurfacePropsDialogT::OnButtonAlignWrtAxes(wxCommandEvent& Event)
 {
     wxASSERT(Event.GetId() == ID_BUTTON_ALIGN_WRT_WORLD ||
@@ -1284,89 +1278,80 @@ void EditSurfacePropsDialogT::OnButtonAlignWrtAxes(wxCommandEvent& Event)
 
 void EditSurfacePropsDialogT::OnCheckBoxTreatMultipleAsOne(wxCommandEvent& Event)
 {
-    // Afaics, no need for any action here.
-    // Those who are interested in the selected value of the CheckBox should query it directly.
-    // The "Treat Multiple As One" flag is only needed for the Fit, T, B, L, R, C alignment buttons anyway!
+    // Afaics, no need for any action here, other code will just query the checkbox's value.
 }
 
 
-// This looks at the current selection of the ChoiceCurrentMat,
-// and updates the material preview bitmap and "Size: a x b" text accordingly.
-// It also rearranges the contents of the ChoiceCurrentMat to reflect MRU behaviour.
+// When another material has been selected, this handler updates the material preview bitmap
+// sets the "Size: a x b" text, rearranges the contents of the ChoiceCurrentMat in MRU order
+// and applies the chosen material to the currently selected faces and Bezier patches.
 void EditSurfacePropsDialogT::OnSelChangeCurrentMat(wxCommandEvent& Event)
 {
-    int Index=ChoiceCurrentMat->GetSelection();
+    const int Index = ChoiceCurrentMat->GetSelection();
 
-    wxASSERT(Index!=-1);
+    wxASSERT(Index != -1);
+    if (Index == -1) return;
 
-    // if (Index==-1)
-    // {
-    //    BitmapCurrentMat->m_Bitmap=wxNullBitmap;
-    //     BitmapCurrentMat->Refresh();
-    //     StaticTextCurrentMatSize->SetLabel("(No mat. selected.)");
-    // }
-    // else
+    EditorMaterialI* CurrentMaterial=(EditorMaterialI*)ChoiceCurrentMat->GetClientData(Index);
+
+    if (Index!=0)
     {
-        EditorMaterialI* CurrentMaterial=(EditorMaterialI*)ChoiceCurrentMat->GetClientData(Index);
+        ChoiceCurrentMat->Delete(Index);
+        ChoiceCurrentMat->Insert(CurrentMaterial->GetName(), 0, CurrentMaterial);
+        ChoiceCurrentMat->SetSelection(0);
+    }
 
-        if (Index!=0)
+    const int  w  =CurrentMaterial->GetWidth ();
+    const int  h  =CurrentMaterial->GetHeight();
+    const int  Max=w>h ? w : h;
+    const bool Fit=(w<=PREVIEW_BITMAP_SIZE && h<=PREVIEW_BITMAP_SIZE);
+
+    wxBitmap PreviewBitmap=Fit ? wxBitmap(CurrentMaterial->GetImage()) : wxBitmap(CurrentMaterial->GetImage().Scale(w*PREVIEW_BITMAP_SIZE/Max, h*PREVIEW_BITMAP_SIZE/Max));
+
+    m_BitmapCurrentMat->SetBitmap(PreviewBitmap);
+    m_BitmapCurrentMat->Refresh();
+
+    StaticTextCurrentMatSize->SetLabel(wxString::Format("Size: %ix%i", CurrentMaterial->GetWidth(), CurrentMaterial->GetHeight()));
+    m_MapDoc->GetGameConfig()->GetMatMan().SetDefaultMaterial(CurrentMaterial);
+
+    assert(Event.GetExtraLong()==-1 || Event.GetExtraLong()==0);
+
+    // Apply the new material to the selection (unless ExtraLong indicates that it is not desired).
+    if (Event.GetExtraLong() != -1)
+    {
+        MsgCountsT        MsgCounts;
+        ArrayT<CommandT*> SurfaceCommands;
+
+        for (unsigned long FaceNr=0; FaceNr<m_SelectedFaces.Size(); FaceNr++)
         {
-            ChoiceCurrentMat->Delete(Index);
-            ChoiceCurrentMat->Insert(CurrentMaterial->GetName(), 0, CurrentMaterial);
-            ChoiceCurrentMat->SetSelection(0);
+            // SI must be recomputed as well, because the material's width and height may have changed.
+            const SurfaceInfoT SI = ObtainSurfaceInfo(m_SelectedFaces[FaceNr].Face, CurrentMaterial, ApplyNormal, ApplyAll, MsgCounts);
+
+            SurfaceCommands.PushBack(new CommandUpdateSurfaceFaceT(
+                *m_MapDoc,
+                m_SelectedFaces[FaceNr].Brush,
+                m_SelectedFaces[FaceNr].FaceIndex,
+                SI,
+                CurrentMaterial));
         }
 
-        const int  w  =CurrentMaterial->GetWidth ();
-        const int  h  =CurrentMaterial->GetHeight();
-        const int  Max=w>h ? w : h;
-        const bool Fit=(w<=PREVIEW_BITMAP_SIZE && h<=PREVIEW_BITMAP_SIZE);
-
-        wxBitmap PreviewBitmap=Fit ? wxBitmap(CurrentMaterial->GetImage()) : wxBitmap(CurrentMaterial->GetImage().Scale(w*PREVIEW_BITMAP_SIZE/Max, h*PREVIEW_BITMAP_SIZE/Max));
-
-        m_BitmapCurrentMat->SetBitmap(PreviewBitmap);
-        m_BitmapCurrentMat->Refresh();
-        StaticTextCurrentMatSize->SetLabel(wxString::Format("Size: %ix%i", CurrentMaterial->GetWidth(), CurrentMaterial->GetHeight()));
-        m_MapDoc->GetGameConfig()->GetMatMan().SetDefaultMaterial(CurrentMaterial);
-
-        assert(Event.GetExtraLong()==-1 || Event.GetExtraLong()==0);
-
-        // Apply the new material to the selection (unless ExtraLong indicates that it is not desired).
-        if (Event.GetExtraLong() != -1)
+        for (unsigned long PatchNr=0; PatchNr<m_SelectedPatches.Size(); PatchNr++)
         {
-            MsgCountsT        MsgCounts;
-            ArrayT<CommandT*> SurfaceCommands;
+            // SI must be recomputed as well, because the material's width and height may have changed.
+            const SurfaceInfoT SI = ObtainSurfaceInfo(m_SelectedPatches[PatchNr], CurrentMaterial, ApplyNormal, ApplyAll, MsgCounts);
 
-            for (unsigned long FaceNr=0; FaceNr<m_SelectedFaces.Size(); FaceNr++)
-            {
-                // SI must be recomputed as well, because the material's width and height may have changed.
-                const SurfaceInfoT SI = ObtainSurfaceInfo(m_SelectedFaces[FaceNr].Face, CurrentMaterial, ApplyNormal, ApplyAll, MsgCounts);
+            SurfaceCommands.PushBack(new CommandUpdateSurfaceBezierPatchT(
+                *m_MapDoc,
+                m_SelectedPatches[PatchNr],
+                SI,
+                CurrentMaterial));
+        }
 
-                SurfaceCommands.PushBack(new CommandUpdateSurfaceFaceT(
-                    *m_MapDoc,
-                    m_SelectedFaces[FaceNr].Brush,
-                    m_SelectedFaces[FaceNr].FaceIndex,
-                    SI,
-                    CurrentMaterial));
-            }
+        if (SurfaceCommands.Size()>0)
+        {
+            CommandMacroT* Macro=new CommandMacroT(SurfaceCommands, "Apply material");
 
-            for (unsigned long PatchNr=0; PatchNr<m_SelectedPatches.Size(); PatchNr++)
-            {
-                // SI must be recomputed as well, because the material's width and height may have changed.
-                const SurfaceInfoT SI = ObtainSurfaceInfo(m_SelectedPatches[PatchNr], CurrentMaterial, ApplyNormal, ApplyAll, MsgCounts);
-
-                SurfaceCommands.PushBack(new CommandUpdateSurfaceBezierPatchT(
-                    *m_MapDoc,
-                    m_SelectedPatches[PatchNr],
-                    SI,
-                    CurrentMaterial));
-            }
-
-            if (SurfaceCommands.Size()>0)
-            {
-                CommandMacroT* Macro=new CommandMacroT(SurfaceCommands, "Apply material to selection");
-
-                m_MapDoc->CompatSubmitCommand(Macro);
-            }
+            m_MapDoc->CompatSubmitCommand(Macro);
         }
     }
 }
