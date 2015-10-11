@@ -43,12 +43,11 @@ CaWE/Overlay
 {
     diffusemap Overlay.png
 
-    // blendFunc one one
-
     // blendFunc src_alpha one_minus_src_alpha
     // alpha div(add(sinTable[mul(time, 0.5)], 3), 4)
 
-    blendFunc dst_color zero
+    // blendFunc dst_color zero
+    blendFunc one one
 }
 
 
@@ -58,12 +57,11 @@ CaWE/OverlayOffsetZ
     depthOffset -1.0
     diffusemap Overlay.png
 
-    // blendFunc one one
-
     // blendFunc src_alpha one_minus_src_alpha
     // alpha div(add(sinTable[mul(time, 0.5)], 3), 4)
 
-    blendFunc dst_color zero
+    // blendFunc dst_color zero
+    blendFunc one one
 }
 
 
