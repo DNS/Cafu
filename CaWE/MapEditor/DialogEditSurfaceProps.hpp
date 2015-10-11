@@ -37,6 +37,14 @@ class MapFaceT;
 class ViewWindow3DT;
 
 
+/**
+ * The "Edit Surface Properties" dialog is the counterpart of the ToolEditSurfaceT tool.
+ *
+ * Its state is comprised of two largely independent sub-states:
+ *   - the set of selected faces and Bezier patches,
+ *   - the surface information of the last picked face or Bezier patch, some of
+ *     which is kept in explicit members, some as values of the dialog controls.
+ */
 class EditSurfacePropsDialogT : public wxPanel, public ObserverT
 {
     public:
@@ -59,9 +67,15 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
     /// Clears the list of faces and patches that were selected for surface-editing.
     void ClearSelection();
 
-    /// Called when the user left clicked on a face/patch in the 3D view in order to toggle (select) it.
-    /// FaceIndex==ALL_FACES will toggle all faces of a brush (if Object is a brush).
-    void ToggleClick(MapElementT* Object, unsigned long FaceIndex);
+    /// This method toggles the selection status of the given object.
+    /// It is called when the user left-clicked a face, Bezier patch or terrain in the 3D view.
+    ///
+    /// @param Object        The basic map object that is to be toggled.
+    /// @param FaceIndex     If `Object` is a brush, `FaceIndex` indicates which face of the
+    ///     brush is to be toggled, or `ALL_FACES` for all faces.
+    /// @param IsRecursive   Used for implementation purposes only, user code should always
+    ///     pass the default value (`false`).
+    void ToggleClick(MapElementT* Object, unsigned long FaceIndex, bool IsRecursive = false);
 
     /// Called when the user right clicked on a face/patch in the 3D view to apply a material.
     /// FaceIndex==ALL_FACES will perform the apply click on all faces of a brush (if Object is a brush).
@@ -85,7 +99,9 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
 
     private:
 
-    enum RightMBClickModeT  // For SetSurfaceInfo().
+    /// This enum describes how previously picked surface details
+    /// are to be applied to another surface.
+    enum ApplyModeT
     {
         ApplyNormal,
         ApplyViewAligned,
@@ -93,7 +109,9 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
         ApplyProjective
     };
 
-    enum ApplySettingT      // Determines which value is applied if ApplyNormal is called.
+    /// This enum describes what surface detail (or combination of details)
+    /// is to be applied to a face or patch.
+    enum ApplyDetailT
     {
         ApplyNone    =0x00,
         ApplyScaleX  =0x01,
@@ -101,7 +119,6 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
         ApplyShiftX  =0x04,
         ApplyShiftY  =0x08,
         ApplyRotation=0x10,
-        ApplyMaterial=0x20,
         ApplyAll     =0xFF
     };
 
@@ -113,21 +130,67 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
         unsigned long FaceIndex;
     };
 
+    /// This struct helps to provide a better user experience when a material is applied to
+    /// several faces or patches: If the application is not possible for some reason, we want
+    /// to inform the user only once, not once per face or patch.
+    struct MsgCountsT
+    {
+        MsgCountsT()
+            : NoRefPlane(0), NoCenterFace(0), NoEdgeAlign(0) {}
+
+        unsigned int NoRefPlane;
+        unsigned int NoCenterFace;
+        unsigned int NoEdgeAlign;
+    };
+
     MapDocumentT*            m_MapDoc;              ///< Pointer to the currently active document, or NULL when no document active.
-    TexCoordGenModeT         m_CurrentTexGenMode;   ///< The texture coordinates generation mode for the currently (i.e. last) picked face/patch.
+    TexCoordGenModeT         m_CurrentTexGenMode;   ///< The tex-coords generation mode for the currently (i.e. last) picked face/patch (`PlaneProj` or `MatFit`, never `Custom`).
     Vector3fT                m_CurrentUAxis;        ///< The u-axis of the currently (i.e. last) picked face/patch.
     Vector3fT                m_CurrentVAxis;        ///< The v-axis of the currently (i.e. last) picked face/patch.
     ArrayT<SelectedFaceT>    m_SelectedFaces;       ///< The list of selected faces.
     ArrayT<MapBezierPatchT*> m_SelectedPatches;     ///< The list of selected patches.
 
-    /// Applies the dialogs data to a face/patch using a specific ApplyMode, that decides how the data is applied.
-    /// The ApplySetting is only used if ApplyMode is ApplyNormal to specify which data should be applied (e.g. only
-    /// scale values). The ApplySetting should never be set when calling an ApplyMode other than ApplyNormal.
-    void SetSurfaceInfo(const MapFaceT*        Face,  SurfaceInfoT& SI, EditorMaterialI** Material, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, ViewWindow3DT* ViewWin3D=NULL) const;
-    void SetSurfaceInfo(const MapBezierPatchT* Patch, SurfaceInfoT& SI, EditorMaterialI** Material, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, ViewWindow3DT* ViewWin3D=NULL) const;
+    /// Returns the material that is currently set in the ChoiceCurrentMat (or NULL for none).
+    EditorMaterialI* GetCurrentMaterial() const;
+
+    /// Computes a SurfaceInfoT instance for a MapFaceT according to the current dialog
+    /// settings and the given parameters.
+    ///
+    /// @param Face
+    ///     The face to compute a new SurfaceInfoT for. The defaults for all values that don't
+    ///     change are copied from the existing SurfaceInfoT instance of this face.
+    ///
+    /// @param Mat
+    ///     The "reference" material that provides the material's width and height values that
+    ///     are needed for some of the computations. This can be `NULL` or `Face->GetMaterial()`
+    ///     whenever the material is not intended to be replaced by the caller. If however the
+    ///     caller intends to replace the face's material anyway, it must be the new material!
+    ///
+    /// @param ApplyMode
+    ///     The algorithm that is used for computing the details of the new SurfaceInfoT
+    ///     instance.
+    ///
+    /// @param Detail
+    ///     If `ApplyMode` is `ApplyNormal`, `Detail` determines the subset of values to
+    ///     account for. Must be `ApplyAll` in in all other `ApplyModes`.
+    ///
+    /// @param MsgCounts
+    ///     If problems occur, this helps to inform the user about each problem only once.
+    ///
+    /// @param ViewWin3D
+    ///     The 3D view that is needed for the computations when `ApplyMode` is
+    ///     `ApplyViewAligned`.
+    SurfaceInfoT ObtainSurfaceInfo(const MapFaceT*        Face,  EditorMaterialI* Mat, const ApplyModeT ApplyMode, const ApplyDetailT Detail, MsgCountsT& MsgCounts, ViewWindow3DT* ViewWin3D = NULL) const;
+
+    /// Computes a SurfaceInfoT instance for a MapBezierPatchT according to the current dialog
+    /// settings and the given parameters. For details, see ObtainSurfaceInfo() above.
+    SurfaceInfoT ObtainSurfaceInfo(const MapBezierPatchT* Patch, EditorMaterialI* Mat, const ApplyModeT ApplyMode, const ApplyDetailT Detail, MsgCountsT& MsgCounts, ViewWindow3DT* ViewWin3D = NULL) const;
 
     // Updates the face normal and material vector info in the dialog.
     void UpdateVectorInfo();
+
+    /// Updates the dialog controls depending on the current selection.
+    void UpdateAfterSelChange();
 
     // "Orientation" section controls.
     wxSpinCtrlDouble* m_SpinCtrlScaleX;
@@ -142,9 +205,13 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
     wxStaticText*     MaterialYInfo;
 
     // "Alignment" section controls.
-    wxCheckBox*       CheckBoxAlignWrtWorld;
-    wxCheckBox*       CheckBoxAlignWrtFace;
-    wxCheckBox*       CheckBoxTreatMultipleAsOne;
+    wxStaticText*     m_wrtWorldAxesText;
+    wxStaticText*     m_wrtWorldAxesInfo;
+    wxButton*         m_wrtWorldAxesButton;
+    wxStaticText*     m_wrtFacePlaneText;
+    wxStaticText*     m_wrtFacePlaneInfo;
+    wxButton*         m_wrtFacePlaneButton;
+    wxCheckBox*       m_CheckBoxTreatMultipleAsOne;
 
     // "Material" section controls.
     wxChoice*         ChoiceCurrentMat;
@@ -160,8 +227,7 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
 
     // "Alignment" section event handlers.
     void OnButtonAlign               (wxCommandEvent& Event);
-    void OnCheckBoxAlignWorld        (wxCommandEvent& Event);
-    void OnCheckBoxAlignFace         (wxCommandEvent& Event);
+    void OnButtonAlignWrtAxes        (wxCommandEvent& Event);
     void OnCheckBoxTreatMultipleAsOne(wxCommandEvent& Event);
 
     // "Material" section event handlers.
@@ -170,9 +236,8 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
     void OnButtonReplaceMats  (wxCommandEvent& Event);
 
     // "Tool Mode" section event handlers.
-    void OnCheckBoxHideSelMask     (wxCommandEvent& Event);
-    void OnSelChangeRightMB        (wxCommandEvent& Event);
-    void OnButtonApplyToAllSelected(wxCommandEvent& Event);
+    void OnCheckBoxHideSelMask(wxCommandEvent& Event);
+    void OnSelChangeRightMB   (wxCommandEvent& Event);
 
 
     // IDs for the controls whose events we are interested in.
@@ -189,15 +254,14 @@ class EditSurfacePropsDialogT : public wxPanel, public ObserverT
         ID_BUTTON_ALIGN2CENTER,
         ID_BUTTON_ALIGN2RIGHT,
         ID_BUTTON_ALIGN2BOTTOM,
-        ID_CHECKBOX_ALIGN_WRT_WORLD,
-        ID_CHECKBOX_ALIGN_WRT_FACE,
+        ID_BUTTON_ALIGN_WRT_WORLD,
+        ID_BUTTON_ALIGN_WRT_FACE,
         ID_CHECKBOX_TREAT_MULTIPLE_AS_ONE,
         ID_CHOICE_CURRENT_MAT,
         ID_BUTTON_BROWSE_MATS,
         ID_BUTTON_REPLACE_MATS,
         ID_CHECKBOX_HIDE_SEL_MASK,
-        ID_CHOICE_RIGHT_MB_MODE,
-        ID_BUTTON_APPLY_TO_ALL_SELECTED
+        ID_CHOICE_RIGHT_MB_MODE
     };
 
     DECLARE_EVENT_TABLE()

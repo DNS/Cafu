@@ -63,15 +63,14 @@ BEGIN_EVENT_TABLE(EditSurfacePropsDialogT, wxPanel)
     EVT_BUTTON        (EditSurfacePropsDialogT::ID_BUTTON_ALIGN2CENTER,            EditSurfacePropsDialogT::OnButtonAlign)
     EVT_BUTTON        (EditSurfacePropsDialogT::ID_BUTTON_ALIGN2RIGHT,             EditSurfacePropsDialogT::OnButtonAlign)
     EVT_BUTTON        (EditSurfacePropsDialogT::ID_BUTTON_ALIGN2BOTTOM,            EditSurfacePropsDialogT::OnButtonAlign)
-    EVT_CHECKBOX      (EditSurfacePropsDialogT::ID_CHECKBOX_ALIGN_WRT_WORLD,       EditSurfacePropsDialogT::OnCheckBoxAlignWorld)
-    EVT_CHECKBOX      (EditSurfacePropsDialogT::ID_CHECKBOX_ALIGN_WRT_FACE,        EditSurfacePropsDialogT::OnCheckBoxAlignFace)
+    EVT_BUTTON        (EditSurfacePropsDialogT::ID_BUTTON_ALIGN_WRT_WORLD,         EditSurfacePropsDialogT::OnButtonAlignWrtAxes)
+    EVT_BUTTON        (EditSurfacePropsDialogT::ID_BUTTON_ALIGN_WRT_FACE,          EditSurfacePropsDialogT::OnButtonAlignWrtAxes)
     EVT_CHECKBOX      (EditSurfacePropsDialogT::ID_CHECKBOX_TREAT_MULTIPLE_AS_ONE, EditSurfacePropsDialogT::OnCheckBoxTreatMultipleAsOne)
     EVT_CHOICE        (EditSurfacePropsDialogT::ID_CHOICE_CURRENT_MAT,             EditSurfacePropsDialogT::OnSelChangeCurrentMat)
     EVT_BUTTON        (EditSurfacePropsDialogT::ID_BUTTON_BROWSE_MATS,             EditSurfacePropsDialogT::OnButtonBrowseMats)
     EVT_BUTTON        (EditSurfacePropsDialogT::ID_BUTTON_REPLACE_MATS,            EditSurfacePropsDialogT::OnButtonReplaceMats)
     EVT_CHECKBOX      (EditSurfacePropsDialogT::ID_CHECKBOX_HIDE_SEL_MASK,         EditSurfacePropsDialogT::OnCheckBoxHideSelMask)
     EVT_CHOICE        (EditSurfacePropsDialogT::ID_CHOICE_RIGHT_MB_MODE,           EditSurfacePropsDialogT::OnSelChangeRightMB)
-    EVT_BUTTON        (EditSurfacePropsDialogT::ID_BUTTON_APPLY_TO_ALL_SELECTED,   EditSurfacePropsDialogT::OnButtonApplyToAllSelected)
 END_EVENT_TABLE()
 
 
@@ -87,9 +86,15 @@ EditSurfacePropsDialogT::EditSurfacePropsDialogT(wxWindow* Parent, MapDocumentT*
       m_SpinCtrlShiftY(NULL),
       m_SpinCtrlRotation(NULL),
       m_TexGenModeInfo(NULL),
-      CheckBoxAlignWrtWorld(NULL),
-      CheckBoxAlignWrtFace(NULL),
-      CheckBoxTreatMultipleAsOne(NULL),
+      MaterialXInfo(NULL),
+      MaterialYInfo(NULL),
+      m_wrtWorldAxesText(NULL),
+      m_wrtWorldAxesInfo(NULL),
+      m_wrtWorldAxesButton(NULL),
+      m_wrtFacePlaneText(NULL),
+      m_wrtFacePlaneInfo(NULL),
+      m_wrtFacePlaneButton(NULL),
+      m_CheckBoxTreatMultipleAsOne(NULL),
       ChoiceCurrentMat(NULL),
       m_BitmapCurrentMat(NULL),
       StaticTextCurrentMatSize(NULL),
@@ -251,16 +256,39 @@ EditSurfacePropsDialogT::EditSurfacePropsDialogT(wxWindow* Parent, MapDocumentT*
 
     wxBoxSizer *item25 = new wxBoxSizer( wxVERTICAL );
 
-    CheckBoxAlignWrtWorld=new wxCheckBox(this, ID_CHECKBOX_ALIGN_WRT_WORLD, wxT("wrt. World axes"), wxDefaultPosition, wxDefaultSize, wxCHK_3STATE);
-    item25->Add(CheckBoxAlignWrtWorld, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP, 5 );
 
-    CheckBoxAlignWrtFace=new wxCheckBox(this, ID_CHECKBOX_ALIGN_WRT_FACE, wxT("wrt. Face plane"), wxDefaultPosition, wxDefaultSize, wxCHK_3STATE);
-    item25->Add(CheckBoxAlignWrtFace, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP, 5 );
+    wxFlexGridSizer* AlignWrtSizer = new wxFlexGridSizer(3, 0, 0);
+    // AlignWrtSizer->AddGrowableCol(2);
+
+    // Init the "wrt. world axes" row.
+    // The text for wrtWorldAxesInfo is properly set in UpdateAfterSelChange().
+    m_wrtWorldAxesText = new wxStaticText(this, -1, "wrt. world axes:", wxDefaultPosition, wxDefaultSize, 0 );
+    AlignWrtSizer->Add(m_wrtWorldAxesText, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 4);
+
+    m_wrtWorldAxesInfo = new wxStaticText(this, -1, "", wxDefaultPosition, wxSize(35, -1), 0 );
+    AlignWrtSizer->Add(m_wrtWorldAxesInfo, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+
+    m_wrtWorldAxesButton = new wxButton(this, ID_BUTTON_ALIGN_WRT_WORLD, "Align", wxDefaultPosition, wxSize(42, 21), 0);
+    AlignWrtSizer->Add(m_wrtWorldAxesButton, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+
+    // Init the "wrt. face plane" row.
+    // The text for wrtFacePlaneInfo is properly set in UpdateAfterSelChange().
+    m_wrtFacePlaneText = new wxStaticText(this, -1, "wrt. face plane:", wxDefaultPosition, wxDefaultSize, 0 );
+    AlignWrtSizer->Add(m_wrtFacePlaneText, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 4);
+
+    m_wrtFacePlaneInfo = new wxStaticText(this, -1, "", wxDefaultPosition, wxSize(35, -1), 0 );
+    AlignWrtSizer->Add(m_wrtFacePlaneInfo, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+
+    m_wrtFacePlaneButton = new wxButton(this, ID_BUTTON_ALIGN_WRT_FACE, "Align", wxDefaultPosition, wxSize(42, 21), 0);
+    AlignWrtSizer->Add(m_wrtFacePlaneButton, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+
+    item25->Add(AlignWrtSizer);
+
 
     item25->Add( 15, 15, 0, wxALIGN_CENTER, 5 );
 
-    CheckBoxTreatMultipleAsOne= new wxCheckBox(this, ID_CHECKBOX_TREAT_MULTIPLE_AS_ONE, wxT("Treat multiple as one"), wxDefaultPosition, wxDefaultSize, 0 );
-    item25->Add(CheckBoxTreatMultipleAsOne, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxBOTTOM, 5 );
+    m_CheckBoxTreatMultipleAsOne = new wxCheckBox(this, ID_CHECKBOX_TREAT_MULTIPLE_AS_ONE, wxT("Treat multiple as one"), wxDefaultPosition, wxDefaultSize, 0 );
+    item25->Add(m_CheckBoxTreatMultipleAsOne, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxBOTTOM, 5);
 
     item16->Add( item25, 0, wxGROW|wxALIGN_CENTER_HORIZONTAL, 5 );
 
@@ -272,11 +300,11 @@ EditSurfacePropsDialogT::EditSurfacePropsDialogT(wxWindow* Parent, MapDocumentT*
     CheckBoxHideSelMask= new wxCheckBox(this, ID_CHECKBOX_HIDE_SEL_MASK, wxT("Hide Selection Overlay"), wxDefaultPosition, wxDefaultSize, 0 );
     item54->Add(CheckBoxHideSelMask, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
-    wxFlexGridSizer *item57 = new wxFlexGridSizer( 3, 0, 0 );
+    wxFlexGridSizer *item57 = new wxFlexGridSizer( 2, 0, 0 );
     item57->AddGrowableCol( 1 );
 
     wxStaticText *item60 = new wxStaticText(this, -1, wxT("Right MB mode:"), wxDefaultPosition, wxDefaultSize, 0 );
-    item57->Add( item60, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxBOTTOM, 5 );
+    item57->Add( item60, 0, wxALIGN_CENTER_VERTICAL|wxLEFT|wxBOTTOM|wxTOP, 5 );
 
     ChoiceRightMBMode= new wxChoice(this, ID_CHOICE_RIGHT_MB_MODE, wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
     ChoiceRightMBMode->Append("Apply Normal"       , (void*)ApplyNormal     );
@@ -284,10 +312,7 @@ EditSurfacePropsDialogT::EditSurfacePropsDialogT(wxWindow* Parent, MapDocumentT*
     ChoiceRightMBMode->Append("Apply Edge Aligned" , (void*)ApplyEdgeAligned);
     ChoiceRightMBMode->Append("Apply Projective"   , (void*)ApplyProjective );
     ChoiceRightMBMode->SetSelection(0);
-    item57->Add(ChoiceRightMBMode, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxLEFT|wxBOTTOM, 5 );
-
-    wxButton *item62 = new wxButton(this, ID_BUTTON_APPLY_TO_ALL_SELECTED, wxT("to all Sel."), wxDefaultPosition, wxSize(55, -1), 0 );
-    item57->Add( item62, 0, wxALIGN_CENTER|wxLEFT|wxRIGHT|wxBOTTOM, 5 );
+    item57->Add(ChoiceRightMBMode, 0, wxGROW|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
     item54->Add( item57, 0, wxGROW|wxALIGN_CENTER_VERTICAL, 5 );
 
@@ -296,6 +321,8 @@ EditSurfacePropsDialogT::EditSurfacePropsDialogT(wxWindow* Parent, MapDocumentT*
     this->SetSizer(item0);
     item0->SetSizeHints(this);
 
+
+    UpdateAfterSelChange();
 
     // Update selected material.
     EditorMaterialI* DefaultMat=m_MapDoc->GetGameConfig()->GetMatMan().GetDefaultMaterial();
@@ -333,6 +360,8 @@ bool EditSurfacePropsDialogT::Show(bool show)
 {
     if (show)
     {
+        UpdateAfterSelChange();
+
         wxASSERT(m_MapDoc->GetChildFrame()->GetMaterialsToolbar()!=NULL);
 
         // Synchronize with materials toolbar.
@@ -368,74 +397,56 @@ void EditSurfacePropsDialogT::ClearSelection()
         m_SelectedPatches[PatchNr]->SetSelected(false);
 
     m_SelectedPatches.Overwrite();
+
+    UpdateAfterSelChange();
 }
 
 
-void EditSurfacePropsDialogT::ToggleClick(MapElementT* Object, unsigned long FaceIndex)
+void EditSurfacePropsDialogT::ToggleClick(MapElementT* Object, unsigned long FaceIndex, bool IsRecursive)
 {
-    if (Object==NULL) return;
+    if (!Object) return;
 
     MapBrushT*       Brush=dynamic_cast<MapBrushT*>(Object);
     MapBezierPatchT* Patch=dynamic_cast<MapBezierPatchT*>(Object);
 
-    if (Brush!=NULL)
+    if (Brush)
     {
-        if (FaceIndex==ALL_FACES)
+        if (FaceIndex == ALL_FACES)
         {
-            // Solve the problem recursively.
-            for (unsigned long FaceNr=0; FaceNr<Brush->GetFaces().Size(); FaceNr++)
-                ToggleClick(Object, FaceNr);
-
-            return;
-        }
-
-        MapFaceT*     Face=&Brush->GetFaces()[FaceIndex];
-        unsigned long FaceNr;
-
-        for (FaceNr=0; FaceNr<m_SelectedFaces.Size(); FaceNr++)
-            if (m_SelectedFaces[FaceNr].Face==Face)
-                break;
-
-        if (FaceNr>=m_SelectedFaces.Size())
-        {
-            // Add face to list of selected faces.
-            m_SelectedFaces.PushBackEmpty();
-
-            m_SelectedFaces[m_SelectedFaces.Size()-1].Face     =Face;
-            m_SelectedFaces[m_SelectedFaces.Size()-1].Brush    =Brush;
-            m_SelectedFaces[m_SelectedFaces.Size()-1].FaceIndex=FaceIndex;
-
-            Face->m_IsSelected=true;
+            // Solve the problem "recursively".
+            for (unsigned long FaceNr = 0; FaceNr < Brush->GetFaces().Size(); FaceNr++)
+                ToggleClick(Object, FaceNr, true);
         }
         else
         {
-            // Remove face from list of selected faces.
-            m_SelectedFaces[FaceNr].Face->m_IsSelected=false;
-            m_SelectedFaces.RemoveAtAndKeepOrder(FaceNr);
+            MapFaceT*     Face=&Brush->GetFaces()[FaceIndex];
+            unsigned long FaceNr;
+
+            for (FaceNr=0; FaceNr<m_SelectedFaces.Size(); FaceNr++)
+                if (m_SelectedFaces[FaceNr].Face==Face)
+                    break;
+
+            if (FaceNr>=m_SelectedFaces.Size())
+            {
+                // Add face to list of selected faces.
+                m_SelectedFaces.PushBackEmpty();
+
+                m_SelectedFaces[m_SelectedFaces.Size()-1].Face     =Face;
+                m_SelectedFaces[m_SelectedFaces.Size()-1].Brush    =Brush;
+                m_SelectedFaces[m_SelectedFaces.Size()-1].FaceIndex=FaceIndex;
+
+                Face->m_IsSelected=true;
+            }
+            else
+            {
+                // Remove face from list of selected faces.
+                m_SelectedFaces[FaceNr].Face->m_IsSelected=false;
+                m_SelectedFaces.RemoveAtAndKeepOrder(FaceNr);
+            }
         }
-
-
-        unsigned long WorldAlignCount=0;
-        unsigned long FaceAlignCount =0;
-
-        for (FaceNr=0; FaceNr<m_SelectedFaces.Size(); FaceNr++)
-        {
-            if (m_SelectedFaces[FaceNr].Face->IsUVSpaceWorldAligned()) WorldAlignCount++;
-            if (m_SelectedFaces[FaceNr].Face->IsUVSpaceFaceAligned() ) FaceAlignCount ++;
-        }
-
-        // Set the state of the "Is aligned wrt. the world axes?" checkbox.
-             if (WorldAlignCount==                     0) CheckBoxAlignWrtWorld->Set3StateValue(wxCHK_UNCHECKED);
-        else if (WorldAlignCount==m_SelectedFaces.Size()) CheckBoxAlignWrtWorld->Set3StateValue(wxCHK_CHECKED);
-        else                                              CheckBoxAlignWrtWorld->Set3StateValue(wxCHK_UNDETERMINED);
-
-        // Set the state of the "Is aligned wrt. the face plane?" checkbox.
-             if (FaceAlignCount==                     0) CheckBoxAlignWrtFace->Set3StateValue(wxCHK_UNCHECKED);
-        else if (FaceAlignCount==m_SelectedFaces.Size()) CheckBoxAlignWrtFace->Set3StateValue(wxCHK_CHECKED);
-        else                                             CheckBoxAlignWrtFace->Set3StateValue(wxCHK_UNDETERMINED);
     }
 
-    if (Patch!=NULL)
+    if (Patch)
     {
         unsigned long PatchNr;
 
@@ -455,11 +466,15 @@ void EditSurfacePropsDialogT::ToggleClick(MapElementT* Object, unsigned long Fac
         }
     }
 
+    if (!IsRecursive)
+    {
+        UpdateAfterSelChange();
 
-    ArrayT<MapElementT*> UpdateObjects;
-    UpdateObjects.PushBack(Object);
+        ArrayT<MapElementT*> UpdateObjects;
+        UpdateObjects.PushBack(Object);
 
-    m_MapDoc->UpdateAllObservers_Modified(UpdateObjects, MEMD_SURFACE_INFO_CHANGED);
+        m_MapDoc->UpdateAllObservers_Modified(UpdateObjects, MEMD_SURFACE_INFO_CHANGED);
+    }
 }
 
 
@@ -467,21 +482,13 @@ void EditSurfacePropsDialogT::ApplyClick(ViewWindow3DT& ViewWin3D, MapElementT* 
 {
     if (Object==NULL) return;
 
-    const RightMBClickModeT ApplyMode=(RightMBClickModeT)(unsigned long)ChoiceRightMBMode->GetClientData(ChoiceRightMBMode->GetSelection());
+    const ApplyModeT ApplyMode = (ApplyModeT)(unsigned long)ChoiceRightMBMode->GetClientData(ChoiceRightMBMode->GetSelection());
 
     MapBrushT*       Brush  =dynamic_cast<MapBrushT*>(Object);
     MapBezierPatchT* Patch  =dynamic_cast<MapBezierPatchT*>(Object);
     MapTerrainT*     Terrain=dynamic_cast<MapTerrainT*>(Object);
 
-    if (ApplyMode==ApplyProjective && m_CurrentTexGenMode!=PlaneProj)   // Only apply projective if there is a projection plane.
-    {
-        wxMessageBox("When the texture-coordinate mode is Fit or Custom,\n"
-            "there is no reference plane for projective material application.\n\n"
-            "Please use another apply mode for the right mouse button,\n"
-            "or pick a regular brush face in order to apply its material projectively.");
-        return;
-    }
-
+    MsgCountsT        MsgCounts;
     ArrayT<CommandT*> SurfaceCommands;
 
     if (Brush!=NULL)
@@ -490,42 +497,39 @@ void EditSurfacePropsDialogT::ApplyClick(ViewWindow3DT& ViewWin3D, MapElementT* 
         {
             for (unsigned long FaceNr=0; FaceNr<Brush->GetFaces().Size(); FaceNr++)
             {
-                EditorMaterialI* Material=NULL;
-                SurfaceInfoT     SI=Brush->GetFaces()[FaceNr].GetSurfaceInfo();
+                EditorMaterialI*   Material = GetCurrentMaterial();
+                const SurfaceInfoT SI = ObtainSurfaceInfo(&Brush->GetFaces()[FaceNr], Material, ApplyMode, ApplyAll, MsgCounts, &ViewWin3D);
 
-                SetSurfaceInfo(&Brush->GetFaces()[FaceNr], SI, &Material, ApplyMode, ApplyAll, &ViewWin3D);
                 SurfaceCommands.PushBack(new CommandUpdateSurfaceFaceT(*m_MapDoc, Brush, FaceNr, SI, Material));
             }
         }
         else // Just apply on face at FaceIndex.
         {
-            EditorMaterialI* Material=NULL;
-            SurfaceInfoT     SI=Brush->GetFaces()[FaceIndex].GetSurfaceInfo();
+            EditorMaterialI*   Material = GetCurrentMaterial();
+            const SurfaceInfoT SI = ObtainSurfaceInfo(&Brush->GetFaces()[FaceIndex], Material, ApplyMode, ApplyAll, MsgCounts, &ViewWin3D);
 
-            SetSurfaceInfo(&Brush->GetFaces()[FaceIndex], SI, &Material, ApplyMode, ApplyAll, &ViewWin3D);
             SurfaceCommands.PushBack(new CommandUpdateSurfaceFaceT(*m_MapDoc, Brush, FaceIndex, SI, Material));
         }
     }
 
     if (Patch!=NULL)
     {
-        EditorMaterialI* Material=NULL;
-        SurfaceInfoT     SI=Patch->GetSurfaceInfo();
+        EditorMaterialI*   Material = GetCurrentMaterial();
+        const SurfaceInfoT SI = ObtainSurfaceInfo(Patch, Material, ApplyMode, ApplyAll, MsgCounts, &ViewWin3D);
 
-        SetSurfaceInfo(Patch, SI, &Material, ApplyMode, ApplyAll, &ViewWin3D);
         SurfaceCommands.PushBack(new CommandUpdateSurfaceBezierPatchT(*m_MapDoc, Patch, SI, Material));
     }
 
     if (Terrain!=NULL)
     {
-        EditorMaterialI* Material=(EditorMaterialI*)ChoiceCurrentMat->GetClientData(ChoiceCurrentMat->GetSelection());
+        EditorMaterialI* Material = GetCurrentMaterial();
 
         SurfaceCommands.PushBack(new CommandUpdateSurfaceTerrainT(*m_MapDoc, Terrain, Material));
     }
 
     if (SurfaceCommands.Size()>0)
     {
-        CommandMacroT* Macro=new CommandMacroT(SurfaceCommands, "Right-click apply");
+        CommandMacroT* Macro=new CommandMacroT(SurfaceCommands, "Apply material");
 
         m_MapDoc->CompatSubmitCommand(Macro);
     }
@@ -554,7 +558,10 @@ void EditSurfacePropsDialogT::EyeDropperClick(MapElementT* Object, unsigned long
 
         Material=Face->GetMaterial();
 
-        m_CurrentTexGenMode=SI.TexCoordGenMode;
+        // Faces should never have anything other than PlaneProj mode.
+        wxASSERT(SI.TexCoordGenMode == PlaneProj);
+        m_CurrentTexGenMode = SI.TexCoordGenMode;
+
         m_CurrentUAxis=SI.UAxis;
         m_CurrentVAxis=SI.VAxis;
 
@@ -569,8 +576,12 @@ void EditSurfacePropsDialogT::EyeDropperClick(MapElementT* Object, unsigned long
 
         if (SI.TexCoordGenMode==Custom)
         {
-            wxMessageBox("The texture information on this Bezier patch is in a custom format that cannot be picked into the dialog.\n"
-                "You can fix the problem by assigning new texture information (using the right mouse button) to the patch.");
+            wxMessageBox("Cannot pick the surface orientation of this Bezier patch.\n\n"
+                "The texture coordinates of this Bezier Patch are in a custom\n"
+                "format that cannot be picked into the dialog.\n"
+                "Therefore, only the material is picked, but not the orientation.\n\n"
+                "You can fix this problem by assigning new surface information to\n"
+                "the Bezier patch, using the right mouse button.");
         }
         else
         {
@@ -582,6 +593,8 @@ void EditSurfacePropsDialogT::EyeDropperClick(MapElementT* Object, unsigned long
             m_TexGenModeInfo  ->SetLabel("");   // The proper value is set below.
 
             m_CurrentTexGenMode=SI.TexCoordGenMode;
+
+            // If SI.TexCoordGenMode == MatFit, the axes are of zero-length and thus invalid.
             m_CurrentUAxis=SI.UAxis;
             m_CurrentVAxis=SI.VAxis;
 
@@ -589,7 +602,7 @@ void EditSurfacePropsDialogT::EyeDropperClick(MapElementT* Object, unsigned long
 
             switch (m_CurrentTexGenMode)
             {
-                case Custom: m_TexGenModeInfo->SetLabel("Mode: Custom"); break;
+                case Custom: m_TexGenModeInfo->SetLabel("Mode: Custom"); break;   // This is already caught above.
                 case MatFit: m_TexGenModeInfo->SetLabel("Mode: Fit");    break;
                 default:     m_TexGenModeInfo->SetLabel("");             break;
             }
@@ -629,80 +642,133 @@ void EditSurfacePropsDialogT::EyeDropperClick(MapElementT* Object, unsigned long
 /*** Private Helper Functions ***/
 /********************************/
 
-void EditSurfacePropsDialogT::SetSurfaceInfo(const MapFaceT* Face, SurfaceInfoT& SI, EditorMaterialI** Material, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, ViewWindow3DT* ViewWin3D) const
+EditorMaterialI* EditSurfacePropsDialogT::GetCurrentMaterial() const
 {
-    // If this method is called without ApplyNormal as ApplyMode, the ApplySetting should have it's default value
-    // (ApplyAll) since it isn't used anyway in those apply modes directly.
-    // An important consequence is, that the ApplyMaterial flag is set in all the cases, so we can be sure that the
-    // material will always be set, if the ApplyMode is != ApplyNormal.
-    if (ApplyMode!=ApplyNormal) assert(Setting==ApplyAll);
+    const int CurrentMatIndex = ChoiceCurrentMat->GetSelection();
 
-    if (m_MapDoc==NULL) return;
+    if (CurrentMatIndex == -1) return NULL;
 
-    // Update the material (commonly done in all ApplyModes).
-    const int CurrentMatIndex=ChoiceCurrentMat->GetSelection();
+    return (EditorMaterialI*)ChoiceCurrentMat->GetClientData(CurrentMatIndex);
+}
 
-    if (CurrentMatIndex!=-1 && Face->GetMaterial()!=NULL)
-        if (ApplyMode!=ApplyNormal || (Setting & ApplyMaterial))    // See comment above for rationale.
-            if (wxStricmp(Face->GetMaterial()->GetName(), ((EditorMaterialI*)ChoiceCurrentMat->GetClientData(CurrentMatIndex))->GetName())!=0)
-                *Material=(EditorMaterialI*)ChoiceCurrentMat->GetClientData(CurrentMatIndex);
 
-    // Scale values currently stored in the dialog.
-    float DialogScaleX=m_SpinCtrlScaleX->GetValue();
-    float DialogScaleY=m_SpinCtrlScaleY->GetValue();
+namespace
+{
+    // Make sure that the given value doesn't get too close to 0.
+    float NonZero(float f)
+    {
+        if (f >= 0.0f && f <  0.01f) return  0.01f;
+        if (f <  0.0f && f > -0.01f) return -0.01f;
 
-    // See that scale values are always 0.01 or greater if positive or -0.01 or smaller if negative.
-    if(DialogScaleX>=0.0f && DialogScaleX < 0.01f) DialogScaleX= 0.01f;
-    if(DialogScaleX< 0.0f && DialogScaleX >-0.01f) DialogScaleX=-0.01f;
-    if(DialogScaleY>=0.0f && DialogScaleY < 0.01f) DialogScaleY= 0.01f;
-    if(DialogScaleY< 0.0f && DialogScaleY <-0.01f) DialogScaleY=-0.01f;
+        return f;
+    }
+}
+
+
+/**
+ * When a material is applied to the Face instance, the following combinations of ApplyMode
+ * and m_CurrentTexGenMode ("What was last picked into the dialog?") must be considered:
+ *
+ *                                    Apply to Face instance using mode:
+ *                            +--------+--------------+--------------+-----------+
+ *                            | Normal | View Aligned | Edge Aligned | Projected |
+ *                +-----------+--------+--------------+--------------+-----------+
+ *   last picked  | PlaneProj |   ok   |      ok      |      ok      |    ok     |
+ *   m_CurrTexGM  | MatFit    |   ok   |      ok      |      ok      |    -/-    |
+ *                +-----------+--------+--------------+--------------+-----------+
+ */
+SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapFaceT* Face, EditorMaterialI* Mat, const ApplyModeT ApplyMode, const ApplyDetailT Detail, MsgCountsT& MsgCounts, ViewWindow3DT* ViewWin3D) const
+{
+    wxASSERT(ApplyMode == ApplyNormal || Detail == ApplyAll);
+
+    if (!Mat)
+    {
+        // For convenience, allow the caller to pass NULL in place of Face->GetMaterial().
+        Mat = Face->GetMaterial();
+    }
+
+    // Fetch the scale values from the dialog, making sure that they don't get too close to 0.
+    const float DialogScaleX = NonZero(m_SpinCtrlScaleX->GetValue());
+    const float DialogScaleY = NonZero(m_SpinCtrlScaleY->GetValue());
 
     switch (ApplyMode)
     {
         case ApplyNormal:
         {
-            // Apply the normal "orientation" settings depending on the choosen ApplySetting.
-            if (Setting & ApplyScaleX) SI.Scale[0]=1.0/(DialogScaleX * Face->GetMaterial()->GetWidth());
-            if (Setting & ApplyScaleY) SI.Scale[1]=1.0/(DialogScaleY * Face->GetMaterial()->GetHeight());
-            if (Setting & ApplyShiftX) SI.Trans[0]=m_SpinCtrlShiftX->GetValue() / Face->GetMaterial()->GetWidth();
-            if (Setting & ApplyShiftY) SI.Trans[1]=m_SpinCtrlShiftY->GetValue() / Face->GetMaterial()->GetHeight();
-            if (Setting & ApplyRotation)
+            SurfaceInfoT SI = Face->GetSurfaceInfo();
+
+            // Apply current orientation values to the SI.
+            // Note that this is equivalent to ObtainSurfaceInfo(Patch, ...), because always SI.TexCoordGenMode == PlaneProj.
+            if (m_CurrentTexGenMode == PlaneProj)
             {
-                SI.RotateUVAxes(m_SpinCtrlRotation->GetValue() - Face->GetSurfaceInfo().Rotate);
-                SI.Rotate=m_SpinCtrlRotation->GetValue();
+                // Our values were picked from a face or patch in PlaneProj mode.
+                if (Detail & ApplyScaleX) SI.Scale[0] = 1.0 / (DialogScaleX * Mat->GetWidth());
+                if (Detail & ApplyScaleY) SI.Scale[1] = 1.0 / (DialogScaleY * Mat->GetHeight());
+            }
+            else
+            {
+                // In this case, the scale values from our spin controls have different meaning
+                // and are thus not very useful, so just keep whatever Face had.
+                wxASSERT(m_CurrentTexGenMode == MatFit);
             }
 
-            break;
+            // The meaning of the translation values is the same for all m_CurrentTexGenMode.
+            if (Detail & ApplyShiftX) SI.Trans[0] = m_SpinCtrlShiftX->GetValue() / Mat->GetWidth();
+            if (Detail & ApplyShiftY) SI.Trans[1] = m_SpinCtrlShiftY->GetValue() / Mat->GetHeight();
+
+            if (Detail & ApplyRotation)
+            {
+                SI.RotateUVAxes(m_SpinCtrlRotation->GetValue() - SI.Rotate);
+                SI.Rotate = m_SpinCtrlRotation->GetValue();
+            }
+
+            return SI;
         }
 
         case ApplyViewAligned:
         {
-            // Apply the current material view aligned to the face.
-            if (ViewWin3D==NULL) break;
+            // Apply the current material view-aligned to the face.
+            SurfaceInfoT SI = ObtainSurfaceInfo(Face, Mat, ApplyNormal, ApplyAll, MsgCounts, ViewWin3D);
 
-            SI.UAxis=ViewWin3D->GetCamera().GetXAxis();
-            SI.VAxis=ViewWin3D->GetCamera().GetZAxis();
+            if (ViewWin3D)
+            {
+                // Augment the SI obtained from ApplyNormal.
+                SI.UAxis = ViewWin3D->GetCamera().GetXAxis();
+                SI.VAxis = ViewWin3D->GetCamera().GetZAxis();
+            }
 
-            // Set rotation to zero, so the whole rotation value from the dialog is applied below.
-            SI.Rotate=0.0f;
-
-            SetSurfaceInfo(Face, SI, Material, ApplyNormal, ApplySettingT(ApplyAll & ~ApplyMaterial), ViewWin3D);
-            break;
+            return SI;
         }
 
         case ApplyEdgeAligned:
         {
-            // Take the last selected face as the required reference face.
-            if (m_SelectedFaces.Size()<1) break;
+            // This case is special: It ignores our dialog's settings quasi entirely,
+            // using only the first selected face as the (required) reference face.
+            if (m_SelectedFaces.Size() < 1)
+            {
+                if (!MsgCounts.NoCenterFace)
+                {
+                    wxMessageBox("No face is selected.\n\n"
+                        "You must first select a face of a brush that acts as the \"center\".\n"
+                        "Then apply this surface information to nearby faces in order to\n"
+                        "have their common edges aligned.\n",
+                        "Apply Edge Aligned");
+                }
 
-            const MapFaceT* RefFace=m_SelectedFaces[m_SelectedFaces.Size()-1].Face;
-            if (RefFace==Face) break;
+                MsgCounts.NoCenterFace++;
+
+                return Face->GetSurfaceInfo();
+            }
+
+            const MapFaceT* RefFace = m_SelectedFaces[0].Face;
+
+            if (RefFace == Face) return Face->GetSurfaceInfo();
 
             // Edge aligned material application works like wrapping a gift in wrapping paper.
             // See the user documentation at http://www.cafu.de/wiki/mapping:cawe:editingtools:editfaceprops for an overview.
             // The key idea is to rotate the surface information (that is, the texture space) of RefFace into Face,
             // around their common edge (the line of plane intersection).
-            SI=RefFace->GetSurfaceInfo();
+            SurfaceInfoT SI = RefFace->GetSurfaceInfo();
 
             try
             {
@@ -730,108 +796,248 @@ void EditSurfacePropsDialogT::SetSurfaceInfo(const MapFaceT* Face, SurfaceInfoT&
             }
 
             SI.WrapTranslations();
-            break;
+
+            return SI;
         }
 
         case ApplyProjective:
         {
             // "Raw-copy" the last picked material 1:1 onto the face, including the u- and v-axes.
-            SI.UAxis=m_CurrentUAxis;
-            SI.VAxis=m_CurrentVAxis;
+            SurfaceInfoT SI = ObtainSurfaceInfo(Face, Mat, ApplyNormal, ApplyAll, MsgCounts, ViewWin3D);
 
-            // Set rotation to zero, so the whole rotation value from the dialog is applied below.
-            SI.Rotate=0.0f;
+            // Augment the SI obtained from ApplyNormal.
+            if (m_CurrentTexGenMode == PlaneProj)
+            {
+                // The previous pick brought good axes.
+                SI.UAxis = m_CurrentUAxis;
+                SI.VAxis = m_CurrentVAxis;
+            }
+            else
+            {
+                // Our m_CurrentUAxis and m_CurrentVAxis are of zero-length and thus invalid.
+                // Whatever we do here, it is wrong in the general case and may confuse the
+                // user, even if we provided some default/fallback axes or simply did nothing
+                // (that is, keep the Face's original axes or figure out something for Patch).
+                // Letting the user know about the problem seems to be the best compromise.
+                wxASSERT(m_CurrentTexGenMode == MatFit);
 
-            SetSurfaceInfo(Face, SI, Material, ApplyNormal, ApplySettingT(ApplyAll & ~ApplyMaterial), ViewWin3D);
-            break;
+                if (!MsgCounts.NoRefPlane)
+                {
+                    wxMessageBox("There is no reference plane available.\n\n"
+                        "The current surface information was picked from a Bezier patch whose\n"
+                        "material was set to \"fit\" onto its surface. In this exceptional case,\n"
+                        "there is no reference plane available that is needed for projective\n"
+                        "material application.\n\n"
+                        "The material is therefore applied normally now (non-projective).\n"
+                        "You may next wish to choose a different \"Right MB mode\" for applying\n"
+                        "the current material, or pick a regular brush face. (The surface\n"
+                        "orientation of a brush face provides the required reference plane.)",
+                        "Apply Projective");
+                }
+
+                MsgCounts.NoRefPlane++;
+            }
+
+            return SI;
         }
     }
+
+    return Face->GetSurfaceInfo();
 }
 
 
-void EditSurfacePropsDialogT::SetSurfaceInfo(const MapBezierPatchT* Patch, SurfaceInfoT& SI, EditorMaterialI** Material, const RightMBClickModeT ApplyMode, const ApplySettingT Setting, ViewWindow3DT* ViewWin3D) const
+/**
+ * When a material is applied to the Patch instance, the following combinations of ApplyMode
+ * and m_CurrentTexGenMode ("What was last picked into the dialog?") must be considered:
+ *
+ *                                    Apply to Patch instance using mode:
+ *                            +--------+--------------+--------------+-----------+
+ *                            | Normal | View Aligned | Edge Aligned | Projected |
+ *                +-----------+--------+--------------+--------------+-----------+
+ *   last picked  | PlaneProj |   ok   |      ok      |      -/-     |    ok     |
+ *   m_CurrTexGM  | MatFit    |   ok   |      ok      |      -/-     |    -/-    |
+ *                +-----------+--------+--------------+--------------+-----------+
+ *
+ * The combinations are the same as for faces (the table structure is the same), but here we
+ * have no implementation for "Edge Aligned".
+ * Note that while Face->GetSurfaceInfo().TexCoordGenMode is always PlaneProj, with Patch it
+ * can be anything (PlaneProj, MatFit or Custom), which complicates the implementation.
+ */
+SurfaceInfoT EditSurfacePropsDialogT::ObtainSurfaceInfo(const MapBezierPatchT* Patch, EditorMaterialI* Mat, const ApplyModeT ApplyMode, const ApplyDetailT Detail, MsgCountsT& MsgCounts, ViewWindow3DT* ViewWin3D) const
 {
-    // If this method is called without ApplyNormal as ApplyMode, the ApplySetting should have it's default value
-    // (ApplyAll) since it isn't used anyway in those apply modes directly.
-    // An important consequence is, that the ApplyMaterial flag is set in all the cases, so we can be sure that the
-    // material will always be set, if the ApplyMode is != ApplyNormal.
-    if (ApplyMode!=ApplyNormal) assert(Setting==ApplyAll);
+    wxASSERT(ApplyMode == ApplyNormal || Detail == ApplyAll);
 
-    if (m_MapDoc==NULL) return;
+    if (!Mat)
+    {
+        // For convenience, allow the caller to pass NULL in place of Patch->GetMaterial().
+        Mat = Patch->GetMaterial();
+    }
 
-    // Update the material (commonly done in all ApplyModes).
-    const int CurrentMatIndex=ChoiceCurrentMat->GetSelection();
-
-    if (CurrentMatIndex!=-1 && Patch->GetMaterial()!=NULL && ApplyMode!=ApplyEdgeAligned) // Edge aligned doesn't work on bezier patches.
-        if (ApplyMode!=ApplyNormal || (Setting & ApplyMaterial))    // See comment above for rationale.
-            if (wxStricmp(Patch->GetMaterial()->GetName(), ((EditorMaterialI*)ChoiceCurrentMat->GetClientData(CurrentMatIndex))->GetName())!=0)
-                *Material=(EditorMaterialI*)ChoiceCurrentMat->GetClientData(CurrentMatIndex);
-
-    float DialogScaleX=m_SpinCtrlScaleX->GetValue();
-    float DialogScaleY=m_SpinCtrlScaleY->GetValue();
-
-    // See that scale values are always 0.01 or greater if positive or -0.01 or smaller if negative.
-    if(DialogScaleX>=0.0f && DialogScaleX < 0.01f) DialogScaleX= 0.01f;
-    if(DialogScaleX< 0.0f && DialogScaleX >-0.01f) DialogScaleX=-0.01f;
-    if(DialogScaleY>=0.0f && DialogScaleY < 0.01f) DialogScaleY= 0.01f;
-    if(DialogScaleY< 0.0f && DialogScaleY <-0.01f) DialogScaleY=-0.01f;
+    // Fetch the scale values from the dialog, making sure that they don't get too close to 0.
+    const float DialogScaleX = NonZero(m_SpinCtrlScaleX->GetValue());
+    const float DialogScaleY = NonZero(m_SpinCtrlScaleY->GetValue());
 
     switch (ApplyMode)
     {
         case ApplyNormal:
         {
-            // Apply current orientation values to the patch.
-            if (Setting & ApplyScaleX)   SI.Scale[0]=(SI.TexCoordGenMode==MatFit) ? DialogScaleX : 1.0/(DialogScaleX*Patch->GetMaterial()->GetWidth());
-            if (Setting & ApplyScaleY)   SI.Scale[1]=(SI.TexCoordGenMode==MatFit) ? DialogScaleY : 1.0/(DialogScaleY*Patch->GetMaterial()->GetHeight());
-            if (Setting & ApplyShiftX)   SI.Trans[0]=m_SpinCtrlShiftX->GetValue()/Patch->GetMaterial()->GetWidth();
-            if (Setting & ApplyShiftY)   SI.Trans[1]=m_SpinCtrlShiftY->GetValue()/Patch->GetMaterial()->GetHeight();
-            if (Setting & ApplyRotation)
+            SurfaceInfoT SI = Patch->GetSurfaceInfo();
+
+            if (SI.TexCoordGenMode == Custom)
             {
-                SI.RotateUVAxes(m_SpinCtrlRotation->GetValue()-SI.Rotate);
-                SI.Rotate=m_SpinCtrlRotation->GetValue();
+                // Get rid of the unmanageable mode Custom.
+                // We assume that Detail == ApplyAll. If it is not, just ignore the problem.
+                SI.TexCoordGenMode = m_CurrentTexGenMode;
+
+                // The axes are good if m_CurrentTexGenMode == PlaneProj, ignored otherwise.
+                SI.UAxis = m_CurrentUAxis;
+                SI.VAxis = m_CurrentVAxis;
             }
 
-            break;
+            // Apply current orientation values to the SI.
+            // Note that this is equivalent to ObtainSurfaceInfo(Face, ...), where always SI.TexCoordGenMode == PlaneProj.
+            if (m_CurrentTexGenMode == SI.TexCoordGenMode)
+            {
+                // The tex-gen modes match, thus our picked values are compatible to those of the target Patch.
+                if (Detail & ApplyScaleX) SI.Scale[0] = (SI.TexCoordGenMode == MatFit) ? DialogScaleX : 1.0 / (DialogScaleX * Mat->GetWidth());
+                if (Detail & ApplyScaleY) SI.Scale[1] = (SI.TexCoordGenMode == MatFit) ? DialogScaleY : 1.0 / (DialogScaleY * Mat->GetHeight());
+            }
+            else
+            {
+                // In this case, the scale values from our spin controls have different meaning
+                // and are thus not very useful, so just keep whatever Patch had.
+                wxASSERT(m_CurrentTexGenMode != SI.TexCoordGenMode);
+            }
+
+            // The meaning of the translation values is the same for all m_CurrentTexGenMode.
+            if (Detail & ApplyShiftX) SI.Trans[0] = m_SpinCtrlShiftX->GetValue() / Mat->GetWidth();
+            if (Detail & ApplyShiftY) SI.Trans[1] = m_SpinCtrlShiftY->GetValue() / Mat->GetHeight();
+
+            if (Detail & ApplyRotation)
+            {
+                SI.RotateUVAxes(m_SpinCtrlRotation->GetValue() - SI.Rotate);
+                SI.Rotate = m_SpinCtrlRotation->GetValue();
+            }
+
+            return SI;
         }
 
         case ApplyViewAligned:
         {
-            // Apply the current material view aligned to the patch.
-            if (ViewWin3D==NULL) break;
+            // Apply the current material view-aligned to the patch.
+            SurfaceInfoT SI = ObtainSurfaceInfo(Patch, Mat, ApplyNormal, ApplyAll, MsgCounts, ViewWin3D);
 
-            SI.UAxis=ViewWin3D->GetCamera().GetXAxis();
-            SI.VAxis=ViewWin3D->GetCamera().GetZAxis();
+            if (ViewWin3D)
+            {
+                // Augment the SI obtained from ApplyNormal.
+                SI.UAxis = ViewWin3D->GetCamera().GetXAxis();
+                SI.VAxis = ViewWin3D->GetCamera().GetZAxis();
+            }
 
-            SI.TexCoordGenMode=PlaneProj;
+            if (m_CurrentTexGenMode == PlaneProj)
+            {
+                // No matter what the value of SI.TexCoordGenMode was (PlaneProj or MatFit),
+                // it is set to PlaneProj and thus we (re-)assign our scale values accordingly.
+                SI.TexCoordGenMode = PlaneProj;
 
-            // Set rotation to zero, so the whole rotation value from the dialog is applied below.
-            SI.Rotate=0.0f;
+                SI.Scale[0] = 1.0 / (DialogScaleX * Mat->GetWidth());
+                SI.Scale[1] = 1.0 / (DialogScaleY * Mat->GetHeight());
+            }
+            else
+            {
+                if (SI.TexCoordGenMode == PlaneProj)
+                {
+                    wxASSERT(m_CurrentTexGenMode == MatFit && SI.TexCoordGenMode == PlaneProj);
 
-            SetSurfaceInfo(Patch, SI, Material, ApplyNormal, ApplySettingT(ApplyAll & ~ApplyMaterial), ViewWin3D);
-            break;
+                    // Our dialog's scale value are incompatible to those of Patch, and thus
+                    // not useful. But with m_CurrentTexGenMode != SI.TexCoordGenMode, SI still
+                    // has its original scale values of Patch, so we just continue using these.
+                    // Thus, there is nothing else to do.
+                }
+                else
+                {
+                    wxASSERT(m_CurrentTexGenMode == MatFit && SI.TexCoordGenMode == MatFit);
+
+                    // MatFit everywhere? Well... what else could we do but guess?
+                    SI.TexCoordGenMode = PlaneProj;
+
+                    SI.Scale[0] = 0.25f;
+                    SI.Scale[1] = 0.25f;
+                }
+            }
+
+            return SI;
         }
 
         case ApplyEdgeAligned:
         {
-            wxMessageBox("Apply Edge Aligned is not available for bezier patches.");
-            break;
+            if (!MsgCounts.NoEdgeAlign)
+            {
+                wxMessageBox("Edge aligned application onto Bezier patches is not implemented.\n\n"
+                    "With Bezier patches, it is generally very difficult (if not impossible)\n"
+                    "to find the relevant edge. We will revisit this later, but at this time,\n"
+                    "edge aligned application to Bezier Patches is not possible.\n",
+                    "Apply Edge Aligned");
+            }
+
+            MsgCounts.NoEdgeAlign++;
+
+            // Here is an idea how this could be overcome (or rather, worked around):
+            // Find the bounding-box of the Bezier patch, and build the relevant plane
+            // from its two longest sides. Done.
+            return Patch->GetSurfaceInfo();
         }
 
         case ApplyProjective:
         {
             // "Raw-copy" the last picked material 1:1 onto the patch, including the u- and v-axes.
-            SI.UAxis=m_CurrentUAxis;
-            SI.VAxis=m_CurrentVAxis;
+            SurfaceInfoT SI = ObtainSurfaceInfo(Patch, Mat, ApplyNormal, ApplyAll, MsgCounts, ViewWin3D);
 
-            SI.TexCoordGenMode=PlaneProj;
+            // Augment the SI obtained from ApplyNormal.
+            if (m_CurrentTexGenMode == PlaneProj)
+            {
+                // The previous pick brought good axes.
+                SI.UAxis = m_CurrentUAxis;
+                SI.VAxis = m_CurrentVAxis;
 
-            // Set rotation to zero, so the whole rotation value from the dialog is applied below.
-            SI.Rotate=0.0f;
+                // No matter what the value of SI.TexCoordGenMode was (PlaneProj or MatFit),
+                // it is set to PlaneProj and thus we (re-)assign our scale values accordingly.
+                SI.TexCoordGenMode = PlaneProj;
 
-            SetSurfaceInfo(Patch, SI, Material, ApplyNormal, ApplySettingT(ApplyAll & ~ApplyMaterial), ViewWin3D);
-            break;
+                SI.Scale[0] = 1.0 / (DialogScaleX * Mat->GetWidth());
+                SI.Scale[1] = 1.0 / (DialogScaleY * Mat->GetHeight());
+            }
+            else
+            {
+                // Our m_CurrentUAxis and m_CurrentVAxis are of zero-length and thus invalid.
+                // Whatever we do here, it is wrong in the general case and may confuse the
+                // user, even if we provided some default/fallback axes or simply did nothing
+                // (that is, keep the Face's original axes or figure out something for Patch).
+                // Letting the user know about the problem seems to be the best compromise.
+                wxASSERT(m_CurrentTexGenMode == MatFit);
+
+                if (!MsgCounts.NoRefPlane)
+                {
+                    wxMessageBox("There is no reference plane available.\n\n"
+                        "The current surface information was picked from a Bezier patch whose\n"
+                        "material was set to \"fit\" onto its surface. In this exceptional case,\n"
+                        "there is no reference plane available that is needed for projective\n"
+                        "material application.\n\n"
+                        "The material is therefore applied normally now (non-projective).\n"
+                        "You may next wish to choose a different \"Right MB mode\" for applying\n"
+                        "the current material, or pick a regular brush face. (The surface\n"
+                        "orientation of a brush face provides the required reference plane.)",
+                        "Apply Projective");
+                }
+
+                MsgCounts.NoRefPlane++;
+            }
+
+            return SI;
         }
     }
+
+    return Patch->GetSurfaceInfo();
 }
 
 
@@ -842,43 +1048,103 @@ void EditSurfacePropsDialogT::UpdateVectorInfo()
 }
 
 
+void EditSurfacePropsDialogT::UpdateAfterSelChange()
+{
+    // It is certainly possible to implement this a bit more efficiently, e.g. by cutting the
+    // loops short whenever both aligned and non-aligned faces have been found, but the code
+    // as-is is short and easy to understand, and still in the same order of magnitude.
+    unsigned int WorldAlignCount = 0;
+    unsigned int FaceAlignCount  = 0;
+
+    for (unsigned int FaceNr = 0; FaceNr < m_SelectedFaces.Size(); FaceNr++)
+    {
+        if (m_SelectedFaces[FaceNr].Face->IsUVSpaceWorldAligned()) WorldAlignCount++;
+        if (m_SelectedFaces[FaceNr].Face->IsUVSpaceFaceAligned() ) FaceAlignCount++;
+    }
+
+    if (m_SelectedFaces.Size() == 0)
+    {
+        m_wrtWorldAxesText->Disable();
+        m_wrtWorldAxesInfo->Disable();
+        m_wrtWorldAxesButton->Disable();
+
+        m_wrtWorldAxesInfo->SetLabel("none");
+    }
+    else
+    {
+        m_wrtWorldAxesText->Enable();
+        m_wrtWorldAxesInfo->Enable();
+        m_wrtWorldAxesButton->Enable();
+
+        // Set the "Is aligned wrt. the world axes?" info text.
+             if (WorldAlignCount ==                      0) m_wrtWorldAxesInfo->SetLabel("none");
+        else if (WorldAlignCount == m_SelectedFaces.Size()) m_wrtWorldAxesInfo->SetLabel("all");
+        else                                                m_wrtWorldAxesInfo->SetLabel("mixed");
+    }
+
+    if (m_SelectedFaces.Size() == 0)
+    {
+        m_wrtFacePlaneText->Disable();
+        m_wrtFacePlaneInfo->Disable();
+        m_wrtFacePlaneButton->Disable();
+
+        m_wrtFacePlaneInfo->SetLabel("none");
+    }
+    else
+    {
+        m_wrtFacePlaneText->Enable();
+        m_wrtFacePlaneInfo->Enable();
+        m_wrtFacePlaneButton->Enable();
+
+        // Set the "Is aligned wrt. the face plane?" info text.
+             if (FaceAlignCount ==                      0) m_wrtFacePlaneInfo->SetLabel("none");
+        else if (FaceAlignCount == m_SelectedFaces.Size()) m_wrtFacePlaneInfo->SetLabel("all");
+        else                                               m_wrtFacePlaneInfo->SetLabel("mixed");
+    }
+
+    // Also deal with the "Treat multiple as one" checkbox. We better don't change its state
+    // (checked/unchecked), because the user may wish to keep it even across selection changes.
+    // Disabling it whenever the OnButtonAlign() handler cannot (fully) make use of it should
+    // be enough to let the user know that some limitations apply.
+    m_CheckBoxTreatMultipleAsOne->Enable(m_SelectedFaces.Size() > 1 && m_SelectedPatches.Size() == 0);
+}
+
+
 /**********************/
 /*** Event Handlers ***/
 /**********************/
 
 void EditSurfacePropsDialogT::OnSpinCtrlValueChanged(wxSpinDoubleEvent& Event)
 {
-    ApplySettingT Setting=ApplyNone;
+    ApplyDetailT Detail = ApplyNone;
 
-    // Choose apply setting depending on the changed spin ctrl.
+    // Determine the proper value for Detail based on the spin control whose value changed.
     switch (Event.GetId())
     {
-        case ID_SPINCTRL_SCALE_X:  Setting=ApplyScaleX;   break;
-        case ID_SPINCTRL_SCALE_Y:  Setting=ApplyScaleY;   break;
-        case ID_SPINCTRL_SHIFT_X:  Setting=ApplyShiftX;   break;
-        case ID_SPINCTRL_SHIFT_Y:  Setting=ApplyShiftY;   break;
-        case ID_SPINCTRL_ROTATION: Setting=ApplyRotation; break;
+        case ID_SPINCTRL_SCALE_X:  Detail = ApplyScaleX;   break;
+        case ID_SPINCTRL_SCALE_Y:  Detail = ApplyScaleY;   break;
+        case ID_SPINCTRL_SHIFT_X:  Detail = ApplyShiftX;   break;
+        case ID_SPINCTRL_SHIFT_Y:  Detail = ApplyShiftY;   break;
+        case ID_SPINCTRL_ROTATION: Detail = ApplyRotation; break;
     }
 
     // The value in one of the spin controls changed, and thus the orientation of the material on the selected face(s)/patch(es).
-
+    MsgCountsT        MsgCounts;
     ArrayT<CommandT*> SurfaceCommands;
 
     for (unsigned long FaceNr=0; FaceNr<m_SelectedFaces.Size(); FaceNr++)
     {
-        EditorMaterialI* Material=NULL;
-        SurfaceInfoT     SI=m_SelectedFaces[FaceNr].Face->GetSurfaceInfo();
+        EditorMaterialI*   Material = NULL;     // The material doesn't change.
+        const SurfaceInfoT SI = ObtainSurfaceInfo(m_SelectedFaces[FaceNr].Face, Material, ApplyNormal, Detail, MsgCounts);
 
-        SetSurfaceInfo(m_SelectedFaces[FaceNr].Face, SI, &Material, ApplyNormal, Setting);
         SurfaceCommands.PushBack(new CommandUpdateSurfaceFaceT(*m_MapDoc, m_SelectedFaces[FaceNr].Brush, m_SelectedFaces[FaceNr].FaceIndex, SI, Material));
     }
 
     for (unsigned long PatchNr=0; PatchNr<m_SelectedPatches.Size(); PatchNr++)
     {
-        EditorMaterialI* Material=NULL;
-        SurfaceInfoT     SI=m_SelectedPatches[PatchNr]->GetSurfaceInfo();
+        EditorMaterialI*   Material = NULL;     // The material doesn't change.
+        const SurfaceInfoT SI = ObtainSurfaceInfo(m_SelectedPatches[PatchNr], Material, ApplyNormal, Detail, MsgCounts);
 
-        SetSurfaceInfo(m_SelectedPatches[PatchNr], SI, &Material, ApplyNormal, Setting);
         SurfaceCommands.PushBack(new CommandUpdateSurfaceBezierPatchT(*m_MapDoc, m_SelectedPatches[PatchNr], SI, Material));
     }
 
@@ -906,19 +1172,30 @@ void EditSurfacePropsDialogT::OnButtonAlign(wxCommandEvent& Event)
 {
     if (m_MapDoc==0) return;
 
+    if (m_SelectedPatches.Size() > 0 && Event.GetId() != ID_BUTTON_ALIGN2FITFACE)
+    {
+        wxMessageBox("With Bezier patches, only \"Fit\" can be used.\n\n"
+            "It is usually not possible with Bezier patches to compute the required\n"
+            "reference point for the other alignment options. However, after \"Fit\"\n"
+            "you can use the orientation controls to fine-tune the result.",
+            "Fit material to surface");
+
+        return;
+    }
+
     if (m_SelectedFaces.Size()>0)
     {
         ArrayT<Vector3fT> CombinedVertices;
         ArrayT<CommandT*> SurfaceCommands;
 
         // If all the selected faces are to be treated "as one", prepare the array with the union of their vertices.
-        if (CheckBoxTreatMultipleAsOne->IsChecked())
+        if (m_CheckBoxTreatMultipleAsOne->IsChecked())
             for (unsigned long FaceNr=0; FaceNr<m_SelectedFaces.Size(); FaceNr++)
                 CombinedVertices.PushBack(m_SelectedFaces[FaceNr].Face->GetVertices());
 
         for (unsigned long FaceNr=0; FaceNr<m_SelectedFaces.Size(); FaceNr++)
         {
-            const ArrayT<Vector3fT>& Vertices=CheckBoxTreatMultipleAsOne->IsChecked() ? CombinedVertices : m_SelectedFaces[FaceNr].Face->GetVertices();
+            const ArrayT<Vector3fT>& Vertices=m_CheckBoxTreatMultipleAsOne->IsChecked() ? CombinedVertices : m_SelectedFaces[FaceNr].Face->GetVertices();
             SurfaceInfoT             SI      =m_SelectedFaces[FaceNr].Face->GetSurfaceInfo();
 
             switch (Event.GetId())
@@ -934,163 +1211,147 @@ void EditSurfacePropsDialogT::OnButtonAlign(wxCommandEvent& Event)
             SurfaceCommands.PushBack(new CommandUpdateSurfaceFaceT(*m_MapDoc, m_SelectedFaces[FaceNr].Brush, m_SelectedFaces[FaceNr].FaceIndex, SI, NULL));
         }
 
-        m_MapDoc->CompatSubmitCommand(new CommandMacroT(SurfaceCommands, "Align Material"));
+        m_MapDoc->CompatSubmitCommand(new CommandMacroT(SurfaceCommands, "Align material"));
     }
-    else if (m_SelectedPatches.Size()>0)
+
+    if (m_SelectedPatches.Size() > 0)
     {
-        if (Event.GetId()!=ID_BUTTON_ALIGN2FITFACE)
-        {
-            wxMessageBox("With Bezier patches, only the Fit button is available for material alignment.\n");
-            return;
-        }
+        wxASSERT(Event.GetId() == ID_BUTTON_ALIGN2FITFACE);
 
         ArrayT<CommandT*> SurfaceCommands;
+        EditorMaterialI* Material = NULL;   // The material doesn't change.
+        SurfaceInfoT SI;
+        SI.TexCoordGenMode = MatFit;
 
-        for (unsigned long PatchNr=0; PatchNr<m_SelectedPatches.Size(); ++PatchNr)
+        for (unsigned long PatchNr = 0; PatchNr < m_SelectedPatches.Size(); PatchNr++)
         {
-            EditorMaterialI* Material=NULL;
-            SurfaceInfoT     SI=m_SelectedPatches[PatchNr]->GetSurfaceInfo();
-
-            SI.TexCoordGenMode=MatFit;
-
-            SetSurfaceInfo(m_SelectedPatches[PatchNr], SI, &Material, ApplyNormal, ApplyAll);
             SurfaceCommands.PushBack(new CommandUpdateSurfaceBezierPatchT(*m_MapDoc, m_SelectedPatches[PatchNr], SI, Material));
         }
 
-        CommandMacroT* Macro=new CommandMacroT(SurfaceCommands, "Justify Material");
-
-        m_MapDoc->CompatSubmitCommand(Macro);
+        m_MapDoc->CompatSubmitCommand(new CommandMacroT(SurfaceCommands, "Align material"));
     }
 }
 
 
-// The OnCheckBoxAlign*() methods are the only way to reset a faces UV-axes (besides Apply Projective mode).
-// As such, the checkboxes act both as indicators of the current state, as well as controls to change it.
-void EditSurfacePropsDialogT::OnCheckBoxAlignWorld(wxCommandEvent& Event)
+// The buttons "wrt. world axes" and "wrt. face plane" are (besides "Apply Projective") the
+// only way to reset a face's u/v-axes. Both buttons are disabled by UpdateAfterSelChange()
+// whenever no faces are selected.
+void EditSurfacePropsDialogT::OnButtonAlignWrtAxes(wxCommandEvent& Event)
 {
-    if (m_MapDoc==0) return;
+    wxASSERT(Event.GetId() == ID_BUTTON_ALIGN_WRT_WORLD ||
+             Event.GetId() == ID_BUTTON_ALIGN_WRT_FACE);
 
-    if (m_SelectedFaces.Size()>0)
+    if (!m_MapDoc) return;
+
+    ArrayT<CommandT*> SurfaceCommands;
+
+    for (unsigned int FaceNr = 0; FaceNr < m_SelectedFaces.Size(); FaceNr++)
     {
-        ArrayT<CommandT*> SurfaceCommands;
+        SurfaceInfoT SI = m_SelectedFaces[FaceNr].Face->GetSurfaceInfo();
 
-        for (unsigned long FaceNr=0; FaceNr<m_SelectedFaces.Size(); FaceNr++)
-        {
-            SurfaceInfoT SI=m_SelectedFaces[FaceNr].Face->GetSurfaceInfo();
+        SI.ResetUVAxes(
+            m_SelectedFaces[FaceNr].Face->GetPlane(),
+            Event.GetId() == ID_BUTTON_ALIGN_WRT_FACE);
 
-            SI.ResetUVAxes(m_SelectedFaces[FaceNr].Face->GetPlane(), false /*not FaceAligned*/);
-            SurfaceCommands.PushBack(new CommandUpdateSurfaceFaceT(*m_MapDoc, m_SelectedFaces[FaceNr].Brush, m_SelectedFaces[FaceNr].FaceIndex, SI, NULL));
-        }
+        SurfaceCommands.PushBack(new CommandUpdateSurfaceFaceT(
+            *m_MapDoc,
+            m_SelectedFaces[FaceNr].Brush,
+            m_SelectedFaces[FaceNr].FaceIndex,
+            SI,
+            NULL));
+    }
 
-        CommandMacroT* Macro=new CommandMacroT(SurfaceCommands, "Align Material wrt. World Axes");
+    if (SurfaceCommands.Size() > 0)
+    {
+        CommandMacroT* Macro = new CommandMacroT(
+            SurfaceCommands,
+            Event.GetId() == ID_BUTTON_ALIGN_WRT_FACE
+                ? "Align material wrt. face plane"
+                : "Align material wrt. world axes");
 
         m_MapDoc->CompatSubmitCommand(Macro);
     }
-}
 
-
-// The OnCheckBoxAlign*() methods are the only way to reset a faces UV-axes (besides Apply Projective mode).
-// As such, the checkboxes act both as indicators of the current state, as well as controls to change it.
-void EditSurfacePropsDialogT::OnCheckBoxAlignFace(wxCommandEvent& Event)
-{
-    if (m_MapDoc==0) return;
-
-    if (m_SelectedFaces.Size()>0)
-    {
-        ArrayT<CommandT*> SurfaceCommands;
-
-        for (unsigned long FaceNr=0; FaceNr<m_SelectedFaces.Size(); FaceNr++)
-        {
-            SurfaceInfoT SI=m_SelectedFaces[FaceNr].Face->GetSurfaceInfo();
-
-            SI.ResetUVAxes(m_SelectedFaces[FaceNr].Face->GetPlane(), true /*FaceAligned*/);
-            SurfaceCommands.PushBack(new CommandUpdateSurfaceFaceT(*m_MapDoc, m_SelectedFaces[FaceNr].Brush, m_SelectedFaces[FaceNr].FaceIndex, SI, NULL));
-        }
-
-        CommandMacroT* Macro=new CommandMacroT(SurfaceCommands, "Align Material wrt. Face Plane");
-
-        m_MapDoc->CompatSubmitCommand(Macro);
-    }
+    UpdateAfterSelChange();
 }
 
 
 void EditSurfacePropsDialogT::OnCheckBoxTreatMultipleAsOne(wxCommandEvent& Event)
 {
-    // Afaics, no need for any action here.
-    // Those who are interested in the selected value of the CheckBox should query it directly.
-    // The "Treat Multiple As One" flag is only needed for the Fit, T, B, L, R, C alignment buttons anyway!
+    // Afaics, no need for any action here, other code will just query the checkbox's value.
 }
 
 
-// This looks at the current selection of the ChoiceCurrentMat,
-// and updates the material preview bitmap and "Size: a x b" text accordingly.
-// It also rearranges the contents of the ChoiceCurrentMat to reflect MRU behaviour.
+// When another material has been selected, this handler updates the material preview bitmap
+// sets the "Size: a x b" text, rearranges the contents of the ChoiceCurrentMat in MRU order
+// and applies the chosen material to the currently selected faces and Bezier patches.
 void EditSurfacePropsDialogT::OnSelChangeCurrentMat(wxCommandEvent& Event)
 {
-    int Index=ChoiceCurrentMat->GetSelection();
+    const int Index = ChoiceCurrentMat->GetSelection();
 
-    wxASSERT(Index!=-1);
+    wxASSERT(Index != -1);
+    if (Index == -1) return;
 
-    // if (Index==-1)
-    // {
-    //    BitmapCurrentMat->m_Bitmap=wxNullBitmap;
-    //     BitmapCurrentMat->Refresh();
-    //     StaticTextCurrentMatSize->SetLabel("(No mat. selected.)");
-    // }
-    // else
+    EditorMaterialI* CurrentMaterial=(EditorMaterialI*)ChoiceCurrentMat->GetClientData(Index);
+
+    if (Index!=0)
     {
-        EditorMaterialI* CurrentMaterial=(EditorMaterialI*)ChoiceCurrentMat->GetClientData(Index);
+        ChoiceCurrentMat->Delete(Index);
+        ChoiceCurrentMat->Insert(CurrentMaterial->GetName(), 0, CurrentMaterial);
+        ChoiceCurrentMat->SetSelection(0);
+    }
 
-        if (Index!=0)
+    const int  w  =CurrentMaterial->GetWidth ();
+    const int  h  =CurrentMaterial->GetHeight();
+    const int  Max=w>h ? w : h;
+    const bool Fit=(w<=PREVIEW_BITMAP_SIZE && h<=PREVIEW_BITMAP_SIZE);
+
+    wxBitmap PreviewBitmap=Fit ? wxBitmap(CurrentMaterial->GetImage()) : wxBitmap(CurrentMaterial->GetImage().Scale(w*PREVIEW_BITMAP_SIZE/Max, h*PREVIEW_BITMAP_SIZE/Max));
+
+    m_BitmapCurrentMat->SetBitmap(PreviewBitmap);
+    m_BitmapCurrentMat->Refresh();
+
+    StaticTextCurrentMatSize->SetLabel(wxString::Format("Size: %ix%i", CurrentMaterial->GetWidth(), CurrentMaterial->GetHeight()));
+    m_MapDoc->GetGameConfig()->GetMatMan().SetDefaultMaterial(CurrentMaterial);
+
+    assert(Event.GetExtraLong()==-1 || Event.GetExtraLong()==0);
+
+    // Apply the new material to the selection (unless ExtraLong indicates that it is not desired).
+    if (Event.GetExtraLong() != -1)
+    {
+        MsgCountsT        MsgCounts;
+        ArrayT<CommandT*> SurfaceCommands;
+
+        for (unsigned long FaceNr=0; FaceNr<m_SelectedFaces.Size(); FaceNr++)
         {
-            ChoiceCurrentMat->Delete(Index);
-            ChoiceCurrentMat->Insert(CurrentMaterial->GetName(), 0, CurrentMaterial);
-            ChoiceCurrentMat->SetSelection(0);
+            // SI must be recomputed as well, because the material's width and height may have changed.
+            const SurfaceInfoT SI = ObtainSurfaceInfo(m_SelectedFaces[FaceNr].Face, CurrentMaterial, ApplyNormal, ApplyAll, MsgCounts);
+
+            SurfaceCommands.PushBack(new CommandUpdateSurfaceFaceT(
+                *m_MapDoc,
+                m_SelectedFaces[FaceNr].Brush,
+                m_SelectedFaces[FaceNr].FaceIndex,
+                SI,
+                CurrentMaterial));
         }
 
-        const int  w  =CurrentMaterial->GetWidth ();
-        const int  h  =CurrentMaterial->GetHeight();
-        const int  Max=w>h ? w : h;
-        const bool Fit=(w<=PREVIEW_BITMAP_SIZE && h<=PREVIEW_BITMAP_SIZE);
-
-        wxBitmap PreviewBitmap=Fit ? wxBitmap(CurrentMaterial->GetImage()) : wxBitmap(CurrentMaterial->GetImage().Scale(w*PREVIEW_BITMAP_SIZE/Max, h*PREVIEW_BITMAP_SIZE/Max));
-
-        m_BitmapCurrentMat->SetBitmap(PreviewBitmap);
-        m_BitmapCurrentMat->Refresh();
-        StaticTextCurrentMatSize->SetLabel(wxString::Format("Size: %ix%i", CurrentMaterial->GetWidth(), CurrentMaterial->GetHeight()));
-        m_MapDoc->GetGameConfig()->GetMatMan().SetDefaultMaterial(CurrentMaterial);
-
-        assert(Event.GetExtraLong()==-1 || Event.GetExtraLong()==0);
-
-        // Apply the new material to the selection.
-        if (Event.GetExtraLong()!=-1) // Don't update selected faces/patches if not allowed (ExtraLong=-1).
+        for (unsigned long PatchNr=0; PatchNr<m_SelectedPatches.Size(); PatchNr++)
         {
-            ArrayT<CommandT*> SurfaceCommands;
+            // SI must be recomputed as well, because the material's width and height may have changed.
+            const SurfaceInfoT SI = ObtainSurfaceInfo(m_SelectedPatches[PatchNr], CurrentMaterial, ApplyNormal, ApplyAll, MsgCounts);
 
-            for (unsigned long FaceNr=0; FaceNr<m_SelectedFaces.Size(); FaceNr++)
-            {
-                EditorMaterialI* Material=NULL;
-                SurfaceInfoT     SI=m_SelectedFaces[FaceNr].Face->GetSurfaceInfo();
+            SurfaceCommands.PushBack(new CommandUpdateSurfaceBezierPatchT(
+                *m_MapDoc,
+                m_SelectedPatches[PatchNr],
+                SI,
+                CurrentMaterial));
+        }
 
-                SetSurfaceInfo(m_SelectedFaces[FaceNr].Face, SI, &Material, ApplyNormal, ApplyMaterial);
-                SurfaceCommands.PushBack(new CommandUpdateSurfaceFaceT(*m_MapDoc, m_SelectedFaces[FaceNr].Brush, m_SelectedFaces[FaceNr].FaceIndex, SI, Material));
-            }
+        if (SurfaceCommands.Size()>0)
+        {
+            CommandMacroT* Macro=new CommandMacroT(SurfaceCommands, "Apply material");
 
-            for (unsigned long PatchNr=0; PatchNr<m_SelectedPatches.Size(); PatchNr++)
-            {
-                EditorMaterialI* Material=NULL;
-                SurfaceInfoT     SI=m_SelectedPatches[PatchNr]->GetSurfaceInfo();
-
-                SetSurfaceInfo(m_SelectedPatches[PatchNr], SI, &Material, ApplyNormal, ApplyMaterial);
-                SurfaceCommands.PushBack(new CommandUpdateSurfaceBezierPatchT(*m_MapDoc, m_SelectedPatches[PatchNr], SI, Material));
-            }
-
-            if (SurfaceCommands.Size()>0)
-            {
-                CommandMacroT* Macro=new CommandMacroT(SurfaceCommands, "Apply material to selection");
-
-                m_MapDoc->CompatSubmitCommand(Macro);
-            }
+            m_MapDoc->CompatSubmitCommand(Macro);
         }
     }
 }
@@ -1161,48 +1422,6 @@ void EditSurfacePropsDialogT::OnSelChangeRightMB(wxCommandEvent& Event)
 {
     // Afaics, no need for any action here.
     // Those who are interested in the selected value of the ChoiceBox should query it directly.
-}
-
-
-void EditSurfacePropsDialogT::OnButtonApplyToAllSelected(wxCommandEvent& Event)
-{
-    const RightMBClickModeT ApplyMode=(RightMBClickModeT)(unsigned long)ChoiceRightMBMode->GetClientData(ChoiceRightMBMode->GetSelection());
-
-    if (ApplyMode==ApplyProjective && m_CurrentTexGenMode!=PlaneProj)   // Only apply projective, if there is an projection plane.
-    {
-        wxMessageBox("When the texture-coordinate mode is Fit or Custom,\n"
-            "there is no reference plane for projective material application.\n\n"
-            "Please use another apply mode for the right mouse button,\n"
-            "or pick a regular brush face in order to apply its material projectively.");
-        return;
-    }
-
-    ArrayT<CommandT*> SurfaceCommands;
-
-    for (unsigned long FaceNr=0; FaceNr<m_SelectedFaces.Size(); FaceNr++)
-    {
-        EditorMaterialI* Material=NULL;
-        SurfaceInfoT     SI=m_SelectedFaces[FaceNr].Face->GetSurfaceInfo();
-
-        SetSurfaceInfo(m_SelectedFaces[FaceNr].Face, SI, &Material, ApplyMode, ApplyAll);
-        SurfaceCommands.PushBack(new CommandUpdateSurfaceFaceT(*m_MapDoc, m_SelectedFaces[FaceNr].Brush, m_SelectedFaces[FaceNr].FaceIndex, SI, Material));
-    }
-
-    for (unsigned long PatchNr=0; PatchNr<m_SelectedPatches.Size(); PatchNr++)
-    {
-        EditorMaterialI* Material=NULL;
-        SurfaceInfoT     SI=m_SelectedPatches[PatchNr]->GetSurfaceInfo();
-
-        SetSurfaceInfo(m_SelectedPatches[PatchNr], SI, &Material, ApplyMode, ApplyAll);
-        SurfaceCommands.PushBack(new CommandUpdateSurfaceBezierPatchT(*m_MapDoc, m_SelectedPatches[PatchNr], SI, Material));
-    }
-
-    if (SurfaceCommands.Size()>0)
-    {
-        CommandMacroT* Macro=new CommandMacroT(SurfaceCommands, "Apply to all selected");
-
-        m_MapDoc->CompatSubmitCommand(Macro);
-    }
 }
 
 

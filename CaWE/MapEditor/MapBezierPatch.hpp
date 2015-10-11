@@ -197,6 +197,13 @@ class MapBezierPatchT : public MapPrimitiveT
 
     void operator = (const MapBezierPatchT&);   ///< Use of the Assignment Operator is not allowed.
 
+    bool ReconstructMatFit();
+    bool ReconstructPlaneProj(bool AltOrigin);
+
+    /// If `SurfaceInfo.TexCoordGenMode == Custom`, this method tries to reconstruct a
+    /// `SurfaceInfo` in `MatFit` or `PlaneProj` mode.
+    bool ReconstructSI();
+
     void UpdateRenderMesh() const;
     void UpdateTextureSpace();      ///< Updates the UV coordinates of the patch according to the projection and orientation values from SurfaceInfoT.
 

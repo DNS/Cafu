@@ -110,6 +110,19 @@ SurfaceInfoT SurfaceInfoT::Create_cmap(TextParserT& TP)
 }
 
 
+namespace
+{
+    // rnz means "round near zero", turning a vector like (0 -4.89843e-016 8) into (0 0 8).
+    // Even though a certain kind of rounding is implied by limiting the output precision of
+    // floats to 6 decimal digits in the code below, it is also worthwhile to implement a
+    // "fixed" rounding near zero.
+    float rnz(float f)
+    {
+        return fabs(f) < 0.00001f ? 0.0f : f;
+    }
+}
+
+
 void SurfaceInfoT::Save_cmap(std::ostream& OutFile) const
 {
     // Temporarily reduce the precision from 9 to 6 decimal digits.
@@ -123,29 +136,19 @@ void SurfaceInfoT::Save_cmap(std::ostream& OutFile) const
 
     if (TexCoordGenMode==MatFit)
     {
-        OutFile << " " << Trans[0] << " " << Trans[1]
-                << " " << Scale[0] << " " << Scale[1] << " " << Rotate;
+        OutFile << " " << rnz(Trans[0]) << " " << rnz(Trans[1])
+                << " " << rnz(Scale[0]) << " " << rnz(Scale[1]) << " " << rnz(Rotate);
     }
     else if (TexCoordGenMode==PlaneProj)
     {
-        OutFile << " " << Trans[0] << " " << Trans[1] << " " << Rotate;
+        OutFile << " " << rnz(Trans[0]) << " " << rnz(Trans[1]) << " " << rnz(Rotate);
 
         // Include the scale factors into their axes.
-        Vector3fT SaveU=UAxis/Scale[0];
-        Vector3fT SaveV=VAxis/Scale[1];
+        const Vector3fT SaveU = UAxis / Scale[0];
+        const Vector3fT SaveV = VAxis / Scale[1];
 
-        // Turn a vector like (0 -4.89843e-016 8) into (0 0 8).
-        // Even though a certain kind of rounding is implied by limiting the output precision of floats
-        // to 6 decimal digits below, it is also worthwhile to implement a "fixed" rounding near zero here.
-        if (fabs(SaveU.x)<0.000001f) SaveU.x=0.0f;
-        if (fabs(SaveU.y)<0.000001f) SaveU.y=0.0f;
-        if (fabs(SaveU.z)<0.000001f) SaveU.z=0.0f;
-        if (fabs(SaveV.x)<0.000001f) SaveV.x=0.0f;
-        if (fabs(SaveV.y)<0.000001f) SaveV.y=0.0f;
-        if (fabs(SaveV.z)<0.000001f) SaveV.z=0.0f;
-
-        OutFile << " ( " << SaveU.x << " " << SaveU.y  << " " << SaveU.z << " )";
-        OutFile << " ( " << SaveV.x << " " << SaveV.y  << " " << SaveV.z << " )";
+        OutFile << " ( " << rnz(SaveU.x) << " " << rnz(SaveU.y)  << " " << rnz(SaveU.z) << " )";
+        OutFile << " ( " << rnz(SaveV.x) << " " << rnz(SaveV.y)  << " " << rnz(SaveV.z) << " )";
     }
 
     OutFile << " )\n";

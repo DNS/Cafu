@@ -48,7 +48,7 @@ class CommandUpdateSurfaceT : public CommandT
     const SurfaceInfoT SurfaceInfoNew; ///< The surface info that is applied to the surface.
     const SurfaceInfoT SurfaceInfoOld; ///< The surfaces former surface info for undo.
     EditorMaterialI*   MaterialNew;    ///< The material that is applied to the surface.
-    EditorMaterialI*   MaterialOld;    ///< The surfaces former material for undo.
+    EditorMaterialI*   MaterialOld;    ///< The surface's former material for undo.
 };
 
 
