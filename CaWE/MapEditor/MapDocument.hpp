@@ -64,15 +64,15 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
     static const unsigned int CMAP_FILE_VERSION;
 
 
-    /// The constructor for creating a new, clean, empty map.
-    /// @param GameConfig   The game configuration that will be used for the map.
-    MapDocumentT(GameConfigT* GameConfig);
-
     /// The regular constructor for loading a cmap file from disk.
     /// @param GameConfig       The game configuration that will be used for the map.
     /// @param ProgressDialog   If non-NULL, this dialog is used to show the progress while loading the map.
     /// @param FileName         The name of the file to load the map from.
     MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDialog, const wxString& FileName);
+
+    /// A named constructor for creating a new, empty map.
+    /// @param GameConfig   The game configuration that will be used for the map.
+    static MapDocumentT* CreateNew(GameConfigT* GameConfig);
 
     /// A named constructor for importing a map in HL1 map file format.
     /// @param GameConfig       The game configuration that will be used for the map.
@@ -181,6 +181,7 @@ class MapDocumentT : public wxEvtHandler, public SubjectT
 
     private:
 
+    MapDocumentT(GameConfigT* GameConfig);      ///< An auxiliary constructor that the public named constructors use.
     MapDocumentT(const MapDocumentT&);          ///< Use of the Copy    Constructor is not allowed.
     void operator = (const MapDocumentT&);      ///< Use of the Assignment Operator is not allowed.
 

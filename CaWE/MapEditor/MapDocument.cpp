@@ -197,17 +197,6 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig)
         "Map:GetBasics():set('Static', true)\n"
         "world:SetRootEntity(Map)\n",
         cf::GameSys::WorldT::InitFlag_InlineCode | cf::GameSys::WorldT::InitFlag_OnlyStatic);
-
-    IntrusivePtrT<cf::GameSys::EntityT> ScriptRootEnt = m_ScriptWorld->GetRootEntity();
-    IntrusivePtrT<CompMapEntityT>       MapEnt        = new CompMapEntityT(*this);
-
-    wxASSERT(ScriptRootEnt->GetApp().IsNull());
-    ScriptRootEnt->SetApp(MapEnt);
-
-    ArrayT<MapElementT*> AllElems;
-    GetAllElems(AllElems);
-
-    m_BspTree = new OrthoBspTreeT(AllElems, m_GameConfig->GetMaxMapBB());
 }
 
 
@@ -338,6 +327,25 @@ void MapDocumentT::Init()
 }
 
 
+/*static*/ MapDocumentT* MapDocumentT::CreateNew(GameConfigT* GameConfig)
+{
+    MapDocumentT* Doc = new MapDocumentT(GameConfig);
+
+    IntrusivePtrT<cf::GameSys::EntityT> ScriptRootEnt = Doc->m_ScriptWorld->GetRootEntity();
+    IntrusivePtrT<CompMapEntityT>       MapEnt        = new CompMapEntityT(*Doc);
+
+    wxASSERT(ScriptRootEnt->GetApp().IsNull());
+    ScriptRootEnt->SetApp(MapEnt);
+
+    ArrayT<MapElementT*> AllElems;
+    Doc->GetAllElems(AllElems);
+
+    Doc->m_BspTree = new OrthoBspTreeT(AllElems, Doc->m_GameConfig->GetMaxMapBB());
+
+    return Doc;
+}
+
+
 /*static*/ MapDocumentT* MapDocumentT::ImportHalfLife1Map(GameConfigT* GameConfig, wxProgressDialog* ProgressDialog, const wxString& FileName)
 {
     // This sets the cursor to the busy cursor in its ctor, and back to the default cursor in the dtor.
@@ -381,7 +389,6 @@ void MapDocumentT::Init()
     ArrayT<MapElementT*> AllElems;
     Doc->GetAllElems(AllElems);
 
-    delete Doc->m_BspTree;
     Doc->m_BspTree = new OrthoBspTreeT(AllElems, Doc->m_GameConfig->GetMaxMapBB());
 
     Doc->m_FileName=FileName;
@@ -443,7 +450,6 @@ void MapDocumentT::Init()
     ArrayT<MapElementT*> AllElems;
     Doc->GetAllElems(AllElems);
 
-    delete Doc->m_BspTree;
     Doc->m_BspTree = new OrthoBspTreeT(AllElems, Doc->m_GameConfig->GetMaxMapBB());
 
     Doc->m_FileName=FileName;
@@ -494,7 +500,6 @@ void MapDocumentT::Init()
     ArrayT<MapElementT*> AllElems;
     Doc->GetAllElems(AllElems);
 
-    delete Doc->m_BspTree;
     Doc->m_BspTree = new OrthoBspTreeT(AllElems, Doc->m_GameConfig->GetMaxMapBB());
 
     Doc->m_FileName=FileName;

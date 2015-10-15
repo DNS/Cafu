@@ -601,14 +601,11 @@ void ParentFrameT::OnMenuFile(wxCommandEvent& CE)
     {
         case ID_MENU_FILE_NEW_MAP:
         {
-            GameConfigT* GameConfig=AskUserForGameConfig(wxFileName("the new map"));
-            if (GameConfig==NULL) break;
+            GameConfigT* GameConfig = AskUserForGameConfig(wxFileName("the new map"));
 
-            // Create the new, empty document.
-            MapDocumentT* NewDocument=new MapDocumentT(GameConfig);
+            if (!GameConfig) break;
 
-            // Create the child frame and give the NewDocument to it (the child frame becomes the owner of the NewDocument).
-            new ChildFrameT(this, "New Document", NewDocument);
+            new ChildFrameT(this, "New Map", MapDocumentT::CreateNew(GameConfig));
             break;
         }
 
