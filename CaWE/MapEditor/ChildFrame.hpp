@@ -187,11 +187,11 @@ class ChildFrameT : public wxMDIChildFrame
 
 
     /// The constructor.
-    /// @param Parent     The parent frame.
-    /// @param Title      The title of the new child frame (i.e. the name of the document).
-    /// @param Document   This frames document. The frame becomes the owner of the document, i.e. it is responsible for destructing it.
-    ///                   (Document is created externally so that this constructor doesn't fail on doc creation failure.)
-    ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumentT* Document);
+    /// @param Parent   The parent frame.
+    /// @param MapDoc   This frame's document. The frame becomes the owner of the document,
+    ///     i.e. it is responsible for destructing it. `MapDoc` is created externally so
+    ///     that this constructor doesn't have to deal with problems constructing it.
+    ChildFrameT(ParentFrameT* Parent, MapDocumentT* MapDoc);
 
     /// The destructor.
     /// Notifies the dependent ViewWindowTs that we're being destroyed before them.

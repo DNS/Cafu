@@ -335,12 +335,12 @@ namespace
 // Although the parent should actually be the parent frames MDI *client* (sub-)window, according to wx documentation
 // it is fine to pass the MDI parent window itself (rather than its client window) here. See wxMDIChildFrame documentation.
 // Contrary to wx docs, the wxDocMDIChildFrame even *requires* a pointer to wxMDIParentFrame here (not just to a wxFrame, as the docs say)!
-ChildFrameT::ChildFrameT(ParentFrameT* Parent, const wxString& Title, MapDocumentT* Document)
-    : wxMDIChildFrame(Parent, wxID_ANY, Title, wxDefaultPosition, wxSize(800, 600), wxDEFAULT_FRAME_STYLE | wxMAXIMIZE),
+ChildFrameT::ChildFrameT(ParentFrameT* Parent, MapDocumentT* MapDoc)
+    : wxMDIChildFrame(Parent, wxID_ANY, MapDoc->GetFileName(), wxDefaultPosition, wxSize(800, 600), wxDEFAULT_FRAME_STYLE | wxMAXIMIZE),
       m_Parent(Parent),      // Must use a fixed size in place of wxDefaultSize, see <http://trac.wxwidgets.org/ticket/12490> for details.
       m_AUIManager(this),
       m_AUIDefaultPerspective(""),
-      m_Doc(Document),
+      m_Doc(MapDoc),
       m_History(new CommandHistoryT()),
       m_LastSavedAtCommandNr(0),
       m_AutoSaveTimer(m_Doc, Parent->m_ChildFrames.Size()),

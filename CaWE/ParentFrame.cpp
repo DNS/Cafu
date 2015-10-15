@@ -515,7 +515,7 @@ wxMDIChildFrame* ParentFrameT::OpenFile(GameConfigT* GameConfig, wxString FileNa
         {
             ProgDlgT ProgDlg(this, "Loading Cafu Map File");
 
-            return new ChildFrameT(this, FileName, new MapDocumentT(GameConfig, ProgDlg.GetPtr(), FileName));
+            return new ChildFrameT(this, new MapDocumentT(GameConfig, ProgDlg.GetPtr(), FileName));
         }
 
         if (FileName.EndsWith(".cmdl"))
@@ -555,12 +555,12 @@ wxMDIChildFrame* ParentFrameT::OpenFile(GameConfigT* GameConfig, wxString FileNa
 
             if (Specifier=="HL1")
             {
-                return new ChildFrameT(this, FileName, MapDocumentT::ImportHalfLife1Map(GameConfig, ProgDlg.GetPtr(), FileName));
+                return new ChildFrameT(this, MapDocumentT::ImportHalfLife1Map(GameConfig, ProgDlg.GetPtr(), FileName));
             }
 
             if (Specifier=="D3")
             {
-                return new ChildFrameT(this, FileName, MapDocumentT::ImportDoom3Map(GameConfig, ProgDlg.GetPtr(), FileName));
+                return new ChildFrameT(this, MapDocumentT::ImportDoom3Map(GameConfig, ProgDlg.GetPtr(), FileName));
             }
         }
 
@@ -568,7 +568,7 @@ wxMDIChildFrame* ParentFrameT::OpenFile(GameConfigT* GameConfig, wxString FileNa
         {
             ProgDlgT ProgDlg(this, "Importing HL2 vmf file");
 
-            return new ChildFrameT(this, FileName, MapDocumentT::ImportHalfLife2Vmf(GameConfig, ProgDlg.GetPtr(), FileName));
+            return new ChildFrameT(this, MapDocumentT::ImportHalfLife2Vmf(GameConfig, ProgDlg.GetPtr(), FileName));
         }
 
         // We've tried all known filename suffixes. Now assume that FileName specifies a model file and try that.
@@ -605,7 +605,7 @@ void ParentFrameT::OnMenuFile(wxCommandEvent& CE)
 
             if (!GameConfig) break;
 
-            new ChildFrameT(this, "New Map", MapDocumentT::CreateNew(GameConfig));
+            new ChildFrameT(this, MapDocumentT::CreateNew(GameConfig));
             break;
         }
 
