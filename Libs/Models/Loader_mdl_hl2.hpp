@@ -25,6 +25,13 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Loader.hpp"
 
 
+namespace HL2mdl
+{
+    class VertexHeaderT;
+    class StudioHeaderT;
+}
+
+
 /// This class imports a HL2 (.mdl) model file into a new Cafu model.
 class LoaderHL2mdlT : public ModelLoaderT
 {
@@ -33,13 +40,25 @@ class LoaderHL2mdlT : public ModelLoaderT
     /// The constructor for importing a HL2 (.mdl) model file into a new Cafu model.
     /// @param FileName   The name of the .mdl file to import.
     /// @param Flags      The flags to load the model with. See ModelLoaderT::FlagsT for details.
-    LoaderHL2mdlT(const std::string& FileName, int Flags=NONE);
+    LoaderHL2mdlT(const std::string& FileName, int Flags = NONE);
 
     void Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan);
     void Load(ArrayT<CafuModelT::SkinT>& Skins, const MaterialManagerImplT& MaterialMan);
     void Load(ArrayT<CafuModelT::GuiFixtureT>& GuiFixtures) { }
     void Load(ArrayT<CafuModelT::ChannelT>& Channels) { }
     bool Load(unsigned int Level, CafuModelT*& DlodModel, float& DlodDist) { return false; }
+
+
+    private:
+
+    void Load(ArrayT<CafuModelT::JointT>& Joints) const;
+
+    ArrayT<uint8_t> m_VertexData;
+    ArrayT<uint8_t> m_ModelData;    ///< Basic model data.
+
+    // Pointers into the first bytes of the above data arrays.
+    const HL2mdl::VertexHeaderT* VertexHeader;
+    const HL2mdl::StudioHeaderT* StudioHeader;
 };
 
 #endif
