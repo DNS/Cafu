@@ -61,7 +61,8 @@ def CheckFormatting(start_dir, QuickMode):
                 CheckedCount += 1
 
                 try:
-                    f = codecs.open(pathname, encoding='utf-8', errors='strict')
+                    with codecs.open(pathname, encoding='utf-8', errors='strict') as f:
+                        Lines = f.readlines()
 
                     c = {
                         "tabs": 0,
@@ -72,7 +73,7 @@ def CheckFormatting(start_dir, QuickMode):
                         "trailing_ws": 0,
                     }
 
-                    for line in f:
+                    for line in Lines:
                         if "\t" in line:
                             c["tabs"] += 1
 
@@ -92,7 +93,7 @@ def CheckFormatting(start_dir, QuickMode):
                     if c["NewL_Dos" ]: c_NewL_Dos  += 1
                     if c["NewL_Unix"]: c_NewL_Unix += 1
 
-                    if c["tabs"] or c["trailing_ws"] or c["NewL_Mac"] or c["NewL_Other"] or (bool(c["NewL_Dos"]) and bool(c["NewL_Unix"])):
+                    if c["tabs"] or c["trailing_ws"] or c["NewL_Mac"] or c["NewL_Other"] or (c["NewL_Dos"] and c["NewL_Unix"]):
                         print pathname, c
                         ProblemsCount += 1
 
