@@ -64,16 +64,14 @@ LoaderHL2mdlT::LoaderHL2mdlT(const std::string& FileName, int Flags)
       VertexHeader(NULL),
       StudioHeader(NULL)
 {
-    // 1. Initialize auxiliary variables.
-    // **********************************
-
-    if (!cf::String::EndsWith(m_FileName, ".mdl")) throw LoadErrorT("HL2 model file name doesn't end with .mdl");
+    if (!cf::String::EndsWith(m_FileName, ".mdl"))
+        throw LoadErrorT("HL2 model file name doesn't end with .mdl");
 
     const std::string BaseName(m_FileName.c_str(), m_FileName.length() - 4);
 
 
-    // 2a. Load the vertex data.
-    // *************************
+    // Load the vertex data
+    // ********************
 
     GetRawBytes(BaseName, "vvd", m_VertexData);
 
@@ -94,8 +92,8 @@ LoaderHL2mdlT::LoaderHL2mdlT(const std::string& FileName, int Flags)
     assert(sizeof(StudioVertexT)     == 48);
 
 
-    // 2b. Load the model data.
-    // ************************
+    // Load the model data
+    // *******************
 
     GetRawBytes(BaseName, "mdl", m_ModelData);
 
@@ -114,8 +112,33 @@ LoaderHL2mdlT::LoaderHL2mdlT(const std::string& FileName, int Flags)
     if (StudioHeader->FileSize != m_ModelData.Size())
         throw LoadErrorT("Wrong file size indicated in .mdl file header.");   // This helps with detecting wrong data alignment.
 
+ // assert(sizeof(StudioHeaderT)   == 408);
+    assert(sizeof(StudioBoneT)     == 216);
+    assert(sizeof(StudioBodyPartT) ==  16);
+    assert(sizeof(StudioModelT)    == 148);
+    assert(sizeof(StudioMeshT)     == 116);
+
+
+    // More checks and inits
+    // *********************
+
     if (StudioHeader->Checksum != VertexHeader->Checksum)
         throw LoadErrorT("The .mdl and .vvd checksums don't match.");
+    for (uint32_t i = 0; i < StudioHeader->NumBodyParts; i++)
+    {
+        const StudioBodyPartT& BodyPart    = StudioHeader->GetBodyParts()[i];
+
+        assert(BodyPart.Base == 1);   // What does Base != 1 mean?
+
+        for (uint32_t j = 0; j < BodyPart.NumModels; j++)
+        {
+            StudioModelT&    Model    = BodyPart.GetModels()[j];
+
+            // Finally no more checks, but some inits here.
+            Model.m_Vertices = VertexHeader->GetVertices();
+            Model.m_Tangents = VertexHeader->GetTangents();
+        }
+    }
 }
 
 
@@ -123,7 +146,7 @@ void LoaderHL2mdlT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::
 {
     // For clarity and better readability, break the loading into three separate functions.
     Load(Joints);
-    // Load(Meshes, m_MeshSkinRef);
+    Load(Meshes);
     // Load(Anims);
 }
 
@@ -143,6 +166,54 @@ void LoaderHL2mdlT::Load(ArrayT<CafuModelT::JointT>& Joints) const
         Joint.Pos    = Bone.Pos;
         Joint.Qtr    = Bone.Quat.GetXYZ();
         Joint.Scale  = Vector3fT(1.0f, 1.0f, 1.0f);
+    }
+}
+
+
+void LoaderHL2mdlT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
+{
+    for (uint32_t BodyPartNr = 0; BodyPartNr < StudioHeader->NumBodyParts; BodyPartNr++)
+    {
+        const StudioBodyPartT& BodyPart    = StudioHeader->GetBodyParts()[BodyPartNr];
+
+        assert(BodyPart.Base == 1);   // What does Base != 1 mean?
+
+        for (uint32_t ModelNr = 0; ModelNr < BodyPart.NumModels; ModelNr++)
+        {
+            const StudioModelT& Model    = BodyPart.GetModels()[ModelNr];
+
+            for (uint32_t MeshNr = 0; MeshNr < Model.NumMeshes; MeshNr++)
+            {
+                Meshes.PushBackEmpty();
+
+                const StudioMeshT& StudioMesh = Model.GetMeshes()[MeshNr];
+                CafuModelT::MeshT& CafuMesh   = Meshes[Meshes.Size() - 1];
+
+                for (uint32_t VertexNr = 0; VertexNr < StudioMesh.NumVertices; VertexNr++)
+                {
+                    const StudioVertexT&       StudioVertex = StudioMesh.GetVertices()[VertexNr];
+                    CafuModelT::MeshT::VertexT CafuVertex;
+
+                    CafuVertex.u              = StudioVertex.TexCoord[0];
+                    CafuVertex.v              = StudioVertex.TexCoord[1];
+                    CafuVertex.FirstWeightIdx = CafuMesh.Weights.Size();
+                    CafuVertex.NumWeights     = StudioVertex.BoneWeights.NumBones;
+
+                    CafuMesh.Vertices.PushBack(CafuVertex);
+
+                    for (uint32_t WeightNr = 0; WeightNr < StudioVertex.BoneWeights.NumBones; WeightNr++)
+                    {
+                        CafuModelT::MeshT::WeightT Weight;
+
+                        Weight.JointIdx = StudioVertex.BoneWeights.Bone[WeightNr];
+                        Weight.Weight   = StudioVertex.BoneWeights.Weight[WeightNr];
+                        Weight.Pos      = StudioHeader->GetBones()[Weight.JointIdx].PoseToBone.Mul1(StudioVertex.Pos);
+
+                        CafuMesh.Weights.PushBack(Weight);
+                    }
+                }
+            }
+        }
     }
 }
 

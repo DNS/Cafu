@@ -55,6 +55,8 @@ namespace HL2mdl
         Vector3fT         Pos;
         Vector3fT         Normal;
         Vector2D          TexCoord;
+
+        std::ostream& print(std::ostream& os, const char* indent) const;
     };
 
 

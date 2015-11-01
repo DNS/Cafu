@@ -52,6 +52,7 @@ class LoaderHL2mdlT : public ModelLoaderT
     private:
 
     void Load(ArrayT<CafuModelT::JointT>& Joints) const;
+    void Load(ArrayT<CafuModelT::MeshT>& Meshes) const;
 
     ArrayT<uint8_t> m_VertexData;
     ArrayT<uint8_t> m_ModelData;    ///< Basic model data.
