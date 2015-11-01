@@ -37,7 +37,9 @@ LoaderMdlT::LoaderMdlT(const std::string& FileName, int Flags)
     }
     catch (const ModelLoaderT::LoadErrorT& LE)
     {
+        Errors += "\nError while importing the file as HL1 mdl file:\n";
         Errors += LE.what();
+        Errors += "\n";
     }
 
     try
@@ -47,8 +49,9 @@ LoaderMdlT::LoaderMdlT(const std::string& FileName, int Flags)
     }
     catch (const ModelLoaderT::LoadErrorT& LE)
     {
-        Errors += "\n";
+        Errors += "\nError while importing the file as HL2 mdl file:\n";
         Errors += LE.what();
+        Errors += "\n";
     }
 
     assert(m_Loader == NULL);
