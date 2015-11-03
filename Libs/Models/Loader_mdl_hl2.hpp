@@ -28,6 +28,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 namespace HL2mdl
 {
     class VertexHeaderT;
+    class StripsHeaderT;
     class StudioHeaderT;
 }
 
@@ -55,10 +56,12 @@ class LoaderHL2mdlT : public ModelLoaderT
     void Load(ArrayT<CafuModelT::MeshT>& Meshes) const;
 
     ArrayT<uint8_t> m_VertexData;
+    ArrayT<uint8_t> m_StripsData;
     ArrayT<uint8_t> m_ModelData;    ///< Basic model data.
 
     // Pointers into the first bytes of the above data arrays.
     const HL2mdl::VertexHeaderT* VertexHeader;
+    const HL2mdl::StripsHeaderT* StripsHeader;
     const HL2mdl::StudioHeaderT* StudioHeader;
 };
 

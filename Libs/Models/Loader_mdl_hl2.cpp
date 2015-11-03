@@ -53,6 +53,8 @@ const uint32_t VertexHeaderT::FILE_ID_IDSV = 0x56534449;
 const uint32_t VertexHeaderT::FILE_ID_IDCV = 0x56434449;
 const uint32_t VertexHeaderT::FILE_VERSION = 4;
 
+const uint32_t StripsHeaderT::FILE_VERSION = 7;
+
 const uint32_t StudioHeaderT::FILE_ID_IDST = 0x54534449;
 const uint32_t StudioHeaderT::FILE_VERSION = 48;
 
@@ -62,6 +64,7 @@ LoaderHL2mdlT::LoaderHL2mdlT(const std::string& FileName, int Flags)
           REMOVE_DEGEN_TRIANGLES |                          // Need this flag in order to pass all assertions in the CafuModelT code.
           REMOVE_UNUSED_VERTICES | REMOVE_UNUSED_WEIGHTS),  // The code below relies on postprocessing removing unused vertices and weights.
       VertexHeader(NULL),
+      StripsHeader(NULL),
       StudioHeader(NULL)
 {
     if (!cf::String::EndsWith(m_FileName, ".mdl"))
@@ -90,6 +93,30 @@ LoaderHL2mdlT::LoaderHL2mdlT(const std::string& FileName, int Flags)
     assert(sizeof(VertexHeaderT)     == 64);
     assert(sizeof(StudioBoneWeightT) == 16);
     assert(sizeof(StudioVertexT)     == 48);
+
+
+    // Load the strips data
+    // ********************
+
+    GetRawBytes(BaseName, "sw.vtx", m_StripsData);
+
+    StripsHeader = (StripsHeaderT*)(&m_StripsData[0]);
+    // StripsHeader->print(std::cout, "    ");
+
+    if (m_StripsData.Size() < sizeof(StripsHeaderT))
+        throw LoadErrorT("Invalid .vtx file header.");
+
+    if (StripsHeader->Version != StripsHeaderT::FILE_VERSION)
+        throw LoadErrorT("Strips file (.vtx) version is not 7.");
+
+    assert(sizeof(StripsHeaderT)  == 36);
+    assert(sizeof(vtxBodyPartT)   ==  8);
+    assert(sizeof(vtxModelT)      ==  8);
+    assert(sizeof(vtxModelLODT)   == 12);
+    assert(sizeof(vtxMeshT)       ==  9);
+    assert(sizeof(vtxStripGroupT) == 25);
+    assert(sizeof(vtxStripT)      == 27);
+    assert(sizeof(vtxVertexT)     ==  9);
 
 
     // Load the model data
@@ -124,15 +151,37 @@ LoaderHL2mdlT::LoaderHL2mdlT(const std::string& FileName, int Flags)
 
     if (StudioHeader->Checksum != VertexHeader->Checksum)
         throw LoadErrorT("The .mdl and .vvd checksums don't match.");
+
+    if (StudioHeader->Checksum != StripsHeader->Checksum)
+        throw LoadErrorT("The .mdl and .vtx checksums don't match.");
+
+
+    if (StudioHeader->NumBodyParts != StripsHeader->NumBodyParts)
+        throw LoadErrorT("Mismatching number of body parts in the .mdl and .vtx files.");
+
+    if (StripsHeader->NumLODs == 0)     // Compared to vtxModel.NumLODs below.
+        throw LoadErrorT("No LODs in the vtx file.");
+
     for (uint32_t i = 0; i < StudioHeader->NumBodyParts; i++)
     {
         const StudioBodyPartT& BodyPart    = StudioHeader->GetBodyParts()[i];
+        const vtxBodyPartT&    vtxBodyPart = StripsHeader->GetBodyParts()[i];
+
+        if (BodyPart.NumModels != vtxBodyPart.NumModels)
+            throw LoadErrorT("Mismatching number of models in the .mdl and .vtx files.");
 
         assert(BodyPart.Base == 1);   // What does Base != 1 mean?
 
         for (uint32_t j = 0; j < BodyPart.NumModels; j++)
         {
             StudioModelT&    Model    = BodyPart.GetModels()[j];
+            const vtxModelT& vtxModel = vtxBodyPart.GetModels()[j];
+
+            if (StripsHeader->NumLODs != vtxModel.NumLODs)    // Checked for != 0 above.
+                throw LoadErrorT("Mismatching number of LODs in the vtx file.");
+
+            if (Model.NumMeshes != vtxModel.GetLODs()[0].NumMeshes)
+                throw LoadErrorT("Mismatching number of meshes in the .mdl and .vtx files.");
 
             // Finally no more checks, but some inits here.
             Model.m_Vertices = VertexHeader->GetVertices();
@@ -175,18 +224,21 @@ void LoaderHL2mdlT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
     for (uint32_t BodyPartNr = 0; BodyPartNr < StudioHeader->NumBodyParts; BodyPartNr++)
     {
         const StudioBodyPartT& BodyPart    = StudioHeader->GetBodyParts()[BodyPartNr];
+        const vtxBodyPartT&    vtxBodyPart = StripsHeader->GetBodyParts()[BodyPartNr];
 
         assert(BodyPart.Base == 1);   // What does Base != 1 mean?
 
         for (uint32_t ModelNr = 0; ModelNr < BodyPart.NumModels; ModelNr++)
         {
             const StudioModelT& Model    = BodyPart.GetModels()[ModelNr];
+            const vtxModelT&    vtxModel = vtxBodyPart.GetModels()[ModelNr];
 
             for (uint32_t MeshNr = 0; MeshNr < Model.NumMeshes; MeshNr++)
             {
                 Meshes.PushBackEmpty();
 
                 const StudioMeshT& StudioMesh = Model.GetMeshes()[MeshNr];
+                const vtxMeshT&    vtxMesh    = vtxModel.GetLODs()[0].GetMeshes()[MeshNr];
                 CafuModelT::MeshT& CafuMesh   = Meshes[Meshes.Size() - 1];
 
                 for (uint32_t VertexNr = 0; VertexNr < StudioMesh.NumVertices; VertexNr++)
@@ -210,6 +262,88 @@ void LoaderHL2mdlT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
                         Weight.Pos      = StudioHeader->GetBones()[Weight.JointIdx].PoseToBone.Mul1(StudioVertex.Pos);
 
                         CafuMesh.Weights.PushBack(Weight);
+                    }
+                }
+
+                for (uint32_t SGNr = 0; SGNr < vtxMesh.NumStripGroups; SGNr++)
+                {
+                    const vtxStripGroupT& vtxSG = vtxMesh.GetStripGroups()[SGNr];
+
+                    for (uint32_t StripNr = 0; StripNr < vtxSG.NumStrips; StripNr++)
+                    {
+                        const vtxStripT& vtxStrip = vtxSG.GetStrips()[StripNr];
+
+                        const uint16_t*   Indices  = vtxSG.GetIndices()  + vtxStrip.IndicesOffset;
+                        const vtxVertexT* Vertices = vtxSG.GetVertices() + vtxStrip.VertsOffset;
+
+                        assert(vtxStrip.NumBoneStateChanges == 0);  // What is the meaning of "bone state changes"?
+
+#ifdef DEBUG
+                        // Make sure that our assumptions about vtxVertexT instances hold.
+                        for (uint32_t VNr = 0; VNr < vtxSG.NumVerts; VNr++)
+                        {
+                            const vtxVertexT&    vtxVert = vtxSG.GetVertices()[VNr];
+                            const StudioVertexT& stVert  = StudioMesh.GetVertices()[vtxVert.Sibling];
+
+                            assert(vtxVert.NumBones == stVert.BoneWeights.NumBones);
+
+                            for (uint32_t i = 0; i < vtxVert.NumBones; i++)
+                            {
+                                assert(vtxVert.Bone[i] == stVert.BoneWeights.Bone[i]);
+                                assert(vtxVert.BoneWeightIndex[i] == i);
+                            }
+                        }
+#endif
+
+                        if (vtxStrip.Flags == vtxStripT::IS_TRILIST)
+                        {
+                            // A list of triangles.
+                            assert(vtxStrip.NumIndices % 3 == 0);
+
+                            for (uint32_t TriOffset = 0; TriOffset+2 < vtxStrip.NumIndices; TriOffset += 3)
+                            {
+                                CafuModelT::MeshT::TriangleT CafuTri;
+
+                                for (uint32_t i = 0; i < 3; i++)
+                                {
+                                    const vtxVertexT&    vtxVert = Vertices[Indices[TriOffset + i]];
+                                 // const StudioVertexT& stVert  = StudioMesh.GetVertices()[vtxVert.Sibling];
+
+                                    CafuTri.VertexIdx[i] = vtxVert.Sibling;
+                                }
+
+                                CafuMesh.Triangles.PushBack(CafuTri);
+                            }
+                        }
+                        else
+                        {
+                            // A triangles strip.
+                            assert(false);  // Well, this has never been tested!
+
+                            for (uint32_t TriOffset = 0; TriOffset+2 < vtxStrip.NumIndices; TriOffset++)
+                            {
+                                CafuModelT::MeshT::TriangleT CafuTri;
+
+                                for (uint32_t i = 0; i < 3; i++)
+                                {
+                                    const vtxVertexT&    vtxVert = Vertices[Indices[TriOffset + i]];
+                                 // const StudioVertexT& stVert  = StudioMesh.GetVertices()[vtxVert.Sibling];
+
+                                    CafuTri.VertexIdx[i] = vtxVert.Sibling;
+                                }
+
+                                if (TriOffset & 1)
+                                {
+                                    // TriOffset is odd, swap two vertices in order to fix the orientation.
+                                    unsigned int swap = CafuTri.VertexIdx[0];
+
+                                    CafuTri.VertexIdx[0] = CafuTri.VertexIdx[1];
+                                    CafuTri.VertexIdx[1] = swap;
+                                }
+
+                                CafuMesh.Triangles.PushBack(CafuTri);
+                            }
+                        }
                     }
                 }
             }

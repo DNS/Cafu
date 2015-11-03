@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_HL2_MDL_FILE_FORMAT_HPP_INCLUDED
 
 #include "Loader_mdl_hl2_vvd.hpp"
+#include "Loader_mdl_hl2_vtx.hpp"
 #include "Math3D/Angles.hpp"
 #include "Math3D/Quaternion.hpp"
 
