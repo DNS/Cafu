@@ -250,6 +250,7 @@ void LoaderHL2mdlT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
                     CafuVertex.v              = StudioVertex.TexCoord[1];
                     CafuVertex.FirstWeightIdx = CafuMesh.Weights.Size();
                     CafuVertex.NumWeights     = StudioVertex.BoneWeights.NumBones;
+                    CafuVertex.Polarity       = false;  // Don't leave this uninitialized now, it is re-initialized in the CafuModelT code later.
 
                     CafuMesh.Vertices.PushBack(CafuVertex);
 
