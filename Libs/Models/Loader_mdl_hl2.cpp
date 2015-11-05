@@ -155,6 +155,9 @@ LoaderHL2mdlT::LoaderHL2mdlT(const std::string& FileName, int Flags)
     if (StudioHeader->Checksum != StripsHeader->Checksum)
         throw LoadErrorT("The .mdl and .vtx checksums don't match.");
 
+    // VertexHeader->FixData();   but with a non-const version of VertexHeader.
+    ((VertexHeaderT*)(&m_VertexData[0]))->FixData();
+
 
     if (StudioHeader->NumBodyParts != StripsHeader->NumBodyParts)
         throw LoadErrorT("Mismatching number of body parts in the .mdl and .vtx files.");
