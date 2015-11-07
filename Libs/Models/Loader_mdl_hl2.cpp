@@ -173,8 +173,6 @@ LoaderHL2mdlT::LoaderHL2mdlT(const std::string& FileName, int Flags)
         if (BodyPart.NumModels != vtxBodyPart.NumModels)
             throw LoadErrorT("Mismatching number of models in the .mdl and .vtx files.");
 
-        assert(BodyPart.Base == 1);   // What does Base != 1 mean?
-
         for (uint32_t j = 0; j < BodyPart.NumModels; j++)
         {
             StudioModelT&    Model    = BodyPart.GetModels()[j];
@@ -229,8 +227,9 @@ void LoaderHL2mdlT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
         const StudioBodyPartT& BodyPart    = StudioHeader->GetBodyParts()[BodyPartNr];
         const vtxBodyPartT&    vtxBodyPart = StripsHeader->GetBodyParts()[BodyPartNr];
 
-        assert(BodyPart.Base == 1);   // What does Base != 1 mean?
-
+        // At this time, we only load the first non-empty model of each BodyPart
+        // (see end of loop), because the models in a BodyPart are mutually exclusive.
+        // See the class documentation of StudioBodyPartT for details.
         for (uint32_t ModelNr = 0; ModelNr < BodyPart.NumModels; ModelNr++)
         {
             const StudioModelT& Model    = BodyPart.GetModels()[ModelNr];
@@ -243,6 +242,8 @@ void LoaderHL2mdlT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
                 const StudioMeshT& StudioMesh = Model.GetMeshes()[MeshNr];
                 const vtxMeshT&    vtxMesh    = vtxModel.GetLODs()[0].GetMeshes()[MeshNr];
                 CafuModelT::MeshT& CafuMesh   = Meshes[Meshes.Size() - 1];
+
+                CafuMesh.Name = std::string(BodyPart.GetName()) + "/" + Model.Name;
 
                 for (uint32_t VertexNr = 0; VertexNr < StudioMesh.NumVertices; VertexNr++)
                 {
@@ -351,6 +352,9 @@ void LoaderHL2mdlT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
                     }
                 }
             }
+
+            // This model was non-empty, so load no further models from the same BodyPart.
+            if (Model.NumMeshes) break;
         }
     }
 }
