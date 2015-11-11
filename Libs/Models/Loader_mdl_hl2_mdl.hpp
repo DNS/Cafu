@@ -37,7 +37,7 @@ namespace HL2mdl
     /// This class describes a mesh of a model.
     struct StudioMeshT
     {
-        uint32_t  Material;
+        uint32_t  Material;         ///< See LoaderHL2mdlT::Load(Skins, ...) for details!
         int32_t   ModelOffset;      ///< Points back to the parent StudioModelT. Usually negative.
 
         uint32_t  NumVertices;      ///< The number of unique vertices (along with normals, tangents and texcoords) in this mesh.
@@ -218,6 +218,22 @@ namespace HL2mdl
     };
 
 
+    struct StudioTextureT
+    {
+        uint32_t NameOffset;
+        uint32_t Flags;
+        uint32_t Unknown;
+        uint32_t Unused[13];
+
+
+        public:
+
+        const char* GetName() const { return ((char*)this) + NameOffset; }
+
+        std::ostream& print(std::ostream& os, const char* indent) const;
+    };
+
+
     /// This is the header of an MDL model file.
     class StudioHeaderT
     {
@@ -276,7 +292,9 @@ namespace HL2mdl
         public:
 
         const StudioBoneT*     GetBones() const { return (StudioBoneT*)(((uint8_t*)this) + BonesOffset); }
+        const StudioTextureT*  GetTextures() const { return (StudioTextureT*)(((uint8_t*)this) + TexturesOffset); }
         const char*            GetTexturePath(uint32_t i) const { return ((char*)this) + *((int*)(((uint8_t*)this) + TexturePathsOffset) + i); }
+        const uint16_t*        GetSkinRefs() const { return (uint16_t*)(((uint8_t*)this) + SkinsOffset); }
         const StudioBodyPartT* GetBodyParts() const { return (StudioBodyPartT*)(((uint8_t*)this) + BodyPartsOffset); }
     };
 }

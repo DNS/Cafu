@@ -21,6 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Loader_mdl_hl2.hpp"
 #include "Loader_mdl_hl2_mdl.hpp"
+#include "MaterialSystem/Material.hpp"
 #include "String.hpp"
 
 
@@ -144,6 +145,7 @@ LoaderHL2mdlT::LoaderHL2mdlT(const std::string& FileName, int Flags)
     assert(sizeof(StudioBodyPartT) ==  16);
     assert(sizeof(StudioModelT)    == 148);
     assert(sizeof(StudioMeshT)     == 116);
+    assert(sizeof(StudioTextureT)  ==  64);
 
 
     // More checks and inits
@@ -194,6 +196,58 @@ LoaderHL2mdlT::LoaderHL2mdlT(const std::string& FileName, int Flags)
 
 void LoaderHL2mdlT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan)
 {
+    // Load the materials, create/convert them as required.
+    const std::string BaseDir(cf::String::GetPath(m_FileName) + "/");
+    const std::string BaseName(m_FileName.c_str(), m_FileName.length() - 4);
+
+    m_Materials.Overwrite();
+
+    for (uint32_t TexNr = 0; TexNr < StudioHeader->NumTextures; TexNr++)
+    {
+        const StudioTextureT& StudioTexture = StudioHeader->GetTextures()[TexNr];
+
+        const char* RelFileName1 = strstr(BaseName.c_str(), "Models");        // Strip the leading "Games/DeathMatch/", if present.
+        std::string RelFileName2 = RelFileName1 ? RelFileName1 : BaseName;
+        std::string MaterialName = cf::String::Replace(cf::String::StripExt(RelFileName2 + "/" + StudioTexture.GetName()), "\\", "/");
+
+        MaterialT* Material = MaterialMan.GetMaterial(MaterialName);
+
+        if (!Material)
+        {
+            // If there isn't an appropriately prepared .cmat file (so that MatName is found in MaterialMan),
+            // create a substitute using the diffuse texture available in StudioTexture.
+            std::string fn = cf::String::StripExt(StudioTexture.GetName());
+            fn = cf::String::Replace(fn, "\\", "_");
+            fn = cf::String::Replace(fn, "/",  "_");
+            fn += std::string("_") + char('a' + (TexNr % 26)) + std::string(".png");  // Make sure that fn is non-empty and (up to a certain extent) unique.
+
+            MaterialT Mat;
+
+            Mat.Name            = MaterialName;
+            Mat.DiffMapComp     = MapCompositionT(fn, BaseDir);
+            Mat.RedGen          = ExpressionT(ExpressionT::SymbolALRed);
+            Mat.GreenGen        = ExpressionT(ExpressionT::SymbolALGreen);
+            Mat.BlueGen         = ExpressionT(ExpressionT::SymbolALBlue);
+            Mat.meta_EditorSave = true;
+
+            Material = MaterialMan.RegisterMaterial(Mat);
+
+            // If it does not exist yet, create and save the related bitmap.
+            FILE* TestFile = fopen((BaseDir + fn).c_str(), "rb");
+
+            if (TestFile == NULL)
+            {
+                // TODO ...
+            }
+            else
+            {
+                fclose(TestFile);
+            }
+        }
+
+        m_Materials.PushBack(Material);
+    }
+
     // For clarity and better readability, break the loading into three separate functions.
     Load(Joints);
     Load(Meshes);
@@ -243,7 +297,13 @@ void LoaderHL2mdlT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
                 const vtxMeshT&    vtxMesh    = vtxModel.GetLODs()[0].GetMeshes()[MeshNr];
                 CafuModelT::MeshT& CafuMesh   = Meshes[Meshes.Size() - 1];
 
+                // About StudioMesh.Material, see LoaderHL2mdlT::Load(Skins, ...) for details!
+                assert(StudioHeader->NumTextures == StudioHeader->NumSkinRefs);
+                assert(StudioHeader->NumTextures == m_Materials.Size());
+                assert(StudioMesh.Material < m_Materials.Size());
+
                 CafuMesh.Name = std::string(BodyPart.GetName()) + "/" + Model.Name;
+                CafuMesh.Material = m_Materials[StudioMesh.Material];
 
                 for (uint32_t VertexNr = 0; VertexNr < StudioMesh.NumVertices; VertexNr++)
                 {
@@ -360,6 +420,48 @@ void LoaderHL2mdlT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
 }
 
 
+/*
+ * This big question is what StudioMeshT::Material indexes into. Candidates are:
+ *
+ *   - StudioHeader->GetTextures()
+ *   - StudioHeader->GetSkinRefs()   (offset by skin family)
+ *
+ * It is conceivable that it only indexes into the SkinRefs, and only those index into the
+ * Textures. In this case, the existence of at least one skin family is mandatory.
+ *
+ * Alternatively, it may index both into the Textures (for the first, default skin) as well
+ * as into the SkinRefs (for optional, additional skins). In this case, NumTextures and
+ * NumSkinRefs must be equal. This is what we assume in this loader. This implies that we
+ * also assume that the default skin is directly stored in the mesh definitions.
+ */
 void LoaderHL2mdlT::Load(ArrayT<CafuModelT::SkinT>& Skins, const MaterialManagerImplT& MaterialMan)
 {
+    if (StudioHeader->NumSkinFamilies == 0) return;
+    assert(StudioHeader->NumTextures == StudioHeader->NumSkinRefs);
+
+    const uint16_t* SkinRefs0 = StudioHeader->GetSkinRefs();
+    uint32_t        FirstSkin = 1;
+
+    // Is skin 0 the identity? This affects the first skin to consider in the loop below.
+    for (uint32_t RefNr = 0; RefNr < StudioHeader->NumSkinRefs; RefNr++)
+        if (SkinRefs0[RefNr] != RefNr)
+            FirstSkin = 0;
+
+    // If skin 0 is the identity, it is the same as the default skin that is directly kept
+    // in the mesh definitions and thus can be skipped here. Otherwise, take it as well.
+    Skins.PushBackEmptyExact(StudioHeader->NumSkinFamilies - FirstSkin);
+
+    for (uint32_t SkinNr = FirstSkin; SkinNr < StudioHeader->NumSkinFamilies; SkinNr++)
+    {
+        const uint16_t*    SkinRefs = StudioHeader->GetSkinRefs() + SkinNr * StudioHeader->NumSkinRefs;
+        CafuModelT::SkinT& Skin     = Skins[SkinNr - 1];
+
+        Skin.Name = "Skin";
+
+        for (uint32_t RefNr = 0; RefNr < StudioHeader->NumSkinRefs; RefNr++)
+        {
+            Skin.Materials.PushBack(SkinRefs[RefNr] == RefNr ? NULL : m_Materials[SkinRefs[RefNr]]);
+            Skin.RenderMaterials.PushBack(NULL);
+        }
+    }
 }
