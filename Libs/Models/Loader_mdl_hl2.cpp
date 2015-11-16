@@ -24,6 +24,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "MaterialSystem/Material.hpp"
 #include "String.hpp"
 
+#include <cstring>
+
 
 using namespace HL2mdl;
 
