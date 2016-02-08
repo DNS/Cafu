@@ -22,6 +22,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "CaptureStream.hpp"
 #include "Templates/Array.hpp"
 
+#include <algorithm>
 #include <cassert>
 #include <cstring>
 #include <iostream>

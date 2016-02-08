@@ -27,6 +27,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "wx/wx.h"
 
+#include <algorithm>
+
 
 ModelEditor::Renderer3DT::Renderer3DT()
 {

@@ -38,6 +38,7 @@ extern "C"
     #include <lauxlib.h>
 }
 
+#include <algorithm>
 #include <sstream>
 #include <cassert>
 

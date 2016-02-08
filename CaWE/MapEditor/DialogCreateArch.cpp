@@ -30,6 +30,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/spinctrl.h"
 #include "wx/valgen.h"
 
+#include <algorithm>
+
 
 class ArchDialogT::PreviewWinT : public wxWindow
 {

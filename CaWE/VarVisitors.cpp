@@ -30,6 +30,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "wx/propgrid/manager.h"
 #include "wx/propgrid/advprops.h"
 
+#include <algorithm>
+
 
 namespace
 {

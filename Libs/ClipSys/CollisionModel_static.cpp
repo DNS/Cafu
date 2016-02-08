@@ -35,6 +35,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Terrain/Terrain.hpp"
 #include "MapFile.hpp"
 
+#include <algorithm>
+
 #if defined(_WIN32) && defined(_MSC_VER)
     // Turn off warning C4355: 'this' : used in base member initializer list.
     #pragma warning(disable:4355)

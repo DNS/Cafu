@@ -20,6 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "State.hpp"
+#include <algorithm>
 
 using namespace cf::Network;
 

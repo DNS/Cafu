@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #define CAFU_MATH_QUATERNION_HPP_INCLUDED
 
 #include "Vector3.hpp"
+#include <algorithm>
 
 
 namespace cf

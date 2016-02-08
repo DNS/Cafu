@@ -23,6 +23,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#include <algorithm>
 #include <iostream>
 
 #include "../../Common/World.hpp"   // SHOULD *NOT* BE HERE, only needed for some MapT::xy stuff!

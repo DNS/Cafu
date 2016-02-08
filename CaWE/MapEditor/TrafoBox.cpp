@@ -35,6 +35,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Math3D/Angles.hpp"
 #include "Math3D/Misc.hpp"
 
+#include <algorithm>
+
 
 const TrafoBoxT::TrafoHandleT TrafoBoxT::HandleTable[3][3][3]=
 {

@@ -36,6 +36,7 @@ extern "C"
     #include <lauxlib.h>
 }
 
+#include <algorithm>
 #include <cassert>
 
 

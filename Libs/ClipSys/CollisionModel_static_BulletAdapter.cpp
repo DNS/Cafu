@@ -21,6 +21,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "CollisionModel_static_BulletAdapter.hpp"
 #include "Terrain/Terrain.hpp"
+#include <algorithm>
 
 
 using namespace cf::ClipSys;

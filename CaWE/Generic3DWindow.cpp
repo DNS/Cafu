@@ -26,6 +26,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "Options.hpp"
 #include "ParentFrame.hpp"
 
+#include <algorithm>
+
 
 #if defined(_WIN32) && defined(_MSC_VER)
 // Turn off warning 4355: "'this' : wird in Initialisierungslisten fuer Basisklasse verwendet".

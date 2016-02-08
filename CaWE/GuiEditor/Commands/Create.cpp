@@ -25,6 +25,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 #include "GuiSys/Window.hpp"
 #include "GuiSys/WindowCreateParams.hpp"
 
+#include <algorithm>
+
 
 using namespace GuiEditor;
 

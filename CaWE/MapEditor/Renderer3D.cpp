@@ -38,6 +38,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "wx/wx.h"
 
+#include <algorithm>
+
 
 /// The global counter that indicates the number of the 3D video frame that is currently rendered.
 /// Copied into the map elements, it is used in order to avoid processing/rendering map elements twice.
