@@ -164,6 +164,15 @@ elif sys.platform=="linux2":
 
 CaWE_exe = envCaWE.Program('CaWE/CaWE', SourceFilesList + CommonWorldObject)
 
+# If CaWE_exe is cleaned, clean wxWidgets along with it. This is done here
+# because Clean() requires a target that files to be cleaned are associated with.
+envCaWE.Clean(CaWE_exe, [
+    "#/ExtLibs/wxWidgets/build/msw/" + compiler + "_mswu",
+    "#/ExtLibs/wxWidgets/build/msw/" + compiler + "_mswud",
+    "#/ExtLibs/wxWidgets/lib/" + compiler + "_lib",
+    "#/ExtLibs/wxWidgets/build-gtk",
+])
+
 
 
 def UpdateDocTemplates(target, source, env):

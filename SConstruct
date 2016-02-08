@@ -499,29 +499,30 @@ for lib_name in ExtLibsList:
 
 
 # Compile wxWidgets for the current platform.
-if sys.platform=="win32":
-    if compiler.startswith("vc"):
-        # If we target a non-x86 architecture, the Makefiles automatically append a suffix to the directory names (no need to tweak COMPILER_PREFIX).
-        if   envCommon["TARGET_ARCH"] in ["x86_64", "amd64", "emt64"]: target_cpu=" TARGET_CPU=AMD64"
-        elif envCommon["TARGET_ARCH"] in ["ia64"]:                     target_cpu=" TARGET_CPU=IA64"
-        else:                                                          target_cpu=""
+if not envCommon.GetOption('clean'):
+    if sys.platform=="win32":
+        if compiler.startswith("vc"):
+            # If we target a non-x86 architecture, the Makefiles automatically append a suffix to the directory names (no need to tweak COMPILER_PREFIX).
+            if   envCommon["TARGET_ARCH"] in ["x86_64", "amd64", "emt64"]: target_cpu=" TARGET_CPU=AMD64"
+            elif envCommon["TARGET_ARCH"] in ["ia64"]:                     target_cpu=" TARGET_CPU=IA64"
+            else:                                                          target_cpu=""
 
-        result=envDebug.  Execute("nmake /nologo /f makefile.vc BUILD=debug   SHARED=0 COMPILER_PREFIX="+compiler+target_cpu, chdir="ExtLibs/wxWidgets/build/msw");
-        if (result!=0): envDebug.  Exit(result);
-        result=envRelease.Execute("nmake /nologo /f makefile.vc BUILD=release SHARED=0 COMPILER_PREFIX="+compiler+target_cpu, chdir="ExtLibs/wxWidgets/build/msw");
-        if (result!=0): envRelease.Exit(result);
-        print "";   # Print just another empty line for better visual separation.
+            result=envDebug.  Execute("nmake /nologo /f makefile.vc BUILD=debug   SHARED=0 COMPILER_PREFIX="+compiler+target_cpu, chdir="ExtLibs/wxWidgets/build/msw");
+            if (result!=0): envDebug.  Exit(result);
+            result=envRelease.Execute("nmake /nologo /f makefile.vc BUILD=release SHARED=0 COMPILER_PREFIX="+compiler+target_cpu, chdir="ExtLibs/wxWidgets/build/msw");
+            if (result!=0): envRelease.Exit(result);
+            print "";   # Print just another empty line for better visual separation.
 
-elif sys.platform=="linux2":
-    # This automatic compilation of wxGTK requires that some library packages have been installed already,
-    # e.g. libgtk2.0-dev, libgl1-mesa-dev and libglu1-mesa-dev under Ubuntu 8.04.
-    # See the documentation at http://www.cafu.de/wiki/ for more details!
-    if not os.path.exists("ExtLibs/wxWidgets/build-gtk/make-ok-flag"):
-        envRelease.Execute(Mkdir("ExtLibs/wxWidgets/build-gtk"));
-        result=envRelease.Execute("../configure --with-gtk --disable-shared --without-libtiff --disable-pnm --disable-pcx --disable-iff --with-opengl --with-regex=builtin --disable-compat26 --disable-compat28", chdir="ExtLibs/wxWidgets/build-gtk");
-        if (result!=0): envRelease.Exit(result);
-        result=envRelease.Execute("make && touch make-ok-flag", chdir="ExtLibs/wxWidgets/build-gtk");
-        if (result!=0): envRelease.Exit(result);
+    elif sys.platform=="linux2":
+        # This automatic compilation of wxGTK requires that some library packages have been installed already,
+        # e.g. libgtk2.0-dev, libgl1-mesa-dev and libglu1-mesa-dev under Ubuntu 8.04.
+        # See the documentation at http://www.cafu.de/wiki/ for more details!
+        if not os.path.exists("ExtLibs/wxWidgets/build-gtk/make-ok-flag"):
+            envRelease.Execute(Mkdir("ExtLibs/wxWidgets/build-gtk"));
+            result=envRelease.Execute("../configure --with-gtk --disable-shared --without-libtiff --disable-pnm --disable-pcx --disable-iff --with-opengl --with-regex=builtin --disable-compat26 --disable-compat28", chdir="ExtLibs/wxWidgets/build-gtk");
+            if (result!=0): envRelease.Exit(result);
+            result=envRelease.Execute("make && touch make-ok-flag", chdir="ExtLibs/wxWidgets/build-gtk");
+            if (result!=0): envRelease.Exit(result);
 
 
 ######################################
