@@ -352,7 +352,7 @@ if sys.platform=="win32":
         ###############################
 
         print "Unknown compiler on platform " + sys.platform + "."
-        exit
+        Exit(1)
 
 elif sys.platform=="linux2":
     ErrorMsg = "Please install the %s library (development files)!\nOn many systems, the required package is named %s (possibly with a different version number)."
@@ -413,11 +413,11 @@ elif sys.platform=="linux2":
         ###############################
 
         print "Unknown compiler " + envCommon["CXX"] + " on platform " + sys.platform + "."
-        exit
+        Exit(1)
 
 else:
     print "Unknown platform '" + sys.platform + "'."
-    exit
+    Exit(1)
 
 envDebug  .Append(CPPDEFINES=["DEBUG"]);
 envRelease.Append(CPPDEFINES=["NDEBUG"]);   # Need NDEBUG to have the assert macro generate no runtime code.
