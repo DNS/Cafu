@@ -52,6 +52,7 @@ class LoaderHL2mdlT : public ModelLoaderT
 
     private:
 
+    void Load(MaterialManagerImplT& MaterialMan);
     void Load(ArrayT<CafuModelT::JointT>& Joints) const;
     void Load(ArrayT<CafuModelT::MeshT>& Meshes) const;
 

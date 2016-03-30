@@ -198,6 +198,16 @@ LoaderHL2mdlT::LoaderHL2mdlT(const std::string& FileName, int Flags)
 
 void LoaderHL2mdlT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::MeshT>& Meshes, ArrayT<CafuModelT::AnimT>& Anims, MaterialManagerImplT& MaterialMan)
 {
+    // For clarity and better readability, break the loading into separate functions.
+    Load(MaterialMan);
+    Load(Joints);
+    Load(Meshes);
+    // Load(Anims);
+}
+
+
+void LoaderHL2mdlT::Load(MaterialManagerImplT& MaterialMan)
+{
     // Load the materials, create/convert them as required.
     const std::string BaseDir(cf::String::GetPath(m_FileName) + "/");
     const std::string BaseName(m_FileName.c_str(), m_FileName.length() - 4);
@@ -249,11 +259,6 @@ void LoaderHL2mdlT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::
 
         m_Materials.PushBack(Material);
     }
-
-    // For clarity and better readability, break the loading into three separate functions.
-    Load(Joints);
-    Load(Meshes);
-    // Load(Anims);
 }
 
 
@@ -307,6 +312,7 @@ void LoaderHL2mdlT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
                 CafuMesh.Name = std::string(BodyPart.GetName()) + "/" + Model.Name;
                 CafuMesh.Material = m_Materials[StudioMesh.Material];
 
+                // ### Load the mesh vertices ###
                 for (uint32_t VertexNr = 0; VertexNr < StudioMesh.NumVertices; VertexNr++)
                 {
                     const StudioVertexT&       StudioVertex = StudioMesh.GetVertices()[VertexNr];
@@ -332,6 +338,7 @@ void LoaderHL2mdlT::Load(ArrayT<CafuModelT::MeshT>& Meshes) const
                     }
                 }
 
+                // ### Load the mesh strips ###
                 for (uint32_t SGNr = 0; SGNr < vtxMesh.NumStripGroups; SGNr++)
                 {
                     const vtxStripGroupT& vtxSG = vtxMesh.GetStripGroups()[SGNr];

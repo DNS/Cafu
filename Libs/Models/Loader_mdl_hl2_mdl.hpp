@@ -139,11 +139,18 @@ namespace HL2mdl
     /// A body part contains one or several models that are mutually exclusive, e.g.
     /// "empty holster", "holster with gun", "walkie-talkie", "empty/nothing".
     /// Bodies ("body variants") can be constructed from all such possible combinations.
+    /// The related hierarchy is:
+    ///
+    ///     body variant    // a result of the combinations below
+    ///       body part     // all needed
+    ///         model       // mutually exclusive
+    ///           meshes    // all needed
+    ///
     struct StudioBodyPartT
     {
         uint32_t NameOffset;
         uint32_t NumModels;
-        uint32_t Base;          ///< For the i-th body, use from this body part the `(i / Base) % NumModels`-th model.
+        uint32_t Base;          ///< For the i-th body ("body variant"), use from this body part the `(i / Base) % NumModels`-th model.
         uint32_t ModelsOffset;
 
 
