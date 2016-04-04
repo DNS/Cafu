@@ -21,6 +21,8 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include "Loader_mdl_hl2.hpp"
 #include "Loader_mdl_hl2_mdl.hpp"
+#include "Loader_mdl_hl2_vtf.hpp"
+#include "Bitmap/Bitmap.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "String.hpp"
 
@@ -48,6 +50,14 @@ namespace
         InFile = NULL;
 
         return &RawBytes[0];
+    }
+
+    std::string CleanPath(std::string p)
+    {
+        p = cf::String::Replace(p, "\\", "/");
+        p = cf::String::Replace(p, "//", "/");
+
+        return p;
     }
 }
 
@@ -206,55 +216,112 @@ void LoaderHL2mdlT::Load(ArrayT<CafuModelT::JointT>& Joints, ArrayT<CafuModelT::
 }
 
 
+static MapCompositionT GetMapComposition(const std::string& BaseDir, const std::string& FileName, const char* CafuSuffix)
+{
+    const std::string VtfPath = CleanPath(BaseDir + "/materials/" + FileName + ".vtf");
+
+    try
+    {
+        vtfFileT vtf(VtfPath);
+        const vtfHeaderT* hdr = vtf.GetHeader();
+        BitmapT bm(hdr->Width, hdr->Height);
+
+        if (!Convert(vtf.GetData(0, 0, 0, 0), (uint8_t*)&bm.Data[0], hdr->Width, hdr->Height, hdr->ImageFormat))
+            throw vtfLoadErrorT("Could not convert texture image.");
+
+        bm.SaveToDisk((cf::String::StripExt(VtfPath) + CafuSuffix + ".png").c_str());
+    }
+    catch (const vtfLoadErrorT& LE)
+    {
+        throw ModelLoaderT::LoadErrorT(VtfPath + ": " + LE.what());
+    }
+
+
+    return MapCompositionT(FileName + CafuSuffix, BaseDir);
+}
+
+
+// For each texture mentioned in StudioHeader->GetTextures() this function
+// finds the related VMT material description (script) file.
+// For each texture image mentioned therein (diffuse and possibly normal and
+// specular images) it finds the related VTF texture file and converts it to
+// PNG.
+// Finally, corresponding Cafu materials are created from the results.
 void LoaderHL2mdlT::Load(MaterialManagerImplT& MaterialMan)
 {
-    // Load the materials, create/convert them as required.
-    const std::string BaseDir(cf::String::GetPath(m_FileName) + "/");
-    const std::string BaseName(m_FileName.c_str(), m_FileName.length() - 4);
-
-    m_Materials.Overwrite();
-
     for (uint32_t TexNr = 0; TexNr < StudioHeader->NumTextures; TexNr++)
     {
         const StudioTextureT& StudioTexture = StudioHeader->GetTextures()[TexNr];
+        MaterialT* Material = NULL;
 
-        const char* RelFileName1 = strstr(BaseName.c_str(), "Models");        // Strip the leading "Games/DeathMatch/", if present.
-        std::string RelFileName2 = RelFileName1 ? RelFileName1 : BaseName;
-        std::string MaterialName = cf::String::Replace(cf::String::StripExt(RelFileName2 + "/" + StudioTexture.GetName()), "\\", "/");
+        // Search for the material description file (StudioTexture.GetName() + ".vmt")
+        // at all possible combinations of TexturePaths and base directories (bubbling up).
+        for (uint32_t PathNr = 0; PathNr < StudioHeader->NumTexturePaths; PathNr++)
+        {
+            std::string BaseDir = cf::String::GetPath(m_FileName);
 
-        MaterialT* Material = MaterialMan.GetMaterial(MaterialName);
+            while (BaseDir != "")
+            {
+                const std::string MatName = CleanPath(StudioHeader->GetTexturePath(PathNr) + std::string("/") + StudioTexture.GetName());
+                const std::string VmtName = CleanPath(BaseDir + "/materials/" + MatName + ".vmt");
+
+                Material = MaterialMan.GetMaterial(MatName);
+                if (Material) break;
+
+                std::string DiffTex;
+                std::string NormTex;
+                std::string SpecTex;
+
+                try
+                {
+                    TextParserT TP(VmtName.c_str());
+
+                    // It is well possible that VmtName does not exist and thus TP is empty.
+                    while (!TP.IsAtEOF())
+                    {
+                        const std::string Token = TP.GetNextToken();
+
+                             if (Token == "$baseTexture") DiffTex = TP.GetNextToken();
+                        else if (Token == "$bumpmap")     NormTex = TP.GetNextToken();
+                     // else if (Token == "$phong")       SpecTex = TP.GetNextToken();
+                    }
+                }
+                catch (const TextParserT::ParseError&)
+                {
+                    throw LoadErrorT("Could not parse the file.");
+                }
+
+                if (DiffTex != "")
+                {
+                    MaterialT Mat;
+
+                    Mat.Name            = MatName;
+                    Mat.DiffMapComp     = GetMapComposition(BaseDir, DiffTex, "_diff");
+                    Mat.RedGen          = ExpressionT(ExpressionT::SymbolALRed);
+                    Mat.GreenGen        = ExpressionT(ExpressionT::SymbolALGreen);
+                    Mat.BlueGen         = ExpressionT(ExpressionT::SymbolALBlue);
+                    Mat.meta_EditorSave = true;
+
+                    if (NormTex != "")
+                        Mat.NormMapComp = GetMapComposition(BaseDir, NormTex, "_norm");
+
+                    if (SpecTex != "")
+                        Mat.SpecMapComp = GetMapComposition(BaseDir, SpecTex, "_spec");
+
+                    Material = MaterialMan.RegisterMaterial(Mat);
+                    break;
+                }
+
+                BaseDir = cf::String::GetPath(BaseDir);
+            }
+
+            if (Material) break;
+        }
 
         if (!Material)
         {
-            // If there isn't an appropriately prepared .cmat file (so that MatName is found in MaterialMan),
-            // create a substitute using the diffuse texture available in StudioTexture.
-            std::string fn = cf::String::StripExt(StudioTexture.GetName());
-            fn = cf::String::Replace(fn, "\\", "_");
-            fn = cf::String::Replace(fn, "/",  "_");
-            fn += std::string("_") + char('a' + (TexNr % 26)) + std::string(".png");  // Make sure that fn is non-empty and (up to a certain extent) unique.
-
-            MaterialT Mat;
-
-            Mat.Name            = MaterialName;
-            Mat.DiffMapComp     = MapCompositionT(fn, BaseDir);
-            Mat.RedGen          = ExpressionT(ExpressionT::SymbolALRed);
-            Mat.GreenGen        = ExpressionT(ExpressionT::SymbolALGreen);
-            Mat.BlueGen         = ExpressionT(ExpressionT::SymbolALBlue);
-            Mat.meta_EditorSave = true;
-
-            Material = MaterialMan.RegisterMaterial(Mat);
-
-            // If it does not exist yet, create and save the related bitmap.
-            FILE* TestFile = fopen((BaseDir + fn).c_str(), "rb");
-
-            if (TestFile == NULL)
-            {
-                // TODO ...
-            }
-            else
-            {
-                fclose(TestFile);
-            }
+            // Still no matching material definition found.
+            Material = MaterialMan.RegisterMaterial(CreateDefaultMaterial(StudioTexture.GetName()));
         }
 
         m_Materials.PushBack(Material);
