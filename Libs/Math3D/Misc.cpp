@@ -20,7 +20,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 */
 
 #include "Misc.hpp"
-#include <math.h>
+#include <cmath>
 
 
 float cf::math::round(float f)

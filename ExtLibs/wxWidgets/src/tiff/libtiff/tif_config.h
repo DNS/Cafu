@@ -151,14 +151,14 @@
 #ifdef __BIG_ENDIAN__
     /* Set the native cpu bit order */
     #define HOST_FILLORDER FILLORDER_MSB2LSB
-    
+
     /* Define to 1 if your processor stores words with the most significant byte
     first (like Motorola and SPARC, unlike Intel and VAX). */
     #define WORDS_BIGENDIAN 1
 #else
     /* Set the native cpu bit order */
     #define HOST_FILLORDER FILLORDER_LSB2MSB
-    
+
     /* Define to 1 if your processor stores words with the most significant byte
         first (like Motorola and SPARC, unlike Intel and VAX). */
     /* #undef WORDS_BIGENDIAN */
@@ -364,7 +364,9 @@
 /* Set the native cpu bit order */
 #define HOST_FILLORDER FILLORDER_LSB2MSB
 
+#if !defined(_MSC_VER) || (_MSC_VER < 1900)   // 1900 == Visual C++ 14.0 (2015)
 #define snprintf _snprintf
+#endif
 
 /* Define to 1 if your processor stores words with the most significant byte
    first (like Motorola and SPARC, unlike Intel and VAX). */

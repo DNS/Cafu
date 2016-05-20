@@ -341,12 +341,13 @@ if sys.platform=="win32":
         envProfile.Append(CCFLAGS=Split("/MD /O2 /Ob2 /Z7"));
         envProfile.Append(LINKFLAGS=["/fixed:no", "/debug"]);
 
-    elif envCommon["MSVC_VERSION"] in ["12.0", "12.0Exp"]:
-        ##############################
-        ### Win32, Visual C++ 2013 ###
-        ##############################
+    elif envCommon["MSVC_VERSION"] in ["12.0", "12.0Exp", "14.0", "14.0Exp"]:
+        #######################################
+        ### Win32, Visual C++ 2013 and 2015 ###
+        #######################################
 
-        compiler="vc12"
+        compiler = "vc" + envCommon["MSVC_VERSION"][:2]    # "vc12" or "vc14"
+        assert compiler in ["vc12", "vc14"]
 
         # Reference of commonly used compiler switches:
         # Identical to the compiler switches for Visual C++ 2005, see there for more details.
@@ -375,7 +376,7 @@ if sys.platform=="win32":
         ### Win32, unknown compiler ###
         ###############################
 
-        print "Unknown compiler on platform " + sys.platform + "."
+        print "Unknown compiler " + envCommon["MSVC_VERSION"] + " on platform " + sys.platform + "."
         Exit(1)
 
 elif sys.platform=="linux2":
@@ -583,7 +584,7 @@ if compiler in ["vc8", "vc9", "vc10"]:
     envRelease_Cafu.Append(CCFLAGS=Split("/J /W3 /WX"));
     envProfile_Cafu.Append(CCFLAGS=Split("/J /W3 /WX"));
 
-elif compiler in ["vc11", "vc12"]:
+elif compiler in ["vc11", "vc12", "vc14"]:
     envDebug_Cafu  .Append(CCFLAGS=Split("/J /W3 /WX"))     # /analyze /analyze:stacksize 80000
     envRelease_Cafu.Append(CCFLAGS=Split("/J /W3 /WX"))
     envProfile_Cafu.Append(CCFLAGS=Split("/J /W3 /WX"))
