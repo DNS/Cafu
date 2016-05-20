@@ -200,7 +200,7 @@ namespace HL2mdl
         /// Depending on the type, this can be the immediate resource data, e.g. a CRC,
         /// or the offset from start of the file to an uint32_t with the number of bytes, followed by the bytes.
         uint32_t Data;
-    };
+    } GCC_PACKED;
 
 
     /// This is the header for VTF files, covering all 7.x versions up to 7.5 (current).
@@ -275,7 +275,7 @@ namespace HL2mdl
 
         // --- Up to here, 80 header bytes. ---
         vtfResourceT   m_Resources[HL2_VTF_MAX_RES];
-    };
+    } GCC_PACKED;
 
 
 #if defined(_MSC_VER)
