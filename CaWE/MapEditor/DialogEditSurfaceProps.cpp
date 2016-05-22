@@ -482,7 +482,7 @@ void EditSurfacePropsDialogT::ApplyClick(ViewWindow3DT& ViewWin3D, MapElementT* 
 {
     if (Object==NULL) return;
 
-    const ApplyModeT ApplyMode = (ApplyModeT)(unsigned long)ChoiceRightMBMode->GetClientData(ChoiceRightMBMode->GetSelection());
+    const ApplyModeT ApplyMode = (ApplyModeT)(uintptr_t)ChoiceRightMBMode->GetClientData(ChoiceRightMBMode->GetSelection());
 
     MapBrushT*       Brush  =dynamic_cast<MapBrushT*>(Object);
     MapBezierPatchT* Patch  =dynamic_cast<MapBezierPatchT*>(Object);

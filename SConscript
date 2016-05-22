@@ -68,7 +68,7 @@ if sys.platform=="win32":
     LibPath="/lib/"+compiler
 
     # Append wxWidgets-specific suffixes matching the TARGET_CPU setting for the Makefiles.
-    if   wxEnv["TARGET_ARCH"] in ["x86_64", "amd64", "emt64"]: LibPath += "_amd64"
+    if   wxEnv["TARGET_ARCH"] in ["x86_64", "amd64", "emt64"]: LibPath += "_x64"
     elif wxEnv["TARGET_ARCH"] in ["ia64"]:                     LibPath += "_ia64"
 
     LibPath += "_lib"
