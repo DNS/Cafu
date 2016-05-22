@@ -105,7 +105,7 @@ namespace HL2mdl
     {
         typedef void (*TransformProc)(uint16_t& R, uint16_t& G, uint16_t& B, uint16_t& A);
 
-        char*           Name;               ///< Enumeration text equivalent.
+        const char*     Name;               ///< Enumeration text equivalent.
         uint32_t        BitsPerPixel;       ///< Bits per pixel.
         uint32_t        BytesPerPixel;      ///< Bytes per pixel.
         uint32_t        RedBitsPerPixel;    ///< Red bits per pixel.

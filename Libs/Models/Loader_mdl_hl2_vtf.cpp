@@ -24,6 +24,7 @@ For support and more information about Cafu, visit us at <http://www.cafu.de>.
 
 #include <algorithm>
 #include <cassert>
+#include <cstring>
 #include <string>
 
 
@@ -936,6 +937,10 @@ bool HL2mdl::Convert(uint8_t* lpSource, uint8_t* lpDest, uint32_t uiWidth, uint3
 
         case IMAGE_FORMAT_DXT5:
             return DecompressDXT5(lpSource, lpDest, uiWidth, uiHeight);
+
+        default:
+            // All other formats must be generically converted.
+            break;
    }
 
     // Do general convertions.
