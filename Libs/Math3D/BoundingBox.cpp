@@ -339,11 +339,18 @@ template<class T> T BoundingBox3T<T>::GetDistance(const Plane3T<T>& P) const
 }
 
 
+#if defined(_MSC_VER)
+    #pragma warning(push)
+    #pragma warning(disable: 4723)    // potential divide by 0
+#endif
+
 // Algorithm derived from Amy Williams et al., "An Efficient and Robust Ray-Box Intersection Algorithm", http://www.cs.utah.edu/~awilliam/box/.
 template<class T> bool BoundingBox3T<T>::TraceRay(const Vector3T<T>& RayOrigin, const Vector3T<T>& RayDir, T& Fraction) const
 {
     assert(IsInited());
 
+    // The RayDir components can be 0, potentially causing a division by 0.
+    // This is perfectly intentional here as described in the above paper.
     const Vector3T<T> OneDivRayDir(1/RayDir.x, 1/RayDir.y, 1/RayDir.z);
     const bool        RayDirSigns[3]={ RayDir.x<0, RayDir.y<0, RayDir.z<0 };
 
@@ -367,6 +374,10 @@ template<class T> bool BoundingBox3T<T>::TraceRay(const Vector3T<T>& RayOrigin, 
     Fraction=tmin;
     return true;
 }
+
+#if defined(_MSC_VER)
+    #pragma warning(pop)
+#endif
 
 
 template<class T> void BoundingBox3T<T>::GetCornerVertices(Vector3T<T>* Vertices) const
