@@ -364,7 +364,7 @@ if sys.platform=="win32":
 
         # Environment for release builds:
         envRelease=envCommon.Clone();
-        envRelease.Append(CCFLAGS=Split("/MD /O2 /Ob2"));
+        envRelease.Append(CCFLAGS=Split("/MD /O2 /Ob2 /GL"));
 
         # Environment for profile builds:
         envProfile=envCommon.Clone();
