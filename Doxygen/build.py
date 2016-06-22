@@ -3,6 +3,7 @@
 import argparse
 import os
 import subprocess
+import sys
 
 # In order to install module "paramiko", follow these steps:
 #
@@ -20,10 +21,62 @@ import subprocess
 import paramiko
 
 
-def Build(SourceDir):
+def FindSConsBuildDir(root="."):
+    """
+    Starting at the given Cafu root directory, this method guesses where all the executable program
+    files that were built by a previously successful run of SCons are.
+    """
+    if sys.platform == "win32":
+        for compiler in ["vc15", "vc14", "vc13", "vc12", "vc11", "vc10", "vc9", "vc8"]:
+            for arch in ["amd64", "x64", "x86"]:
+                path = "build/" + sys.platform + "/" + compiler + "/" + arch + "/release"
+                if os.path.isfile(root + "/" + path + "/CaBSP/CaBSP.exe"):
+                    return path
+    else:
+        for compiler in ["g++"]:
+            path = "build/" + sys.platform + "/" + compiler + "/release"
+            if os.path.isfile(root + "/" + path + "/CaBSP/CaBSP"):
+                return path
+
+    raise Exception("Could not find the SCons build directory.")
+
+
+def BuildDoxygenDocs(SourceDir):
     """
     Builds the C++ and Lua reference documentation in a Cafu source code repository `SourceDir`.
+
+    The directory `SourceDir` must be the root directory of a Cafu source code repository checkout
+    in which in which all programs and libraries have already successfully been built.
+
+    The actions of the function modify the contents of the `cpp/out`,  `scripting/tmpl` and
+    `scripting/out` directories in `SourceDir`.
     """
+    PathCaWE = FindSConsBuildDir(SourceDir) + "/CaWE/CaWE"
+
+    subprocess.call([SourceDir + "/" + PathCaWE, "--update-doxygen"], cwd=SourceDir)
+
+    # For all files in the Doxygen/scripting/tmpl directory, make sure that they
+    #   - don't contain the string "// WARNING" (e.g. about mismatches),
+    #   - don't contain any lines that the related files in ../src don't have.
+    for root, dirs, files in os.walk(SourceDir + "/Doxygen/scripting/tmpl"):
+        for filename in files:
+            if filename == "README.txt":
+                continue
+
+            with open(root + "/" + filename, 'r') as tmplFile:
+                with open(root + "/../src/" + filename, 'r') as srcFile:
+                    srcLines  = srcFile.readlines()
+                    srcLineNr = 0
+
+                    for tmplLine in tmplFile:
+                        if "// WARNING" in tmplLine:
+                            raise Exception('Found a "// WARNING ..." comment in file "{0}".'.format(filename))
+
+                        while tmplLine != srcLines[srcLineNr]:
+                            srcLineNr += 1
+                            if srcLineNr >= len(srcLines):
+                                raise Exception('A line in template file "{0}" does not exist in the related source '
+                                                'file:\n\n{1}\nUse e.g. BeyondCompare to review the situation.'.format(filename, tmplLine))
 
     # TODO: See http://marc.info/?l=doxygen-users&m=126909030104387&w=2 about Doxygen exit codes.
     subprocess.call(["doxygen", "Doxygen/cpp/Doxyfile"], cwd=SourceDir)
@@ -59,7 +112,7 @@ if __name__ == "__main__":
     ftp_password = args.password or raw_input("FTP password: ")
 
     CafuRepo = "."
-    Build(CafuRepo)
+    BuildDoxygenDocs(CafuRepo)
 
     if ftp_username and ftp_password:
         ssh = paramiko.SSHClient()
@@ -69,7 +122,7 @@ if __name__ == "__main__":
 
         sftp = ssh.open_sftp()
 
-        Upload(sftp, CafuRepo + "/Doxygen/cpp/out/html", "cafu/docs/c++")
-        Upload(sftp, CafuRepo + "/Doxygen/scripting/out/html", "cafu/docs/lua")
+        Upload(sftp, CafuRepo + "/Doxygen/cpp/out/html", "cafu/api/c++")
+        Upload(sftp, CafuRepo + "/Doxygen/scripting/out/html", "cafu/api/lua")
 
         sftp.close()
