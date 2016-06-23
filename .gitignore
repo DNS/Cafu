@@ -20,9 +20,10 @@
 /ExtLibs/wxWidgets/lib/vc*_lib/
 /ExtLibs/zlib/build/
 
-Doxygen/cpp/out/*
-Doxygen/scripting/out/*
-Doxygen/scripting/tmpl/*.hpp
+/Doxygen/cpp/out/*
+/Doxygen/scripting/out/*
+/Doxygen/scripting/tmpl/*.hpp
+/Doxygen/ftp_login.py
 
 /.sconf_temp
 /.sconsign.dblite
@@ -34,3 +35,4 @@ Doxygen/scripting/tmpl/*.hpp
 /*.so
 
 *.dia~
+*.pyc

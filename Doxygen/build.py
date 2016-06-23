@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import argparse
 import os
+import shutil
 import subprocess
 import sys
 
@@ -21,10 +22,10 @@ import sys
 import paramiko
 
 
-def FindSConsBuildDir(root="."):
+def FindSConsBuildDir(root):
     """
-    Starting at the given Cafu root directory, this method guesses where all the executable program
-    files that were built by a previously successful run of SCons are.
+    Starting at the given Cafu root directory, this method guesses where all the program
+    files are that were built by a previously successful run of SCons.
     """
     if sys.platform == "win32":
         for compiler in ["vc15", "vc14", "vc13", "vc12", "vc11", "vc10", "vc9", "vc8"]:
@@ -103,26 +104,39 @@ def Upload(sftp, LocalDir, RemoteDir):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Builds and optionally uploads the C++ and Lua reference documentation.')
-    parser.add_argument('--username', action="store", help='the FTP username for uploading the files')
-    parser.add_argument('--password', action="store", help='the FTP password for uploading the files')
+    parser = argparse.ArgumentParser(description="Builds and uploads the C++ and Lua reference documentation.")
+    parser.add_argument("-u", "--upload", action="store_true", help="upload via FTP")
+    args = parser.parse_args()
 
-    args         = parser.parse_args()
-    ftp_username = args.username or raw_input("FTP username: ")
-    ftp_password = args.password or raw_input("FTP password: ")
+    CafuRoot = "."
+    BuildDoxygenDocs(CafuRoot)
 
-    CafuRepo = "."
-    BuildDoxygenDocs(CafuRepo)
+    if args.upload:
+        try:
+            from ftp_login import GetFtpLogin
+        except ImportError:
+            # For convenience, install the file from the related template file
+            # (which is under version control) automatically.
+            d = os.path.dirname(__file__)
+            shutil.copy(
+                os.path.join(d, "ftp_login.py.tmpl"),
+                os.path.join(d, "ftp_login.py"))
+            from ftp_login import GetFtpLogin
 
-    if ftp_username and ftp_password:
-        ssh = paramiko.SSHClient()
+        ftp_username, ftp_password = GetFtpLogin()
 
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect('ftp.cafu.de', username=ftp_username, password=ftp_password)
+        if ftp_username and ftp_password:
+            print "Uploading files..."
+            ssh = paramiko.SSHClient()
 
-        sftp = ssh.open_sftp()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect('ftp.cafu.de', username=ftp_username, password=ftp_password)
 
-        Upload(sftp, CafuRepo + "/Doxygen/cpp/out/html", "cafu/api/c++")
-        Upload(sftp, CafuRepo + "/Doxygen/scripting/out/html", "cafu/api/lua")
+            sftp = ssh.open_sftp()
 
-        sftp.close()
+            Upload(sftp, CafuRoot + "/Doxygen/cpp/out/html", "cafu/api/c++")
+            Upload(sftp, CafuRoot + "/Doxygen/scripting/out/html", "cafu/api/lua")
+
+            sftp.close()
+        else:
+            print "No FTP login details given, not uploading."

@@ -1,0 +1,13 @@
+# -*- coding: utf-8 -*-
+
+def GetFtpLogin():
+    username = ""
+    password = ""
+
+    if not username:
+        username = raw_input("FTP username: ")
+
+    if not password:
+        password = raw_input("FTP password: ")
+
+    return username, password
