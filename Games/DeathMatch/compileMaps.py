@@ -25,7 +25,7 @@ MapSettings = {
 
 def FindTools():
     if sys.platform == "win32":
-        for compiler in ["vc11", "vc10", "vc9", "vc8"]:
+        for compiler in ["vc14", "vc12", "vc11", "vc10", "vc9", "vc8"]:
             for arch in ["x64", "x86"]:
                 path = 'build/' + sys.platform + '/' + compiler + "/" + arch + "/release"
                 if os.path.isfile(path + "/CaBSP/CaBSP.exe"):
