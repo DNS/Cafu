@@ -31,7 +31,7 @@ static bool CompareGameConfigs(GameConfigT* const& GC1, GameConfigT* const& GC2)
 static wxString FindTool(const wxString& Tool, const wxString& Fallback)
 {
 #ifdef __WXMSW__
-    const char* Compilers[] = { "vc12", "vc11", "vc10", "vc9", "vc8", NULL };
+    const char* Compilers[] = { "vc14", "vc12", "vc11", "vc10", "vc9", "vc8", NULL };
     const char* Archs[]     = { "x64", "x86", NULL };
 
     for (const char** Compiler = Compilers; *Compiler; Compiler++)
