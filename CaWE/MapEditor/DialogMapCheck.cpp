@@ -117,7 +117,7 @@ END_EVENT_TABLE()
 
 
 MapCheckDialogT::MapCheckDialogT(wxWindow* Parent, MapDocumentT& MapDoc)
-    : wxDialog(Parent, -1, "Map Problems Checker", wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER),
+    : wxDialog(Parent, -1, "Map Checker", wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER),
       m_MapDoc(MapDoc)
 {
     wxBoxSizer *item0 = new wxBoxSizer( wxVERTICAL );
@@ -191,27 +191,28 @@ void MapCheckDialogT::UpdateProblems()
         MC_WorldHasPlayerPrototypeT MC6(m_MapDoc, Ent); if (MC6.HasProblem()) { m_Problems.PushBack(new MC_WorldHasPlayerPrototypeT(MC6)); continue; }
     }
 
-    // If no problems were found, add the "no problem" problem.
-    if (m_Problems.Size()==0) m_Problems.PushBack(new MapCheckerT(m_MapDoc, m_MapDoc.GetRootMapEntity()));
-
     // Fill the wxListBox.
     ListBoxProblems->Clear();
-    for (unsigned long ProblemNr=0; ProblemNr<m_Problems.Size(); ProblemNr++)
-        ListBoxProblems->Append(wxString::Format("%lu ", ProblemNr+1)+m_Problems[ProblemNr]->GetInfo());
 
-    ListBoxProblems->SetSelection(0);
-    wxCommandEvent CE; OnListBoxProblemsSelChange(CE);
+    for (unsigned long ProblemNr = 0; ProblemNr < m_Problems.Size(); ProblemNr++)
+        ListBoxProblems->Append(wxString::Format("%lu ", ProblemNr+1) + m_Problems[ProblemNr]->GetInfo());
+
+    if (!ListBoxProblems->IsEmpty())
+        ListBoxProblems->SetSelection(0);
+
+    wxCommandEvent CE;
+    OnListBoxProblemsSelChange(CE);
 }
 
 
 void MapCheckDialogT::OnListBoxProblemsSelChange(wxCommandEvent& Event)
 {
-    const int SelectionNr=ListBoxProblems->GetSelection();
+    const int SelectionNr = ListBoxProblems->GetSelection();
 
-    if (SelectionNr<0)
+    if (SelectionNr < 0)
     {
         ButtonFix->SetLabel("Fix");
-        StaticTextProblemDescription->SetLabel("");
+        StaticTextProblemDescription->SetLabel("No problems were found in this map.");
 
         ButtonGoToError->Disable();
         ButtonFix      ->Disable();
