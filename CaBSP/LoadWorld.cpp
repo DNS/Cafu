@@ -271,6 +271,17 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
     // Perform certain sanity checks on the map (MFEntityList), look into the function for details.
     MapFileSanityCheck(MFEntityList);
 
+    for (unsigned long EntNr = 0; EntNr < AllScriptEnts.Size() && EntNr < MFEntityList.Size(); EntNr++)
+    {
+        // Collect the FloodFillSources in advance to the loop below, because along with
+        // everything else, these must be transformed into (the worldspawn's) entity space.
+        if (AllScriptEnts[EntNr]->GetComponent("PlayerStart") != NULL)
+            FloodFillSources.PushBack(AllScriptEnts[EntNr]->GetTransform()->GetOriginWS().AsVectorOfDouble());
+
+        if (AllScriptEnts[EntNr]->GetComponent("HumanPlayer") != NULL)
+            NumPlayerPrototypes++;
+    }
+
     // Move/migrate/insert the map primitives of each entity into the entity's BSP tree.
     for (unsigned long EntNr = 0; EntNr < AllScriptEnts.Size() && EntNr < MFEntityList.Size(); EntNr++)
     {
@@ -310,12 +321,6 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
             }
         }
 
-        if (AllScriptEnts[EntNr]->GetComponent("PlayerStart") != NULL)
-            FloodFillSources.PushBack(AllScriptEnts[EntNr]->GetTransform()->GetOriginWS().AsVectorOfDouble());
-
-        if (AllScriptEnts[EntNr]->GetComponent("HumanPlayer") != NULL)
-            NumPlayerPrototypes++;
-
 
         // 1. Copy the properties.
         // GameEnt->m_Properties = E.MFProperties;      // Properties are obsolete and not needed no more.
@@ -341,6 +346,13 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
         if (InvResult)
         {
             MFEntityList[EntNr].Transform(WorldToEnt);
+
+            if (EntNr == 0)
+            {
+                // Along with everything else, these must be transformed into (the worldspawn's) entity space.
+                for (unsigned int i = 0; i < FloodFillSources.Size(); i++)
+                    FloodFillSources[i] = WorldToEnt.Mul1(FloodFillSources[i]);
+            }
         }
 
         // 3. Fill-in the Terrains array.
@@ -451,8 +463,8 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
 
     Console->Print("All game entities done, processing the worldspawn entity now.\n");
 
-    Console->Print(cf::va("Face Children    : %10lu    Draw World Outer Point Samples: %5lu\n", World.m_StaticEntityData[0]->m_BspTree->FaceChildren.Size(), DrawWorldOutsidePointSamples.Size()));
-    Console->Print(cf::va("InfoPlayerStarts : %10lu\n", FloodFillSources.Size()));
-    Console->Print(cf::va("Other Children   : %10lu\n", World.m_StaticEntityData[0]->m_BspTree->OtherChildren.Size()));
-    Console->Print(cf::va("Entities         : %10lu\n", AllScriptEnts.Size()));
+    Console->Print(cf::va("Face Children  : %10lu    Draw World Outer Point Samples: %5lu\n", World.m_StaticEntityData[0]->m_BspTree->FaceChildren.Size(), DrawWorldOutsidePointSamples.Size()));
+    Console->Print(cf::va("PlayerStarts   : %10lu\n", FloodFillSources.Size()));
+    Console->Print(cf::va("Other Children : %10lu\n", World.m_StaticEntityData[0]->m_BspTree->OtherChildren.Size()));
+    Console->Print(cf::va("Entities       : %10lu\n", AllScriptEnts.Size()));
 }
