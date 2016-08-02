@@ -116,55 +116,57 @@ envRenderers.SharedLibrary(
 
 
 
-LibPath="#/ExtLibs/Cg/lib"
-if sys.platform=="win32":
-    LibList=Split("cfsLib png cfs_jpeg z MatSys opengl32.lib glu32.lib cg cgGL")
-    if envRenderers["TARGET_ARCH"]!="x86": LibPath += ".x64"
-elif sys.platform=="linux2":
-    LibList=Split("Cg CgGL GLU")
-    if platform.machine()=="x86_64": LibPath += ".x64"
-else:
-    LibList=[]
+if not platform.machine().startswith("arm"):
+    LibPath="#/ExtLibs/Cg/lib"
+    if sys.platform=="win32":
+        LibList=Split("cfsLib png cfs_jpeg z MatSys opengl32.lib glu32.lib cg cgGL")
+        if envRenderers["TARGET_ARCH"]!="x86": LibPath += ".x64"
+    elif sys.platform=="linux2":
+        LibList=Split("Cg CgGL GLU")
+        if platform.machine()=="x86_64": LibPath += ".x64"
+    else:
+        LibList=[]
 
-envRenderers.SharedLibrary(
-    target="MaterialSystem/RendererCgARB1",
-    source=[os.path.join("MaterialSystem/RendererCgARB1", x) for x in Split("""
-               RendererCgARB1.cpp RendererImpl.cpp RenderMaterial.cpp Shader.cpp TextureMapImpl.cpp
+    envRenderers.SharedLibrary(
+        target="MaterialSystem/RendererCgARB1",
+        source=[os.path.join("MaterialSystem/RendererCgARB1", x) for x in Split("""
+                   RendererCgARB1.cpp RendererImpl.cpp RenderMaterial.cpp Shader.cpp TextureMapImpl.cpp
 
-               Shaders/A_Terrain.cpp Shaders/A_Diff.cpp Shaders/A_Diff_Luma.cpp Shaders/A_Diff_Norm.cpp Shaders/A_Diff_Norm_Luma.cpp
-               Shaders/A_Diff_Light.cpp Shaders/A_Diff_Light_Luma.cpp Shaders/A_Diff_Light_Norm.cpp Shaders/A_Diff_Light_Norm_Luma.cpp
-               Shaders/A_SkyDome.cpp Shaders/A_Solid.cpp Shaders/A_WaterCubeReflect.cpp Shaders/L_Diff.cpp Shaders/L_Diff_Spec.cpp
-               Shaders/L_Diff_Norm.cpp Shaders/L_Diff_Norm_Spec.cpp Shaders/StencilShadowVolumes.cpp Shaders/_CommonCgHelpers.cpp""")] +
-           MatSys_CommonObjectsList,
-    CPPPATH=env['CPPPATH']+["#/ExtLibs/Cg/include"],
-    LIBPATH=env['LIBPATH']+[LibPath],
-    LIBS=LibList)
+                   Shaders/A_Terrain.cpp Shaders/A_Diff.cpp Shaders/A_Diff_Luma.cpp Shaders/A_Diff_Norm.cpp Shaders/A_Diff_Norm_Luma.cpp
+                   Shaders/A_Diff_Light.cpp Shaders/A_Diff_Light_Luma.cpp Shaders/A_Diff_Light_Norm.cpp Shaders/A_Diff_Light_Norm_Luma.cpp
+                   Shaders/A_SkyDome.cpp Shaders/A_Solid.cpp Shaders/A_WaterCubeReflect.cpp Shaders/L_Diff.cpp Shaders/L_Diff_Spec.cpp
+                   Shaders/L_Diff_Norm.cpp Shaders/L_Diff_Norm_Spec.cpp Shaders/StencilShadowVolumes.cpp Shaders/_CommonCgHelpers.cpp""")] +
+               MatSys_CommonObjectsList,
+        CPPPATH=env['CPPPATH']+["#/ExtLibs/Cg/include"],
+        LIBPATH=env['LIBPATH']+[LibPath],
+        LIBS=LibList)
 
 
 
-LibPath="#/ExtLibs/Cg/lib"
-if sys.platform=="win32":
-    LibList=Split("cfsLib png cfs_jpeg z MatSys opengl32.lib glu32.lib cg cgGL")
-    if envRenderers["TARGET_ARCH"]!="x86": LibPath += ".x64"
-elif sys.platform=="linux2":
-    LibList=Split("Cg CgGL GLU")
-    if platform.machine()=="x86_64": LibPath += ".x64"
-else:
-    LibList=[]
+if not platform.machine().startswith("arm"):
+    LibPath="#/ExtLibs/Cg/lib"
+    if sys.platform=="win32":
+        LibList=Split("cfsLib png cfs_jpeg z MatSys opengl32.lib glu32.lib cg cgGL")
+        if envRenderers["TARGET_ARCH"]!="x86": LibPath += ".x64"
+    elif sys.platform=="linux2":
+        LibList=Split("Cg CgGL GLU")
+        if platform.machine()=="x86_64": LibPath += ".x64"
+    else:
+        LibList=[]
 
-envRenderers.SharedLibrary(
-    target="MaterialSystem/RendererCgNV2X",
-    source=[os.path.join("MaterialSystem/RendererCgNV2X", x) for x in Split("""
-               RendererCgNV2X.cpp RendererImpl.cpp RenderMaterial.cpp Shader.cpp TextureMapImpl.cpp
+    envRenderers.SharedLibrary(
+        target="MaterialSystem/RendererCgNV2X",
+        source=[os.path.join("MaterialSystem/RendererCgNV2X", x) for x in Split("""
+                   RendererCgNV2X.cpp RendererImpl.cpp RenderMaterial.cpp Shader.cpp TextureMapImpl.cpp
 
-               Shaders/A_Terrain.cpp Shaders/A_Diff.cpp Shaders/A_Diff_Luma.cpp Shaders/A_Diff_Norm.cpp Shaders/A_Diff_Norm_Luma.cpp
-               Shaders/A_Diff_Light.cpp Shaders/A_Diff_Light_Luma.cpp Shaders/A_Diff_Light_Norm.cpp Shaders/A_Diff_Light_Norm_Luma.cpp
-               Shaders/A_SkyDome.cpp Shaders/A_Solid.cpp Shaders/A_WaterCubeReflect.cpp Shaders/L_Diff.cpp Shaders/L_Diff_Spec.cpp
-               Shaders/L_Diff_Norm_oSpec.cpp Shaders/StencilShadowVolumes.cpp Shaders/_CommonCgHelpers.cpp""")] +
-           MatSys_CommonObjectsList,
-    CPPPATH=env['CPPPATH']+["#/ExtLibs/Cg/include"],
-    LIBPATH=env['LIBPATH']+[LibPath],
-    LIBS=LibList)
+                   Shaders/A_Terrain.cpp Shaders/A_Diff.cpp Shaders/A_Diff_Luma.cpp Shaders/A_Diff_Norm.cpp Shaders/A_Diff_Norm_Luma.cpp
+                   Shaders/A_Diff_Light.cpp Shaders/A_Diff_Light_Luma.cpp Shaders/A_Diff_Light_Norm.cpp Shaders/A_Diff_Light_Norm_Luma.cpp
+                   Shaders/A_SkyDome.cpp Shaders/A_Solid.cpp Shaders/A_WaterCubeReflect.cpp Shaders/L_Diff.cpp Shaders/L_Diff_Spec.cpp
+                   Shaders/L_Diff_Norm_oSpec.cpp Shaders/StencilShadowVolumes.cpp Shaders/_CommonCgHelpers.cpp""")] +
+               MatSys_CommonObjectsList,
+        CPPPATH=env['CPPPATH']+["#/ExtLibs/Cg/include"],
+        LIBPATH=env['LIBPATH']+[LibPath],
+        LIBS=LibList)
 
 
 
@@ -221,12 +223,13 @@ elif sys.platform=="linux2":
     envSoundSys.Append(LIBS=["SoundSys", "fmod-3.75"])
 
 # We have the FMod libraries only for 32-bit platforms...
-if (sys.platform=="win32" and envSoundSys["TARGET_ARCH"]=="x86") or (sys.platform=="linux2" and platform.machine()!="x86_64"):
-    envSoundSys.SharedLibrary(
-        target="SoundSystem/SoundSysFMOD3",
-        source=[os.path.join("SoundSystem/SoundSysFMOD3", x) for x in Split("""
-                   SoundSysImpl.cpp DllInterface.cpp SoundImpl.cpp BufferManager.cpp
-                   StaticBuffer.cpp StreamingBuffer.cpp Channel.cpp""")])
+if not platform.machine().startswith("arm"):
+    if (sys.platform=="win32" and envSoundSys["TARGET_ARCH"]=="x86") or (sys.platform=="linux2" and platform.machine()!="x86_64"):
+        envSoundSys.SharedLibrary(
+            target="SoundSystem/SoundSysFMOD3",
+            source=[os.path.join("SoundSystem/SoundSysFMOD3", x) for x in Split("""
+                       SoundSysImpl.cpp DllInterface.cpp SoundImpl.cpp BufferManager.cpp
+                       StaticBuffer.cpp StreamingBuffer.cpp Channel.cpp""")])
 
 
 
