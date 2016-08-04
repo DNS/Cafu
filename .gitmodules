@@ -1,0 +1,3 @@
+[submodule "Games/DeathMatch/Textures"]
+    path = Games/DeathMatch/Textures
+    url = https://bitbucket.org/cafu/textures.git
