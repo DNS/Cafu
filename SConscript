@@ -143,10 +143,12 @@ SourceFilesList = (Glob("CaWE/*.cpp")
 
 if sys.platform=="win32":
     SourceFilesList += envCaWE.RES("CaWE/CaWE.rc")
+    # The next two lines are mirrored in Libs/SConscript.
+    fbx_lib_path = "#/ExtLibs/fbx/lib/" + \
+        {"vc8": "vs2005", "vc9": "vs2008", "vc10": "vs2010", "vc11": "vs2012", "vc12": "vs2013", "vc14": "vs2015"}[compiler]
 
-    if os.path.exists(Dir("#/ExtLibs/fbx/lib").abspath):
-        envCaWE.Append(LIBPATH=["ExtLibs/fbx/lib/" +
-            {"vc8": "vs2005", "vc9": "vs2008", "vc10": "vs2010", "vc11": "vs2012"}[compiler] + "/" +
+    if os.path.exists(Dir(fbx_lib_path).abspath):
+        envCaWE.Append(LIBPATH=[fbx_lib_path + "/" +
             ("x64" if envCaWE["TARGET_ARCH"] in ["x86_64", "amd64", "emt64"] else "x86") + "/" +
             ("debug" if buildMode == "dbg" else "release")])
         envCaWE.Append(LIBS=["libfbxsdk-md"])

@@ -608,9 +608,9 @@ if not os.path.exists(Dir("#/ExtLibs/fbx/lib").abspath):
 
 if os.path.exists("Libs/SConscript"):
     # Build everything in the Libs/ directory.
-    if "d" in BVs: buildMode = "dbg"; SConscript('Libs/SConscript', exports=[{'env':envDebug_Cafu},   'buildMode'], variant_dir="Libs/"+my_build_dir_dbg, duplicate=0)
-    if "r" in BVs: buildMode = "rel"; SConscript('Libs/SConscript', exports=[{'env':envRelease_Cafu}, 'buildMode'], variant_dir="Libs/"+my_build_dir_rel, duplicate=0)
-    if "p" in BVs: buildMode = "prf"; SConscript('Libs/SConscript', exports=[{'env':envProfile_Cafu}, 'buildMode'], variant_dir="Libs/"+my_build_dir_prf, duplicate=0)
+    if "d" in BVs: buildMode = "dbg"; SConscript('Libs/SConscript', exports=[{'env':envDebug_Cafu},   'buildMode', 'compiler'], variant_dir="Libs/"+my_build_dir_dbg, duplicate=0)
+    if "r" in BVs: buildMode = "rel"; SConscript('Libs/SConscript', exports=[{'env':envRelease_Cafu}, 'buildMode', 'compiler'], variant_dir="Libs/"+my_build_dir_rel, duplicate=0)
+    if "p" in BVs: buildMode = "prf"; SConscript('Libs/SConscript', exports=[{'env':envProfile_Cafu}, 'buildMode', 'compiler'], variant_dir="Libs/"+my_build_dir_prf, duplicate=0)
 
 if os.path.exists("SConscript"):
     # Build the Cafu executables.
