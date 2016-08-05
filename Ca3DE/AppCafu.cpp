@@ -272,8 +272,8 @@ bool AppCafuT::OnInit()
 
     cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_LOCAL_PATH, "./", "");
  // cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_LOCAL_PATH, "Games/" + m_GameInfo.GetName() + "/", "");
-    cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_ZIP_ARCHIVE, "Games/" + m_GameInfo.GetName() + "/Textures/TechDemo.zip", "Games/" + m_GameInfo.GetName() + "/Textures/TechDemo/", "Ca3DE");
-    cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_ZIP_ARCHIVE, "Games/" + m_GameInfo.GetName() + "/Textures/SkyDomes.zip", "Games/" + m_GameInfo.GetName() + "/Textures/SkyDomes/", "Ca3DE");
+    // cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_ZIP_ARCHIVE, "Games/" + m_GameInfo.GetName() + "/Textures/TechDemo.zip", "Games/" + m_GameInfo.GetName() + "/Textures/TechDemo/", "Ca3DE");
+    // cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_ZIP_ARCHIVE, "Games/" + m_GameInfo.GetName() + "/Textures/SkyDomes.zip", "Games/" + m_GameInfo.GetName() + "/Textures/SkyDomes/", "Ca3DE");
 
     MaterialManager->RegisterMaterialScriptsInDir("Games/" + m_GameInfo.GetName() + "/Materials", "Games/" + m_GameInfo.GetName() + "/");
     SoundShaderManager->RegisterSoundShaderScriptsInDir("Games/" + m_GameInfo.GetName() + "/SoundShader", "Games/" + m_GameInfo.GetName() + "/");

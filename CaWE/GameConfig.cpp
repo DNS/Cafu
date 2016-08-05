@@ -30,8 +30,8 @@ GameConfigT::GameConfigT(wxFileConfig& CfgFile, const wxString& Name_, const wxS
     const std::string ModDirSlash(ModDir+"/");
 
     m_MountedFileSystems.PushBack(cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_LOCAL_PATH, ModDirSlash, ModDirSlash));
-    m_MountedFileSystems.PushBack(cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_ZIP_ARCHIVE, ModDirSlash+"Textures/TechDemo.zip", ModDirSlash+"Textures/TechDemo/", "Ca3DE"));
-    m_MountedFileSystems.PushBack(cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_ZIP_ARCHIVE, ModDirSlash+"Textures/SkyDomes.zip", ModDirSlash+"Textures/SkyDomes/", "Ca3DE"));
+    // m_MountedFileSystems.PushBack(cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_ZIP_ARCHIVE, ModDirSlash+"Textures/TechDemo.zip", ModDirSlash+"Textures/TechDemo/", "Ca3DE"));
+    // m_MountedFileSystems.PushBack(cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_ZIP_ARCHIVE, ModDirSlash+"Textures/SkyDomes.zip", ModDirSlash+"Textures/SkyDomes/", "Ca3DE"));
 
 
     // The old EntityClassDefs.lua file had this comment about the map size:
