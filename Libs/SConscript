@@ -33,13 +33,14 @@ env.StaticLibrary(
 # and thus would involve all related external libraries as well.
 envModelLoaders = env.Clone()
 
-# The next two lines are mirrored in ./SConscript.
-fbx_lib_path = "#/ExtLibs/fbx/lib/" + \
-    {"vc8": "vs2005", "vc9": "vs2008", "vc10": "vs2010", "vc11": "vs2012", "vc12": "vs2013", "vc14": "vs2015"}[compiler]
+if sys.platform == "win32":
+    # The next two lines are mirrored in ./SConscript.
+    fbx_lib_path = "#/ExtLibs/fbx/lib/" + \
+        {"vc8": "vs2005", "vc9": "vs2008", "vc10": "vs2010", "vc11": "vs2012", "vc12": "vs2013", "vc14": "vs2015"}[compiler]
 
-if os.path.exists(Dir("#/ExtLibs/fbx/include").abspath) and os.path.exists(Dir(fbx_lib_path).abspath):
-    envModelLoaders.Append(CPPDEFINES=["HAVE_FBX_SDK"])
-    envModelLoaders.Append(CPPPATH=["#/ExtLibs/fbx/include"])
+    if os.path.exists(Dir("#/ExtLibs/fbx/include").abspath) and os.path.exists(Dir(fbx_lib_path).abspath):
+        envModelLoaders.Append(CPPDEFINES=["HAVE_FBX_SDK"])
+        envModelLoaders.Append(CPPPATH=["#/ExtLibs/fbx/include"])
 
 envModelLoaders.StaticLibrary("ModelLoaders", ["Models/Loader_fbx.cpp"])
 
