@@ -1,3 +1,6 @@
 [submodule "Games/DeathMatch/Textures"]
     path = Games/DeathMatch/Textures
     url = https://bitbucket.org/cafu/textures.git
+[submodule "ExtLibs/glfw"]
+    path = ExtLibs/glfw
+    url = https://github.com/CarstenF/glfw.git
