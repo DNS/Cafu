@@ -32,16 +32,18 @@ envMapCompilers.Program('CaSHL/CaSHL',
 
 
 envTools = env.Clone()
+envTools.Append(CPPPATH=['ExtLibs/glfw/include'])
 
 if sys.platform=="win32":
     envTools.Append(LIBPATH=['ExtLibs/DirectX7/lib'])
     # glu32 is only needed for the TerrainViewerOld...
-    envTools.Append(LIBS=Split("SceneGraph MatSys ClipSys cfsLib cfs_jpeg bulletcollision bulletmath lua minizip lightwave png z")
-                       + Split("gdi32 glu32 opengl32 user32") + ['cfsOpenGL', 'dinput', 'dxguid'])
+    # shell32 is required by glfw, which uses DragQueryFile() etc.
+    envTools.Append(LIBS=Split("SceneGraph MatSys ClipSys cfsLib cfs_jpeg bulletcollision bulletmath glfw lua minizip lightwave png z")
+                       + Split("gdi32 glu32 opengl32 user32 shell32") + ['cfsOpenGL', 'dinput', 'dxguid'])
 elif sys.platform=="linux2":
     # GLU is only needed for the TerrainViewerOld...
     envTools.Append(CPPPATH=['/usr/include/freetype2'])         # As of 2009-09-10, this line is to become unnecessary in the future, see /usr/include/ftbuild.h for details.
-    envTools.Append(LIBS=Split("SceneGraph MatSys cfsOpenGL ClipSys cfsLib cfs_jpeg bulletcollision bulletmath lua minizip lightwave png z")
+    envTools.Append(LIBS=Split("SceneGraph MatSys cfsOpenGL ClipSys cfsLib cfs_jpeg bulletcollision bulletmath glfw lua minizip lightwave png z")
                        + Split("GL GLU X11 dl"))
 
 envTools.Program("MakeFont", "CaTools/MakeFont.cpp", LIBS=envTools["LIBS"]+["freetype"])
