@@ -9,7 +9,7 @@ This project is licensed under the terms of the MIT license.
 /***    Cafu Map Debugging Tool    ***/
 /***                               ***/
 /*** Never touch a running system. ***/
-/*** Never change a winning  team. ***/
+/*** Never change a winning team.  ***/
 /***                               ***/
 /*************************************/
 
@@ -29,6 +29,8 @@ This project is licensed under the terms of the MIT license.
 #include <GL/gl.h>
 #include <GL/glu.h>
 
+#include "GLFW/glfw3.h"
+
 #include "Templates/Array.hpp"
 #include "ConsoleCommands/Console.hpp"
 #include "ConsoleCommands/ConsoleInterpreter.hpp"
@@ -38,7 +40,6 @@ This project is licensed under the terms of the MIT license.
 #include "GuiSys/GuiResources.hpp"
 #include "Math3D/Brush.hpp"
 #include "Bitmap/Bitmap.hpp"
-#include "OpenGL/OpenGLWindow.hpp"
 #include "Util/Util.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
@@ -175,16 +176,136 @@ void PrintMaterialCounts(int Mode)
 }
 
 
-void ViewWorld()
+struct SceneDataT
 {
     VectorT Viewer;     // = World->InfoPlayerStarts[0].Origin;
-    float   Heading  =  0.0;
-    float   Pitch    =  0.0;
     float   MoveSpeed=100.0;
     float   RotSpeed =  5.0;
 
-    bool          r_pvs_enabled=true;
     unsigned long DrawLeafNr   =831;
+};
+
+
+static void error_callback(int error, const char* description)
+{
+    fprintf(stderr, "GLFW Error: %s\n", description);
+}
+
+
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    SceneDataT* sd = static_cast<SceneDataT*>(glfwGetWindowUserPointer(window));
+
+    if (!sd)
+        return;
+
+    if (action != GLFW_PRESS)
+        return;
+
+    switch (key)
+    {
+        case GLFW_KEY_ESCAPE:
+            glfwSetWindowShouldClose(window, true);
+            break;
+
+        case GLFW_KEY_KP_ADD:
+            sd->MoveSpeed*=2.0;
+            printf("Movement speed doubled.\n");
+            break;
+
+        case GLFW_KEY_KP_SUBTRACT:
+            sd->MoveSpeed/=2.0;
+            printf("Movement speed halved.\n");
+            break;
+
+        case GLFW_KEY_L:
+            if (mods & GLFW_MOD_SHIFT)
+            {
+                // Großes 'L'.
+                sd->DrawLeafNr=g_BspTree->WhatLeaf(sd->Viewer);
+                printf("DrawLeafNr==%lu\n", sd->DrawLeafNr);
+                break;
+            }
+            else
+            {
+                // Kleines 'l'.
+                unsigned long LeafNr=g_BspTree->WhatLeaf(sd->Viewer);
+                bool          InnerL=g_BspTree->Leaves[LeafNr].IsInnerLeaf;
+
+                printf("WhatLeaf(Viewer)==%lu (\"%s\")\n", LeafNr, InnerL ? "inner" : "outer");
+                printf("%5lu Faces: ", g_BspTree->Leaves[LeafNr].FaceChildrenSet.Size());
+                for (unsigned long SetNr=0; SetNr<g_BspTree->Leaves[LeafNr].FaceChildrenSet.Size(); SetNr++) printf("%5lu", g_BspTree->Leaves[LeafNr].FaceChildrenSet[SetNr]);
+                printf("\n");
+                break;
+            }
+
+        case GLFW_KEY_O:
+            if (mods & GLFW_MOD_SHIFT)
+            {
+                // Großes 'O'.
+                if (sd->DrawLeafNr==0) sd->DrawLeafNr=g_BspTree->Leaves.Size()-1;
+                                  else sd->DrawLeafNr--;
+                printf("DrawLeafNr==%lu\n", sd->DrawLeafNr);
+                break;
+            }
+            else
+            {
+                // Kleines 'o'.
+                sd->DrawLeafNr++;
+                if (sd->DrawLeafNr>=g_BspTree->Leaves.Size()) sd->DrawLeafNr=0;
+                printf("DrawLeafNr==%lu\n", sd->DrawLeafNr);
+                break;
+            }
+
+        case GLFW_KEY_P:
+            printf("Position: (%.3f %.3f %.3f)\n", sd->Viewer.x, sd->Viewer.y, sd->Viewer.z);
+            break;
+    }
+}
+
+
+static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    // The framebuffer's width and height are given in pixels (not in screen coordinates).
+    glViewport(0, 0, width, height);
+
+    // Avoid division by zero below.
+    if (height == 0)
+        return;
+
+    // Set the projection matrix.
+    // Note that the field of view is in y-direction, a value of 67.5° may correspond to 90° in x-direction.
+    const double FieldOfView = 67.5;
+    const double AspectRatio = double(width) / double(height);
+    const double Near        = 100.0;
+ // const double Far         = 100000.0;
+    const double cotanFOV    = 1.0 / tan(FieldOfView / 2.0 / 180.0 * 3.14159265359);
+
+    // This is the OpenGL projection matrix with the "far" clip plane moved to infinity,
+    // according to the NVidia paper about robust stencil buffered shadows.
+    // Note that this matrix is actually transposed, as this is what 'glLoadMatrix()' expects.
+    const double ProjMatInf[4][4] = {
+        { cotanFOV/AspectRatio,      0.0,       0.0,  0.0 },
+        {                  0.0, cotanFOV,       0.0,  0.0 },
+        {                  0.0,      0.0,      -1.0, -1.0 },
+        {                  0.0,      0.0, -2.0*Near,  0.0 }
+    };
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixd(&ProjMatInf[0][0]);
+
+    // A common (but not equivalent) alternative to the above:
+    // glLoadIdentity();
+    // gluPerspective(FieldOfView, AspectRatio, Near, Far);
+}
+
+
+static int ViewWorld()
+{
+    float      Heading       = 0.0;
+    float      Pitch         = 0.0;
+    bool       r_pvs_enabled = true;
+    SceneDataT sd;
 
     ArrayT<bool>          FaceIsInPVS;
     ArrayT<unsigned long> OrderedFaces;
@@ -192,33 +313,54 @@ void ViewWorld()
     FaceIsInPVS .PushBackEmpty(g_BspTree->FaceChildren.Size());
     OrderedFaces.PushBackEmpty(g_BspTree->FaceChildren.Size());
 
+    glfwSetErrorCallback(error_callback);
 
-    const char* ErrorMsg=SingleOpenGLWindow->Open("Simple World Viewer", 1024, 768, 16, false);
+    if (!glfwInit())
+        return -1;
 
-    if (ErrorMsg)
+    // The default values for the window creations hints look just right for our purposes,
+    // see http://www.glfw.org/docs/latest/window_guide.html#window_hints_values for details.
+    GLFWwindow* window = glfwCreateWindow(
+        1280, 1024,
+        "Simple World Viewer 0.2",
+        NULL,
+        NULL
+    );
+
+    if (!window)
     {
-        printf("\nUnable to open OpenGL window: %s\n", ErrorMsg);
-        return;
+        glfwTerminate();
+        return -1;
     }
 
+    // TODO: Set a taskbar icon?
+    glfwSetWindowUserPointer(window, &sd);
+    glfwSetKeyCallback(window, key_callback);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwMakeContextCurrent(window);
+    glfwSwapInterval(1);   // enable v-sync
 
-    while (true)
+    // Initial resize call, must trigger this manually.
+    int width;
+    int height;
+    glfwGetFramebufferSize(window, &width, &height);
+    framebuffer_size_callback(window, width, height);
+
+
+    while (!glfwWindowShouldClose(window))
     {
-        // Rufe die Nachrichten der Windows-Nachrichtenschlange ab.
-        if (SingleOpenGLWindow->HandleWindowMessages()) break;
-
         // Draw the model
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glLoadIdentity();
 
         glRotatef(Pitch  , 1.0, 0.0, 0.0);
         glRotatef(Heading, 0.0, 1.0, 0.0);
-        glTranslatef(float(-Viewer.x), float(-Viewer.z), float(Viewer.y));
+        glTranslatef(float(-sd.Viewer.x), float(-sd.Viewer.z), float(sd.Viewer.y));
 
 
         static ArrayT<unsigned long> OrderedLeaves;
-        const unsigned long ViewerLeafNr=g_BspTree->WhatLeaf(Viewer);
-        g_BspTree->GetLeavesOrderedBackToFront(OrderedLeaves, Viewer);
+        const unsigned long ViewerLeafNr=g_BspTree->WhatLeaf(sd.Viewer);
+        g_BspTree->GetLeavesOrderedBackToFront(OrderedLeaves, sd.Viewer);
 
         for (unsigned long FaceNr=0; FaceNr<g_BspTree->FaceChildren.Size(); FaceNr++) FaceIsInPVS[FaceNr]=false;
 
@@ -267,11 +409,11 @@ void ViewWorld()
                 glColor3f(0.5, 0.5, 1.0);
                 glDisable(GL_DEPTH_TEST);
 
-                if (DrawLeafNr<g_BspTree->Leaves.Size())
+                if (sd.DrawLeafNr<g_BspTree->Leaves.Size())
                 {
-                    for (unsigned long PortalNr=0; PortalNr<g_BspTree->Leaves[DrawLeafNr].Portals.Size(); PortalNr++)
+                    for (unsigned long PortalNr=0; PortalNr<g_BspTree->Leaves[sd.DrawLeafNr].Portals.Size(); PortalNr++)
                     {
-                        const Polygon3T<double>& Portal=g_BspTree->Leaves[DrawLeafNr].Portals[PortalNr];
+                        const Polygon3T<double>& Portal=g_BspTree->Leaves[sd.DrawLeafNr].Portals[PortalNr];
 
                         glBegin(GL_LINE_LOOP);
                             for (unsigned long VertexNr=0; VertexNr<Portal.Vertices.Size(); VertexNr++)
@@ -284,83 +426,29 @@ void ViewWorld()
             glEnable(GL_DEPTH_TEST);
         }
 
-        SingleOpenGLWindow->SwapBuffers();
+        glfwSwapBuffers(window);
+        glfwPollEvents();
 
 
-        CaKeyboardEventT KE;
-        bool QuitProgram=false;
+        const float vx=float(sd.MoveSpeed*sin(Heading/180.0*3.1415926));
+        const float vy=float(sd.MoveSpeed*cos(Heading/180.0*3.1415926));
 
-        while (SingleOpenGLWindow->GetNextKeyboardEvent(KE)>0)
-        {
-            if (KE.Type!=CaKeyboardEventT::CKE_KEYDOWN) continue;
-
-            if (KE.Key==CaKeyboardEventT::CK_ESCAPE) QuitProgram=true;
-
-            switch (KE.Key)
-            {
-                case CaKeyboardEventT::CK_ADD     : MoveSpeed*=2.0; printf("Movement speed doubled.\n"); break;
-                case CaKeyboardEventT::CK_SUBTRACT: MoveSpeed/=2.0; printf("Movement speed halved.\n"); break;
-                case CaKeyboardEventT::CK_L:
-                    if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_LSHIFT] || SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_RSHIFT])
-                    {
-                        // Großes 'L'.
-                        DrawLeafNr=g_BspTree->WhatLeaf(Viewer);
-                        printf("DrawLeafNr==%lu\n", DrawLeafNr);
-                        break;
-                    }
-                    else
-                    {
-                        // Kleines 'l'.
-                        unsigned long LeafNr=g_BspTree->WhatLeaf(Viewer);
-                        bool          InnerL=g_BspTree->Leaves[LeafNr].IsInnerLeaf;
-
-                        printf("WhatLeaf(Viewer)==%lu (\"%s\")\n", LeafNr, InnerL ? "inner" : "outer");
-                        printf("%5lu Faces: ", g_BspTree->Leaves[LeafNr].FaceChildrenSet.Size());
-                        for (unsigned long SetNr=0; SetNr<g_BspTree->Leaves[LeafNr].FaceChildrenSet.Size(); SetNr++) printf("%5lu", g_BspTree->Leaves[LeafNr].FaceChildrenSet[SetNr]);
-                        printf("\n");
-                        break;
-                    }
-                case CaKeyboardEventT::CK_O:
-                    if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_LSHIFT] || SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_RSHIFT])
-                    {
-                        // Großes 'O'.
-                        if (DrawLeafNr==0) DrawLeafNr=g_BspTree->Leaves.Size()-1;
-                                      else DrawLeafNr--;
-                        printf("DrawLeafNr==%lu\n", DrawLeafNr);
-                        break;
-                    }
-                    else
-                    {
-                        // Kleines 'o'.
-                        DrawLeafNr++;
-                        if (DrawLeafNr>=g_BspTree->Leaves.Size()) DrawLeafNr=0;
-                        printf("DrawLeafNr==%lu\n", DrawLeafNr);
-                        break;
-                    }
-                case CaKeyboardEventT::CK_P: printf("Position: (%.3f %.3f %.3f)\n", Viewer.x, Viewer.y, Viewer.z); break;
-                default: break;
-            }
-        }
-
-        const float vx=float(MoveSpeed*sin(Heading/180.0*3.1415926));
-        const float vy=float(MoveSpeed*cos(Heading/180.0*3.1415926));
-
-        if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_UP    ] || SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_W]) Viewer=Viewer+VectorT( vx,  vy, 0);
-        if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_DOWN  ] || SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_S]) Viewer=Viewer+VectorT(-vx, -vy, 0);
-        if (                                                                       SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_A]) Viewer=Viewer+VectorT(-vy,  vx, 0);
-        if (                                                                       SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_D]) Viewer=Viewer+VectorT( vy, -vx, 0);
-        if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_INSERT] || SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_R]) Viewer.z+=MoveSpeed;
-        if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_DELETE] || SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_F]) Viewer.z-=MoveSpeed;
-        if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_LEFT  ]                                                                  ) Heading-=RotSpeed;
-        if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_RIGHT ]                                                                  ) Heading+=RotSpeed;
-        if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_PGUP  ]                                                                  ) Pitch-=RotSpeed;
-        if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_PGDN  ]                                                                  ) Pitch+=RotSpeed;
-        if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_END   ]                                                                  ) Pitch=0.0;
-
-        if (QuitProgram) break;
+        if (glfwGetKey(window, GLFW_KEY_UP       ) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) sd.Viewer=sd.Viewer+VectorT( vx,  vy, 0);
+        if (glfwGetKey(window, GLFW_KEY_DOWN     ) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) sd.Viewer=sd.Viewer+VectorT(-vx, -vy, 0);
+        if (                                                        glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) sd.Viewer=sd.Viewer+VectorT(-vy,  vx, 0);
+        if (                                                        glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) sd.Viewer=sd.Viewer+VectorT( vy, -vx, 0);
+        if (glfwGetKey(window, GLFW_KEY_INSERT   ) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) sd.Viewer.z+=sd.MoveSpeed;
+        if (glfwGetKey(window, GLFW_KEY_DELETE   ) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) sd.Viewer.z-=sd.MoveSpeed;
+        if (glfwGetKey(window, GLFW_KEY_LEFT     ) == GLFW_PRESS                                                ) Heading-=sd.RotSpeed;
+        if (glfwGetKey(window, GLFW_KEY_RIGHT    ) == GLFW_PRESS                                                ) Heading+=sd.RotSpeed;
+        if (glfwGetKey(window, GLFW_KEY_PAGE_UP  ) == GLFW_PRESS                                                ) Pitch-=sd.RotSpeed;
+        if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS                                                ) Pitch+=sd.RotSpeed;
+        if (glfwGetKey(window, GLFW_KEY_END      ) == GLFW_PRESS                                                ) Pitch=0.0;
     }
 
-    SingleOpenGLWindow->Close();
+    glfwDestroyWindow(window);
+    glfwTerminate();
+    return 0;
 }
 
 
@@ -658,8 +746,8 @@ int main(int ArgC, char* ArgV[])
             else if (!_stricmp(ArgV[2], "-ExportLightMaps")) ExportLightMaps(ArgV[1]);
             else if (!_stricmp(ArgV[2], "-ExportPVS"      )) ExportPVS();
             else if (!_stricmp(ArgV[2], "-PrintMatCounts" )) { PrintMaterialCounts(1); PrintMaterialCounts(2); PrintMaterialCounts(3); }
-            else if (!_stricmp(ArgV[2], "-ViewWorld"      )) ViewWorld();
-            else                                            Usage();
+            else if (!_stricmp(ArgV[2], "-ViewWorld"      )) return ViewWorld();
+            else Usage();
 
             return 0;
         }
