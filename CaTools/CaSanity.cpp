@@ -178,11 +178,18 @@ void PrintMaterialCounts(int Mode)
 
 struct SceneDataT
 {
-    VectorT Viewer;     // = World->InfoPlayerStarts[0].Origin;
-    float   MoveSpeed=100.0;
-    float   RotSpeed =  5.0;
+    SceneDataT()
+        : MoveSpeed(100.0),
+          RotSpeed(5.0),
+          DrawLeafNr(831)   // 831??
+    {
+    }
 
-    unsigned long DrawLeafNr   =831;
+    VectorT Viewer;     // = World->InfoPlayerStarts[0].Origin;
+    float   MoveSpeed;
+    float   RotSpeed;
+
+    unsigned long DrawLeafNr;
 };
 
 
