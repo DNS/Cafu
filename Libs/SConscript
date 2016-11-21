@@ -46,16 +46,6 @@ envModelLoaders.StaticLibrary("ModelLoaders", ["Models/Loader_fbx.cpp"])
 
 
 
-# This library is obsolete, and only used for our legacy programs in CaTools.
-if sys.platform=="win32":
-    env.StaticLibrary(target="cfsOpenGL",
-        source=["OpenGL/OpenGLWindow.cpp", "DirectX/DirectInput.cpp"],
-        CPPPATH=env['CPPPATH']+["#/ExtLibs/DirectX7/include"])
-else:
-    env.StaticLibrary(target="cfsOpenGL", source="OpenGL/OpenGLWindow.cpp")
-
-
-
 env.StaticLibrary(
     target="ClipSys",
     source=Split("""ClipSys/CollisionModel_static.cpp ClipSys/CollisionModel_static_BulletAdapter.cpp ClipSys/CollisionModelMan_impl.cpp
