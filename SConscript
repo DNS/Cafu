@@ -39,9 +39,12 @@ if sys.platform=="win32":
     envTools.Append(LIBS=Split("SceneGraph MatSys ClipSys cfsLib cfs_jpeg bulletcollision bulletmath glfw lua minizip lightwave png z")
                        + Split("gdi32 opengl32 user32 shell32"))
 elif sys.platform=="linux2":
-    envTools.Append(CPPPATH=['/usr/include/freetype2'])         # As of 2009-09-10, this line is to become unnecessary in the future, see /usr/include/ftbuild.h for details.
+    envTools.Append(CPPPATH=['/usr/include/freetype2'])  # As of 2009-09-10, this line is to become unnecessary in the future, see /usr/include/ftbuild.h for details.
+    envTools.Append(LINKFLAGS=['-Wl,-rpath,.'])          # Have dlopen() consider "." when searching for SOs (e.g. libCg.so).
+    envTools.Append(LINKFLAGS=['-Wl,--export-dynamic'])  # Have our symbols available for dynamically loaded SOs (e.g. the renderer DLLs).
+
     envTools.Append(LIBS=Split("SceneGraph MatSys ClipSys cfsLib cfs_jpeg bulletcollision bulletmath glfw lua minizip lightwave png z")
-                       + Split("GL X11 dl"))
+                       + Split("GL X11 Xrandr Xinerama Xxf86vm Xcursor dl pthread"))
 
 envTools.Program("MakeFont", "CaTools/MakeFont.cpp", LIBS=envTools["LIBS"]+["freetype"])
 envTools.Program('CaSanity', ['CaTools/CaSanity.cpp'] + CommonWorldObject)
