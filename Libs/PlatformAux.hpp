@@ -15,6 +15,7 @@ This project is licensed under the terms of the MIT license.
 #endif
 
 #include <string>
+#include <vector>
 
 namespace MatSys
 {
@@ -27,10 +28,11 @@ class SoundSysI;
 
 namespace PlatformAux
 {
-    /// Returns a file suffix that indicates the platform, the compiler, and the debug/release switch setting.
-    /// Examples include "_win32_ow_r", "_li686_g++_d", etc.
-    /// @return   The suffix that indicates the platform, compiler, and debug/release built.
-    std::string GetEnvFileSuffix();
+    /// Returns an array with the file and directory entries of the given directory.
+    /// If 'f' is given as the filter argument, only entries of type file are returned,
+    /// if 'd' is given as the filter argument, only entries of type directory are returned,
+    /// all entries are returned in all other cases.
+    std::vector<std::string> GetDirectory(const std::string& Name, char Filter=0);
 
     /// Gets the renderer by name.
     /// @param DLLName         The path and full name of the desired renderer DLL, e.g. "Renderers/RendererNull_win32_vc60_r.dll".

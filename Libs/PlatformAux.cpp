@@ -25,125 +25,100 @@ This project is licensed under the terms of the MIT license.
 #endif
 
 
-#ifdef SCONS_BUILD_DIR
-std::string PlatformAux::GetEnvFileSuffix()
+std::vector<std::string> PlatformAux::GetDirectory(const std::string& Name, char Filter)
 {
-    // This is just a lousy way to say that this method is obsolete with the new SCons build system!
-    return std::string("_scons");
+    std::vector<std::string> Items;
+
+    if (Name == "")
+        return Items;
+
+#ifdef _WIN32
+    WIN32_FIND_DATA FindFileData;
+    HANDLE          FindHandle = FindFirstFile((Name + "\\*").c_str(), &FindFileData);
+
+    if (FindHandle == INVALID_HANDLE_VALUE)
+        return Items;
+
+    do
+    {
+        if (strcmp(FindFileData.cFileName, "." ) == 0) continue;
+        if (strcmp(FindFileData.cFileName, "..") == 0) continue;
+
+        if (Filter)
+        {
+            const bool IsDir = (FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+
+            if (Filter == 'f' &&  IsDir) continue;
+            if (Filter == 'd' && !IsDir) continue;
+        }
+
+        Items.push_back(FindFileData.cFileName);
+    }
+    while (FindNextFile(FindHandle, &FindFileData));
+
+    if (GetLastError() != ERROR_NO_MORE_FILES)
+        Console->Warning("Error in GetDirectory() while enumerating directory entries.\n");
+
+    FindClose(FindHandle);
+#else
+    DIR* Dir = opendir(Name.c_str());
+
+    if (!Dir)
+        return Items;
+
+    for (dirent* DirEnt = readdir(Dir); DirEnt; DirEnt = readdir(Dir))
+    {
+        if (strcmp(DirEnt->d_name, "." ) == 0) continue;
+        if (strcmp(DirEnt->d_name, "..") == 0) continue;
+
+        if (Filter)
+        {
+            DIR* TempDir = opendir((Name + "/" + DirEnt->d_name).c_str());
+            const bool IsDir = (TempDir != NULL);
+
+            if (TempDir)
+                closedir(TempDir);
+
+            if (Filter == 'f' &&  IsDir) continue;
+            if (Filter == 'd' && !IsDir) continue;
+        }
+
+        // For portability, only the 'd_name' member of a 'dirent' may be accessed.
+        Items.push_back(DirEnt->d_name);
+    }
+
+    closedir(Dir);
+#endif
+
+    return Items;
 }
-#else
-std::string PlatformAux::GetEnvFileSuffix()
-{
-    std::string Suffix="_";
-
-#if defined(_WIN32)
-    // We are on the Win32 platform.
-    Suffix+="win32";
-
-    #if defined(__WATCOMC__)
-        // Using the OpenWatcom C/C++ compiler.
-        Suffix+="_ow";
-    #elif defined(_MSC_VER)
-        // Using the Microsoft Visual C++ compiler.
-        Suffix+="_vc60";
-    #else
-        Suffix+="_unknown";
-    #endif
-#elif __linux__ && __i386__
-    // We are on the Linux i386 platform.
-    Suffix+="li686";
-
-    #if __GNUG__    // This is equivalent to testing (__GNUC__ && __cplusplus).
-        // Using the g++ compiler.
-        // See http://www.delorie.com/gnu/docs/gcc/cpp_toc.html for documentation about the C preprocessor.
-        Suffix+="_g++";
-    #else
-        Suffix+="_unknown";
-    #endif
-#else
-    Suffix+="unknown_unknown";
-#endif
-
-#if defined(DEBUG)
-    Suffix+="_d";
-#else
-    Suffix+="_r";
-#endif
-
-    return Suffix;
-}
-#endif
 
 
 static void GetDLLs(const std::string& Path, const std::string& Prefix, ArrayT<std::string>& FoundDLLs)
 {
-    if (Path=="") return;
+    const std::vector<std::string> Items = PlatformAux::GetDirectory(Path);
 
-    #if defined(_WIN32) && defined(_MSC_VER)
-    {
-        WIN32_FIND_DATA FindFileData;
-
-        HANDLE hFind=FindFirstFile((Path+"\\*").c_str(), &FindFileData);
-        if (hFind==INVALID_HANDLE_VALUE) return;
-
-        do
-        {
-            if (!_stricmp(FindFileData.cFileName, "."  )) continue;
-            if (!_stricmp(FindFileData.cFileName, ".." )) continue;
-            if (!_stricmp(FindFileData.cFileName, "cvs")) continue;
-
-            // If FindFileData.cFileName doesn't begin with Prefix, continue.
-            if (std::string(FindFileData.cFileName, Prefix.length())!=Prefix) continue;
-
-            std::string DLLName=Path+"/"+FindFileData.cFileName;
-#ifdef SCONS_BUILD_DIR
-            const std::string Suffix=".dll";
+#if defined(_WIN32)
+    const std::string LibPrefix = Prefix;
+    const std::string Suffix=".dll";
 #else
-            const std::string Suffix=GetEnvFileSuffix()+".dll"; // Console->Print("Suffix "+Suffix+", DLLName "+DLLName+"\n");
+    const std::string LibPrefix = "lib" + Prefix;
+    const std::string Suffix =".so";
 #endif
 
-            // If FindFileData.cFileName doesn't end with Suffix, continue.
-            if (DLLName.length()<Suffix.length()) continue;
-            if (std::string(DLLName.c_str()+DLLName.length()-Suffix.length())!=Suffix) continue;
-
-            FoundDLLs.PushBack(DLLName);
-        } while (FindNextFile(hFind, &FindFileData)!=0);
-
-        if (GetLastError()==ERROR_NO_MORE_FILES) FindClose(hFind);
-    }
-    #else
+    for (size_t i = 0; i < Items.size(); i++)
     {
-        DIR* Dir=opendir(Path.c_str());
-        if (!Dir) return;
+        const std::string& DLLName = Items[i];
 
-        for (dirent* DirEnt=readdir(Dir); DirEnt!=NULL; DirEnt=readdir(Dir))
-        {
-            if (!strcasecmp(DirEnt->d_name, "."  )) continue;
-            if (!strcasecmp(DirEnt->d_name, ".." )) continue;
-            if (!strcasecmp(DirEnt->d_name, "cvs")) continue;
+        // If DLLName doesn't begin with LibPrefix, continue.
+        if (std::string(DLLName, 0, LibPrefix.length()) != LibPrefix) continue;
 
-            // If FindFileData.cFileName doesn't begin with LibPrefix, continue.
-            const std::string LibPrefix="lib"+Prefix;
-            if (std::string(DirEnt->d_name, LibPrefix.length())!=LibPrefix) continue;
+        // If DLLName doesn't end with Suffix, continue.
+        if (DLLName.length() < Suffix.length()) continue;
+        if (std::string(DLLName, DLLName.length() - Suffix.length()) != Suffix) continue;
 
-            // For portability, only the 'd_name' member of a 'dirent' may be accessed.
-            std::string DLLName=Path+"/"+DirEnt->d_name;
-#ifdef SCONS_BUILD_DIR
-            const std::string Suffix =".so";
-#else
-            const std::string Suffix =GetEnvFileSuffix()+".dll";
-#endif
-
-            // If FindFileData.cFileName doesn't end with Suffix, continue.
-            if (DLLName.length()<Suffix.length()) continue;
-            if (std::string(DLLName.c_str()+DLLName.length()-Suffix.length())!=Suffix) continue;
-
-            FoundDLLs.PushBack(DLLName);
-        }
-
-        closedir(Dir);
+        FoundDLLs.PushBack(Path + "/" + DLLName);
     }
-    #endif
 }
 
 
