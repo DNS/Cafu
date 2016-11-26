@@ -465,20 +465,23 @@ my_build_dir_rel=my_build_dir+"/release"
 my_build_dir_prf=my_build_dir+"/profile"
 
 
-ExtLibsList = ["bullet",
-               "freealut",
-               "freetype",
-               "jpeg",
-               "libogg",
-               "libpng",
-               "libvorbis",
-               "lwo",
-               "lua",
-               "minizip",
-               "mpg123",
-               "noise",
-               "openal-soft",
-               "zlib"]
+ExtLibsList = [
+    "bullet",
+    "freealut",
+    "freetype",
+    "glfw",
+    "jpeg",
+    "libogg",
+    "libpng",
+    "libvorbis",
+    "lwo",
+    "lua",
+    "minizip",
+    "mpg123",
+    "noise",
+    "openal-soft",
+    "zlib",
+]
 
 if sys.platform=="win32":
     ExtLibsList.remove("openal-soft")   # OpenAL-Soft is not built on Windows, use the OpenAL Windows SDK there.

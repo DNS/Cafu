@@ -32,26 +32,24 @@ envMapCompilers.Program('CaSHL/CaSHL',
 
 
 envTools = env.Clone()
+envTools.Append(CPPPATH=['ExtLibs/glfw/include'])
 
 if sys.platform=="win32":
-    envTools.Append(LIBPATH=['ExtLibs/DirectX7/lib'])
-    # glu32 is only needed for the TerrainViewerOld...
-    envTools.Append(LIBS=Split("SceneGraph MatSys ClipSys cfsLib cfs_jpeg bulletcollision bulletmath lua minizip lightwave png z")
-                       + Split("gdi32 glu32 opengl32 user32") + ['cfsOpenGL', 'dinput', 'dxguid'])
+    # shell32 is required by glfw, which uses DragQueryFile() etc.
+    envTools.Append(LIBS=Split("SceneGraph MatSys ClipSys cfsLib cfs_jpeg bulletcollision bulletmath glfw lua minizip lightwave png z")
+                       + Split("gdi32 opengl32 user32 shell32"))
 elif sys.platform=="linux2":
-    # GLU is only needed for the TerrainViewerOld...
-    envTools.Append(CPPPATH=['/usr/include/freetype2'])         # As of 2009-09-10, this line is to become unnecessary in the future, see /usr/include/ftbuild.h for details.
-    envTools.Append(LIBS=Split("SceneGraph MatSys cfsOpenGL ClipSys cfsLib cfs_jpeg bulletcollision bulletmath lua minizip lightwave png z")
-                       + Split("GL GLU X11 dl"))
+    envTools.Append(CPPPATH=['/usr/include/freetype2'])  # As of 2009-09-10, this line is to become unnecessary in the future, see /usr/include/ftbuild.h for details.
+    envTools.Append(LINKFLAGS=['-Wl,-rpath,.'])          # Have dlopen() consider "." when searching for SOs (e.g. libCg.so).
+    envTools.Append(LINKFLAGS=['-Wl,--export-dynamic'])  # Have our symbols available for dynamically loaded SOs (e.g. the renderer DLLs).
+
+    envTools.Append(LIBS=Split("SceneGraph MatSys ClipSys cfsLib cfs_jpeg bulletcollision bulletmath glfw lua minizip lightwave png z")
+                       + Split("GL X11 Xrandr Xinerama Xxf86vm Xcursor dl pthread"))
 
 envTools.Program("MakeFont", "CaTools/MakeFont.cpp", LIBS=envTools["LIBS"]+["freetype"])
-
-if sys.platform!="win32" or envTools["TARGET_ARCH"]=="x86":
-    # Don't build these programs under 64-bit Windows, as they still depend on our legacy 32-bit-only DirectInput code.
-    envTools.Program('CaSanity', ['CaTools/CaSanity.cpp'] + CommonWorldObject)
-    envTools.Program('MaterialViewer', "CaTools/MaterialViewer.cpp")
-    envTools.Program('TerrainViewer', "CaTools/TerrainViewer.cpp")
-    envTools.Program('TerrainViewerOld', "CaTools/TerrainViewerOld.cpp")
+envTools.Program('CaSanity', ['CaTools/CaSanity.cpp'] + CommonWorldObject)
+envTools.Program('MaterialViewer', "CaTools/MaterialViewer.cpp")
+envTools.Program('TerrainViewer', "CaTools/TerrainViewer.cpp")
 
 
 

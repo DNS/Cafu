@@ -7,14 +7,6 @@ This project is licensed under the terms of the MIT license.
 #ifndef CAFU_OPENGL_WINDOW_HPP_INCLUDED
 #define CAFU_OPENGL_WINDOW_HPP_INCLUDED
 
-#if defined(_WIN32) && _MSC_VER<1600
-#include "pstdint.h"            // Paul Hsieh's portable implementation of the stdint.h header.
-#else
-#include <stdint.h>
-#endif
-
-#include <string>
-
 
 /// This struct describes a keyboard event.
 struct CaKeyboardEventT
@@ -199,87 +191,5 @@ struct CaMouseEventT
     TypeT Type;     ///< The type of the mouse event.
     int   Amount;   ///< The amount.
 };
-
-
-class SingleOpenGLWindowT
-{
-    public:
-
-    /// Virtual destructor, so that deleting this class through derived-class pointers works right.
-    virtual ~SingleOpenGLWindowT() {}
-
-    /// This functions opens a new OpenGL window. Only one window can be open at one time.
-    /// Returns 'NULL' on success, or a string with the reason for the failure.
-    /// The global variables are initialized on success, and undefined otherwise.
-    /// Notes:
-    /// a) An 8 BPP stencil buffer is always requested.
-    /// b) The far clip plane is always located at infinity, in order to facilitate stencil shadows (and arbitrary large levels :-).
-    virtual const char* Open(const std::string& Title_, unsigned int Width_, unsigned int Height_, char BPP_, bool FullScreen_)=0;
-
-    /// Retrieves the messages of the window message queue, and deals with them.
-    /// Returns 'true' on receipt of a program quit message, 'false' otherwise.
-    virtual bool HandleWindowMessages()=0;
-
-    /// Indicates that HandleWindowMessages() should return true anytime soon.
-    virtual void PostQuitMessage()=0;
-
-    /// Returns the first of 256 OpenGL display list handles of an ASCII font character set.
-    virtual unsigned int GetSystemFontDisplayList(int FontHeight, const char* FontName)=0;
-
-    /// Swaps the front- and back-buffers.
-    virtual void SwapBuffers()=0;
-
-    /// Returns a pointer to a copy of the current (back-)frame-buffer, and the width and height of the buffer.
-    /// The returned pointer memory is statically allocated and the caller must not free it.
-    virtual uint32_t* GetFrameBuffer(unsigned int& Width_, unsigned int& Height_)=0;
-
-    /// Well, this closes and destroys the window.
-    virtual void Close()=0;
-
-    /// This function retrieves the next keyboard event, and stores it in 'KeyboardEvent'.
-    /// Return values:
-    ///  -1 - An error occured, no events read. 'KeyboardEvent' is not touched.
-    ///   0 - The event queue is empty, no events read. 'KeyboardEvent' is not touched.
-    ///   1 - One event successfully read and stored in 'KeyboardEvent'.
-    ///   2 - Same as 1, but events were lost due to buffer overflow.
-    virtual int GetNextKeyboardEvent(CaKeyboardEventT& KeyboardEvent)=0;
-
-    /// This function retrieves the next mouse event, and stores it in 'MouseEvent'.
-    /// Return values:
-    ///  -1 - An error occured, no events read. 'MouseEvent' is not touched.
-    ///   0 - The event queue is empty, no events read. 'MouseEvent' is not touched.
-    ///   1 - One event successfully read and stored in 'MouseEvent'.
-    ///   2 - Same as 1, but events were lost due to buffer overflow.
-    virtual int GetNextMouseEvent(CaMouseEventT& MouseEvent)=0;
-
-
-    virtual const std::string& GetTitle()=0;
-    virtual unsigned int       GetWidth()=0;
-    virtual unsigned int       GetHeight()=0;
-    virtual char               GetBPP()=0;
-    virtual bool               GetFullScreen()=0;
-    virtual bool               GetIsMinimized()=0;              ///< Ist das Fenster in der Taskbar (minimiert)?
- // virtual bool               GetWindowIsOpen()=0;             ///< 'true' gdw ein erfolgreich geöffnetes Fenster besteht, sonst 'false'.
- // virtual unsigned int       GetRenderingContextCounter()=0;  ///< Wird (ab 0) mit jedem erfolreich geöffneten OpenGLWindow inkrementiert.
-
-    ///< The function 'GetNextKeyboardEvent()' stores all keyboard events in this array.
-    ///< It can therefore be used to obtain the current state of the keyboard.
-    ///< Note that the state is current only after 'GetNextKeyboardEvent()' has been
-    ///< called until 0 was returned (i.e. the event queue is empty).
-    ///< The only purpuse of this array is to relieve the application from the book-keeping.
-    virtual bool*              GetKeyboardState()=0;
-
-    ///< The function 'GetNextMouseEvent()' stores all mouse button events in this 'char'.
-    ///< It can therefore be used to obtain the current state of the mouse buttons.
-    ///< Mouse button 'i' is pressed iff bit 'i' is set, and released otherwise.
-    ///< Note that the state is current only after 'GetNextMouseEvent()' has been
-    ///< called until 0 was returned (i.e. the event queue is empty).
-    ///< The only purpuse of this 'char' is to relieve the application from the book-keeping.
-    virtual char               GetMouseButtonState()=0;
-};
-
-
-extern SingleOpenGLWindowT* SingleOpenGLWindow;
-
 
 #endif

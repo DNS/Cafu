@@ -3,11 +3,6 @@ Cafu Engine, http://www.cafu.de/
 Copyright (c) Carsten Fuchs and other contributors.
 This project is licensed under the terms of the MIT license.
 */
-
-/***********************/
-/*** Material Viewer ***/
-/***********************/
-
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,19 +10,19 @@ This project is licensed under the terms of the MIT license.
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <direct.h>
 #else
 #include <cstring>
 #include <dlfcn.h>
 #define FreeLibrary dlclose
 #endif
 
+#include "GLFW/glfw3.h"
+
 #include "ConsoleCommands/Console.hpp"
 #include "ConsoleCommands/ConsoleInterpreter.hpp"
 #include "ConsoleCommands/ConsoleStdout.hpp"
 #include "FileSys/FileManImpl.hpp"
 #include "Fonts/Font.hpp"
-#include "OpenGL/OpenGLWindow.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/MaterialManagerImpl.hpp"
@@ -51,9 +46,132 @@ ConsoleInterpreterI* ConsoleInterpreter=NULL;
 MaterialManagerI*    MaterialManager   =NULL;
 
 
-const char*         BaseDirectoryName="Games/DeathMatch";
-const char*         MaterialName=NULL;
-ArrayT<const char*> MaterialScriptNames;
+struct LightSourceInfoT
+{
+    bool  IsOn;
+    float Pos[3];
+    float Radius;
+    float DiffColor[3];
+    float SpecColor[3];
+
+    LightSourceInfoT()
+    {
+        IsOn=false;
+        Pos[0]=0.0; Pos[1]=0.0; Pos[2]=0.0;
+        Radius=1000.0;
+        DiffColor[0]=1.0; DiffColor[1]=1.0; DiffColor[2]=1.0;
+        SpecColor[0]=1.0; SpecColor[1]=1.0; SpecColor[2]=1.0;
+    }
+};
+
+
+const char*              BaseDirectoryName="Games/DeathMatch";
+const char*              MaterialName=NULL;
+ArrayT<const char*>      MaterialScriptNames;
+MaterialT*               MyMaterial = NULL;
+MatSys::RenderMaterialT* RenderMaterial = NULL;
+ArrayT<LightSourceInfoT> LightSources;
+float                    ViewerHeading = 0.0;
+
+
+static void error_callback(int error, const char* description)
+{
+    fprintf(stderr, "GLFW Error: %s\n", description);
+}
+
+
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (action != GLFW_PRESS)
+        return;
+
+    if (key >= GLFW_KEY_1 && key <= GLFW_KEY_9)
+    {
+        const int Index = key - GLFW_KEY_1;
+
+        if (Index < int(LightSources.Size()))
+            LightSources[Index].IsOn = !LightSources[Index].IsOn;
+    }
+
+    switch (key)
+    {
+        case GLFW_KEY_ESCAPE:
+            glfwSetWindowShouldClose(window, true);
+            break;
+
+        case GLFW_KEY_U:
+        case GLFW_KEY_TAB:
+            // Re-load the textures of the current material.
+            // Because the RenderMaterial was the *only* material that we registered with the MatSys,
+            // free'ing it is enough to get the reference count of its textures in the texture manager to 0.
+            // This in turn deletes the textures from the tex-mans texture repository, which in turn is
+            // forced to re-load the texture from disk when MyMaterial is re-registered.
+            MatSys::Renderer->FreeMaterial(RenderMaterial);
+            RenderMaterial = MatSys::Renderer->RegisterMaterial(MyMaterial);
+            break;
+
+        case GLFW_KEY_M:
+            break;
+
+        // case GLFW_KEY_CK_X: RotXOn = !RotXOn; break;
+        // case GLFW_KEY_CK_Y: RotYOn = !RotYOn; break;
+        // case GLFW_KEY_CK_Z: RotZOn = !RotZOn; break;
+        // case GLFW_KEY_CK_K: DrawLightSource = !DrawLightSource; break;
+        // case GLFW_KEY_CK_ADD:      Model->SetSequenceNr(++SequenceNr); break;
+        // case GLFW_KEY_CK_SUBTRACT: Model->SetSequenceNr(--SequenceNr); break;
+    }
+}
+
+
+static float old_xpos = -10000.0f;
+
+static void cursor_pos_callback(GLFWwindow* window, double xpos, double ypos)
+{
+    if (old_xpos == -10000.0f)
+        old_xpos = float(xpos);
+
+    const float dx = float(xpos) - old_xpos;
+    old_xpos = float(xpos);
+
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+        ViewerHeading += dx / 2.0f;
+}
+
+
+static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    // The framebuffer's width and height are given in pixels (not in screen coordinates).
+    glViewport(0, 0, width, height);
+
+    // Avoid division by zero below.
+    if (height == 0)
+        return;
+
+    // Set the projection matrix.
+    // Note that the field of view is in y-direction, a value of 67.5° may correspond to 90° in x-direction.
+    const double FieldOfView = 67.5;
+    const double AspectRatio = double(width) / double(height);
+    const double Near        = 100.0;
+ // const double Far         = 100000.0;
+    const double cotanFOV    = 1.0 / tan(FieldOfView / 2.0 / 180.0 * 3.14159265359);
+
+    // This is the OpenGL projection matrix with the "far" clip plane moved to infinity,
+    // according to the NVidia paper about robust stencil buffered shadows.
+    // Note that this matrix is actually transposed, as this is what 'glLoadMatrix()' expects.
+    const double ProjMatInf[4][4] = {
+        { cotanFOV/AspectRatio,      0.0,       0.0,  0.0 },
+        {                  0.0, cotanFOV,       0.0,  0.0 },
+        {                  0.0,      0.0,      -1.0, -1.0 },
+        {                  0.0,      0.0, -2.0*Near,  0.0 }
+    };
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixd(&ProjMatInf[0][0]);
+
+    // A common (but not equivalent) alternative to the above:
+    // glLoadIdentity();
+    // gluPerspective(FieldOfView, AspectRatio, Near, Far);
+}
 
 
 void CreateMeshes(ArrayT<MatSys::MeshT>& Meshes, const MaterialT& MyMaterial)
@@ -269,25 +387,6 @@ void Usage()
 }
 
 
-struct LightSourceInfoT
-{
-    bool  IsOn;
-    float Pos[3];
-    float Radius;
-    float DiffColor[3];
-    float SpecColor[3];
-
-    LightSourceInfoT()
-    {
-        IsOn=false;
-        Pos[0]=0.0; Pos[1]=0.0; Pos[2]=0.0;
-        Radius=1000.0;
-        DiffColor[0]=1.0; DiffColor[1]=1.0; DiffColor[2]=1.0;
-        SpecColor[0]=1.0; SpecColor[1]=1.0; SpecColor[2]=1.0;
-    }
-};
-
-
 int main(int ArgC, const char* ArgV[])
 {
     printf("\nCafu Material Viewer (%s)\n\n", __DATE__);
@@ -341,7 +440,7 @@ int main(int ArgC, const char* ArgV[])
     }
 
     // Get the desired material.
-    MaterialT* MyMaterial=MaterialManager->GetMaterial(MaterialName);
+    MyMaterial = MaterialManager->GetMaterial(MaterialName);
 
     if (MyMaterial==NULL)
     {
@@ -354,32 +453,70 @@ int main(int ArgC, const char* ArgV[])
     }
 
 
-    // Open an OpenGL window.
-    const char* ErrorMsg=SingleOpenGLWindow->Open("Cafu Material Viewer 1.0", 1024, 768, 32, false);
+    glfwSetErrorCallback(error_callback);
 
-    if (ErrorMsg)
+    if (!glfwInit())
+        return -1;
+
+    // The default values for the window creations hints look just right for our purposes,
+    // see http://www.glfw.org/docs/latest/window_guide.html#window_hints_values for details.
+    GLFWwindow* window = glfwCreateWindow(
+        1280, 1024,
+        "Cafu Material Viewer 1.1",
+        NULL,
+        NULL
+    );
+
+    if (!window)
     {
-        printf("Unable to open OpenGL window: %s\n", ErrorMsg);
-        return 0;
+        glfwTerminate();
+        return -1;
     }
+
+    // TODO: Set a taskbar icon?
+    glfwSetKeyCallback(window, key_callback);
+    glfwSetCursorPosCallback(window, cursor_pos_callback);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwMakeContextCurrent(window);
+    glfwSwapInterval(1);   // enable v-sync
+
+    // Initial resize call, must trigger this manually.
+    int width;
+    int height;
+    glfwGetFramebufferSize(window, &width, &height);
+    framebuffer_size_callback(window, width, height);
 
 
     // Get the renderer with the highest preference number that is supported.
     HMODULE RendererDLL;
     MatSys::Renderer=(DesiredRendererName=="") ? PlatformAux::GetBestRenderer(RendererDLL) : PlatformAux::GetRenderer(DesiredRendererName, RendererDLL);
 
-    if (MatSys::Renderer==NULL || RendererDLL==NULL) { printf("No renderer loaded.\n"); SingleOpenGLWindow->Close(); return 0; }
+    if (MatSys::Renderer==NULL || RendererDLL==NULL)
+    {
+        printf("No renderer loaded.\n");
+        glfwDestroyWindow(window);
+        glfwTerminate();
+        return 0;
+    }
+
     MatSys::Renderer->Initialize();
 
 
     // Get the TextureMapManager from the RendererDLL.
     MatSys::TextureMapManagerI* TextureMapManager=PlatformAux::GetTextureMapManager(RendererDLL);
 
-    if (TextureMapManager==NULL) { printf("No TextureMapManager obtained.\n"); FreeLibrary(RendererDLL); SingleOpenGLWindow->Close(); return 0; }
+    if (TextureMapManager==NULL)
+    {
+        printf("No TextureMapManager obtained.\n");
+        FreeLibrary(RendererDLL);
+        glfwDestroyWindow(window);
+        glfwTerminate();
+        return 0;
+    }
 
 
     // Register the material with the renderer.
-    MatSys::RenderMaterialT* RenderMaterial=MatSys::Renderer->RegisterMaterial(MyMaterial);
+    RenderMaterial = MatSys::Renderer->RegisterMaterial(MyMaterial);
 
 
     // Create a very simple lightmap for the materials that need one, and register it with the renderer.
@@ -409,14 +546,12 @@ int main(int ArgC, const char* ArgV[])
 
 
     // Master loop.
-    TimerT                   Timer;
-    ArrayT<LightSourceInfoT> LightSources;
-    float                    ViewerOrigin[3]={ 0.0, 0.0, 0.0 };
-    float                    ViewerHeading=0.0;
+    TimerT Timer;
+    float  ViewerOrigin[3] = { 0.0, 0.0, 0.0 };
 
     LightSources.PushBackEmpty(4);
 
-    while (true)
+    while (!glfwWindowShouldClose(window))
     {
         static double TotalTime=0.0;
         const  double DeltaTime=Timer.GetSecondsSinceLastCall();
@@ -481,102 +616,25 @@ int main(int ArgC, const char* ArgV[])
             }
 
 
-            MyFont->Print(SingleOpenGLWindow->GetWidth()-100, SingleOpenGLWindow->GetHeight()-18, float(SingleOpenGLWindow->GetWidth()), float(SingleOpenGLWindow->GetHeight()), 0x00FFFFFF, cf::va("%5.1f FPS", 1.0/DeltaTime));
+            int width;
+            int height;
+            glfwGetFramebufferSize(window, &width, &height);
+
+            MyFont->Print(width - 100, height - 18, float(width), float(height), 0x00FFFFFF, cf::va("%5.1f FPS", 1.0 / DeltaTime));
         }
+
         MatSys::Renderer->EndFrame();
-        SingleOpenGLWindow->SwapBuffers();
 
-
-        // Rufe die Nachrichten der Windows-Nachrichtenschlange ab.
-        if (SingleOpenGLWindow->HandleWindowMessages()) break;
-
-        CaKeyboardEventT KE;
-        CaMouseEventT    ME;
-        bool             QuitProgram=false;
-
-        while (SingleOpenGLWindow->GetNextKeyboardEvent(KE)>0)
-        {
-            if (KE.Type!=CaKeyboardEventT::CKE_KEYDOWN) continue;
-
-            if (KE.Key==CaKeyboardEventT::CK_ESCAPE) QuitProgram=true;
-
-            if (KE.Key>=CaKeyboardEventT::CK_1 && KE.Key<=CaKeyboardEventT::CK_0)
-            {
-                unsigned long Index=KE.Key-CaKeyboardEventT::CK_1;
-
-                if (LightSources.Size()>Index)
-                    LightSources[Index].IsOn=!LightSources[Index].IsOn;
-            }
-
-            if (KE.Key==CaKeyboardEventT::CK_TAB || KE.Key==CaKeyboardEventT::CK_U)
-            {
-                // Re-load the textures of the current material.
-                // Because the RenderMaterial was the *only* material that we registered with the MatSys,
-                // free'ing it is enough to get the reference count of its textures in the texture manager to 0.
-                // This in turn deletes the textures from the tex-mans texture repository, which in turn is
-                // forced to re-load the texture from disk when MyMaterial is re-registered.
-                MatSys::Renderer->FreeMaterial(RenderMaterial);
-                RenderMaterial=MatSys::Renderer->RegisterMaterial(MyMaterial);
-            }
-
-            // switch (KE.Key)
-            // {
-            //     case CaKeyboardEventT::CK_X: RotXOn=!RotXOn; break;
-            //     case CaKeyboardEventT::CK_Y: RotYOn=!RotYOn; break;
-            //     case CaKeyboardEventT::CK_Z: RotZOn=!RotZOn; break;
-            //     case CaKeyboardEventT::CK_K: DrawLightSource=!DrawLightSource; break;
-            //     case CaKeyboardEventT::CK_ADD     : Model->SetSequenceNr(++SequenceNr); break;
-            //     case CaKeyboardEventT::CK_SUBTRACT: Model->SetSequenceNr(--SequenceNr); break;
-            //     default: break;
-            // }
-        }
-
-        while (SingleOpenGLWindow->GetNextMouseEvent(ME)>0)
-        {
-            switch (ME.Type)
-            {
-                case CaMouseEventT::CM_MOVE_X:   // x-axis
-                    if (SingleOpenGLWindow->GetMouseButtonState() & 0x01) ViewerHeading+=int(ME.Amount)/2;
-                    // if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_R]) RotZ+=int(ME.Amount);
-                    // if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_L]) LightSourceAzimut+=0.5*int(ME.Amount);
-                    // if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_M]) DynamicLightingInfo[3].x+=int(ME.Amount);
-                    break;
-
-                case CaMouseEventT::CM_MOVE_Y:   // y-axis
-                    // if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_R      ]) RotX+=int(ME.Amount);
-                    // if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_L      ]) { float& e=LightSourceElevation; e-=0.5*int(ME.Amount); if (e>90.0) e=90.0; if (e<-90.0) e=-90.0; }
-                    // if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_M      ]) DynamicLightingInfo[3].y-=int(ME.Amount);
-                    // if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_NUMPAD1]) { double& r=DynamicLightingInfo[1].x; r-=int(ME.Amount)/255.0/2.0; if (r>1) r=1; if (r<0) r=0; }
-                    // if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_NUMPAD2]) { double& g=DynamicLightingInfo[1].y; g-=int(ME.Amount)/255.0/2.0; if (g>1) g=1; if (g<0) g=0; }
-                    // if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_NUMPAD3]) { double& b=DynamicLightingInfo[1].z; b-=int(ME.Amount)/255.0/2.0; if (b>1) b=1; if (b<0) b=0; }
-                    // if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_NUMPAD4]) { double& r=AmbientLightingInfo[1].x; r-=int(ME.Amount)/255.0/2.0; if (r>1) r=1; if (r<0) r=0; }
-                    // if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_NUMPAD5]) { double& g=AmbientLightingInfo[1].y; g-=int(ME.Amount)/255.0/2.0; if (g>1) g=1; if (g<0) g=0; }
-                    // if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_NUMPAD6]) { double& b=AmbientLightingInfo[1].z; b-=int(ME.Amount)/255.0/2.0; if (b>1) b=1; if (b<0) b=0; }
-                    // if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_NUMPAD7]) { double& r=ClearColor.x; r-=int(ME.Amount)/255.0/2.0; if (r>1) r=1; if (r<0) r=0; glClearColor(ClearColor.x, ClearColor.y, ClearColor.z, 0.0); }
-                    // if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_NUMPAD8]) { double& g=ClearColor.y; g-=int(ME.Amount)/255.0/2.0; if (g>1) g=1; if (g<0) g=0; glClearColor(ClearColor.x, ClearColor.y, ClearColor.z, 0.0); }
-                    // if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_NUMPAD9]) { double& b=ClearColor.z; b-=int(ME.Amount)/255.0/2.0; if (b>1) b=1; if (b<0) b=0; glClearColor(ClearColor.x, ClearColor.y, ClearColor.z, 0.0); }
-                    break;
-
-                case CaMouseEventT::CM_MOVE_Z:   // z-axis (mouse wheel)
-                    // if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_L]) LightSourceDistance-=0.5*int(ME.Amount);
-                    //                                                                else DynamicLightingInfo[3].z-=int(ME.Amount);
-                    break;
-
-                default:
-                    // Ignore all other ME types.
-                    break;
-            }
-        }
-
-        if (QuitProgram) break;
+        glfwSwapBuffers(window);
+        glfwPollEvents();
 
 
         const float angle=ViewerHeading/180.0f*3.1415926f;
 
-        if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_UP   ] || SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_W]) { ViewerOrigin[0]+=sin(angle)*500.0f*float(DeltaTime); ViewerOrigin[1]+=cos(angle)*500.0f*float(DeltaTime); }
-        if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_DOWN ] || SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_S]) { ViewerOrigin[0]-=sin(angle)*500.0f*float(DeltaTime); ViewerOrigin[1]-=cos(angle)*500.0f*float(DeltaTime); }
-        if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_LEFT ] || SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_A]) { ViewerOrigin[0]-=cos(angle)*500.0f*float(DeltaTime); ViewerOrigin[1]+=sin(angle)*500.0f*float(DeltaTime); }
-        if (SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_RIGHT] || SingleOpenGLWindow->GetKeyboardState()[CaKeyboardEventT::CK_D]) { ViewerOrigin[0]+=cos(angle)*500.0f*float(DeltaTime); ViewerOrigin[1]-=sin(angle)*500.0f*float(DeltaTime); }
+        if (glfwGetKey(window, GLFW_KEY_UP   ) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_W)) { ViewerOrigin[0]+=sin(angle)*500.0f*float(DeltaTime); ViewerOrigin[1]+=cos(angle)*500.0f*float(DeltaTime); }
+        if (glfwGetKey(window, GLFW_KEY_DOWN ) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S)) { ViewerOrigin[0]-=sin(angle)*500.0f*float(DeltaTime); ViewerOrigin[1]-=cos(angle)*500.0f*float(DeltaTime); }
+        if (glfwGetKey(window, GLFW_KEY_LEFT ) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_A)) { ViewerOrigin[0]-=cos(angle)*500.0f*float(DeltaTime); ViewerOrigin[1]+=sin(angle)*500.0f*float(DeltaTime); }
+        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_D)) { ViewerOrigin[0]+=cos(angle)*500.0f*float(DeltaTime); ViewerOrigin[1]-=sin(angle)*500.0f*float(DeltaTime); }
 
 
         // Move the light sources.
@@ -622,6 +680,9 @@ int main(int ArgC, const char* ArgV[])
     MatSys::Renderer->Release();
     MatSys::Renderer=NULL;
     FreeLibrary(RendererDLL);
-    SingleOpenGLWindow->Close();
+
+    glfwDestroyWindow(window);
+    glfwTerminate();
+
     return 0;
 }
