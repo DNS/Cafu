@@ -25,12 +25,12 @@ This project is licensed under the terms of the MIT license.
 #include "GuiSys/Window.hpp"
 #include "MaterialSystem/MaterialManagerImpl.hpp"
 #include "Network/Network.hpp"
+#include "PlatformAux.hpp"
 #include "SoundSystem/SoundShaderManagerImpl.hpp"
 #include "SoundSystem/SoundSys.hpp"
 #include "TypeSys.hpp"
 
 #include "wx/cmdline.h"
-#include "wx/dir.h"
 #include "wx/filename.h"
 #include "wx/msgdlg.h"
 #include "wx/stdpaths.h"
@@ -238,13 +238,10 @@ bool AppCafuT::OnInit()
     }
 
     // Iterate through the "Games" subdirectory in order to find all available games.
-    wxDir    GamesDir("Games");
-    wxString GameName;
+    const std::vector<std::string> GameNames = PlatformAux::GetDirectory("Games", 'd');
 
-    for (bool more = GamesDir.GetFirst(&GameName, "", wxDIR_DIRS); more; more = GamesDir.GetNext(&GameName))
-    {
-        m_AllGameInfos.PushBack(GameInfoT(std::string(GameName)));
-    }
+    for (size_t i = 0; i < GameNames.size(); i++)
+        m_AllGameInfos.PushBack(GameInfoT(GameNames[i]));
 
     if (m_AllGameInfos.Size() == 0)
     {
