@@ -15,9 +15,6 @@ This project is licensed under the terms of the MIT license.
 #include "SoundSystem/SoundShaderManager.hpp"
 #include "TextParser/TextParser.hpp"
 
-#include "wx/wx.h"
-#include "wx/display.h"
-
 extern "C"
 {
     #include <lua.h>

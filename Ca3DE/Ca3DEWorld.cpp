@@ -4,8 +4,6 @@ Copyright (c) Carsten Fuchs and other contributors.
 This project is licensed under the terms of the MIT license.
 */
 
-#include "wx/msgdlg.h"
-
 #include "Ca3DEWorld.hpp"
 #include "EngineEntity.hpp"
 #include "ClipSys/ClipWorld.hpp"
