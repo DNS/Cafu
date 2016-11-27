@@ -31,9 +31,7 @@ This project is licensed under the terms of the MIT license.
 #include "TypeSys.hpp"
 
 #include "wx/cmdline.h"
-#include "wx/filename.h"
 #include "wx/msgdlg.h"
-#include "wx/stdpaths.h"
 
 
 // For each interface that is globally available to the application,
@@ -186,7 +184,6 @@ AppCafuT::AppCafuT()
     SetAppName("Cafu");
     SetAppDisplayName("Cafu Engine");
     SetVendorName("Carsten Fuchs Software");
-    wxStandardPaths::Get().UseAppInfo(wxStandardPaths::AppInfo_VendorName | wxStandardPaths::AppInfo_AppName);
 
     Console->Print("Cafu Engine, " __DATE__ "\n");
 }
@@ -210,11 +207,6 @@ cf::CompositeConsoleT& AppCafuT::GetConComposite() const
 
 bool AppCafuT::OnInit()
 {
-    const wxString UserDataDir=wxStandardPaths::Get().GetUserDataDir();
-
-    if (!wxFileName::Mkdir(UserDataDir, 0777, wxPATH_MKDIR_FULL))
-        wxMessageBox(wxString("Config file storage path \n")+UserDataDir+"\n doesn't exist, and it could not be created, either.", "Warning!");
-
     // Undo the wx locale initialization, as we want to be sure to use the same (default) locale "C" always and everywhere.
     // Using other locales introduces a lot of subtle errors. E.g. reading floating point numbers from anywhere
     // (like map files!) fails because e.g. "1.4" is no proper floating point string in the German locale (but "1,4" is).
