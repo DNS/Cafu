@@ -34,6 +34,7 @@ This project is licensed under the terms of the MIT license.
 #endif
 
 #include "GLFW/glfw3.h"
+#include "tclap/CmdLine.h"
 
 
 static cf::ConsoleStdoutT ConsoleStdout;
@@ -47,40 +48,6 @@ MaterialManagerI* MaterialManager=NULL;
 
 #define DEG2RAD(x) ((3.1415927f / 180.0f) * (x))
 #define SQR(x)     ((x) * (x))
-
-
-std::string BaseDirectoryName="Games/DeathMatch";
-
-
-static void Usage()
-{
-    printf("\n");
-    printf("\nUSAGE: TerrainViewer -t=HeightMapName -m=MaterialName [OPTIONS]\n");
-    printf("\n");
-    printf("\nMANDATORY PARAMETERS:\n");
-    printf("\n");
-    printf("-t=MyHeightMap specifies the name of the desired terrain (heightmap image).\n");
-    printf("\n");
-    printf("-m=MyMaterial specifies the name of the desired material, which must be\n");
-    printf("   defined in one of the material script files (see below).\n");
-    printf("\n");
-    printf("\nOPTIONS:\n");
-    printf("\n");
-    printf("-bd=base/dir specifies the base directory from which I look both for material\n");
-    printf("   scripts and the materials associated textures.\n");
-    printf("   The default (if you don't use -bd) is %s\n", BaseDirectoryName.c_str());
-    printf("\n");
-    printf("-ms=MyMatScript.cmat specifies the material script that contains a definition\n");
-    printf("   of \"MyMaterial\" (see above). You may use -ms several times, making me look\n");
-    printf("   into each specified script for a definition of the material.\n");
-    printf("   If you do not use -ms at all, I'll look into ALL material scripts that I can\n");
-    printf("   find in %s/Materials, so you probably don't need it as well.\n", BaseDirectoryName.c_str());
-    printf("\n");
-    printf("-bm runs a simple benchmark. Mostly intended for development purposes.\n");
-    printf("\n");
-
-    exit(0);
-}
 
 
 struct SceneDataT
@@ -163,15 +130,6 @@ static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 int main(int ArgC, char* ArgV[])
 {
-    const char*         TerrainName  =NULL;
-    const char*         MaterialName ="wireframe";  // The "wireframe" material is defined in file "meta.cmat".
-    bool                BenchMarkMode=false;
-    bool                UseSOARX     =false;        // SOARX is the new SOAR implementation.
-    ArrayT<const char*> MaterialScriptNames;
-
-
-    printf("\nCafu Engine Terrain Viewer (%s)\n\n", __DATE__);
-
     // Initialize the FileMan by mounting the default file system.
     // Note that specifying "./" (instead of "") as the file system description effectively prevents the use of
     // absolute paths like "D:\abc\someDir\someFile.xy" or "/usr/bin/xy". This however should be fine for this application.
@@ -180,25 +138,30 @@ int main(int ArgC, char* ArgV[])
     // cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_ZIP_ARCHIVE, "Games/DeathMatch/Textures/SkyDomes.zip", "Games/DeathMatch/Textures/SkyDomes/", "Ca3DE");
 
     // Process the command line options.
-    for (int ArgNr=1; ArgNr<ArgC; ArgNr++)
-    {
-             if (_strnicmp(ArgV[ArgNr], "-t=" , 3)==0) TerrainName=ArgV[ArgNr]+3;
-        else if (_strnicmp(ArgV[ArgNr], "-m=" , 3)==0) MaterialName=ArgV[ArgNr]+3;
-        else if (_strnicmp(ArgV[ArgNr], "-bd=", 4)==0) BaseDirectoryName=ArgV[ArgNr]+4;
-        else if (_strnicmp(ArgV[ArgNr], "-ms=", 4)==0) MaterialScriptNames.PushBack(ArgV[ArgNr]+4);
-        else if (_stricmp (ArgV[ArgNr], "-bm"    )==0) BenchMarkMode=true;
-        else if (_stricmp (ArgV[ArgNr], "-sx"    )==0) UseSOARX=true;
-        else
-        {
-            printf("Unknown option \"%s\".\n", ArgV[ArgNr]);
-            Usage();
-        }
-    }
+    // The "wireframe" material is defined in file "meta.cmat",
+    // SOARX is the new SOAR implementation.
+    TCLAP::CmdLine cmd("Cafu Engine Terrain Viewer", ' ', "1.2");
 
-    if (TerrainName==NULL)
+    // These may throw e.g. SpecificationException, but such exceptions are easily fixed permanently.
+    const TCLAP::ValueArg<std::string> TerrainName("t", "terrain", "Name of the terrain (heightmap image) to view.", true, "", "string", cmd);
+    const TCLAP::ValueArg<std::string> MaterialName("m", "material", "Name of the material to render the terrain with.", false, "wireframe", "string", cmd);
+    const TCLAP::ValueArg<std::string> BaseDirName("d", "base-dir", "Name of the base directory to search for material scripts.", false, "Games/DeathMatch", "string", cmd);
+    const TCLAP::SwitchArg BenchMarkMode("b", "benchmark", "Run program in benchmark mode.", cmd, false);
+    const TCLAP::SwitchArg UseSOARX("s", "soarx", "Use the SOARX implementation of the SOAR algorithm.", cmd, false);
+
+    try
     {
-        printf("Please use the -t option in order to specify a terrain name!\n");
-        Usage();
+        cmd.parse(ArgC, ArgV);
+    }
+    catch (const TCLAP::ExitException& ee)
+    {
+        //  ExitException is thrown after --help or --version was handled.
+        exit(ee.getExitStatus());
+    }
+    catch (const TCLAP::ArgException& e)
+    {
+        cmd.getOutput()->failure(cmd, e);
+        exit(-1);
     }
 
     // Setup the global Material Manager pointer.
@@ -207,24 +170,14 @@ int main(int ArgC, char* ArgV[])
     MaterialManager=&MatManImpl;
 
     // Register the material script files with the material manager.
-    if (MaterialScriptNames.Size()==0)
-    {
-        // The -ms option has not been used, so register all material script files in BaseDirectoryName/Materials.
-        MaterialManager->RegisterMaterialScriptsInDir(BaseDirectoryName+"/Materials", BaseDirectoryName+"/");
-    }
-    else
-    {
-        // Material script files have been specified - register them now.
-        for (unsigned long MSNNr=0; MSNNr<MaterialScriptNames.Size(); MSNNr++)
-            MaterialManager->RegisterMaterialScript(BaseDirectoryName+"/"+MaterialScriptNames[MSNNr], BaseDirectoryName+"/");
-    }
+    MaterialManager->RegisterMaterialScriptsInDir(BaseDirName.getValue() + "/Materials", BaseDirName.getValue() + "/");
 
     // Get the desired material.
-    MaterialT* TerrainMaterial=MaterialManager->GetMaterial(MaterialName);
+    MaterialT* TerrainMaterial=MaterialManager->GetMaterial(MaterialName.getValue());
 
     if (TerrainMaterial==NULL)
     {
-        printf("Sorry, I have not been able to get material \"%s\"\n", MaterialName);
+        printf("Sorry, I have not been able to get material \"%s\"\n", MaterialName.getValue().c_str());
         printf("from the registered material script files. Possible causes:\n");
         printf("- the material is not defined in any of the script files (material name typo?)\n");
         printf("- the material script file(s) could not be opened (script file name typo?)\n");
@@ -238,7 +191,7 @@ int main(int ArgC, char* ArgV[])
     {
         const unsigned long FRAMES_FOR_BENCHMARK=1000;
         const Vector3fT     TerrainResolution(160.0f, 160.0f, 50.0f*255.0f);
-        TerrainT            TerrainNew(TerrainName, TerrainResolution);
+        TerrainT            TerrainNew(TerrainName.getValue().c_str(), TerrainResolution);
         const double        STEPDIST_FOR_BENCHMARK=TerrainNew.GetSize()*1.2*TerrainResolution.x/FRAMES_FOR_BENCHMARK;
 
 
@@ -252,7 +205,7 @@ int main(int ArgC, char* ArgV[])
         GLFWwindow* window = glfwCreateWindow(
             1280, 1024,
             "Cafu Terrain Viewer 1.3",
-            BenchMarkMode ? glfwGetPrimaryMonitor() : NULL,
+            BenchMarkMode.getValue() ? glfwGetPrimaryMonitor() : NULL,
             NULL
         );
 
@@ -353,9 +306,9 @@ int main(int ArgC, char* ArgV[])
         TimerT        Timer;
         unsigned long FrameCounter=0;
         unsigned long GeomCRC=adler32(0, NULL, 0);  // We use Adler-32 instead of CRC-32, as Adler is faster but just as reliable.
-        Vector3fT     ViewerPos=BenchMarkMode ? Vector3fT(TerrainNew.GetVertices()[0])+Vector3fT(0, 0, 4000.0f) : Vector3fT(0, -500.0f, 1000.0f);
-        float         Heading=BenchMarkMode ? 55.0f : 0.0f;
-        float         Pitch  =BenchMarkMode ? 25.0f : 0.0f;
+        Vector3fT     ViewerPos=BenchMarkMode.getValue() ? Vector3fT(TerrainNew.GetVertices()[0])+Vector3fT(0, 0, 4000.0f) : Vector3fT(0, -500.0f, 1000.0f);
+        float         Heading=BenchMarkMode.getValue() ? 55.0f : 0.0f;
+        float         Pitch  =BenchMarkMode.getValue() ? 25.0f : 0.0f;
 
         glfwSetWindowUserPointer(window, &sd);
 
@@ -412,7 +365,7 @@ int main(int ArgC, char* ArgV[])
             static MatSys::MeshT TerrainMesh(MatSys::MeshT::TriangleStrip);
             TerrainMesh.Vertices.Overwrite();
 
-            if (UseSOARX)
+            if (UseSOARX.getValue())
             {
                 ArrayT<Vector3fT>& VectorStrip=TerrainNew.ComputeVectorStrip(VI);
 
@@ -476,10 +429,10 @@ int main(int ArgC, char* ArgV[])
 
             FrameCounter++;
 
-            if (BenchMarkMode && FrameCounter==FRAMES_FOR_BENCHMARK)
+            if (BenchMarkMode.getValue() && FrameCounter==FRAMES_FOR_BENCHMARK)
                 break;
 
-            if (BenchMarkMode)
+            if (BenchMarkMode.getValue())
             {
                 const float vx = float(STEPDIST_FOR_BENCHMARK)*sin(Heading/180.0f*3.1415926f);
                 const float vy = float(STEPDIST_FOR_BENCHMARK)*cos(Heading/180.0f*3.1415926f);
@@ -521,7 +474,7 @@ int main(int ArgC, char* ArgV[])
     }
     catch (const TerrainT::InitError& /*E*/)
     {
-        printf("\nEither \"%s\" could not be found, not be read,\n", TerrainName);
+        printf("\nEither \"%s\" could not be found, not be read,\n", TerrainName.getValue().c_str());
         printf("is not square, is smaller than 3 pixels, or not of size 2^n+1.  Sorry.\n");
     }
 

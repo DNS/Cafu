@@ -32,7 +32,7 @@ envMapCompilers.Program('CaSHL/CaSHL',
 
 
 envTools = env.Clone()
-envTools.Append(CPPPATH=['ExtLibs/glfw/include'])
+envTools.Append(CPPPATH=['ExtLibs/glfw/include', 'ExtLibs/tclap/include'])
 
 if sys.platform=="win32":
     # shell32 is required by glfw, which uses DragQueryFile() etc.
