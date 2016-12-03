@@ -45,6 +45,11 @@ class StdOutput : public CmdLineOutput
 {
   public:
 
+    StdOutput(std::ostream& cout_, std::ostream& cerr_)
+        : cout(cout_), cerr(cerr_)
+    {
+    }
+
     /**
      * Prints the usage to stdout.  Can be overridden to
      * produce alternative behavior.
@@ -66,6 +71,9 @@ class StdOutput : public CmdLineOutput
      * \param e - The ArgException that caused the failure.
      */
     void failure(const CmdLineInterface& c, const ArgException& e) const override;
+
+    std::ostream& cout;
+    std::ostream& cerr;
 
 
   protected:
@@ -107,29 +115,29 @@ class StdOutput : public CmdLineOutput
 
 inline void StdOutput::version(const CmdLineInterface& cmd) const
 {
-    std::cout << cmd.getMessage() << ", version "
-              << cmd.getVersion() << std::endl;
+    cout << cmd.getMessage() << ", version "
+         << cmd.getVersion() << std::endl;
 }
 
 inline void StdOutput::usage(const CmdLineInterface& _cmd ) const
 {
-    std::cout << std::endl << "Usage:" << std::endl;
-    _shortUsage( _cmd, std::cout );
+    cout << std::endl << "Usage:" << std::endl;
+    _shortUsage( _cmd, cout );
 
-    std::cout << std::endl << "Arguments:" << std::endl;
-    _longUsage( _cmd, std::cout );
+    cout << std::endl << "Arguments:" << std::endl;
+    _longUsage( _cmd, cout );
 }
 
 inline void StdOutput::failure(const CmdLineInterface& _cmd, const ArgException& e) const
 {
-    std::cerr << "\nError:\n   ";
+    cerr << "\nError:\n   ";
 
-    if (e.argId() != "") std::cerr << e.argId() << ", ";
-    std::cerr << e.error() << "\n";
+    if (e.argId() != "") cerr << e.argId() << ", ";
+    cerr << e.error() << "\n";
 
     if (_cmd.hasHelpAndVersion())
     {
-        std::cerr << "\nFor help, run:\n   " << _cmd.getProgramName() << " --help\n";
+        cerr << "\nFor help, run:\n   " << _cmd.getProgramName() << " --help\n";
     }
     else
     {

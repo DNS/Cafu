@@ -141,7 +141,7 @@ int main(int ArgC, char* ArgV[])
     // Process the command line options.
     // The "wireframe" material is defined in file "meta.cmat",
     // SOARX is the new SOAR implementation.
-    TCLAP::StdOutput stdOutput;
+    TCLAP::StdOutput stdOutput(std::cout, std::cerr);
     TCLAP::CmdLine cmd("Cafu Engine Terrain Viewer", stdOutput, ' ', "1.2");
 
     // These may throw e.g. SpecificationException, but such exceptions are easily fixed permanently.
