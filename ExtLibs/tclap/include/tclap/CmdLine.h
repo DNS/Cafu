@@ -35,7 +35,6 @@
 #include <tclap/IgnoreRestVisitor.h>
 
 #include <tclap/CmdLineOutput.h>
-#include <tclap/StdOutput.h>
 
 #include <tclap/Constraint.h>
 #include <tclap/ValuesConstraint.h>
@@ -127,7 +126,7 @@ class CmdLine : public CmdLineInterface
     /**
      * Object that handles all output for the CmdLine.
      */
-    CmdLineOutput* _output;
+    CmdLineOutput& _output;
 
     /**
      * Throws an exception listing the missing args.
@@ -166,13 +165,6 @@ class CmdLine : public CmdLineInterface
      */
     void _constructor();
 
-
-    /**
-     * Is set to true when a user sets the output object. We use this so
-     * that we don't delete objects that are created outside of this lib.
-     */
-    bool _userSetOutput;
-
     /**
      * Whether or not to automatically create help and version switches.
      */
@@ -193,6 +185,7 @@ class CmdLine : public CmdLineInterface
      * Version switches. Defaults to true.
      */
     CmdLine(const std::string& message,
+            CmdLineOutput& output,
             const char delimiter = ' ',
             const std::string& version = "none",
             bool helpAndVersion = true);
@@ -243,16 +236,7 @@ class CmdLine : public CmdLineInterface
      */
     void parse(std::vector<std::string>& args);
 
-    /**
-     *
-     */
-    CmdLineOutput* getOutput();
-
-    /**
-     *
-     */
-    void setOutput(CmdLineOutput* co);
-
+    const CmdLineOutput& getOutput() const { return _output; }
     const std::string& getVersion() const override { return _version; }
     const std::string& getProgramName() const override { return _progName; }
     const std::list<Arg*>& getArgList() const override { return _argList; }
@@ -274,6 +258,7 @@ class CmdLine : public CmdLineInterface
 ///////////////////////////////////////////////////////////////////////////////
 
 inline CmdLine::CmdLine(const std::string& m,
+                        CmdLineOutput& output,
                         char delim,
                         const std::string& v,
                         bool help )
@@ -287,8 +272,7 @@ inline CmdLine::CmdLine(const std::string& m,
     _xorHandler(XorHandler()),
     _argDeleteOnExitList(std::list<Arg * >()),
     _visitorDeleteOnExitList(std::list<Visitor * >()),
-    _output(0),
-    _userSetOutput(false),
+    _output(output),
     _helpAndVersion(help)
 {
     _constructor();
@@ -298,25 +282,17 @@ inline CmdLine::~CmdLine()
 {
     ClearContainer(_argDeleteOnExitList);
     ClearContainer(_visitorDeleteOnExitList);
-
-    if ( !_userSetOutput )
-    {
-        delete _output;
-        _output = 0;
-    }
 }
 
 inline void CmdLine::_constructor()
 {
-    _output = new StdOutput;
-
     Arg::setDelimiter( _delimiter );
 
     Visitor* v;
 
     if ( _helpAndVersion )
     {
-        v = new HelpVisitor( this, &_output );
+        v = new HelpVisitor( this, _output );
         SwitchArg* help = new SwitchArg("h", "help",
                                         "Displays usage information and exits.",
                                         false, v);
@@ -324,7 +300,7 @@ inline void CmdLine::_constructor()
         deleteOnExit(help);
         deleteOnExit(v);
 
-        v = new VersionVisitor( this, &_output );
+        v = new VersionVisitor( this, _output );
         SwitchArg* vers = new SwitchArg("", "version",
                                         "Displays version information and exits.",
                                         false, v);
@@ -480,19 +456,6 @@ inline void CmdLine::deleteOnExit(Arg* ptr)
 inline void CmdLine::deleteOnExit(Visitor* ptr)
 {
     _visitorDeleteOnExitList.push_back(ptr);
-}
-
-inline CmdLineOutput* CmdLine::getOutput()
-{
-    return _output;
-}
-
-inline void CmdLine::setOutput(CmdLineOutput* co)
-{
-    if ( !_userSetOutput )
-        delete _output;
-    _userSetOutput = true;
-    _output = co;
 }
 
 inline void CmdLine::reset()

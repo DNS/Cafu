@@ -52,7 +52,7 @@ class HelpVisitor: public Visitor
     /**
      * The output object.
      */
-    CmdLineOutput** _out;
+    CmdLineOutput& _out;
 
   public:
 
@@ -61,14 +61,14 @@ class HelpVisitor: public Visitor
      * \param cmd - The CmdLine the output will be generated for.
      * \param out - The type of output.
      */
-    HelpVisitor(CmdLineInterface* cmd, CmdLineOutput** out)
+    HelpVisitor(CmdLineInterface* cmd, CmdLineOutput& out)
         : Visitor(), _cmd( cmd ), _out( out ) { }
 
     /**
      * Calls the usage method of the CmdLineOutput for the
      * specified CmdLine.
      */
-    void visit() { (*_out)->usage(*_cmd); throw ExitException(0); }
+    void visit() { _out.usage(*_cmd); throw ExitException(0); }
 
 };
 

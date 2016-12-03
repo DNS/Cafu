@@ -35,6 +35,7 @@ This project is licensed under the terms of the MIT license.
 
 #include "GLFW/glfw3.h"
 #include "tclap/CmdLine.h"
+#include "tclap/StdOutput.h"
 
 
 static cf::ConsoleStdoutT ConsoleStdout;
@@ -140,7 +141,8 @@ int main(int ArgC, char* ArgV[])
     // Process the command line options.
     // The "wireframe" material is defined in file "meta.cmat",
     // SOARX is the new SOAR implementation.
-    TCLAP::CmdLine cmd("Cafu Engine Terrain Viewer", ' ', "1.2");
+    TCLAP::StdOutput stdOutput;
+    TCLAP::CmdLine cmd("Cafu Engine Terrain Viewer", stdOutput, ' ', "1.2");
 
     // These may throw e.g. SpecificationException, but such exceptions are easily fixed permanently.
     const TCLAP::ValueArg<std::string> TerrainName("t", "terrain", "Name of the terrain (heightmap image) to view.", true, "", "string", cmd);
@@ -160,7 +162,7 @@ int main(int ArgC, char* ArgV[])
     }
     catch (const TCLAP::ArgException& e)
     {
-        cmd.getOutput()->failure(cmd, e);
+        cmd.getOutput().failure(cmd, e);
         exit(-1);
     }
 

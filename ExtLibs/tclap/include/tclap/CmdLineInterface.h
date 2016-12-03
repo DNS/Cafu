@@ -95,12 +95,7 @@ class CmdLineInterface
     /**
      * Returns the CmdLineOutput object.
      */
-    virtual CmdLineOutput* getOutput() = 0;
-
-    /**
-     * \param co - CmdLineOutput object that we want to use instead.
-     */
-    virtual void setOutput(CmdLineOutput* co) = 0;
+    virtual const CmdLineOutput& getOutput() const = 0;
 
     /**
      * Returns the version string.
