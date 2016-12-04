@@ -385,10 +385,17 @@ std::string ValueArg<T>::shortID(const std::string& val) const
  * Implementation of longID.
  */
 template<class T>
-std::string ValueArg<T>::longID(const std::string& val) const
+std::string ValueArg<T>::longID(const std::string&) const
 {
-    static_cast<void>(val); // Ignore input, don't warn
-    return Arg::longID( _typeDesc );
+    std::ostringstream oss;
+    std::string s = Arg::longID(_typeDesc);
+
+    oss << _default;
+
+    if (oss.str() != "")
+        s += "  (default: " + oss.str() + ")";
+
+    return s;
 }
 
 template<class T>
