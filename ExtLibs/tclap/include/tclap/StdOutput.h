@@ -70,7 +70,7 @@ class StdOutput : public CmdLineOutput
      * \param c - The CmdLine object the output is generated for.
      * \param e - The ArgException that caused the failure.
      */
-    void failure(const CmdLineInterface& c, const ArgException& e) const override;
+    void failure(const CmdLineInterface& c, const ArgException& e, bool haveHelp) const override;
 
     std::ostream& cout;
     std::ostream& cerr;
@@ -128,14 +128,14 @@ inline void StdOutput::usage(const CmdLineInterface& _cmd ) const
     _longUsage( _cmd, cout );
 }
 
-inline void StdOutput::failure(const CmdLineInterface& _cmd, const ArgException& e) const
+inline void StdOutput::failure(const CmdLineInterface& _cmd, const ArgException& e, bool haveHelp) const
 {
     cerr << "\nError:\n   ";
 
     if (e.argId() != "") cerr << e.argId() << ", ";
     cerr << e.error() << "\n";
 
-    if (_cmd.hasHelpAndVersion())
+    if (haveHelp)
     {
         cerr << "\nFor help, run:\n   " << _cmd.getProgramName() << " --help\n";
     }

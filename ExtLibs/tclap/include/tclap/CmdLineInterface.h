@@ -128,12 +128,6 @@ class CmdLineInterface
     virtual const std::string& getMessage() const = 0;
 
     /**
-     * Indicates whether or not the help and version switches were created
-     * automatically.
-     */
-    virtual bool hasHelpAndVersion() const = 0;
-
-    /**
      * Resets the instance as if it had just been constructed so that the
      * instance can be reused.
      */

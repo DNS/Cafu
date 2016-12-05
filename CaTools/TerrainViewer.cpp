@@ -151,6 +151,12 @@ int main(int ArgC, char* ArgV[])
     const TCLAP::SwitchArg BenchMarkMode("b", "benchmark", "Run program in benchmark mode.", cmd, false);
     const TCLAP::SwitchArg UseSOARX("s", "soarx", "Use the SOARX implementation of the SOAR algorithm.", cmd, false);
 
+    TCLAP::VersionVisitor vv(&cmd, stdOutput);
+    const TCLAP::SwitchArg argVersion("",  "version", "Displays version information and exits.", cmd, false, &vv);
+
+    TCLAP::HelpVisitor hv(&cmd, stdOutput);
+    const TCLAP::SwitchArg argHelp("h", "help", "Displays usage information and exits.", cmd, false, &hv);
+
     try
     {
         cmd.parse(ArgC, ArgV);
@@ -162,7 +168,7 @@ int main(int ArgC, char* ArgV[])
     }
     catch (const TCLAP::ArgException& e)
     {
-        cmd.getOutput().failure(cmd, e);
+        cmd.getOutput().failure(cmd, e, true);
         exit(-1);
     }
 

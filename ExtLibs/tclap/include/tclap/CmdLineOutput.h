@@ -67,7 +67,7 @@ class CmdLineOutput
      * \param e - The ArgException that caused the failure.
      */
     virtual void failure(const CmdLineInterface& c,
-                         const ArgException& e) const = 0;
+                         const ArgException& e, bool haveHelp) const = 0;
 
 };
 

@@ -159,17 +159,6 @@ class CmdLine : public CmdLineInterface
     CmdLine(const CmdLine& rhs);
     CmdLine& operator=(const CmdLine& rhs);
 
-    /**
-     * Encapsulates the code common to the constructors
-     * (which is all of it).
-     */
-    void _constructor();
-
-    /**
-     * Whether or not to automatically create help and version switches.
-     */
-    bool _helpAndVersion;
-
   public:
 
     /**
@@ -187,8 +176,7 @@ class CmdLine : public CmdLineInterface
     CmdLine(const std::string& message,
             CmdLineOutput& output,
             const char delimiter = ' ',
-            const std::string& version = "none",
-            bool helpAndVersion = true);
+            const std::string& version = "none");
 
     /**
      * Deletes any resources allocated by a CmdLine object.
@@ -243,7 +231,6 @@ class CmdLine : public CmdLineInterface
     const XorHandler& getXorHandler() const override { return _xorHandler; }
     char getDelimiter() const override { return _delimiter; }
     const std::string& getMessage() const override { return _message; }
-    bool hasHelpAndVersion() const override { return _helpAndVersion; }
 
     /**
      * Allows the CmdLine object to be reused.
@@ -260,8 +247,7 @@ class CmdLine : public CmdLineInterface
 inline CmdLine::CmdLine(const std::string& m,
                         CmdLineOutput& output,
                         char delim,
-                        const std::string& v,
-                        bool help )
+                        const std::string& v)
     :
     _argList(std::list<Arg * >()),
     _progName("not_set_yet"),
@@ -272,51 +258,15 @@ inline CmdLine::CmdLine(const std::string& m,
     _xorHandler(XorHandler()),
     _argDeleteOnExitList(std::list<Arg * >()),
     _visitorDeleteOnExitList(std::list<Visitor * >()),
-    _output(output),
-    _helpAndVersion(help)
+    _output(output)
 {
-    _constructor();
+    Arg::setDelimiter( _delimiter );
 }
 
 inline CmdLine::~CmdLine()
 {
     ClearContainer(_argDeleteOnExitList);
     ClearContainer(_visitorDeleteOnExitList);
-}
-
-inline void CmdLine::_constructor()
-{
-    Arg::setDelimiter( _delimiter );
-
-    Visitor* v;
-
-    if ( _helpAndVersion )
-    {
-        v = new HelpVisitor( this, _output );
-        SwitchArg* help = new SwitchArg("h", "help",
-                                        "Displays usage information and exits.",
-                                        false, v);
-        add( help );
-        deleteOnExit(help);
-        deleteOnExit(v);
-
-        v = new VersionVisitor( this, _output );
-        SwitchArg* vers = new SwitchArg("", "version",
-                                        "Displays version information and exits.",
-                                        false, v);
-        add( vers );
-        deleteOnExit(vers);
-        deleteOnExit(v);
-    }
-
-    v = new IgnoreRestVisitor();
-    SwitchArg* ignore  = new SwitchArg(Arg::flagStartString(),
-                                       Arg::ignoreNameString(),
-                                       "Ignores the rest of the labeled arguments following this flag.",
-                                       false, v);
-    add( ignore );
-    deleteOnExit(ignore);
-    deleteOnExit(v);
 }
 
 inline void CmdLine::xorAdd( std::vector<Arg*>& ors )
@@ -358,7 +308,6 @@ inline void CmdLine::add( Arg* a )
         _numRequired++;
 }
 
-
 inline void CmdLine::parse(int argc, const char* const* argv)
 {
     // this step is necessary so that we have easy access to
@@ -380,8 +329,8 @@ inline void CmdLine::parse(std::vector<std::string>& args)
     for (int i = 0; static_cast<unsigned int>(i) < args.size(); i++)
     {
         bool matched = false;
-        for (ArgListIterator it = _argList.begin();
-                it != _argList.end(); it++)
+
+        for (ArgListIterator it = _argList.begin(); it != _argList.end(); it++)
         {
             if ( (*it)->processArg( &i, args ) )
             {
