@@ -176,12 +176,6 @@ class UnlabeledMultiArg : public MultiArg<T>
      * \param a - The Arg to be compared to this.
      */
     virtual bool operator==(const Arg& a) const;
-
-    /**
-     * Pushes this to back of list rather than front.
-     * \param argList - The list this should be added to.
-     */
-    virtual void addToList( std::list<Arg*>& argList ) const;
 };
 
 template<class T>
@@ -289,12 +283,6 @@ bool UnlabeledMultiArg<T>::operator==(const Arg& a) const
         return true;
     else
         return false;
-}
-
-template<class T>
-void UnlabeledMultiArg<T>::addToList( std::list<Arg*>& argList ) const
-{
-    argList.push_back( const_cast<Arg*>(static_cast<const Arg* const>(this)) );
 }
 
 }

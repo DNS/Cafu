@@ -352,7 +352,7 @@ inline void CmdLine::add( Arg* a )
                        "Argument with same flag/name already exists!",
                        a->longID() ) );
 
-    a->addToList( _argList );
+    _argList.push_back(a);
 
     if ( a->isRequired() )
         _numRequired++;

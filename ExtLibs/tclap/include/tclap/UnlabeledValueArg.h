@@ -198,13 +198,6 @@ class UnlabeledValueArg : public ValueArg<T>
      * Overrides operator== for specific behavior.
      */
     virtual bool operator==(const Arg& a ) const;
-
-    /**
-     * Instead of pushing to the front of list, push to the back.
-     * \param argList - The list to add this to.
-     */
-    virtual void addToList( std::list<Arg*>& argList ) const;
-
 };
 
 /**
@@ -329,12 +322,6 @@ bool UnlabeledValueArg<T>::operator==(const Arg& a ) const
         return true;
     else
         return false;
-}
-
-template<class T>
-void UnlabeledValueArg<T>::addToList( std::list<Arg*>& argList ) const
-{
-    argList.push_back( const_cast<Arg*>(static_cast<const Arg* const>(this)) );
 }
 
 }

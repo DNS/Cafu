@@ -190,12 +190,6 @@ class Arg
     virtual ~Arg();
 
     /**
-     * Adds this to the specified list of Args.
-     * \param argList - The list to add this to.
-     */
-    virtual void addToList( std::list<Arg*>& argList ) const;
-
-    /**
      * Begin ignoring arguments since the "--" argument was specified.
      */
     static void beginIgnoring() { ignoreRestRef() = true; }
@@ -658,14 +652,6 @@ inline void Arg::xorSet()
 {
     _alreadySet = true;
     _xorSet = true;
-}
-
-/**
- * Overridden by Args that need to added to the end of the list.
- */
-inline void Arg::addToList( std::list<Arg*>& argList ) const
-{
-    argList.push_front( const_cast<Arg*>(this) );
 }
 
 inline bool Arg::allowMore()
