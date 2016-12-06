@@ -18,6 +18,12 @@ except ImportError:
     import CompilerSetup
 
 
+def FixFormatting(Filename, Lines):
+    with codecs.open(Filename, encoding='utf-8', errors='strict', mode='wb') as f:
+        for l in Lines:
+            f.write(l.replace("\t", "    ").rstrip() + "\n")
+
+
 def CheckFormatting(start_dir, QuickMode):
     """
     This function checks for common problems such as trailing whitespace, TABs,
@@ -95,6 +101,8 @@ def CheckFormatting(start_dir, QuickMode):
 
                     if c["tabs"] or c["trailing_ws"] or c["NewL_Mac"] or c["NewL_Other"] or (c["NewL_Dos"] and c["NewL_Unix"]):
                         print pathname, c
+                        if False:
+                            FixFormatting(pathname, Lines)
                         ProblemsCount += 1
 
                 except UnicodeDecodeError:
@@ -129,7 +137,7 @@ def CheckFormatting(start_dir, QuickMode):
         print "Files with Unix-style newlines:", c_NewL_Unix
 
     if ProblemsCount:
-        print "\nError: The formatting of the above indicated source files is unexpected."
+        print "\nError: The formatting of the above {} indicated source files is unexpected.".format(ProblemsCount)
         Exit(1)
 
     print ""
