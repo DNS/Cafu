@@ -96,6 +96,7 @@ envCafu = wxEnv.Clone()
 
 envCafu.Append(CPPPATH=['ExtLibs/lua/src'])
 envCafu.Append(CPPPATH=['ExtLibs/bullet/src'])
+envCafu.Append(CPPPATH=['ExtLibs/tclap/include'])
 
 envCafu.Append(LIBS=Split("SceneGraph MatSys SoundSys ClipSys cfsLib cfs_jpeg bulletdynamics bulletcollision bulletmath lightwave lua minizip png z"))
 

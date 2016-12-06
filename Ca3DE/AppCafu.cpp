@@ -28,9 +28,11 @@ This project is licensed under the terms of the MIT license.
 #include "PlatformAux.hpp"
 #include "SoundSystem/SoundShaderManagerImpl.hpp"
 #include "SoundSystem/SoundSys.hpp"
+#include "String.hpp"
 #include "TypeSys.hpp"
 
-#include "wx/cmdline.h"
+#include "tclap/CmdLine.h"
+#include "tclap/StdOutput.h"
 #include "wx/msgdlg.h"
 
 
@@ -205,6 +207,25 @@ cf::CompositeConsoleT& AppCafuT::GetConComposite() const
 }
 
 
+extern ConVarT Options_ServerWorldName;
+extern ConVarT Options_ServerPortNr;
+extern ConVarT Options_ClientPortNr;
+extern ConVarT Options_ClientRemoteName;
+extern ConVarT Options_ClientRemotePortNr;
+
+extern ConVarT Options_ClientWindowSizeX;
+extern ConVarT Options_ClientWindowSizeY;
+extern ConVarT Options_ClientDisplayBPP;        // TODO
+extern ConVarT Options_ClientDisplayRefresh;    // TODO
+extern ConVarT Options_ClientFullScreen;
+
+extern ConVarT Options_ClientDesiredRenderer;
+extern ConVarT Options_ClientDesiredSoundSystem;
+extern ConVarT Options_ClientTextureDetail;
+extern ConVarT Options_PlayerName;
+extern ConVarT Options_PlayerModelName;
+
+
 bool AppCafuT::OnInit()
 {
     // Undo the wx locale initialization, as we want to be sure to use the same (default) locale "C" always and everywhere.
@@ -242,11 +263,114 @@ bool AppCafuT::OnInit()
         return false;
     }
 
+    m_GameInfo = m_AllGameInfos[0];
+
     ConsoleInterpreter->RunCommand("dofile('config.lua');");
 
     // Parse the command line.
-    if (!wxApp::OnInit())
+    std::ostringstream consoleOutputStream;
+    TCLAP::StdOutput   stdOutput(consoleOutputStream, consoleOutputStream);
+    TCLAP::CmdLine     cmd("Cafu Engine", stdOutput, ' ', "'" __DATE__ "'");
+
+    try
     {
+        std::string GamesList;
+
+        for (unsigned int i = 0; i < m_AllGameInfos.Size(); i++)
+        {
+            if (i > 0) GamesList += ", ";
+            GamesList += m_AllGameInfos[i].GetName();
+        }
+
+        // These may throw e.g. SpecificationException, but such exceptions are easily fixed permanently.
+        const TCLAP::ValueArg<std::string> argLog     ("l", "log",            "Logs all console messages into the specified file.", false, "", "filename", cmd);
+        const TCLAP::ValueArg<std::string> argConsole ("c", "console",        "Runs the given commands in the console, as if appended to the config.lua file.", false, "", "lua-script", cmd);
+        const TCLAP::ValueArg<std::string> argSvGame  ("g", "sv-game",        "Name of the game (MOD) that the server should run. Available: " + GamesList + ".", false, m_AllGameInfos[0].GetName(), "string", cmd);
+        const TCLAP::ValueArg<std::string> argSvWorld ("w", "sv-world",       "Name of the world that the server should run. Case sensitive!", false, Options_ServerWorldName.GetValueString(), "string", cmd);
+        const TCLAP::ValueArg<int>         argSvPort  ("o", "sv-port",        "Server port number.", false, Options_ServerPortNr.GetValueInt(), "number", cmd);
+        const TCLAP::SwitchArg             argClNoFS  ("n", "cl-no-fs",       "Don't switch to full-screen, use a plain window instead.", cmd);
+        const TCLAP::ValueArg<int>         argClPort  ("",  "cl-port",        "Client port number.", false, Options_ClientPortNr.GetValueInt(), "number", cmd);
+        const TCLAP::ValueArg<std::string> argClRmName("",  "cl-remote-name", "Name or IP of the server to connect to.", false, Options_ClientRemoteName.GetValueString(), "string", cmd);
+        const TCLAP::ValueArg<int>         argClRmPort("",  "cl-remote-port", "Port number of the remote server.", false, Options_ClientRemotePortNr.GetValueInt(), "number", cmd);
+        const TCLAP::ValueArg<int>         argClTexDt ("d", "cl-tex-detail",  "0 for high detail, 1 for medium detail, 2 for low detail.", false, Options_ClientTextureDetail.GetValueInt(), "number", cmd);
+        const TCLAP::ValueArg<int>         argClWinX  ("x", "cl-win-x",       "If not full-screen, this is the width  of the window.", false, Options_ClientWindowSizeX.GetValueInt(), "number", cmd);
+        const TCLAP::ValueArg<int>         argClWinY  ("y", "cl-win-y",       "If not full-screen, this is the height of the window.", false, Options_ClientWindowSizeY.GetValueInt(), "number", cmd);
+        const TCLAP::ValueArg<std::string> argClRend  ("r", "cl-renderer",    "Overrides the auto-selection of the best available renderer.", false, "[auto]", "string", cmd);
+        const TCLAP::ValueArg<std::string> argClSound ("s", "cl-soundsystem", "Overrides the auto-selection of the best available sound system.", false, "[auto]", "string", cmd);
+        const TCLAP::ValueArg<std::string> argClPlayer("p", "cl-playername",  "Player name.", false, Options_PlayerName.GetValueString(), "string", cmd);
+        const TCLAP::ValueArg<std::string> argClModel ("m", "cl-modelname",   "Name of the player's model.", false, Options_PlayerModelName.GetValueString(), "string", cmd);
+
+        TCLAP::VersionVisitor vv(&cmd, stdOutput);
+        const TCLAP::SwitchArg argVersion("",  "version", "Displays version information and exits.", cmd, false, &vv);
+
+        TCLAP::HelpVisitor hv(&cmd, stdOutput);
+        const TCLAP::SwitchArg argHelp("h", "help", "Displays usage information and exits.", cmd, false, &hv);
+
+        cmd.parse(argc, argv);
+
+        if (argConsole.getValue() != "")
+        {
+            ConsoleInterpreter->RunCommand(argConsole.getValue());
+        }
+
+        if (argLog.getValue() != "" && m_ConFile == NULL)
+        {
+            m_ConFile = new cf::ConsoleFileT(argLog.getValue());
+            m_ConFile->SetAutoFlush(true);
+            m_ConFile->Print(m_ConBuffer->GetBuffer());
+
+            s_CompositeConsole.Attach(m_ConFile);
+        }
+
+        if (true)
+        {
+            unsigned int i = 0;
+
+            for (i = 0; i < m_AllGameInfos.Size(); i++)
+                if (argSvGame.getValue() == m_AllGameInfos[i].GetName())
+                {
+                    m_GameInfo = m_AllGameInfos[i];
+                    break;
+                }
+
+            if (i >= m_AllGameInfos.Size())
+                throw TCLAP::ArgParseException("Unknown game \"" + argSvGame.getValue() + "\"", "sv-game");
+        }
+
+        Options_ServerWorldName     = argSvWorld .getValue();
+        Options_ServerPortNr        = argSvPort  .getValue();
+        Options_ClientFullScreen    = !argClNoFS .getValue();
+        Options_ClientPortNr        = argClPort  .getValue();
+        Options_ClientRemoteName    = argClRmName.getValue();
+        Options_ClientRemotePortNr  = argClRmPort.getValue();
+        Options_ClientTextureDetail = argClTexDt .getValue() % 3;
+        Options_ClientWindowSizeX   = argClWinX  .getValue();
+        Options_ClientWindowSizeY   = argClWinY  .getValue();
+        if (argClRend.getValue()  != "[auto]") Options_ClientDesiredRenderer    = argClRend.getValue();
+        if (argClSound.getValue() != "[auto]") Options_ClientDesiredSoundSystem = argClSound.getValue();
+        Options_PlayerName          = argClPlayer.getValue();
+        Options_PlayerModelName     = argClModel .getValue();
+    }
+    catch (const TCLAP::ExitException&)
+    {
+        //  ExitException is thrown after --help or --version was handled.
+        std::string s = consoleOutputStream.str();
+        s = cf::String::Replace(s, "\nUsage:", "Usage:");   // Hack: Reduce the output's height.
+        s = cf::String::Replace(s, "\n\n", "\n");
+
+        wxMessageBox(s, "Cafu Engine", wxOK);
+        // exit(ee.getExitStatus());
+        OnExit();
+        return false;
+    }
+    catch (const TCLAP::ArgException& ae)
+    {
+        cmd.getOutput().failure(cmd, ae, true);
+        std::string s = consoleOutputStream.str();
+        s = cf::String::Replace(s, "\nError:", "Error:");   // Hack: Reduce the output's height.
+
+        wxMessageBox(s, "Cafu Engine", wxOK | wxICON_EXCLAMATION);
+        // exit(-1);
         OnExit();
         return false;
     }
@@ -379,115 +503,4 @@ int AppCafuT::OnExit()
     m_Locale=NULL;
 
     return wxApp::OnExit();
-}
-
-
-extern ConVarT Options_ServerWorldName;
-extern ConVarT Options_ServerPortNr;
-extern ConVarT Options_ClientPortNr;
-extern ConVarT Options_ClientRemoteName;
-extern ConVarT Options_ClientRemotePortNr;
-
-extern ConVarT Options_ClientWindowSizeX;
-extern ConVarT Options_ClientWindowSizeY;
-extern ConVarT Options_ClientDisplayBPP;        // TODO
-extern ConVarT Options_ClientDisplayRefresh;    // TODO
-extern ConVarT Options_ClientFullScreen;
-
-extern ConVarT Options_ClientDesiredRenderer;
-extern ConVarT Options_ClientDesiredSoundSystem;
-extern ConVarT Options_ClientTextureDetail;
-extern ConVarT Options_PlayerName;
-extern ConVarT Options_PlayerModelName;
-
-
-void AppCafuT::OnInitCmdLine(wxCmdLineParser& Parser)
-{
-    std::string GamesList;
-
-    for (unsigned int i = 0; i < m_AllGameInfos.Size(); i++)
-    {
-        if (i > 0) GamesList += ", ";
-        GamesList += m_AllGameInfos[i].GetName();
-    }
-
-    Parser.AddOption("con",            "", "Runs the given commands in the console, as if appended to the config.lua file.", wxCMD_LINE_VAL_STRING);
-    Parser.AddOption("svGame",         "", "Name of the game (MOD) that the server should run [" + m_AllGameInfos[0].GetName() + "]. Available: " + GamesList + ".", wxCMD_LINE_VAL_STRING);
-    Parser.AddOption("svWorld",        "", "Name of the world that the server should run ["+Options_ServerWorldName.GetValueString()+"]. Case sensitive!", wxCMD_LINE_VAL_STRING);
-    Parser.AddOption("svPort",         "", wxString::Format("Server port number [%i].", Options_ServerPortNr.GetValueInt()), wxCMD_LINE_VAL_NUMBER);
-    Parser.AddSwitch("noFS", "clNoFullscreen", "Don't run full-screen, but rather in a window.");
-    Parser.AddOption("clPort",         "", wxString::Format("Client port number [%i].", Options_ClientPortNr.GetValueInt()), wxCMD_LINE_VAL_NUMBER);
-    Parser.AddOption("clRemoteName",   "", "Name or IP of the server we connect to ["+Options_ClientRemoteName.GetValueString()+"].", wxCMD_LINE_VAL_STRING);
-    Parser.AddOption("clRemotePort",   "", wxString::Format("Port number of the remote server [%i].", Options_ClientRemotePortNr.GetValueInt()), wxCMD_LINE_VAL_NUMBER);
-    Parser.AddOption("clTexDetail",    "", wxString::Format("0 high detail, 1 medium detail, 2 low detail [%i].", Options_ClientTextureDetail.GetValueInt()), wxCMD_LINE_VAL_NUMBER);
-    Parser.AddOption("clWinSizeX",     "", wxString::Format("If not full-screen, this is the width  of the window [%i].", Options_ClientWindowSizeX.GetValueInt()), wxCMD_LINE_VAL_NUMBER);
-    Parser.AddOption("clWinSizeY",     "", wxString::Format("If not full-screen, this is the height of the window [%i].", Options_ClientWindowSizeY.GetValueInt()), wxCMD_LINE_VAL_NUMBER);
-    Parser.AddOption("clRenderer",     "", "Override the auto-selection of the best available renderer [auto].", wxCMD_LINE_VAL_STRING);
-    Parser.AddOption("clSoundSystem",  "", "Override the auto-selection of the best available sound system [auto].", wxCMD_LINE_VAL_STRING);
-    Parser.AddOption("clPlayerName",   "", "Player name ["+Options_PlayerName.GetValueString()+"].", wxCMD_LINE_VAL_STRING);
-    Parser.AddOption("clModelName",    "", "Name of the players model ["+Options_PlayerModelName.GetValueString()+"].", wxCMD_LINE_VAL_STRING);
-    Parser.AddOption("log",            "", "Logs all console message into the specified file.");
-    Parser.AddParam("worldname", wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
-
-    wxApp::OnInitCmdLine(Parser);
-    Parser.AddUsageText("\nDefault values are enclosed in [brackets].");
-    Parser.AddUsageText("It is also ok to omit the \"-svWorld\" option for specifying a world name: \"Cafu MyWorld\" is the same as \"Cafu -svWorld MyWorld\".\n");
-    Parser.SetSwitchChars("-");
-}
-
-
-bool AppCafuT::OnCmdLineParsed(wxCmdLineParser& Parser)
-{
-    long int n=0;
-    wxString s="";
-
-    m_GameInfo = m_AllGameInfos[0];
-
-    if (Parser.Found("con",           &s)) ConsoleInterpreter->RunCommand(s.ToStdString());
-    if (Parser.Found("svWorld",       &s)) Options_ServerWorldName=s.ToStdString();
-    if (Parser.Found("svPort",        &n)) Options_ServerPortNr=int(n);
-    if (Parser.Found("noFS")             ) Options_ClientFullScreen=false;
-    if (Parser.Found("clPort",        &n)) Options_ClientPortNr=int(n);
-    if (Parser.Found("clRemoteName",  &s)) Options_ClientRemoteName=s.ToStdString();
-    if (Parser.Found("clRemotePort",  &n)) Options_ClientRemotePortNr=int(n);
-    if (Parser.Found("clTexDetail",   &n)) Options_ClientTextureDetail=int(n % 3);
-    if (Parser.Found("clWinSizeX",    &n)) Options_ClientWindowSizeX=int(n);
-    if (Parser.Found("clWinSizeY",    &n)) Options_ClientWindowSizeY=int(n);
-    if (Parser.Found("clRenderer",    &s)) Options_ClientDesiredRenderer=s.ToStdString();
-    if (Parser.Found("clSoundSystem", &s)) Options_ClientDesiredSoundSystem=s.ToStdString();
-    if (Parser.Found("clPlayerName",  &s)) Options_PlayerName=s.ToStdString();
-    if (Parser.Found("clModelName",   &s)) Options_PlayerModelName=s.ToStdString();
-
-    if (Parser.Found("svGame", &s))
-    {
-        unsigned int i = 0;
-
-        for (i = 0; i < m_AllGameInfos.Size(); i++)
-            if (s == m_AllGameInfos[i].GetName())
-            {
-                m_GameInfo = m_AllGameInfos[i];
-                break;
-            }
-
-        if (i >= m_AllGameInfos.Size())
-        {
-            // Game not found, but for clarity, *don't* silently use the default instead.
-            wxMessageBox("svGame: Unknown game \"" + s.ToStdString() + "\".\n\nUse --help to see a list of available games.\n", "Unknown game", wxOK | wxICON_EXCLAMATION);
-            return false;
-        }
-    }
-
-    if (Parser.Found("log", &s) && m_ConFile==NULL)
-    {
-        m_ConFile=new cf::ConsoleFileT(s.ToStdString());
-        m_ConFile->SetAutoFlush(true);
-        m_ConFile->Print(m_ConBuffer->GetBuffer());
-
-        s_CompositeConsole.Attach(m_ConFile);
-    }
-
-    if (!Parser.Found("svWorld") && Parser.GetParamCount()==1)
-        Options_ServerWorldName=Parser.GetParam(0).ToStdString();
-
-    return wxApp::OnCmdLineParsed(Parser);
 }
