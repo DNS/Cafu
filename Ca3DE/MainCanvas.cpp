@@ -126,197 +126,167 @@ void MainCanvasT::Initialize()
 
     m_InitState=INIT_FAILED;
 
-    // Initialize the Material System.
-    wxASSERT(this->IsShownOnScreen());
+    // Obtain the specified MatSys renderer (or if none is specified, automatically find the "best").
+    const wxString RendererName=wxString(Options_ClientDesiredRenderer.GetValueString()).Trim();
 
-    // If this call was in the ctor, it would trigger an assertion in debug build and yield an invalid (unusable)
-    // OpenGL context in release builds (the GL code in the MatSys::Renderer->IsSupported() methods would fail).
-    this->SetCurrent(*m_GLContext);
+    if (RendererName!="" && !RendererName.StartsWith("#"))
+        MatSys::Renderer=PlatformAux::GetRenderer(std::string(RendererName), m_RendererDLL);
+
+    if (MatSys::Renderer==NULL || m_RendererDLL==NULL)
+        MatSys::Renderer=PlatformAux::GetBestRenderer(m_RendererDLL);
+
+    if (MatSys::Renderer==NULL || m_RendererDLL==NULL)
+        throw std::runtime_error("Could not find a renderer that is supported on your system.");
+
+    MatSys::Renderer->Initialize();
 
 
-    try
+    // Obtain the texture map manager from the previously loaded renderer DLL.
+    MatSys::TextureMapManager=PlatformAux::GetTextureMapManager(m_RendererDLL);
+
+    if (MatSys::TextureMapManager==NULL)
+        throw std::runtime_error("Could not get the TextureMapManager from the renderer DLL.");
+
+    switch (Options_ClientTextureDetail.GetValueInt())
     {
-        // Obtain the specified MatSys renderer (or if none is specified, automatically find the "best").
-        const wxString RendererName=wxString(Options_ClientDesiredRenderer.GetValueString()).Trim();
-
-        if (RendererName!="" && !RendererName.StartsWith("#"))
-            MatSys::Renderer=PlatformAux::GetRenderer(std::string(RendererName), m_RendererDLL);
-
-        if (MatSys::Renderer==NULL || m_RendererDLL==NULL)
-            MatSys::Renderer=PlatformAux::GetBestRenderer(m_RendererDLL);
-
-        if (MatSys::Renderer==NULL || m_RendererDLL==NULL)
-            throw std::runtime_error("Could not find a renderer that is supported on your system.");
-
-        MatSys::Renderer->Initialize();
+        case 1: MatSys::TextureMapManager->SetMaxTextureSize(256); break;
+        case 2: MatSys::TextureMapManager->SetMaxTextureSize(128); break;
+    }
 
 
-        // Obtain the texture map manager from the previously loaded renderer DLL.
-        MatSys::TextureMapManager=PlatformAux::GetTextureMapManager(m_RendererDLL);
-
-        if (MatSys::TextureMapManager==NULL)
-            throw std::runtime_error("Could not get the TextureMapManager from the renderer DLL.");
-
-        switch (Options_ClientTextureDetail.GetValueInt())
-        {
-            case 1: MatSys::TextureMapManager->SetMaxTextureSize(256); break;
-            case 2: MatSys::TextureMapManager->SetMaxTextureSize(128); break;
-        }
+    // Initialize the model manager and the GUI resources.
+    m_ModelManager=new ModelManagerT();
+    m_GuiResources=new cf::GuiSys::GuiResourcesT(*m_ModelManager);
 
 
-        // Initialize the model manager and the GUI resources.
-        m_ModelManager=new ModelManagerT();
-        m_GuiResources=new cf::GuiSys::GuiResourcesT(*m_ModelManager);
+    // Initialize the sound system.
+    const wxString SoundSysName=wxString(Options_ClientDesiredSoundSystem.GetValueString()).Trim();
 
+    if (SoundSysName!="" && !SoundSysName.StartsWith("#"))
+        SoundSystem=PlatformAux::GetSoundSys(std::string(SoundSysName), m_SoundSysDLL);
 
-        // Initialize the sound system.
-        const wxString SoundSysName=wxString(Options_ClientDesiredSoundSystem.GetValueString()).Trim();
+    if (SoundSystem==NULL || m_SoundSysDLL==NULL)
+        SoundSystem=PlatformAux::GetBestSoundSys(m_SoundSysDLL);
 
-        if (SoundSysName!="" && !SoundSysName.StartsWith("#"))
-            SoundSystem=PlatformAux::GetSoundSys(std::string(SoundSysName), m_SoundSysDLL);
+    if (SoundSystem==NULL || m_SoundSysDLL==NULL)
+        throw std::runtime_error("Could not find a sound system that is supported on your system.");
 
-        if (SoundSystem==NULL || m_SoundSysDLL==NULL)
-            SoundSystem=PlatformAux::GetBestSoundSys(m_SoundSysDLL);
+    if (!SoundSystem->Initialize())
+    {
+        Console->Print("WARNING: Sound system failed to initialize!\n");
+        Console->Print("Sorry, but this is probably due to sound driver problems with your computer.\n");
+        Console->Print("We'll proceed anyway, with sound effects disabled.\n");
 
-        if (SoundSystem==NULL || m_SoundSysDLL==NULL)
-            throw std::runtime_error("Could not find a sound system that is supported on your system.");
-
-        if (!SoundSystem->Initialize())
-        {
-            Console->Print("WARNING: Sound system failed to initialize!\n");
-            Console->Print("Sorry, but this is probably due to sound driver problems with your computer.\n");
-            Console->Print("We'll proceed anyway, with sound effects disabled.\n");
-
-            SoundSystem=NULL;
-            FreeLibrary(m_SoundSysDLL);
+        SoundSystem=NULL;
+        FreeLibrary(m_SoundSysDLL);
 
 #ifdef SCONS_BUILD_DIR
-            #define QUOTE(str) QUOTE_HELPER(str)
-            #define QUOTE_HELPER(str) #str
+        #define QUOTE(str) QUOTE_HELPER(str)
+        #define QUOTE_HELPER(str) #str
 #ifdef _WIN32
-            const std::string NullPaths[]={ std::string("Libs/")+QUOTE(SCONS_BUILD_DIR)+"/SoundSystem/SoundSysNull.dll", "./SoundSysNull.dll" };
+        const std::string NullPaths[]={ std::string("Libs/")+QUOTE(SCONS_BUILD_DIR)+"/SoundSystem/SoundSysNull.dll", "./SoundSysNull.dll" };
 #else
-            const std::string NullPaths[]={ std::string("Libs/")+QUOTE(SCONS_BUILD_DIR)+"/SoundSystem/libSoundSysNull.so", "./libSoundSysNull.so" };
+        const std::string NullPaths[]={ std::string("Libs/")+QUOTE(SCONS_BUILD_DIR)+"/SoundSystem/libSoundSysNull.so", "./libSoundSysNull.so" };
 #endif
-            #undef QUOTE
-            #undef QUOTE_HELPER
+        #undef QUOTE
+        #undef QUOTE_HELPER
 #endif
 
-            SoundSystem=PlatformAux::GetSoundSys(NullPaths[0], m_SoundSysDLL);
+        SoundSystem=PlatformAux::GetSoundSys(NullPaths[0], m_SoundSysDLL);
 
-            if (SoundSystem==NULL || m_SoundSysDLL==NULL)
-                SoundSystem=PlatformAux::GetSoundSys(NullPaths[1], m_SoundSysDLL);
+        if (SoundSystem==NULL || m_SoundSysDLL==NULL)
+            SoundSystem=PlatformAux::GetSoundSys(NullPaths[1], m_SoundSysDLL);
 
-            // Null sound system should always be there and loadable...
-            if (SoundSystem==NULL || m_SoundSysDLL==NULL)
-                throw std::runtime_error("Could not load the Null sound system.");
+        // Null sound system should always be there and loadable...
+        if (SoundSystem==NULL || m_SoundSysDLL==NULL)
+            throw std::runtime_error("Could not load the Null sound system.");
 
-            SoundSystem->Initialize();    // Init of Null sound system always succeeds.
-        }
+        SoundSystem->Initialize();    // Init of Null sound system always succeeds.
+    }
 
-        static ConVarT InitialMasterVolume("snd_InitialMasterVolume", 1.0, ConVarT::FLAG_MAIN_EXE | ConVarT::FLAG_PERSISTENT, "The master volume with which the sound system is initialized.", 0.0, 1.0);
-        SoundSystem->SetMasterVolume(float(InitialMasterVolume.GetValueDouble()));
-
-
-        // Initialize the GUI systems GUI manager.
-        //   - This has to be done *after* all materials are loaded (AppCafuT::OnInit()) and after the MatSys::Renderer
-        //     has been initialized, so that the GuiMan finds its default material and can register it for rendering.
-        //     (This is no longer exactly true: each GUI has now its own local material manager! See r359 from 2011-08-29 for details.)
-        //   - It has to be done *before* the game is initialized, because even the server needs access to it
-        //     when it loads static detail model entities that have world/entity-GUIs.
-        cf::GuiSys::GuiMan=new cf::GuiSys::GuiManImplT(*m_GuiResources);
+    static ConVarT InitialMasterVolume("snd_InitialMasterVolume", 1.0, ConVarT::FLAG_MAIN_EXE | ConVarT::FLAG_PERSISTENT, "The master volume with which the sound system is initialized.", 0.0, 1.0);
+    SoundSystem->SetMasterVolume(float(InitialMasterVolume.GetValueDouble()));
 
 
-        // Create the client and server instances.
-        m_SvGuiCallback=new SvGuiCallbT();
-        m_Server=new ServerT(m_GameInfo, *m_SvGuiCallback, *m_ModelManager, *m_GuiResources);
-        m_Client=new ClientT(m_GameInfo, *m_ModelManager, *m_GuiResources);   // The client initializes in IDLE state.
+    // Initialize the GUI systems GUI manager.
+    //   - This has to be done *after* all materials are loaded (AppCafuT::OnInit()) and after the MatSys::Renderer
+    //     has been initialized, so that the GuiMan finds its default material and can register it for rendering.
+    //     (This is no longer exactly true: each GUI has now its own local material manager! See r359 from 2011-08-29 for details.)
+    //   - It has to be done *before* the game is initialized, because even the server needs access to it
+    //     when it loads static detail model entities that have world/entity-GUIs.
+    cf::GuiSys::GuiMan=new cf::GuiSys::GuiManImplT(*m_GuiResources);
 
 
-        // Finish the initialization of the GuiSys.
-        // Note that in the line below, the call to gui:setMousePos() is important, because it sets "MouseOverWindow" in the GUI properly to "Cl".
-        // Without this, a left mouse button click that was not preceeded by a mouse movement would erroneously remove the input focus from "Cl".
-        IntrusivePtrT<cf::GuiSys::GuiImplT> ClientGui = new cf::GuiSys::GuiImplT(*m_GuiResources);
+    // Create the client and server instances.
+    m_SvGuiCallback=new SvGuiCallbT();
+    m_Server=new ServerT(m_GameInfo, *m_SvGuiCallback, *m_ModelManager, *m_GuiResources);
+    m_Client=new ClientT(m_GameInfo, *m_ModelManager, *m_GuiResources);   // The client initializes in IDLE state.
 
-        ClientGui->LoadScript(
+
+    // Finish the initialization of the GuiSys.
+    // Note that in the line below, the call to gui:setMousePos() is important, because it sets "MouseOverWindow" in the GUI properly to "Cl".
+    // Without this, a left mouse button click that was not preceeded by a mouse movement would erroneously remove the input focus from "Cl".
+    IntrusivePtrT<cf::GuiSys::GuiImplT> ClientGui = new cf::GuiSys::GuiImplT(*m_GuiResources);
+
+    ClientGui->LoadScript(
+        "local gui = ...\n"
+        "local Cl = gui:new('WindowT', 'Client')\n"
+        "\n"
+        "Cl:GetTransform():set('Pos', 0, 0)\n"
+        "Cl:GetTransform():set('Size', 640, 480)\n"   // This must be done before gui:setMousePos() is called.
+        "\n"
+        "gui:SetRootWindow(Cl)\n"
+        "gui:showMouse(false)\n"
+        "gui:setMousePos(320, 240)\n"
+        "gui:setFocus(Cl)\n",
+        cf::GuiSys::GuiImplT::InitFlag_InlineCode);
+
+    IntrusivePtrT<cf::GuiSys::WindowT> ClientWindow = ClientGui->GetRootWindow()->Find("Client");
+    IntrusivePtrT<ComponentClientT>    CompClient   = new ComponentClientT;
+
+    assert(ClientWindow != NULL);
+    CompClient->SetClient(m_Client);
+    ClientWindow->AddComponent(CompClient);
+
+    cf::GuiSys::GuiMan->Register(ClientGui);
+
+
+    IntrusivePtrT<cf::GuiSys::GuiImplT> MainMenuGui = cf::GuiSys::GuiMan->Find("Games/" + m_GameInfo.GetName() + "/GUIs/MainMenu/MainMenu_main.cgui", true);
+    if (MainMenuGui==NULL)
+    {
+        MainMenuGui = new cf::GuiSys::GuiImplT(*m_GuiResources);
+
+        MainMenuGui->LoadScript(
             "local gui = ...\n"
-            "local Cl = gui:new('WindowT', 'Client')\n"
+            "local Err = gui:new('WindowT')\n"
             "\n"
-            "Cl:GetTransform():set('Pos', 0, 0)\n"
-            "Cl:GetTransform():set('Size', 640, 480)\n"   // This must be done before gui:setMousePos() is called.
-            "\n"
-            "gui:SetRootWindow(Cl)\n"
+            "gui:SetRootWindow(Err)\n"
+            "gui:activate(true)\n"
+            "gui:setInteractive(true)\n"
             "gui:showMouse(false)\n"
-            "gui:setMousePos(320, 240)\n"
-            "gui:setFocus(Cl)\n",
+            "\n"
+            "Err:GetTransform():set('Pos', 0, 0)\n"
+            "Err:GetTransform():set('Size', 640, 480)\n"
+            "\n"
+            "local c1 = gui:new('ComponentTextT')\n"
+            "c1:set('Text', 'Error loading MainMenu_main.cgui,\\nsee console <F1> for details.')\n"
+            "c1:set('Scale', 0.8)\n"
+            "Err:AddComponent(c1)\n",
             cf::GuiSys::GuiImplT::InitFlag_InlineCode);
 
-        IntrusivePtrT<cf::GuiSys::WindowT> ClientWindow = ClientGui->GetRootWindow()->Find("Client");
-        IntrusivePtrT<ComponentClientT>    CompClient   = new ComponentClientT;
-
-        assert(ClientWindow != NULL);
-        CompClient->SetClient(m_Client);
-        ClientWindow->AddComponent(CompClient);
-
-        cf::GuiSys::GuiMan->Register(ClientGui);
-
-
-        IntrusivePtrT<cf::GuiSys::GuiImplT> MainMenuGui = cf::GuiSys::GuiMan->Find("Games/" + m_GameInfo.GetName() + "/GUIs/MainMenu/MainMenu_main.cgui", true);
-        if (MainMenuGui==NULL)
-        {
-            MainMenuGui = new cf::GuiSys::GuiImplT(*m_GuiResources);
-
-            MainMenuGui->LoadScript(
-                "local gui = ...\n"
-                "local Err = gui:new('WindowT')\n"
-                "\n"
-                "gui:SetRootWindow(Err)\n"
-                "gui:activate(true)\n"
-                "gui:setInteractive(true)\n"
-                "gui:showMouse(false)\n"
-                "\n"
-                "Err:GetTransform():set('Pos', 0, 0)\n"
-                "Err:GetTransform():set('Size', 640, 480)\n"
-                "\n"
-                "local c1 = gui:new('ComponentTextT')\n"
-                "c1:set('Text', 'Error loading MainMenu_main.cgui,\\nsee console <F1> for details.')\n"
-                "c1:set('Scale', 0.8)\n"
-                "Err:AddComponent(c1)\n",
-                cf::GuiSys::GuiImplT::InitFlag_InlineCode);
-
-            cf::GuiSys::GuiMan->Register(MainMenuGui);
-        }
-        m_Client->SetMainMenuGui(MainMenuGui);
-        m_SvGuiCallback->MainMenuGui=MainMenuGui;       // This is the callback for the server, so that it can let the MainMenuGui know about its state changes.
-        m_SvGuiCallback->OnServerStateChanged("idle");  // Argh, this is a HACK for setting the initial state... can we move this / do it better?
-
-        IntrusivePtrT<cf::GuiSys::GuiImplT> ConsoleGui    = cf::GuiSys::GuiMan->Find("Games/"+ m_GameInfo.GetName() +"/GUIs/Console_main.cgui", true);
-        IntrusivePtrT<cf::GuiSys::WindowT>  ConsoleWindow = ConsoleGui != NULL ? ConsoleGui->GetRootWindow()->Find("ConsoleOutput") : NULL;
-
-        // Copy the previously collected console output to the new graphical console.
-        m_ConByGuiWin=new cf::GuiSys::ConsoleByWindowT(ConsoleWindow);
-        m_ConByGuiWin->Print(wxGetApp().GetConBuffer().GetBuffer());
-        wxGetApp().GetConComposite().Attach(m_ConByGuiWin);
-
-        m_InitState=INIT_SUCCESS;
+        cf::GuiSys::GuiMan->Register(MainMenuGui);
     }
-    catch (const std::runtime_error& RE)
-    {
-        wxMessageDialog Msg(NULL,
-            wxString("While initializing Cafu, the following error occurred:\n\n") + typeid(RE).name() + "\n" + RE.what(),
-            "Cafu Initialization Error",
-            wxOK | wxCANCEL | wxCANCEL_DEFAULT | wxICON_ERROR);
+    m_Client->SetMainMenuGui(MainMenuGui);
+    m_SvGuiCallback->MainMenuGui=MainMenuGui;       // This is the callback for the server, so that it can let the MainMenuGui know about its state changes.
+    m_SvGuiCallback->OnServerStateChanged("idle");  // Argh, this is a HACK for setting the initial state... can we move this / do it better?
 
-        Msg.SetExtendedMessage("Sorry it didn't work out.\nTo get help, please post this error at the Cafu forums or mailing-list.");
-        Msg.SetOKCancelLabels("Open www.cafu.de", "Close");
+    IntrusivePtrT<cf::GuiSys::GuiImplT> ConsoleGui    = cf::GuiSys::GuiMan->Find("Games/"+ m_GameInfo.GetName() +"/GUIs/Console_main.cgui", true);
+    IntrusivePtrT<cf::GuiSys::WindowT>  ConsoleWindow = ConsoleGui != NULL ? ConsoleGui->GetRootWindow()->Find("ConsoleOutput") : NULL;
 
-        while (Msg.ShowModal()==wxID_OK)
-        {
-            wxLaunchDefaultBrowser("http://www.cafu.de");
-        }
+    // This will be attached to the composite console, so that console messages are also printed to the ConsoleWindow.
+    m_ConByGuiWin=new cf::GuiSys::ConsoleByWindowT(ConsoleWindow);
 
-        m_Parent->Destroy();
-    }
+    m_InitState=INIT_SUCCESS;
 }
 
 
@@ -325,6 +295,7 @@ MainCanvasT::~MainCanvasT()
     m_InitState=INIT_REQUIRED;
 
     wxGetApp().GetConComposite().Detach(m_ConByGuiWin);
+
     delete m_ConByGuiWin;
     m_ConByGuiWin=NULL;
 
@@ -476,7 +447,41 @@ void MainCanvasT::OnPaint(wxPaintEvent& PE)
         //     <http://thread.gmane.org/gmane.comp.lib.wxwidgets.general/68490> and
         //     <http://thread.gmane.org/gmane.comp.lib.wxwidgets.general/70607> for details.
         // Consequently, the first and best opportunity for initialization is here.
-        Initialize();
+        wxASSERT(this->IsShownOnScreen());
+
+        // If this call was in the ctor, it would trigger an assertion in debug build and yield an invalid (unusable)
+        // OpenGL context in release builds (the GL code in the MatSys::Renderer->IsSupported() methods would fail).
+        this->SetCurrent(*m_GLContext);
+
+        try
+        {
+            Initialize();
+
+            if (m_InitState != INIT_SUCCESS)
+                throw std::runtime_error("The initialization was not successful.");
+        }
+        catch (const std::runtime_error& RE)
+        {
+            wxMessageDialog Msg(NULL,
+                wxString("While initializing Cafu, the following error occurred:\n\n") + typeid(RE).name() + "\n" + RE.what(),
+                "Cafu Initialization Error",
+                wxOK | wxCANCEL | wxCANCEL_DEFAULT | wxICON_ERROR);
+
+            Msg.SetExtendedMessage("Sorry it didn't work out.\nTo get help, please post this error at the Cafu forums or mailing-list.");
+            Msg.SetOKCancelLabels("Open www.cafu.de", "Close");
+
+            while (Msg.ShowModal()==wxID_OK)
+            {
+                wxLaunchDefaultBrowser("http://www.cafu.de");
+            }
+
+            m_Parent->Destroy();
+            return;
+        }
+
+        // Copy the previously collected console output to the new graphical console.
+        m_ConByGuiWin->Print(wxGetApp().GetConBuffer().GetBuffer());
+        wxGetApp().GetConComposite().Attach(m_ConByGuiWin);
     }
 }
 
