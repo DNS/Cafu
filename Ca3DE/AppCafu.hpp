@@ -49,10 +49,6 @@ class AppCafuT : public wxApp
     /// Returns whether we successfully set a custom video mode (screen resolution) during initialization.
     bool IsCustomVideoMode() const { return m_IsCustomVideoMode; }
 
-    /// This method returns the current video mode, which may be identical to the desktops video mode
-    /// (in which case the mode as not switched at all at app init), or any custom mode.
-    const wxVideoMode& GetCurrentMode() const { return m_CurrentMode; }
-
     /// Returns the main frame of the Cafu application.
     MainFrameT* GetMainFrame() const { return m_MainFrame; }
 

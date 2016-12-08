@@ -118,87 +118,6 @@ MainCanvasT::MainCanvasT(MainFrameT* Parent, const GameInfoT& GameInfo)
 }
 
 
-MainCanvasT::~MainCanvasT()
-{
-    m_InitState=INIT_REQUIRED;
-
-    wxGetApp().GetConComposite().Detach(m_ConByGuiWin);
-    delete m_ConByGuiWin;
-    m_ConByGuiWin=NULL;
-
-    delete m_Client; m_Client=NULL;
-    delete m_Server; m_Server=NULL;
-
-    if (m_SvGuiCallback)
-    {
-        m_SvGuiCallback->MainMenuGui=NULL;
-        delete m_SvGuiCallback; m_SvGuiCallback=NULL;
-    }
-
-
-    // When the game has been unloaded, no collision models must be left in the collision model manager.
-    wxASSERT(cf::ClipSys::CollModelMan->GetUniqueCMCount()==0);
-
-
-    // Release the GuiManager (*before* the renderer).
-    if (cf::GuiSys::GuiMan)
-    {
-        delete cf::GuiSys::GuiMan;
-        cf::GuiSys::GuiMan=NULL;
-    }
-
-
-    // Release the Cafu Sound System.
-    if (SoundSystem)
-    {
-        SoundSystem->Release();
-        SoundSystem=NULL;
-    }
-
-    if (m_SoundSysDLL)
-    {
-        FreeLibrary(m_SoundSysDLL);
-        m_SoundSysDLL=NULL;
-    }
-
-
-    // Release the GUI resources.
-    if (m_GuiResources)
-    {
-        delete m_GuiResources;
-        m_GuiResources=NULL;
-    }
-
-
-    // Release the model manager.
-    if (m_ModelManager)
-    {
-        delete m_ModelManager;
-        m_ModelManager=NULL;
-    }
-
-
-    // Release the Cafu Material System.
-    if (MatSys::TextureMapManager)
-    {
-        // MatSys::TextureMapManager->FreeTextureMap(m_WhiteTexture);
-        MatSys::TextureMapManager=NULL;
-    }
-
-    if (MatSys::Renderer)
-    {
-        MatSys::Renderer->Release();
-        MatSys::Renderer=NULL;
-    }
-
-    if (m_RendererDLL)
-    {
-        FreeLibrary(m_RendererDLL);
-        m_RendererDLL=NULL;
-    }
-}
-
-
 void MainCanvasT::Initialize()
 {
     extern ConVarT Options_ClientDesiredRenderer;
@@ -397,6 +316,87 @@ void MainCanvasT::Initialize()
         }
 
         m_Parent->Destroy();
+    }
+}
+
+
+MainCanvasT::~MainCanvasT()
+{
+    m_InitState=INIT_REQUIRED;
+
+    wxGetApp().GetConComposite().Detach(m_ConByGuiWin);
+    delete m_ConByGuiWin;
+    m_ConByGuiWin=NULL;
+
+    delete m_Client; m_Client=NULL;
+    delete m_Server; m_Server=NULL;
+
+    if (m_SvGuiCallback)
+    {
+        m_SvGuiCallback->MainMenuGui=NULL;
+        delete m_SvGuiCallback; m_SvGuiCallback=NULL;
+    }
+
+
+    // When the game has been unloaded, no collision models must be left in the collision model manager.
+    wxASSERT(cf::ClipSys::CollModelMan->GetUniqueCMCount()==0);
+
+
+    // Release the GuiManager (*before* the renderer).
+    if (cf::GuiSys::GuiMan)
+    {
+        delete cf::GuiSys::GuiMan;
+        cf::GuiSys::GuiMan=NULL;
+    }
+
+
+    // Release the Cafu Sound System.
+    if (SoundSystem)
+    {
+        SoundSystem->Release();
+        SoundSystem=NULL;
+    }
+
+    if (m_SoundSysDLL)
+    {
+        FreeLibrary(m_SoundSysDLL);
+        m_SoundSysDLL=NULL;
+    }
+
+
+    // Release the GUI resources.
+    if (m_GuiResources)
+    {
+        delete m_GuiResources;
+        m_GuiResources=NULL;
+    }
+
+
+    // Release the model manager.
+    if (m_ModelManager)
+    {
+        delete m_ModelManager;
+        m_ModelManager=NULL;
+    }
+
+
+    // Release the Cafu Material System.
+    if (MatSys::TextureMapManager)
+    {
+        // MatSys::TextureMapManager->FreeTextureMap(m_WhiteTexture);
+        MatSys::TextureMapManager=NULL;
+    }
+
+    if (MatSys::Renderer)
+    {
+        MatSys::Renderer->Release();
+        MatSys::Renderer=NULL;
+    }
+
+    if (m_RendererDLL)
+    {
+        FreeLibrary(m_RendererDLL);
+        m_RendererDLL=NULL;
     }
 }
 
