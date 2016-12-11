@@ -82,7 +82,7 @@ ResourcesT::~ResourcesT()
 }
 
 
-void ResourcesT::Initialize()
+void ResourcesT::Initialize(MainWindowT& MainWin)
 {
     extern ConVarT Options_ClientDesiredRenderer;
     extern ConVarT Options_ClientTextureDetail;
@@ -184,7 +184,7 @@ void ResourcesT::Initialize()
     // Create the client and server instances.
     m_SvGuiCallback=new SvGuiCallbT();
     m_Server=new ServerT(m_GameInfo, *m_SvGuiCallback, *m_ModelManager, *m_GuiResources);
-    m_Client=new ClientT(m_GameInfo, *m_ModelManager, *m_GuiResources);   // The client initializes in IDLE state.
+    m_Client=new ClientT(MainWin, m_GameInfo, *m_ModelManager, *m_GuiResources);   // The client initializes in IDLE state.
 
 
     // Finish the initialization of the GuiSys.

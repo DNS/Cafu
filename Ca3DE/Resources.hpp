@@ -21,6 +21,7 @@ class GameInfoT;
 class ClientT;
 class ServerT;
 class SvGuiCallbT;
+class MainWindowT;
 class ModelManagerT;
 namespace cf { namespace GuiSys { class GuiResourcesT; } }
 namespace cf { namespace GuiSys { class ConsoleByWindowT; } }
@@ -41,7 +42,7 @@ class ResourcesT
     InitStateT GetInitState() const { return m_InitState; }
 
     /// Initialize the resources. Throws std::runtime_error on failure.
-    void Initialize();
+    void Initialize(MainWindowT& MainWin);
 
 
     public:

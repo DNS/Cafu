@@ -70,7 +70,8 @@ MainCanvasT::MainCanvasT(MainFrameT* Parent, const GameInfoT& GameInfo)
       m_GLContext(NULL),
       m_Timer(),
       m_TotalTime(0.0),
-      m_LastMousePos(IN_OTHER_2D_GUI)
+      m_LastMousePos(IN_OTHER_2D_GUI),
+      m_MainWin(Parent)
 {
     m_GLContext=new wxGLContext(this);
 
@@ -168,7 +169,7 @@ void MainCanvasT::OnPaint(wxPaintEvent& PE)
 
         try
         {
-            m_Resources.Initialize();
+            m_Resources.Initialize(m_MainWin);
 
             // This should never happen, because an exception should have been thrown beforehand.
             if (m_Resources.GetInitState() != ResourcesT::INIT_SUCCESS)
