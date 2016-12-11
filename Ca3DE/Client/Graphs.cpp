@@ -4,8 +4,6 @@ Copyright (c) Carsten Fuchs and other contributors.
 This project is licensed under the terms of the MIT license.
 */
 
-#include "../AppCafu.hpp"
-#include "../MainFrame.hpp"
 #include "Graphs.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/Mesh.hpp"
@@ -60,10 +58,9 @@ void GraphsT::ClearForFrame(unsigned long ClientFrameNr)
 }
 
 
-void GraphsT::Draw(unsigned long ClientFrameNr)
+void GraphsT::Draw(unsigned long ClientFrameNr, unsigned int fbWidth, unsigned int fbHeight) const
 {
-    const wxSize FrameSize = wxGetApp().GetMainFrame()->GetClientSize();
-    int          FrameNr   = 512;
+    int FrameNr = 512;
 
     MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
     MatSys::Renderer->PushMatrix(MatSys::RendererI::WORLD_TO_VIEW );
@@ -71,15 +68,15 @@ void GraphsT::Draw(unsigned long ClientFrameNr)
 
     MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());
     MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW,  MatrixT());
-    MatSys::Renderer->SetMatrix(MatSys::RendererI::PROJECTION,     MatrixT::GetProjOrthoMatrix(0.0f, float(FrameSize.GetWidth()), float(FrameSize.GetHeight()), 0.0f, -1.0f, 1.0f));
+    MatSys::Renderer->SetMatrix(MatSys::RendererI::PROJECTION,     MatrixT::GetProjOrthoMatrix(0.0f, float(fbWidth), float(fbHeight), 0.0f, -1.0f, 1.0f));
 
     static MatSys::MeshT LinesMesh (MatSys::MeshT::Lines ); LinesMesh .Vertices.Overwrite();
     static MatSys::MeshT PointsMesh(MatSys::MeshT::Points); PointsMesh.Vertices.Overwrite();
 
     while (FrameNr--)
     {
-        const int x = (FrameSize.GetWidth() - 512) / 2 + FrameNr;
-        const int y = FrameSize.GetHeight() - 10;
+        const int x = (fbWidth - 512) / 2 + FrameNr;
+        const int y = fbHeight - 10;
 
         const unsigned long FrameIndex = ClientFrameNr & (512 - 1);
 

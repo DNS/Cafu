@@ -529,7 +529,7 @@ void ClientStateInGameT::Render(float FrameTime)
     // Zeichne die restlichen Dinge, die unabhängig von der World sind.
     static ConVarT ShowGraphs("showGraphs", false, ConVarT::FLAG_MAIN_EXE, "Toggles whether some FPS graphs are shown.");
 
-    if (ShowGraphs.GetValueBool()) Graphs.Draw(ClientFrameNr);
+    if (ShowGraphs.GetValueBool()) Graphs.Draw(ClientFrameNr, FrameSize.GetWidth(), FrameSize.GetHeight());
 
     for (const char* s=DequeueString(); s!=NULL; s=DequeueString())
     {

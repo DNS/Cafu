@@ -29,7 +29,7 @@ class GraphsT
     void ClearForFrame(unsigned long ClientFrameNr);
 
     // Zeichnet alle Graphen.
-    void Draw(unsigned long ClientFrameNr);
+    void Draw(unsigned long ClientFrameNr, unsigned int fbWidth, unsigned int fbHeight) const;
 
 
     private:
