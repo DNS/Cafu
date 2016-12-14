@@ -71,7 +71,7 @@ MainCanvasT::MainCanvasT(MainFrameT* Parent, const GameInfoT& GameInfo)
       m_Timer(),
       m_TotalTime(0.0),
       m_LastMousePos(IN_OTHER_2D_GUI),
-      m_MainWin(Parent)
+      m_MainWin(Parent, this)
 {
     m_GLContext=new wxGLContext(this);
 

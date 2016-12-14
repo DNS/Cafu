@@ -5,7 +5,6 @@ This project is licensed under the terms of the MIT license.
 */
 
 #include "../GameInfo.hpp"
-#include "../MainWindow.hpp"
 #include "../NetConst.hpp"
 
 #include "ClientStateInGame.hpp"
@@ -20,6 +19,7 @@ This project is licensed under the terms of the MIT license.
 #include "MaterialSystem/Renderer.hpp"
 #include "MaterialSystem/TextureMap.hpp"
 #include "SoundSystem/SoundSys.hpp"
+#include "MainWindow/MainWindow.hpp"
 #include "Math3D/Angles.hpp"
 #include "Math3D/Matrix.hpp"
 #include "Network/Network.hpp"

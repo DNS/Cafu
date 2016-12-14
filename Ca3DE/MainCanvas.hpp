@@ -7,10 +7,10 @@ This project is licensed under the terms of the MIT license.
 #ifndef CAFU_MAIN_CANVAS_HPP_INCLUDED
 #define CAFU_MAIN_CANVAS_HPP_INCLUDED
 
+#include "MainWindow/MainWindowWx.hpp"
 #include "Util/Util.hpp"
 #include "wx/wx.h"
 #include "wx/glcanvas.h"
-#include "MainWindow.hpp"
 #include "Resources.hpp"
 
 
@@ -59,7 +59,7 @@ class MainCanvasT : public wxGLCanvas
     TimerT           m_Timer;
     double           m_TotalTime;
     LastMousePosT    m_LastMousePos;  ///< Used to prevent unwanted changes to the players heading and pitch when we're switching back from a 2D GUI to the 3D client view.
-    MainWindowT      m_MainWin;
+    MainWindowWxT    m_MainWin;
 
     DECLARE_EVENT_TABLE()
 };

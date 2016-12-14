@@ -123,6 +123,7 @@ appCafu = envCafu.Program('Ca3DE/Cafu',
     Glob("Ca3DE/*.cpp") +
     Glob("Ca3DE/Client/*.cpp") +
     Glob("Ca3DE/Server/*.cpp") +
+    ["Libs/MainWindow/MainWindowWx.cpp"] +
     CommonWorldObject + ["Common/CompGameEntity.cpp", "Common/WorldMan.cpp"] + WinResource)
 
 
