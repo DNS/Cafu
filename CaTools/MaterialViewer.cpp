@@ -23,6 +23,7 @@ This project is licensed under the terms of the MIT license.
 #include "ConsoleCommands/ConsoleStdout.hpp"
 #include "FileSys/FileManImpl.hpp"
 #include "Fonts/Font.hpp"
+#include "MainWindow/glfwWindow.hpp"
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/MaterialManagerImpl.hpp"
@@ -74,103 +75,115 @@ ArrayT<LightSourceInfoT> LightSources;
 float                    ViewerHeading = 0.0;
 
 
+class ViewerWindowT : public cf::glfwWindowT
+{
+    public:
+
+    ViewerWindowT(int width, int height, const char* title, GLFWmonitor* monitor=0)
+        : glfwWindowT(width, height, title, monitor),
+          old_xpos(-10000.0f)
+    {
+    }
+
+    void FramebufferSizeEvent(int width, int height) override
+    {
+        // The framebuffer's width and height are given in pixels (not in screen coordinates).
+        glViewport(0, 0, width, height);
+
+        // Avoid division by zero below.
+        if (height == 0)
+            return;
+
+        // Set the projection matrix.
+        // Note that the field of view is in y-direction, a value of 67.5° may correspond to 90° in x-direction.
+        const double FieldOfView = 67.5;
+        const double AspectRatio = double(width) / double(height);
+        const double Near        = 100.0;
+     // const double Far         = 100000.0;
+        const double cotanFOV    = 1.0 / tan(FieldOfView / 2.0 / 180.0 * 3.14159265359);
+
+        // This is the OpenGL projection matrix with the "far" clip plane moved to infinity,
+        // according to the NVidia paper about robust stencil buffered shadows.
+        // Note that this matrix is actually transposed, as this is what 'glLoadMatrix()' expects.
+        const double ProjMatInf[4][4] = {
+            { cotanFOV/AspectRatio,      0.0,       0.0,  0.0 },
+            {                  0.0, cotanFOV,       0.0,  0.0 },
+            {                  0.0,      0.0,      -1.0, -1.0 },
+            {                  0.0,      0.0, -2.0*Near,  0.0 }
+        };
+
+        glMatrixMode(GL_PROJECTION);
+        glLoadMatrixd(&ProjMatInf[0][0]);
+
+        // A common (but not equivalent) alternative to the above:
+        // glLoadIdentity();
+        // gluPerspective(FieldOfView, AspectRatio, Near, Far);
+    }
+
+    void KeyEvent(int key, int scancode, int action, int mods) override
+    {
+        if (action != GLFW_PRESS)
+            return;
+
+        if (key >= GLFW_KEY_1 && key <= GLFW_KEY_9)
+        {
+            const int Index = key - GLFW_KEY_1;
+
+            if (Index < int(LightSources.Size()))
+                LightSources[Index].IsOn = !LightSources[Index].IsOn;
+        }
+
+        switch (key)
+        {
+            case GLFW_KEY_ESCAPE:
+                setShouldClose(true);
+                break;
+
+            case GLFW_KEY_U:
+            case GLFW_KEY_TAB:
+                // Re-load the textures of the current material.
+                // Because the RenderMaterial was the *only* material that we registered with the MatSys,
+                // free'ing it is enough to get the reference count of its textures in the texture manager to 0.
+                // This in turn deletes the textures from the tex-mans texture repository, which in turn is
+                // forced to re-load the texture from disk when MyMaterial is re-registered.
+                MatSys::Renderer->FreeMaterial(RenderMaterial);
+                RenderMaterial = MatSys::Renderer->RegisterMaterial(MyMaterial);
+                break;
+
+            case GLFW_KEY_M:
+                break;
+
+            // case GLFW_KEY_CK_X: RotXOn = !RotXOn; break;
+            // case GLFW_KEY_CK_Y: RotYOn = !RotYOn; break;
+            // case GLFW_KEY_CK_Z: RotZOn = !RotZOn; break;
+            // case GLFW_KEY_CK_K: DrawLightSource = !DrawLightSource; break;
+            // case GLFW_KEY_CK_ADD:      Model->SetSequenceNr(++SequenceNr); break;
+            // case GLFW_KEY_CK_SUBTRACT: Model->SetSequenceNr(--SequenceNr); break;
+        }
+    }
+
+    void MouseMoveEvent(double xpos, double ypos) override
+    {
+        if (old_xpos == -10000.0f)
+            old_xpos = float(xpos);
+
+        const float dx = float(xpos) - old_xpos;
+        old_xpos = float(xpos);
+
+        if (isMouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
+            ViewerHeading += dx / 2.0f;
+    }
+
+
+    private:
+
+    float old_xpos;
+};
+
+
 static void error_callback(int error, const char* description)
 {
     fprintf(stderr, "GLFW Error: %s\n", description);
-}
-
-
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    if (action != GLFW_PRESS)
-        return;
-
-    if (key >= GLFW_KEY_1 && key <= GLFW_KEY_9)
-    {
-        const int Index = key - GLFW_KEY_1;
-
-        if (Index < int(LightSources.Size()))
-            LightSources[Index].IsOn = !LightSources[Index].IsOn;
-    }
-
-    switch (key)
-    {
-        case GLFW_KEY_ESCAPE:
-            glfwSetWindowShouldClose(window, true);
-            break;
-
-        case GLFW_KEY_U:
-        case GLFW_KEY_TAB:
-            // Re-load the textures of the current material.
-            // Because the RenderMaterial was the *only* material that we registered with the MatSys,
-            // free'ing it is enough to get the reference count of its textures in the texture manager to 0.
-            // This in turn deletes the textures from the tex-mans texture repository, which in turn is
-            // forced to re-load the texture from disk when MyMaterial is re-registered.
-            MatSys::Renderer->FreeMaterial(RenderMaterial);
-            RenderMaterial = MatSys::Renderer->RegisterMaterial(MyMaterial);
-            break;
-
-        case GLFW_KEY_M:
-            break;
-
-        // case GLFW_KEY_CK_X: RotXOn = !RotXOn; break;
-        // case GLFW_KEY_CK_Y: RotYOn = !RotYOn; break;
-        // case GLFW_KEY_CK_Z: RotZOn = !RotZOn; break;
-        // case GLFW_KEY_CK_K: DrawLightSource = !DrawLightSource; break;
-        // case GLFW_KEY_CK_ADD:      Model->SetSequenceNr(++SequenceNr); break;
-        // case GLFW_KEY_CK_SUBTRACT: Model->SetSequenceNr(--SequenceNr); break;
-    }
-}
-
-
-static float old_xpos = -10000.0f;
-
-static void cursor_pos_callback(GLFWwindow* window, double xpos, double ypos)
-{
-    if (old_xpos == -10000.0f)
-        old_xpos = float(xpos);
-
-    const float dx = float(xpos) - old_xpos;
-    old_xpos = float(xpos);
-
-    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-        ViewerHeading += dx / 2.0f;
-}
-
-
-static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    // The framebuffer's width and height are given in pixels (not in screen coordinates).
-    glViewport(0, 0, width, height);
-
-    // Avoid division by zero below.
-    if (height == 0)
-        return;
-
-    // Set the projection matrix.
-    // Note that the field of view is in y-direction, a value of 67.5° may correspond to 90° in x-direction.
-    const double FieldOfView = 67.5;
-    const double AspectRatio = double(width) / double(height);
-    const double Near        = 100.0;
- // const double Far         = 100000.0;
-    const double cotanFOV    = 1.0 / tan(FieldOfView / 2.0 / 180.0 * 3.14159265359);
-
-    // This is the OpenGL projection matrix with the "far" clip plane moved to infinity,
-    // according to the NVidia paper about robust stencil buffered shadows.
-    // Note that this matrix is actually transposed, as this is what 'glLoadMatrix()' expects.
-    const double ProjMatInf[4][4] = {
-        { cotanFOV/AspectRatio,      0.0,       0.0,  0.0 },
-        {                  0.0, cotanFOV,       0.0,  0.0 },
-        {                  0.0,      0.0,      -1.0, -1.0 },
-        {                  0.0,      0.0, -2.0*Near,  0.0 }
-    };
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadMatrixd(&ProjMatInf[0][0]);
-
-    // A common (but not equivalent) alternative to the above:
-    // glLoadIdentity();
-    // gluPerspective(FieldOfView, AspectRatio, Near, Far);
 }
 
 
@@ -409,7 +422,7 @@ int main(int ArgC, const char* ArgV[])
         else if (_strnicmp(ArgV[ArgNr], "-r=" , 3)==0) DesiredRendererName=ArgV[ArgNr]+3;
         else
         {
-            printf("Sorry, I don't know what option \"%s\" means.\n", ArgV[ArgNr]);
+            printf("Option \"%s\" is unknown.\n", ArgV[ArgNr]);
             Usage();
         }
     }
@@ -444,11 +457,11 @@ int main(int ArgC, const char* ArgV[])
 
     if (MyMaterial==NULL)
     {
-        printf("Sorry, I have not been able to get material \"%s\"\n", MaterialName);
+        printf("Sorry, material \"%s\" could not be retrieved\n", MaterialName);
         printf("from the registered material script files. Possible causes:\n");
-        printf("- the material is not defined in any of the script files (material name typo?)\n");
-        printf("- the material script file(s) could not be opened (script file name typo?)\n");
-        printf("- the material script file contains bugs, i.e. syntax errors.\n");
+        printf("  - the material is not defined in any of the script files (material name typo?)\n");
+        printf("  - the material script file(s) could not be opened (script file name typo?)\n");
+        printf("  - the material script file contains bugs, i.e. syntax errors.\n");
         return 0;
     }
 
@@ -458,231 +471,211 @@ int main(int ArgC, const char* ArgV[])
     if (!glfwInit())
         return -1;
 
-    // The default values for the window creations hints look just right for our purposes,
-    // see http://www.glfw.org/docs/latest/window_guide.html#window_hints_values for details.
-    GLFWwindow* window = glfwCreateWindow(
-        1280, 1024,
-        "Cafu Material Viewer 1.1",
-        NULL,
-        NULL
-    );
-
-    if (!window)
+    try
     {
+        // The default values for the window creations hints look just right for our purposes,
+        // see http://www.glfw.org/docs/latest/window_guide.html#window_hints_values for details.
+        ViewerWindowT win(1280, 1024, "Cafu Material Viewer 1.1");
+
+        // TODO: Set a taskbar icon?
+        win.makeContextCurrent();
+        win.triggerFramebufferSizeEvent();
+
+        glfwSwapInterval(1);   // enable v-sync
+
+        // Get the renderer with the highest preference number that is supported.
+        HMODULE RendererDLL;
+        MatSys::Renderer=(DesiredRendererName=="") ? PlatformAux::GetBestRenderer(RendererDLL) : PlatformAux::GetRenderer(DesiredRendererName, RendererDLL);
+
+        if (MatSys::Renderer==NULL || RendererDLL==NULL)
+            throw std::runtime_error("No renderer loaded.");
+
+        MatSys::Renderer->Initialize();
+
+
+        // Get the TextureMapManager from the RendererDLL.
+        MatSys::TextureMapManagerI* TextureMapManager=PlatformAux::GetTextureMapManager(RendererDLL);
+
+        if (TextureMapManager==NULL)
+        {
+            FreeLibrary(RendererDLL);
+            throw std::runtime_error("No TextureMapManager obtained.");
+        }
+
+
+        // Register the material with the renderer.
+        RenderMaterial = MatSys::Renderer->RegisterMaterial(MyMaterial);
+
+
+        // Create a very simple lightmap for the materials that need one, and register it with the renderer.
+     // char Data[]={   0,   0,   0,   0,   0,   0, 0, 0,
+     //                 0,   0,   0,   0,   0,   0, 0, 0 };
+        char Data[]={  50,  50,  50,  50,  50,  50, 0, 0,
+                       50,  50,  50,  50,  50,  50, 0, 0 };
+     // char Data[]={ 255,   0, 255,   255,   0,   0,    0, 0,
+     //               255, 255,   0,     0,   0, 255,    0, 0 };
+
+        MatSys::TextureMapI* LightMap=TextureMapManager->GetTextureMap2D(Data, 2, 2, 3, true, MapCompositionT(MapCompositionT::Linear, MapCompositionT::Linear));
+
+        MatSys::Renderer->SetCurrentLightMap(LightMap);
+        MatSys::Renderer->SetCurrentLightDirMap(NULL);      // The MatSys provides a default for LightDirMaps when NULL is set.
+
+
+        // Create draw meshes.
+        ArrayT<MatSys::MeshT> Meshes;
+
+        // CreateMeshes needs to know the pixel dimensions of MyMaterial in order to create geometry in the proper aspect ratio.
+        CreateMeshes(Meshes, *MyMaterial);
+
+
+        // Also create a font (mostly for testing the FontT class).
+        // It is created with new rather than on the stack so that we can delete it before the MatSys goes down.
+        FontT* MyFont=new FontT("Fonts/Arial");
+
+
+        // Master loop.
+        TimerT Timer;
+        float  ViewerOrigin[3] = { 0.0, 0.0, 0.0 };
+
+        LightSources.PushBackEmpty(4);
+
+        while (!win.shouldClose())
+        {
+            static double TotalTime=0.0;
+            const  double DeltaTime=Timer.GetSecondsSinceLastCall();
+
+            TotalTime+=DeltaTime;
+
+            // Render the frame.
+            MatSys::Renderer->BeginFrame(TotalTime);
+            MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW, MatrixT::GetRotateXMatrix(-90.0f));      // Rotate coordinate system axes to Cafu standard.
+            MatSys::Renderer->RotateZ  (MatSys::RendererI::WORLD_TO_VIEW, ViewerHeading);
+            MatSys::Renderer->Translate(MatSys::RendererI::WORLD_TO_VIEW, -ViewerOrigin[0], -ViewerOrigin[1], -ViewerOrigin[2]);
+            {
+                MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::AMBIENT);
+                MatSys::Renderer->SetCurrentMaterial(RenderMaterial);
+                MatSys::Renderer->SetCurrentEyePosition(ViewerOrigin[0], ViewerOrigin[1], ViewerOrigin[2]);     // Also required in some ambient shaders, e.g. for the A_SkyDome.
+
+                for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
+                    MatSys::Renderer->RenderMesh(Meshes[MeshNr]);
+
+                // Render something at the positions of the light sources.
+                for (unsigned long LightNr=0; LightNr<LightSources.Size(); LightNr++)
+                {
+                    if (!LightSources[LightNr].IsOn) continue;
+
+                    MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
+
+                    MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, LightSources[LightNr].Pos[0], LightSources[LightNr].Pos[1], LightSources[LightNr].Pos[2]);
+                    MatSys::Renderer->Scale    (MatSys::RendererI::MODEL_TO_WORLD, 0.1f);
+
+                    // Simply re-use the six sides of the inner central cube.
+                    MatSys::Renderer->RenderMesh(Meshes[0]);
+                    MatSys::Renderer->RenderMesh(Meshes[1]);
+                    MatSys::Renderer->RenderMesh(Meshes[2]);
+                    MatSys::Renderer->RenderMesh(Meshes[3]);
+                    MatSys::Renderer->RenderMesh(Meshes[4]);
+                    MatSys::Renderer->RenderMesh(Meshes[5]);
+
+                    MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
+                }
+
+
+                // Render the per-lightsource parts of the scene.
+                for (unsigned long LightNr=0; LightNr<LightSources.Size(); LightNr++)
+                {
+                    if (!LightSources[LightNr].IsOn) continue;
+
+                    MatSys::Renderer->SetCurrentLightSourcePosition(LightSources[LightNr].Pos[0], LightSources[LightNr].Pos[1], LightSources[LightNr].Pos[2]);
+                    MatSys::Renderer->SetCurrentLightSourceRadius(LightSources[LightNr].Radius);
+                    MatSys::Renderer->SetCurrentLightSourceDiffuseColor (LightSources[LightNr].DiffColor[0], LightSources[LightNr].DiffColor[1], LightSources[LightNr].DiffColor[2]);
+                    MatSys::Renderer->SetCurrentLightSourceSpecularColor(LightSources[LightNr].SpecColor[0], LightSources[LightNr].SpecColor[1], LightSources[LightNr].SpecColor[2]);
+
+                    if (!MyMaterial->NoShadows)
+                    {
+                        MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::STENCILSHADOW);
+                        DrawSilhouettes(MatSys::Renderer, Meshes);
+                    }
+
+                    MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::LIGHTING);
+
+                    for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
+                        MatSys::Renderer->RenderMesh(Meshes[MeshNr]);
+                }
+
+
+                unsigned int width;
+                unsigned int height;
+                win.getFramebufferSize(width, height);
+
+                MyFont->Print(width - 100, height - 18, float(width), float(height), 0x00FFFFFF, cf::va("%5.1f FPS", 1.0 / DeltaTime));
+            }
+
+            MatSys::Renderer->EndFrame();
+
+            win.swapBuffers();
+            glfwPollEvents();
+
+
+            const float angle=ViewerHeading/180.0f*3.1415926f;
+
+            if (win.isKeyPressed(GLFW_KEY_UP   ) || win.isKeyPressed(GLFW_KEY_W)) { ViewerOrigin[0]+=sin(angle)*500.0f*float(DeltaTime); ViewerOrigin[1]+=cos(angle)*500.0f*float(DeltaTime); }
+            if (win.isKeyPressed(GLFW_KEY_DOWN ) || win.isKeyPressed(GLFW_KEY_S)) { ViewerOrigin[0]-=sin(angle)*500.0f*float(DeltaTime); ViewerOrigin[1]-=cos(angle)*500.0f*float(DeltaTime); }
+            if (win.isKeyPressed(GLFW_KEY_LEFT ) || win.isKeyPressed(GLFW_KEY_A)) { ViewerOrigin[0]-=cos(angle)*500.0f*float(DeltaTime); ViewerOrigin[1]+=sin(angle)*500.0f*float(DeltaTime); }
+            if (win.isKeyPressed(GLFW_KEY_RIGHT) || win.isKeyPressed(GLFW_KEY_D)) { ViewerOrigin[0]+=cos(angle)*500.0f*float(DeltaTime); ViewerOrigin[1]-=sin(angle)*500.0f*float(DeltaTime); }
+
+
+            // Move the light sources.
+            for (unsigned long LightNr=0; LightNr<LightSources.Size(); LightNr++)
+            {
+                if (!LightSources[LightNr].IsOn) continue;
+
+                LightSources[LightNr].Pos[0]=sin(float(TotalTime)*0.5f/(LightNr+1))*800.0f;
+                LightSources[LightNr].Pos[1]=cos(float(TotalTime)*0.5f/(LightNr+1))*800.0f;
+                LightSources[LightNr].Pos[2]=-400.0f+LightNr*400.0f;
+                LightSources[LightNr].Radius=5000.0;//XXXLightNr==2 ? 10000.0 : 1000.0;
+
+                switch (LightNr % 4)
+                {
+                    case 0:
+                        LightSources[LightNr].DiffColor[0]=1.0; LightSources[LightNr].DiffColor[1]=1.0; LightSources[LightNr].DiffColor[2]=1.0;
+                        LightSources[LightNr].SpecColor[0]=1.0; LightSources[LightNr].SpecColor[1]=1.0; LightSources[LightNr].SpecColor[2]=1.0;
+                        break;
+
+                    case 1:
+                        LightSources[LightNr].DiffColor[0]=1.0; LightSources[LightNr].DiffColor[1]=0.0; LightSources[LightNr].DiffColor[2]=0.0;
+                        LightSources[LightNr].SpecColor[0]=1.0; LightSources[LightNr].SpecColor[1]=1.0; LightSources[LightNr].SpecColor[2]=1.0;
+                        break;
+
+                    case 2:
+                        LightSources[LightNr].DiffColor[0]=0.0; LightSources[LightNr].DiffColor[1]=1.0; LightSources[LightNr].DiffColor[2]=0.0;
+                        LightSources[LightNr].SpecColor[0]=1.0; LightSources[LightNr].SpecColor[1]=1.0; LightSources[LightNr].SpecColor[2]=1.0;
+                        break;
+
+                    case 3:
+                        LightSources[LightNr].DiffColor[0]=0.0; LightSources[LightNr].DiffColor[1]=0.0; LightSources[LightNr].DiffColor[2]=1.0;
+                        LightSources[LightNr].SpecColor[0]=1.0; LightSources[LightNr].SpecColor[1]=1.0; LightSources[LightNr].SpecColor[2]=1.0;
+                        break;
+                }
+            }
+        }
+
+
+        // Clean-up.
+        delete MyFont;
+        MyFont=NULL;
+        MatSys::Renderer->FreeMaterial(RenderMaterial);
+        MatSys::Renderer->Release();
+        MatSys::Renderer=NULL;
+        FreeLibrary(RendererDLL);
+    }
+    catch (const std::runtime_error& re)
+    {
+        fprintf(stderr, "ERROR: %s\n", re.what());
         glfwTerminate();
         return -1;
     }
 
-    // TODO: Set a taskbar icon?
-    glfwSetKeyCallback(window, key_callback);
-    glfwSetCursorPosCallback(window, cursor_pos_callback);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwMakeContextCurrent(window);
-    glfwSwapInterval(1);   // enable v-sync
-
-    // Initial resize call, must trigger this manually.
-    int width;
-    int height;
-    glfwGetFramebufferSize(window, &width, &height);
-    framebuffer_size_callback(window, width, height);
-
-
-    // Get the renderer with the highest preference number that is supported.
-    HMODULE RendererDLL;
-    MatSys::Renderer=(DesiredRendererName=="") ? PlatformAux::GetBestRenderer(RendererDLL) : PlatformAux::GetRenderer(DesiredRendererName, RendererDLL);
-
-    if (MatSys::Renderer==NULL || RendererDLL==NULL)
-    {
-        printf("No renderer loaded.\n");
-        glfwDestroyWindow(window);
-        glfwTerminate();
-        return 0;
-    }
-
-    MatSys::Renderer->Initialize();
-
-
-    // Get the TextureMapManager from the RendererDLL.
-    MatSys::TextureMapManagerI* TextureMapManager=PlatformAux::GetTextureMapManager(RendererDLL);
-
-    if (TextureMapManager==NULL)
-    {
-        printf("No TextureMapManager obtained.\n");
-        FreeLibrary(RendererDLL);
-        glfwDestroyWindow(window);
-        glfwTerminate();
-        return 0;
-    }
-
-
-    // Register the material with the renderer.
-    RenderMaterial = MatSys::Renderer->RegisterMaterial(MyMaterial);
-
-
-    // Create a very simple lightmap for the materials that need one, and register it with the renderer.
- // char Data[]={   0,   0,   0,   0,   0,   0, 0, 0,
- //                 0,   0,   0,   0,   0,   0, 0, 0 };
-    char Data[]={  50,  50,  50,  50,  50,  50, 0, 0,
-                   50,  50,  50,  50,  50,  50, 0, 0 };
- // char Data[]={ 255,   0, 255,   255,   0,   0,    0, 0,
- //               255, 255,   0,     0,   0, 255,    0, 0 };
-
-    MatSys::TextureMapI* LightMap=TextureMapManager->GetTextureMap2D(Data, 2, 2, 3, true, MapCompositionT(MapCompositionT::Linear, MapCompositionT::Linear));
-
-    MatSys::Renderer->SetCurrentLightMap(LightMap);
-    MatSys::Renderer->SetCurrentLightDirMap(NULL);      // The MatSys provides a default for LightDirMaps when NULL is set.
-
-
-    // Create draw meshes.
-    ArrayT<MatSys::MeshT> Meshes;
-
-    // CreateMeshes needs to know the pixel dimensions of MyMaterial in order to create geometry in the proper aspect ratio.
-    CreateMeshes(Meshes, *MyMaterial);
-
-
-    // Also create a font (mostly for testing the FontT class).
-    // It is created with new rather than on the stack so that we can delete it before the MatSys goes down.
-    FontT* MyFont=new FontT("Fonts/Arial");
-
-
-    // Master loop.
-    TimerT Timer;
-    float  ViewerOrigin[3] = { 0.0, 0.0, 0.0 };
-
-    LightSources.PushBackEmpty(4);
-
-    while (!glfwWindowShouldClose(window))
-    {
-        static double TotalTime=0.0;
-        const  double DeltaTime=Timer.GetSecondsSinceLastCall();
-
-        TotalTime+=DeltaTime;
-
-        // Render the frame.
-        MatSys::Renderer->BeginFrame(TotalTime);
-        MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW, MatrixT::GetRotateXMatrix(-90.0f));      // Rotate coordinate system axes to Cafu standard.
-        MatSys::Renderer->RotateZ  (MatSys::RendererI::WORLD_TO_VIEW, ViewerHeading);
-        MatSys::Renderer->Translate(MatSys::RendererI::WORLD_TO_VIEW, -ViewerOrigin[0], -ViewerOrigin[1], -ViewerOrigin[2]);
-        {
-            MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::AMBIENT);
-            MatSys::Renderer->SetCurrentMaterial(RenderMaterial);
-            MatSys::Renderer->SetCurrentEyePosition(ViewerOrigin[0], ViewerOrigin[1], ViewerOrigin[2]);     // Also required in some ambient shaders, e.g. for the A_SkyDome.
-
-            for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
-                MatSys::Renderer->RenderMesh(Meshes[MeshNr]);
-
-            // Render something at the positions of the light sources.
-            for (unsigned long LightNr=0; LightNr<LightSources.Size(); LightNr++)
-            {
-                if (!LightSources[LightNr].IsOn) continue;
-
-                MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
-
-                MatSys::Renderer->Translate(MatSys::RendererI::MODEL_TO_WORLD, LightSources[LightNr].Pos[0], LightSources[LightNr].Pos[1], LightSources[LightNr].Pos[2]);
-                MatSys::Renderer->Scale    (MatSys::RendererI::MODEL_TO_WORLD, 0.1f);
-
-                // Simply re-use the six sides of the inner central cube.
-                MatSys::Renderer->RenderMesh(Meshes[0]);
-                MatSys::Renderer->RenderMesh(Meshes[1]);
-                MatSys::Renderer->RenderMesh(Meshes[2]);
-                MatSys::Renderer->RenderMesh(Meshes[3]);
-                MatSys::Renderer->RenderMesh(Meshes[4]);
-                MatSys::Renderer->RenderMesh(Meshes[5]);
-
-                MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
-            }
-
-
-            // Render the per-lightsource parts of the scene.
-            for (unsigned long LightNr=0; LightNr<LightSources.Size(); LightNr++)
-            {
-                if (!LightSources[LightNr].IsOn) continue;
-
-                MatSys::Renderer->SetCurrentLightSourcePosition(LightSources[LightNr].Pos[0], LightSources[LightNr].Pos[1], LightSources[LightNr].Pos[2]);
-                MatSys::Renderer->SetCurrentLightSourceRadius(LightSources[LightNr].Radius);
-                MatSys::Renderer->SetCurrentLightSourceDiffuseColor (LightSources[LightNr].DiffColor[0], LightSources[LightNr].DiffColor[1], LightSources[LightNr].DiffColor[2]);
-                MatSys::Renderer->SetCurrentLightSourceSpecularColor(LightSources[LightNr].SpecColor[0], LightSources[LightNr].SpecColor[1], LightSources[LightNr].SpecColor[2]);
-
-                if (!MyMaterial->NoShadows)
-                {
-                    MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::STENCILSHADOW);
-                    DrawSilhouettes(MatSys::Renderer, Meshes);
-                }
-
-                MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::LIGHTING);
-
-                for (unsigned long MeshNr=0; MeshNr<Meshes.Size(); MeshNr++)
-                    MatSys::Renderer->RenderMesh(Meshes[MeshNr]);
-            }
-
-
-            int width;
-            int height;
-            glfwGetFramebufferSize(window, &width, &height);
-
-            MyFont->Print(width - 100, height - 18, float(width), float(height), 0x00FFFFFF, cf::va("%5.1f FPS", 1.0 / DeltaTime));
-        }
-
-        MatSys::Renderer->EndFrame();
-
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-
-
-        const float angle=ViewerHeading/180.0f*3.1415926f;
-
-        if (glfwGetKey(window, GLFW_KEY_UP   ) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_W)) { ViewerOrigin[0]+=sin(angle)*500.0f*float(DeltaTime); ViewerOrigin[1]+=cos(angle)*500.0f*float(DeltaTime); }
-        if (glfwGetKey(window, GLFW_KEY_DOWN ) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S)) { ViewerOrigin[0]-=sin(angle)*500.0f*float(DeltaTime); ViewerOrigin[1]-=cos(angle)*500.0f*float(DeltaTime); }
-        if (glfwGetKey(window, GLFW_KEY_LEFT ) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_A)) { ViewerOrigin[0]-=cos(angle)*500.0f*float(DeltaTime); ViewerOrigin[1]+=sin(angle)*500.0f*float(DeltaTime); }
-        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_D)) { ViewerOrigin[0]+=cos(angle)*500.0f*float(DeltaTime); ViewerOrigin[1]-=sin(angle)*500.0f*float(DeltaTime); }
-
-
-        // Move the light sources.
-        for (unsigned long LightNr=0; LightNr<LightSources.Size(); LightNr++)
-        {
-            if (!LightSources[LightNr].IsOn) continue;
-
-            LightSources[LightNr].Pos[0]=sin(float(TotalTime)*0.5f/(LightNr+1))*800.0f;
-            LightSources[LightNr].Pos[1]=cos(float(TotalTime)*0.5f/(LightNr+1))*800.0f;
-            LightSources[LightNr].Pos[2]=-400.0f+LightNr*400.0f;
-            LightSources[LightNr].Radius=5000.0;//XXXLightNr==2 ? 10000.0 : 1000.0;
-
-            switch (LightNr % 4)
-            {
-                case 0:
-                    LightSources[LightNr].DiffColor[0]=1.0; LightSources[LightNr].DiffColor[1]=1.0; LightSources[LightNr].DiffColor[2]=1.0;
-                    LightSources[LightNr].SpecColor[0]=1.0; LightSources[LightNr].SpecColor[1]=1.0; LightSources[LightNr].SpecColor[2]=1.0;
-                    break;
-
-                case 1:
-                    LightSources[LightNr].DiffColor[0]=1.0; LightSources[LightNr].DiffColor[1]=0.0; LightSources[LightNr].DiffColor[2]=0.0;
-                    LightSources[LightNr].SpecColor[0]=1.0; LightSources[LightNr].SpecColor[1]=1.0; LightSources[LightNr].SpecColor[2]=1.0;
-                    break;
-
-                case 2:
-                    LightSources[LightNr].DiffColor[0]=0.0; LightSources[LightNr].DiffColor[1]=1.0; LightSources[LightNr].DiffColor[2]=0.0;
-                    LightSources[LightNr].SpecColor[0]=1.0; LightSources[LightNr].SpecColor[1]=1.0; LightSources[LightNr].SpecColor[2]=1.0;
-                    break;
-
-                case 3:
-                    LightSources[LightNr].DiffColor[0]=0.0; LightSources[LightNr].DiffColor[1]=0.0; LightSources[LightNr].DiffColor[2]=1.0;
-                    LightSources[LightNr].SpecColor[0]=1.0; LightSources[LightNr].SpecColor[1]=1.0; LightSources[LightNr].SpecColor[2]=1.0;
-                    break;
-            }
-        }
-    }
-
-
-    // Clean-up.
-    delete MyFont;
-    MyFont=NULL;
-    MatSys::Renderer->FreeMaterial(RenderMaterial);
-    MatSys::Renderer->Release();
-    MatSys::Renderer=NULL;
-    FreeLibrary(RendererDLL);
-
-    glfwDestroyWindow(window);
     glfwTerminate();
-
     return 0;
 }

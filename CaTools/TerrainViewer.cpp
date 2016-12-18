@@ -10,6 +10,7 @@ This project is licensed under the terms of the MIT license.
 #include "ConsoleCommands/Console.hpp"
 #include "ConsoleCommands/ConsoleStdout.hpp"
 #include "FileSys/FileManImpl.hpp"
+#include "MainWindow/glfwWindow.hpp"
 #include "MaterialSystem/MapComposition.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/MaterialManagerImpl.hpp"
@@ -51,8 +52,78 @@ MaterialManagerI* MaterialManager=NULL;
 #define SQR(x)     ((x) * (x))
 
 
-struct SceneDataT
+class ViewerWindowT : public cf::glfwWindowT
 {
+    public:
+
+    ViewerWindowT(int width, int height, const char* title, GLFWmonitor* monitor=0)
+        : glfwWindowT(width, height, title, monitor)
+    {
+        VI.cull  = true;    // perform view culling when set
+        VI_morph = true;    // perform geomorphing when set
+    }
+
+    void FramebufferSizeEvent(int width, int height) override
+    {
+        // The framebuffer's width and height are given in pixels (not in screen coordinates).
+        glViewport(0, 0, width, height);
+
+        // Avoid division by zero below.
+        if (height == 0)
+            return;
+
+        // Set the projection matrix.
+        // Note that the field of view is in y-direction, a value of 67.5° may correspond to 90° in x-direction.
+        const double FieldOfView = 67.5;
+        const double AspectRatio = double(width) / double(height);
+        const double Near        = 100.0;
+     // const double Far         = 100000.0;
+        const double cotanFOV    = 1.0 / tan(FieldOfView / 2.0 / 180.0 * 3.14159265359);
+
+        // This is the OpenGL projection matrix with the "far" clip plane moved to infinity,
+        // according to the NVidia paper about robust stencil buffered shadows.
+        // Note that this matrix is actually transposed, as this is what 'glLoadMatrix()' expects.
+        const double ProjMatInf[4][4] = {
+            { cotanFOV/AspectRatio,      0.0,       0.0,  0.0 },
+            {                  0.0, cotanFOV,       0.0,  0.0 },
+            {                  0.0,      0.0,      -1.0, -1.0 },
+            {                  0.0,      0.0, -2.0*Near,  0.0 }
+        };
+
+        glMatrixMode(GL_PROJECTION);
+        glLoadMatrixd(&ProjMatInf[0][0]);
+
+        // A common (but not equivalent) alternative to the above:
+        // glLoadIdentity();
+        // gluPerspective(FieldOfView, AspectRatio, Near, Far);
+    }
+
+    void KeyEvent(int key, int scancode, int action, int mods) override
+    {
+        if (action != GLFW_PRESS)
+            return;
+
+        switch (key)
+        {
+            case GLFW_KEY_ESCAPE:
+                setShouldClose(true);
+                break;
+
+            case GLFW_KEY_C:
+                VI.cull = !VI.cull;
+                printf("View frustum culling is %s.\n", VI.cull ? "ON" : "OFF");
+                break;
+
+            case GLFW_KEY_M:
+                VI_morph = !VI_morph;
+                printf("Geo-morphing is %s\n", VI_morph ? "ON" : "OFF");
+                break;
+        }
+    }
+
+
+    public:
+
     TerrainT::ViewInfoT VI;
     bool VI_morph;
 };
@@ -61,71 +132,6 @@ struct SceneDataT
 static void error_callback(int error, const char* description)
 {
     fprintf(stderr, "GLFW Error: %s\n", description);
-}
-
-
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    SceneDataT* sd = static_cast<SceneDataT*>(glfwGetWindowUserPointer(window));
-
-    if (!sd)
-        return;
-
-    if (action != GLFW_PRESS)
-        return;
-
-    switch (key)
-    {
-        case GLFW_KEY_ESCAPE:
-            glfwSetWindowShouldClose(window, true);
-            break;
-
-        case GLFW_KEY_C:
-            sd->VI.cull = !sd->VI.cull;
-            printf("View frustum culling is %s.\n", sd->VI.cull ? "ON" : "OFF");
-            break;
-
-        case GLFW_KEY_M:
-            sd->VI_morph = !sd->VI_morph;
-            printf("Geo-morphing is %s\n", sd->VI_morph ? "ON" : "OFF");
-            break;
-    }
-}
-
-
-static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    // The framebuffer's width and height are given in pixels (not in screen coordinates).
-    glViewport(0, 0, width, height);
-
-    // Avoid division by zero below.
-    if (height == 0)
-        return;
-
-    // Set the projection matrix.
-    // Note that the field of view is in y-direction, a value of 67.5° may correspond to 90° in x-direction.
-    const double FieldOfView = 67.5;
-    const double AspectRatio = double(width) / double(height);
-    const double Near        = 100.0;
- // const double Far         = 100000.0;
-    const double cotanFOV    = 1.0 / tan(FieldOfView / 2.0 / 180.0 * 3.14159265359);
-
-    // This is the OpenGL projection matrix with the "far" clip plane moved to infinity,
-    // according to the NVidia paper about robust stencil buffered shadows.
-    // Note that this matrix is actually transposed, as this is what 'glLoadMatrix()' expects.
-    const double ProjMatInf[4][4] = {
-        { cotanFOV/AspectRatio,      0.0,       0.0,  0.0 },
-        {                  0.0, cotanFOV,       0.0,  0.0 },
-        {                  0.0,      0.0,      -1.0, -1.0 },
-        {                  0.0,      0.0, -2.0*Near,  0.0 }
-    };
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadMatrixd(&ProjMatInf[0][0]);
-
-    // A common (but not equivalent) alternative to the above:
-    // glLoadIdentity();
-    // gluPerspective(FieldOfView, AspectRatio, Near, Far);
 }
 
 
@@ -164,12 +170,12 @@ int main(int ArgC, char* ArgV[])
     catch (const TCLAP::ExitException& ee)
     {
         //  ExitException is thrown after --help or --version was handled.
-        exit(ee.getExitStatus());
+        return ee.getExitStatus();
     }
     catch (const TCLAP::ArgException& e)
     {
         cmd.getOutput().failure(cmd, e, true);
-        exit(-1);
+        return -1;
     }
 
     // Setup the global Material Manager pointer.
@@ -185,11 +191,11 @@ int main(int ArgC, char* ArgV[])
 
     if (TerrainMaterial==NULL)
     {
-        printf("Sorry, I have not been able to get material \"%s\"\n", MaterialName.getValue().c_str());
+        printf("Sorry, material \"%s\" could not be retrieved\n", MaterialName.getValue().c_str());
         printf("from the registered material script files. Possible causes:\n");
-        printf("- the material is not defined in any of the script files (material name typo?)\n");
-        printf("- the material script file(s) could not be opened (script file name typo?)\n");
-        printf("- the material script file contains bugs, i.e. syntax errors.\n");
+        printf("  - the material is not defined in any of the script files (material name typo?)\n");
+        printf("  - the material script file(s) could not be opened (script file name typo?)\n");
+        printf("  - the material script file contains bugs, i.e. syntax errors.\n");
 
         return 0;
     }
@@ -210,42 +216,20 @@ int main(int ArgC, char* ArgV[])
 
         // The default values for the window creations hints look just right for our purposes,
         // see http://www.glfw.org/docs/latest/window_guide.html#window_hints_values for details.
-        GLFWwindow* window = glfwCreateWindow(
-            1280, 1024,
-            "Cafu Terrain Viewer 1.3",
-            BenchMarkMode.getValue() ? glfwGetPrimaryMonitor() : NULL,
-            NULL
-        );
-
-        if (!window)
-        {
-            glfwTerminate();
-            return -1;
-        }
+        ViewerWindowT win(1280, 1024, "Cafu Terrain Viewer 1.3", BenchMarkMode.getValue() ? glfwGetPrimaryMonitor() : NULL);
 
         // TODO: Set a taskbar icon?
-        glfwSetKeyCallback(window, key_callback);
-        glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-        glfwMakeContextCurrent(window);
-        glfwSwapInterval(1);   // enable v-sync
+        win.makeContextCurrent();
+        win.triggerFramebufferSizeEvent();
 
-        // Initial resize call, must trigger this manually.
-        int width;
-        int height;
-        glfwGetFramebufferSize(window, &width, &height);
-        framebuffer_size_callback(window, width, height);
+        glfwSwapInterval(1);   // enable v-sync
 
         // Get the renderer with the highest preference number that is supported.
         HMODULE RendererDLL;
         MatSys::Renderer=PlatformAux::GetBestRenderer(RendererDLL);
 
         if (MatSys::Renderer==NULL || RendererDLL==NULL)
-        {
-            printf("No renderer loaded.\n");
-            glfwDestroyWindow(window);
-            glfwTerminate();
-            return -1;
-        }
+            throw std::runtime_error("No renderer loaded.");
 
         MatSys::Renderer->Initialize();
 
@@ -255,13 +239,9 @@ int main(int ArgC, char* ArgV[])
 
         if (TextureMapManager==NULL)
         {
-            printf("No TextureMapManager obtained.\n");
             FreeLibrary(RendererDLL);
-            glfwDestroyWindow(window);
-            glfwTerminate();
-            return 0;
+            throw std::runtime_error("No TextureMapManager obtained.");
         }
-
 
         MatSys::RenderMaterialT* TerrainRenderMat=MatSys::Renderer->RegisterMaterial(TerrainMaterial);
 
@@ -304,11 +284,7 @@ int main(int ArgC, char* ArgV[])
 
 
 
-        SceneDataT sd;
-        TerrainT::ViewInfoT& VI = sd.VI;
-
-        sd.VI.cull  = true;     // perform view culling when set
-        sd.VI_morph = true;     // perform geomorphing when set
+        TerrainT::ViewInfoT& VI = win.VI;
 
         // Master Game Loop
         TimerT        Timer;
@@ -318,9 +294,7 @@ int main(int ArgC, char* ArgV[])
         float         Heading=BenchMarkMode.getValue() ? 55.0f : 0.0f;
         float         Pitch  =BenchMarkMode.getValue() ? 25.0f : 0.0f;
 
-        glfwSetWindowUserPointer(window, &sd);
-
-        while (!glfwWindowShouldClose(window))
+        while (!win.shouldClose())
         {
             MatSys::Renderer->BeginFrame(Timer.GetSecondsSinceCtor());
 
@@ -335,9 +309,10 @@ int main(int ArgC, char* ArgV[])
          // const float tau_max=VI_morph ? (3.0/2.0)*tau_min : tau_min;
             // The basic formula for fov_x is from soar/main.c, reshape_callback function, rearranged for fov_x.
             // TODO: The 67.5 is a fixed value from framebuffer_size_callback() above.
-            int width;
-            int height;
-            glfwGetFramebufferSize(window, &width, &height);    // This is the window size in pixels.
+            unsigned int width;
+            unsigned int height;
+
+            win.getFramebufferSize(width, height);      // This is the window size in pixels.
 
             // printf("%u x %u    %u x %u\n", width, height, w_, h_);
             const float fov_x = 2.0f*atan(float(width)/float(height) * tan(DEG2RAD(67.5f)/2.0f));
@@ -389,7 +364,7 @@ int main(int ArgC, char* ArgV[])
             }
             else
             {
-                if (sd.VI_morph)
+                if (win.VI_morph)
                 {
                     ArrayT<Vector3fT>& VectorStripNew=TerrainNew.ComputeVectorStripByMorphing(VI);
 
@@ -432,7 +407,7 @@ int main(int ArgC, char* ArgV[])
 
             MatSys::Renderer->EndFrame();
 
-            glfwSwapBuffers(window);
+            win.swapBuffers();
             glfwPollEvents();
 
             FrameCounter++;
@@ -452,23 +427,23 @@ int main(int ArgC, char* ArgV[])
                 const float vx = MoveSpeed*sin(Heading/180.0f*3.1415926f);
                 const float vy = MoveSpeed*cos(Heading/180.0f*3.1415926f);
 
-                if (glfwGetKey(window, GLFW_KEY_UP    ) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) ViewerPos=ViewerPos+Vector3fT( vx,  vy, 0);
-                if (glfwGetKey(window, GLFW_KEY_DOWN  ) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) ViewerPos=ViewerPos+Vector3fT(-vx, -vy, 0);
-                if (                                                     glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) ViewerPos=ViewerPos+Vector3fT(-vy,  vx, 0);
-                if (                                                     glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) ViewerPos=ViewerPos+Vector3fT( vy, -vx, 0);
-                if (glfwGetKey(window, GLFW_KEY_INSERT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) ViewerPos.z+=MoveSpeed;
-                if (glfwGetKey(window, GLFW_KEY_DELETE) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) ViewerPos.z-=MoveSpeed;
-                if (glfwGetKey(window, GLFW_KEY_LEFT  ) == GLFW_PRESS                                                ) Heading-=RotSpeed;
-                if (glfwGetKey(window, GLFW_KEY_RIGHT ) == GLFW_PRESS                                                ) Heading+=RotSpeed;
-                if (glfwGetKey(window, GLFW_KEY_PAGE_UP  ) == GLFW_PRESS                                             ) Pitch-=RotSpeed;
-                if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS                                             ) Pitch+=RotSpeed;
-                if (glfwGetKey(window, GLFW_KEY_END   ) == GLFW_PRESS                                                ) Pitch=0.0;
+                if (win.isKeyPressed(GLFW_KEY_UP       ) || win.isKeyPressed(GLFW_KEY_W)) ViewerPos=ViewerPos+Vector3fT( vx,  vy, 0);
+                if (win.isKeyPressed(GLFW_KEY_DOWN     ) || win.isKeyPressed(GLFW_KEY_S)) ViewerPos=ViewerPos+Vector3fT(-vx, -vy, 0);
+                if (                                        win.isKeyPressed(GLFW_KEY_A)) ViewerPos=ViewerPos+Vector3fT(-vy,  vx, 0);
+                if (                                        win.isKeyPressed(GLFW_KEY_D)) ViewerPos=ViewerPos+Vector3fT( vy, -vx, 0);
+                if (win.isKeyPressed(GLFW_KEY_INSERT   ) || win.isKeyPressed(GLFW_KEY_R)) ViewerPos.z+=MoveSpeed;
+                if (win.isKeyPressed(GLFW_KEY_DELETE   ) || win.isKeyPressed(GLFW_KEY_F)) ViewerPos.z-=MoveSpeed;
+                if (win.isKeyPressed(GLFW_KEY_LEFT     )                                ) Heading-=RotSpeed;
+                if (win.isKeyPressed(GLFW_KEY_RIGHT    )                                ) Heading+=RotSpeed;
+                if (win.isKeyPressed(GLFW_KEY_PAGE_UP  )                                ) Pitch-=RotSpeed;
+                if (win.isKeyPressed(GLFW_KEY_PAGE_DOWN)                                ) Pitch+=RotSpeed;
+                if (win.isKeyPressed(GLFW_KEY_END      )                                ) Pitch=0.0;
             }
         }
 
         const double TotalTime=Timer.GetSecondsSinceCtor();
         printf("Average frame-rate was: %.2f FPS   (%lu frames in %.2f seconds)\n", double(FrameCounter)/TotalTime, FrameCounter, TotalTime);
-        printf("Geo-morphing    was: %s\n", sd.VI_morph ? " ON" : "OFF");
+        printf("Geo-morphing    was: %s\n", win.VI_morph ? " ON" : "OFF");
         printf("Frustum culling was: %s\n", VI.cull  ? " ON" : "OFF");
         printf("Geometry CRC    was: 0x%lX\n", GeomCRC);
 
@@ -477,13 +452,17 @@ int main(int ArgC, char* ArgV[])
         MatSys::Renderer->Release();
         MatSys::Renderer=NULL;
         FreeLibrary(RendererDLL);
-
-        glfwDestroyWindow(window);
     }
     catch (const TerrainT::InitError& /*E*/)
     {
         printf("\nEither \"%s\" could not be found, not be read,\n", TerrainName.getValue().c_str());
         printf("is not square, is smaller than 3 pixels, or not of size 2^n+1.  Sorry.\n");
+    }
+    catch (const std::runtime_error& re)
+    {
+        fprintf(stderr, "ERROR: %s\n", re.what());
+        glfwTerminate();
+        return -1;
     }
 
     glfwTerminate();
