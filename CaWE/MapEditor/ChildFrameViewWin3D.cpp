@@ -428,7 +428,7 @@ void ViewWindow3DT::OnPaint(wxPaintEvent& PE)
 
     // Guard against accessing an already deleted MapDoc. This can otherwise happen when closing this window/view/document,
     // namely during the continued event processing between the call to Destroy() and our final deletion.
-    if (&MapDoc==NULL) { PE.Skip(); return; }
+    if (&GetMapDoc()==NULL) { PE.Skip(); return; }
 
 
     // Determine how much time has passed since the previous frame.

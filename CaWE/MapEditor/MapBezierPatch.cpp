@@ -409,7 +409,7 @@ MapBezierPatchT* MapBezierPatchT::CreateCone(EditorMaterialI* Material_, cf::Sce
             else
                 py=min.y+stepSizeY*(BP->cv_Height-1);
 
-                BP->SetCvPos(x, y, Vector3fT(px, py, pz));
+            BP->SetCvPos(x, y, Vector3fT(px, py, pz));
         }
 
         pz -= stepSizeZ;

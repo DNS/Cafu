@@ -428,8 +428,10 @@ void ComponentHumanPlayerT::CheckGUIs(bool ThinkingOnServerSide, bool HaveButton
             if (px < -0.5f || px > 1.5f) continue;
             if (py < -0.5f || py > 1.5f) continue;
 
-            if (px < 0.0f) px = 0.0f; if (px > 0.99f) px = 0.99f;
-            if (py < 0.0f) py = 0.0f; if (py > 0.98f) py = 0.98f;
+            if (px < 0.0f) px = 0.0f;
+            if (px > 0.99f) px = 0.99f;
+            if (py < 0.0f) py = 0.0f;
+            if (py > 0.98f) py = 0.98f;
 
 
             // TODO: Trace against walls!

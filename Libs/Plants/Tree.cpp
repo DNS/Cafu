@@ -180,9 +180,12 @@ TreeT::BranchT TreeT::ComputeBranch(float RelPosOnParent, char BranchLevel, cons
                     Leaf.Color[1]=1.0f-Dimming;  // 0.5+(RandomFloat()+1.0)*0.25;
                     Leaf.Color[2]=1.0f-Dimming;
 
-                    if (Leaf.Color[0]<0.0f) Leaf.Color[0]=0.0f; if (Leaf.Color[0]>1.0f) Leaf.Color[0]=1.0f;
-                    if (Leaf.Color[1]<0.0f) Leaf.Color[1]=0.0f; if (Leaf.Color[1]>1.0f) Leaf.Color[1]=1.0f;
-                    if (Leaf.Color[2]<0.0f) Leaf.Color[2]=0.0f; if (Leaf.Color[2]>1.0f) Leaf.Color[2]=1.0f;
+                    if (Leaf.Color[0]<0.0f) Leaf.Color[0]=0.0f;
+                    if (Leaf.Color[0]>1.0f) Leaf.Color[0]=1.0f;
+                    if (Leaf.Color[1]<0.0f) Leaf.Color[1]=0.0f;
+                    if (Leaf.Color[1]>1.0f) Leaf.Color[1]=1.0f;
+                    if (Leaf.Color[2]<0.0f) Leaf.Color[2]=0.0f;
+                    if (Leaf.Color[2]>1.0f) Leaf.Color[2]=1.0f;
 
                     // Fuege das Leaf in das Array der Leaves dieses Branches ein.
                     AllLeaves.PushBack(Leaf);

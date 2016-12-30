@@ -318,10 +318,10 @@ bool TrafoBoxT::BeginTrafo(const ViewWindow2DT& ViewWindow, const wxPoint& Point
         // although any value would work.
         m_RefPos=Vector3fT(0, 0, 0);
 
-             if (HandleWS & TH_LEFT  ) m_RefPos[HorzAxis]=m_BB.Max[HorzAxis];
+        if      (HandleWS & TH_LEFT  ) m_RefPos[HorzAxis]=m_BB.Max[HorzAxis];
         else if (HandleWS & TH_RIGHT ) m_RefPos[HorzAxis]=m_BB.Min[HorzAxis];
 
-             if (HandleWS & TH_TOP   ) m_RefPos[VertAxis]=m_BB.Max[VertAxis];
+        if      (HandleWS & TH_TOP   ) m_RefPos[VertAxis]=m_BB.Max[VertAxis];
         else if (HandleWS & TH_BOTTOM) m_RefPos[VertAxis]=m_BB.Min[VertAxis];
     }
 

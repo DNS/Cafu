@@ -380,8 +380,10 @@ void ToolNewBezierPatchT::UpdateNewBPs(ViewWindow2DT& ViewWindow)
                     Vector3fT  tmp_max=PatchBB.Max;
                     if (j==1) tmp_max.z=PatchBB.Min.z; // For bottom endcaps set max to minimal value.
 
-                    if (pos==MapBezierPatchT::BOTTOM_RIGHT) tmp_min.x=PatchBB.Min.x+x_step; pos=MapBezierPatchT::BOTTOM_RIGHT;
-                    if (pos==MapBezierPatchT::BOTTOM_LEFT)  tmp_max.x=PatchBB.Min.x+x_step; pos=MapBezierPatchT::BOTTOM_LEFT;
+                    if (pos==MapBezierPatchT::BOTTOM_RIGHT) tmp_min.x=PatchBB.Min.x+x_step;
+                    pos=MapBezierPatchT::BOTTOM_RIGHT;
+                    if (pos==MapBezierPatchT::BOTTOM_LEFT)  tmp_max.x=PatchBB.Min.x+x_step;
+                    pos=MapBezierPatchT::BOTTOM_LEFT;
 
                     if (Convex)
                     {
