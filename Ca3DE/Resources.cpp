@@ -17,6 +17,7 @@ This project is licensed under the terms of the MIT license.
 // #include "ConsoleCommands/ConsoleComposite.hpp"
 // #include "ConsoleCommands/ConsoleStringBuffer.hpp"
 #include "ConsoleCommands/ConVar.hpp"
+#include "GuiSys/CompText.hpp"
 #include "GuiSys/ConsoleByWindow.hpp"
 #include "GuiSys/GuiImpl.hpp"
 #include "GuiSys/GuiManImpl.hpp"
