@@ -32,12 +32,12 @@ This project is licensed under the terms of the MIT license.
 #include "UniScriptState.hpp"
 #include "String.hpp"
 
-// #ifndef _WIN32
-// #include <dlfcn.h>
+#ifndef _WIN32
+#include <dlfcn.h>
 // #define __stdcall
 // #define GetProcAddress dlsym
-// #define FreeLibrary dlclose
-// #endif
+#define FreeLibrary dlclose
+#endif
 
 
 class SvGuiCallbT : public ServerT::GuiCallbackI
