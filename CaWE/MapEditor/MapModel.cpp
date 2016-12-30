@@ -263,7 +263,8 @@ void MapModelT::TrafoRotate(const Vector3fT& RefPoint, const cf::math::AnglesfT&
 
     // Carefully round and normalize the angles.
     if (fabs(m_Angles[PITCH])<0.001f) m_Angles[PITCH]=0;
-    if (fabs(m_Angles[YAW  ])<0.001f) m_Angles[YAW  ]=0; if (m_Angles[YAW]<0) m_Angles[YAW]+=360.0f;
+    if (fabs(m_Angles[YAW  ])<0.001f) m_Angles[YAW  ]=0;
+    if (m_Angles[YAW]<0) m_Angles[YAW]+=360.0f;
     if (fabs(m_Angles[ROLL ])<0.001f) m_Angles[ROLL ]=0;
 
     MapPrimitiveT::TrafoRotate(RefPoint, Angles, LockTexCoords);

@@ -576,8 +576,10 @@ BitmapT* MapCompositionT::GetBitmap() const
                                 const int x_=int(x)+rx;
                                 const int y_=int(y)+ry;
 
-                                if (x_<0) continue; if (x_>=int(Original.SizeX)) continue;
-                                if (y_<0) continue; if (y_>=int(Original.SizeY)) continue;
+                                if (x_<0) continue;
+                                if (x_>=int(Original.SizeX)) continue;
+                                if (y_<0) continue;
+                                if (y_>=int(Original.SizeY)) continue;
 
                                 int r_, g_, b_;
 

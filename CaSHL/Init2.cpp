@@ -44,8 +44,10 @@ void ComputePatchNormal(PatchT& Patch, const cf::SceneGraph::FaceNodeT::TexInfoT
         double t=/*(*/ dot(SampleOrigin, TI_V)/(LengthV*LengthV)+TI.OffsetV;  // )/TexSizeY-SmallestT;
 
         // Do "modulo texsize" for s and t.
-        while (s<0.0) s+=NormalMap.SizeX; while (s>=NormalMap.SizeX) s-=NormalMap.SizeX;
-        while (t<0.0) t+=NormalMap.SizeY; while (t>=NormalMap.SizeY) t-=NormalMap.SizeY;
+        while (s<0.0) s+=NormalMap.SizeX;
+        while (s>=NormalMap.SizeX) s-=NormalMap.SizeX;
+        while (t<0.0) t+=NormalMap.SizeY;
+        while (t>=NormalMap.SizeY) t-=NormalMap.SizeY;
 
         unsigned int s_=(unsigned int)(s+0.5); if (s_>=NormalMap.SizeX) s_=0;
         unsigned int t_=(unsigned int)(t+0.5); if (t_>=NormalMap.SizeY) t_=0;

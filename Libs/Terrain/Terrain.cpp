@@ -990,7 +990,8 @@ void TerrainT::Refine_SubMesh(unsigned long l, TRIANGLE(VERTEXid i, VERTEXid j, 
     // Recursively refine the mesh.  Since the refinement condition is the
     // same for both branches and can be somewhat expensive to evaluate,
     // it is evaluated and tested *before* making the recursive calls.
-    if (refine) Refine_SubMesh(l-1, CHILD_L(i, j, k)); Refine_AppendStripIndex(i, l & 1);
+    if (refine) Refine_SubMesh(l-1, CHILD_L(i, j, k));
+    Refine_AppendStripIndex(i, l & 1);
     if (refine) Refine_SubMesh(l-1, CHILD_R(i, j, k));
 }
 
@@ -1015,7 +1016,8 @@ void TerrainT::Refine_SubMeshVisible(unsigned long l, TRIANGLE(VERTEXid i, VERTE
 
     const bool refine=(l!=0) && Refine_IsVertexActive(Vertices[SPLIT(i, j, k)]) && m;
 
-    if (refine) Refine_SubMeshVisible(l-1, CHILD_L(i, j, k), m); Refine_AppendStripIndex(i, l & 1);
+    if (refine) Refine_SubMeshVisible(l-1, CHILD_L(i, j, k), m);
+    Refine_AppendStripIndex(i, l & 1);
     if (refine) Refine_SubMeshVisible(l-1, CHILD_R(i, j, k), m);
 }
 
@@ -1113,7 +1115,8 @@ void TerrainT::Morph_SubMesh(unsigned long l, TRIANGLE(unsigned long i, unsigned
     const bool refine=(l!=0) && Morph_IsVertexActive(zm, Vertices[SPLIT(i, j, k)], zl, zr);
 
     // Recursively refine and morph the mesh.
-    if (refine) Morph_SubMesh(l-1, CHILD_L(i, j, k), zm, zl, za); Morph_AppendStripVector(i, l & 1, za);
+    if (refine) Morph_SubMesh(l-1, CHILD_L(i, j, k), zm, zl, za);
+    Morph_AppendStripVector(i, l & 1, za);
     if (refine) Morph_SubMesh(l-1, CHILD_R(i, j, k), zm, za, zr);
 }
 
@@ -1142,7 +1145,8 @@ void TerrainT::Morph_SubMeshVisible(unsigned long l, TRIANGLE(unsigned long i, u
     float      zm=0.0f;
     const bool refine=(l!=0) && Morph_IsVertexActive(zm, Vertices[SPLIT(i, j, k)], zl, zr) && m;
 
-    if (refine) Morph_SubMeshVisible(l-1, CHILD_L(i, j, k), zm, zl, za, m); Morph_AppendStripVector(i, l & 1, za);
+    if (refine) Morph_SubMeshVisible(l-1, CHILD_L(i, j, k), zm, zl, za, m);
+    Morph_AppendStripVector(i, l & 1, za);
     if (refine) Morph_SubMeshVisible(l-1, CHILD_R(i, j, k), zm, za, zr, m);
 }
 
@@ -1243,12 +1247,12 @@ TerrainT::QuadTreeT::QuadTreeT(TerrainT& Terrain, unsigned long LowerLeftVertIdx
         Terrain.QuadTree.PushBack(QuadTreeT(Terrain, MinX10+(Terrain.Size-1)*MinY10, MaxX10+(Terrain.Size-1)*MaxY10, Level+1)); Child10Index=Terrain.QuadTree.Size()-1;
         Terrain.QuadTree.PushBack(QuadTreeT(Terrain, MinX11+(Terrain.Size-1)*MinY11, MaxX11+(Terrain.Size-1)*MaxY11, Level+1)); Child11Index=Terrain.QuadTree.Size()-1;
 
-                                                                HeightMin=Terrain.QuadTree[Child00Index].HeightMin;
+        if (true)                                               HeightMin=Terrain.QuadTree[Child00Index].HeightMin;
         if (Terrain.QuadTree[Child01Index].HeightMin<HeightMin) HeightMin=Terrain.QuadTree[Child01Index].HeightMin;
         if (Terrain.QuadTree[Child10Index].HeightMin<HeightMin) HeightMin=Terrain.QuadTree[Child10Index].HeightMin;
         if (Terrain.QuadTree[Child11Index].HeightMin<HeightMin) HeightMin=Terrain.QuadTree[Child11Index].HeightMin;
 
-                                                                HeightMax=Terrain.QuadTree[Child00Index].HeightMax;
+        if (true)                                               HeightMax=Terrain.QuadTree[Child00Index].HeightMax;
         if (Terrain.QuadTree[Child01Index].HeightMax>HeightMax) HeightMax=Terrain.QuadTree[Child01Index].HeightMax;
         if (Terrain.QuadTree[Child10Index].HeightMax>HeightMax) HeightMax=Terrain.QuadTree[Child10Index].HeightMax;
         if (Terrain.QuadTree[Child11Index].HeightMax>HeightMax) HeightMax=Terrain.QuadTree[Child11Index].HeightMax;

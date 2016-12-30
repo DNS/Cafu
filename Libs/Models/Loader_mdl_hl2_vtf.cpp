@@ -10,6 +10,7 @@ This project is licensed under the terms of the MIT license.
 #include <cassert>
 #include <cstring>
 #include <string>
+#include <math.h>
 
 
 using namespace HL2mdl;
