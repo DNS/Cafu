@@ -9,9 +9,10 @@ This project is licensed under the terms of the MIT license.
 #include "GLFW/glfw3.h"
 
 
-glfwMainWindowT::glfwMainWindowT(cf::glfwWindowT& win)
+glfwMainWindowT::glfwMainWindowT(cf::glfwWindowT& win, getGlfwKeyFunc getGlfwKey)
     : MainWindowT(),
-      m_Win(win)
+      m_Win(win),
+      m_getGlfwKey(getGlfwKey)
 {
 }
 
@@ -40,10 +41,12 @@ unsigned int glfwMainWindowT::GetFrameBufferHeight() const
 
 bool glfwMainWindowT::IsKeyDown(unsigned int Key) const
 {
-    // Must translate the CaKeyboardEventT::CK_* key to a wxWidgets key.
-    // TODO: int wxKey = translateCKToWx(Key);
-    // return wxGetKeyState(wxKey);
-    return false;
+    const int glfwKey = m_getGlfwKey(Key);
+
+    if (glfwKey == 0)
+        return false;
+
+    return m_Win.isKeyPressed(glfwKey);
 }
 
 

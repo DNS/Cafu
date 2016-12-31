@@ -10,10 +10,11 @@ This project is licensed under the terms of the MIT license.
 #include <wx/glcanvas.h>
 
 
-MainWindowWxT::MainWindowWxT(wxFrame* Frame, wxGLCanvas* Canvas)
+MainWindowWxT::MainWindowWxT(wxFrame* Frame, wxGLCanvas* Canvas, getWxKeyFunc getWxKey)
     : MainWindowT(),
       m_Frame(Frame),
-      m_Canvas(Canvas)
+      m_Canvas(Canvas),
+      m_getWxKey(getWxKey)
 {
 }
 
@@ -32,10 +33,12 @@ unsigned int MainWindowWxT::GetFrameBufferHeight() const
 
 bool MainWindowWxT::IsKeyDown(unsigned int Key) const
 {
-    // Must translate the CaKeyboardEventT::CK_* key to a wxWidgets key.
-    // TODO: int wxKey = translateCKToWx(Key);
-    // return wxGetKeyState(wxKey);
-    return false;
+    const int wxKey = m_getWxKey(Key);
+
+    if (wxKey == 0)
+        return false;
+
+    return wxGetKeyState(wxKeyCode(wxKey));
 }
 
 

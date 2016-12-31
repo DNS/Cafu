@@ -52,6 +52,9 @@ class MainCanvasT : public wxGLCanvas
     void OnKeyUp  (wxKeyEvent& KE);
     void OnKeyChar(wxKeyEvent& KE);
 
+    static int getCaKey(int wxKey);
+    static int getWxKey(int caKey);
+
     MainFrameT*      m_Parent;
     const GameInfoT& m_GameInfo;
     ResourcesT*      m_Resources;

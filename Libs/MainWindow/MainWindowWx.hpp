@@ -17,8 +17,10 @@ class MainWindowWxT : public MainWindowT
 {
     public:
 
+    typedef int (*getWxKeyFunc)(int);
+
     /// The constructor.
-    MainWindowWxT(wxFrame* Frame, wxGLCanvas* Canvas);
+    MainWindowWxT(wxFrame* Frame, wxGLCanvas* Canvas, getWxKeyFunc getWxKey);
 
     unsigned int GetFrameBufferWidth() const override;
     unsigned int GetFrameBufferHeight() const override;
@@ -33,8 +35,9 @@ class MainWindowWxT : public MainWindowT
 
     private:
 
-    wxFrame*    m_Frame;
-    wxGLCanvas* m_Canvas;
+    wxFrame*     m_Frame;
+    wxGLCanvas*  m_Canvas;
+    getWxKeyFunc m_getWxKey;
 };
 
 #endif

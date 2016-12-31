@@ -17,8 +17,10 @@ class glfwMainWindowT : public MainWindowT
 {
     public:
 
+    typedef int (*getGlfwKeyFunc)(int);
+
     /// The constructor.
-    glfwMainWindowT(cf::glfwWindowT& win);
+    glfwMainWindowT(cf::glfwWindowT& win, getGlfwKeyFunc getGlfwKey);
 
     unsigned int GetFrameBufferWidth() const override;
     unsigned int GetFrameBufferHeight() const override;
@@ -34,6 +36,7 @@ class glfwMainWindowT : public MainWindowT
     private:
 
     cf::glfwWindowT& m_Win;
+    getGlfwKeyFunc   m_getGlfwKey;
 };
 
 #endif

@@ -843,7 +843,7 @@ void ClientStateInGameT::MainLoop(float FrameTime)
             // Später evtl. mal die echte Zeit vom Buffer einsetzen!
             // Mit anderen Worten, dies mit in die obige Buffer-Schleife nehmen!
             // Player movement / state
-         // if (Client.m_MainWin.GetKeyState(WXK_CONTROL)     ) ;                                                       // R_Strg   Run
+         // if (Client.m_MainWin.IsKeyDown(CaKeyboardEventT::CK_CTRL)) ;                                                // R_Strg   Run
             if (Client.m_MainWin.IsKeyDown(CaKeyboardEventT::CK_LSHIFT) ||
                 Client.m_MainWin.IsKeyDown(CaKeyboardEventT::CK_RSHIFT))      PlayerCommand.Keys |= PCK_Walk;           // Shift  Stealth
             if (Client.m_MainWin.IsKeyDown(CaKeyboardEventT::CK_UP) ||                                                  // Up       Walk forward

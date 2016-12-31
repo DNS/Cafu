@@ -72,7 +72,7 @@ MainCanvasT::MainCanvasT(MainFrameT* Parent, const GameInfoT& GameInfo)
       m_Timer(),
       m_TotalTime(0.0),
       m_LastMousePos(IN_OTHER_2D_GUI),
-      m_MainWin(Parent, this)
+      m_MainWin(Parent, this, getWxKey)
 {
     m_GLContext=new wxGLContext(this);
 
@@ -534,7 +534,7 @@ static const KeyCodePairT KeyCodes[]=
     { WXK_WINDOWS_RIGHT,    CaKeyboardEventT::CK_RWIN },
     //{ WXK_WINDOWS_MENU ,    CaKeyboardEventT:: },
     //{ WXK_COMMAND,          CaKeyboardEventT:: },
-    //{ (wxKeyCode)0, (CaKeyboardEventT::KeyT)0 }
+    { (wxKeyCode)0, (CaKeyboardEventT::KeyT)0 }     // end-of-array marker
 };
 
 
@@ -592,20 +592,16 @@ void MainCanvasT::OnKeyDown(wxKeyEvent& KE)
         }
     }
 
-    // Look for the pressed keys keycode in the table and translate it to a CaKeyCode if found.
-    for (int KeyCodeNr=0; KeyCodes[KeyCodeNr].wxKC!=0; KeyCodeNr++)
+    // Have the GuiMan handle the key event.
+    CaKeyboardEventT KeyboardEvent;
+
+    KeyboardEvent.Type = CaKeyboardEventT::CKE_KEYDOWN;
+    KeyboardEvent.Key  = getCaKey(KE.GetKeyCode());
+
+    if (KeyboardEvent.Key)
     {
-        if (KeyCodes[KeyCodeNr].wxKC==KE.GetKeyCode())
-        {
-            CaKeyboardEventT KeyboardEvent;
-
-            KeyboardEvent.Type=CaKeyboardEventT::CKE_KEYDOWN;
-            KeyboardEvent.Key =KeyCodes[KeyCodeNr].CaKC;
-
-            cf::GuiSys::GuiMan->ProcessDeviceEvent(KeyboardEvent);
-            // We should probably return here if the GuiMan handled the key, break (only when unhandled) for calling KE.Skip() otherwise.
-            break;
-        }
+        cf::GuiSys::GuiMan->ProcessDeviceEvent(KeyboardEvent);
+        // We should probably return here if the GuiMan handled the key, do nothing (when unhandled) for calling KE.Skip() otherwise.
     }
 
     KE.Skip();
@@ -616,19 +612,16 @@ void MainCanvasT::OnKeyUp(wxKeyEvent& KE)
 {
     if (!m_Resources) return;
 
-    // Look for the released keys keycode in the table and translate it to a CaKeyCode if found.
-    for (int KeyCodeNr=0; KeyCodes[KeyCodeNr].wxKC!=0; KeyCodeNr++)
+    // Have the GuiMan handle the key event.
+    CaKeyboardEventT KeyboardEvent;
+
+    KeyboardEvent.Type = CaKeyboardEventT::CKE_KEYUP;
+    KeyboardEvent.Key  = getCaKey(KE.GetKeyCode());
+
+    if (KeyboardEvent.Key)
     {
-        if (KeyCodes[KeyCodeNr].wxKC==KE.GetKeyCode())
-        {
-            CaKeyboardEventT KeyboardEvent;
-
-            KeyboardEvent.Type=CaKeyboardEventT::CKE_KEYUP;
-            KeyboardEvent.Key =KeyCodes[KeyCodeNr].CaKC;
-
-            cf::GuiSys::GuiMan->ProcessDeviceEvent(KeyboardEvent);
-            return;
-        }
+        cf::GuiSys::GuiMan->ProcessDeviceEvent(KeyboardEvent);
+        return;
     }
 
     KE.Skip();
@@ -645,4 +638,26 @@ void MainCanvasT::OnKeyChar(wxKeyEvent& KE)
     KeyboardEvent.Key =KE.GetKeyCode();
 
     cf::GuiSys::GuiMan->ProcessDeviceEvent(KeyboardEvent);
+}
+
+
+/*static*/
+int MainCanvasT::getCaKey(int wxKey)
+{
+    for (unsigned int i = 0; KeyCodes[i].wxKC != 0; i++)
+        if (KeyCodes[i].wxKC == wxKey)
+            return KeyCodes[i].CaKC;
+
+    return 0;
+}
+
+
+/*static*/
+int MainCanvasT::getWxKey(int caKey)
+{
+    for (unsigned int i = 0; KeyCodes[i].wxKC != 0; i++)
+        if (KeyCodes[i].CaKC == caKey)
+            return KeyCodes[i].wxKC;
+
+    return 0;
 }
