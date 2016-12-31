@@ -19,11 +19,35 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 }
 
 
+static void character_callback(GLFWwindow* window, unsigned int codepoint)
+{
+    glfwWindowT* win = static_cast<glfwWindowT*>(glfwGetWindowUserPointer(window));
+
+    win->CharEvent(codepoint);
+}
+
+
 static void cursor_pos_callback(GLFWwindow* window, double xpos, double ypos)
 {
     glfwWindowT* win = static_cast<glfwWindowT*>(glfwGetWindowUserPointer(window));
 
     win->MouseMoveEvent(xpos, ypos);
+}
+
+
+static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    glfwWindowT* win = static_cast<glfwWindowT*>(glfwGetWindowUserPointer(window));
+
+    win->MouseButtonEvent(button, action, mods);
+}
+
+
+static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    glfwWindowT* win = static_cast<glfwWindowT*>(glfwGetWindowUserPointer(window));
+
+    win->MouseScrollEvent(xoffset, yoffset);
 }
 
 
@@ -47,7 +71,10 @@ glfwWindowT::glfwWindowT(int width, int height, const char* title, GLFWmonitor* 
 
     glfwSetWindowUserPointer(m_win, this);
     glfwSetKeyCallback(m_win, key_callback);
+    glfwSetCharCallback(m_win, character_callback);
     glfwSetCursorPosCallback(m_win, cursor_pos_callback);
+    glfwSetMouseButtonCallback(m_win, mouse_button_callback);
+    glfwSetScrollCallback(m_win, scroll_callback);
     glfwSetFramebufferSizeCallback(m_win, framebuffer_size_callback);
 }
 
@@ -95,6 +122,30 @@ bool glfwWindowT::shouldClose() const
 void glfwWindowT::setShouldClose(bool close)
 {
     glfwSetWindowShouldClose(m_win, close);
+}
+
+
+void glfwWindowT::setMouseCursorMode(int value)
+{
+    glfwSetInputMode(m_win, GLFW_CURSOR, value);
+}
+
+
+void glfwWindowT::getMouseCursorPos(double& posX, double& posY) const
+{
+    glfwGetCursorPos(m_win, &posX, &posY);
+}
+
+
+int glfwWindowT::getWindowAttrib(int attrib) const
+{
+    return glfwGetWindowAttrib(m_win, attrib);
+}
+
+
+void glfwWindowT::getWindowSize(unsigned int& width, unsigned int& height) const
+{
+    glfwGetWindowSize(m_win, (int*)&width, (int*)&height);
 }
 
 
