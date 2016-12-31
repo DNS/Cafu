@@ -54,7 +54,8 @@ class MainCanvasT : public wxGLCanvas
 
     MainFrameT*      m_Parent;
     const GameInfoT& m_GameInfo;
-    ResourcesT       m_Resources;
+    ResourcesT*      m_Resources;
+    bool             m_ResInitFailed; ///< Prevent repeated init attempts when it has already failed once.
     wxGLContext*     m_GLContext;     ///< The OpenGL rendering context that represents our app-global OpenGL state.
     TimerT           m_Timer;
     double           m_TotalTime;

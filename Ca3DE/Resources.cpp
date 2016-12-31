@@ -61,10 +61,8 @@ class SvGuiCallbT : public ServerT::GuiCallbackI
 };
 
 
-ResourcesT::ResourcesT(const GameInfoT& GameInfo)
-    : m_GameInfo(GameInfo),
-      m_InitState(INIT_REQUIRED),
-      m_RendererDLL(NULL),
+ResourcesT::ResourcesT(const GameInfoT& GameInfo, MainWindowT& MainWin)
+    : m_RendererDLL(NULL),
       m_ModelManager(NULL),
       m_GuiResources(NULL),
       m_SoundSysDLL(NULL),
@@ -73,23 +71,9 @@ ResourcesT::ResourcesT(const GameInfoT& GameInfo)
       m_SvGuiCallback(NULL),
       m_ConByGuiWin(NULL)
 {
-    // Initialize() must be called explicitly by the user.
-}
-
-
-ResourcesT::~ResourcesT()
-{
-    Cleanup();
-}
-
-
-void ResourcesT::Initialize(MainWindowT& MainWin)
-{
     extern ConVarT Options_ClientDesiredRenderer;
     extern ConVarT Options_ClientTextureDetail;
     extern ConVarT Options_ClientDesiredSoundSystem;
-
-    m_InitState=INIT_FAILED;
 
     // Obtain the specified MatSys renderer (or if none is specified, automatically find the "best").
     const std::string& RendererName = Options_ClientDesiredRenderer.GetValueString();
@@ -101,7 +85,10 @@ void ResourcesT::Initialize(MainWindowT& MainWin)
         MatSys::Renderer=PlatformAux::GetBestRenderer(m_RendererDLL);
 
     if (MatSys::Renderer==NULL || m_RendererDLL==NULL)
+    {
+        Cleanup();
         throw std::runtime_error("Could not find a renderer that is supported on your system.");
+    }
 
     MatSys::Renderer->Initialize();
 
@@ -110,7 +97,10 @@ void ResourcesT::Initialize(MainWindowT& MainWin)
     MatSys::TextureMapManager=PlatformAux::GetTextureMapManager(m_RendererDLL);
 
     if (MatSys::TextureMapManager==NULL)
+    {
+        Cleanup();
         throw std::runtime_error("Could not get the TextureMapManager from the renderer DLL.");
+    }
 
     switch (Options_ClientTextureDetail.GetValueInt())
     {
@@ -134,7 +124,10 @@ void ResourcesT::Initialize(MainWindowT& MainWin)
         SoundSystem=PlatformAux::GetBestSoundSys(m_SoundSysDLL);
 
     if (SoundSystem==NULL || m_SoundSysDLL==NULL)
+    {
+        Cleanup();
         throw std::runtime_error("Could not find a sound system that is supported on your system.");
+    }
 
     if (!SoundSystem->Initialize())
     {
@@ -164,7 +157,10 @@ void ResourcesT::Initialize(MainWindowT& MainWin)
 
         // Null sound system should always be there and loadable...
         if (SoundSystem==NULL || m_SoundSysDLL==NULL)
+        {
+            Cleanup();
             throw std::runtime_error("Could not load the Null sound system.");
+        }
 
         SoundSystem->Initialize();    // Init of Null sound system always succeeds.
     }
@@ -184,8 +180,8 @@ void ResourcesT::Initialize(MainWindowT& MainWin)
 
     // Create the client and server instances.
     m_SvGuiCallback=new SvGuiCallbT();
-    m_Server=new ServerT(m_GameInfo, *m_SvGuiCallback, *m_ModelManager, *m_GuiResources);
-    m_Client=new ClientT(MainWin, m_GameInfo, *m_ModelManager, *m_GuiResources);   // The client initializes in IDLE state.
+    m_Server=new ServerT(GameInfo, *m_SvGuiCallback, *m_ModelManager, *m_GuiResources);
+    m_Client=new ClientT(MainWin, GameInfo, *m_ModelManager, *m_GuiResources);   // The client initializes in IDLE state.
 
 
     // Finish the initialization of the GuiSys.
@@ -216,7 +212,8 @@ void ResourcesT::Initialize(MainWindowT& MainWin)
     cf::GuiSys::GuiMan->Register(ClientGui);
 
 
-    IntrusivePtrT<cf::GuiSys::GuiImplT> MainMenuGui = cf::GuiSys::GuiMan->Find("Games/" + m_GameInfo.GetName() + "/GUIs/MainMenu/MainMenu_main.cgui", true);
+    IntrusivePtrT<cf::GuiSys::GuiImplT> MainMenuGui = cf::GuiSys::GuiMan->Find("Games/" + GameInfo.GetName() + "/GUIs/MainMenu/MainMenu_main.cgui", true);
+
     if (MainMenuGui==NULL)
     {
         MainMenuGui = new cf::GuiSys::GuiImplT(*m_GuiResources);
@@ -241,24 +238,27 @@ void ResourcesT::Initialize(MainWindowT& MainWin)
 
         cf::GuiSys::GuiMan->Register(MainMenuGui);
     }
+
     m_Client->SetMainMenuGui(MainMenuGui);
     m_SvGuiCallback->MainMenuGui=MainMenuGui;       // This is the callback for the server, so that it can let the MainMenuGui know about its state changes.
     m_SvGuiCallback->OnServerStateChanged("idle");  // Argh, this is a HACK for setting the initial state... can we move this / do it better?
 
-    IntrusivePtrT<cf::GuiSys::GuiImplT> ConsoleGui    = cf::GuiSys::GuiMan->Find("Games/"+ m_GameInfo.GetName() +"/GUIs/Console_main.cgui", true);
+    IntrusivePtrT<cf::GuiSys::GuiImplT> ConsoleGui    = cf::GuiSys::GuiMan->Find("Games/"+ GameInfo.GetName() +"/GUIs/Console_main.cgui", true);
     IntrusivePtrT<cf::GuiSys::WindowT>  ConsoleWindow = ConsoleGui != NULL ? ConsoleGui->GetRootWindow()->Find("ConsoleOutput") : NULL;
 
     // This will be attached to the composite console, so that console messages are also printed to the ConsoleWindow.
     m_ConByGuiWin=new cf::GuiSys::ConsoleByWindowT(ConsoleWindow);
+}
 
-    m_InitState=INIT_SUCCESS;
+
+ResourcesT::~ResourcesT()
+{
+    Cleanup();
 }
 
 
 void ResourcesT::Cleanup()
 {
-    m_InitState=INIT_REQUIRED;
-
     delete m_ConByGuiWin;
     m_ConByGuiWin=NULL;
 

@@ -66,7 +66,8 @@ MainCanvasT::MainCanvasT(MainFrameT* Parent, const GameInfoT& GameInfo)
     : wxGLCanvas(Parent, wxID_ANY, OpenGLAttributeList, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS, "CafuMainCanvas"),
       m_Parent(Parent),
       m_GameInfo(GameInfo),
-      m_Resources(GameInfo),
+      m_Resources(NULL),
+      m_ResInitFailed(false),
       m_GLContext(NULL),
       m_Timer(),
       m_TotalTime(0.0),
@@ -82,7 +83,8 @@ MainCanvasT::MainCanvasT(MainFrameT* Parent, const GameInfoT& GameInfo)
 
 MainCanvasT::~MainCanvasT()
 {
-    wxGetApp().GetConComposite().Detach(m_Resources.m_ConByGuiWin);
+    if (m_Resources)
+        wxGetApp().GetConComposite().Detach(m_Resources->m_ConByGuiWin);
 }
 
 
@@ -147,7 +149,7 @@ void MainCanvasT::OnPaint(wxPaintEvent& PE)
 {
     wxPaintDC dc(this);     // It is VERY important not to omit this, or otherwise everything goes havoc.
 
-    if (m_Resources.GetInitState() == ResourcesT::INIT_REQUIRED)
+    if (!m_Resources && !m_ResInitFailed)
     {
         dc.SetBackground(*wxBLACK_BRUSH);
         dc.Clear();
@@ -169,11 +171,7 @@ void MainCanvasT::OnPaint(wxPaintEvent& PE)
 
         try
         {
-            m_Resources.Initialize(m_MainWin);
-
-            // This should never happen, because an exception should have been thrown beforehand.
-            if (m_Resources.GetInitState() != ResourcesT::INIT_SUCCESS)
-                throw std::runtime_error("The initialization was not successful.");
+            m_Resources = new ResourcesT(m_GameInfo, m_MainWin);
         }
         catch (const std::runtime_error& RE)
         {
@@ -194,19 +192,20 @@ void MainCanvasT::OnPaint(wxPaintEvent& PE)
             }
 
             m_Parent->Destroy();
+            m_ResInitFailed = true;
             return;
         }
 
         // Copy the previously collected console output to the new graphical console.
-        m_Resources.m_ConByGuiWin->Print(wxGetApp().GetConBuffer().GetBuffer());
-        wxGetApp().GetConComposite().Attach(m_Resources.m_ConByGuiWin);
+        m_Resources->m_ConByGuiWin->Print(wxGetApp().GetConBuffer().GetBuffer());
+        wxGetApp().GetConComposite().Attach(m_Resources->m_ConByGuiWin);
     }
 }
 
 
 void MainCanvasT::OnSize(wxSizeEvent& SE)
 {
-    if (m_Resources.GetInitState() != ResourcesT::INIT_SUCCESS) return;
+    if (!m_Resources) return;
 
     const wxSize Size=SE.GetSize();
 
@@ -239,7 +238,7 @@ void MainCanvasT::OnIdle(wxIdleEvent& IE)
     GlobalTime.SetValue(m_TotalTime);
 
 
-    if (m_Resources.GetInitState() != ResourcesT::INIT_SUCCESS) return;
+    if (!m_Resources) return;
 
     cf::GuiSys::GuiMan->DistributeClockTickEvents(FrameTimeF);
 
@@ -290,14 +289,14 @@ void MainCanvasT::OnIdle(wxIdleEvent& IE)
     SoundSystem->Update();
 
     // Run a client and a server frame.
-    m_Resources.m_Client->MainLoop(FrameTimeF);
-    if (m_Resources.m_Server) m_Resources.m_Server->MainLoop();
+    m_Resources->m_Client->MainLoop(FrameTimeF);
+    if (m_Resources->m_Server) m_Resources->m_Server->MainLoop();
 }
 
 
 void MainCanvasT::OnMouseMove(wxMouseEvent& ME)
 {
-    if (m_Resources.GetInitState() != ResourcesT::INIT_SUCCESS) return;
+    if (!m_Resources) return;
 
     IntrusivePtrT<cf::GuiSys::GuiImplT> Gui = cf::GuiSys::GuiMan->GetTopmostActiveAndInteractive();
 
@@ -333,7 +332,7 @@ void MainCanvasT::OnMouseMove(wxMouseEvent& ME)
 
 void MainCanvasT::OnMouseWheel(wxMouseEvent& ME)
 {
-    if (m_Resources.GetInitState() != ResourcesT::INIT_SUCCESS) return;
+    if (!m_Resources) return;
 
     CaMouseEventT MouseEvent;
 
@@ -346,7 +345,7 @@ void MainCanvasT::OnMouseWheel(wxMouseEvent& ME)
 
 void MainCanvasT::OnLMouseDown(wxMouseEvent& ME)
 {
-    if (m_Resources.GetInitState() != ResourcesT::INIT_SUCCESS) return;
+    if (!m_Resources) return;
 
     CaMouseEventT MouseEvent;
 
@@ -359,7 +358,7 @@ void MainCanvasT::OnLMouseDown(wxMouseEvent& ME)
 
 void MainCanvasT::OnLMouseUp(wxMouseEvent& ME)
 {
-    if (m_Resources.GetInitState() != ResourcesT::INIT_SUCCESS) return;
+    if (!m_Resources) return;
 
     CaMouseEventT MouseEvent;
 
@@ -372,7 +371,7 @@ void MainCanvasT::OnLMouseUp(wxMouseEvent& ME)
 
 void MainCanvasT::OnRMouseDown(wxMouseEvent& ME)
 {
-    if (m_Resources.GetInitState() != ResourcesT::INIT_SUCCESS) return;
+    if (!m_Resources) return;
 
     CaMouseEventT MouseEvent;
 
@@ -385,7 +384,7 @@ void MainCanvasT::OnRMouseDown(wxMouseEvent& ME)
 
 void MainCanvasT::OnRMouseUp(wxMouseEvent& ME)
 {
-    if (m_Resources.GetInitState() != ResourcesT::INIT_SUCCESS) return;
+    if (!m_Resources) return;
 
     CaMouseEventT MouseEvent;
 
@@ -541,7 +540,7 @@ static const KeyCodePairT KeyCodes[]=
 
 void MainCanvasT::OnKeyDown(wxKeyEvent& KE)
 {
-    if (m_Resources.GetInitState() != ResourcesT::INIT_SUCCESS) return;
+    if (!m_Resources) return;
 
     switch (KE.GetKeyCode())
     {
@@ -615,7 +614,7 @@ void MainCanvasT::OnKeyDown(wxKeyEvent& KE)
 
 void MainCanvasT::OnKeyUp(wxKeyEvent& KE)
 {
-    if (m_Resources.GetInitState() != ResourcesT::INIT_SUCCESS) return;
+    if (!m_Resources) return;
 
     // Look for the released keys keycode in the table and translate it to a CaKeyCode if found.
     for (int KeyCodeNr=0; KeyCodes[KeyCodeNr].wxKC!=0; KeyCodeNr++)
@@ -638,7 +637,7 @@ void MainCanvasT::OnKeyUp(wxKeyEvent& KE)
 
 void MainCanvasT::OnKeyChar(wxKeyEvent& KE)
 {
-    if (m_Resources.GetInitState() != ResourcesT::INIT_SUCCESS) return;
+    if (!m_Resources) return;
 
     CaKeyboardEventT KeyboardEvent;
 

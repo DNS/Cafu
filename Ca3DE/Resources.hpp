@@ -31,26 +31,17 @@ class ResourcesT
 {
     public:
 
-    enum InitStateT { INIT_REQUIRED, INIT_FAILED, INIT_SUCCESS };
-
-    /// The constructor.
-    ResourcesT(const GameInfoT& GameInfo);
+    /// The constructor. Throws std::runtime_error on failure.
+    ResourcesT(const GameInfoT& GameInfo, MainWindowT& MainWin);
 
     /// The destructor.
     ~ResourcesT();
-
-    InitStateT GetInitState() const { return m_InitState; }
-
-    /// Initialize the resources. Throws std::runtime_error on failure.
-    void Initialize(MainWindowT& MainWin);
 
 
     public:
 
     void Cleanup();
 
-    const GameInfoT&              m_GameInfo;
-    InitStateT                    m_InitState;  ///< Indicates whether initialization is still required, was attempted but failed, or completed successfully.
     HMODULE                       m_RendererDLL;
     ModelManagerT*                m_ModelManager;
     cf::GuiSys::GuiResourcesT*    m_GuiResources;
