@@ -271,6 +271,7 @@ bool AppCafuT::OnInit()
     std::ostringstream consoleOutputStream;
     TCLAP::StdOutput   stdOutput(consoleOutputStream, consoleOutputStream);
     TCLAP::CmdLine     cmd("Cafu Engine", stdOutput, ' ', "'" __DATE__ "'");
+    bool               forceWindowMode = false;
 
     try
     {
@@ -339,7 +340,7 @@ bool AppCafuT::OnInit()
 
         Options_ServerWorldName     = argSvWorld .getValue();
         Options_ServerPortNr        = argSvPort  .getValue();
-        Options_ClientFullScreen    = !argClNoFS .getValue();
+        forceWindowMode             = argClNoFS  .getValue();   // --cl-no-fs is a temporary override, not a permanent setting.
         Options_ClientPortNr        = argClPort  .getValue();
         Options_ClientRemoteName    = argClRmName.getValue();
         Options_ClientRemotePortNr  = argClRmPort.getValue();
@@ -416,7 +417,7 @@ bool AppCafuT::OnInit()
     wxDisplay      Display;
     extern ConVarT Options_ClientFullScreen;
 
-    if (Options_ClientFullScreen.GetValueBool())
+    if (Options_ClientFullScreen.GetValueBool() && !forceWindowMode)
     {
         extern ConVarT Options_ClientWindowSizeX;
         extern ConVarT Options_ClientWindowSizeY;
