@@ -83,8 +83,7 @@ MainCanvasT::MainCanvasT(MainFrameT* Parent, const GameInfoT& GameInfo)
 
 MainCanvasT::~MainCanvasT()
 {
-    if (m_Resources)
-        wxGetApp().GetConComposite().Detach(m_Resources->m_ConByGuiWin);
+    delete m_Resources;
 }
 
 
@@ -171,7 +170,7 @@ void MainCanvasT::OnPaint(wxPaintEvent& PE)
 
         try
         {
-            m_Resources = new ResourcesT(m_GameInfo, m_MainWin);
+            m_Resources = new ResourcesT(wxGetApp().GetConComposite(), wxGetApp().GetConBuffer().GetBuffer(), m_GameInfo, m_MainWin);
         }
         catch (const std::runtime_error& RE)
         {
@@ -195,10 +194,6 @@ void MainCanvasT::OnPaint(wxPaintEvent& PE)
             m_ResInitFailed = true;
             return;
         }
-
-        // Copy the previously collected console output to the new graphical console.
-        m_Resources->m_ConByGuiWin->Print(wxGetApp().GetConBuffer().GetBuffer());
-        wxGetApp().GetConComposite().Attach(m_Resources->m_ConByGuiWin);
     }
 }
 

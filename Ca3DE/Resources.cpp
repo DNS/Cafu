@@ -14,7 +14,7 @@ This project is licensed under the terms of the MIT license.
 #include "ClipSys/CollisionModelMan.hpp"    // Only needed for an assert() below.
 #include "ConsoleCommands/Console.hpp"
 // #include "ConsoleCommands/ConsoleInterpreter.hpp"
-// #include "ConsoleCommands/ConsoleComposite.hpp"
+#include "ConsoleCommands/ConsoleComposite.hpp"
 // #include "ConsoleCommands/ConsoleStringBuffer.hpp"
 #include "ConsoleCommands/ConVar.hpp"
 #include "GuiSys/CompText.hpp"
@@ -61,8 +61,9 @@ class SvGuiCallbT : public ServerT::GuiCallbackI
 };
 
 
-ResourcesT::ResourcesT(const GameInfoT& GameInfo, MainWindowT& MainWin)
-    : m_RendererDLL(NULL),
+ResourcesT::ResourcesT(cf::CompositeConsoleT& CC, const std::string& ConsoleText, const GameInfoT& GameInfo, MainWindowT& MainWin)
+    : m_CompositeConsole(CC),
+      m_RendererDLL(NULL),
       m_ModelManager(NULL),
       m_GuiResources(NULL),
       m_SoundSysDLL(NULL),
@@ -246,8 +247,10 @@ ResourcesT::ResourcesT(const GameInfoT& GameInfo, MainWindowT& MainWin)
     IntrusivePtrT<cf::GuiSys::GuiImplT> ConsoleGui    = cf::GuiSys::GuiMan->Find("Games/"+ GameInfo.GetName() +"/GUIs/Console_main.cgui", true);
     IntrusivePtrT<cf::GuiSys::WindowT>  ConsoleWindow = ConsoleGui != NULL ? ConsoleGui->GetRootWindow()->Find("ConsoleOutput") : NULL;
 
-    // This will be attached to the composite console, so that console messages are also printed to the ConsoleWindow.
+    // Copy the previous console output to the new graphical console and print all new messages also there.
     m_ConByGuiWin=new cf::GuiSys::ConsoleByWindowT(ConsoleWindow);
+    m_ConByGuiWin->Print(ConsoleText);
+    m_CompositeConsole.Attach(m_ConByGuiWin);
 }
 
 
@@ -259,6 +262,8 @@ ResourcesT::~ResourcesT()
 
 void ResourcesT::Cleanup()
 {
+    m_CompositeConsole.Detach(m_ConByGuiWin);
+
     delete m_ConByGuiWin;
     m_ConByGuiWin=NULL;
 

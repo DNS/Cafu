@@ -16,6 +16,8 @@ This project is licensed under the terms of the MIT license.
 #define HMODULE void*
 #endif
 
+#include <string>
+
 
 class GameInfoT;
 class ClientT;
@@ -23,6 +25,7 @@ class ServerT;
 class SvGuiCallbT;
 class MainWindowT;
 class ModelManagerT;
+namespace cf { class CompositeConsoleT; }
 namespace cf { namespace GuiSys { class GuiResourcesT; } }
 namespace cf { namespace GuiSys { class ConsoleByWindowT; } }
 
@@ -32,7 +35,7 @@ class ResourcesT
     public:
 
     /// The constructor. Throws std::runtime_error on failure.
-    ResourcesT(const GameInfoT& GameInfo, MainWindowT& MainWin);
+    ResourcesT(cf::CompositeConsoleT& CC, const std::string& ConsoleText, const GameInfoT& GameInfo, MainWindowT& MainWin);
 
     /// The destructor.
     ~ResourcesT();
@@ -42,6 +45,7 @@ class ResourcesT
 
     void Cleanup();
 
+    cf::CompositeConsoleT&        m_CompositeConsole;
     HMODULE                       m_RendererDLL;
     ModelManagerT*                m_ModelManager;
     cf::GuiSys::GuiResourcesT*    m_GuiResources;
