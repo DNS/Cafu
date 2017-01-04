@@ -284,8 +284,7 @@ void MainCanvasT::OnIdle(wxIdleEvent& IE)
     SoundSystem->Update();
 
     // Run a client and a server frame.
-    m_Resources->m_Client->MainLoop(FrameTimeF);
-    if (m_Resources->m_Server) m_Resources->m_Server->MainLoop();
+    m_Resources->runFrame(FrameTimeF);
 }
 
 

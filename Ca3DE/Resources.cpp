@@ -338,3 +338,10 @@ void ResourcesT::Cleanup()
         m_RendererDLL=NULL;
     }
 }
+
+
+void ResourcesT::runFrame(float FrameTimeF)
+{
+    m_Client->MainLoop(FrameTimeF);
+    if (m_Server) m_Server->MainLoop();
+}

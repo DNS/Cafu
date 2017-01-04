@@ -40,8 +40,10 @@ class ResourcesT
     /// The destructor.
     ~ResourcesT();
 
+    void runFrame(float FrameTimeF);
 
-    public:
+
+    private:
 
     void Cleanup();
 
