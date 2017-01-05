@@ -27,7 +27,7 @@ unsigned int MainWindowWxT::GetFrameBufferWidth() const
 
 unsigned int MainWindowWxT::GetFrameBufferHeight() const
 {
-    return m_Frame->GetClientSize().GetWidth();
+    return m_Frame->GetClientSize().GetHeight();
 }
 
 

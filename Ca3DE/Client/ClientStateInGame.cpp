@@ -341,7 +341,7 @@ void ClientStateInGameT::Render(float FrameTime)
 {
     const unsigned int fbWidth  = Client.m_MainWin.GetFrameBufferWidth();
     const unsigned int fbHeight = Client.m_MainWin.GetFrameBufferHeight();
-    const float ffbWidth  = float(fbHeight);
+    const float ffbWidth  = float(fbWidth);
     const float ffbHeight = float(fbHeight);
 
     Graphs.ClearForFrame(ClientFrameNr);
