@@ -1,0 +1,398 @@
+/*
+Cafu Engine, http://www.cafu.de/
+Copyright (c) Carsten Fuchs and other contributors.
+This project is licensed under the terms of the MIT license.
+*/
+
+#include "ClipSys/CollisionModelMan_impl.hpp"
+#include "ConsoleCommands/ConsoleInterpreterImpl.hpp"
+#include "ConsoleCommands/ConsoleComposite.hpp"
+#include "ConsoleCommands/ConsoleFile.hpp"
+#include "ConsoleCommands/ConsoleStdout.hpp"
+#include "ConsoleCommands/ConsoleStringBuffer.hpp"
+#include "ConsoleCommands/ConVar.hpp"
+#include "ConsoleCommands/ConFunc.hpp"
+#include "FileSys/FileManImpl.hpp"
+#include "GameSys/AllComponents.hpp"
+#include "GameSys/Entity.hpp"
+#include "GameSys/World.hpp"
+#include "GuiSys/AllComponents.hpp"
+#include "GuiSys/GuiManImpl.hpp"
+#include "GuiSys/GuiImpl.hpp"
+#include "GuiSys/Window.hpp"
+#include "MainWindow/glfwMainWindow.hpp"
+#include "MaterialSystem/MaterialManagerImpl.hpp"
+#include "Network/Network.hpp"
+#include "SoundSystem/SoundShaderManagerImpl.hpp"
+#include "SoundSystem/SoundSys.hpp"
+#include "PlatformAux.hpp"
+#include "String.hpp"
+
+#include "ClientMainWindow.hpp"
+#include "GameInfo.hpp"
+
+#include "GLFW/glfw3.h"
+#include "tclap/CmdLine.h"
+#include "tclap/StdOutput.h"
+
+
+// For each interface that is globally available to the application,
+// provide a definition for the pointer instance and have it point to an implementation.
+static cf::CompositeConsoleT s_CompositeConsole;
+cf::ConsoleI* Console=&s_CompositeConsole;
+
+static cf::FileSys::FileManImplT s_FileManImpl;
+cf::FileSys::FileManI* cf::FileSys::FileMan=&s_FileManImpl;
+
+static cf::ClipSys::CollModelManImplT s_CCM;
+cf::ClipSys::CollModelManI* cf::ClipSys::CollModelMan=&s_CCM;
+
+static ConsoleInterpreterImplT s_ConInterpreterImpl;
+ConsoleInterpreterI* ConsoleInterpreter=&s_ConInterpreterImpl;      // TODO: Put it into a proper namespace.
+
+static MaterialManagerImplT s_MaterialManagerImpl;
+MaterialManagerI* MaterialManager=&s_MaterialManagerImpl;           // TODO: Put it into a proper namespace.
+
+static SoundShaderManagerImplT s_SoundShaderManagerImpl;
+SoundShaderManagerI* SoundShaderManager=&s_SoundShaderManagerImpl;  // TODO: Put it into a proper namespace.
+
+// static WinSockT WinSock;     // This unfortunately can throw.
+WinSockT* g_WinSock=NULL;
+
+
+// Implementations for these interfaces are obtained later at run-time.
+// MatSys::RendererI* MatSys::Renderer=NULL;                    // TODO: Don't have it predefine the global pointer instance.
+// MatSys::TextureMapManagerI* MatSys::TextureMapManager=NULL;  // TODO: Don't have it predefine the global pointer instance.
+SoundSysI* SoundSystem=NULL;
+cf::GuiSys::GuiManImplT* cf::GuiSys::GuiMan=NULL;
+
+
+static void cfMessageBox(const std::string& s, const std::string& t = "", bool Exclamation = false)
+{
+    if (Exclamation) Console->Print("!!");
+    Console->Print(t);
+    Console->Print(s);
+}
+
+
+/// This class represents the Cafu Engine application.
+class AppCafuT
+{
+    public:
+
+    AppCafuT();
+    ~AppCafuT();
+
+    /// Returns the composite console that is also available via the global Console pointer.
+    cf::CompositeConsoleT& GetConComposite() const;
+
+    /// Returns the console that buffers all output.
+    cf::ConsoleStringBufferT& GetConBuffer() const { return *m_ConBuffer; }
+
+    // /// Returns the console that logs all output into a file (can be NULL if not used).
+    // cf::ConsoleFileT& GetConFile() const { return *m_ConFile; }
+
+    const GameInfoT& getGameInfo() const { return m_GameInfo; }
+
+    bool OnInit(int argc, char* argv[]);
+
+
+    private:
+
+    cf::ConsoleStringBufferT* m_ConBuffer;      ///< The console that buffers all output.
+    cf::ConsoleFileT*         m_ConFile;        ///< The console that logs all output into a file (can be NULL if not used).
+    ArrayT<GameInfoT>         m_AllGameInfos;   ///< The game infos for all games/MODs known and available to us.
+    GameInfoT                 m_GameInfo;       ///< The info of the game that was elected to run (one of those in m_AllGameInfos).
+};
+
+
+AppCafuT::AppCafuT()
+    : m_ConBuffer(new cf::ConsoleStringBufferT()),
+      m_ConFile(NULL),
+      m_AllGameInfos(),
+      m_GameInfo()
+{
+    s_CompositeConsole.Attach(m_ConBuffer);
+
+    #if 1   // #ifdef __WXGTK__
+    {
+        static cf::ConsoleStdoutT s_ConStdout;
+        s_CompositeConsole.Attach(&s_ConStdout);
+    }
+    #endif
+
+    // All global convars and confuncs have registered themselves in linked lists.
+    // Register them with the console interpreter now.
+    ConFuncT::RegisterStaticList();
+    ConVarT ::RegisterStaticList();
+
+    cf::GameSys::GetComponentTIM().Init();      // The one-time init of the GameSys components type info manager.
+    cf::GameSys::GetGameSysEntityTIM().Init();  // The one-time init of the GameSys entity type info manager.
+    cf::GameSys::GetWorldTIM().Init();          // The one-time init of the GameSys world type info manager.
+
+    cf::GuiSys::GetComponentTIM().Init();       // The one-time init of the GuiSys components type info manager.
+    cf::GuiSys::GetWindowTIM().Init();          // The one-time init of the GuiSys window type info manager.
+    cf::GuiSys::GetGuiTIM().Init();             // The one-time init of the GuiSys GUI type info manager.
+
+    // SetAppName("Cafu");
+    // SetAppDisplayName("Cafu Engine");
+    // SetVendorName("Carsten Fuchs Software");
+
+    Console->Print("Cafu Engine, " __DATE__ "\n");
+}
+
+
+AppCafuT::~AppCafuT()
+{
+    delete g_WinSock;
+    g_WinSock = NULL;
+
+    // Setting the ConsoleInterpreter to NULL is very important, to make sure that no ConFuncT
+    // or ConVarT dtor accesses the ConsoleInterpreter that might already have been destroyed then.
+    ConsoleInterpreter = NULL;
+
+    s_CompositeConsole.Detach(m_ConFile);
+    delete m_ConFile;
+
+    s_CompositeConsole.Detach(m_ConBuffer);
+    delete m_ConBuffer;
+}
+
+
+cf::CompositeConsoleT& AppCafuT::GetConComposite() const
+{
+    return s_CompositeConsole;
+}
+
+
+extern ConVarT Options_ServerWorldName;
+extern ConVarT Options_ServerPortNr;
+extern ConVarT Options_ClientPortNr;
+extern ConVarT Options_ClientRemoteName;
+extern ConVarT Options_ClientRemotePortNr;
+
+extern ConVarT Options_ClientWindowSizeX;
+extern ConVarT Options_ClientWindowSizeY;
+extern ConVarT Options_ClientDisplayBPP;        // TODO
+extern ConVarT Options_ClientDisplayRefresh;    // TODO
+extern ConVarT Options_ClientFullScreen;
+
+extern ConVarT Options_ClientDesiredRenderer;
+extern ConVarT Options_ClientDesiredSoundSystem;
+extern ConVarT Options_ClientTextureDetail;
+extern ConVarT Options_PlayerName;
+extern ConVarT Options_PlayerModelName;
+
+
+bool AppCafuT::OnInit(int argc, char* argv[])
+{
+    // Iterate through the "Games" subdirectory in order to find all available games.
+    const std::vector<std::string> GameNames = PlatformAux::GetDirectory("Games", 'd');
+
+    for (size_t i = 0; i < GameNames.size(); i++)
+        m_AllGameInfos.PushBack(GameInfoT(GameNames[i]));
+
+    if (m_AllGameInfos.Size() == 0)
+    {
+        cfMessageBox("List \"GameLibs\" in file CompilerSetup.py is empty.", "Improperly configured");
+        return false;
+    }
+
+    m_GameInfo = m_AllGameInfos[0];
+
+    ConsoleInterpreter->RunCommand("dofile('config.lua');");
+
+    // Parse the command line.
+    std::ostringstream consoleOutputStream;
+    TCLAP::StdOutput   stdOutput(consoleOutputStream, consoleOutputStream);
+    TCLAP::CmdLine     cmd("Cafu Engine", stdOutput, ' ', "'" __DATE__ "'");
+
+    try
+    {
+        std::string GamesList;
+
+        for (unsigned int i = 0; i < m_AllGameInfos.Size(); i++)
+        {
+            if (i > 0) GamesList += ", ";
+            GamesList += m_AllGameInfos[i].GetName();
+        }
+
+        // These may throw e.g. SpecificationException, but such exceptions are easily fixed permanently.
+        const TCLAP::ValueArg<std::string> argLog     ("l", "log",            "Logs all console messages into the specified file.", false, "", "filename", cmd);
+        const TCLAP::ValueArg<std::string> argConsole ("c", "console",        "Runs the given commands in the console, as if appended to the config.lua file.", false, "", "lua-script", cmd);
+        const TCLAP::ValueArg<std::string> argSvGame  ("g", "sv-game",        "Name of the game (MOD) that the server should run. Available: " + GamesList + ".", false, m_AllGameInfos[0].GetName(), "string", cmd);
+        const TCLAP::ValueArg<std::string> argSvWorld ("w", "sv-world",       "Name of the world that the server should run. Case sensitive!", false, Options_ServerWorldName.GetValueString(), "string", cmd);
+        const TCLAP::ValueArg<int>         argSvPort  ("o", "sv-port",        "Server port number.", false, Options_ServerPortNr.GetValueInt(), "number", cmd);
+        const TCLAP::SwitchArg             argClNoFS  ("n", "cl-no-fs",       "Don't switch to full-screen, use a plain window instead.", cmd);
+        const TCLAP::ValueArg<int>         argClPort  ("",  "cl-port",        "Client port number.", false, Options_ClientPortNr.GetValueInt(), "number", cmd);
+        const TCLAP::ValueArg<std::string> argClRmName("",  "cl-remote-name", "Name or IP of the server to connect to.", false, Options_ClientRemoteName.GetValueString(), "string", cmd);
+        const TCLAP::ValueArg<int>         argClRmPort("",  "cl-remote-port", "Port number of the remote server.", false, Options_ClientRemotePortNr.GetValueInt(), "number", cmd);
+        const TCLAP::ValueArg<int>         argClTexDt ("d", "cl-tex-detail",  "0 for high detail, 1 for medium detail, 2 for low detail.", false, Options_ClientTextureDetail.GetValueInt(), "number", cmd);
+        const TCLAP::ValueArg<int>         argClWinX  ("x", "cl-win-x",       "If not full-screen, this is the width  of the window.", false, Options_ClientWindowSizeX.GetValueInt(), "number", cmd);
+        const TCLAP::ValueArg<int>         argClWinY  ("y", "cl-win-y",       "If not full-screen, this is the height of the window.", false, Options_ClientWindowSizeY.GetValueInt(), "number", cmd);
+        const TCLAP::ValueArg<std::string> argClRend  ("r", "cl-renderer",    "Overrides the auto-selection of the best available renderer.", false, "[auto]", "string", cmd);
+        const TCLAP::ValueArg<std::string> argClSound ("s", "cl-soundsystem", "Overrides the auto-selection of the best available sound system.", false, "[auto]", "string", cmd);
+        const TCLAP::ValueArg<std::string> argClPlayer("p", "cl-playername",  "Player name.", false, Options_PlayerName.GetValueString(), "string", cmd);
+        const TCLAP::ValueArg<std::string> argClModel ("m", "cl-modelname",   "Name of the player's model.", false, Options_PlayerModelName.GetValueString(), "string", cmd);
+
+        TCLAP::VersionVisitor vv(&cmd, stdOutput);
+        const TCLAP::SwitchArg argVersion("",  "version", "Displays version information and exits.", cmd, false, &vv);
+
+        TCLAP::HelpVisitor hv(&cmd, stdOutput);
+        const TCLAP::SwitchArg argHelp("h", "help", "Displays usage information and exits.", cmd, false, &hv);
+
+        cmd.parse(argc, argv);
+
+        if (argConsole.getValue() != "")
+        {
+            ConsoleInterpreter->RunCommand(argConsole.getValue());
+        }
+
+        if (argLog.getValue() != "" && m_ConFile == NULL)
+        {
+            m_ConFile = new cf::ConsoleFileT(argLog.getValue());
+            m_ConFile->SetAutoFlush(true);
+            m_ConFile->Print(m_ConBuffer->GetBuffer());
+
+            s_CompositeConsole.Attach(m_ConFile);
+        }
+
+        if (true)
+        {
+            unsigned int i = 0;
+
+            for (i = 0; i < m_AllGameInfos.Size(); i++)
+                if (argSvGame.getValue() == m_AllGameInfos[i].GetName())
+                {
+                    m_GameInfo = m_AllGameInfos[i];
+                    break;
+                }
+
+            if (i >= m_AllGameInfos.Size())
+                throw TCLAP::ArgParseException("Unknown game \"" + argSvGame.getValue() + "\"", "sv-game");
+        }
+
+        Options_ServerWorldName     = argSvWorld .getValue();
+        Options_ServerPortNr        = argSvPort  .getValue();
+        Options_ClientFullScreen    = !argClNoFS .getValue();   // TODO: --cl-no-fs is a temporary override, not a permanent setting.
+        Options_ClientPortNr        = argClPort  .getValue();
+        Options_ClientRemoteName    = argClRmName.getValue();
+        Options_ClientRemotePortNr  = argClRmPort.getValue();
+        Options_ClientTextureDetail = argClTexDt .getValue() % 3;
+        Options_ClientWindowSizeX   = argClWinX  .getValue();
+        Options_ClientWindowSizeY   = argClWinY  .getValue();
+        if (argClRend.getValue()  != "[auto]") Options_ClientDesiredRenderer    = argClRend.getValue();
+        if (argClSound.getValue() != "[auto]") Options_ClientDesiredSoundSystem = argClSound.getValue();
+        Options_PlayerName          = argClPlayer.getValue();
+        Options_PlayerModelName     = argClModel .getValue();
+    }
+    catch (const TCLAP::ExitException&)
+    {
+        //  ExitException is thrown after --help or --version was handled.
+        std::string s = consoleOutputStream.str();
+        s = cf::String::Replace(s, "\nUsage:", "Usage:");   // Hack: Reduce the output's height.
+        s = cf::String::Replace(s, "\n\n", "\n");
+
+        cfMessageBox(s, "Cafu Engine");
+        // exit(ee.getExitStatus());
+        return false;
+    }
+    catch (const TCLAP::ArgException& ae)
+    {
+        cmd.getOutput().failure(cmd, ae, true);
+        std::string s = consoleOutputStream.str();
+        s = cf::String::Replace(s, "\nError:", "Error:");   // Hack: Reduce the output's height.
+
+        cfMessageBox(s, "Cafu Engine", true);
+        // exit(-1);
+        return false;
+    }
+
+    try
+    {
+        g_WinSock=new WinSockT;
+    }
+    catch (const WinSockT::InitFailure& /*E*/) { cfMessageBox("Unable to initialize WinSock 2.0." ); return false; }
+    catch (const WinSockT::BadVersion&  /*E*/) { cfMessageBox("WinSock version 2.0 not supported."); return false; }
+
+
+    cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_LOCAL_PATH, "./", "");
+ // cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_LOCAL_PATH, "Games/" + m_GameInfo.GetName() + "/", "");
+    // cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_ZIP_ARCHIVE, "Games/" + m_GameInfo.GetName() + "/Textures/TechDemo.zip", "Games/" + m_GameInfo.GetName() + "/Textures/TechDemo/", "Ca3DE");
+    // cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_ZIP_ARCHIVE, "Games/" + m_GameInfo.GetName() + "/Textures/SkyDomes.zip", "Games/" + m_GameInfo.GetName() + "/Textures/SkyDomes/", "Ca3DE");
+
+    MaterialManager->RegisterMaterialScriptsInDir("Games/" + m_GameInfo.GetName() + "/Materials", "Games/" + m_GameInfo.GetName() + "/");
+    SoundShaderManager->RegisterSoundShaderScriptsInDir("Games/" + m_GameInfo.GetName() + "/SoundShader", "Games/" + m_GameInfo.GetName() + "/");
+
+
+    // The console variable VideoModes is initialized here, because under wxGTK, using wxDisplay requires
+    // that the wxWidgets library (and thus GTK) is initialized first.
+    // Note that the format of the VideoModes string is fixed - it is parsed by the Main Menu GUI in order to populate the choice box.
+//    static ConVarT VideoModes("VideoModes", GetVideoModes(), ConVarT::FLAG_MAIN_EXE | ConVarT::FLAG_READ_ONLY, "The list of video modes that are available on your system.");
+//
+//    extern ConVarT Options_ClientFullScreen;
+//
+//    if (Options_ClientFullScreen.GetValueBool())
+//    {
+//        extern ConVarT Options_ClientWindowSizeX;
+//        extern ConVarT Options_ClientWindowSizeY;
+//        extern ConVarT Options_ClientDisplayBPP;
+//        extern ConVarT Options_ClientDisplayRefresh;
+//    }
+
+    // Create the main frame.
+    //m_MainFrame=new MainFrameT(m_GameInfo);
+    //SetTopWindow(m_MainFrame);
+
+    return true;
+}
+
+
+static void error_callback(int error, const char* description)
+{
+    fprintf(stderr, "GLFW Error: %s\n", description);
+}
+
+
+int main(int argc, char* argv[])
+{
+    AppCafuT app;
+
+    if (!app.OnInit(argc, argv)) return -1;
+
+    glfwSetErrorCallback(error_callback);
+
+    if (!glfwInit())
+        return -1;
+
+    try
+    {
+        // The default values for the window creations hints look just right for our purposes,
+        // see http://www.glfw.org/docs/latest/window_guide.html#window_hints_values for details.
+        ClientMainWindowT win(app.getGameInfo(), 1024, 768, "Cafu Engine", NULL);
+        glfwMainWindowT   MainWin(win, ClientMainWindowT::getGlfwKey);
+
+        // TODO: Set a taskbar icon?
+        win.makeContextCurrent();
+        win.Init(app.GetConComposite(), app.GetConBuffer().GetBuffer(), MainWin);
+        win.triggerFramebufferSizeEvent();
+
+        glfwSwapInterval(1);   // enable v-sync
+
+        while (!win.shouldClose())
+        {
+            win.runFrame();
+            glfwPollEvents();
+        }
+    }
+    catch (const std::runtime_error& re)
+    {
+        // fprintf(stderr, "ERROR: %s\n", re.what());
+        Console->Print(std::string("ERROR: ") + re.what() + "\n");
+        glfwTerminate();
+        return -1;
+    }
+
+    glfwTerminate();
+    return 0;
+}
