@@ -67,6 +67,63 @@ SoundSysI* SoundSystem=NULL;
 cf::GuiSys::GuiManImplT* cf::GuiSys::GuiMan=NULL;
 
 
+class ConsolesResourceT
+{
+    public:
+
+    ConsolesResourceT()
+        : m_ConFile(NULL)
+    {
+        s_CompositeConsole.Attach(&m_ConStdout);
+        s_CompositeConsole.Attach(&m_ConBuffer);
+    }
+
+    ~ConsolesResourceT()
+    {
+        s_CompositeConsole.Detach(m_ConFile);
+        s_CompositeConsole.Detach(&m_ConBuffer);
+        s_CompositeConsole.Detach(&m_ConStdout);
+
+        delete m_ConFile;
+    }
+
+    void AddFileConsole(const std::string& filename)
+    {
+        if (m_ConFile)
+        {
+            Console->Warning("A file console is already attached, not adding another one.\n");
+            return;
+        }
+
+        m_ConFile = new cf::ConsoleFileT(filename);
+
+        m_ConFile->SetAutoFlush(true);
+        m_ConFile->Print(m_ConBuffer.GetBuffer());
+
+        s_CompositeConsole.Attach(m_ConFile);
+    }
+
+    /// Returns the composite console that is also available via the global Console pointer.
+    cf::CompositeConsoleT& GetConComposite() const { return s_CompositeConsole; }
+
+    /// Returns the console that buffers all output.
+    cf::ConsoleStringBufferT& GetConBuffer() { return m_ConBuffer; }
+
+    // /// Returns the console that logs all output into a file (can be NULL if not used).
+    // cf::ConsoleFileT& GetConFile() const { return *m_ConFile; }
+
+
+    private:
+
+    ConsolesResourceT(const ConsolesResourceT&);    ///< Use of the Copy    Constructor is not allowed.
+    void operator = (const ConsolesResourceT&);     ///< Use of the Assignment Operator is not allowed.
+
+    cf::ConsoleStdoutT       m_ConStdout;
+    cf::ConsoleStringBufferT m_ConBuffer;   ///< The console that buffers all output in a string.
+    cf::ConsoleFileT*        m_ConFile;     ///< The console that logs all output into a file (can be NULL if not used).
+};
+
+
 static void cfMessageBox(const std::string& s, const std::string& t = "", bool Exclamation = false)
 {
     if (Exclamation) Console->Print("!!");
@@ -83,44 +140,22 @@ class AppCafuT
     AppCafuT();
     ~AppCafuT();
 
-    /// Returns the composite console that is also available via the global Console pointer.
-    cf::CompositeConsoleT& GetConComposite() const;
-
-    /// Returns the console that buffers all output.
-    cf::ConsoleStringBufferT& GetConBuffer() const { return *m_ConBuffer; }
-
-    // /// Returns the console that logs all output into a file (can be NULL if not used).
-    // cf::ConsoleFileT& GetConFile() const { return *m_ConFile; }
-
     const GameInfoT& getGameInfo() const { return m_GameInfo; }
 
-    bool OnInit(int argc, char* argv[]);
+    bool OnInit(int argc, char* argv[], ConsolesResourceT& ConsolesRes);
 
 
     private:
 
-    cf::ConsoleStringBufferT* m_ConBuffer;      ///< The console that buffers all output.
-    cf::ConsoleFileT*         m_ConFile;        ///< The console that logs all output into a file (can be NULL if not used).
     ArrayT<GameInfoT>         m_AllGameInfos;   ///< The game infos for all games/MODs known and available to us.
     GameInfoT                 m_GameInfo;       ///< The info of the game that was elected to run (one of those in m_AllGameInfos).
 };
 
 
 AppCafuT::AppCafuT()
-    : m_ConBuffer(new cf::ConsoleStringBufferT()),
-      m_ConFile(NULL),
-      m_AllGameInfos(),
+    : m_AllGameInfos(),
       m_GameInfo()
 {
-    s_CompositeConsole.Attach(m_ConBuffer);
-
-    #if 1   // #ifdef __WXGTK__
-    {
-        static cf::ConsoleStdoutT s_ConStdout;
-        s_CompositeConsole.Attach(&s_ConStdout);
-    }
-    #endif
-
     // All global convars and confuncs have registered themselves in linked lists.
     // Register them with the console interpreter now.
     ConFuncT::RegisterStaticList();
@@ -150,18 +185,6 @@ AppCafuT::~AppCafuT()
     // Setting the ConsoleInterpreter to NULL is very important, to make sure that no ConFuncT
     // or ConVarT dtor accesses the ConsoleInterpreter that might already have been destroyed then.
     ConsoleInterpreter = NULL;
-
-    s_CompositeConsole.Detach(m_ConFile);
-    delete m_ConFile;
-
-    s_CompositeConsole.Detach(m_ConBuffer);
-    delete m_ConBuffer;
-}
-
-
-cf::CompositeConsoleT& AppCafuT::GetConComposite() const
-{
-    return s_CompositeConsole;
 }
 
 
@@ -184,7 +207,7 @@ extern ConVarT Options_PlayerName;
 extern ConVarT Options_PlayerModelName;
 
 
-bool AppCafuT::OnInit(int argc, char* argv[])
+bool AppCafuT::OnInit(int argc, char* argv[], ConsolesResourceT& ConsolesRes)
 {
     // Iterate through the "Games" subdirectory in order to find all available games.
     const std::vector<std::string> GameNames = PlatformAux::GetDirectory("Games", 'd');
@@ -248,13 +271,9 @@ bool AppCafuT::OnInit(int argc, char* argv[])
             ConsoleInterpreter->RunCommand(argConsole.getValue());
         }
 
-        if (argLog.getValue() != "" && m_ConFile == NULL)
+        if (argLog.getValue() != "")
         {
-            m_ConFile = new cf::ConsoleFileT(argLog.getValue());
-            m_ConFile->SetAutoFlush(true);
-            m_ConFile->Print(m_ConBuffer->GetBuffer());
-
-            s_CompositeConsole.Attach(m_ConFile);
+            ConsolesRes.AddFileConsole(argLog.getValue());
         }
 
         if (true)
@@ -356,9 +375,11 @@ static void error_callback(int error, const char* description)
 
 int main(int argc, char* argv[])
 {
+    ConsolesResourceT ConsolesRes;
+
     AppCafuT app;
 
-    if (!app.OnInit(argc, argv)) return -1;
+    if (!app.OnInit(argc, argv, ConsolesRes)) return -1;
 
     glfwSetErrorCallback(error_callback);
 
@@ -374,7 +395,7 @@ int main(int argc, char* argv[])
 
         // TODO: Set a taskbar icon?
         win.makeContextCurrent();
-        win.Init(app.GetConComposite(), app.GetConBuffer().GetBuffer(), MainWin);
+        win.Init(ConsolesRes.GetConComposite(), ConsolesRes.GetConBuffer().GetBuffer(), MainWin);
         win.triggerFramebufferSizeEvent();
 
         glfwSwapInterval(1);   // enable v-sync
