@@ -207,6 +207,26 @@ class WinSockResourceT
 };
 
 
+class ConInterpreterResourceT
+{
+    public:
+
+    ConInterpreterResourceT(const char* command=NULL)
+    {
+        if (command)
+            ConsoleInterpreter->RunCommand(command);
+    }
+
+    ~ConInterpreterResourceT()
+    {
+        // Setting the ConsoleInterpreter to NULL before the end of main() is important
+        // to make sure that no ConFuncT or ConVarT dtor accesses the ConsoleInterpreter
+        // that might already have been destroyed by then.
+        ConsoleInterpreter = NULL;
+    }
+};
+
+
 static void cfMessageBox(const std::string& s, const std::string& t = "", bool Exclamation = false)
 {
     if (Exclamation) Console->Print("!!");
@@ -220,18 +240,8 @@ class AppCafuT
 {
     public:
 
-    ~AppCafuT();
-
     bool OnInit(int argc, char* argv[], ConsolesResourceT& ConsolesRes, GameInfosT& GameInfos);
 };
-
-
-AppCafuT::~AppCafuT()
-{
-    // Setting the ConsoleInterpreter to NULL is very important, to make sure that no ConFuncT
-    // or ConVarT dtor accesses the ConsoleInterpreter that might already have been destroyed then.
-    ConsoleInterpreter = NULL;
-}
 
 
 extern ConVarT Options_ServerWorldName;
@@ -255,8 +265,6 @@ extern ConVarT Options_PlayerModelName;
 
 bool AppCafuT::OnInit(int argc, char* argv[], ConsolesResourceT& ConsolesRes, GameInfosT& GameInfos)
 {
-    ConsoleInterpreter->RunCommand("dofile('config.lua');");
-
     // Parse the command line.
     std::ostringstream consoleOutputStream;
     TCLAP::StdOutput   stdOutput(consoleOutputStream, consoleOutputStream);
@@ -406,6 +414,8 @@ int main(int argc, char* argv[])
     try
     {
         GameInfosT GameInfos;
+        ConInterpreterResourceT ConInterpreterRes("dofile('config.lua');");
+
         AppCafuT app;
 
         if (!app.OnInit(argc, argv, ConsolesRes, GameInfos)) return -1;
