@@ -179,6 +179,34 @@ class GameInfosT
 };
 
 
+class WinSockResourceT
+{
+    public:
+
+    WinSockResourceT()
+    {
+        try
+        {
+            g_WinSock = new WinSockT;
+        }
+        catch (const WinSockT::InitFailure&) { throw std::runtime_error("Unable to initialize WinSock 2.0." ); }
+        catch (const WinSockT::BadVersion& ) { throw std::runtime_error("WinSock version 2.0 not supported."); }
+    }
+
+    ~WinSockResourceT()
+    {
+        delete g_WinSock;
+        g_WinSock = NULL;
+    }
+
+
+    private:
+
+    WinSockResourceT(const WinSockResourceT&);  ///< Use of the Copy    Constructor is not allowed.
+    void operator = (const WinSockResourceT&);  ///< Use of the Assignment Operator is not allowed.
+};
+
+
 static void cfMessageBox(const std::string& s, const std::string& t = "", bool Exclamation = false)
 {
     if (Exclamation) Console->Print("!!");
@@ -200,9 +228,6 @@ class AppCafuT
 
 AppCafuT::~AppCafuT()
 {
-    delete g_WinSock;
-    g_WinSock = NULL;
-
     // Setting the ConsoleInterpreter to NULL is very important, to make sure that no ConFuncT
     // or ConVarT dtor accesses the ConsoleInterpreter that might already have been destroyed then.
     ConsoleInterpreter = NULL;
@@ -314,13 +339,6 @@ bool AppCafuT::OnInit(int argc, char* argv[], ConsolesResourceT& ConsolesRes, Ga
         return false;
     }
 
-    try
-    {
-        g_WinSock=new WinSockT;
-    }
-    catch (const WinSockT::InitFailure& /*E*/) { cfMessageBox("Unable to initialize WinSock 2.0." ); return false; }
-    catch (const WinSockT::BadVersion&  /*E*/) { cfMessageBox("WinSock version 2.0 not supported."); return false; }
-
 
     const std::string& gn = GameInfos.getCurrentGameInfo().GetName();
 
@@ -391,6 +409,8 @@ int main(int argc, char* argv[])
         AppCafuT app;
 
         if (!app.OnInit(argc, argv, ConsolesRes, GameInfos)) return -1;
+
+        WinSockResourceT WinSockRes;
 
         glfwSetErrorCallback(error_callback);
 
