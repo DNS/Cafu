@@ -124,6 +124,61 @@ class ConsolesResourceT
 };
 
 
+class GameInfosT
+{
+    public:
+
+    GameInfosT()
+    {
+        const std::vector<std::string> GameNames = PlatformAux::GetDirectory("Games", 'd');
+
+        for (size_t i = 0; i < GameNames.size(); i++)
+            m_AllGameInfos.PushBack(GameInfoT(GameNames[i]));
+
+        if (m_AllGameInfos.Size() == 0)
+            throw std::runtime_error("Could not find any game in the Games subdirectory.");
+
+        m_GameInfo = m_AllGameInfos[0];
+    }
+
+    const GameInfoT& getCurrentGameInfo() const
+    {
+        return m_GameInfo;
+    }
+
+    bool setGame(const std::string& Name)
+    {
+        for (unsigned int i = 0; i < m_AllGameInfos.Size(); i++)
+            if (m_AllGameInfos[i].GetName() == Name)
+            {
+                m_GameInfo = m_AllGameInfos[i];
+                return true;
+            }
+
+        return false;
+    }
+
+    std::string getList() const
+    {
+        std::string GamesList;
+
+        for (unsigned int i = 0; i < m_AllGameInfos.Size(); i++)
+        {
+            if (i > 0) GamesList += ", ";
+            GamesList += m_AllGameInfos[i].GetName();
+        }
+
+        return GamesList;
+    }
+
+
+    private:
+
+    ArrayT<GameInfoT> m_AllGameInfos;   ///< The game infos for all games/MODs known and available to us.
+    GameInfoT         m_GameInfo;       ///< The info of the game that was elected to run (one of those in m_AllGameInfos).
+};
+
+
 static void cfMessageBox(const std::string& s, const std::string& t = "", bool Exclamation = false)
 {
     if (Exclamation) Console->Print("!!");
@@ -137,44 +192,10 @@ class AppCafuT
 {
     public:
 
-    AppCafuT();
     ~AppCafuT();
 
-    const GameInfoT& getGameInfo() const { return m_GameInfo; }
-
-    bool OnInit(int argc, char* argv[], ConsolesResourceT& ConsolesRes);
-
-
-    private:
-
-    ArrayT<GameInfoT>         m_AllGameInfos;   ///< The game infos for all games/MODs known and available to us.
-    GameInfoT                 m_GameInfo;       ///< The info of the game that was elected to run (one of those in m_AllGameInfos).
+    bool OnInit(int argc, char* argv[], ConsolesResourceT& ConsolesRes, GameInfosT& GameInfos);
 };
-
-
-AppCafuT::AppCafuT()
-    : m_AllGameInfos(),
-      m_GameInfo()
-{
-    // All global convars and confuncs have registered themselves in linked lists.
-    // Register them with the console interpreter now.
-    ConFuncT::RegisterStaticList();
-    ConVarT ::RegisterStaticList();
-
-    cf::GameSys::GetComponentTIM().Init();      // The one-time init of the GameSys components type info manager.
-    cf::GameSys::GetGameSysEntityTIM().Init();  // The one-time init of the GameSys entity type info manager.
-    cf::GameSys::GetWorldTIM().Init();          // The one-time init of the GameSys world type info manager.
-
-    cf::GuiSys::GetComponentTIM().Init();       // The one-time init of the GuiSys components type info manager.
-    cf::GuiSys::GetWindowTIM().Init();          // The one-time init of the GuiSys window type info manager.
-    cf::GuiSys::GetGuiTIM().Init();             // The one-time init of the GuiSys GUI type info manager.
-
-    // SetAppName("Cafu");
-    // SetAppDisplayName("Cafu Engine");
-    // SetVendorName("Carsten Fuchs Software");
-
-    Console->Print("Cafu Engine, " __DATE__ "\n");
-}
 
 
 AppCafuT::~AppCafuT()
@@ -207,22 +228,8 @@ extern ConVarT Options_PlayerName;
 extern ConVarT Options_PlayerModelName;
 
 
-bool AppCafuT::OnInit(int argc, char* argv[], ConsolesResourceT& ConsolesRes)
+bool AppCafuT::OnInit(int argc, char* argv[], ConsolesResourceT& ConsolesRes, GameInfosT& GameInfos)
 {
-    // Iterate through the "Games" subdirectory in order to find all available games.
-    const std::vector<std::string> GameNames = PlatformAux::GetDirectory("Games", 'd');
-
-    for (size_t i = 0; i < GameNames.size(); i++)
-        m_AllGameInfos.PushBack(GameInfoT(GameNames[i]));
-
-    if (m_AllGameInfos.Size() == 0)
-    {
-        cfMessageBox("List \"GameLibs\" in file CompilerSetup.py is empty.", "Improperly configured");
-        return false;
-    }
-
-    m_GameInfo = m_AllGameInfos[0];
-
     ConsoleInterpreter->RunCommand("dofile('config.lua');");
 
     // Parse the command line.
@@ -232,18 +239,10 @@ bool AppCafuT::OnInit(int argc, char* argv[], ConsolesResourceT& ConsolesRes)
 
     try
     {
-        std::string GamesList;
-
-        for (unsigned int i = 0; i < m_AllGameInfos.Size(); i++)
-        {
-            if (i > 0) GamesList += ", ";
-            GamesList += m_AllGameInfos[i].GetName();
-        }
-
         // These may throw e.g. SpecificationException, but such exceptions are easily fixed permanently.
         const TCLAP::ValueArg<std::string> argLog     ("l", "log",            "Logs all console messages into the specified file.", false, "", "filename", cmd);
         const TCLAP::ValueArg<std::string> argConsole ("c", "console",        "Runs the given commands in the console, as if appended to the config.lua file.", false, "", "lua-script", cmd);
-        const TCLAP::ValueArg<std::string> argSvGame  ("g", "sv-game",        "Name of the game (MOD) that the server should run. Available: " + GamesList + ".", false, m_AllGameInfos[0].GetName(), "string", cmd);
+        const TCLAP::ValueArg<std::string> argSvGame  ("g", "sv-game",        "Name of the game (MOD) that the server should run. Available: " + GameInfos.getList() + ".", false, GameInfos.getCurrentGameInfo().GetName(), "string", cmd);
         const TCLAP::ValueArg<std::string> argSvWorld ("w", "sv-world",       "Name of the world that the server should run. Case sensitive!", false, Options_ServerWorldName.GetValueString(), "string", cmd);
         const TCLAP::ValueArg<int>         argSvPort  ("o", "sv-port",        "Server port number.", false, Options_ServerPortNr.GetValueInt(), "number", cmd);
         const TCLAP::SwitchArg             argClNoFS  ("n", "cl-no-fs",       "Don't switch to full-screen, use a plain window instead.", cmd);
@@ -276,20 +275,8 @@ bool AppCafuT::OnInit(int argc, char* argv[], ConsolesResourceT& ConsolesRes)
             ConsolesRes.AddFileConsole(argLog.getValue());
         }
 
-        if (true)
-        {
-            unsigned int i = 0;
-
-            for (i = 0; i < m_AllGameInfos.Size(); i++)
-                if (argSvGame.getValue() == m_AllGameInfos[i].GetName())
-                {
-                    m_GameInfo = m_AllGameInfos[i];
-                    break;
-                }
-
-            if (i >= m_AllGameInfos.Size())
-                throw TCLAP::ArgParseException("Unknown game \"" + argSvGame.getValue() + "\"", "sv-game");
-        }
+        if (!GameInfos.setGame(argSvGame.getValue()))
+            throw TCLAP::ArgParseException("Unknown game \"" + argSvGame.getValue() + "\"", "sv-game");
 
         Options_ServerWorldName     = argSvWorld .getValue();
         Options_ServerPortNr        = argSvPort  .getValue();
@@ -335,13 +322,15 @@ bool AppCafuT::OnInit(int argc, char* argv[], ConsolesResourceT& ConsolesRes)
     catch (const WinSockT::BadVersion&  /*E*/) { cfMessageBox("WinSock version 2.0 not supported."); return false; }
 
 
-    cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_LOCAL_PATH, "./", "");
- // cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_LOCAL_PATH, "Games/" + m_GameInfo.GetName() + "/", "");
-    // cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_ZIP_ARCHIVE, "Games/" + m_GameInfo.GetName() + "/Textures/TechDemo.zip", "Games/" + m_GameInfo.GetName() + "/Textures/TechDemo/", "Ca3DE");
-    // cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_ZIP_ARCHIVE, "Games/" + m_GameInfo.GetName() + "/Textures/SkyDomes.zip", "Games/" + m_GameInfo.GetName() + "/Textures/SkyDomes/", "Ca3DE");
+    const std::string& gn = GameInfos.getCurrentGameInfo().GetName();
 
-    MaterialManager->RegisterMaterialScriptsInDir("Games/" + m_GameInfo.GetName() + "/Materials", "Games/" + m_GameInfo.GetName() + "/");
-    SoundShaderManager->RegisterSoundShaderScriptsInDir("Games/" + m_GameInfo.GetName() + "/SoundShader", "Games/" + m_GameInfo.GetName() + "/");
+    cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_LOCAL_PATH, "./", "");
+ // cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_LOCAL_PATH, "Games/" + gn + "/", "");
+    // cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_ZIP_ARCHIVE, "Games/" + gn + "/Textures/TechDemo.zip", "Games/" + gn + "/Textures/TechDemo/", "Ca3DE");
+    // cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_ZIP_ARCHIVE, "Games/" + gn + "/Textures/SkyDomes.zip", "Games/" + gn + "/Textures/SkyDomes/", "Ca3DE");
+
+    MaterialManager->RegisterMaterialScriptsInDir("Games/" + gn + "/Materials", "Games/" + gn + "/");
+    SoundShaderManager->RegisterSoundShaderScriptsInDir("Games/" + gn + "/SoundShader", "Games/" + gn + "/");
 
 
     // The console variable VideoModes is initialized here, because under wxGTK, using wxDisplay requires
@@ -377,20 +366,40 @@ int main(int argc, char* argv[])
 {
     ConsolesResourceT ConsolesRes;
 
-    AppCafuT app;
+    Console->Print("Cafu Engine, " __DATE__ "\n");
 
-    if (!app.OnInit(argc, argv, ConsolesRes)) return -1;
+    // All global convars and confuncs have registered themselves in linked lists.
+    // Register them with the console interpreter now.
+    ConFuncT::RegisterStaticList();
+    ConVarT ::RegisterStaticList();
 
-    glfwSetErrorCallback(error_callback);
+    cf::GameSys::GetComponentTIM().Init();      // The one-time init of the GameSys components type info manager.
+    cf::GameSys::GetGameSysEntityTIM().Init();  // The one-time init of the GameSys entity type info manager.
+    cf::GameSys::GetWorldTIM().Init();          // The one-time init of the GameSys world type info manager.
 
-    if (!glfwInit())
-        return -1;
+    cf::GuiSys::GetComponentTIM().Init();       // The one-time init of the GuiSys components type info manager.
+    cf::GuiSys::GetWindowTIM().Init();          // The one-time init of the GuiSys window type info manager.
+    cf::GuiSys::GetGuiTIM().Init();             // The one-time init of the GuiSys GUI type info manager.
+
+    // SetAppName("Cafu");
+    // SetAppDisplayName("Cafu Engine");
+    // SetVendorName("Carsten Fuchs Software");
 
     try
     {
+        GameInfosT GameInfos;
+        AppCafuT app;
+
+        if (!app.OnInit(argc, argv, ConsolesRes, GameInfos)) return -1;
+
+        glfwSetErrorCallback(error_callback);
+
+        if (!glfwInit())
+            return -1;
+
         // The default values for the window creations hints look just right for our purposes,
         // see http://www.glfw.org/docs/latest/window_guide.html#window_hints_values for details.
-        ClientMainWindowT win(app.getGameInfo(), 1024, 768, "Cafu Engine", NULL);
+        ClientMainWindowT win(GameInfos.getCurrentGameInfo(), 1024, 768, "Cafu Engine", NULL);
         glfwMainWindowT   MainWin(win, ClientMainWindowT::getGlfwKey);
 
         // TODO: Set a taskbar icon?
