@@ -232,7 +232,7 @@ class AppCafuT
 {
     public:
 
-    bool OnInit(int argc, char* argv[], ConsolesResourceT& ConsolesRes, GameInfosT& GameInfos);
+    bool OnInit(GameInfosT& GameInfos);
 };
 
 
@@ -255,86 +255,97 @@ extern ConVarT Options_PlayerName;
 extern ConVarT Options_PlayerModelName;
 
 
-bool AppCafuT::OnInit(int argc, char* argv[], ConsolesResourceT& ConsolesRes, GameInfosT& GameInfos)
+class CommandLineArgumentsT
 {
-    // Parse the command line.
-    std::ostringstream consoleOutputStream;
-    TCLAP::StdOutput   stdOutput(consoleOutputStream, consoleOutputStream);
-    TCLAP::CmdLine     cmd("Cafu Engine", stdOutput, ' ', "'" __DATE__ "'");
+    public:
 
-    try
+    CommandLineArgumentsT(int argc, char* argv[], ConsolesResourceT& ConsolesRes, GameInfosT& GameInfos)
+        : m_QuitNormally(false)
     {
-        // These may throw e.g. SpecificationException, but such exceptions are easily fixed permanently.
-        const TCLAP::ValueArg<std::string> argLog     ("l", "log",            "Logs all console messages into the specified file.", false, "", "filename", cmd);
-        const TCLAP::ValueArg<std::string> argConsole ("c", "console",        "Runs the given commands in the console, as if appended to the config.lua file.", false, "", "lua-script", cmd);
-        const TCLAP::ValueArg<std::string> argSvGame  ("g", "sv-game",        "Name of the game (MOD) that the server should run. Available: " + GameInfos.getList() + ".", false, GameInfos.getCurrentGameInfo().GetName(), "string", cmd);
-        const TCLAP::ValueArg<std::string> argSvWorld ("w", "sv-world",       "Name of the world that the server should run. Case sensitive!", false, Options_ServerWorldName.GetValueString(), "string", cmd);
-        const TCLAP::ValueArg<int>         argSvPort  ("o", "sv-port",        "Server port number.", false, Options_ServerPortNr.GetValueInt(), "number", cmd);
-        const TCLAP::SwitchArg             argClNoFS  ("n", "cl-no-fs",       "Don't switch to full-screen, use a plain window instead.", cmd);
-        const TCLAP::ValueArg<int>         argClPort  ("",  "cl-port",        "Client port number.", false, Options_ClientPortNr.GetValueInt(), "number", cmd);
-        const TCLAP::ValueArg<std::string> argClRmName("",  "cl-remote-name", "Name or IP of the server to connect to.", false, Options_ClientRemoteName.GetValueString(), "string", cmd);
-        const TCLAP::ValueArg<int>         argClRmPort("",  "cl-remote-port", "Port number of the remote server.", false, Options_ClientRemotePortNr.GetValueInt(), "number", cmd);
-        const TCLAP::ValueArg<int>         argClTexDt ("d", "cl-tex-detail",  "0 for high detail, 1 for medium detail, 2 for low detail.", false, Options_ClientTextureDetail.GetValueInt(), "number", cmd);
-        const TCLAP::ValueArg<int>         argClWinX  ("x", "cl-win-x",       "If not full-screen, this is the width  of the window.", false, Options_ClientWindowSizeX.GetValueInt(), "number", cmd);
-        const TCLAP::ValueArg<int>         argClWinY  ("y", "cl-win-y",       "If not full-screen, this is the height of the window.", false, Options_ClientWindowSizeY.GetValueInt(), "number", cmd);
-        const TCLAP::ValueArg<std::string> argClRend  ("r", "cl-renderer",    "Overrides the auto-selection of the best available renderer.", false, "[auto]", "string", cmd);
-        const TCLAP::ValueArg<std::string> argClSound ("s", "cl-soundsystem", "Overrides the auto-selection of the best available sound system.", false, "[auto]", "string", cmd);
-        const TCLAP::ValueArg<std::string> argClPlayer("p", "cl-playername",  "Player name.", false, Options_PlayerName.GetValueString(), "string", cmd);
-        const TCLAP::ValueArg<std::string> argClModel ("m", "cl-modelname",   "Name of the player's model.", false, Options_PlayerModelName.GetValueString(), "string", cmd);
+        // Parse the command line.
+        std::ostringstream consoleOutputStream;
+        TCLAP::StdOutput   stdOutput(consoleOutputStream, consoleOutputStream);
+        TCLAP::CmdLine     cmd("Cafu Engine", stdOutput, ' ', "'" __DATE__ "'");
 
-        TCLAP::VersionVisitor vv(&cmd, stdOutput);
-        const TCLAP::SwitchArg argVersion("",  "version", "Displays version information and exits.", cmd, false, &vv);
-
-        TCLAP::HelpVisitor hv(&cmd, stdOutput);
-        const TCLAP::SwitchArg argHelp("h", "help", "Displays usage information and exits.", cmd, false, &hv);
-
-        cmd.parse(argc, argv);
-
-        if (argConsole.getValue() != "")
+        try
         {
-            ConsoleInterpreter->RunCommand(argConsole.getValue());
-        }
+            // These may throw e.g. SpecificationException, but such exceptions are easily fixed permanently.
+            const TCLAP::ValueArg<std::string> argLog     ("l", "log",            "Logs all console messages into the specified file.", false, "", "filename", cmd);
+            const TCLAP::ValueArg<std::string> argConsole ("c", "console",        "Runs the given commands in the console, as if appended to the config.lua file.", false, "", "lua-script", cmd);
+            const TCLAP::ValueArg<std::string> argSvGame  ("g", "sv-game",        "Name of the game (MOD) that the server should run. Available: " + GameInfos.getList() + ".", false, GameInfos.getCurrentGameInfo().GetName(), "string", cmd);
+            const TCLAP::ValueArg<std::string> argSvWorld ("w", "sv-world",       "Name of the world that the server should run. Case sensitive!", false, Options_ServerWorldName.GetValueString(), "string", cmd);
+            const TCLAP::ValueArg<int>         argSvPort  ("o", "sv-port",        "Server port number.", false, Options_ServerPortNr.GetValueInt(), "number", cmd);
+            const TCLAP::SwitchArg             argClNoFS  ("n", "cl-no-fs",       "Don't switch to full-screen, use a plain window instead.", cmd);
+            const TCLAP::ValueArg<int>         argClPort  ("",  "cl-port",        "Client port number.", false, Options_ClientPortNr.GetValueInt(), "number", cmd);
+            const TCLAP::ValueArg<std::string> argClRmName("",  "cl-remote-name", "Name or IP of the server to connect to.", false, Options_ClientRemoteName.GetValueString(), "string", cmd);
+            const TCLAP::ValueArg<int>         argClRmPort("",  "cl-remote-port", "Port number of the remote server.", false, Options_ClientRemotePortNr.GetValueInt(), "number", cmd);
+            const TCLAP::ValueArg<int>         argClTexDt ("d", "cl-tex-detail",  "0 for high detail, 1 for medium detail, 2 for low detail.", false, Options_ClientTextureDetail.GetValueInt(), "number", cmd);
+            const TCLAP::ValueArg<int>         argClWinX  ("x", "cl-win-x",       "If not full-screen, this is the width  of the window.", false, Options_ClientWindowSizeX.GetValueInt(), "number", cmd);
+            const TCLAP::ValueArg<int>         argClWinY  ("y", "cl-win-y",       "If not full-screen, this is the height of the window.", false, Options_ClientWindowSizeY.GetValueInt(), "number", cmd);
+            const TCLAP::ValueArg<std::string> argClRend  ("r", "cl-renderer",    "Overrides the auto-selection of the best available renderer.", false, "[auto]", "string", cmd);
+            const TCLAP::ValueArg<std::string> argClSound ("s", "cl-soundsystem", "Overrides the auto-selection of the best available sound system.", false, "[auto]", "string", cmd);
+            const TCLAP::ValueArg<std::string> argClPlayer("p", "cl-playername",  "Player name.", false, Options_PlayerName.GetValueString(), "string", cmd);
+            const TCLAP::ValueArg<std::string> argClModel ("m", "cl-modelname",   "Name of the player's model.", false, Options_PlayerModelName.GetValueString(), "string", cmd);
 
-        if (argLog.getValue() != "")
+            TCLAP::VersionVisitor vv(&cmd, stdOutput);
+            const TCLAP::SwitchArg argVersion("",  "version", "Displays version information and exits.", cmd, false, &vv);
+
+            TCLAP::HelpVisitor hv(&cmd, stdOutput);
+            const TCLAP::SwitchArg argHelp("h", "help", "Displays usage information and exits.", cmd, false, &hv);
+
+            cmd.parse(argc, argv);
+
+            if (argConsole.getValue() != "")
+            {
+                ConsoleInterpreter->RunCommand(argConsole.getValue());
+            }
+
+            if (argLog.getValue() != "")
+            {
+                ConsolesRes.AddFileConsole(argLog.getValue());
+            }
+
+            if (!GameInfos.setGame(argSvGame.getValue()))
+                throw TCLAP::ArgParseException("Unknown game \"" + argSvGame.getValue() + "\"", "sv-game");
+
+            Options_ServerWorldName     = argSvWorld .getValue();
+            Options_ServerPortNr        = argSvPort  .getValue();
+            Options_ClientFullScreen    = !argClNoFS .getValue();   // TODO: --cl-no-fs is a temporary override, not a permanent setting.
+            Options_ClientPortNr        = argClPort  .getValue();
+            Options_ClientRemoteName    = argClRmName.getValue();
+            Options_ClientRemotePortNr  = argClRmPort.getValue();
+            Options_ClientTextureDetail = argClTexDt .getValue() % 3;
+            Options_ClientWindowSizeX   = argClWinX  .getValue();
+            Options_ClientWindowSizeY   = argClWinY  .getValue();
+            if (argClRend.getValue()  != "[auto]") Options_ClientDesiredRenderer    = argClRend.getValue();
+            if (argClSound.getValue() != "[auto]") Options_ClientDesiredSoundSystem = argClSound.getValue();
+            Options_PlayerName          = argClPlayer.getValue();
+            Options_PlayerModelName     = argClModel .getValue();
+        }
+        catch (const TCLAP::ExitException&)
         {
-            ConsolesRes.AddFileConsole(argLog.getValue());
+            //  ExitException is thrown after --help or --version was handled.
+            Console->Print(consoleOutputStream.str());
+            m_QuitNormally = true;
         }
-
-        if (!GameInfos.setGame(argSvGame.getValue()))
-            throw TCLAP::ArgParseException("Unknown game \"" + argSvGame.getValue() + "\"", "sv-game");
-
-        Options_ServerWorldName     = argSvWorld .getValue();
-        Options_ServerPortNr        = argSvPort  .getValue();
-        Options_ClientFullScreen    = !argClNoFS .getValue();   // TODO: --cl-no-fs is a temporary override, not a permanent setting.
-        Options_ClientPortNr        = argClPort  .getValue();
-        Options_ClientRemoteName    = argClRmName.getValue();
-        Options_ClientRemotePortNr  = argClRmPort.getValue();
-        Options_ClientTextureDetail = argClTexDt .getValue() % 3;
-        Options_ClientWindowSizeX   = argClWinX  .getValue();
-        Options_ClientWindowSizeY   = argClWinY  .getValue();
-        if (argClRend.getValue()  != "[auto]") Options_ClientDesiredRenderer    = argClRend.getValue();
-        if (argClSound.getValue() != "[auto]") Options_ClientDesiredSoundSystem = argClSound.getValue();
-        Options_PlayerName          = argClPlayer.getValue();
-        Options_PlayerModelName     = argClModel .getValue();
-    }
-    catch (const TCLAP::ExitException&)
-    {
-        //  ExitException is thrown after --help or --version was handled.
-        Console->Print(consoleOutputStream.str());
-
-        // exit(ee.getExitStatus());
-        return false;
-    }
-    catch (const TCLAP::ArgException& ae)
-    {
-        cmd.getOutput().failure(cmd, ae, true);
-        Console->Print(consoleOutputStream.str());
-
-        // exit(-1);
-        return false;
+        catch (const TCLAP::ArgException& ae)
+        {
+            cmd.getOutput().failure(cmd, ae, true);
+            throw std::runtime_error(consoleOutputStream.str());
+        }
     }
 
+    bool quitNormally() const { return m_QuitNormally; }
 
+
+    private:
+
+    bool m_QuitNormally;
+};
+
+
+bool AppCafuT::OnInit(GameInfosT& GameInfos)
+{
     const std::string& gn = GameInfos.getCurrentGameInfo().GetName();
 
     cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_LOCAL_PATH, "./", "");
@@ -402,10 +413,13 @@ int main(int argc, char* argv[])
     {
         GameInfosT GameInfos;
         ConInterpreterResourceT ConInterpreterRes("dofile('config.lua');");
+        CommandLineArgumentsT CommandLineArguments(argc, argv, ConsolesRes, GameInfos);
+
+        if (CommandLineArguments.quitNormally())    // --help or --version
+            return 0;
 
         AppCafuT app;
-
-        if (!app.OnInit(argc, argv, ConsolesRes, GameInfos)) return -1;
+        if (!app.OnInit(GameInfos)) return -1;
 
         WinSockResourceT WinSockRes;
 
@@ -434,8 +448,13 @@ int main(int argc, char* argv[])
     }
     catch (const std::runtime_error& re)
     {
-        // fprintf(stderr, "ERROR: %s\n", re.what());
-        Console->Print(std::string("ERROR: ") + re.what() + "\n");
+        // Exceptions from CommandLineArgumentsT already start with "\nError".
+        if (!cf::String::startsWith(re.what(), "\nError"))
+            Console->Print("ERROR: ");
+
+        // Print to stderr instead? Into a message box?
+        Console->Print(re.what());
+
         glfwTerminate();
         return -1;
     }
