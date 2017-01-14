@@ -227,14 +227,6 @@ class ConInterpreterResourceT
 };
 
 
-static void cfMessageBox(const std::string& s, const std::string& t = "", bool Exclamation = false)
-{
-    if (Exclamation) Console->Print("!!");
-    Console->Print(t);
-    Console->Print(s);
-}
-
-
 /// This class represents the Cafu Engine application.
 class AppCafuT
 {
@@ -328,21 +320,16 @@ bool AppCafuT::OnInit(int argc, char* argv[], ConsolesResourceT& ConsolesRes, Ga
     catch (const TCLAP::ExitException&)
     {
         //  ExitException is thrown after --help or --version was handled.
-        std::string s = consoleOutputStream.str();
-        s = cf::String::Replace(s, "\nUsage:", "Usage:");   // Hack: Reduce the output's height.
-        s = cf::String::Replace(s, "\n\n", "\n");
+        Console->Print(consoleOutputStream.str());
 
-        cfMessageBox(s, "Cafu Engine");
         // exit(ee.getExitStatus());
         return false;
     }
     catch (const TCLAP::ArgException& ae)
     {
         cmd.getOutput().failure(cmd, ae, true);
-        std::string s = consoleOutputStream.str();
-        s = cf::String::Replace(s, "\nError:", "Error:");   // Hack: Reduce the output's height.
+        Console->Print(consoleOutputStream.str());
 
-        cfMessageBox(s, "Cafu Engine", true);
         // exit(-1);
         return false;
     }
