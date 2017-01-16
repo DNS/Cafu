@@ -227,15 +227,6 @@ class ConInterpreterResourceT
 };
 
 
-/// This class represents the Cafu Engine application.
-class AppCafuT
-{
-    public:
-
-    bool OnInit(GameInfosT& GameInfos);
-};
-
-
 extern ConVarT Options_ServerWorldName;
 extern ConVarT Options_ServerPortNr;
 extern ConVarT Options_ClientPortNr;
@@ -344,42 +335,6 @@ class CommandLineArgumentsT
 };
 
 
-bool AppCafuT::OnInit(GameInfosT& GameInfos)
-{
-    const std::string& gn = GameInfos.getCurrentGameInfo().GetName();
-
-    cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_LOCAL_PATH, "./", "");
- // cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_LOCAL_PATH, "Games/" + gn + "/", "");
-    // cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_ZIP_ARCHIVE, "Games/" + gn + "/Textures/TechDemo.zip", "Games/" + gn + "/Textures/TechDemo/", "Ca3DE");
-    // cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_ZIP_ARCHIVE, "Games/" + gn + "/Textures/SkyDomes.zip", "Games/" + gn + "/Textures/SkyDomes/", "Ca3DE");
-
-    MaterialManager->RegisterMaterialScriptsInDir("Games/" + gn + "/Materials", "Games/" + gn + "/");
-    SoundShaderManager->RegisterSoundShaderScriptsInDir("Games/" + gn + "/SoundShader", "Games/" + gn + "/");
-
-
-    // The console variable VideoModes is initialized here, because under wxGTK, using wxDisplay requires
-    // that the wxWidgets library (and thus GTK) is initialized first.
-    // Note that the format of the VideoModes string is fixed - it is parsed by the Main Menu GUI in order to populate the choice box.
-//    static ConVarT VideoModes("VideoModes", GetVideoModes(), ConVarT::FLAG_MAIN_EXE | ConVarT::FLAG_READ_ONLY, "The list of video modes that are available on your system.");
-//
-//    extern ConVarT Options_ClientFullScreen;
-//
-//    if (Options_ClientFullScreen.GetValueBool())
-//    {
-//        extern ConVarT Options_ClientWindowSizeX;
-//        extern ConVarT Options_ClientWindowSizeY;
-//        extern ConVarT Options_ClientDisplayBPP;
-//        extern ConVarT Options_ClientDisplayRefresh;
-//    }
-
-    // Create the main frame.
-    //m_MainFrame=new MainFrameT(m_GameInfo);
-    //SetTopWindow(m_MainFrame);
-
-    return true;
-}
-
-
 static void error_callback(int error, const char* description)
 {
     fprintf(stderr, "GLFW Error: %s\n", description);
@@ -418,8 +373,34 @@ int main(int argc, char* argv[])
         if (CommandLineArguments.quitNormally())    // --help or --version
             return 0;
 
-        AppCafuT app;
-        if (!app.OnInit(GameInfos)) return -1;
+        const std::string& gn = GameInfos.getCurrentGameInfo().GetName();
+
+        cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_LOCAL_PATH, "./", "");
+        // cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_LOCAL_PATH, "Games/" + gn + "/", "");
+        // cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_ZIP_ARCHIVE, "Games/" + gn + "/Textures/TechDemo.zip", "Games/" + gn + "/Textures/TechDemo/", "Ca3DE");
+        // cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_ZIP_ARCHIVE, "Games/" + gn + "/Textures/SkyDomes.zip", "Games/" + gn + "/Textures/SkyDomes/", "Ca3DE");
+
+        MaterialManager->RegisterMaterialScriptsInDir("Games/" + gn + "/Materials", "Games/" + gn + "/");
+        SoundShaderManager->RegisterSoundShaderScriptsInDir("Games/" + gn + "/SoundShader", "Games/" + gn + "/");
+
+        // The console variable VideoModes is initialized here, because under wxGTK, using wxDisplay requires
+        // that the wxWidgets library (and thus GTK) is initialized first.
+        // Note that the format of the VideoModes string is fixed - it is parsed by the Main Menu GUI in order to populate the choice box.
+    //    static ConVarT VideoModes("VideoModes", GetVideoModes(), ConVarT::FLAG_MAIN_EXE | ConVarT::FLAG_READ_ONLY, "The list of video modes that are available on your system.");
+    //
+    //    extern ConVarT Options_ClientFullScreen;
+    //
+    //    if (Options_ClientFullScreen.GetValueBool())
+    //    {
+    //        extern ConVarT Options_ClientWindowSizeX;
+    //        extern ConVarT Options_ClientWindowSizeY;
+    //        extern ConVarT Options_ClientDisplayBPP;
+    //        extern ConVarT Options_ClientDisplayRefresh;
+    //    }
+
+        // Create the main frame.
+        //m_MainFrame=new MainFrameT(m_GameInfo);
+        //SetTopWindow(m_MainFrame);
 
         WinSockResourceT WinSockRes;
 
