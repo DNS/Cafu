@@ -20,6 +20,7 @@ This project is licensed under the terms of the MIT license.
 #include "GuiSys/GuiManImpl.hpp"
 #include "GuiSys/GuiImpl.hpp"
 #include "GuiSys/Window.hpp"
+#include "MainWindow/glfwLibrary.hpp"
 #include "MainWindow/glfwMainWindow.hpp"
 #include "MaterialSystem/MaterialManagerImpl.hpp"
 #include "Network/Network.hpp"
@@ -335,12 +336,6 @@ class CommandLineArgumentsT
 };
 
 
-static void error_callback(int error, const char* description)
-{
-    fprintf(stderr, "GLFW Error: %s\n", description);
-}
-
-
 int main(int argc, char* argv[])
 {
     ConsolesResourceT ConsolesRes;
@@ -403,11 +398,7 @@ int main(int argc, char* argv[])
         //SetTopWindow(m_MainFrame);
 
         WinSockResourceT WinSockRes;
-
-        glfwSetErrorCallback(error_callback);
-
-        if (!glfwInit())
-            return -1;
+        cf::glfwLibraryT glfwLib;
 
         // The default values for the window creations hints look just right for our purposes,
         // see http://www.glfw.org/docs/latest/window_guide.html#window_hints_values for details.
@@ -435,11 +426,8 @@ int main(int argc, char* argv[])
 
         // Print to stderr instead? Into a message box?
         Console->Print(re.what());
-
-        glfwTerminate();
         return -1;
     }
 
-    glfwTerminate();
     return 0;
 }
