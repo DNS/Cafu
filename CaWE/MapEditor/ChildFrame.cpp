@@ -2354,8 +2354,8 @@ void ChildFrameT::OnMenuCompile(wxCommandEvent& CE)
                     if (CE.GetId()==ID_MENU_COMPILE_CUSTOM) Params=" "+CustomCompileDialog.GetEngineOptions();
 
                     PendingCompileCommands.PushBack(Options.general.EngineExe +
-                        " -svGame \"" + m_Doc->GetGameConfig()->Name + "\"" +
-                        " -svWorld \"" + WorldName.GetName() + "\"" + Params);
+                        " --sv-game \"" + m_Doc->GetGameConfig()->Name + "\"" +
+                        " --sv-world \"" + WorldName.GetName() + "\"" + Params);
                 }
             }
 
