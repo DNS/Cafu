@@ -329,7 +329,7 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::JointT>& Joints, int ParentI
             case FbxNodeAttribute::eSubDiv          : Log << "        eSubDiv          \n"; break;
             case FbxNodeAttribute::eCachedEffect    : Log << "        eCachedEffect    \n"; break;
             case FbxNodeAttribute::eLine            : Log << "        eLine            \n"; break;
-            default:                                   Log << "        [UNKNOWN ATTRIB] \n"; break;
+            default:                                  Log << "        [UNKNOWN ATTRIB] \n"; break;
         }
     }
 
@@ -338,7 +338,7 @@ void LoaderFbxT::FbxSceneT::Load(ArrayT<CafuModelT::JointT>& Joints, int ParentI
     // matrix at a specified point in time (depending on its second parameter pTime).
     // See FBX SDK Programmer's Guide pages 89 and 90 and its API method documentation for details.
     // Also see FbxAnimEvaluator::SetContext(): as we set no anim stack, it automatically uses the first in the scene.
-    const FbxAMatrix& Transform  =m_Scene->GetEvaluator()->GetNodeLocalTransform(const_cast<FbxNode*>(Node));
+    const FbxAMatrix& Transform  =m_Scene->GetAnimationEvaluator()->GetNodeLocalTransform(const_cast<FbxNode*>(Node));
     FbxVector4        Translation=Transform.GetT();
     FbxQuaternion     Quaternion =Transform.GetQ();
     FbxVector4        Scale      =Transform.GetS();
@@ -717,7 +717,7 @@ ArrayT< ArrayT<PosQtrScaleT> > LoaderFbxT::FbxSceneT::GetSequData(FbxAnimStack* 
 {
     ArrayT< ArrayT<PosQtrScaleT> > SequData;
 
-    m_Scene->GetEvaluator()->SetContext(AnimStack);
+    m_Scene->SetCurrentAnimationStack(AnimStack);
     SequData.PushBackEmptyExact(m_Nodes.Size());
 
     for (unsigned long NodeNr=0; NodeNr<m_Nodes.Size(); NodeNr++)
@@ -726,7 +726,7 @@ ArrayT< ArrayT<PosQtrScaleT> > LoaderFbxT::FbxSceneT::GetSequData(FbxAnimStack* 
 
         for (unsigned long FrameNr=0; FrameNr<FrameTimes.Size(); FrameNr++)
         {
-            const FbxAMatrix& Transform  =m_Scene->GetEvaluator()->GetNodeLocalTransform(const_cast<FbxNode*>(m_Nodes[NodeNr]), FrameTimes[FrameNr]);
+            const FbxAMatrix& Transform  =m_Scene->GetAnimationEvaluator()->GetNodeLocalTransform(const_cast<FbxNode*>(m_Nodes[NodeNr]), FrameTimes[FrameNr]);
             FbxVector4        Translation=Transform.GetT();
             FbxQuaternion     Quaternion =Transform.GetQ();
             FbxVector4        Scale      =Transform.GetS();
