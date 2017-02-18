@@ -400,6 +400,33 @@ int main(int argc, char* argv[])
         WinSockResourceT WinSockRes;
         cf::glfwLibraryT glfwLib;
 
+        int num_monitors = 0;
+        GLFWmonitor** monitors = glfwGetMonitors(&num_monitors);
+
+        Console->Print("Monitors:\n");
+        for (int i = 0; i < num_monitors; i++)
+        {
+            GLFWmonitor* m = monitors[i];
+
+            int xpos, ypos;
+            glfwGetMonitorPos(m, &xpos, &ypos);
+
+            int widthMM, heightMM;
+            glfwGetMonitorPhysicalSize(m, &widthMM, &heightMM);
+
+            Console->Print(cf::va("%s (pos (%i, %i), size %imm * %imm)\n", glfwGetMonitorName(m), xpos, ypos, widthMM, heightMM));
+
+            int num_modes;
+            const GLFWvidmode* modes = glfwGetVideoModes(m, &num_modes);
+
+            for (int j = 0; j < num_modes; j++)
+            {
+                const GLFWvidmode& mode = modes[j];
+
+                Console->Print(cf::va("    %4i * %4i, 16:%4.1f, %i %i %i, %iHz\n", mode.width, mode.height, 16.0f * mode.height / mode.width, mode.redBits, mode.greenBits, mode.blueBits, mode.refreshRate));
+            }
+        }
+
         // The default values for the window creations hints look just right for our purposes,
         // see http://www.glfw.org/docs/latest/window_guide.html#window_hints_values for details.
         ClientMainWindowT win(GameInfos.getCurrentGameInfo(), 1024, 768, "Cafu Engine", NULL);
