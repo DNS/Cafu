@@ -158,10 +158,12 @@ elif sys.platform=="linux2":
     envCaWE.Append(LINKFLAGS=['-Wl,--export-dynamic'])  # Have our symbols available for dynamically loaded SOs (e.g. the renderer DLLs).
 
     if os.path.exists(Dir("#/ExtLibs/fbx/lib").abspath):
-        envCaWE.Append(LIBPATH=["ExtLibs/fbx/lib/gcc4/" +
-            ("x64" if platform.machine()=="x86_64" else "x86") + "/" +
-            ("debug" if buildMode == "dbg" else "release")])
-        envCaWE.Append(LIBS=["fbxsdk-static"])
+        fbx_lib_path = "#/ExtLibs/fbx/lib/gcc4/{}/{}".format(
+            "x64" if platform.machine() == "x86_64" else "x86",
+            "debug" if buildMode == "dbg" else "release")
+        # envCaWE.Append(LIBPATH=[fbx_lib_path])
+        # envCaWE.Append(LIBS=["fbxsdk"])   # This links libfbxsdk.so
+        envCaWE.Append(LIBS=[File(fbx_lib_path + "/libfbxsdk.a")])  # link statically
 
 CaWE_exe = envCaWE.Program('CaWE/CaWE', SourceFilesList + CommonWorldObject)
 

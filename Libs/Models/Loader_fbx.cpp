@@ -41,6 +41,7 @@ namespace
     NullStreamT Log;
 #endif
 
+#if 0
     std::ostream& operator << (std::ostream& os, const FbxVector4& A)
     {
         return os << "fbxVec4(" << A[0] << ", " << A[1] << ", " << A[2] << ", " << A[3] << ")";
@@ -50,6 +51,7 @@ namespace
     {
         return os << "fbxQuat(" << A[0] << ", " << A[1] << ", " << A[2] << ", " << A[3] << ")";
     }
+#endif
 
     Vector3fT conv(const FbxVector4& V)
     {
