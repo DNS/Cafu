@@ -21,8 +21,6 @@ namespace cf { namespace TypeSys { class CreateParamsT; } }
 namespace cf { namespace TypeSys { class MethsDocT; } }
 namespace cf { namespace TypeSys { class VarsDocT; } }
 
-struct CaKeyboardEventT;
-struct CaMouseEventT;
 struct lua_State;
 struct luaL_Reg;
 
@@ -214,18 +212,6 @@ namespace cf
             ///     user-defined scripts with custom, initial behaviour should be loaded.
             ///     Also see WorldT::InitFlagsT::InitFlag_OnlyStatic for related information.
             virtual void OnPostLoad(bool OnlyStatic) { }
-
-            /// This method handles keyboard input events.
-            /// @param KE   Keyboard event instance.
-            /// @returns Whether the component handled ("consumed") the event.
-            virtual bool OnInputEvent(const CaKeyboardEventT& KE) { return false; }
-
-            /// This method handles mouse input events.
-            /// @param ME     Mouse event instance.
-            /// @param PosX   x-coordinate of the mouse cursor position.
-            /// @param PosY   y-coordinate of the mouse cursor position.
-            /// @returns Whether the component handled ("consumed") the event.
-            virtual bool OnInputEvent(const CaMouseEventT& ME, float PosX, float PosY) { return false; }
 
             /// Advances the component one frame (one "clock-tick") on the server.
             /// It typically updates all game-relevant state that is sync'ed over the network to all

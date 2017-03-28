@@ -553,49 +553,6 @@ bool EntityT::RenderComponents(bool FirstPersonView, float LodDist) const
 }
 
 
-bool EntityT::OnInputEvent(const CaKeyboardEventT& KE)
-{
-    if (m_App != NULL) m_App->OnInputEvent(KE);
-    // m_Basics->OnInputEvent(KE);
-    // m_Transform->OnInputEvent(KE);
-
-    // Forward the event to the "custom" components.
-    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
-        if (m_Components[CompNr]->OnInputEvent(KE))
-            return true;
-
-    return false;
-}
-
-
-bool EntityT::OnInputEvent(const CaMouseEventT& ME, float PosX, float PosY)
-{
-    // Derived classes that do *not* handle this event should return EntityT::OnInputEvent(ME)
-    // (the base class result) rather than simply false. This gives the base class a chance to handle the event.
-
-#if 0
-    // This should only hold for (in wxWidgets-terms) "command events", not for events specific to the entity (like mouse events):
-
-    // If the base class has no use for the event itself either, it will propagate it to the parent entities.
-    // Here, in EntityT, being at the root of the inheritance hierachy, we have no use for the ME event,
-    // so just propagate it up to the parent(s).
-    if (Parent==NULL) return false;
-    return Parent->OnInputEvent(ME, PosX, PosY);
-#else
-    if (m_App != NULL) m_App->OnInputEvent(ME, PosX, PosY);
-    // m_Basics->OnInputEvent(ME, PosX, PosY);
-    // m_Transform->OnInputEvent(ME, PosX, PosY);
-
-    // Forward the event to the "custom" components.
-    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
-        if (m_Components[CompNr]->OnInputEvent(ME, PosX, PosY))
-            return true;
-
-    return false;
-#endif
-}
-
-
 void EntityT::OnServerFrame(float t)
 {
     // Forward the event to the "fixed" components (or else they cannot interpolate).

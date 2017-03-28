@@ -17,8 +17,6 @@ namespace cf { namespace ClipSys { class CollModelManI; } }
 namespace cf { namespace GuiSys { class GuiResourcesT; } }
 class ModelManagerT;
 class PhysicsWorldT;
-struct CaKeyboardEventT;
-struct CaMouseEventT;
 
 
 namespace cf
@@ -129,16 +127,6 @@ namespace cf
             /// Note that this method does *not* setup any of the MatSys's model, view or projection matrices:
             /// it's up to the caller to do that.
             void Render() const;
-
-            /// Processes a keyboard event by forwarding it to the entity that currently has the input focus.
-            /// @param KE   The keyboard event to process.
-            /// @returns `true` if the device has been successfully processed, `false` otherwise.
-            bool ProcessDeviceEvent(const CaKeyboardEventT& KE);
-
-            /// Processes a mouse event by forwarding it to the entity that currently has the input focus.
-            /// @param ME   The mouse event to process.
-            /// @returns `true` if the device has been successfully processed, `false` otherwise.
-            bool ProcessDeviceEvent(const CaMouseEventT& ME);
 
             // /// Advances the world one frame (one "clock-tick") on the server.
             // /// It typically updates all game-relevant state that is sync'ed over the network to all

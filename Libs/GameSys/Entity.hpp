@@ -16,8 +16,6 @@ This project is licensed under the terms of the MIT license.
 #include <climits>
 
 
-struct CaKeyboardEventT;
-struct CaMouseEventT;
 struct lua_State;
 struct luaL_Reg;
 namespace cf { namespace TypeSys { class TypeInfoT; } }
@@ -256,16 +254,6 @@ namespace cf
             /// @returns `true` if "something" was rendered, `false` otherwise (in this case the Map Editor may choose
             ///     to render another visual representation of this component's entity).
             bool RenderComponents(bool FirstPersonView, float LodDist) const;
-
-            /// Keyboard input event handler.
-            /// @param KE   Keyboard event.
-            virtual bool OnInputEvent(const CaKeyboardEventT& KE);
-
-            /// Mouse input event handler.
-            /// @param ME     Mouse event.
-            /// @param PosX   Mouse position x.
-            /// @param PosY   Mouse position y.
-            virtual bool OnInputEvent(const CaMouseEventT& ME, float PosX, float PosY);
 
             /// Advances the entity one frame (one "clock-tick") on the server.
             /// It typically updates all game-relevant state that is sync'ed over the network to all

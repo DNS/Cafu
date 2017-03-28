@@ -233,18 +233,6 @@ void WorldT::Render() const
 }
 
 
-bool WorldT::ProcessDeviceEvent(const CaKeyboardEventT& KE)
-{
-    return false;
-}
-
-
-bool WorldT::ProcessDeviceEvent(const CaMouseEventT& ME)
-{
-    return false;
-}
-
-
 /**
  * At the time of this writing, this method is only called from the Map Editor's
  * ViewWindow3DT::OnPaint() method, because in the Cafu Engine, the `Ca3DEWorldT`s
