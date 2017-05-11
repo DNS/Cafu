@@ -56,7 +56,7 @@ ComponentBaseT* ComponentBaseT::Clone() const
 ComponentBaseT::~ComponentBaseT()
 {
     // Note that the m_MemberVars, the m_PendingInterp and the m_ClientApprox all keep references to
-    // VarT<T> instances in the derives classes -- which have already been destructed before we get here.
+    // VarT<T> instances in the derived classes -- which have already been destructed before we get here.
     // Even though we're not dereferencing these variables here, but it would be safer if we had some
     // Cleanup() method that all derived class dtors called.
 

@@ -229,7 +229,7 @@ namespace cf
             GuiImplT&                               m_Gui;          ///< The GUI instance in which this window was created and exists. Useful in many regards, but especially for access to the underlying Lua state.
             WindowT*                                m_Parent;       ///< The parent of this window. May be NULL if there is no parent. In order to not create cycles of IntrusivePtrT's, the type is intentionally a raw pointer only.
             ArrayT< IntrusivePtrT<WindowT> >        m_Children;     ///< The list of children of this window.
-            float                                   m_Time;         ///< This windows local time (starting from 0.0).
+            float                                   m_Time;         ///< The local time (starting at 0.0) of this window.
             IntrusivePtrT<ComponentBaseT>           m_App;          ///< A component for the sole use by the application / implementation.
             IntrusivePtrT<ComponentBasicsT>         m_Basics;       ///< The component that defines the name and the "show" flag of this window.
             IntrusivePtrT<ComponentTransformT>      m_Transform;    ///< The component that defines the position, size and orientation of this window.

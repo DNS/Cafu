@@ -76,6 +76,12 @@ WorldT::InitErrorT::InitErrorT(const std::string& Message)
         throw InitErrorT("Cannot load prefabs outside of the Map Editor.");
 
     // Add a global variable with name "world" to the Lua state.
+    // At this time, contrary to GUIs:
+    //   - there is only ever one world instance per script state,
+    //   - this method may be called multiple times (e.g. for loading clipboard contents and prefabs).
+    // Thus, assigning this world to the global variable "world" is fine, even multiple times with each call to LoadScript().
+    // (It should be quite opposite, though: multiple worlds per script state with this method only called once.
+    //  The assignmnent to global variable "world" (or elsewhere) must be done explicitly by the caller, as is with GUIs.)
     Binder.Push(World);
     lua_setglobal(LuaState, "world");
 

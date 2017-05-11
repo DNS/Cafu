@@ -339,6 +339,7 @@ void ComponentHumanPlayerT::CheckGUIs(bool ThinkingOnServerSide, bool HaveButton
 {
     ArrayT< IntrusivePtrT<EntityT> > AllEnts;
 
+    // TODO: Can this be done better than a linear search through all entities in the world?  (see same comment below)
     GetEntity()->GetWorld().GetRootEntity()->GetAll(AllEnts);
 
     for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
@@ -363,7 +364,7 @@ void ComponentHumanPlayerT::CheckGUIs(bool ThinkingOnServerSide, bool HaveButton
             //
             // On the other hand, compare this to what happens when the player e.g. enters his name into a text field.
             // The string with the name would be part of the "relevant GUI state" (state that is sync'ed over the network).
-            // As such, the string would ONLY be handled correctly when REprediction runs are applies to GUIs as they are applied
+            // As such, the string would ONLY be handled correctly when REprediction runs are applied to GUIs as they are applied
             // to HumanPlayerTs (assuming the string is also handled in normal initial prediction).
             // Example: The player enters "abc" on the client and prediction updates the string, but the server then sends a message
             // that the player was force-moved by an explosion and the "abc" string was actually typed into the wall next to the GUI.

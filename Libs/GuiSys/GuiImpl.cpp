@@ -211,6 +211,9 @@ void GuiImplT::LoadScript(const std::string& GuiScriptName, int Flags)
         throw InitErrorT(Msg);
     }
 
+    // This is the parameter for the lua_pcall().
+    // Script code will fetch it via the "..." ellipsis operator like this:
+    //     local gui = ...
     Binder.Push(IntrusivePtrT<GuiImplT>(this));
 
     if (lua_pcall(LuaState, 1, 0, 0) != 0)
