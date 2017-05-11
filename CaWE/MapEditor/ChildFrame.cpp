@@ -1383,8 +1383,7 @@ namespace
                 throw cf::GameSys::WorldT::InitErrorT("Bad version in the cmap portion.");
 
             // Load the related `cent` file.
-            IntrusivePtrT<cf::GameSys::EntityT> ClipboardRoot = cf::GameSys::WorldT::LoadScript(
-                &MapDoc.GetScriptWorld(),
+            IntrusivePtrT<cf::GameSys::EntityT> ClipboardRoot = MapDoc.GetScriptWorld().LoadScript(
                 Clipboard_cent,   // Note the important "AsPrefab" flag in the line below!
                 cf::GameSys::WorldT::InitFlag_InlineCode | cf::GameSys::WorldT::InitFlag_OnlyStatic | cf::GameSys::WorldT::InitFlag_AsPrefab);
 
@@ -2012,8 +2011,7 @@ void ChildFrameT::LoadPrefab(const wxString& FileName)
         if (centFileName.Replace(".cmap", ".cent") == 0)
             centFileName += ".cent";
 
-        IntrusivePtrT<cf::GameSys::EntityT> PrefabRoot = cf::GameSys::WorldT::LoadScript(
-            &m_Doc->GetScriptWorld(),
+        IntrusivePtrT<cf::GameSys::EntityT> PrefabRoot = m_Doc->GetScriptWorld().LoadScript(
             centFileName.ToStdString(),     // Note the important "AsPrefab" flag in the line below!
             cf::GameSys::WorldT::InitFlag_OnlyStatic | cf::GameSys::WorldT::InitFlag_AsPrefab);
 

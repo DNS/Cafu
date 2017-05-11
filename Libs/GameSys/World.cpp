@@ -65,14 +65,29 @@ WorldT::InitErrorT::InitErrorT(const std::string& Message)
 }
 
 
-/*static*/ IntrusivePtrT<EntityT> WorldT::LoadScript(IntrusivePtrT<WorldT> World, const std::string& ScriptName, int Flags)
+WorldT::WorldT(RealmT Realm, cf::UniScriptStateT& ScriptState, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes,
+               cf::ClipSys::CollModelManI& CollModelMan, cf::ClipSys::ClipWorldT* ClipWorld, PhysicsWorldT* PhysicsWorld)
+    : m_Realm(Realm),
+      m_ScriptState(ScriptState),
+      m_RootEntity(NULL),
+      m_NextEntID(0),
+      m_ModelMan(ModelMan),
+      m_GuiResources(GuiRes),
+      m_CollModelMan(CollModelMan),
+      m_ClipWorld(ClipWorld),
+      m_PhysicsWorld(PhysicsWorld)
+{
+}
+
+
+IntrusivePtrT<EntityT> WorldT::LoadScript(const std::string& ScriptName, int Flags)
 {
     const std::string PrintScriptName((Flags & InitFlag_InlineCode) ? "<inline code>" : ScriptName);
-    lua_State*        LuaState = World->GetScriptState().GetLuaState();
+    lua_State*        LuaState = GetScriptState().GetLuaState();
     ScriptBinderT     Binder(LuaState);
 
     // Only the Map Editor should ever load prefabs (which don't have related `cw` world files).
-    if ((Flags & InitFlag_AsPrefab) && (World->GetRealm() != RealmMapEditor))
+    if ((Flags & InitFlag_AsPrefab) && (m_Realm != RealmMapEditor))
         throw InitErrorT("Cannot load prefabs outside of the Map Editor.");
 
     // Add a global variable with name "world" to the Lua state.
@@ -82,13 +97,13 @@ WorldT::InitErrorT::InitErrorT(const std::string& Message)
     // Thus, assigning this world to the global variable "world" is fine, even multiple times with each call to LoadScript().
     // (It should be quite opposite, though: multiple worlds per script state with this method only called once.
     //  The assignmnent to global variable "world" (or elsewhere) must be done explicitly by the caller, as is with GUIs.)
-    Binder.Push(World);
+    Binder.Push(IntrusivePtrT<WorldT>(this));
     lua_setglobal(LuaState, "world");
 
 
     // Load the user script!
-    IntrusivePtrT<EntityT> OrigRootEntity = World->m_RootEntity;
-    World->m_RootEntity = NULL;
+    IntrusivePtrT<EntityT> OrigRootEntity = m_RootEntity;
+    m_RootEntity = NULL;
 
     const int LoadResult = (Flags & InitFlag_InlineCode) ? luaL_loadstring(LuaState, ScriptName.c_str())
                                                          : luaL_loadfile  (LuaState, ScriptName.c_str());
@@ -97,7 +112,7 @@ WorldT::InitErrorT::InitErrorT(const std::string& Message)
     {
         const std::string Msg = "Could not load \"" + PrintScriptName + "\":\n" + lua_tostring(LuaState, -1);
 
-        World->m_RootEntity = OrigRootEntity;
+        m_RootEntity = OrigRootEntity;
         lua_pop(LuaState, 1);
         Console->Warning(Msg + "\n");
 
@@ -105,21 +120,21 @@ WorldT::InitErrorT::InitErrorT(const std::string& Message)
         throw InitErrorT(Msg);
     }
 
-    if (World->m_RootEntity == NULL)
+    if (m_RootEntity == NULL)
     {
         const std::string Msg = "No root entity set in \"" + PrintScriptName + "\".";
 
-        World->m_RootEntity = OrigRootEntity;
+        m_RootEntity = OrigRootEntity;
         Console->Warning(Msg + "\n");
 
         // The LuaState will be closed by the m_ScriptState.
         throw InitErrorT(Msg);
     }
 
-    IntrusivePtrT<EntityT> LoadedRootEntity = World->m_RootEntity;
+    IntrusivePtrT<EntityT> LoadedRootEntity = m_RootEntity;
 
     if (Flags & InitFlag_AsPrefab)
-        World->m_RootEntity = OrigRootEntity;
+        m_RootEntity = OrigRootEntity;
 
     // Make sure that everyone dealt properly with the Lua stack so far.
     assert(lua_gettop(LuaState) == 0);
@@ -193,21 +208,6 @@ WorldT::InitErrorT::InitErrorT(const std::string& Message)
     assert(lua_gettop(LuaState) == 0);
 
     return LoadedRootEntity;
-}
-
-
-WorldT::WorldT(RealmT Realm, cf::UniScriptStateT& ScriptState, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes,
-               cf::ClipSys::CollModelManI& CollModelMan, cf::ClipSys::ClipWorldT* ClipWorld, PhysicsWorldT* PhysicsWorld)
-    : m_Realm(Realm),
-      m_ScriptState(ScriptState),
-      m_RootEntity(NULL),
-      m_NextEntID(0),
-      m_ModelMan(ModelMan),
-      m_GuiResources(GuiRes),
-      m_CollModelMan(CollModelMan),
-      m_ClipWorld(ClipWorld),
-      m_PhysicsWorld(PhysicsWorld)
-{
 }
 
 

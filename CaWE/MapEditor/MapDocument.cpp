@@ -176,8 +176,7 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig)
 {
     Init();
 
-    cf::GameSys::WorldT::LoadScript(
-        m_ScriptWorld,
+    m_ScriptWorld->LoadScript(
         "Map = world:new('EntityT', 'Map')\n"
         "Map:GetBasics():set('Static', true)\n"
         "world:SetRootEntity(Map)\n",
@@ -252,16 +251,14 @@ MapDocumentT::MapDocumentT(GameConfigT* GameConfig, wxProgressDialog* ProgressDi
         if (centFileName.Replace(".cmap", ".cent") == 0)
             centFileName += ".cent";
 
-        cf::GameSys::WorldT::LoadScript(
-            m_ScriptWorld,
+        m_ScriptWorld->LoadScript(
             centFileName.ToStdString(),
             cf::GameSys::WorldT::InitFlag_OnlyStatic);
     }
     else
     {
         // Before `.cmap` file format version 14, related `.cent` files did not exist.
-        cf::GameSys::WorldT::LoadScript(
-            m_ScriptWorld,
+        m_ScriptWorld->cf::GameSys::WorldT::LoadScript(
             "Map = world:new('EntityT', 'Map')\n"
             "Map:GetBasics():set('Static', true)\n"
             "world:SetRootEntity(Map)\n",

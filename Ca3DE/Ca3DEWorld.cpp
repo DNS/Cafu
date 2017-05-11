@@ -77,10 +77,7 @@ Ca3DEWorldT::Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiS
             m_ClipWorld,
             &m_PhysicsWorld);
 
-        cf::GameSys::WorldT::LoadScript(
-            m_ScriptWorld,
-            ScriptName,
-            0 /*cf::GameSys::WorldT::InitFlag_OnlyStatic*/);
+        m_ScriptWorld->LoadScript(ScriptName, 0 /*cf::GameSys::WorldT::InitFlag_OnlyStatic*/);
     }
     catch (const cf::GameSys::WorldT::InitErrorT& IE)
     {

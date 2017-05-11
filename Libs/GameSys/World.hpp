@@ -65,14 +65,6 @@ namespace cf
             /// Initializes the given script state for use with WorldT instances.
             static void InitScriptState(UniScriptStateT& ScriptState);
 
-            /// Assigns the given world to the global "world" and loads the given script in order to initialize it.
-            /// @param World        The world to init.
-            /// @param ScriptName   The file name of the script to load.
-            /// @param Flags        A combination of the flags in InitFlagsT.
-            /// @throws Throws an InitErrorT object on problems loading the script.
-            /// @returns The root entity as loaded from the given script.
-            static IntrusivePtrT<EntityT> LoadScript(IntrusivePtrT<WorldT> World, const std::string& ScriptName, int Flags = 0);
-
 
             /// Constructor for creating an entity hierarchy (== "a world") from the given script file.
             /// @param Realm        The realm of this world, indicating where and to which purpose the world is instantiated.
@@ -84,6 +76,14 @@ namespace cf
             /// @param PhysicsWorld The physics world, where entities can register their rigid bodies and run collision detection queries. Can be `NULL`, e.g. in CaWE or the map compile tools.
             WorldT(RealmT Realm, UniScriptStateT& ScriptState, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes,
                    cf::ClipSys::CollModelManI& CollModelMan, cf::ClipSys::ClipWorldT* ClipWorld, PhysicsWorldT* PhysicsWorld);
+
+            /// Loads and runs the given script in order to initialize this world instance.
+            /// Also assigns this world instance to the global script variable "world", see implementation for details.
+            /// @param ScriptName   The file name of the script to load or inline script code (if InitFlag_InlineCode is set).
+            /// @param Flags        A combination of the flags in InitFlagsT.
+            /// @throws Throws an InitErrorT object on problems initializing the world.
+            /// @returns The root entity as loaded from the given script.
+            IntrusivePtrT<EntityT> LoadScript(const std::string& ScriptName, int Flags = 0);
 
             /// Returns the realm of this world, indicating where and to which purpose the
             /// world has been instantiated.
