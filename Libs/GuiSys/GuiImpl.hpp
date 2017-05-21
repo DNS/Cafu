@@ -166,7 +166,7 @@ namespace cf
 
 
             // The TypeSys related declarations for this class.
-            /*virtual*/ const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
+            const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
             static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
             static const cf::TypeSys::TypeInfoT TypeInfo;
 

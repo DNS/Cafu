@@ -66,8 +66,8 @@ namespace cf
             /// @param Recursive   Whether to recursively copy all children.
             WindowT(const WindowT& Window, bool Recursive=false);
 
-            /// The virtual destructor. Deletes this window and all its children.
-            virtual ~WindowT();
+            /// The destructor. Destructs this window and all its children.
+            ~WindowT();
 
 
             GuiImplT& GetGui() const { return m_Gui; }
@@ -188,7 +188,7 @@ namespace cf
 
 
             // The TypeSys related declarations for this class.
-            virtual const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
+            const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
             static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
             static const cf::TypeSys::TypeInfoT TypeInfo;
 

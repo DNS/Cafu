@@ -64,8 +64,8 @@ namespace cf
             /// @param Recursive   Whether to recursively copy all children as well.
             EntityT(const EntityT& Entity, bool Recursive=false);
 
-            /// The virtual destructor. Deletes this entity and all its children.
-            virtual ~EntityT();
+            /// The destructor. Destructs this entity and all its children.
+            ~EntityT();
 
 
             WorldT& GetWorld() const { return m_World; }
@@ -271,7 +271,7 @@ namespace cf
 
 
             // The TypeSys related declarations for this class.
-            virtual const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
+            const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
             static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
             static const cf::TypeSys::TypeInfoT TypeInfo;
 
