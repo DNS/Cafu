@@ -96,16 +96,10 @@ EntityT::EntityT(const EntityT& Entity, bool Recursive)
     {
         for (unsigned long ChildNr=0; ChildNr<Entity.m_Children.Size(); ChildNr++)
         {
-            m_Children.PushBack(Entity.m_Children[ChildNr]->Clone(Recursive));
+            m_Children.PushBack(new EntityT(*Entity.m_Children[ChildNr], Recursive));
             m_Children[ChildNr]->m_Parent=this;
         }
     }
-}
-
-
-EntityT* EntityT::Clone(bool Recursive) const
-{
-    return new EntityT(*this, Recursive);
 }
 
 

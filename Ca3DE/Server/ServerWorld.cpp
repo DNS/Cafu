@@ -90,7 +90,7 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
 
 
     // Create a new player entity from the prototype, then initialize it.
-    IntrusivePtrT<cf::GameSys::EntityT> PlayerEnt = PlayerPrototype->Clone(true /*Recursive?*/);
+    IntrusivePtrT<cf::GameSys::EntityT> PlayerEnt = new cf::GameSys::EntityT(*PlayerPrototype, true /*Recursive?*/);
 
     AllEnts.Overwrite();
     PlayerEnt->GetAll(AllEnts);

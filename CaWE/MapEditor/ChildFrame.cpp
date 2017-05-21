@@ -1273,7 +1273,7 @@ void ChildFrameT::OnMenuEditCopy(wxCommandEvent& CE)
             wxASSERT(Elem->GetParent()->GetRepres() == Elem);
 
             IntrusivePtrT<cf::GameSys::EntityT> OldEnt = Elem->GetParent()->GetEntity();
-            IntrusivePtrT<cf::GameSys::EntityT> NewEnt = OldEnt->Clone(true /*Recursive*/);
+            IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(*OldEnt, true /*Recursive*/);
 
             GetMapEnt(NewEnt)->CopyPrimitives(*GetMapEnt(OldEnt), true /*Recursive*/);
 
@@ -2192,7 +2192,7 @@ void ChildFrameT::OnMenuPrefabs(wxCommandEvent& CE)
             // them explicitly into the new space.
             // In order to achieve all this and to not accidentally modify something in the original source map,
             // we clone the source prefab and make all adjustments and processing with the temporary clone.
-            IntrusivePtrT<cf::GameSys::EntityT> Prefab = SelEnt->Clone(true /*Recursive*/);
+            IntrusivePtrT<cf::GameSys::EntityT> Prefab = new cf::GameSys::EntityT(*SelEnt, true /*Recursive*/);
 
             GetMapEnt(Prefab)->CopyPrimitives(*GetMapEnt(SelEnt), true /*Recursive*/);
 

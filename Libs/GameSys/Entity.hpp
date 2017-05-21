@@ -64,14 +64,6 @@ namespace cf
             /// @param Recursive   Whether to recursively copy all children as well.
             EntityT(const EntityT& Entity, bool Recursive=false);
 
-            /// The virtual copy constructor.
-            /// Callers can use this method to create a copy of this entity without knowing its concrete type.
-            /// Overrides in derived classes use a covariant return type to facilitate use when the concrete
-            /// type is known.
-            ///
-            /// @param Recursive   Whether to recursively clone all children of this entity as well.
-            virtual EntityT* Clone(bool Recursive=false) const;
-
             /// The virtual destructor. Deletes this entity and all its children.
             virtual ~EntityT();
 
