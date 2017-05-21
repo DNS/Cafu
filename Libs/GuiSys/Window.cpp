@@ -99,16 +99,10 @@ WindowT::WindowT(const WindowT& Window, bool Recursive)
     {
         for (unsigned long ChildNr=0; ChildNr<Window.m_Children.Size(); ChildNr++)
         {
-            m_Children.PushBack(Window.m_Children[ChildNr]->Clone(Recursive));
+            m_Children.PushBack(new WindowT(*Window.m_Children[ChildNr], Recursive));
             m_Children[ChildNr]->m_Parent=this;
         }
     }
-}
-
-
-WindowT* WindowT::Clone(bool Recursive) const
-{
-    return new WindowT(*this, Recursive);
 }
 
 

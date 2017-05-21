@@ -66,12 +66,6 @@ namespace cf
             /// @param Recursive   Whether to recursively copy all children.
             WindowT(const WindowT& Window, bool Recursive=false);
 
-            /// The virtual copy constructor.
-            /// Callers can use this method to create a copy of this window without knowing its concrete type.
-            /// Overrides in derived classes use a covariant return type to facilitate use when the concrete type is known.
-            /// @param Recursive   Whether to recursively clone all children of this window.
-            virtual WindowT* Clone(bool Recursive=false) const;
-
             /// The virtual destructor. Deletes this window and all its children.
             virtual ~WindowT();
 
