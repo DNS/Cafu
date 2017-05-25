@@ -65,6 +65,8 @@ void ComponentModelT::VarModelNameT::Deserialize(cf::Network::InStreamT& Stream)
     std::string s = "";
     int         i = 0;
 
+    // Note that the new model must be loaded first (as a "side effect" of Set()).
+    // Only then can the anim and skin numbers be indices into anims and skins of the "new" model.
     Stream >> s; Set(s);
     Stream >> i; m_Comp.m_ModelAnimNr.Set(i);
     Stream >> i; m_Comp.m_ModelSkinNr.Set(i);
