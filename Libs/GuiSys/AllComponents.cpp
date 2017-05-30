@@ -28,6 +28,15 @@ cf::TypeSys::TypeInfoManT& cf::GuiSys::GetComponentTIM()
 }
 
 
+bool cf::GuiSys::IsFundamental(const cf::TypeSys::TypeInfoT* CompType)
+{
+    if (CompType == &ComponentBasicsT::TypeInfo) return true;
+    if (CompType == &ComponentTransformT::TypeInfo) return true;
+
+    return false;
+}
+
+
 /*
  * Intentionally use a named, non-anonymous namespace here to give AllComponentTIs[] external linkage.
  * With an anonymous namespace, the compiler might optimize AllComponentTIs[] out, defeating its purpose.
@@ -82,14 +91,5 @@ namespace cf
             &ComponentTextEditT::TypeInfo,
             &ComponentTransformT::TypeInfo,
         };
-
-
-        bool IsFundamental(const cf::TypeSys::TypeInfoT* CompType)
-        {
-            if (CompType == &ComponentBasicsT::TypeInfo) return true;
-            if (CompType == &ComponentTransformT::TypeInfo) return true;
-
-            return false;
-        }
     }
 }
