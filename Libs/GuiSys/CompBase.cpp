@@ -59,6 +59,42 @@ bool ComponentBaseT::CallLuaMethod(const char* MethodName, const char* Signature
 }
 
 
+// Note that this method is the twin of Deserialize(), whose implementation it must match.
+void ComponentBaseT::Serialize(cf::Network::OutStreamT& Stream) const
+{
+    const ArrayT<cf::TypeSys::VarBaseT*>& Vars = m_MemberVars.GetArray();
+
+    for (unsigned int VarNr = 0; VarNr < Vars.Size(); VarNr++)
+    {
+        // Variables with flag "DontSerialize" are typically covered already because another variable co-
+        // serializes them, e.g. m_ModelName in ComponentModelT co-serializes m_ModelAnimNr and m_ModelSkinNr.
+        // (Alternatively, variables with this flag may just not need to be serialized.)
+        if (!Vars[VarNr]->HasFlag("DontSerialize"))
+            Vars[VarNr]->Serialize(Stream);
+    }
+
+    DoSerialize(Stream);
+}
+
+
+// Note that this method is the twin of Serialize(), whose implementation it must match.
+void ComponentBaseT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
+{
+    const ArrayT<cf::TypeSys::VarBaseT*>& Vars = m_MemberVars.GetArray();
+
+    for (unsigned int VarNr = 0; VarNr < Vars.Size(); VarNr++)
+    {
+        // Variables with flag "DontSerialize" are typically covered already because another variable co-
+        // serializes them, e.g. m_ModelName in ComponentModelT co-serializes m_ModelAnimNr and m_ModelSkinNr.
+        // (Alternatively, variables with this flag may just not need to be serialized.)
+        if (!Vars[VarNr]->HasFlag("DontSerialize"))
+            Vars[VarNr]->Deserialize(Stream);
+    }
+
+    DoDeserialize(Stream, IsIniting);
+}
+
+
 void ComponentBaseT::UpdateDependencies(WindowT* Window)
 {
     m_Window = Window;

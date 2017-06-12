@@ -52,6 +52,8 @@ namespace cf
             BoundingBox3fT GetEditorBB() const override;
             BoundingBox3fT GetCullingBB() const override;
             bool Render(bool FirstPersonView, float LodDist) const override;
+            void DoSerialize(cf::Network::OutStreamT& Stream) const override;
+            void DoDeserialize(cf::Network::InStreamT& Stream, bool IsIniting) override;
             void DoServerFrame(float t) override;
             void DoClientFrame(float t) override;
 

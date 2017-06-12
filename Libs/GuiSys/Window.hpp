@@ -162,6 +162,30 @@ namespace cf
             /// @returns The pointer to the desired window, or NULL if there is no window that contains `Pos`.
             IntrusivePtrT<WindowT> Find(const Vector2fT& Pos, bool OnlyVisible=true); // Method cannot be const because return type is not const -- see implementation.
 
+            /// Writes the current state of this window into the given stream.
+            /// This method is called to send the state of the window over the network, to save it to disk,
+            /// or to store it in the clipboard.
+            ///
+            /// @param Stream
+            ///   The stream to write the state data to.
+            ///
+            /// @param WithChildren
+            ///   Should the children be recursively serialized as well?
+            void Serialize(cf::Network::OutStreamT& Stream, bool WithChildren=false) const;
+
+            /// Reads the state of this window from the given stream, and updates the window accordingly.
+            /// This method is called after the state of the window has been received over the network,
+            /// has been loaded from disk, has been read from the clipboard, or must be "reset" for the purpose
+            /// of (re-)prediction.
+            ///
+            /// @param Stream
+            ///   The stream to read the state data from.
+            ///
+            /// @param IsIniting
+            ///   Used to indicate that the call is part of the construction / first-time initialization of the window.
+            ///   The implementation will use this to not wrongly process the event counters, interpolation, etc.
+            void Deserialize(cf::Network::InStreamT& Stream, bool IsIniting);
+
             /// Renders this window.
             /// Note that this method does *not* setup any of the MatSys's model, view or projection matrices: it's up to the caller to do that!
             virtual void Render() const;

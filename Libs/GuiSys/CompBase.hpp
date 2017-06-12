@@ -88,6 +88,30 @@ namespace cf
             /// Returns the name of this component.
             virtual const char* GetName() const { return "Base"; }
 
+            /// Writes the current state of this component into the given stream.
+            /// This method is called to send the state of the component over the network, to save it to disk,
+            /// or to store it in the clipboard.
+            /// The implementation calls DoSerialize() that derived classes can override to add their own data.
+            ///
+            /// @param Stream
+            ///   The stream to write the state data to.
+            void Serialize(cf::Network::OutStreamT& Stream) const;
+
+            /// Reads the state of this component from the given stream, and updates the component accordingly.
+            /// This method is called after the state of the component has been received over the network,
+            /// has been loaded from disk, has been read from the clipboard, or must be "reset" for the purpose
+            /// of (re-)prediction.
+            /// The implementation calls DoDeserialize() that derived classes can override to read their own data,
+            /// or to run any post-deserialization code.
+            ///
+            /// @param Stream
+            ///   The stream to read the state data from.
+            ///
+            /// @param IsIniting
+            ///   Used to indicate that the call is part of the construction / first-time initialization of the component.
+            ///   The implementation will use this to not wrongly process the event counters, interpolation, etc.
+            void Deserialize(cf::Network::InStreamT& Stream, bool IsIniting);
+
 
             /// This method is called whenever something "external" to this component has changed:
             ///   - if the parent window has changed, because this component was added to or removed from it,
@@ -172,6 +196,22 @@ namespace cf
 
             /// Use of the Assignment Operator is not allowed (the method is declared, but left undefined).
             void operator = (const ComponentBaseT&);
+
+            /// Derived classes override this method in order to write additional state data into the given stream.
+            /// The method itself is automatically called from Serialize(), see Serialize() for more details.
+            ///
+            /// (This follows the "Non-Virtual Interface Idiom" as described by Scott Meyers in
+            /// "Effective C++, 3rd Edition", item 35 ("Consider alternatives to virtual functions.").)
+            virtual void DoSerialize(cf::Network::OutStreamT& Stream) const { }
+
+            /// Derived classes override this method in order to read additional state data from the given stream,
+            /// or to run any post-deserialization code.
+            /// The method itself is automatically called from Deserialize(), see Deserialize() for more details.
+            ///
+            /// (This follows the "Non-Virtual Interface Idiom" as described by Scott Meyers in
+            /// "Effective C++, 3rd Edition", item 35 ("Consider alternatives to virtual functions.").)
+            virtual void DoDeserialize(cf::Network::InStreamT& Stream, bool IsIniting) { }
+
 
             WindowT*                m_Window;           ///< The parent window that contains this component, or `NULL` if this component is currently not a part of any window.
             TypeSys::VarManT        m_MemberVars;       ///< The variable manager that keeps generic references to our member variables.

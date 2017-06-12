@@ -649,8 +649,37 @@ bool ComponentModelT::Render(bool FirstPersonView, float LodDist) const
 }
 
 
+void ComponentModelT::DoSerialize(cf::Network::OutStreamT& Stream) const
+{
+    const bool HaveGui = GetGui() != NULL;
+    Stream << HaveGui;
+
+    if (HaveGui)
+    {
+        GetGui()->Serialize(Stream);
+    }
+}
+
+
+void ComponentModelT::DoDeserialize(cf::Network::InStreamT& Stream, bool IsIniting)
+{
+    bool HaveGui = false;
+    Stream >> HaveGui;
+
+    if (HaveGui)
+    {
+        GetGui()->Deserialize(Stream, IsIniting);
+    }
+}
+
+
 void ComponentModelT::DoServerFrame(float t)
 {
+    if (GetGui() != NULL)
+    {
+        GetGui()->DistributeClockTickEvents(t);
+    }
+
     // Advance the time of anim expressions on the server-side, too, so that
     //   - we get OnSequenceWrap() callbacks in the script code, and
     //   - blending expressions (and similar) can complete and eventually clean-up
@@ -667,11 +696,6 @@ void ComponentModelT::DoServerFrame(float t)
             CallLuaMethod("OnSequenceWrap_Sv", 0);
         }
     }
-
-    // It is important that we advance the time on the server-side GUI, too, so that it can
-    // for example work off the "pending interpolations" that the GUI scripts can create.
-    if (GetGui() != NULL)
-        GetGui()->DistributeClockTickEvents(t);
 }
 
 
@@ -686,9 +710,6 @@ void ComponentModelT::DoClientFrame(float t)
             CallLuaMethod("OnSequenceWrap", 0);
         }
     }
-
-    if (GetGui() != NULL)
-        GetGui()->DistributeClockTickEvents(t);
 }
 
 
