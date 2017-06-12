@@ -141,7 +141,7 @@ namespace cf
 
             void FillMemberVars();                              ///< A helper method for the constructors.
             bool IsPlayerPrototype() const;                     ///< Is this component in a player prototype entity, or in a concrete player instance?
-            IntrusivePtrT<cf::GuiSys::GuiImplT> GetGuiHUD();    ///< Returns the GUI instance for the player's Head-Up Display.
+            IntrusivePtrT<cf::GuiSys::GuiImplT> GetHUD();       ///< Returns the GUI instance for the player's Head-Up Display.
 
             TypeSys::VarT<std::string>   m_PlayerName;          ///< The name that the player chose for himself.
             TypeSys::VarT<uint16_t>      m_RandomCount;         ///< Keeps track of the next random number that is returned by the GetRandom() methods.
@@ -154,7 +154,7 @@ namespace cf
             TypeSys::VarT<float>         m_HeadSway;            ///< The progress of one "head swaying" cycle in state FrozenSpectator.
 
             ArrayT<PlayerCommandT>          m_PlayerCommands;   ///< The commands to be processed in the next Think() step.
-            IntrusivePtrT<GuiSys::GuiImplT> m_GuiHUD;           ///< The GUI instance for the player's Head-Up Display.
+            IntrusivePtrT<GuiSys::GuiImplT> m_HUD;              ///< The GUI instance for the player's Head-Up Display.
             ParticleMaterialSetT*           m_GenericMatSet;    ///< Resources needed to implement the temporary RegisterParticle() method.
             ParticleMaterialSetT*           m_WhiteSmokeMatSet; ///< Resources needed to implement the temporary RegisterParticle() method.
         };

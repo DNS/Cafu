@@ -82,7 +82,7 @@ ComponentHumanPlayerT::ComponentHumanPlayerT()
       m_NextWeaponNr("NextWeaponNr", 0),
       m_HeadSway("HeadSway", 0.0f),
       m_PlayerCommands(),
-      m_GuiHUD(NULL)
+      m_HUD(NULL)
 {
     FillMemberVars();
 
@@ -104,7 +104,7 @@ ComponentHumanPlayerT::ComponentHumanPlayerT(const ComponentHumanPlayerT& Comp)
       m_NextWeaponNr(Comp.m_NextWeaponNr),
       m_HeadSway(Comp.m_HeadSway),
       m_PlayerCommands(),
-      m_GuiHUD(NULL)
+      m_HUD(NULL)
 {
     FillMemberVars();
 
@@ -148,10 +148,10 @@ bool ComponentHumanPlayerT::IsPlayerPrototype() const
 // when the GetGui() method is called, because in the constructors it is impossile to know
 // or to learn if this ComponentHumanPlayerT instance is created on the server or the client,
 // and if it is the local, first-person human player, or somebody else.
-IntrusivePtrT<cf::GuiSys::GuiImplT> ComponentHumanPlayerT::GetGuiHUD()
+IntrusivePtrT<cf::GuiSys::GuiImplT> ComponentHumanPlayerT::GetHUD()
 {
     if (IsPlayerPrototype()) return NULL;
-    if (m_GuiHUD != NULL) return m_GuiHUD;
+    if (m_HUD != NULL) return m_HUD;
 
     // TODO:
     // if (on server) return NULL;
@@ -194,7 +194,7 @@ IntrusivePtrT<cf::GuiSys::GuiImplT> ComponentHumanPlayerT::GetGuiHUD()
 
     try
     {
-        m_GuiHUD = new cf::GuiSys::GuiImplT(
+        m_HUD = new cf::GuiSys::GuiImplT(
             World.GetScriptState(),
             World.GetGuiResources());
 
@@ -208,7 +208,7 @@ IntrusivePtrT<cf::GuiSys::GuiImplT> ComponentHumanPlayerT::GetGuiHUD()
             StackCheckerT StackChecker(LuaState);
             ScriptBinderT Binder(LuaState);
 
-            Binder.Push(m_GuiHUD);
+            Binder.Push(m_HUD);
             Binder.Push(IntrusivePtrT<ComponentHumanPlayerT>(this));
             lua_setfield(LuaState, -2, "Player");
             Binder.Push(IntrusivePtrT<EntityT>(GetEntity()));
@@ -216,26 +216,26 @@ IntrusivePtrT<cf::GuiSys::GuiImplT> ComponentHumanPlayerT::GetGuiHUD()
             lua_pop(LuaState, 1);
         }
 
-        m_GuiHUD->LoadScript(GuiName);
+        m_HUD->LoadScript(GuiName);
 
         // Active status is not really relevant for our Gui that is not managed by the GuiMan,
         // but still make sure that clock tick events are properly propagated to all windows.
-        m_GuiHUD->Activate();
+        m_HUD->Activate();
     }
     catch (const cf::GuiSys::GuiImplT::InitErrorT& IE)
     {
         // Need a new GuiImplT instance here, as the one allocated above is in unknown state.
-        m_GuiHUD = new cf::GuiSys::GuiImplT(
+        m_HUD = new cf::GuiSys::GuiImplT(
             World.GetScriptState(),
             World.GetGuiResources());
 
         // This one must not throw again...
-        m_GuiHUD->LoadScript(
+        m_HUD->LoadScript(
             cf::String::Replace(FallbackGUI, "%s", "Could not load GUI\n" + GuiName + "\n\n" + IE.what()),
             cf::GuiSys::GuiImplT::InitFlag_InlineCode);
     }
 
-    return m_GuiHUD;
+    return m_HUD;
 }
 
 
@@ -915,7 +915,7 @@ BoundingBox3fT ComponentHumanPlayerT::GetCullingBB() const
 void ComponentHumanPlayerT::PostRender(bool FirstPersonView)
 {
     if (IsPlayerPrototype()) return;
-    if (GetGuiHUD() == NULL) return;
+    if (GetHUD() == NULL) return;
 
     MatSys::Renderer->PushMatrix(MatSys::RendererI::PROJECTION);
     MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
@@ -927,7 +927,7 @@ void ComponentHumanPlayerT::PostRender(bool FirstPersonView)
     MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());
     MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW,  MatrixT());
 
-    GetGuiHUD()->Render();
+    GetHUD()->Render();
 
     MatSys::Renderer->PopMatrix(MatSys::RendererI::PROJECTION);
     MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
@@ -998,16 +998,16 @@ void ComponentHumanPlayerT::DoServerFrame(float t)
     //       Maybe we should move all HUD GUI code into its own component, thereby
     //       isolating it from all other Human Player concerns, especially prediction?!
     //
-    // if (GetGuiHUD() != NULL)
-    //     GetGuiHUD()->DistributeClockTickEvents(t);
-    assert(m_GuiHUD == NULL);
+    // if (GetHUD() != NULL)
+    //     GetHUD()->DistributeClockTickEvents(t);
+    assert(m_HUD == NULL);
 }
 
 
 void ComponentHumanPlayerT::DoClientFrame(float t)
 {
-    if (GetGuiHUD() != NULL)
-        GetGuiHUD()->DistributeClockTickEvents(t);
+    if (GetHUD() != NULL)
+        GetHUD()->DistributeClockTickEvents(t);
 
     // // Handle any state driven effects of the currently carried weapon.
     // if (GetHaveWeapons() & (1 << GetActiveWeaponSlot()))
