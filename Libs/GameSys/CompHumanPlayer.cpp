@@ -337,6 +337,14 @@ ComponentHumanPlayerT* ComponentHumanPlayerT::Clone() const
 
 void ComponentHumanPlayerT::CheckGUIs(bool ThinkingOnServerSide, bool HaveButtonClick) const
 {
+    if (!ThinkingOnServerSide)
+    {
+        // GUIs are parts of models that are components of other entities.
+        // Just like any other entity (that is not the local human player entity),
+        // their state can only be modified on the server.
+        return;
+    }
+
     ArrayT< IntrusivePtrT<EntityT> > AllEnts;
 
     // TODO: Can this be done better than a linear search through all entities in the world?  (see same comment below)
@@ -357,36 +365,11 @@ void ComponentHumanPlayerT::CheckGUIs(bool ThinkingOnServerSide, bool HaveButton
 
             IntrusivePtrT<ComponentModelT> CompModel = static_pointer_cast<ComponentModelT>(Components[CompNr]);
 
-            // TODO: Also deal with the GUI when this is a REPREDICTION run???
-            //
-            // Answer: Normally not, because what is done during prediction is only for eye candy,
-            // and repeating it in REprediction would e.g. trigger/schedule interpolations *twice* (or in fact even more often).
-            //
-            // On the other hand, compare this to what happens when the player e.g. enters his name into a text field.
-            // The string with the name would be part of the "relevant GUI state" (state that is sync'ed over the network).
-            // As such, the string would ONLY be handled correctly when REprediction runs are applied to GUIs as they are applied
-            // to HumanPlayerTs (assuming the string is also handled in normal initial prediction).
-            // Example: The player enters "abc" on the client and prediction updates the string, but the server then sends a message
-            // that the player was force-moved by an explosion and the "abc" string was actually typed into the wall next to the GUI.
-            //
-            // ==> Either we have to run prediction AND REpredection with the GUIs,
-            //     OR we treat them like any other entity and ONLY update them on the server-side.
-            //
-            // ==> Conflict of interests: Only if the GUIs interpolation timers were a part of the "GUI state" would they work properly,
-            //     (which doesn't make much sense), or if we ran GUIs in prediction (but not REprediction) only (no good in the above example).
-            //
-            // ==> Solution: Update the relevant GUI state only ever on the server-side, and run GUI updates in prediction only
-            //               (but never in REprediction).
-            //
-            // ==> How do we separate the two???
-            //     ...
-
             // 1. Has this component an interactive GUI at all?
             IntrusivePtrT<cf::GuiSys::GuiImplT> Gui = CompModel->GetGui();
 
             if (Gui.IsNull()) continue;
             if (!Gui->GetIsInteractive()) continue;
-
 
             // 2. Can we retrieve the plane of its screen panel?
             Vector3fT GuiOrigin;
@@ -404,14 +387,12 @@ void ComponentHumanPlayerT::CheckGUIs(bool ThinkingOnServerSide, bool HaveButton
             GuiAxisX  = M2W.Mul0(GuiAxisX);
             GuiAxisY  = M2W.Mul0(GuiAxisY);
 
-
             // 3. Are we looking roughly into the screen normal?
             const Vector3fT GuiNormal = normalize(cross(GuiAxisY, GuiAxisX), 0.0f);
             const Plane3fT  GuiPlane  = Plane3fT(GuiNormal, dot(GuiOrigin, GuiNormal));
             const Vector3fT ViewDir   = GetCameraViewDirWS().AsVectorOfFloat();
 
             if (-dot(ViewDir, GuiPlane.Normal) < 0.001f) continue;
-
 
             // 4. Does our view ray hit the screen panel?
             // (I've obtained the equation for r by rolling the corresponding Plane3T<T>::GetIntersection() method out.)
@@ -448,24 +429,15 @@ void ComponentHumanPlayerT::CheckGUIs(bool ThinkingOnServerSide, bool HaveButton
 
             Gui->ProcessDeviceEvent(ME);
 
-            // Process mouse button events only on the server side.
-            // Note that this is a somewhat *arbitrary* compromise to the question "Where do we stop / how far do we go in"
-            // client prediction.
-            // Drawing the line here means that GUIs should be programmed in a way such that mouse movements do *not* affect
-            // world state -- only mouse clicks can do that. (In fact, we should probably also keep mouse movement events from
-            // the GUI when this is a *reprediction* run, as detailed in the (much older) comment above.)
-            if (ThinkingOnServerSide)
+            if (HaveButtonClick)
             {
-                if (HaveButtonClick)
-                {
-                    ME.Type = CaMouseEventT::CM_BUTTON0;
+                ME.Type = CaMouseEventT::CM_BUTTON0;
 
-                    ME.Amount = 1;  // Button down.
-                    Gui->ProcessDeviceEvent(ME);
+                ME.Amount = 1;  // Button down.
+                Gui->ProcessDeviceEvent(ME);
 
-                    ME.Amount = 0;  // Button up.
-                    Gui->ProcessDeviceEvent(ME);
-                }
+                ME.Amount = 0;  // Button up.
+                Gui->ProcessDeviceEvent(ME);
             }
         }
     }
