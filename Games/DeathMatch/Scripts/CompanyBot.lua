@@ -157,7 +157,7 @@ function LanternTrafo:OnClientFrame(FrameTime)
 
     local lx = 20.0
     local ly =  3.0 * math.cos(OscilTime / 2.0 * math.pi)   -- OscilTime/4 * 2pi
-    local lz = -9.5 + 0.666 * ly
+    local lz = 12.0 + 0.666 * ly
 
     self:set("Origin", lx, ly, lz)
 end
@@ -184,5 +184,5 @@ function LanternLight:OnClientFrame(t)
     end
 
     self:set("Color", r, g, 0.0)
-    self:set("Radius", 400.0)
+    self:set("Radius", 200.0)
 end
