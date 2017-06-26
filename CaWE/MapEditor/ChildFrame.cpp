@@ -411,8 +411,8 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, MapDocumentT* MapDoc)
  // item3->AppendCheckItem(ID_MENU_MAP_SHOW_GRID_3D, wxT("Show 3D grid\tShift+R"), wxT("") );  item3->Check(ID_MENU_MAP_SHOW_GRID_3D, m_Doc->Is3DGridEnabled());  // Maybe later.
 
     wxMenu* item4 = new wxMenu;
-    item4->Append(ID_MENU_MAP_FINER_GRID, wxT("&Finer Grid\t["), wxT("") );
-    item4->Append(ID_MENU_MAP_COARSER_GRID, wxT("&Coarser Grid\t]"), wxT("") );
+    item4->Append(ID_MENU_MAP_FINER_GRID, wxT("&Finer Grid"), wxT("") );
+    item4->Append(ID_MENU_MAP_COARSER_GRID, wxT("&Coarser Grid"), wxT("") );
     item3->Append(ID_MENU_MAP_GRID_SETTINGS, wxT("&Grid settings"), item4 );
 
     item3->AppendSeparator();
