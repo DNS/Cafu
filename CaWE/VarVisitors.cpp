@@ -1021,16 +1021,22 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<BoundingBox3dT>
     BoundingBox3dT BB;
 
     // This is a "<composed>" property, and its summary string is changing.
-    // For example, the value could be changing from "100.0; 0.0; 50.0" to "100.0; 150; 200.0".
-    wxStringTokenizer Tokenizer(m_Event.GetValue().GetString(), "; \t\r\n", wxTOKEN_STRTOK);
+    // For example, the value could be changing from "[-12; -12; -36] [12; 12; 36]" to "[-12; -4.25; -36] [12; 12; 36]".
+    wxStringTokenizer Tokenizer(m_Event.GetValue().GetString(), "[]; \t\r\n", wxTOKEN_STRTOK);
 
-/*   TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     for (unsigned int i = 0; i < 3; i++)
     {
         // On error, return with m_Ok == false.
         if (!Tokenizer.HasMoreTokens()) return;
-        if (!Tokenizer.GetNextToken().ToCDouble(&v[i])) return;
-    } */
+        if (!Tokenizer.GetNextToken().ToCDouble(&BB.Min[i])) return;
+    }
+
+    for (unsigned int i = 0; i < 3; i++)
+    {
+        // On error, return with m_Ok == false.
+        if (!Tokenizer.HasMoreTokens()) return;
+        if (!Tokenizer.GetNextToken().ToCDouble(&BB.Max[i])) return;
+    }
 
     if (Tokenizer.HasMoreTokens()) return;
 
