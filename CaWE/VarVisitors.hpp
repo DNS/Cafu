@@ -91,7 +91,7 @@ class VarVisitorHandlePropChangingEventT : public cf::TypeSys::VisitorT
 {
     public:
 
-    VarVisitorHandlePropChangingEventT(wxPropertyGridEvent& Event, DocAdapterI& DocAdapter);
+    VarVisitorHandlePropChangingEventT(wxPropertyGridEvent& Event, unsigned int Depth, DocAdapterI& DocAdapter);
     ~VarVisitorHandlePropChangingEventT();
 
     CommandT* TransferCommand();
@@ -117,6 +117,7 @@ class VarVisitorHandlePropChangingEventT : public cf::TypeSys::VisitorT
     private:
 
     wxPropertyGridEvent& m_Event;
+    const unsigned int   m_Depth;
     DocAdapterI&         m_DocAdapter;
     CommandT*            m_Command;
 };

@@ -830,8 +830,9 @@ void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarArrayT<std::string>& Var
 /*** VarVisitorHandlePropChangingEventT ***/
 /******************************************/
 
-VarVisitorHandlePropChangingEventT::VarVisitorHandlePropChangingEventT(wxPropertyGridEvent& Event, DocAdapterI& DocAdapter)
+VarVisitorHandlePropChangingEventT::VarVisitorHandlePropChangingEventT(wxPropertyGridEvent& Event, unsigned int Depth, DocAdapterI& DocAdapter)
     : m_Event(Event),
+      m_Depth(Depth),
       m_DocAdapter(DocAdapter),
       m_Command(NULL)
 {
@@ -858,6 +859,7 @@ CommandT* VarVisitorHandlePropChangingEventT::TransferCommand()
 
 void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<float>& Var)
 {
+    wxASSERT(m_Depth == 0);
     const float f = m_Event.GetValue().GetDouble();
 
     wxASSERT(m_Command == NULL);
@@ -867,6 +869,7 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<float>& Var)
 
 void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<double>& Var)
 {
+    wxASSERT(m_Depth == 0);
     const double d = m_Event.GetValue().GetDouble();
 
     wxASSERT(m_Command == NULL);
@@ -876,6 +879,7 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<double>& Var)
 
 void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<int>& Var)
 {
+    wxASSERT(m_Depth == 0);
     const int i = m_Event.GetValue().GetLong();
 
     wxASSERT(m_Command == NULL);
@@ -885,6 +889,7 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<int>& Var)
 
 void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<unsigned int>& Var)
 {
+    wxASSERT(m_Depth == 0);
     const unsigned int ui = m_Event.GetValue().GetLong();   // Uh! There is no GetULong() method.
 
     wxASSERT(m_Command == NULL);
@@ -894,6 +899,7 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<unsigned int>& 
 
 void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<uint16_t>& Var)
 {
+    wxASSERT(m_Depth == 0);
     const uint16_t ui = m_Event.GetValue().GetLong();   // Uh! There is no GetULong() method.
 
     wxASSERT(m_Command == NULL);
@@ -903,6 +909,7 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<uint16_t>& Var)
 
 void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<uint8_t>& Var)
 {
+    wxASSERT(m_Depth == 0);
     const uint8_t ui = m_Event.GetValue().GetLong();    // Uh! There is no GetULong() method.
 
     wxASSERT(m_Command == NULL);
@@ -912,6 +919,7 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<uint8_t>& Var)
 
 void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<bool>& Var)
 {
+    wxASSERT(m_Depth == 0);
     const bool b = m_Event.GetValue().GetBool();
 
     wxASSERT(m_Command == NULL);
@@ -921,6 +929,7 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<bool>& Var)
 
 void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<std::string>& Var)
 {
+    wxASSERT(m_Depth == 0);
     const std::string s = std::string(m_Event.GetValue().GetString());
 
     wxASSERT(m_Command == NULL);
@@ -932,48 +941,13 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<Vector2fT>& Var
 {
     Vector2fT v;
 
-    // This is a "<composed>" property, and its summary string is changing.
-    // For example, the value could be changing from "100.0; 0.0" to "100.0; 150".
-    wxStringTokenizer Tokenizer(m_Event.GetValue().GetString(), "; \t\r\n", wxTOKEN_STRTOK);
-
-    for (unsigned int i = 0; i < 2; i++)
-    {
-        double d = 0.0;
-
-        // On error, return with m_Ok == false.
-        if (!Tokenizer.HasMoreTokens()) return;
-        if (!Tokenizer.GetNextToken().ToCDouble(&d)) return;
-
-        v[i] = float(d);
-    }
-
-    if (Tokenizer.HasMoreTokens()) return;
-
-    wxASSERT(m_Command == NULL);
-    m_Command = new CommandSetCompVarT<Vector2fT>(m_DocAdapter, Var, v);
-}
-
-
-void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<Vector3fT>& Var)
-{
-    Vector3fT v;
-
-    if (Var.HasFlag("IsColor"))
-    {
-        wxColour NewColor;
-        NewColor << m_Event.GetValue();
-
-        v.x = NewColor.Red()   / 255.0f;
-        v.y = NewColor.Green() / 255.0f;
-        v.z = NewColor.Blue()  / 255.0f;
-    }
-    else
+    if (m_Depth == 0)
     {
         // This is a "<composed>" property, and its summary string is changing.
-        // For example, the value could be changing from "100.0; 0.0; 50.0" to "100.0; 150; 200.0".
+        // For example, the value could be changing from "100.0; 0.0" to "100.0; 150".
         wxStringTokenizer Tokenizer(m_Event.GetValue().GetString(), "; \t\r\n", wxTOKEN_STRTOK);
 
-        for (unsigned int i = 0; i < 3; i++)
+        for (unsigned int i = 0; i < 2; i++)
         {
             double d = 0.0;
 
@@ -986,6 +960,61 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<Vector3fT>& Var
 
         if (Tokenizer.HasMoreTokens()) return;
     }
+    else if (m_Depth == 1)
+    {
+    }
+    else
+    {
+        wxASSERT(false);
+    }
+
+    wxASSERT(m_Command == NULL);
+    m_Command = new CommandSetCompVarT<Vector2fT>(m_DocAdapter, Var, v);
+}
+
+
+void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<Vector3fT>& Var)
+{
+    Vector3fT v;
+
+    if (m_Depth == 0)
+    {
+        if (Var.HasFlag("IsColor"))
+        {
+            wxColour NewColor;
+            NewColor << m_Event.GetValue();
+
+            v.x = NewColor.Red()   / 255.0f;
+            v.y = NewColor.Green() / 255.0f;
+            v.z = NewColor.Blue()  / 255.0f;
+        }
+        else
+        {
+            // This is a "<composed>" property, and its summary string is changing.
+            // For example, the value could be changing from "100.0; 0.0; 50.0" to "100.0; 150; 200.0".
+            wxStringTokenizer Tokenizer(m_Event.GetValue().GetString(), "; \t\r\n", wxTOKEN_STRTOK);
+
+            for (unsigned int i = 0; i < 3; i++)
+            {
+                double d = 0.0;
+
+                // On error, return with m_Ok == false.
+                if (!Tokenizer.HasMoreTokens()) return;
+                if (!Tokenizer.GetNextToken().ToCDouble(&d)) return;
+
+                v[i] = float(d);
+            }
+
+            if (Tokenizer.HasMoreTokens()) return;
+        }
+    }
+    else if (m_Depth == 1)
+    {
+    }
+    else
+    {
+        wxASSERT(false);
+    }
 
     wxASSERT(m_Command == NULL);
     m_Command = new CommandSetCompVarT<Vector3fT>(m_DocAdapter, Var, v);
@@ -996,20 +1025,30 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<Vector3dT>& Var
 {
     Vector3dT v;
 
-    assert(!Var.HasFlag("IsColor"));    // User code should really use a Vector3fT instead.
-
-    // This is a "<composed>" property, and its summary string is changing.
-    // For example, the value could be changing from "100.0; 0.0; 50.0" to "100.0; 150; 200.0".
-    wxStringTokenizer Tokenizer(m_Event.GetValue().GetString(), "; \t\r\n", wxTOKEN_STRTOK);
-
-    for (unsigned int i = 0; i < 3; i++)
+    if (m_Depth == 0)
     {
-        // On error, return with m_Ok == false.
-        if (!Tokenizer.HasMoreTokens()) return;
-        if (!Tokenizer.GetNextToken().ToCDouble(&v[i])) return;
-    }
+        assert(!Var.HasFlag("IsColor"));    // User code should really use a Vector3fT instead.
 
-    if (Tokenizer.HasMoreTokens()) return;
+        // This is a "<composed>" property, and its summary string is changing.
+        // For example, the value could be changing from "100.0; 0.0; 50.0" to "100.0; 150; 200.0".
+        wxStringTokenizer Tokenizer(m_Event.GetValue().GetString(), "; \t\r\n", wxTOKEN_STRTOK);
+
+        for (unsigned int i = 0; i < 3; i++)
+        {
+            // On error, return with m_Ok == false.
+            if (!Tokenizer.HasMoreTokens()) return;
+            if (!Tokenizer.GetNextToken().ToCDouble(&v[i])) return;
+        }
+
+        if (Tokenizer.HasMoreTokens()) return;
+    }
+    else if (m_Depth == 1)
+    {
+    }
+    else
+    {
+        wxASSERT(false);
+    }
 
     wxASSERT(m_Command == NULL);
     m_Command = new CommandSetCompVarT<Vector3dT>(m_DocAdapter, Var, v);
@@ -1020,25 +1059,38 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<BoundingBox3dT>
 {
     BoundingBox3dT BB;
 
-    // This is a "<composed>" property, and its summary string is changing.
-    // For example, the value could be changing from "[-12; -12; -36] [12; 12; 36]" to "[-12; -4.25; -36] [12; 12; 36]".
-    wxStringTokenizer Tokenizer(m_Event.GetValue().GetString(), "[]; \t\r\n", wxTOKEN_STRTOK);
-
-    for (unsigned int i = 0; i < 3; i++)
+    if (m_Depth == 0)
     {
-        // On error, return with m_Ok == false.
-        if (!Tokenizer.HasMoreTokens()) return;
-        if (!Tokenizer.GetNextToken().ToCDouble(&BB.Min[i])) return;
-    }
+        // This is a "<composed>" property, and its summary string is changing.
+        // For example, the value could be changing from "[-12; -12; -36] [12; 12; 36]" to "[-12; -4.25; -36] [12; 12; 36]".
+        wxStringTokenizer Tokenizer(m_Event.GetValue().GetString(), "[]; \t\r\n", wxTOKEN_STRTOK);
 
-    for (unsigned int i = 0; i < 3; i++)
+        for (unsigned int i = 0; i < 3; i++)
+        {
+            // On error, return with m_Ok == false.
+            if (!Tokenizer.HasMoreTokens()) return;
+            if (!Tokenizer.GetNextToken().ToCDouble(&BB.Min[i])) return;
+        }
+
+        for (unsigned int i = 0; i < 3; i++)
+        {
+            // On error, return with m_Ok == false.
+            if (!Tokenizer.HasMoreTokens()) return;
+            if (!Tokenizer.GetNextToken().ToCDouble(&BB.Max[i])) return;
+        }
+
+        if (Tokenizer.HasMoreTokens()) return;
+    }
+    else if (m_Depth == 1)
     {
-        // On error, return with m_Ok == false.
-        if (!Tokenizer.HasMoreTokens()) return;
-        if (!Tokenizer.GetNextToken().ToCDouble(&BB.Max[i])) return;
     }
-
-    if (Tokenizer.HasMoreTokens()) return;
+    else if (m_Depth == 2)
+    {
+    }
+    else
+    {
+        wxASSERT(false);
+    }
 
     wxASSERT(m_Command == NULL);
     m_Command = new CommandSetCompVarT<BoundingBox3dT>(m_DocAdapter, Var, BB);
@@ -1047,6 +1099,8 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<BoundingBox3dT>
 
 void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarArrayT<uint32_t>& Var)
 {
+    wxASSERT(m_Depth == 0);
+
     ArrayT<uint32_t>  A;
     unsigned long     ul = 0;
     wxStringTokenizer Tokenizer(m_Event.GetValue().GetString());
@@ -1061,6 +1115,8 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarArrayT<uint32_t>&
 
 void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarArrayT<uint16_t>& Var)
 {
+    wxASSERT(m_Depth == 0);
+
     ArrayT<uint16_t>  A;
     unsigned long     ul = 0;
     wxStringTokenizer Tokenizer(m_Event.GetValue().GetString());
@@ -1075,6 +1131,8 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarArrayT<uint16_t>&
 
 void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarArrayT<uint8_t>& Var)
 {
+    wxASSERT(m_Depth == 0);
+
     ArrayT<uint8_t>   A;
     unsigned long     ul = 0;
     wxStringTokenizer Tokenizer(m_Event.GetValue().GetString());
@@ -1089,6 +1147,8 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarArrayT<uint8_t>& 
 
 void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarArrayT<std::string>& Var)
 {
+    wxASSERT(m_Depth == 0);
+
     ArrayT<std::string> A;
     wxStringTokenizer   Tokenizer(m_Event.GetValue().GetString(), "\n", wxTOKEN_RET_EMPTY);
 

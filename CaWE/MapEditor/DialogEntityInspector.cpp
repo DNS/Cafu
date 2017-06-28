@@ -327,7 +327,7 @@ void EntityInspectorDialogT::OnPropertyGridChanging(wxPropertyGridEvent& Event)
     if (Var)
     {
         // Handle cases a1) and c1).
-        VarVisitorHandlePropChangingEventT PropChange(Event, m_MapDocument->GetAdapter());
+        VarVisitorHandlePropChangingEventT PropChange(Event, 0, m_MapDocument->GetAdapter());
 
         Var->accept(PropChange);
         if (!m_ChildFrame->SubmitCommand(PropChange.TransferCommand())) Event.Veto();
