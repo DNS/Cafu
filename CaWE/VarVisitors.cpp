@@ -1102,6 +1102,14 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<BoundingBox3dT>
     }
     else if (m_Depth == 1)
     {
+#if 1
+        // BUG IN wxWidgets:
+        // If e.g. "y" was changed, m_Event.GetValue().GetString() yields "y" rather than the expected and required "x; y; z"!
+        // Our code below can only fail, returning with m_Command == NULL.
+        wxLogDebug("        in visit(): Var == \"%s\", Depth == %u, Prop \"%s\"", Var.GetName(), m_Depth, m_Event.GetProperty()->GetLabel());
+        wxLogDebug("        Event value: '%s'", m_Event.GetValue().GetString());                // the new value in wrong format
+        wxLogDebug("        Prop value: '%s'", m_Event.GetProperty()->GetValue().GetString());  // the old value before the change
+#else
         // This is a "<composed>" property (for BB.Min or BB.Max), and its summary string is changing.
         // For example, the value could be changing from "100.0; 0.0; 50.0" to "100.0; 150; 200.0".
         wxStringTokenizer Tokenizer(m_Event.GetValue().GetString(), "; \t\r\n", wxTOKEN_STRTOK);
@@ -1114,6 +1122,7 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<BoundingBox3dT>
         }
 
         if (Tokenizer.HasMoreTokens()) return;
+#endif
     }
     else if (m_Depth == 2)
     {
