@@ -939,7 +939,7 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<std::string>& V
 
 void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<Vector2fT>& Var)
 {
-    Vector2fT v;
+    Vector2fT v = Var.Get();
 
     if (m_Depth == 0)
     {
@@ -962,6 +962,11 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<Vector2fT>& Var
     }
     else if (m_Depth == 1)
     {
+        // A single value, v.x or v.y, has changed.
+        const unsigned int i = m_Event.GetProperty()->GetIndexInParent();
+
+        if (i >= 2) return;
+        v[i] = m_Event.GetValue().GetDouble();
     }
     else
     {
@@ -975,7 +980,7 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<Vector2fT>& Var
 
 void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<Vector3fT>& Var)
 {
-    Vector3fT v;
+    Vector3fT v = Var.Get();
 
     if (m_Depth == 0)
     {
@@ -1010,6 +1015,13 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<Vector3fT>& Var
     }
     else if (m_Depth == 1)
     {
+        wxASSERT(!Var.HasFlag("IsColor"));
+
+        // A single value, v.x, v.y or v.z, has changed.
+        const unsigned int i = m_Event.GetProperty()->GetIndexInParent();
+
+        if (i >= 3) return;
+        v[i] = m_Event.GetValue().GetDouble();
     }
     else
     {
@@ -1023,7 +1035,7 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<Vector3fT>& Var
 
 void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<Vector3dT>& Var)
 {
-    Vector3dT v;
+    Vector3dT v = Var.Get();
 
     if (m_Depth == 0)
     {
@@ -1044,6 +1056,13 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<Vector3dT>& Var
     }
     else if (m_Depth == 1)
     {
+        wxASSERT(!Var.HasFlag("IsColor"));
+
+        // A single value, v.x, v.y or v.z, has changed.
+        const unsigned int i = m_Event.GetProperty()->GetIndexInParent();
+
+        if (i >= 3) return;
+        v[i] = m_Event.GetValue().GetDouble();
     }
     else
     {
@@ -1057,7 +1076,7 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<Vector3dT>& Var
 
 void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<BoundingBox3dT>& Var)
 {
-    BoundingBox3dT BB;
+    BoundingBox3dT BB = Var.Get();
 
     if (m_Depth == 0)
     {
@@ -1083,9 +1102,31 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<BoundingBox3dT>
     }
     else if (m_Depth == 1)
     {
+        // This is a "<composed>" property (for BB.Min or BB.Max), and its summary string is changing.
+        // For example, the value could be changing from "100.0; 0.0; 50.0" to "100.0; 150; 200.0".
+        wxStringTokenizer Tokenizer(m_Event.GetValue().GetString(), "; \t\r\n", wxTOKEN_STRTOK);
+        Vector3dT& v = (m_Event.GetProperty()->GetIndexInParent() == 0) ? BB.Min : BB.Max;
+
+        for (unsigned int i = 0; i < 3; i++)
+        {
+            if (!Tokenizer.HasMoreTokens()) return;
+            if (!Tokenizer.GetNextToken().ToCDouble(&v[i])) return;
+        }
+
+        if (Tokenizer.HasMoreTokens()) return;
     }
     else if (m_Depth == 2)
     {
+        // A single value, e.g. BB.Min.x, or BB.Max.z, has changed.
+        const unsigned int i = m_Event.GetProperty()->GetIndexInParent();
+
+        if (i >= 3) return;
+        if (!m_Event.GetProperty()->GetParent()) return;
+
+        if (m_Event.GetProperty()->GetParent()->GetIndexInParent() == 0)
+            BB.Min[i] = m_Event.GetValue().GetDouble();
+        else
+            BB.Max[i] = m_Event.GetValue().GetDouble();
     }
     else
     {
