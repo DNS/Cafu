@@ -319,33 +319,28 @@ void EntityInspectorDialogT::OnPropertyGridChanging(wxPropertyGridEvent& Event)
     wxASSERT(Event.CanVeto());  // EVT_PG_CHANGING events can be vetoed (as opposed to EVT_PG_CHANGED events).
     wxLogDebug("%s: %s value \"%s\": %s", __FUNCTION__, Event.GetValue().GetType(), Event.GetProperty()->GetLabel(), Event.GetValue().MakeString());
 
-    m_IsRecursiveSelfNotify=true;
+    const wxPGProperty*    Prop  = Event.GetProperty();
+    unsigned int           Depth = 0;
+    cf::TypeSys::VarBaseT* Var   = NULL;
 
-    const wxPGProperty*    Prop = Event.GetProperty();
-    cf::TypeSys::VarBaseT* Var  = Prop && !Prop->IsCategory() ? static_cast<cf::TypeSys::VarBaseT*>(Prop->GetClientData()) : NULL;
-
-    if (Var)
+    // Note that cases a1) and c1) leave the loop at Depth == 0
+    // whereas case b1) leaves the loop at Depth == 1.
+    while (Prop && !Prop->IsCategory() && Depth < 5)
     {
-        // Handle cases a1) and c1).
-        VarVisitorHandlePropChangingEventT PropChange(Event, 0, m_MapDocument->GetAdapter());
-
-        Var->accept(PropChange);
-        if (!m_ChildFrame->SubmitCommand(PropChange.TransferCommand())) Event.Veto();
-    }
-    else
-    {
-        // Handle case b1), if applicable.
+        Var = static_cast<cf::TypeSys::VarBaseT*>(Prop->GetClientData());
+        if (Var) break;
         Prop = Prop->GetParent();
-        Var  = Prop && !Prop->IsCategory() ? static_cast<cf::TypeSys::VarBaseT*>(Prop->GetClientData()) : NULL;
-
-        if (Var)
-        {
-            VarVisitorHandleSubChangingEventT PropChange(Event, m_MapDocument->GetAdapter());
-
-            Var->accept(PropChange);
-            if (!m_ChildFrame->SubmitCommand(PropChange.TransferCommand())) Event.Veto();
-        }
+        Depth++;
     }
+
+    if (!Var) return;
+
+    m_IsRecursiveSelfNotify = true;
+
+    VarVisitorHandlePropChangingEventT PropChange(Event, Depth, m_MapDocument->GetAdapter());
+
+    Var->accept(PropChange);
+    if (!m_ChildFrame->SubmitCommand(PropChange.TransferCommand())) Event.Veto();
 
     if (!Event.WasVetoed() && Var && Var->GetExtraMessage() != "")
     {
@@ -355,7 +350,7 @@ void EntityInspectorDialogT::OnPropertyGridChanging(wxPropertyGridEvent& Event)
         Notify.Show();
     }
 
-    m_IsRecursiveSelfNotify=false;
+    m_IsRecursiveSelfNotify = false;
 }
 
 
