@@ -470,7 +470,7 @@ void VarVisitorAddPropT::visit(cf::TypeSys::VarT<Vector3fT>& Var)
 
 void VarVisitorAddPropT::visit(cf::TypeSys::VarT<Vector3dT>& Var)
 {
-    assert(!Var.HasFlag("IsColor"));    // User code should really use a Vector3fT instead.
+    wxASSERT(!Var.HasFlag("IsColor"));  // User code should really use a Vector3fT instead.
 
     wxPGProperty* Prop = new wxStringProperty(Var.GetName(), wxString::Format("%p", &Var), "<composed>");
 
@@ -758,7 +758,7 @@ void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT<Vector3fT>& Var)
 
 void VarVisitorUpdatePropT::visit(const cf::TypeSys::VarT<Vector3dT>& Var)
 {
-    assert(!Var.HasFlag("IsColor"));    // User code should really use a Vector3fT instead.
+    wxASSERT(!Var.HasFlag("IsColor"));  // User code should really use a Vector3fT instead.
 
     const unsigned int Count = std::min(3u, m_Prop.GetChildCount());
 
@@ -1039,7 +1039,7 @@ void VarVisitorHandlePropChangingEventT::visit(cf::TypeSys::VarT<Vector3dT>& Var
 
     if (m_Depth == 0)
     {
-        assert(!Var.HasFlag("IsColor"));    // User code should really use a Vector3fT instead.
+        wxASSERT(!Var.HasFlag("IsColor"));  // User code should really use a Vector3fT instead.
 
         // This is a "<composed>" property, and its summary string is changing.
         // For example, the value could be changing from "100.0; 0.0; 50.0" to "100.0; 150; 200.0".
