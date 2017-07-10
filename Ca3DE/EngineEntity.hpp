@@ -7,7 +7,7 @@ This project is licensed under the terms of the MIT license.
 #ifndef CAFU_ENGINE_ENTITY_HPP_INCLUDED
 #define CAFU_ENGINE_ENTITY_HPP_INCLUDED
 
-#include "../Games/PlayerCommand.hpp"
+#include "PlayerCommand.hpp"
 #include "Math3D/Vector3.hpp"
 #include "Network/State.hpp"
 #include "Templates/Pointer.hpp"

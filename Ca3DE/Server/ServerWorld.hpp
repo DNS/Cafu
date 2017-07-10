@@ -8,7 +8,7 @@ This project is licensed under the terms of the MIT license.
 #define CAFU_CASERVERWORLD_HPP_INCLUDED
 
 #include "../Ca3DEWorld.hpp"
-#include "../../Games/PlayerCommand.hpp"
+#include "../PlayerCommand.hpp"
 
 
 namespace cf { namespace ClipSys { class CollisionModelT; } }

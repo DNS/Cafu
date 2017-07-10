@@ -10,9 +10,9 @@ This project is licensed under the terms of the MIT license.
 #include "ClientState.hpp"
 #include "Graphs.hpp"
 #include "ScrlInfo.hpp"
+#include "../PlayerCommand.hpp"
 #include "Fonts/Font.hpp"
 #include "Network/Network.hpp"
-#include "../../Games/PlayerCommand.hpp"
 
 
 struct lua_State;

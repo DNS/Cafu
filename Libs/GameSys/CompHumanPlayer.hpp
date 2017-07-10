@@ -8,7 +8,7 @@ This project is licensed under the terms of the MIT license.
 #define CAFU_GAMESYS_COMPONENT_HUMAN_PLAYER_HPP_INCLUDED
 
 #include "CompBase.hpp"
-#include "../../Games/PlayerCommand.hpp"      // TODO: This file must be moved (and/or its contents completely redesigned).
+#include "../../Ca3DE/PlayerCommand.hpp"
 #include "GuiSys/GuiImpl.hpp"
 
 class ParticleMaterialSetT;

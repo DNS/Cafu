@@ -9,12 +9,12 @@ This project is licensed under the terms of the MIT license.
 #include "ClientInfo.hpp"
 #include "../GameInfo.hpp"
 #include "../NetConst.hpp"
+#include "../PlayerCommand.hpp"
 #include "ConsoleCommands/Console.hpp"
 #include "ConsoleCommands/ConsoleStringBuffer.hpp"
 #include "ConsoleCommands/ConsoleInterpreter.hpp"
 #include "ConsoleCommands/ConVar.hpp"
 #include "ConsoleCommands/ConFunc.hpp"
-#include "../../Games/PlayerCommand.hpp"
 
 #include <stdio.h>
 #include <string.h>
