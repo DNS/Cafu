@@ -7,38 +7,50 @@ This project is licensed under the terms of the MIT license.
 #ifndef CAFU_PLAYERCOMMAND_HPP_INCLUDED
 #define CAFU_PLAYERCOMMAND_HPP_INCLUDED
 
+#if defined(_WIN32) && _MSC_VER<1600
+#include "pstdint.h"            // Paul Hsieh's portable implementation of the stdint.h header.
+#else
+#include <stdint.h>
+#endif
+
 
 // Player command key flags
-const unsigned long PCK_MoveForward =0x00000001;
-const unsigned long PCK_MoveBackward=0x00000002;
-const unsigned long PCK_TurnLeft    =0x00000004;
-const unsigned long PCK_TurnRight   =0x00000008;
-const unsigned long PCK_StrafeLeft  =0x00000010;
-const unsigned long PCK_StrafeRight =0x00000020;
-const unsigned long PCK_LookUp      =0x00000040;
-const unsigned long PCK_LookDown    =0x00000080;
-const unsigned long PCK_CenterView  =0x00000100;
-const unsigned long PCK_Jump        =0x00000200;    // Jump
-const unsigned long PCK_Duck        =0x00000400;    // Duck
-const unsigned long PCK_Walk        =0x00000800;    // Walk (slower than normal)
-const unsigned long PCK_Fire1       =0x00001000;    // Primary   Fire (also used e.g. for "Respawn")
-const unsigned long PCK_Fire2       =0x00002000;    // Secondary Fire
-const unsigned long PCK_Use         =0x00004000;    // Use
+const uint32_t PCK_MoveForward  = 0x00000001;
+const uint32_t PCK_MoveBackward = 0x00000002;
+const uint32_t PCK_TurnLeft     = 0x00000004;
+const uint32_t PCK_TurnRight    = 0x00000008;
+const uint32_t PCK_StrafeLeft   = 0x00000010;
+const uint32_t PCK_StrafeRight  = 0x00000020;
+const uint32_t PCK_LookUp       = 0x00000040;
+const uint32_t PCK_LookDown     = 0x00000080;
+const uint32_t PCK_CenterView   = 0x00000100;
+const uint32_t PCK_Jump         = 0x00000200;
+const uint32_t PCK_Duck         = 0x00000400;
+const uint32_t PCK_Walk         = 0x00000800;    // Walk (slower than normal)
+const uint32_t PCK_Fire1        = 0x00001000;    // Primary Fire (also used e.g. for "Respawn")
+const uint32_t PCK_Fire2        = 0x00002000;    // Secondary Fire
+const uint32_t PCK_Use          = 0x00004000;    // for "using" or "activating" things
 // Bits 28-31 are reserved for selecting the weapon slot!
 
 
 /// This struct represents per-frame player inputs for controlling human player entities.
-/// Player commands are acquired on the clients and send to the server.
+/// Player commands are acquired on the clients and sent to the server.
 struct PlayerCommandT
 {
-    float          FrameTime;
-    unsigned long  Keys;
-    unsigned short DeltaHeading;
-    unsigned short DeltaPitch;
-    unsigned short DeltaBank;
+    PlayerCommandT()
+        : FrameTime(0.0f),
+          Keys(0),
+          DeltaHeading(0),
+          DeltaPitch(0),
+          DeltaBank(0)
+    {
+    }
 
-    PlayerCommandT(float FrameTime_=0, unsigned long Keys_=0, unsigned short DeltaHeading_=0, unsigned short DeltaPitch_=0, unsigned short DeltaBank_=0)
-        : FrameTime(FrameTime_), Keys(Keys_), DeltaHeading(DeltaHeading_), DeltaPitch(DeltaPitch_), DeltaBank(DeltaBank_) { }
+    float    FrameTime;
+    uint32_t Keys;
+    uint16_t DeltaHeading;
+    uint16_t DeltaPitch;
+    uint16_t DeltaBank;
 };
 
 #endif
