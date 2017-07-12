@@ -65,7 +65,6 @@ class ClientStateInGameT : public ClientStateT
     FontT                  Font_f;
     CaClientWorldT*        World;
     bool                   IsLoadingWorld;        ///< True while the world is loaded, false at all other times. This is relevant only because cf::GuiSys::GuiMan->Yield() is called while loading, which in turn calls our Render() method.
-    bool                   WasLMBOnceUp;          ///< The left mouse button must be in the released (non-pressed, up) state after the world has been loaded. This variable is false until this has been the case!
 
     ScrollInfoT            ChatScrollInfo;
     ScrollInfoT            SystemScrollInfo;

@@ -37,13 +37,25 @@ const uint32_t PCK_Use          = 0x00004000;    // for "using" or "activating" 
 /// Player commands are acquired on the clients and sent to the server.
 struct PlayerCommandT
 {
-    PlayerCommandT()
+    PlayerCommandT(uint32_t Keys_=0)
         : FrameTime(0.0f),
-          Keys(0),
+          Keys(Keys_),
           DeltaHeading(0),
           DeltaPitch(0),
           DeltaBank(0)
     {
+    }
+
+    void Set(uint32_t Key, bool set)
+    {
+        if (set)
+        {
+            Keys |= Key;
+        }
+        else
+        {
+            Keys &= ~Key;
+        }
     }
 
     float    FrameTime;

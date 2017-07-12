@@ -16,6 +16,7 @@ This project is licensed under the terms of the MIT license.
 
 #include "GuiSys/GuiImpl.hpp"
 #include "GuiSys/GuiManImpl.hpp"
+#include "GuiSys/Window.hpp"
 #include "MaterialSystem/MaterialManager.hpp"
 #include "MaterialSystem/Mesh.hpp"
 #include "MaterialSystem/Renderer.hpp"
@@ -140,8 +141,8 @@ ClientStateInGameT::ClientStateInGameT(ClientT& Client_)
       Font_f("Fonts/FixedWidth"),
       World(NULL),
       IsLoadingWorld(false),
-      WasLMBOnceUp(false),
       ClientFrameNr(0),
+      m_PlayerCommand(),
       m_PlayerCommandCount(1),    // In each newly loaded world, player command numbering restarts at 1.
       m_PathRecorder(NULL)
 {
@@ -195,6 +196,72 @@ int ClientStateInGameT::GetID() const
 
 bool ClientStateInGameT::ProcessInputEvent(const CaKeyboardEventT& KE)
 {
+    const bool s = (KE.Type == CaKeyboardEventT::CKE_KEYDOWN);
+
+    switch (KE.Key)
+    {
+        case CaKeyboardEventT::CK_SPACE:
+            m_PlayerCommand.Set(PCK_Jump, s);
+            break;
+
+        case CaKeyboardEventT::CK_LSHIFT:
+        case CaKeyboardEventT::CK_RSHIFT:
+            m_PlayerCommand.Set(PCK_Walk, s);
+            break;
+
+        case CaKeyboardEventT::CK_UP:
+        case CaKeyboardEventT::CK_W:
+            m_PlayerCommand.Set(PCK_MoveForward, s);
+            break;
+
+        case CaKeyboardEventT::CK_DOWN:
+        case CaKeyboardEventT::CK_S:
+            m_PlayerCommand.Set(PCK_MoveBackward, s);
+            break;
+
+        case CaKeyboardEventT::CK_A:
+        case CaKeyboardEventT::CK_COMMA:
+            m_PlayerCommand.Set(PCK_StrafeLeft, s);
+            break;
+
+        case CaKeyboardEventT::CK_D:
+        case CaKeyboardEventT::CK_PERIOD:
+            m_PlayerCommand.Set(PCK_StrafeRight, s);
+            break;
+
+        case CaKeyboardEventT::CK_R:
+            m_PlayerCommand.Set(PCK_Fire1, s);
+            break;
+
+        case CaKeyboardEventT::CK_RETURN:
+        case CaKeyboardEventT::CK_NUMPADENTER:
+            m_PlayerCommand.Set(PCK_Use, s);
+            break;
+
+        case CaKeyboardEventT::CK_LEFT:
+            m_PlayerCommand.Set(PCK_TurnLeft, s);
+            break;
+
+        case CaKeyboardEventT::CK_RIGHT:
+            m_PlayerCommand.Set(PCK_TurnRight, s);
+            break;
+
+        case CaKeyboardEventT::CK_PGDN:
+            m_PlayerCommand.Set(PCK_LookUp, s);
+            break;
+
+        case CaKeyboardEventT::CK_PGUP:
+            m_PlayerCommand.Set(PCK_LookDown, s);
+            break;
+
+        case CaKeyboardEventT::CK_END:
+            m_PlayerCommand.Set(PCK_CenterView, s);
+            break;
+
+        default:
+            break;
+    }
+
     if (KE.Type!=CaKeyboardEventT::CKE_KEYDOWN) return false;
 
     switch (KE.Key)
@@ -222,10 +289,6 @@ bool ClientStateInGameT::ProcessInputEvent(const CaKeyboardEventT& KE)
             }
             break;
         }
-
-        case CaKeyboardEventT::CK_SPACE:
-            m_PlayerCommand.Keys|=PCK_Jump;
-            break;
 
         case CaKeyboardEventT::CK_1:
         case CaKeyboardEventT::CK_NUMPAD1:
@@ -306,6 +369,16 @@ bool ClientStateInGameT::ProcessInputEvent(const CaMouseEventT& ME)
 {
     switch (ME.Type)
     {
+        case CaMouseEventT::CM_BUTTON0:
+            m_PlayerCommand.Set(PCK_Fire1, ME.Amount == 1);
+            break;
+
+        case CaMouseEventT::CM_BUTTON1:
+        case CaMouseEventT::CM_BUTTON2:
+        case CaMouseEventT::CM_BUTTON3:
+            m_PlayerCommand.Set(PCK_Fire2, ME.Amount == 1);
+            break;
+
         case CaMouseEventT::CM_MOVE_X:   // X-Axis.
             m_PlayerCommand.DeltaHeading+=(unsigned short)(ME.Amount*30);
             break;
@@ -664,8 +737,13 @@ void ClientStateInGameT::ParseServerPacket(NetDataT& InData)
 
                     ConsoleInterpreter->RunCommand("StartLevelIntroMusic()");   // This function must be provided in "config.lua".
 
-                    m_PlayerCommandCount = 1;   // In each newly loaded world, player command numbering restarts at 1.
-                    WasLMBOnceUp=false;
+                    // In a newly loaded world, start with all keys up, i.e. m_PlayerCommand.Keys == 0.
+                    // This is to make sure that even if the player holds a key physically down all the time,
+                    // e.g. the LMB that is still down from the click in another GUI that brought us here,
+                    // it must be released and pressed again in order to create the first "down" event.
+                    // (This is somewhat counteracted if we receive "key repeat" events from keyboard keys.)
+                    m_PlayerCommand = PlayerCommandT(0);
+                    m_PlayerCommandCount = 1;
                 }
                 catch (const WorldT::LoadErrorT& E)
                 {
@@ -813,51 +891,23 @@ void ClientStateInGameT::MainLoop(float FrameTime)
         }
     }
 
-
-    // Frage Keyboard- und Mouse-Input ab und leite diese in die ChatLine, Console oder das Game weiter.
-    // Danach sende die Game-Keys (und Heading usw.) an den Server.
-    // The contents of this if-block used to be in the (now obsolete) EventManager(float FrameTime) method.
     if (World)
     {
-        IntrusivePtrT<cf::GuiSys::GuiImplT> ActiveGui  = cf::GuiSys::GuiMan->GetTopmostActiveAndInteractive();
-        const wxMouseState                  MouseState = wxGetMouseState();
-        assert(ActiveGui!=NULL);    // The GUI of the client for the world output must always be there.
+        IntrusivePtrT<cf::GuiSys::GuiImplT> ActiveGui = cf::GuiSys::GuiMan->GetTopmostActiveAndInteractive();
 
-        // This is unfortunately needed, because the users last click (in the GUI) that brought us here may still have the "LMB up" event pending.
-        WasLMBOnceUp=WasLMBOnceUp || !MouseState.LeftIsDown();
-
-        // FIXME: Should test for ActiveGui==ClientGui instead of ActiveGui->GetScriptName()=="".
-        if (ActiveGui->GetScriptName()=="" && WasLMBOnceUp)
+        // Checking (ActiveGui->GetFocusWindow() == our_window_instance) would be better,
+        // but at this time, we don't have our_window_instance available.
+        if (ActiveGui.IsNull() ||
+            ActiveGui->GetFocusWindow().IsNull() ||
+            ActiveGui->GetFocusWindow()->GetBasics()->GetWindowName() != "Client")
         {
-            if (MouseState.LeftIsDown())                               m_PlayerCommand.Keys|=PCK_Fire1;
-            if (MouseState.MiddleIsDown() || MouseState.RightIsDown()) m_PlayerCommand.Keys|=PCK_Fire2;
-
-            // Alle anderen Keys via KeyboardState bestimmen und über die volle Frametime anwenden.
-            // Später evtl. mal die echte Zeit vom Buffer einsetzen!
-            // Mit anderen Worten: Diesen Kram mit in die obige Buffer-Schleife nehmen!
-            // Player movement / state
-         // if (wxGetKeyState(WXK_CONTROL)     ) ;                                       // R_Strg   Run
-            if (wxGetKeyState(WXK_SHIFT)       ) m_PlayerCommand.Keys|=PCK_Walk;           // Shift  Stealth
-            if (wxGetKeyState(WXK_UP) ||                                                 // Up       Walk forward
-                wxGetKeyState(wxKeyCode('W'))  ) m_PlayerCommand.Keys|=PCK_MoveForward;    // W        Walk forward
-            if (wxGetKeyState(WXK_DOWN) ||                                               // Down     Walk backward
-                wxGetKeyState(wxKeyCode('S'))  ) m_PlayerCommand.Keys|=PCK_MoveBackward;   // S        Walk backward
-            if (wxGetKeyState(wxKeyCode('A')) ||                                         // A        Strafe left
-                wxGetKeyState(wxKeyCode(','))  ) m_PlayerCommand.Keys|=PCK_StrafeLeft;     // ,        Strafe left
-            if (wxGetKeyState(wxKeyCode('D')) ||                                         // D        Strafe right
-                wxGetKeyState(wxKeyCode('.'))  ) m_PlayerCommand.Keys|=PCK_StrafeRight;    // .        Strafe right
-            if (wxGetKeyState(wxKeyCode('R'))  ) m_PlayerCommand.Keys|=PCK_Fire1;          // R        Fire/Respawn
-            if (wxGetKeyState(WXK_RETURN) ||                                             // RETURN   Use
-                wxGetKeyState(WXK_NUMPAD_ENTER)) m_PlayerCommand.Keys|=PCK_Use;            // ENTER    Use
-            if (wxGetKeyState(WXK_LEFT        )) m_PlayerCommand.Keys|=PCK_TurnLeft;       // Left     Turn left
-            if (wxGetKeyState(WXK_RIGHT       )) m_PlayerCommand.Keys|=PCK_TurnRight;      // Right    Turn right
-            if (wxGetKeyState(WXK_PAGEDOWN    )) m_PlayerCommand.Keys|=PCK_LookUp;         //          Look up
-            if (wxGetKeyState(WXK_PAGEUP      )) m_PlayerCommand.Keys|=PCK_LookDown;       //          Look down
-         // if (wxGetKeyState(WXK_HOME        )) m_PlayerCommand.Keys|=PCK_BankCW          //          Bank CW
-         // if (wxGetKeyState(WXK_INSERT      )) m_PlayerCommand.Keys|=PCK_BankCCW;        //          Bank CCW
-            if (wxGetKeyState(WXK_END         )) m_PlayerCommand.Keys|=PCK_CenterView;
+            // If we hold the fire button, e.g. for repeat fire with the machine gun, and simultaneously
+            // press another key such as F1 for opening the console, ESC for the main menu or T for the
+            // chat window, our client GUI/window/component loses the input focus and we never receive
+            // the "fire button up" event.
+            // Thus, we have to force the release of all keys whenever we don't have the input focus.
+            m_PlayerCommand.Keys = 0;
         }
-
 
         m_PlayerCommand.FrameTime = FrameTime;
 
@@ -881,7 +931,8 @@ void ClientStateInGameT::MainLoop(float FrameTime)
                 m_PathRecorder->WritePath(CameraTrafo->GetOriginWS().AsVectorOfDouble(), 0 /*Fixme: Heading*/, FrameTime);
         }
 
-        m_PlayerCommand = PlayerCommandT();   // Clear the m_PlayerCommand.
+        // Keep the key state for the next frame, clear everything else.
+        m_PlayerCommand = PlayerCommandT(m_PlayerCommand.Keys);
         m_PlayerCommandCount++;
     }
 
