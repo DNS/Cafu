@@ -224,67 +224,67 @@ bool ClientStateInGameT::ProcessInputEvent(const CaKeyboardEventT& KE)
         }
 
         case CaKeyboardEventT::CK_SPACE:
-            PlayerCommand.Keys|=PCK_Jump;
+            m_PlayerCommand.Keys|=PCK_Jump;
             break;
 
         case CaKeyboardEventT::CK_1:
         case CaKeyboardEventT::CK_NUMPAD1:
-            PlayerCommand.Keys&=0x0FFFFFFF;
-            PlayerCommand.Keys|=0x10000000;
+            m_PlayerCommand.Keys&=0x0FFFFFFF;
+            m_PlayerCommand.Keys|=0x10000000;
             break;
 
         case CaKeyboardEventT::CK_2:
         case CaKeyboardEventT::CK_NUMPAD2:
-            PlayerCommand.Keys&=0x0FFFFFFF;
-            PlayerCommand.Keys|=0x20000000;
+            m_PlayerCommand.Keys&=0x0FFFFFFF;
+            m_PlayerCommand.Keys|=0x20000000;
             break;
 
         case CaKeyboardEventT::CK_3:
         case CaKeyboardEventT::CK_NUMPAD3:
-            PlayerCommand.Keys&=0x0FFFFFFF;
-            PlayerCommand.Keys|=0x30000000;
+            m_PlayerCommand.Keys&=0x0FFFFFFF;
+            m_PlayerCommand.Keys|=0x30000000;
             break;
 
         case CaKeyboardEventT::CK_4:
         case CaKeyboardEventT::CK_NUMPAD4:
-            PlayerCommand.Keys&=0x0FFFFFFF;
-            PlayerCommand.Keys|=0x40000000;
+            m_PlayerCommand.Keys&=0x0FFFFFFF;
+            m_PlayerCommand.Keys|=0x40000000;
             break;
 
         case CaKeyboardEventT::CK_5:
         case CaKeyboardEventT::CK_NUMPAD5:
-            PlayerCommand.Keys&=0x0FFFFFFF;
-            PlayerCommand.Keys|=0x50000000;
+            m_PlayerCommand.Keys&=0x0FFFFFFF;
+            m_PlayerCommand.Keys|=0x50000000;
             break;
 
         case CaKeyboardEventT::CK_6:
         case CaKeyboardEventT::CK_NUMPAD6:
-            PlayerCommand.Keys&=0x0FFFFFFF;
-            PlayerCommand.Keys|=0x60000000;
+            m_PlayerCommand.Keys&=0x0FFFFFFF;
+            m_PlayerCommand.Keys|=0x60000000;
             break;
 
         case CaKeyboardEventT::CK_7:
         case CaKeyboardEventT::CK_NUMPAD7:
-            PlayerCommand.Keys&=0x0FFFFFFF;
-            PlayerCommand.Keys|=0x70000000;
+            m_PlayerCommand.Keys&=0x0FFFFFFF;
+            m_PlayerCommand.Keys|=0x70000000;
             break;
 
         case CaKeyboardEventT::CK_8:
         case CaKeyboardEventT::CK_NUMPAD8:
-            PlayerCommand.Keys&=0x0FFFFFFF;
-            PlayerCommand.Keys|=0x80000000;
+            m_PlayerCommand.Keys&=0x0FFFFFFF;
+            m_PlayerCommand.Keys|=0x80000000;
             break;
 
         case CaKeyboardEventT::CK_9:
         case CaKeyboardEventT::CK_NUMPAD9:
-            PlayerCommand.Keys&=0x0FFFFFFF;
-            PlayerCommand.Keys|=0x90000000;
+            m_PlayerCommand.Keys&=0x0FFFFFFF;
+            m_PlayerCommand.Keys|=0x90000000;
             break;
 
         case CaKeyboardEventT::CK_0:
         case CaKeyboardEventT::CK_NUMPAD0:
-            PlayerCommand.Keys&=0x0FFFFFFF;
-            PlayerCommand.Keys|=0xA0000000;
+            m_PlayerCommand.Keys&=0x0FFFFFFF;
+            m_PlayerCommand.Keys|=0xA0000000;
             break;
 
         default:
@@ -307,15 +307,15 @@ bool ClientStateInGameT::ProcessInputEvent(const CaMouseEventT& ME)
     switch (ME.Type)
     {
         case CaMouseEventT::CM_MOVE_X:   // X-Axis.
-            PlayerCommand.DeltaHeading+=(unsigned short)(ME.Amount*30);
+            m_PlayerCommand.DeltaHeading+=(unsigned short)(ME.Amount*30);
             break;
 
         case CaMouseEventT::CM_MOVE_Y:   // Y-Axis.
         {
             // static ConVarT MouseReverseY(...);
 
-            if (MouseReverseY.GetValueBool()) PlayerCommand.DeltaPitch-=(unsigned short)(ME.Amount*30);
-                                         else PlayerCommand.DeltaPitch+=(unsigned short)(ME.Amount*30);
+            if (MouseReverseY.GetValueBool()) m_PlayerCommand.DeltaPitch-=(unsigned short)(ME.Amount*30);
+                                         else m_PlayerCommand.DeltaPitch+=(unsigned short)(ME.Amount*30);
             break;
         }
 
@@ -829,49 +829,49 @@ void ClientStateInGameT::MainLoop(float FrameTime)
         // FIXME: Should test for ActiveGui==ClientGui instead of ActiveGui->GetScriptName()=="".
         if (ActiveGui->GetScriptName()=="" && WasLMBOnceUp)
         {
-            if (MouseState.LeftIsDown())                               PlayerCommand.Keys|=PCK_Fire1;
-            if (MouseState.MiddleIsDown() || MouseState.RightIsDown()) PlayerCommand.Keys|=PCK_Fire2;
+            if (MouseState.LeftIsDown())                               m_PlayerCommand.Keys|=PCK_Fire1;
+            if (MouseState.MiddleIsDown() || MouseState.RightIsDown()) m_PlayerCommand.Keys|=PCK_Fire2;
 
             // Alle anderen Keys via KeyboardState bestimmen und über die volle Frametime anwenden.
             // Später evtl. mal die echte Zeit vom Buffer einsetzen!
             // Mit anderen Worten: Diesen Kram mit in die obige Buffer-Schleife nehmen!
             // Player movement / state
          // if (wxGetKeyState(WXK_CONTROL)     ) ;                                       // R_Strg   Run
-            if (wxGetKeyState(WXK_SHIFT)       ) PlayerCommand.Keys|=PCK_Walk;           // Shift  Stealth
+            if (wxGetKeyState(WXK_SHIFT)       ) m_PlayerCommand.Keys|=PCK_Walk;           // Shift  Stealth
             if (wxGetKeyState(WXK_UP) ||                                                 // Up       Walk forward
-                wxGetKeyState(wxKeyCode('W'))  ) PlayerCommand.Keys|=PCK_MoveForward;    // W        Walk forward
+                wxGetKeyState(wxKeyCode('W'))  ) m_PlayerCommand.Keys|=PCK_MoveForward;    // W        Walk forward
             if (wxGetKeyState(WXK_DOWN) ||                                               // Down     Walk backward
-                wxGetKeyState(wxKeyCode('S'))  ) PlayerCommand.Keys|=PCK_MoveBackward;   // S        Walk backward
+                wxGetKeyState(wxKeyCode('S'))  ) m_PlayerCommand.Keys|=PCK_MoveBackward;   // S        Walk backward
             if (wxGetKeyState(wxKeyCode('A')) ||                                         // A        Strafe left
-                wxGetKeyState(wxKeyCode(','))  ) PlayerCommand.Keys|=PCK_StrafeLeft;     // ,        Strafe left
+                wxGetKeyState(wxKeyCode(','))  ) m_PlayerCommand.Keys|=PCK_StrafeLeft;     // ,        Strafe left
             if (wxGetKeyState(wxKeyCode('D')) ||                                         // D        Strafe right
-                wxGetKeyState(wxKeyCode('.'))  ) PlayerCommand.Keys|=PCK_StrafeRight;    // .        Strafe right
-            if (wxGetKeyState(wxKeyCode('R'))  ) PlayerCommand.Keys|=PCK_Fire1;          // R        Fire/Respawn
+                wxGetKeyState(wxKeyCode('.'))  ) m_PlayerCommand.Keys|=PCK_StrafeRight;    // .        Strafe right
+            if (wxGetKeyState(wxKeyCode('R'))  ) m_PlayerCommand.Keys|=PCK_Fire1;          // R        Fire/Respawn
             if (wxGetKeyState(WXK_RETURN) ||                                             // RETURN   Use
-                wxGetKeyState(WXK_NUMPAD_ENTER)) PlayerCommand.Keys|=PCK_Use;            // ENTER    Use
-            if (wxGetKeyState(WXK_LEFT        )) PlayerCommand.Keys|=PCK_TurnLeft;       // Left     Turn left
-            if (wxGetKeyState(WXK_RIGHT       )) PlayerCommand.Keys|=PCK_TurnRight;      // Right    Turn right
-            if (wxGetKeyState(WXK_PAGEDOWN    )) PlayerCommand.Keys|=PCK_LookUp;         //          Look up
-            if (wxGetKeyState(WXK_PAGEUP      )) PlayerCommand.Keys|=PCK_LookDown;       //          Look down
-         // if (wxGetKeyState(WXK_HOME        )) PlayerCommand.Keys|=PCK_BankCW          //          Bank CW
-         // if (wxGetKeyState(WXK_INSERT      )) PlayerCommand.Keys|=PCK_BankCCW;        //          Bank CCW
-            if (wxGetKeyState(WXK_END         )) PlayerCommand.Keys|=PCK_CenterView;
+                wxGetKeyState(WXK_NUMPAD_ENTER)) m_PlayerCommand.Keys|=PCK_Use;            // ENTER    Use
+            if (wxGetKeyState(WXK_LEFT        )) m_PlayerCommand.Keys|=PCK_TurnLeft;       // Left     Turn left
+            if (wxGetKeyState(WXK_RIGHT       )) m_PlayerCommand.Keys|=PCK_TurnRight;      // Right    Turn right
+            if (wxGetKeyState(WXK_PAGEDOWN    )) m_PlayerCommand.Keys|=PCK_LookUp;         //          Look up
+            if (wxGetKeyState(WXK_PAGEUP      )) m_PlayerCommand.Keys|=PCK_LookDown;       //          Look down
+         // if (wxGetKeyState(WXK_HOME        )) m_PlayerCommand.Keys|=PCK_BankCW          //          Bank CW
+         // if (wxGetKeyState(WXK_INSERT      )) m_PlayerCommand.Keys|=PCK_BankCCW;        //          Bank CCW
+            if (wxGetKeyState(WXK_END         )) m_PlayerCommand.Keys|=PCK_CenterView;
         }
 
 
-        PlayerCommand.FrameTime=FrameTime;
+        m_PlayerCommand.FrameTime = FrameTime;
 
-        // PlayerCommand an Server senden
+        // m_PlayerCommand an Server senden
         UnreliableData.WriteByte (CS1_PlayerCommand);
         UnreliableData.WriteLong (m_PlayerCommandCount);
         UnreliableData.WriteFloat(FrameTime);
-        UnreliableData.WriteLong (PlayerCommand.Keys);
-        UnreliableData.WriteWord (PlayerCommand.DeltaHeading);
-        UnreliableData.WriteWord (PlayerCommand.DeltaPitch);
-     // UnreliableData.WriteWord (PlayerCommand.DeltaBank);
+        UnreliableData.WriteLong (m_PlayerCommand.Keys);
+        UnreliableData.WriteWord (m_PlayerCommand.DeltaHeading);
+        UnreliableData.WriteWord (m_PlayerCommand.DeltaPitch);
+     // UnreliableData.WriteWord (m_PlayerCommand.DeltaBank);
 
         // Führe für unseren Entity die Prediction durch
-        World->OurEntity_Predict(PlayerCommand, m_PlayerCommandCount);
+        World->OurEntity_Predict(m_PlayerCommand, m_PlayerCommandCount);
 
         if (m_PathRecorder)
         {
@@ -881,7 +881,7 @@ void ClientStateInGameT::MainLoop(float FrameTime)
                 m_PathRecorder->WritePath(CameraTrafo->GetOriginWS().AsVectorOfDouble(), 0 /*Fixme: Heading*/, FrameTime);
         }
 
-        PlayerCommand=PlayerCommandT();     // Clear the PlayerCommand.
+        m_PlayerCommand = PlayerCommandT();   // Clear the m_PlayerCommand.
         m_PlayerCommandCount++;
     }
 
