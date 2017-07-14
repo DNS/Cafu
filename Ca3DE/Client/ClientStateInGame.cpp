@@ -200,6 +200,30 @@ bool ClientStateInGameT::ProcessInputEvent(const CaKeyboardEventT& KE)
 
     switch (KE.Key)
     {
+        case CaKeyboardEventT::CK_ESCAPE:
+        {
+            if (s && Client.MainMenuGui != NULL)
+            {
+                Client.MainMenuGui->Activate();
+                cf::GuiSys::GuiMan->BringToFront(Client.MainMenuGui);
+            }
+            break;
+        }
+
+        case CaKeyboardEventT::CK_T:
+        case CaKeyboardEventT::CK_Y:
+        {
+            IntrusivePtrT<cf::GuiSys::GuiImplT> ChatInputGui = cf::GuiSys::GuiMan->Find(std::string("Games/") + Client.m_GameInfo.GetName() + "/GUIs/ChatInput_main.cgui", true);
+
+            // Could be NULL on file not found, parse error, etc.
+            if (s && ChatInputGui != NULL)
+            {
+                ChatInputGui->Activate();
+                cf::GuiSys::GuiMan->BringToFront(ChatInputGui);
+            }
+            break;
+        }
+
         case CaKeyboardEventT::CK_SPACE:
             m_PlayerCommand.Set(PCK_Jump, s);
             break;
@@ -258,96 +282,54 @@ bool ClientStateInGameT::ProcessInputEvent(const CaKeyboardEventT& KE)
             m_PlayerCommand.Set(PCK_CenterView, s);
             break;
 
-        default:
-            break;
-    }
-
-    if (KE.Type!=CaKeyboardEventT::CKE_KEYDOWN) return false;
-
-    switch (KE.Key)
-    {
-        case CaKeyboardEventT::CK_ESCAPE:
-        {
-            if (Client.MainMenuGui!=NULL)
-            {
-                Client.MainMenuGui->Activate();
-                cf::GuiSys::GuiMan->BringToFront(Client.MainMenuGui);
-            }
-            break;
-        }
-
-        case CaKeyboardEventT::CK_T:          // talk to other clients
-        case CaKeyboardEventT::CK_Y:
-        {
-            IntrusivePtrT<cf::GuiSys::GuiImplT> ChatInputGui = cf::GuiSys::GuiMan->Find(std::string("Games/") + Client.m_GameInfo.GetName() + "/GUIs/ChatInput_main.cgui", true);
-
-            // Could be NULL on file not found, parse error, etc.
-            if (ChatInputGui!=NULL)
-            {
-                ChatInputGui->Activate();
-                cf::GuiSys::GuiMan->BringToFront(ChatInputGui);
-            }
-            break;
-        }
-
         case CaKeyboardEventT::CK_1:
         case CaKeyboardEventT::CK_NUMPAD1:
-            m_PlayerCommand.Keys&=0x0FFFFFFF;
-            m_PlayerCommand.Keys|=0x10000000;
+            m_PlayerCommand.SetNumber(s ? 1 : 0);
             break;
 
         case CaKeyboardEventT::CK_2:
         case CaKeyboardEventT::CK_NUMPAD2:
-            m_PlayerCommand.Keys&=0x0FFFFFFF;
-            m_PlayerCommand.Keys|=0x20000000;
+            m_PlayerCommand.SetNumber(s ? 2 : 0);
             break;
 
         case CaKeyboardEventT::CK_3:
         case CaKeyboardEventT::CK_NUMPAD3:
-            m_PlayerCommand.Keys&=0x0FFFFFFF;
-            m_PlayerCommand.Keys|=0x30000000;
+            m_PlayerCommand.SetNumber(s ? 3 : 0);
             break;
 
         case CaKeyboardEventT::CK_4:
         case CaKeyboardEventT::CK_NUMPAD4:
-            m_PlayerCommand.Keys&=0x0FFFFFFF;
-            m_PlayerCommand.Keys|=0x40000000;
+            m_PlayerCommand.SetNumber(s ? 4 : 0);
             break;
 
         case CaKeyboardEventT::CK_5:
         case CaKeyboardEventT::CK_NUMPAD5:
-            m_PlayerCommand.Keys&=0x0FFFFFFF;
-            m_PlayerCommand.Keys|=0x50000000;
+            m_PlayerCommand.SetNumber(s ? 5 : 0);
             break;
 
         case CaKeyboardEventT::CK_6:
         case CaKeyboardEventT::CK_NUMPAD6:
-            m_PlayerCommand.Keys&=0x0FFFFFFF;
-            m_PlayerCommand.Keys|=0x60000000;
+            m_PlayerCommand.SetNumber(s ? 6 : 0);
             break;
 
         case CaKeyboardEventT::CK_7:
         case CaKeyboardEventT::CK_NUMPAD7:
-            m_PlayerCommand.Keys&=0x0FFFFFFF;
-            m_PlayerCommand.Keys|=0x70000000;
+            m_PlayerCommand.SetNumber(s ? 7 : 0);
             break;
 
         case CaKeyboardEventT::CK_8:
         case CaKeyboardEventT::CK_NUMPAD8:
-            m_PlayerCommand.Keys&=0x0FFFFFFF;
-            m_PlayerCommand.Keys|=0x80000000;
+            m_PlayerCommand.SetNumber(s ? 8 : 0);
             break;
 
         case CaKeyboardEventT::CK_9:
         case CaKeyboardEventT::CK_NUMPAD9:
-            m_PlayerCommand.Keys&=0x0FFFFFFF;
-            m_PlayerCommand.Keys|=0x90000000;
+            m_PlayerCommand.SetNumber(s ? 9 : 0);
             break;
 
         case CaKeyboardEventT::CK_0:
         case CaKeyboardEventT::CK_NUMPAD0:
-            m_PlayerCommand.Keys&=0x0FFFFFFF;
-            m_PlayerCommand.Keys|=0xA0000000;
+            m_PlayerCommand.SetNumber(s ? 10 : 0);
             break;
 
         default:

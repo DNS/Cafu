@@ -30,7 +30,8 @@ const uint32_t PCK_Walk         = 0x00000800;    // Walk (slower than normal)
 const uint32_t PCK_Fire1        = 0x00001000;    // Primary Fire (also used e.g. for "Respawn")
 const uint32_t PCK_Fire2        = 0x00002000;    // Secondary Fire
 const uint32_t PCK_Use          = 0x00004000;    // for "using" or "activating" things
-// Bits 28-31 are reserved for selecting the weapon slot!
+// Bits 28-31 are reserved for storing a number, e.g. for selecting the weapon slot.
+// Only one such number can be active at any time.
 
 
 /// This struct represents per-frame player inputs for controlling human player entities.
@@ -56,6 +57,12 @@ struct PlayerCommandT
         {
             Keys &= ~Key;
         }
+    }
+
+    void SetNumber(uint32_t n)
+    {
+        Keys &= 0x0FFFFFFF;
+        Keys |= (n << 28);
     }
 
     float    FrameTime;
