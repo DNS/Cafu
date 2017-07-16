@@ -444,7 +444,7 @@ void ComponentHumanPlayerT::CheckGUIs(bool ThinkingOnServerSide, bool HaveButton
 }
 
 
-void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide)
+void ComponentHumanPlayerT::Think(const PlayerCommandT& PrevPlayerCommand, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide)
 {
     if (IsPlayerPrototype()) return;
 

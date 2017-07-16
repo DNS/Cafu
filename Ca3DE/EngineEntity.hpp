@@ -88,8 +88,8 @@ class EngineEntityT
     // Im Falle des Scheitersn bleibt die EngineEntityT Instanz unberührt.
     bool ParseServerDeltaUpdateMessage(unsigned long DeltaFrameNr, unsigned long ServerFrameNr, const ArrayT<uint8_t>* DeltaMessage);
 
-    /// Updates the (predicted) state of this entity according to the `PlayerCommand`.
-    void Predict(const PlayerCommandT& PlayerCommand);
+    /// Updates the (predicted) state of this entity according to `PrevPlayerCommand` and `PlayerCommand`.
+    void Predict(const PlayerCommandT& PrevPlayerCommand, const PlayerCommandT& PlayerCommand);
 
 
     private:

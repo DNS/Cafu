@@ -266,11 +266,18 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
      * commands up to `SvLastPlayerCommandNr` have been accounted for.
      *
      * Now re-apply all player commands that are newer than `SvLastPlayerCommandNr` to our
-     * local player entity in order to update it to the most recent state.
+     * local player entity in order to update it to the most recent state; these are
+     * (m_PlayerCommandNr - SvLastPlayerCommandNr) many.
+     *
+     * As we have to provide also the "previous" player command to each call of Predict(),
+     * the first iteration of the loop needs access to the player command at
+     * `SvLastPlayerCommandNr` as well, thus the `+ 1` for NeedNumPCs below.
      */
     if (OurEntityID < m_EngineEntities.Size() && m_EngineEntities[OurEntityID] != NULL)
     {
-        if (m_PlayerCommandNr - SvLastPlayerCommandNr <= m_PlayerCommands.Size())
+        const unsigned int NeedNumPCs = m_PlayerCommandNr - SvLastPlayerCommandNr + 1;
+
+        if (NeedNumPCs <= m_PlayerCommands.Size())
         {
             // If we run on the same host as the server (in a single-player game or as the local client
             // with a non-dedicated server), network messages are normally delivered without delay. In
@@ -278,7 +285,9 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
             // that (re-)prediction is not necessary and thus not applied.
             for (unsigned int Nr = SvLastPlayerCommandNr + 1; Nr <= m_PlayerCommandNr; Nr++)
             {
-                m_EngineEntities[OurEntityID]->Predict(m_PlayerCommands[Nr & (m_PlayerCommands.Size() - 1)]);
+                m_EngineEntities[OurEntityID]->Predict(
+                    m_PlayerCommands[(Nr - 1) & (m_PlayerCommands.Size() - 1)],
+                    m_PlayerCommands[ Nr      & (m_PlayerCommands.Size() - 1)]);
             }
 
             // Let all interpolators know about the reprediction.
@@ -304,6 +313,10 @@ unsigned long CaClientWorldT::ReadServerFrameMessage(NetDataT& InData)
 
 void CaClientWorldT::OurEntity_Predict(const PlayerCommandT& PlayerCommand, unsigned int PlayerCommandNr)
 {
+    // Player command numbering starts at 1 for each newly loaded world.
+    // (Note that we use `PlayerCommandNr - 1` below.)
+    assert(PlayerCommandNr >= 1);
+
     // Store the PlayerCommand for the reprediction.
     m_PlayerCommands[PlayerCommandNr & (m_PlayerCommands.Size() - 1)] = PlayerCommand;
     m_PlayerCommandNr = PlayerCommandNr;
@@ -311,7 +324,11 @@ void CaClientWorldT::OurEntity_Predict(const PlayerCommandT& PlayerCommand, unsi
     if (OurEntityID<m_EngineEntities.Size())
         if (m_EngineEntities[OurEntityID]!=NULL)
         {
-            m_EngineEntities[OurEntityID]->Predict(PlayerCommand);
+            const PlayerCommandT& PrevPlayerCommand = m_PlayerCommands[(PlayerCommandNr - 1) & (m_PlayerCommands.Size() - 1)];
+
+            m_EngineEntities[OurEntityID]->Predict(
+                PrevPlayerCommand,
+                PlayerCommand);
 
             // Let all interpolators know about the prediction step.
             for (unsigned int CompNr = 0; true; CompNr++)

@@ -244,7 +244,7 @@ bool EngineEntityT::ParseServerDeltaUpdateMessage(unsigned long DeltaFrameNr, un
 }
 
 
-void EngineEntityT::Predict(const PlayerCommandT& PlayerCommand)
+void EngineEntityT::Predict(const PlayerCommandT& PrevPlayerCommand, const PlayerCommandT& PlayerCommand)
 {
     if (!UsePrediction.GetValueBool())
         return;
@@ -260,7 +260,7 @@ void EngineEntityT::Predict(const PlayerCommandT& PlayerCommand)
 
     // Note that components other than CompHP should *not* Think/Repredict,
     // e.g. the player's CollisionModel component must not cause OnTrigger() callbacks!
-    CompHP->Think(PlayerCommand, false /*ThinkingOnServerSide*/);
+    CompHP->Think(PrevPlayerCommand, PlayerCommand, false /*ThinkingOnServerSide*/);
 }
 
 #endif   /* !DEDICATED */
