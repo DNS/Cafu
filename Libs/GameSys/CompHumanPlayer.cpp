@@ -81,6 +81,7 @@ ComponentHumanPlayerT::ComponentHumanPlayerT()
       m_ActiveWeaponNr("ActiveWeaponNr", 0),
       m_NextWeaponNr("NextWeaponNr", 0),
       m_HeadSway("HeadSway", 0.0f),
+      m_PrevPlayerCommand(),
       m_PlayerCommands(),
       m_HUD(NULL)
 {
@@ -103,6 +104,7 @@ ComponentHumanPlayerT::ComponentHumanPlayerT(const ComponentHumanPlayerT& Comp)
       m_ActiveWeaponNr(Comp.m_ActiveWeaponNr),
       m_NextWeaponNr(Comp.m_NextWeaponNr),
       m_HeadSway(Comp.m_HeadSway),
+      m_PrevPlayerCommand(Comp.m_PrevPlayerCommand),
       m_PlayerCommands(),
       m_HUD(NULL)
 {
@@ -985,7 +987,8 @@ void ComponentHumanPlayerT::DoServerFrame(float t)
 
     for (unsigned int PCNr = 0; PCNr < m_PlayerCommands.Size(); PCNr++)
     {
-        Think(m_PlayerCommands[PCNr], true /*ThinkingOnServerSide*/);
+        Think(m_PrevPlayerCommand, m_PlayerCommands[PCNr], true /*ThinkingOnServerSide*/);
+        m_PrevPlayerCommand = m_PlayerCommands[PCNr];
     }
 
     m_PlayerCommands.Overwrite();

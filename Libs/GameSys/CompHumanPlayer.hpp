@@ -153,6 +153,7 @@ namespace cf
             TypeSys::VarT<uint8_t>       m_NextWeaponNr;        ///< The next weapon to be drawn by SelectNextWeapon(). Like m_ActiveWeaponNr, this is an index number into the CarriedWeapon components of this entity, starting at 1. A value of 0 means "none".
             TypeSys::VarT<float>         m_HeadSway;            ///< The progress of one "head swaying" cycle in state FrozenSpectator.
 
+            PlayerCommandT                  m_PrevPlayerCommand;///< The previous player command before the current one.
             ArrayT<PlayerCommandT>          m_PlayerCommands;   ///< The commands to be processed in the next Think() step.
             IntrusivePtrT<GuiSys::GuiImplT> m_HUD;              ///< The GUI instance for the player's Head-Up Display.
             ParticleMaterialSetT*           m_GenericMatSet;    ///< Resources needed to implement the temporary RegisterParticle() method.
