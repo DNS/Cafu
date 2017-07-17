@@ -337,16 +337,8 @@ ComponentHumanPlayerT* ComponentHumanPlayerT::Clone() const
 }
 
 
-void ComponentHumanPlayerT::CheckGUIs(bool ThinkingOnServerSide, bool HaveButtonClick) const
+bool ComponentHumanPlayerT::CheckGUIs(const PlayerCommandT& PrevPC, const PlayerCommandT& PC, bool ThinkingOnServerSide) const
 {
-    if (!ThinkingOnServerSide)
-    {
-        // GUIs are parts of models that are components of other entities.
-        // Just like any other entity (that is not the local human player entity),
-        // their state can only be modified on the server.
-        return;
-    }
-
     ArrayT< IntrusivePtrT<EntityT> > AllEnts;
 
     // TODO: Can this be done better than a linear search through all entities in the world?  (see same comment below)
@@ -422,27 +414,44 @@ void ComponentHumanPlayerT::CheckGUIs(bool ThinkingOnServerSide, bool HaveButton
             // TODO: Is somebody else using this GUI, too? It is useful to check this in order to avoid "race conditions"
             //       on the server, with two entities competing for the mouse pointer, causing frequent pointer "jumps"
             //       and thus possibly building up an ever growing set of interpolations in each frame.
-            Gui->SetMousePos(px * 640.0f, py * 480.0f);
 
-            CaMouseEventT ME;
-
-            ME.Type  =CaMouseEventT::CM_MOVE_X;
-            ME.Amount=0;
-
-            Gui->ProcessDeviceEvent(ME);
-
-            if (HaveButtonClick)
+            if (ThinkingOnServerSide)
             {
-                ME.Type = CaMouseEventT::CM_BUTTON0;
+                // GUIs are parts of models that are components of other entities.
+                // Just like any other entity (that is not the local human player entity),
+                // their state can only be modified on the server.
+                Gui->SetMousePos(px * 640.0f, py * 480.0f);
 
-                ME.Amount = 1;  // Button down.
+                CaMouseEventT ME;
+
+                ME.Type = CaMouseEventT::CM_MOVE_X;
+                ME.Amount = 0;
                 Gui->ProcessDeviceEvent(ME);
 
-                ME.Amount = 0;  // Button up.
-                Gui->ProcessDeviceEvent(ME);
+                const bool PrevDown = PrevPC.IsDown(PCK_Fire1) || (PrevPC.Keys >> 28) == 10;
+                const bool ThisDown = PC.IsDown(PCK_Fire1) || (PC.Keys >> 28) == 10;
+
+                if (!PrevDown && ThisDown)
+                {
+                    // Button went down.
+                    ME.Type = CaMouseEventT::CM_BUTTON0;
+                    ME.Amount = 1;
+                    Gui->ProcessDeviceEvent(ME);
+                }
+                else if (PrevDown && !ThisDown)
+                {
+                    // Button went up.
+                    ME.Type = CaMouseEventT::CM_BUTTON0;
+                    ME.Amount = 0;
+                    Gui->ProcessDeviceEvent(ME);
+                }
             }
+
+            return true;
         }
     }
+
+    return false;
 }
 
 
@@ -554,16 +563,22 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PrevPC, const PlayerComm
                 if (OldSpeed >= 40.0 && NewSpeed < 40.0) Model3rdPerson->SetMember("Animation", 1);
             }
 
-            // GameWorld->ModelAdvanceFrameTime() is called on client side in Draw().
-
-
-            // Check if any key for firing the currently active weapon was pressed.
-            IntrusivePtrT<ComponentCarriedWeaponT> CarriedWeapon = GetActiveWeapon();
-
-            if (CarriedWeapon != NULL)
+            // Check if the player is operating any GUIs.
+            if (CheckGUIs(PrevPC, PC, ThinkingOnServerSide))
             {
-                if (PC.IsDown(PCK_Fire1)) CarriedWeapon->CallLuaMethod("FirePrimary",   0, "b", ThinkingOnServerSide);
-                if (PC.IsDown(PCK_Fire2)) CarriedWeapon->CallLuaMethod("FireSecondary", 0, "b", ThinkingOnServerSide);
+                // The player is controlling a GUI, so don't let him have control over his
+                // active weapon at the same time.
+            }
+            else
+            {
+                // Check if any key for firing the currently active weapon was pressed.
+                IntrusivePtrT<ComponentCarriedWeaponT> CarriedWeapon = GetActiveWeapon();
+
+                if (CarriedWeapon != NULL)
+                {
+                    if (PC.IsDown(PCK_Fire1)) CarriedWeapon->CallLuaMethod("FirePrimary",   0, "b", ThinkingOnServerSide);
+                    if (PC.IsDown(PCK_Fire2)) CarriedWeapon->CallLuaMethod("FireSecondary", 0, "b", ThinkingOnServerSide);
+                }
             }
 
             // Check if any key for changing the current weapon was pressed.
@@ -576,8 +591,6 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PrevPC, const PlayerComm
                     Script->CallLuaMethod("ChangeWeapon", 0, "i", PC.Keys >> 28);
             }
 
-            // Check if any GUIs must be updated.
-            CheckGUIs(ThinkingOnServerSide, (Keys >> 28) == 10);
             break;
         }
 
@@ -670,10 +683,11 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PrevPC, const PlayerComm
                 GetEntity()->GetChildren()[0]->GetTransform()->SetQuatPS(cf::math::QuaternionfT(Angles));
             }
 
-            // TODO: We want the player to release the button between respawns in order to avoid permanent "respawn-flickering"
-            //       that otherwise may occur if the player keeps the button continuously pressed down.
-            //       These are the same technics that also apply to the "jump"-button.
-            if (!PC.IsDown(PCK_Fire1)) break;
+            // Make sure that players that were killed while holding the fire button don't immediately respawn:
+            // the button must be released, then pressed again in order to leave the FrozenSpectator state.
+            const bool WentDown = !PrevPC.IsDown(PCK_Fire1) && PC.IsDown(PCK_Fire1);
+
+            if (!WentDown) break;
 
             ArrayT< IntrusivePtrT<EntityT> > AllEnts;
             GetEntity()->GetWorld().GetRootEntity()->GetAll(AllEnts);

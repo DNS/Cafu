@@ -54,7 +54,7 @@ namespace cf
             bool TraceCameraRay(const Vector3dT& Dir, Vector3dT& HitPoint, ComponentBaseT*& HitComp) const;
 
             /// A helper function for Think().
-            void CheckGUIs(bool ThinkingOnServerSide, bool HaveButtonClick) const;
+            bool CheckGUIs(const PlayerCommandT& PrevPC, const PlayerCommandT& PC, bool ThinkingOnServerSide) const;
 
             /// The method that does the actual work for DoServerFrame() *and* the (re-)prediction in the client.
             void Think(const PlayerCommandT& PrevPC, const PlayerCommandT& PC, bool ThinkingOnServerSide);
