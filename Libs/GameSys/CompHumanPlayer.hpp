@@ -57,7 +57,7 @@ namespace cf
             void CheckGUIs(bool ThinkingOnServerSide, bool HaveButtonClick) const;
 
             /// The method that does the actual work for DoServerFrame() *and* the (re-)prediction in the client.
-            void Think(const PlayerCommandT& PrevPlayerCommand, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide);
+            void Think(const PlayerCommandT& PrevPC, const PlayerCommandT& PC, bool ThinkingOnServerSide);
 
             /// Returns the ComponentCarriedWeaponT component of the currently active weapon,
             /// or NULL if currently no weapon is active.

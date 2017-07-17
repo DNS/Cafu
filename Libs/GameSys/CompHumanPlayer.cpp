@@ -446,7 +446,7 @@ void ComponentHumanPlayerT::CheckGUIs(bool ThinkingOnServerSide, bool HaveButton
 }
 
 
-void ComponentHumanPlayerT::Think(const PlayerCommandT& PrevPlayerCommand, const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide)
+void ComponentHumanPlayerT::Think(const PlayerCommandT& PrevPC, const PlayerCommandT& PC, bool ThinkingOnServerSide)
 {
     if (IsPlayerPrototype()) return;
 
@@ -454,7 +454,7 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PrevPlayerCommand, const
     IntrusivePtrT<ComponentModelT> Model3rdPerson = dynamic_pointer_cast<ComponentModelT>(GetEntity()->GetComponent("Model"));
 
     if (CompPlayerPhysics == NULL) return;      // The presence of CompPlayerPhysics is mandatory...
-    if (Model3rdPerson == NULL) return;         // The presence of CompPlayerPhysics is mandatory...
+    if (Model3rdPerson == NULL) return;         // The presence of Model3rdPerson is mandatory...
 
     switch (m_StateOfExistence.Get())
     {
@@ -464,10 +464,10 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PrevPlayerCommand, const
             {
                 cf::math::AnglesfT Angles(GetEntity()->GetTransform()->GetQuatPS());       // We actually rotate the entity.
 
-                Angles.yaw() -= PlayerCommand.DeltaHeading / 8192.0f * 45.0f;
+                Angles.yaw() -= PC.DeltaHeading / 8192.0f * 45.0f;
 
-                if (PlayerCommand.Keys & PCK_TurnLeft ) Angles.yaw() += 120.0f * PlayerCommand.FrameTime;
-                if (PlayerCommand.Keys & PCK_TurnRight) Angles.yaw() -= 120.0f * PlayerCommand.FrameTime;
+                if (PC.IsDown(PCK_TurnLeft )) Angles.yaw() += 120.0f * PC.FrameTime;
+                if (PC.IsDown(PCK_TurnRight)) Angles.yaw() -= 120.0f * PC.FrameTime;
 
                 Angles.pitch() = 0.0f;
                 Angles.roll()  = 0.0f;
@@ -479,19 +479,19 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PrevPlayerCommand, const
             {
                 cf::math::AnglesfT Angles(GetEntity()->GetChildren()[0]->GetTransform()->GetQuatPS());     // We update the camera, not the entity.
 
-                const int dp = PlayerCommand.DeltaPitch;
+                const int dp = PC.DeltaPitch;
                 Angles.pitch() += (dp < 32768 ? dp : dp - 65536) / 8192.0f * 45.0f;
 
-                if (PlayerCommand.Keys & PCK_LookUp  ) Angles.pitch() -= 120.0f * PlayerCommand.FrameTime;
-                if (PlayerCommand.Keys & PCK_LookDown) Angles.pitch() += 120.0f * PlayerCommand.FrameTime;
+                if (PC.IsDown(PCK_LookUp  )) Angles.pitch() -= 120.0f * PC.FrameTime;
+                if (PC.IsDown(PCK_LookDown)) Angles.pitch() += 120.0f * PC.FrameTime;
 
                 if (Angles.pitch() >  90.0f) Angles.pitch() =  90.0f;
                 if (Angles.pitch() < -90.0f) Angles.pitch() = -90.0f;
 
-                const int db = PlayerCommand.DeltaBank;
+                const int db = PC.DeltaBank;
                 Angles.roll() += (db < 32768 ? db : db - 65536) / 8192.0f * 45.0f;
 
-                if (PlayerCommand.Keys & PCK_CenterView)
+                if (PC.IsDown(PCK_CenterView))
                 {
                     Angles.yaw()   = 0.0f;
                     Angles.pitch() = 0.0f;
@@ -502,28 +502,27 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PrevPlayerCommand, const
             }
 
 
-            VectorT             WishVelocity;
-            bool                WishJump=false;
-            const Vector3dT     Vel     = cf::math::Matrix3x3fT(GetEntity()->GetTransform()->GetQuatWS()).GetAxis(0).AsVectorOfDouble() * 240.0;
-            const unsigned long Keys    =PlayerCommand.Keys;
+            VectorT         WishVelocity;
+            bool            WishJump = false;
+            const Vector3dT Vel = cf::math::Matrix3x3fT(GetEntity()->GetTransform()->GetQuatWS()).GetAxis(0).AsVectorOfDouble() * 240.0;
 
-            if (Keys & PCK_MoveForward ) WishVelocity=             VectorT( Vel.x,  Vel.y, 0);
-            if (Keys & PCK_MoveBackward) WishVelocity=WishVelocity+VectorT(-Vel.x, -Vel.y, 0);
-            if (Keys & PCK_StrafeLeft  ) WishVelocity=WishVelocity+VectorT(-Vel.y,  Vel.x, 0);
-            if (Keys & PCK_StrafeRight ) WishVelocity=WishVelocity+VectorT( Vel.y, -Vel.x, 0);
+            if (PC.IsDown(PCK_MoveForward )) WishVelocity =                VectorT( Vel.x,  Vel.y, 0);
+            if (PC.IsDown(PCK_MoveBackward)) WishVelocity = WishVelocity + VectorT(-Vel.x, -Vel.y, 0);
+            if (PC.IsDown(PCK_StrafeLeft  )) WishVelocity = WishVelocity + VectorT(-Vel.y,  Vel.x, 0);
+            if (PC.IsDown(PCK_StrafeRight )) WishVelocity = WishVelocity + VectorT( Vel.y, -Vel.x, 0);
 
-            if (Keys & PCK_Jump        ) WishJump=true;
-         // if (Keys & PCK_Duck        ) ;
-            if (Keys & PCK_Walk        ) WishVelocity=scale(WishVelocity, 0.5);
+            if (PC.IsDown(PCK_Jump        )) WishJump = true;
+         // if (PC.IsDown(PCK_Duck        )) ;
+            if (PC.IsDown(PCK_Walk        )) WishVelocity = scale(WishVelocity, 0.5);
 
             VectorT       WishVelLadder;
             const VectorT ViewLadder = GetCameraViewDirWS() * 150.0;
 
             // TODO: Also take LATERAL movement into account.
             // TODO: All this needs a HUGE clean-up! Can probably put a lot of this stuff into Physics::MoveHuman.
-            if (Keys & PCK_MoveForward ) WishVelLadder=WishVelLadder+ViewLadder;
-            if (Keys & PCK_MoveBackward) WishVelLadder=WishVelLadder-ViewLadder;
-            if (Keys & PCK_Walk        ) WishVelLadder=scale(WishVelLadder, 0.5);
+            if (PC.IsDown(PCK_MoveForward )) WishVelLadder = WishVelLadder+ViewLadder;
+            if (PC.IsDown(PCK_MoveBackward)) WishVelLadder = WishVelLadder-ViewLadder;
+            if (PC.IsDown(PCK_Walk        )) WishVelLadder = scale(WishVelLadder, 0.5);
 
             /*if (Clients[ClientNr].move_noclip)
             {
@@ -546,7 +545,7 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PrevPlayerCommand, const
                 double  OldSpeed = length(XYVel);
 
                 CompPlayerPhysics->SetMember("StepHeight", 18.5);
-                CompPlayerPhysics->MoveHuman(PlayerCommand.FrameTime, WishVelocity.AsVectorOfFloat(), WishVelLadder.AsVectorOfFloat(), WishJump);
+                CompPlayerPhysics->MoveHuman(PC.FrameTime, WishVelocity.AsVectorOfFloat(), WishVelLadder.AsVectorOfFloat(), WishJump);
 
                 XYVel = CompPlayerPhysics->GetVelocity(); XYVel.z = 0;
                 double NewSpeed = length(XYVel);
@@ -563,18 +562,18 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PrevPlayerCommand, const
 
             if (CarriedWeapon != NULL)
             {
-                if (PlayerCommand.Keys & PCK_Fire1) CarriedWeapon->CallLuaMethod("FirePrimary",   0, "b", ThinkingOnServerSide);
-                if (PlayerCommand.Keys & PCK_Fire2) CarriedWeapon->CallLuaMethod("FireSecondary", 0, "b", ThinkingOnServerSide);
+                if (PC.IsDown(PCK_Fire1)) CarriedWeapon->CallLuaMethod("FirePrimary",   0, "b", ThinkingOnServerSide);
+                if (PC.IsDown(PCK_Fire2)) CarriedWeapon->CallLuaMethod("FireSecondary", 0, "b", ThinkingOnServerSide);
             }
 
             // Check if any key for changing the current weapon was pressed.
-            if (Keys >> 28)
+            if (PC.Keys >> 28)
             {
                 IntrusivePtrT<ComponentScriptT> Script =
                     dynamic_pointer_cast<ComponentScriptT>(GetEntity()->GetComponent("Script"));
 
                 if (Script != NULL)
-                    Script->CallLuaMethod("ChangeWeapon", 0, "i", Keys >> 28);
+                    Script->CallLuaMethod("ChangeWeapon", 0, "i", PC.Keys >> 28);
             }
 
             // Check if any GUIs must be updated.
@@ -587,7 +586,7 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PrevPlayerCommand, const
             const float MIN_CAMERA_HEIGHT = -20.0f;
 
             CompPlayerPhysics->SetMember("StepHeight", 4.0);
-            CompPlayerPhysics->MoveHuman(PlayerCommand.FrameTime, Vector3fT(), Vector3fT(), false);
+            CompPlayerPhysics->MoveHuman(PC.FrameTime, Vector3fT(), Vector3fT(), false);
 
             IntrusivePtrT<ComponentTransformT> CameraTrafo = GetEntity()->GetChildren()[0]->GetTransform();
 
@@ -597,8 +596,8 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PrevPlayerCommand, const
                 Vector3fT          Origin(CameraTrafo->GetOriginPS());
                 cf::math::AnglesfT Angles(CameraTrafo->GetQuatPS());
 
-                Origin.z -= 80.0f * PlayerCommand.FrameTime;
-                Angles.roll() += PlayerCommand.FrameTime * 200.0f;
+                Origin.z -= 80.0f * PC.FrameTime;
+                Angles.roll() += PC.FrameTime * 200.0f;
 
                 CameraTrafo->SetOriginPS(Origin);
                 CameraTrafo->SetQuatPS(cf::math::QuaternionfT(Angles));
@@ -646,7 +645,7 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PrevPlayerCommand, const
             {
                 const float Pi           = 3.14159265359f;
                 const float SecPerSwing  = 15.0f;
-                const float PC_FrameTime = std::min(PlayerCommand.FrameTime, 0.05f);    // Avoid jumpiness with very low FPS.
+                const float PC_FrameTime = std::min(PC.FrameTime, 0.05f);    // Avoid jumpiness with very low FPS.
 
                 float SwayTime   = m_HeadSway.Get();
                 float SwingAngle = sin(SwayTime) * 1.1f;    // +/- 1.1°
@@ -674,7 +673,7 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PrevPlayerCommand, const
             // TODO: We want the player to release the button between respawns in order to avoid permanent "respawn-flickering"
             //       that otherwise may occur if the player keeps the button continuously pressed down.
             //       These are the same technics that also apply to the "jump"-button.
-            if ((PlayerCommand.Keys & PCK_Fire1)==0) break;  // "Fire" button not pressed.
+            if (!PC.IsDown(PCK_Fire1)) break;
 
             ArrayT< IntrusivePtrT<EntityT> > AllEnts;
             GetEntity()->GetWorld().GetRootEntity()->GetAll(AllEnts);

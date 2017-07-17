@@ -47,6 +47,11 @@ struct PlayerCommandT
     {
     }
 
+    bool IsDown(uint32_t Key) const
+    {
+        return (Keys & Key) != 0;
+    }
+
     void Set(uint32_t Key, bool set)
     {
         if (set)
