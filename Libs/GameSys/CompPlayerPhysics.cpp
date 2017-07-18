@@ -38,7 +38,6 @@ const cf::TypeSys::VarsDocT ComponentPlayerPhysicsT::DocVars[] =
     { "Velocity",    "The current velocity of the entity." },
     { "Dimensions",  "The bounding box of the entity (relative to the origin)." },
     { "StepHeight",  "The maximum height that the entity can climb in one step." },
-    { "OldWishJump", "Only jump if the jump key was *not* pressed in the previous frame." },
     { NULL, NULL }
 };
 
@@ -48,7 +47,6 @@ ComponentPlayerPhysicsT::ComponentPlayerPhysicsT()
       m_Velocity("Velocity", Vector3dT(0, 0, 0)),
       m_Dimensions("Dimensions", BoundingBox3dT(Vector3dT(-8, -8, -8), Vector3dT(8, 8, 8))),
       m_StepHeight("StepHeight", 0.0),
-      m_OldWishJump("OldWishJump", false),      // This variable should not be shown in the map editor...
       m_ClipWorld(NULL),
       m_IgnoreClipModel(NULL),
       m_Origin(),
@@ -58,7 +56,6 @@ ComponentPlayerPhysicsT::ComponentPlayerPhysicsT()
     GetMemberVars().Add(&m_Velocity);
     GetMemberVars().Add(&m_Dimensions);
     GetMemberVars().Add(&m_StepHeight);
-    GetMemberVars().Add(&m_OldWishJump);
 }
 
 
@@ -67,7 +64,6 @@ ComponentPlayerPhysicsT::ComponentPlayerPhysicsT(const ComponentPlayerPhysicsT& 
       m_Velocity(Comp.m_Velocity),
       m_Dimensions(Comp.m_Dimensions),
       m_StepHeight(Comp.m_StepHeight),
-      m_OldWishJump(Comp.m_OldWishJump),
       m_ClipWorld(NULL),
       m_IgnoreClipModel(NULL),
       m_Origin(),
@@ -77,7 +73,6 @@ ComponentPlayerPhysicsT::ComponentPlayerPhysicsT(const ComponentPlayerPhysicsT& 
     GetMemberVars().Add(&m_Velocity);
     GetMemberVars().Add(&m_Dimensions);
     GetMemberVars().Add(&m_StepHeight);
-    GetMemberVars().Add(&m_OldWishJump);
 }
 
 
@@ -418,12 +413,8 @@ void ComponentPlayerPhysicsT::MoveHuman(float FrameTime, const Vector3dT& WishVe
     {
         if (WishJump)
         {
-            if (!m_OldWishJump.Get())
-            {
-                m_OldWishJump.Set(true);
-                // TODO: Move 'm_Origin' along 'ImpactNormal' until we do not touch this brush any longer.
-                m_Vel = scale(LadderResult.ImpactNormal, 248.0);    // 248 is just a guessed value.
-            }
+            // TODO: Move 'm_Origin' along 'ImpactNormal' until we do not touch this brush any longer.
+            m_Vel = scale(LadderResult.ImpactNormal, 248.0);    // 248 is just a guessed value.
         }
         else
         {
@@ -444,45 +435,17 @@ void ComponentPlayerPhysicsT::MoveHuman(float FrameTime, const Vector3dT& WishVe
             m_Vel = Lateral - scale(cross(LadderResult.ImpactNormal, Perpend), Normal);
 
             if (PosCat == OnSolid && Normal > 0) m_Vel = m_Vel + scale(LadderResult.ImpactNormal, 168.0);
-            m_OldWishJump.Set(false);
         }
     }
-
-
-    if (!OnLadder)
+    else
     {
-        // 3. Neubestimmen der Velocity - Physics
-        //    Die neue Velocity des MassChunks ergibt sich aus (fast) allen Variablen,
-        //    die uns innerhalb der Klasse und dieser Funktion zur Verfügung stehen.
-
+        // We're not on a ladder.
         // 3.1. Deal with WishJump
-        //      Consider all eight possibilities and the actions to be taken:
-        //
-        //      PosCat   WJ OWJ   Action
-        //      ---------------------------------------------------------
-        //      InAir     0  0    nothing (or OWJ=false;)
-        //      InAir     0  1    OWJ=false;
-        //      InAir     1  0    OWJ=true;
-        //      InAir     1  1    nothing
-        //      OnGround  0  0    nothing (or OWJ=false;)
-        //      OnGround  0  1    OWJ=false;
-        //      OnGround  1  0    OWJ=true; (and jump: PosCat=InAir; m_Vel.z+=...;)
-        //      OnGround  1  1    nothing
-        if (WishJump)
+        if (WishJump && PosCat == OnSolid)
         {
-            if (!m_OldWishJump.Get())
-            {
-                m_OldWishJump.Set(true);
-
-                if (PosCat==OnSolid)
-                {
-                    // Jump
-                    PosCat=InAir;
-                    m_Vel.z += 219.0;  // v=sqrt(2*a*s), mit a = 9.81m/s^2 und mit s = 44" = 44*0.026m = 1.144m für normalen Jump, und s = 62" = 1.612m für crouch-Jump.
-                }
-            }
+            PosCat = InAir;
+            m_Vel.z += 219.0;  // v=sqrt(2*a*s), mit a = 9.81m/s^2 und mit s = 44" = 44*0.026m = 1.144m für normalen Jump, und s = 62" = 1.612m für crouch-Jump.
         }
-        else m_OldWishJump.Set(false);
 
         // 3.2. Apply Physics
         ApplyFriction    (FrameTime, PosCat);

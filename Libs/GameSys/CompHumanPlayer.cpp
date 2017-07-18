@@ -512,15 +512,12 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PrevPC, const PlayerComm
 
 
             VectorT         WishVelocity;
-            bool            WishJump = false;
             const Vector3dT Vel = cf::math::Matrix3x3fT(GetEntity()->GetTransform()->GetQuatWS()).GetAxis(0).AsVectorOfDouble() * 240.0;
 
             if (PC.IsDown(PCK_MoveForward )) WishVelocity =                VectorT( Vel.x,  Vel.y, 0);
             if (PC.IsDown(PCK_MoveBackward)) WishVelocity = WishVelocity + VectorT(-Vel.x, -Vel.y, 0);
             if (PC.IsDown(PCK_StrafeLeft  )) WishVelocity = WishVelocity + VectorT(-Vel.y,  Vel.x, 0);
             if (PC.IsDown(PCK_StrafeRight )) WishVelocity = WishVelocity + VectorT( Vel.y, -Vel.x, 0);
-
-            if (PC.IsDown(PCK_Jump        )) WishJump = true;
          // if (PC.IsDown(PCK_Duck        )) ;
             if (PC.IsDown(PCK_Walk        )) WishVelocity = scale(WishVelocity, 0.5);
 
@@ -550,14 +547,18 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PrevPC, const PlayerComm
             }
             else */
             {
-                VectorT XYVel    = CompPlayerPhysics->GetVelocity(); XYVel.z = 0;
-                double  OldSpeed = length(XYVel);
+                const bool WishJump = !PrevPC.IsDown(PCK_Jump) && PC.IsDown(PCK_Jump);
+
+                VectorT XYVel = CompPlayerPhysics->GetVelocity();
+                XYVel.z = 0;
+                const double OldSpeed = length(XYVel);
 
                 CompPlayerPhysics->SetMember("StepHeight", 18.5);
                 CompPlayerPhysics->MoveHuman(PC.FrameTime, WishVelocity.AsVectorOfFloat(), WishVelLadder.AsVectorOfFloat(), WishJump);
 
-                XYVel = CompPlayerPhysics->GetVelocity(); XYVel.z = 0;
-                double NewSpeed = length(XYVel);
+                XYVel = CompPlayerPhysics->GetVelocity();
+                XYVel.z = 0;
+                const double NewSpeed = length(XYVel);
 
                 if (OldSpeed <= 40.0 && NewSpeed > 40.0) Model3rdPerson->SetMember("Animation", 3);
                 if (OldSpeed >= 40.0 && NewSpeed < 40.0) Model3rdPerson->SetMember("Animation", 1);

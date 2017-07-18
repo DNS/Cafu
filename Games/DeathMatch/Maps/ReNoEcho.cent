@@ -2377,7 +2377,6 @@ function Map.PlayerPrototype:OnInit()
     c4:set("Velocity", 0, 0, 0)
     c4:set("Dimensions", -16, -16, -36, 16, 16, 36)
     c4:set("StepHeight", 18.5)
-    c4:set("OldWishJump", false)
 
     local c5 = world:new("ComponentInventoryT")
 
@@ -2553,7 +2552,6 @@ function Map.CompanyBot:OnInit()
     c3:set("Velocity", 0, 0, 0)
     c3:set("Dimensions", -12, -12, -36, 12, 12, 36)
     c3:set("StepHeight", 24)
-    c3:set("OldWishJump", false)
 
     local c4 = world:new("ComponentScriptT")
     c4:set("Name", "Games/DeathMatch/Scripts/CompanyBot.lua")
