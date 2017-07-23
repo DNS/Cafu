@@ -34,25 +34,16 @@ class CaServerWorldT : public Ca3DEWorldT
     // Informiert den (HumanPlayer-)Entity mit der ID 'HumanPlayerEntityID' über das 'PlayerCommand' (zur Verarbeitung beim nächsten 'Think()en'.
     void NotifyHumanPlayerEntityOfClientCommand(unsigned long HumanPlayerEntityID, const PlayerCommandT& PlayerCommand);
 
+    /// This method advances the world over the given time `FrameTime` into the next state.
+    /// That is, time `FrameTime` is applied to all entities in `m_EngineEntities` in order
+    /// to compute the next state, advancing the `m_ServerFrameNr` by one.
+    void Think(float FrameTime);
+
     // Falls es neue Entities (und damit neue BaseLine-Messages) gibt, die jünger sind als 'OldBaseLineFrameNr',
     // schreibe entsprechende BaseLine-Messages nach 'OutDatas'.
     // Schreibt für alle EngineEntities, die seit 'SentClientBaseLineFrameNr' (=='OldBaseLineFrameNr') neu erschaffen wurden, SC1_EntityBaseLine Messages nach 'OutDatas'
     // (d.h. für solche, deren 'BaseLineFrameNr' größer (d.h. jünger) als die 'SentClientBaseLineFrameNr' ist).
     unsigned long WriteClientNewBaseLines(unsigned long OldBaseLineFrameNr, ArrayT< ArrayT<char> >& OutDatas) const;
-
-    /// This method writes a delta update message for the given client into the given `OutData`.
-    /// Note that this method must only be called *after* UpdateFrameInfo() has been called,
-    /// because it relies on the client's frame info being up-to-date for the current frame!
-    ///
-    /// The message consist of an SC1_FrameInfo header and all SC1_EntityUpdate and
-    /// SC1_EntityRemove (sub-)messages as required for the client to reconstruct the current
-    /// frame.
-    void WriteClientDeltaUpdateMessages(const ClientInfoT& ClientInfo, NetDataT& OutData) const;
-
-    /// This method advances the world over the given time `FrameTime` into the next state.
-    /// That is, time `FrameTime` is applied to all entities in `m_EngineEntities` in order
-    /// to compute the next state, advancing the `m_ServerFrameNr` by one.
-    void Think(float FrameTime);
 
     /// This method *must* be called after Think() for each client:
     /// It updates the client's frame info corresponding to the the new/current server frame.
@@ -62,6 +53,15 @@ class CaServerWorldT : public Ca3DEWorldT
     /// time nothing about the new state. Calling this method updates a client's frame info
     /// (the list of entities that are relevant for the client in the new frame) accordingly.
     void UpdateFrameInfo(ClientInfoT& ClientInfo) const;
+
+    /// This method writes a delta update message for the given client into the given `OutData`.
+    /// Note that this method must only be called *after* UpdateFrameInfo() has been called,
+    /// because it relies on the client's frame info being up-to-date for the current frame!
+    ///
+    /// The message consist of an SC1_FrameInfo header and all SC1_EntityUpdate and
+    /// SC1_EntityRemove (sub-)messages as required for the client to reconstruct the current
+    /// frame.
+    void WriteClientDeltaUpdateMessages(const ClientInfoT& ClientInfo, NetDataT& OutData) const;
 
 
     private:
