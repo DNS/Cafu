@@ -15,6 +15,7 @@ This project is licensed under the terms of the MIT license.
 #include "World.hpp"
 
 #include "HumanPlayer/CompCarriedWeapon.hpp"
+#include "../Ca3DE/PlayerCommand.hpp"
 
 #include "ClipSys/ClipModel.hpp"
 #include "ClipSys/ClipWorld.hpp"
@@ -81,8 +82,6 @@ ComponentHumanPlayerT::ComponentHumanPlayerT()
       m_ActiveWeaponNr("ActiveWeaponNr", 0),
       m_NextWeaponNr("NextWeaponNr", 0),
       m_HeadSway("HeadSway", 0.0f),
-      m_PrevPlayerCommand(),
-      m_PlayerCommands(),
       m_HUD(NULL)
 {
     FillMemberVars();
@@ -104,8 +103,6 @@ ComponentHumanPlayerT::ComponentHumanPlayerT(const ComponentHumanPlayerT& Comp)
       m_ActiveWeaponNr(Comp.m_ActiveWeaponNr),
       m_NextWeaponNr(Comp.m_NextWeaponNr),
       m_HeadSway(Comp.m_HeadSway),
-      m_PrevPlayerCommand(Comp.m_PrevPlayerCommand),
-      m_PlayerCommands(),
       m_HUD(NULL)
 {
     FillMemberVars();
@@ -455,6 +452,15 @@ bool ComponentHumanPlayerT::CheckGUIs(const PlayerCommandT& PrevPC, const Player
 }
 
 
+/*
+Human players are a special case: They are driven by player commands *only* and the
+client and server implementations call this method directly.
+Note that if `ThinkingOnServerSide == false`, no other entity must be modified but this!
+The behaviour of this method must depend on this entity's state alone so that,
+if the entity's state is reset (with the EntityT::Deserialize() method),
+another call to Think() with the same parameters yields exactly the same entity state.
+This is an important requirement for the prediction feature of the clients.
+*/
 void ComponentHumanPlayerT::Think(const PlayerCommandT& PrevPC, const PlayerCommandT& PC, bool ThinkingOnServerSide)
 {
     if (IsPlayerPrototype()) return;
@@ -953,70 +959,12 @@ void ComponentHumanPlayerT::PostRender(bool FirstPersonView)
 
 void ComponentHumanPlayerT::DoServerFrame(float t)
 {
-    // **********************************************************************************************************************************************
-    // IMPORTANT NOTE:
-    //
-    // Although the Think() functions of all entity classes (children of BaseEntityT) are only ever called on the SERVER-SIDE,
-    // and you should always think of them as ONLY EVER BEING CALLED ON THE SERVER-SIDE, the truth is that there is an exception:
-    // For EntHumanPlayerT entities (but no other entity classes!), this function is also called on the client-side for prediction.
-    // You should still think of this function as ONLY EVER BEING CALLED ON THE SERVER-SIDE,
-    // but the above mentioned exception implies that this function must always be deterministic (that is, reproducible).
-    // That especially means:
-    // 1. Calls to rand()-like functions are NOT allowed! Rather, you have to use something like
-    //        LookupTables::RandomUShort[PlayerCommands[PCNr].Nr & 0xFFF]
-    //    in order to obtain pseudo-random numbers from PlayerCommands[PCNr].Nr. Related examples are found in the code below.
-    // 2. This function must NOT have a state besides the member variable 'EntHumanPlayerT::State'.
-    //    That is, you can NOT introduce and use additional private or protected member variables, because the
-    //    client-side prediction will only take the State variable (and no additional private variables) into account!
-    //    If you did anyway, this function would not be reproducible by the State variable alone,
-    //    and thus violate the most vital requirement for prediction.
-    //    As a solution, do only use member variables of State for all your state management!
-    //    This seems sometimes problematic and like working-around-the-corner, but you will find that very often you can exploit
-    //    one or more of the existing variables in State for your purposes! Examples are found in the code below,
-    //    where the next weapon animation sequence is simply determined by the previous weapon animation sequence!
-    //    If that in rare cases does not work, use for example one of the unused HaveAmmo or HaveAmmoInWeapon variables.
-    //    It should also be noted that having *constant* state is perfectly acceptable.
-    //    For example, if you load something from disk and/or precalculate something in the constructor (thus both on client and server side),
-    //    it is perfectly fine if you refer to this data later from Think() - just don't modify it!
-    //    I make heavy use of this feature in the MOD for the USAF, where complicated spatial paths are precalculated and stored as "constant state".
-    //
-    // Another special case (not related to prediction) is the fact that the Think()ing of EntHumanPlayerT entities
-    // is driven by PlayerCommands, and NOT by the usual FrameTime and ServerFrameNr parameters of this function.
-    // It is the task of this function to process all the PlayerCommands that are available
-    // (fed by the server by calling the EntHumanPlayerT::ProcessConfigString() function appropriately),
-    // and thus the regular parameters 'FrameTime' and 'ServerFrameNr' MUST NOT BE USED!
-    // (Moreover, the client-side prediction has no idea what to pass-in here anyway, and thus always passes 'FrameTime=-1.0' and 'ServerFrameNr=0'.)
-    //
-    // Unfortunately, there is an exception to the exception:
-    // Sometimes, we want to or have to do things that should only occur on server-side (and thus be exempted from prediction), like
-    // a) modifying other (usually non-predicted) entities (like calling another entities TakeDamage() function), or
-    // b) creating new entities (e.g. a thrown face-hugger, a fired missile, ...) (not possible on client-side).
-    // Against my initial statement above, this requires a concious consideration if this is a regular server-side thinking call,
-    // or a client-side prediction call.
-    // Whether we are on server-side or not is determined by the ThinkingOnServerSide variable as shown below.
-    // The code below also has examples (partially hidden in the subfunctions it calls) for both cases a) and b).
-    //
-    // Note that all this applies ONLY to HumanPlayerT::Think()! All OTHER entities are NOT affected!
-    // **********************************************************************************************************************************************
+    // Human players are a special case: They are driven by player commands *only*,
+    // as this is an important requirement for the prediction feature of the clients.
+    // Thus, the client and server implementations call our Think() method directly,
+    // see there for details.
 
-    for (unsigned int PCNr = 0; PCNr < m_PlayerCommands.Size(); PCNr++)
-    {
-        Think(m_PrevPlayerCommand, m_PlayerCommands[PCNr], true /*ThinkingOnServerSide*/);
-        m_PrevPlayerCommand = m_PlayerCommands[PCNr];
-    }
-
-    m_PlayerCommands.Overwrite();
-
-
-    // It is important that we advance the time on the server-side GUI, too, so that it can
-    // for example work off the "pending interpolations" that the GUI scripts can create.
-    //
-    // TODO: Check if this is true, especially in the light of client prediction.
-    //       Maybe we should move all HUD GUI code into its own component, thereby
-    //       isolating it from all other Human Player concerns, especially prediction?!
-    //
-    // if (GetHUD() != NULL)
-    //     GetHUD()->DistributeClockTickEvents(t);
+    // Should we move all HUD code into its own component, cleanly separating the code?
     assert(m_HUD == NULL);
 }
 

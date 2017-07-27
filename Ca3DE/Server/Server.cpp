@@ -392,11 +392,23 @@ void ServerT::MainLoop()
         // ja bestätigen, daß wir alles bis zur bestätigten Sequence-Nummer gesehen UND VERARBEITET haben!
         // Insbesondere muß dieser Aufruf daher zwischen dem Empfangen der PlayerCommand-Packets und dem Senden der
         // nächsten Delta-Update-Messages liegen.
-        World->Think(FrameTime /*TimeSinceLastServerTic*/);
+        World->Think(FrameTime /*TimeSinceLastServerTic*/, ClientInfos);
         // TimeSinceLastServerTic=0;
 
-
         // Hier wäre der richtige Ort zum "externen" Einfügen/Entfernen von HumanPlayer-Entities ins AKTUELLE Frame.
+        ;
+
+        // All pending player commands have been processed, now clean them up for the next frame.
+        for (unsigned int ClientNr = 0; ClientNr < ClientInfos.Size(); ClientNr++)
+        {
+            ClientInfoT*            CI   = ClientInfos[ClientNr];
+            ArrayT<PlayerCommandT>& PPCs = CI->PendingPlayerCommands;
+
+            if (PPCs.Size() == 0) continue;
+
+            CI->PreviousPlayerCommand = PPCs[PPCs.Size() - 1];
+            PPCs.Overwrite();
+        }
 
 
         // Update the connected clients according to the new (now current) world state.
@@ -613,8 +625,6 @@ void ServerT::ProcessConnectionLessPacket(NetDataT& InData, const NetAddressT& S
 
             case CS0_RemoteConsoleCommand:
             {
-                // See http://svn.icculus.org/quake3/trunk/code/server/sv_main.c?rev=2&view=markup
-                // (function SVC_RemoteCommand()) for how they did this in Quake3.
                 const char* Password=InData.ReadString(); if (!Password) break;
                 const char* Command =InData.ReadString(); if (!Command ) break;
 
@@ -712,11 +722,10 @@ void ServerT::ProcessInGamePacket(NetDataT& InData)
                 // Akzeptiere PlayerCommand-Messages daher erst (wieder), wenn der Client vollständig online ist.
                 if (ClientInfos[GlobalClientNr]->ClientState!=ClientInfoT::Online) break;
 
+                ClientInfos[GlobalClientNr]->PendingPlayerCommands.PushBack(PlayerCommand);
+
                 assert(ClientInfos[GlobalClientNr]->LastPlayerCommandNr < PlCmdNr);
                 ClientInfos[GlobalClientNr]->LastPlayerCommandNr = PlCmdNr;
-
-                World->NotifyHumanPlayerEntityOfClientCommand(ClientInfos[GlobalClientNr]->EntityID, PlayerCommand);
-                // Console->Print("    %s sent PlComm (req for Upd), ClientKeys=0x%X, Heading=%u\n", ClientInfos[GlobalClientNr].PlayerName, World->LifeForms[ClLFNr].CurrentState.ClientKeys, World->LifeForms[ClLFNr].CurrentState.Heading);
                 break;
             }
 

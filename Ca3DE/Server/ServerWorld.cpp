@@ -160,21 +160,7 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
 }
 
 
-void CaServerWorldT::NotifyHumanPlayerEntityOfClientCommand(unsigned long HumanPlayerEntityID, const PlayerCommandT& PlayerCommand)
-{
-    if (HumanPlayerEntityID < m_EngineEntities.Size())
-        if (m_EngineEntities[HumanPlayerEntityID] != NULL)
-        {
-            IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP =
-                dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(m_EngineEntities[HumanPlayerEntityID]->GetEntity()->GetComponent("HumanPlayer"));
-
-            if (CompHP != NULL)
-                CompHP->GetPlayerCommands().PushBack(PlayerCommand);
-        }
-}
-
-
-void CaServerWorldT::Think(float FrameTime)
+void CaServerWorldT::Think(float FrameTime, const ArrayT<ClientInfoT*>& ClientInfos)
 {
     // Zuerst die Nummer des nächsten Frames 'errechnen'.
     // Die Reihenfolge ist wichtig, denn wenn ein neuer Entity geschaffen wird,
@@ -207,6 +193,26 @@ void CaServerWorldT::Think(float FrameTime)
     for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
         if (m_EngineEntities[EntityNr]!=NULL)
             m_EngineEntities[EntityNr]->Think(FrameTime, m_ServerFrameNr);
+
+    // Apply all player commands that have been received since the last frame.
+    for (unsigned int ClientNr = 0; ClientNr < ClientInfos.Size(); ClientNr++)
+    {
+        ClientInfoT*            CI   = ClientInfos[ClientNr];
+        ArrayT<PlayerCommandT>& PPCs = CI->PendingPlayerCommands;
+
+        if (PPCs.Size() == 0) continue;
+        if (CI->EntityID >= m_EngineEntities.Size()) continue;
+        if (m_EngineEntities[CI->EntityID] == NULL) continue;
+
+        IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP =
+            dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(m_EngineEntities[CI->EntityID]->GetEntity()->GetComponent("HumanPlayer"));
+
+        if (CompHP == NULL) continue;
+
+        CompHP->Think(CI->PreviousPlayerCommand, PPCs[0], true /*ThinkingOnServerSide*/);
+        for (unsigned int i = 1; i < PPCs.Size(); i++)
+            CompHP->Think(PPCs[i - 1], PPCs[i], true /*ThinkingOnServerSide*/);
+    }
 
     m_IsThinking=false;
 

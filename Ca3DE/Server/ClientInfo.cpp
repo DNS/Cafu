@@ -17,6 +17,8 @@ ClientInfoT::ClientInfoT(const NetAddressT& ClientAddress_, const std::string& P
       PlayerName(PlayerName_),
       ModelName(ModelName_),
       EntityID(0),
+      PreviousPlayerCommand(),
+      PendingPlayerCommands(),
       LastPlayerCommandNr(0),
       LastKnownFrameReceived(0),
       BaseLineFrameNr(1),
@@ -30,6 +32,9 @@ void ClientInfoT::InitForNewWorld(unsigned long ClientEntityID)
 {
     ClientState            = Wait4MapInfoACK;
     EntityID               = ClientEntityID;
+
+    PreviousPlayerCommand = PlayerCommandT();
+    PendingPlayerCommands.Overwrite();
 
     // The client restarts the player command numbering at 1 whenever a new world is entered.
     // A value of 0 means that no player command has been received yet (in the current world).

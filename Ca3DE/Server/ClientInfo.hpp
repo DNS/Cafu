@@ -8,6 +8,7 @@ This project is licensed under the terms of the MIT license.
 #define CAFU_CLIENTINFO_HPP_INCLUDED
 
 #include "Network/Network.hpp"
+#include "../PlayerCommand.hpp"
 
 
 struct ClientInfoT
@@ -33,6 +34,8 @@ struct ClientInfoT
 
     // World-related data
     unsigned long                   EntityID;               ///< ID of our HumanPlayer entity.
+    PlayerCommandT                  PreviousPlayerCommand;  ///< The last player command that we have received from the client in the *previous* server frame.
+    ArrayT<PlayerCommandT>          PendingPlayerCommands;  ///< Player commands that we have received in the current server frame but have not yet been processed in the game world.
     unsigned int                    LastPlayerCommandNr;    ///< The number of the last player command that we have received from the client.
     unsigned long                   LastKnownFrameReceived; ///< Für Delta-Kompression: Letztes Frame, von dem wir wissen, das der Cl es empf. hat.
     unsigned long                   BaseLineFrameNr;

@@ -31,13 +31,12 @@ class CaServerWorldT : public Ca3DEWorldT
     // Gibt bei Erfolg die ID des neuen Entities zurück, sonst 0xFFFFFFFF.
     unsigned long InsertHumanPlayerEntityForNextFrame(const char* PlayerName, const char* ModelName, unsigned long ClientInfoNr);
 
-    // Informiert den (HumanPlayer-)Entity mit der ID 'HumanPlayerEntityID' über das 'PlayerCommand' (zur Verarbeitung beim nächsten 'Think()en'.
-    void NotifyHumanPlayerEntityOfClientCommand(unsigned long HumanPlayerEntityID, const PlayerCommandT& PlayerCommand);
-
     /// This method advances the world over the given time `FrameTime` into the next state.
     /// That is, time `FrameTime` is applied to all entities in `m_EngineEntities` in order
     /// to compute the next state, advancing the `m_ServerFrameNr` by one.
-    void Think(float FrameTime);
+    /// Additionally, the player commands in each client's `ClientInfoT` are applied to the
+    /// client's entity.
+    void Think(float FrameTime, const ArrayT<ClientInfoT*>& ClientInfos);
 
     // Falls es neue Entities (und damit neue BaseLine-Messages) gibt, die jünger sind als 'OldBaseLineFrameNr',
     // schreibe entsprechende BaseLine-Messages nach 'OutDatas'.
