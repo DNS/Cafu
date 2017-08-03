@@ -188,21 +188,21 @@ namespace cf
 
             /// Renders this window.
             /// Note that this method does *not* setup any of the MatSys's model, view or projection matrices: it's up to the caller to do that!
-            virtual void Render() const;
+            void Render() const;
 
             /// Keyboard input event handler.
             /// @param KE Keyboard event.
-            virtual bool OnInputEvent(const CaKeyboardEventT& KE);
+            bool OnInputEvent(const CaKeyboardEventT& KE);
 
             /// Mouse input event handler.
             /// @param ME Mouse event.
             /// @param PosX Mouse position x.
             /// @param PosY Mouse position y.
-            virtual bool OnInputEvent(const CaMouseEventT& ME, float PosX, float PosY);
+            bool OnInputEvent(const CaMouseEventT& ME, float PosX, float PosY);
 
             /// The clock-tick event handler.
             /// @param t The time in seconds since the last clock-tick.
-            virtual bool OnClockTickEvent(float t);
+            bool OnClockTickEvent(float t);
 
             /// Calls the Lua method with name `MethodName` of this window.
             /// This method is analogous to GuiI::CallLuaFunc(), see there for more details.
