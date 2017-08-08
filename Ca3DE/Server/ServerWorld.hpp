@@ -23,9 +23,6 @@ class CaServerWorldT : public Ca3DEWorldT
     // Erstellt eine neue ServerWorld anhand des World-Files 'FileName', wobei 'FileName' den kompletten (wenn auch relativen) Pfad und Namen enthält.
     CaServerWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes);
 
-    /// Removes the entity identified by 'EntityID' from the (server) world.
-    void RemoveEntity(unsigned long EntityID);
-
     // Fügt einen neuen HumanPlayer-Entity zum NÄCHSTEN Frame in die World ein (idR nach Client-Join oder World-Change),
     // NICHT ins aktuelle (bzgl. der BaseLineFrameNr). Ziel: Erreiche gleiches Verhalten wie z.B. das des MonsterMakers.
     // Gibt bei Erfolg die ID des neuen Entities zurück, sonst 0xFFFFFFFF.
@@ -36,6 +33,7 @@ class CaServerWorldT : public Ca3DEWorldT
     /// to compute the next state, advancing the `m_ServerFrameNr` by one.
     /// Additionally, the player commands in each client's `ClientInfoT` are applied to the
     /// client's entity.
+    /// Human player entities that are no longer referred to by any client are removed.
     void Think(float FrameTime, const ArrayT<ClientInfoT*>& ClientInfos);
 
     // Falls es neue Entities (und damit neue BaseLine-Messages) gibt, die jünger sind als 'OldBaseLineFrameNr',
@@ -68,9 +66,7 @@ class CaServerWorldT : public Ca3DEWorldT
     CaServerWorldT(const CaServerWorldT&);      ///< Use of the Copy Constructor    is not allowed.
     void operator = (const CaServerWorldT&);    ///< Use of the Assignment Operator is not allowed.
 
-    unsigned long         m_ServerFrameNr;      ///< Nummer des aktuellen Frames/Zustands
-    bool                  m_IsThinking;         ///< Set to true while we're thinking, so that our methods can detect recursive calls.
-    ArrayT<unsigned long> m_EntityRemoveList;   ///< List of entity IDs that were scheduled for removal while thinking.
+    unsigned long m_ServerFrameNr;  ///< Nummer des aktuellen Frames/Zustands
 };
 
 #endif

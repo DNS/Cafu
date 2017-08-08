@@ -471,12 +471,9 @@ void ServerT::DropClient(unsigned long ClientNr, const char* Reason)
 {
     // Calling code should not try to drop a client what has been dropped before and thus is in zombie state already.
     assert(ClientInfos[GlobalClientNr]->ClientState!=ClientInfoT::Zombie);
-    assert(World);
 
-    // 1. Broadcast reliable DropClient message to everyone, including the client to be dropped.
-    //    This messages includes the HumanPlayerEntityID and the reason for the drop.
-    //    The other connected clients may or may not take the opportunity to remove the entity of
-    //    the dropped client from their local world representations.
+    // Broadcast reliable DropClient message to everyone, including the client to be dropped.
+    // This messages includes the entity ID and the reason for the drop.
     for (unsigned long ClNr=0; ClNr<ClientInfos.Size(); ClNr++)
     {
         NetDataT NewReliableMsg;
@@ -490,14 +487,16 @@ void ServerT::DropClient(unsigned long ClientNr, const char* Reason)
         // TODO: HIER DIE MESSAGE AUCH ABSENDEN!
         // KANN DANN UNTEN IN DER HAUPTSCHLEIFE FÜR ZOMBIES DIE REL+UNREL. DATA KOMPLETT UNTERDRUECKEN!
     }
+
     Console->Print(cf::va("Dropped client %u (EntityID %u, PlayerName '%s'). Reason: %s\n", ClientNr, ClientInfos[ClientNr]->EntityID, ClientInfos[ClientNr]->PlayerName.c_str(), Reason));
 
-    // 2. Remove the entity of the dropped client from our world.
-    World->RemoveEntity(ClientInfos[ClientNr]->EntityID);
+    // The server world will clean-up the client's now abandoned human player entity at
+    // ClientInfos[ClientNr]->EntityID automatically, as no (non-zombie) client is referring to it any longer.
+    // From the view of the remaining clients this is the same as with any other entity that has been deleted.
 
-    // 3. The client was disconnected, but it goes into a zombie state for a few seconds to make sure
-    //    any final reliable message gets resent if necessary.
-    //    The time-out will finally remove the zombie entirely when its zombie-time is over.
+    // The client was disconnected, but it goes into a zombie state for a few seconds to make sure
+    // any final reliable message gets resent if necessary.
+    // The time-out will finally remove the zombie entirely when its zombie-time is over.
     ClientInfos[ClientNr]->ClientState         =ClientInfoT::Zombie;
     ClientInfos[ClientNr]->TimeSinceLastMessage=0.0;
 }
