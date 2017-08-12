@@ -187,7 +187,7 @@ void CaServerWorldT::Think(float FrameTime, const ArrayT<ClientInfoT*>& ClientIn
 
         if (Ent->GetParent().IsNull())
         {
-            Console->Print(cf::va("Entity %lu removed (\"%s\"), it no longer has a parent.\n", EntNr, Ent->GetBasics()->GetEntityName().c_str()));
+            Console->Print(cf::va("Entity %lu (\"%s\") no longer has a parent, removed.\n", EntNr, Ent->GetBasics()->GetEntityName().c_str()));
             delete m_EngineEntities[EntNr];
             m_EngineEntities[EntNr] = NULL;
         }
@@ -215,6 +215,9 @@ void CaServerWorldT::Think(float FrameTime, const ArrayT<ClientInfoT*>& ClientIn
 
         if (!HaveClient)
         {
+            const bool ok = m_ScriptWorld->GetRootEntity()->RemoveChild(Ent);
+            assert(ok);
+
             Console->Print(cf::va("Entity %lu (\"%s\") is no longer referred to by any client, removed.\n", EntNr, Ent->GetBasics()->GetEntityName().c_str()));
             delete m_EngineEntities[EntNr];
             m_EngineEntities[EntNr] = NULL;
