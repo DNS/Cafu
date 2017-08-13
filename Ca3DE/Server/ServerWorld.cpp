@@ -30,7 +30,7 @@ CaServerWorldT::CaServerWorldT(const char* FileName, ModelManagerT& ModelMan, cf
 }
 
 
-unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* PlayerName, const char* ModelName, unsigned long ClientInfoNr)
+unsigned int CaServerWorldT::InsertHumanPlayerEntity(const std::string& PlayerName, const std::string& ModelName, unsigned int ClientInfoNr)
 {
     ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
     ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > PlayerStarts;
@@ -50,9 +50,8 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
                 PlayerPrototype = AllEnts[EntNr];
     }
 
-    if (PlayerStarts.Size() == 0) return 0xFFFFFFFF;
-    if (PlayerPrototype == NULL)  return 0xFFFFFFFF;
-
+    if (PlayerStarts.Size() == 0) return 0;
+    if (PlayerPrototype == NULL)  return 0;
 
     // Create a new player entity from the prototype, then initialize it.
     IntrusivePtrT<cf::GameSys::EntityT> PlayerEnt = new cf::GameSys::EntityT(*PlayerPrototype, true /*Recursive?*/);
@@ -79,7 +78,8 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
     assert(PlayerEnt->GetComponent("PlayerStart") == NULL);
 
     // Set the entity name and initial transform.
-    PlayerEnt->GetBasics()->SetEntityName(cf::va("Player_%lu", ClientInfoNr + 1));
+    // Note that at this time, some of the game scripts (CompanyBot.lua and Teleporter.lua) rely on player entities being named "Player_X"!
+    PlayerEnt->GetBasics()->SetEntityName(cf::va("Player_%u", ClientInfoNr + 1));
 
     PlayerEnt->GetTransform()->SetOriginWS(PlayerStarts[0]->GetTransform()->GetOriginWS() + Vector3fT(0, 0, 40));
     PlayerEnt->GetTransform()->SetQuatWS(PlayerStarts[0]->GetTransform()->GetQuatWS());
@@ -88,7 +88,7 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
     IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayerComp =
         dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(PlayerEnt->GetComponent("HumanPlayer"));
 
-    HumanPlayerComp->SetMember("PlayerName", std::string(PlayerName));
+    HumanPlayerComp->SetMember("PlayerName", PlayerName);
 
     // Set the 3rd person player model.
     IntrusivePtrT<cf::GameSys::ComponentModelT> Model3rdPersonComp =
@@ -106,7 +106,7 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
     // Create matching EngineEntityT instances for PlayerEnt and all of its children.
     for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
     {
-        CreateNewEntityFromBasicInfo(AllEnts[EntNr], m_ServerFrameNr + 1);
+        CreateNewEntityFromBasicInfo(AllEnts[EntNr], m_ServerFrameNr);
     }
 
     // As we're inserting a new entity into a live map, post-load stuff must be run here.
@@ -157,6 +157,7 @@ void CaServerWorldT::Think(float FrameTime, const ArrayT<ClientInfoT*>& ClientIn
         ArrayT<PlayerCommandT>& PPCs = CI->PendingPlayerCommands;
 
         if (PPCs.Size() == 0) continue;
+        if (CI->EntityID == 0) continue;
         if (CI->EntityID >= m_EngineEntities.Size()) continue;
         if (m_EngineEntities[CI->EntityID] == NULL) continue;
 

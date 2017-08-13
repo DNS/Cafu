@@ -23,11 +23,6 @@ class CaServerWorldT : public Ca3DEWorldT
     // Erstellt eine neue ServerWorld anhand des World-Files 'FileName', wobei 'FileName' den kompletten (wenn auch relativen) Pfad und Namen enthält.
     CaServerWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiSys::GuiResourcesT& GuiRes);
 
-    // Fügt einen neuen HumanPlayer-Entity zum NÄCHSTEN Frame in die World ein (idR nach Client-Join oder World-Change),
-    // NICHT ins aktuelle (bzgl. der BaseLineFrameNr). Ziel: Erreiche gleiches Verhalten wie z.B. das des MonsterMakers.
-    // Gibt bei Erfolg die ID des neuen Entities zurück, sonst 0xFFFFFFFF.
-    unsigned long InsertHumanPlayerEntityForNextFrame(const char* PlayerName, const char* ModelName, unsigned long ClientInfoNr);
-
     /// This method advances the world over the given time `FrameTime` into the next state.
     /// That is, time `FrameTime` is applied to all entities in `m_EngineEntities` in order
     /// to compute the next state, advancing the `m_ServerFrameNr` by one.
@@ -35,6 +30,11 @@ class CaServerWorldT : public Ca3DEWorldT
     /// client's entity.
     /// Human player entities that are no longer referred to by any client are removed.
     void Think(float FrameTime, const ArrayT<ClientInfoT*>& ClientInfos);
+
+    /// Inserts a new human player entity into the current frame.
+    /// This method must be called after Think() and before WriteClientNewBaseLines().
+    /// Returns the ID of the newly created entity or 0 on failure.
+    unsigned int InsertHumanPlayerEntity(const std::string& PlayerName, const std::string& ModelName, unsigned int ClientInfoNr);
 
     // Falls es neue Entities (und damit neue BaseLine-Messages) gibt, die jünger sind als 'OldBaseLineFrameNr',
     // schreibe entsprechende BaseLine-Messages nach 'OutDatas'.

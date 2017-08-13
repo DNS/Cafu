@@ -110,23 +110,8 @@ int ServerT::ConFunc_changeLevel_Callback(lua_State* LuaState)
 
         if (ClInfo->ClientState==ClientInfoT::Zombie) continue;
 
-        const unsigned long ClEntityID=ServerPtr->World->InsertHumanPlayerEntityForNextFrame(ClInfo->PlayerName.c_str(), ClInfo->ModelName.c_str(), ClientNr);
-
-        if (ClEntityID==0xFFFFFFFF)
-        {
-            ServerPtr->DropClient(ClientNr, "Inserting client entity failed.");
-            continue;
-        }
-
-        ClInfo->InitForNewWorld(ClEntityID);
-
-        NetDataT NewReliableMsg;
-        NewReliableMsg.WriteByte  (SC1_WorldInfo);
-        NewReliableMsg.WriteString(ServerPtr->m_GameInfo.GetName());
-        NewReliableMsg.WriteString(ServerPtr->WorldName);
-        NewReliableMsg.WriteLong  (ClInfo->EntityID);
-
-        ClInfo->ReliableDatas.PushBack(NewReliableMsg.Data);
+        // A player entity will be assigned and the SC1_WorldInfo message be sent in the main loop.
+        ClInfo->InitForNewWorld(0);
     }
 
     Console->Print("Level changed on server.\n");
@@ -187,11 +172,6 @@ ServerT::~ServerT()
 
 void ServerT::MainLoop()
 {
-    // Von hier bis zu World->Think() führen wir ein gefährliches Leben:
-    // - Arbeite auf dem AKTUELLEN Frame, über das die Clients aber schon informiert worden sind!
-    //   D.h. insbesondere, daß wir nachträglich nicht noch einen HumanPlayer-Entity einfügen können.
-    // - Führe diesen Teil u.U. viel öfter (mit viel höherer Framerate) aus als einen 'Server-Tic'.
-
     // Bestimme die FrameTime des letzten Frames
     float FrameTime=float(Timer.GetSecondsSinceLastCall());
 
@@ -386,17 +366,13 @@ void ServerT::MainLoop()
     if (World)
     {
         // Überführe die ServerWorld über die Zeit 'FrameTime' in den nächsten Zustand.
-        // Beachte 1: Der "Überführungsprozess" beginnt eigentlich schon oben (Einfügen von HumanPlayer-Entities ins nächste Frame).
-        // Beachte 2: Es werden u.a. alle bis hierhin eingegangenen PlayerCommands verarbeitet.
+        // Beachte: Es werden u.a. alle bis hierhin eingegangenen PlayerCommands verarbeitet.
         // Das ist wichtig für die Prediction, weil wir unten beim Senden mit den Sequence-Nummern des Game-Protocols
         // bestätigen, daß wir alles bis zur bestätigten Sequence-Nummer gesehen UND VERARBEITET haben!
         // Insbesondere muß dieser Aufruf daher zwischen dem Empfangen der PlayerCommand-Packets und dem Senden der
         // nächsten Delta-Update-Messages liegen (WriteClientDeltaUpdateMessages()).
         World->Think(FrameTime /*TimeSinceLastServerTic*/, ClientInfos);
         // TimeSinceLastServerTic=0;
-
-        // Hier wäre der richtige Ort zum "externen" Einfügen/Entfernen von HumanPlayer-Entities ins AKTUELLE Frame.
-        ;
 
         // All pending player commands have been processed, now clean them up for the next frame.
         for (unsigned int ClientNr = 0; ClientNr < ClientInfos.Size(); ClientNr++)
@@ -410,6 +386,33 @@ void ServerT::MainLoop()
             PPCs.Overwrite();
         }
 
+        // If a client has newly joined the game:
+        //   - create a human player entity for it,
+        //   - send it the related world info message.
+        for (unsigned int ClientNr = 0; ClientNr < ClientInfos.Size(); ClientNr++)
+        {
+            ClientInfoT* CI = ClientInfos[ClientNr];
+
+            if (CI->ClientState == ClientInfoT::Wait4MapInfoACK && CI->EntityID == 0)
+            {
+                CI->EntityID = World->InsertHumanPlayerEntity(CI->PlayerName, CI->ModelName, ClientNr);
+
+                if (CI->EntityID == 0)
+                {
+                    DropClient(ClientNr, "Inserting the player entity failed.");
+                    continue;
+                }
+
+                // The client remains in Wait4MapInfoACK state until it has ack'ed this message.
+                NetDataT NewReliableMsg;
+                NewReliableMsg.WriteByte  (SC1_WorldInfo);
+                NewReliableMsg.WriteString(m_GameInfo.GetName());
+                NewReliableMsg.WriteString(WorldName);
+                NewReliableMsg.WriteLong  (CI->EntityID);
+
+                CI->ReliableDatas.PushBack(NewReliableMsg.Data);
+            }
+        }
 
         // Update the connected clients according to the new (now current) world state.
         for (unsigned long ClientNr = 0; ClientNr < ClientInfos.Size(); ClientNr++)
@@ -581,36 +584,15 @@ void ServerT::ProcessConnectionLessPacket(NetDataT& InData, const NetAddressT& S
                     break;
                 }
 
-                unsigned long ClientEntityID=World->InsertHumanPlayerEntityForNextFrame(PlayerName, ModelName, ClientInfos.Size());
+                ClientInfoT* CI = new ClientInfoT(SenderAddress, PlayerName, ModelName);
+                ClientInfos.PushBack(CI);
 
-                if (ClientEntityID==0xFFFFFFFF)
-                {
-                    Console->Print("Inserting human player entity failed.\n");
-                    OutData.WriteByte(SC0_NACK);
-                    OutData.WriteString("Inserting human player entity failed.");
-                    OutData.Send(ServerSocket, SenderAddress);
-                    break;
-                }
-
-                ClientNr=ClientInfos.Size();
-                ClientInfos.PushBack(new ClientInfoT(SenderAddress, PlayerName, ModelName));
-                ClientInfos[ClientNr]->InitForNewWorld(ClientEntityID);
-
+                // A player entity will be assigned and the SC1_WorldInfo message be sent in the main loop.
                 // Dem Client bestätigen, daß er im Spiel ist und ab sofort in-game Packets zu erwarten hat.
                 OutData.WriteByte(SC0_ACK);
                 OutData.WriteString(m_GameInfo.GetName());
                 OutData.Send(ServerSocket, SenderAddress);
-                Console->Print(ClientInfos[ClientNr]->PlayerName+" joined.\n");
-
-                // Dem Client einen 'world-change' mitteilen.
-                NetDataT NewReliableMsg;
-
-                NewReliableMsg.WriteByte  (SC1_WorldInfo);
-                NewReliableMsg.WriteString(m_GameInfo.GetName());
-                NewReliableMsg.WriteString(WorldName);
-                NewReliableMsg.WriteLong  (ClientInfos[ClientNr]->EntityID);
-
-                ClientInfos[ClientNr]->ReliableDatas.PushBack(NewReliableMsg.Data);
+                Console->Print(CI->PlayerName + " joined.\n");
                 break;
             }
 
