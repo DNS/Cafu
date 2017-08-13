@@ -30,101 +30,6 @@ CaServerWorldT::CaServerWorldT(const char* FileName, ModelManagerT& ModelMan, cf
 }
 
 
-unsigned int CaServerWorldT::InsertHumanPlayerEntity(const std::string& PlayerName, const std::string& ModelName, unsigned int ClientInfoNr)
-{
-    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
-    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > PlayerStarts;
-    IntrusivePtrT<cf::GameSys::EntityT>           PlayerPrototype = NULL;
-
-    m_ScriptWorld->GetRootEntity()->GetAll(AllEnts);
-
-    // Find at least one player prototype and at least one player start
-    // (a single entity may act as both).
-    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
-    {
-        if (AllEnts[EntNr]->GetComponent("PlayerStart") != NULL)
-            PlayerStarts.PushBack(AllEnts[EntNr]);
-
-        if (AllEnts[EntNr]->GetComponent("HumanPlayer") != NULL)
-            if (PlayerPrototype == NULL)
-                PlayerPrototype = AllEnts[EntNr];
-    }
-
-    if (PlayerStarts.Size() == 0) return 0;
-    if (PlayerPrototype == NULL)  return 0;
-
-    // Create a new player entity from the prototype, then initialize it.
-    IntrusivePtrT<cf::GameSys::EntityT> PlayerEnt = new cf::GameSys::EntityT(*PlayerPrototype, true /*Recursive?*/);
-
-    AllEnts.Overwrite();
-    PlayerEnt->GetAll(AllEnts);
-
-    // Filter/remove "PlayerStart" components from PlayerEnt.
-    // Such a component can be useful in the player prototype, but not in the player.
-    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
-    {
-        const ArrayT< IntrusivePtrT<cf::GameSys::ComponentBaseT> >& Components = AllEnts[EntNr]->GetComponents();
-
-        for (unsigned int CompNr = 0; CompNr < Components.Size(); CompNr++)
-        {
-            if (strcmp(Components[CompNr]->GetName(), "PlayerStart") == 0)
-            {
-                AllEnts[EntNr]->DeleteComponent(CompNr);
-                CompNr--;
-            }
-        }
-    }
-
-    assert(PlayerEnt->GetComponent("PlayerStart") == NULL);
-
-    // Set the entity name and initial transform.
-    // Note that at this time, some of the game scripts (CompanyBot.lua and Teleporter.lua) rely on player entities being named "Player_X"!
-    PlayerEnt->GetBasics()->SetEntityName(cf::va("Player_%u", ClientInfoNr + 1));
-
-    PlayerEnt->GetTransform()->SetOriginWS(PlayerStarts[0]->GetTransform()->GetOriginWS() + Vector3fT(0, 0, 40));
-    PlayerEnt->GetTransform()->SetQuatWS(PlayerStarts[0]->GetTransform()->GetQuatWS());
-
-    // Set the player's name.
-    IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayerComp =
-        dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(PlayerEnt->GetComponent("HumanPlayer"));
-
-    HumanPlayerComp->SetMember("PlayerName", PlayerName);
-
-    // Set the 3rd person player model.
-    IntrusivePtrT<cf::GameSys::ComponentModelT> Model3rdPersonComp =
-        dynamic_pointer_cast<cf::GameSys::ComponentModelT>(PlayerEnt->GetComponent("Model"));
-
-    if (Model3rdPersonComp != NULL)   // This is optional.
-        Model3rdPersonComp->SetMember("Name", std::string("Games/DeathMatch/Models/Players/") + ModelName + "/" + ModelName + ".cmdl");     // TODO... don't hardcode the path!
-
-    // The implementation of ComponentHumanPlayerT will set the details of the collision model.
-    // The inventory's maxima e.g. for bullets, shells, etc. are set by `HumanPlayer.lua`.
-
-    // Insert the new player entity into the world.
-    m_ScriptWorld->GetRootEntity()->AddChild(PlayerEnt);
-
-    // Create matching EngineEntityT instances for PlayerEnt and all of its children.
-    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
-    {
-        CreateNewEntityFromBasicInfo(AllEnts[EntNr], m_ServerFrameNr);
-    }
-
-    // As we're inserting a new entity into a live map, post-load stuff must be run here.
-    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
-    {
-        const ArrayT< IntrusivePtrT<cf::GameSys::ComponentBaseT> >& Components = AllEnts[EntNr]->GetComponents();
-
-        for (unsigned int CompNr = 0; CompNr < Components.Size(); CompNr++)
-        {
-            Components[CompNr]->OnPostLoad(false /*OnlyStatic?*/);
-            Components[CompNr]->CallLuaMethod("OnInit", 0);
-        }
-    }
-
-    return PlayerEnt->GetID();
-}
-
-
 void CaServerWorldT::Think(float FrameTime, const ArrayT<ClientInfoT*>& ClientInfos)
 {
     // Zuerst die Nummer des nächsten Frames 'errechnen'.
@@ -248,6 +153,101 @@ void CaServerWorldT::Think(float FrameTime, const ArrayT<ClientInfoT*>& ClientIn
             }
         }
     }
+}
+
+
+unsigned int CaServerWorldT::InsertHumanPlayerEntity(const std::string& PlayerName, const std::string& ModelName, unsigned int ClientInfoNr)
+{
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > PlayerStarts;
+    IntrusivePtrT<cf::GameSys::EntityT>           PlayerPrototype = NULL;
+
+    m_ScriptWorld->GetRootEntity()->GetAll(AllEnts);
+
+    // Find at least one player prototype and at least one player start
+    // (a single entity may act as both).
+    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
+    {
+        if (AllEnts[EntNr]->GetComponent("PlayerStart") != NULL)
+            PlayerStarts.PushBack(AllEnts[EntNr]);
+
+        if (AllEnts[EntNr]->GetComponent("HumanPlayer") != NULL)
+            if (PlayerPrototype == NULL)
+                PlayerPrototype = AllEnts[EntNr];
+    }
+
+    if (PlayerStarts.Size() == 0) return 0;
+    if (PlayerPrototype == NULL)  return 0;
+
+    // Create a new player entity from the prototype, then initialize it.
+    IntrusivePtrT<cf::GameSys::EntityT> PlayerEnt = new cf::GameSys::EntityT(*PlayerPrototype, true /*Recursive?*/);
+
+    AllEnts.Overwrite();
+    PlayerEnt->GetAll(AllEnts);
+
+    // Filter/remove "PlayerStart" components from PlayerEnt.
+    // Such a component can be useful in the player prototype, but not in the player.
+    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
+    {
+        const ArrayT< IntrusivePtrT<cf::GameSys::ComponentBaseT> >& Components = AllEnts[EntNr]->GetComponents();
+
+        for (unsigned int CompNr = 0; CompNr < Components.Size(); CompNr++)
+        {
+            if (strcmp(Components[CompNr]->GetName(), "PlayerStart") == 0)
+            {
+                AllEnts[EntNr]->DeleteComponent(CompNr);
+                CompNr--;
+            }
+        }
+    }
+
+    assert(PlayerEnt->GetComponent("PlayerStart") == NULL);
+
+    // Set the entity name and initial transform.
+    // Note that at this time, some of the game scripts (CompanyBot.lua and Teleporter.lua) rely on player entities being named "Player_X"!
+    PlayerEnt->GetBasics()->SetEntityName(cf::va("Player_%u", ClientInfoNr + 1));
+
+    PlayerEnt->GetTransform()->SetOriginWS(PlayerStarts[0]->GetTransform()->GetOriginWS() + Vector3fT(0, 0, 40));
+    PlayerEnt->GetTransform()->SetQuatWS(PlayerStarts[0]->GetTransform()->GetQuatWS());
+
+    // Set the player's name.
+    IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayerComp =
+        dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(PlayerEnt->GetComponent("HumanPlayer"));
+
+    HumanPlayerComp->SetMember("PlayerName", PlayerName);
+
+    // Set the 3rd person player model.
+    IntrusivePtrT<cf::GameSys::ComponentModelT> Model3rdPersonComp =
+        dynamic_pointer_cast<cf::GameSys::ComponentModelT>(PlayerEnt->GetComponent("Model"));
+
+    if (Model3rdPersonComp != NULL)   // This is optional.
+        Model3rdPersonComp->SetMember("Name", std::string("Games/DeathMatch/Models/Players/") + ModelName + "/" + ModelName + ".cmdl");     // TODO... don't hardcode the path!
+
+    // The implementation of ComponentHumanPlayerT will set the details of the collision model.
+    // The inventory's maxima e.g. for bullets, shells, etc. are set by `HumanPlayer.lua`.
+
+    // Insert the new player entity into the world.
+    m_ScriptWorld->GetRootEntity()->AddChild(PlayerEnt);
+
+    // Create matching EngineEntityT instances for PlayerEnt and all of its children.
+    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
+    {
+        CreateNewEntityFromBasicInfo(AllEnts[EntNr], m_ServerFrameNr);
+    }
+
+    // As we're inserting a new entity into a live map, post-load stuff must be run here.
+    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
+    {
+        const ArrayT< IntrusivePtrT<cf::GameSys::ComponentBaseT> >& Components = AllEnts[EntNr]->GetComponents();
+
+        for (unsigned int CompNr = 0; CompNr < Components.Size(); CompNr++)
+        {
+            Components[CompNr]->OnPostLoad(false /*OnlyStatic?*/);
+            Components[CompNr]->CallLuaMethod("OnInit", 0);
+        }
+    }
+
+    return PlayerEnt->GetID();
 }
 
 
