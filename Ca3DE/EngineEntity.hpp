@@ -45,7 +45,7 @@ class EngineEntityT
     // If such entities had not been previously prepared by this function, the implementation could not keep the state management right.
     void PreThink(unsigned long ServerFrameNr);
 
-    // Calculates the new state for the next frame 'ServerFrameNr', where 'FrameTime' seconds passed since the previous frame.
+    // Computes the new state for the next frame 'ServerFrameNr', where 'FrameTime' seconds passed since the previous frame.
     // Does nothing if the Entity was just new created for the frame 'ServerFrameNr', that is, CreationFrameNr>=ServerFrameNr.
     // Do not use this method for client side prediction -- it will not work (before calling this method, calls to 'PreThink()'
     // are required (as detailed above), which in turn maintain 'OldStates').

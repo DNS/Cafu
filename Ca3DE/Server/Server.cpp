@@ -389,9 +389,9 @@ void ServerT::MainLoop()
         // Beachte 1: Der "Überführungsprozess" beginnt eigentlich schon oben (Einfügen von HumanPlayer-Entities ins nächste Frame).
         // Beachte 2: Es werden u.a. alle bis hierhin eingegangenen PlayerCommands verarbeitet.
         // Das ist wichtig für die Prediction, weil wir unten beim Senden mit den Sequence-Nummern des Game-Protocols
-        // ja bestätigen, daß wir alles bis zur bestätigten Sequence-Nummer gesehen UND VERARBEITET haben!
+        // bestätigen, daß wir alles bis zur bestätigten Sequence-Nummer gesehen UND VERARBEITET haben!
         // Insbesondere muß dieser Aufruf daher zwischen dem Empfangen der PlayerCommand-Packets und dem Senden der
-        // nächsten Delta-Update-Messages liegen.
+        // nächsten Delta-Update-Messages liegen (WriteClientDeltaUpdateMessages()).
         World->Think(FrameTime /*TimeSinceLastServerTic*/, ClientInfos);
         // TimeSinceLastServerTic=0;
 

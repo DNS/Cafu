@@ -132,25 +132,19 @@ void CaServerWorldT::Think(float FrameTime, const ArrayT<ClientInfoT*>& ClientIn
     // muß dieser korrekt wissen, zu welchem Frame er ins Leben gerufen wurde.
     m_ServerFrameNr++;
 
-    // Jetzt das eigentliche Denken durchführen.
-    // Heraus kommt eine Aussage der Form: "Zum Frame Nummer 'm_ServerFrameNr' ist die World in diesem Zustand!"
-
-    // Beachte:
-    // - Neu geschaffene Entities sollen nicht gleich 'Think()'en!
-    //   Zur Erreichung vergleiche dazu die Implementation von EngineEntityT::Think().
-    //   DÜRFTEN sie trotzdem gleich Think()en??? (JA!) Die OldStates kämen dann evtl. durcheinander!? (NEIN!)
-    //   Allerdings übertragen wir mit BaseLines grundsätzlich KEINE Events (??? PRÜFEN!), Think()en macht insofern also nur eingeschränkt Sinn.
-    // - EntityIDs sollten wohl besser NICHT wiederverwendet werden, da z.B. Parents die IDs ihrer Children speichern usw.
-    // - Letzteres führt aber zu zunehmend vielen NULL-Pointern im m_EngineEntities-Array.
-    // - Dies könnte sich evtl. mit einem weiteren Array von 'active EntityIDs' lösen lassen.
     for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
         if (m_EngineEntities[EntityNr]!=NULL)
             m_EngineEntities[EntityNr]->PreThink(m_ServerFrameNr);
 
-    // Must never move this above the PreThink() calls above, because ...(?)
+    // Must never move this above the PreThink() calls above, because ...(?)  (Physics computations modify spatial transformations and thus entity state? verify!)
     m_PhysicsWorld.Think(FrameTime);
 
-    m_ScriptState->RunPendingCoroutines(FrameTime);   // Should do this early: new coroutines are usually added "during" thinking.
+    // Coroutines can modify the entity states, they are a form of entity thinking,
+    // thus they must be run after the PreThink() calls.
+    // We run the existing, pending coroutines intentionally before the Think()
+    // calls so that more coroutines that are then newly added are first run only
+    // in the next frame.
+    m_ScriptState->RunPendingCoroutines(FrameTime);
 
     for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
         if (m_EngineEntities[EntityNr]!=NULL)
