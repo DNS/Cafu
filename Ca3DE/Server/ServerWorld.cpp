@@ -23,49 +23,140 @@ CaServerWorldT::CaServerWorldT(const char* FileName, ModelManagerT& ModelMan, cf
       // Note that 0 is reserved for referring to the "baseline" (the state in which entities were created),
       // as opposed to the entity state at a specific server frame.
       // (The `ClientInfoT::LastKnownFrameReceived` start at 0, see ClientInfoT::InitForNewWorld() for details.)
-      m_ServerFrameNr(1),
-      m_IsThinking(false),
-      m_EntityRemoveList()
+      m_ServerFrameNr(1)
 {
     // Note that we must NOT modify anything about the entity states here --
     // all entity states at frame 1 must be EXACT matches on the client and the server!
 }
 
 
-// Die Clients bekommen unabhängig hiervon in einer SC1_DropClient Message explizit mitgeteilt, wenn ein Client (warum auch immer) den Server verläßt.
-// Den dazugehörigen Entity muß der Client deswegen aber nicht unbedingt sofort und komplett aus seiner World entfernen,
-// dies sollte vielmehr durch Wiederverwendung von EntityIDs durch den Server geschehen!
-void CaServerWorldT::RemoveEntity(unsigned long EntityID)
+void CaServerWorldT::Think(float FrameTime, const ArrayT<ClientInfoT*>& ClientInfos)
 {
-    if (m_IsThinking)
+    // Zuerst die Nummer des nächsten Frames 'errechnen'.
+    // Die Reihenfolge ist wichtig, denn wenn ein neuer Entity geschaffen wird,
+    // muß dieser korrekt wissen, zu welchem Frame er ins Leben gerufen wurde.
+    m_ServerFrameNr++;
+
+    for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
+        if (m_EngineEntities[EntityNr]!=NULL)
+            m_EngineEntities[EntityNr]->PreThink(m_ServerFrameNr);
+
+    // Must never move this above the PreThink() calls above, because ...(?)  (Physics computations modify spatial transformations and thus entity state? verify!)
+    m_PhysicsWorld.Think(FrameTime);
+
+    // Coroutines can modify the entity states, they are a form of entity thinking,
+    // thus they must be run after the PreThink() calls.
+    // We run the existing, pending coroutines intentionally before the Think()
+    // calls so that more coroutines that are then newly added are first run only
+    // in the next frame.
+    m_ScriptState->RunPendingCoroutines(FrameTime);
+
+    for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
+        if (m_EngineEntities[EntityNr]!=NULL)
+            m_EngineEntities[EntityNr]->Think(FrameTime, m_ServerFrameNr);
+
+    // Apply all player commands that have been received since the last frame.
+    for (unsigned int ClientNr = 0; ClientNr < ClientInfos.Size(); ClientNr++)
     {
-        // We're currently thinking, and EntityID might be the ID of the entity that currently thinks.
-        // (That is, this entity is removing itself, as for example an exploded grenade.)
-        // Thus, schedule this entity for removal until the thinking is finished.
-        m_EntityRemoveList.PushBack(EntityID);
+        ClientInfoT*            CI   = ClientInfos[ClientNr];
+        ArrayT<PlayerCommandT>& PPCs = CI->PendingPlayerCommands;
+
+        if (PPCs.Size() == 0) continue;
+        if (CI->EntityID == 0) continue;
+        if (CI->EntityID >= m_EngineEntities.Size()) continue;
+        if (m_EngineEntities[CI->EntityID] == NULL) continue;
+
+        IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP =
+            dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(m_EngineEntities[CI->EntityID]->GetEntity()->GetComponent("HumanPlayer"));
+
+        if (CompHP == NULL) continue;
+
+        CompHP->Think(CI->PreviousPlayerCommand, PPCs[0], true /*ThinkingOnServerSide*/);
+        for (unsigned int i = 1; i < PPCs.Size(); i++)
+            CompHP->Think(PPCs[i - 1], PPCs[i], true /*ThinkingOnServerSide*/);
     }
-    else
+
+    // If entities removed other entities (or even themselves!) while thinking, remove them now.
+    for (unsigned long EntNr = 0; EntNr < m_EngineEntities.Size(); EntNr++)
     {
-        // Currently not thinking, so it should be safe to remove the entity immediately.
-        if (EntityID >= m_EngineEntities.Size()) return;
-        if (m_EngineEntities[EntityID] == NULL) return;
+        if (m_EngineEntities[EntNr] == NULL) continue;
 
-        IntrusivePtrT<cf::GameSys::EntityT> Ent = m_EngineEntities[EntityID]->GetEntity();
+        IntrusivePtrT<cf::GameSys::EntityT> Ent = m_EngineEntities[EntNr]->GetEntity();
 
-        if (Ent == m_ScriptWorld->GetRootEntity()) return;
+        if (Ent == m_ScriptWorld->GetRootEntity()) continue;
 
-        if (Ent->GetParent() != NULL)
-            Ent->GetParent()->RemoveChild(Ent);
+        if (Ent->GetParent().IsNull())
+        {
+            Console->Print(cf::va("Entity %lu (\"%s\") no longer has a parent, removed.\n", EntNr, Ent->GetBasics()->GetEntityName().c_str()));
+            delete m_EngineEntities[EntNr];
+            m_EngineEntities[EntNr] = NULL;
+        }
+    }
 
-        Console->Print(cf::va("Entity %lu removed (\"%s\") in CaServerWorldT::RemoveEntity().\n", EntityID, m_EngineEntities[EntityID]->GetEntity()->GetBasics()->GetEntityName().c_str()));
+    // Remove all human player entities whose controlling client has been dropped or has gone otherwise.
+    // From the view of the remaining clients this is the same as with any other entity that has been deleted (above).
+    // (Independent of this, the server also sends explicit SC1_DropClient messages about gone clients.)
+    const unsigned int FirstDynamicEntNr = m_World->m_StaticEntityData.Size();  // Never remove the player prototype!
 
-        delete m_EngineEntities[EntityID];
-        m_EngineEntities[EntityID]=NULL;
+    for (unsigned int EntNr = FirstDynamicEntNr; EntNr < m_EngineEntities.Size(); EntNr++)
+    {
+        if (m_EngineEntities[EntNr] == NULL) continue;
+
+        IntrusivePtrT<cf::GameSys::EntityT> Ent = m_EngineEntities[EntNr]->GetEntity();
+
+        if (Ent == m_ScriptWorld->GetRootEntity()) continue;
+        if (Ent->GetComponent("HumanPlayer") == NULL) continue;
+
+        bool HaveClient = false;
+
+        for (unsigned int ClientNr = 0; ClientNr < ClientInfos.Size() && !HaveClient; ClientNr++)
+            if (ClientInfos[ClientNr]->ClientState != ClientInfoT::Zombie && ClientInfos[ClientNr]->EntityID == EntNr)
+                HaveClient = true;
+
+        if (!HaveClient)
+        {
+            const bool ok = m_ScriptWorld->GetRootEntity()->RemoveChild(Ent);
+            assert(ok);
+
+            Console->Print(cf::va("Entity %lu (\"%s\") is no longer referred to by any client, removed.\n", EntNr, Ent->GetBasics()->GetEntityName().c_str()));
+            delete m_EngineEntities[EntNr];
+            m_EngineEntities[EntNr] = NULL;
+        }
+    }
+
+    // If entities (script code) created new entities:
+    //   - they only exist in the script world, but not yet in m_EngineEntities,
+    //   - they have no App component, which we can use to identify them.
+    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
+
+    m_ScriptWorld->GetRootEntity()->GetAll(AllEnts);
+
+    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
+    {
+        // Note that newly created human player entities are not affected here:
+        // their App component was copied from the prototype along with everything else!
+        if (AllEnts[EntNr]->GetApp() == NULL)
+        {
+            IntrusivePtrT<CompGameEntityT> GameEnt = new CompGameEntityT();
+
+            AllEnts[EntNr]->SetApp(GameEnt);
+            CreateNewEntityFromBasicInfo(AllEnts[EntNr], m_ServerFrameNr);
+
+            const ArrayT< IntrusivePtrT<cf::GameSys::ComponentBaseT> >& Components = AllEnts[EntNr]->GetComponents();
+
+            for (unsigned int CompNr = 0; CompNr < Components.Size(); CompNr++)
+            {
+                // The components belong to an entity that was newly added to a live map.
+                // Consequently, we must run the post-load stuff here.
+                Components[CompNr]->OnPostLoad(false);
+                Components[CompNr]->CallLuaMethod("OnInit", 0);
+            }
+        }
     }
 }
 
 
-unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* PlayerName, const char* ModelName, unsigned long ClientInfoNr)
+unsigned int CaServerWorldT::InsertHumanPlayerEntity(const std::string& PlayerName, const std::string& ModelName, unsigned int ClientInfoNr)
 {
     ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
     ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > PlayerStarts;
@@ -85,12 +176,11 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
                 PlayerPrototype = AllEnts[EntNr];
     }
 
-    if (PlayerStarts.Size() == 0) return 0xFFFFFFFF;
-    if (PlayerPrototype == NULL)  return 0xFFFFFFFF;
-
+    if (PlayerStarts.Size() == 0) return 0;
+    if (PlayerPrototype == NULL)  return 0;
 
     // Create a new player entity from the prototype, then initialize it.
-    IntrusivePtrT<cf::GameSys::EntityT> PlayerEnt = PlayerPrototype->Clone(true /*Recursive?*/);
+    IntrusivePtrT<cf::GameSys::EntityT> PlayerEnt = new cf::GameSys::EntityT(*PlayerPrototype, true /*Recursive?*/);
 
     AllEnts.Overwrite();
     PlayerEnt->GetAll(AllEnts);
@@ -114,7 +204,8 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
     assert(PlayerEnt->GetComponent("PlayerStart") == NULL);
 
     // Set the entity name and initial transform.
-    PlayerEnt->GetBasics()->SetEntityName(cf::va("Player_%lu", ClientInfoNr + 1));
+    // Note that at this time, some of the game scripts (CompanyBot.lua and Teleporter.lua) rely on player entities being named "Player_X"!
+    PlayerEnt->GetBasics()->SetEntityName(cf::va("Player_%u", ClientInfoNr + 1));
 
     PlayerEnt->GetTransform()->SetOriginWS(PlayerStarts[0]->GetTransform()->GetOriginWS() + Vector3fT(0, 0, 40));
     PlayerEnt->GetTransform()->SetQuatWS(PlayerStarts[0]->GetTransform()->GetQuatWS());
@@ -123,7 +214,7 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
     IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> HumanPlayerComp =
         dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(PlayerEnt->GetComponent("HumanPlayer"));
 
-    HumanPlayerComp->SetMember("PlayerName", std::string(PlayerName));
+    HumanPlayerComp->SetMember("PlayerName", PlayerName);
 
     // Set the 3rd person player model.
     IntrusivePtrT<cf::GameSys::ComponentModelT> Model3rdPersonComp =
@@ -141,7 +232,7 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
     // Create matching EngineEntityT instances for PlayerEnt and all of its children.
     for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
     {
-        CreateNewEntityFromBasicInfo(AllEnts[EntNr], m_ServerFrameNr + 1);
+        CreateNewEntityFromBasicInfo(AllEnts[EntNr], m_ServerFrameNr);
     }
 
     // As we're inserting a new entity into a live map, post-load stuff must be run here.
@@ -157,114 +248,6 @@ unsigned long CaServerWorldT::InsertHumanPlayerEntityForNextFrame(const char* Pl
     }
 
     return PlayerEnt->GetID();
-}
-
-
-void CaServerWorldT::NotifyHumanPlayerEntityOfClientCommand(unsigned long HumanPlayerEntityID, const PlayerCommandT& PlayerCommand)
-{
-    if (HumanPlayerEntityID < m_EngineEntities.Size())
-        if (m_EngineEntities[HumanPlayerEntityID] != NULL)
-        {
-            IntrusivePtrT<cf::GameSys::ComponentHumanPlayerT> CompHP =
-                dynamic_pointer_cast<cf::GameSys::ComponentHumanPlayerT>(m_EngineEntities[HumanPlayerEntityID]->GetEntity()->GetComponent("HumanPlayer"));
-
-            if (CompHP != NULL)
-                CompHP->GetPlayerCommands().PushBack(PlayerCommand);
-        }
-}
-
-
-void CaServerWorldT::Think(float FrameTime)
-{
-    // Zuerst die Nummer des nächsten Frames 'errechnen'.
-    // Die Reihenfolge ist wichtig, denn wenn ein neuer Entity geschaffen wird,
-    // muß dieser korrekt wissen, zu welchem Frame er ins Leben gerufen wurde.
-    m_ServerFrameNr++;
-
-    // Jetzt das eigentliche Denken durchführen.
-    // Heraus kommt eine Aussage der Form: "Zum Frame Nummer 'm_ServerFrameNr' ist die World in diesem Zustand!"
-    if (m_IsThinking) return;
-
-    m_IsThinking=true;
-
-    // Beachte:
-    // - Neu geschaffene Entities sollen nicht gleich 'Think()'en!
-    //   Zur Erreichung vergleiche dazu die Implementation von EngineEntityT::Think().
-    //   DÜRFTEN sie trotzdem gleich Think()en??? (JA!) Die OldStates kämen dann evtl. durcheinander!? (NEIN!)
-    //   Allerdings übertragen wir mit BaseLines grundsätzlich KEINE Events (??? PRÜFEN!), Think()en macht insofern also nur eingeschränkt Sinn.
-    // - EntityIDs sollten wohl besser NICHT wiederverwendet werden, da z.B. Parents die IDs ihrer Children speichern usw.
-    // - Letzteres führt aber zu zunehmend vielen NULL-Pointern im m_EngineEntities-Array.
-    // - Dies könnte sich evtl. mit einem weiteren Array von 'active EntityIDs' lösen lassen.
-    for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
-        if (m_EngineEntities[EntityNr]!=NULL)
-            m_EngineEntities[EntityNr]->PreThink(m_ServerFrameNr);
-
-    // Must never move this above the PreThink() calls above, because ...(?)
-    m_PhysicsWorld.Think(FrameTime);
-
-    m_ScriptState->RunPendingCoroutines(FrameTime);   // Should do this early: new coroutines are usually added "during" thinking.
-
-    for (unsigned long EntityNr=0; EntityNr<m_EngineEntities.Size(); EntityNr++)
-        if (m_EngineEntities[EntityNr]!=NULL)
-            m_EngineEntities[EntityNr]->Think(FrameTime, m_ServerFrameNr);
-
-    m_IsThinking=false;
-
-
-    // If entities removed other entities (or even themselves!) while thinking, remove them now.
-    for (unsigned long EntNr = 0; EntNr < m_EngineEntities.Size(); EntNr++)
-    {
-        if (m_EngineEntities[EntNr] == NULL) continue;
-
-        IntrusivePtrT<cf::GameSys::EntityT> Ent = m_EngineEntities[EntNr]->GetEntity();
-
-        if (Ent != m_ScriptWorld->GetRootEntity() && Ent->GetParent().IsNull())
-        {
-            Console->Print(cf::va("Entity %lu removed (\"%s\"), it no longer has a parent.\n", EntNr, m_EngineEntities[EntNr]->GetEntity()->GetBasics()->GetEntityName().c_str()));
-            delete m_EngineEntities[EntNr];
-            m_EngineEntities[EntNr]=NULL;
-        }
-    }
-
-    for (unsigned long RemoveNr=0; RemoveNr<m_EntityRemoveList.Size(); RemoveNr++)
-    {
-        const unsigned long EntityID=m_EntityRemoveList[RemoveNr];
-
-        Console->Print(cf::va("Entity %lu removed (\"%s\") via m_EntityRemoveList.\n", EntityID, m_EngineEntities[EntityID]->GetEntity()->GetBasics()->GetEntityName().c_str()));
-        delete m_EngineEntities[EntityID];
-        m_EngineEntities[EntityID]=NULL;
-    }
-
-    m_EntityRemoveList.Overwrite();
-
-
-    // If entities (script code) created new entities:
-    //   - they only exist in the script world, but not yet in m_EngineEntities,
-    //   - they have no App component, which we can use to identify them.
-    ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
-
-    m_ScriptWorld->GetRootEntity()->GetAll(AllEnts);
-
-    for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
-    {
-        if (AllEnts[EntNr]->GetApp() == NULL)
-        {
-            IntrusivePtrT<CompGameEntityT> GameEnt = new CompGameEntityT();
-
-            AllEnts[EntNr]->SetApp(GameEnt);
-            CreateNewEntityFromBasicInfo(AllEnts[EntNr], m_ServerFrameNr);
-
-            const ArrayT< IntrusivePtrT<cf::GameSys::ComponentBaseT> >& Components = AllEnts[EntNr]->GetComponents();
-
-            for (unsigned int CompNr = 0; CompNr < Components.Size(); CompNr++)
-            {
-                // The components belong to an entity that was newly added to a live map.
-                // Consequently, we must run the post-load stuff here.
-                Components[CompNr]->OnPostLoad(false);
-                Components[CompNr]->CallLuaMethod("OnInit", 0);
-            }
-        }
-    }
 }
 
 

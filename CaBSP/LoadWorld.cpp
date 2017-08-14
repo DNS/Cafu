@@ -203,10 +203,7 @@ void LoadWorld(const char* LoadName, const std::string& GameDirectory, ModelMana
             NULL,       // No clip world for this instance.
             NULL);      // No physics world for this instance.
 
-        cf::GameSys::WorldT::LoadScript(
-            ScriptWorld,
-            cf::String::StripExt(LoadName) + ".cent",
-            cf::GameSys::WorldT::InitFlag_OnlyStatic);
+        ScriptWorld->LoadScript(cf::String::StripExt(LoadName) + ".cent", cf::GameSys::WorldT::InitFlag_OnlyStatic);
     }
     catch (const cf::GameSys::WorldT::InitErrorT& IE)
     {

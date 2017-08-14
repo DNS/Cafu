@@ -16,8 +16,6 @@ This project is licensed under the terms of the MIT license.
 #include <climits>
 
 
-struct CaKeyboardEventT;
-struct CaMouseEventT;
 struct lua_State;
 struct luaL_Reg;
 namespace cf { namespace TypeSys { class TypeInfoT; } }
@@ -66,16 +64,8 @@ namespace cf
             /// @param Recursive   Whether to recursively copy all children as well.
             EntityT(const EntityT& Entity, bool Recursive=false);
 
-            /// The virtual copy constructor.
-            /// Callers can use this method to create a copy of this entity without knowing its concrete type.
-            /// Overrides in derived classes use a covariant return type to facilitate use when the concrete
-            /// type is known.
-            ///
-            /// @param Recursive   Whether to recursively clone all children of this entity as well.
-            virtual EntityT* Clone(bool Recursive=false) const;
-
-            /// The virtual destructor. Deletes this entity and all its children.
-            virtual ~EntityT();
+            /// The destructor. Destructs this entity and all its children.
+            ~EntityT();
 
 
             WorldT& GetWorld() const { return m_World; }
@@ -257,16 +247,6 @@ namespace cf
             ///     to render another visual representation of this component's entity).
             bool RenderComponents(bool FirstPersonView, float LodDist) const;
 
-            /// Keyboard input event handler.
-            /// @param KE   Keyboard event.
-            virtual bool OnInputEvent(const CaKeyboardEventT& KE);
-
-            /// Mouse input event handler.
-            /// @param ME     Mouse event.
-            /// @param PosX   Mouse position x.
-            /// @param PosY   Mouse position y.
-            virtual bool OnInputEvent(const CaMouseEventT& ME, float PosX, float PosY);
-
             /// Advances the entity one frame (one "clock-tick") on the server.
             /// It typically updates all game-relevant state that is sync'ed over the network to all
             /// connected game clients.
@@ -291,7 +271,7 @@ namespace cf
 
 
             // The TypeSys related declarations for this class.
-            virtual const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
+            const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
             static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
             static const cf::TypeSys::TypeInfoT TypeInfo;
 

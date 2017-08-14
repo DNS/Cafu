@@ -573,7 +573,7 @@ void GuiEditor::ChildFrameT::OnMenuEditCopy(wxCommandEvent& CE)
     const ArrayT< IntrusivePtrT<cf::GuiSys::WindowT> >& Selection=m_GuiDocument->GetSelection();
 
     for (unsigned long SelNr=0; SelNr<Selection.Size(); SelNr++)
-        m_Parent->m_GuiClipboard.PushBack(Selection[SelNr]->Clone(true));
+        m_Parent->m_GuiClipboard.PushBack(new cf::GuiSys::WindowT(*Selection[SelNr], true));
 }
 
 

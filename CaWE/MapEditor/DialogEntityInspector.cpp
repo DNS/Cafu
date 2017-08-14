@@ -292,21 +292,21 @@ void EntityInspectorDialogT::RefreshPropGrid()
 /*
  * Normally, if we make a change to e.g. a "double" property and press RETURN, we see events as expected:
  *
- *     a1) OnPropertyGridChanging: double value "RotAngle": 45
- *     a2) OnPropertyGridChanged:  double value "RotAngle": 45
+ *     a1) OnPropertyGridChanging: property "RotAngle": double("45")
+ *     a2) OnPropertyGridChanged:  property "RotAngle": double("45")
  *
  * Unfortunately, when the property is "<composed>", the sequence of events (with wxWidgets 2.9.2) is not so clear:
  * If "Pos" is a "<composed>" property with "x", "y" and "z" as sub-properties, changing "y" yields:
  *
- *     b1) OnPropertyGridChanging: double value "y": 120
- *     b2) OnPropertyGridChanged:  double value "y": 120
- *     b3) OnPropertyGridChanged:  string value "Pos": 0; 120; 200
+ *     b1) OnPropertyGridChanging: property "y": double("120")
+ *     b2) OnPropertyGridChanged:  property "y": double("120")
+ *     b3) OnPropertyGridChanged:  property "Pos": string("0; 120; 200")
  *
  * Note that there is no "changing" event for Pos!
  * If instead we directly change the "z" sub-property in the top-level "Pos" string:
  *
- *     c1) OnPropertyGridChanging: string value "Pos": 0; 120; 240
- *     c2) OnPropertyGridChanged:  string value "Pos": 0; 120; 240
+ *     c1) OnPropertyGridChanging: property "Pos": string("0; 120; 240")
+ *     c2) OnPropertyGridChanged:  property "Pos": string("0; 120; 240")
  *
  * Note that there is no event at all related to the changed "z" value!
  */
@@ -317,35 +317,31 @@ void EntityInspectorDialogT::OnPropertyGridChanging(wxPropertyGridEvent& Event)
     // Since the user is definitely finished editing this property we can safely clear the selection.
     // ClearSelection();
     wxASSERT(Event.CanVeto());  // EVT_PG_CHANGING events can be vetoed (as opposed to EVT_PG_CHANGED events).
-    wxLogDebug("%s: %s value \"%s\": %s", __FUNCTION__, Event.GetValue().GetType(), Event.GetProperty()->GetLabel(), Event.GetValue().MakeString());
+    wxLogDebug("%s: property \"%s\": %s(\"%s\")", __FUNCTION__, Event.GetProperty()->GetLabel(), Event.GetValue().GetType(), Event.GetValue().MakeString());
 
-    m_IsRecursiveSelfNotify=true;
+    const wxPGProperty*    Prop  = Event.GetProperty();
+    unsigned int           Depth = 0;
+    cf::TypeSys::VarBaseT* Var   = NULL;
 
-    const wxPGProperty*    Prop = Event.GetProperty();
-    cf::TypeSys::VarBaseT* Var  = Prop && !Prop->IsCategory() ? static_cast<cf::TypeSys::VarBaseT*>(Prop->GetClientData()) : NULL;
-
-    if (Var)
+    // Note that cases a1) and c1) break the loop at Depth == 0
+    // whereas case b1) breaks the loop at Depth == 1.
+    while (Prop && !Prop->IsCategory() && Depth < 5)
     {
-        // Handle cases a1) and c1).
-        VarVisitorHandlePropChangingEventT PropChange(Event, m_MapDocument->GetAdapter());
-
-        Var->accept(PropChange);
-        if (!m_ChildFrame->SubmitCommand(PropChange.TransferCommand())) Event.Veto();
-    }
-    else
-    {
-        // Handle case b1), if applicable.
+        Var = static_cast<cf::TypeSys::VarBaseT*>(Prop->GetClientData());
+        if (Var) break;
         Prop = Prop->GetParent();
-        Var  = Prop && !Prop->IsCategory() ? static_cast<cf::TypeSys::VarBaseT*>(Prop->GetClientData()) : NULL;
-
-        if (Var)
-        {
-            VarVisitorHandleSubChangingEventT PropChange(Event, m_MapDocument->GetAdapter());
-
-            Var->accept(PropChange);
-            if (!m_ChildFrame->SubmitCommand(PropChange.TransferCommand())) Event.Veto();
-        }
+        Depth++;
     }
+
+    wxLogDebug("    ==> Var == \"%s\" at Prop \"%s\" (%u above Prop \"%s\")",
+        Var ? Var->GetName() : "NULL", Prop ? Prop->GetLabel(): "NULL", Depth, Event.GetProperty()->GetLabel());
+    if (!Var) return;
+
+    m_IsRecursiveSelfNotify = true;
+
+    VarVisitorHandlePropChangingEventT PropChange(Event, Depth, m_MapDocument->GetAdapter());
+    Var->accept(PropChange);
+    if (!m_ChildFrame->SubmitCommand(PropChange.TransferCommand())) Event.Veto();
 
     if (!Event.WasVetoed() && Var && Var->GetExtraMessage() != "")
     {
@@ -355,7 +351,7 @@ void EntityInspectorDialogT::OnPropertyGridChanging(wxPropertyGridEvent& Event)
         Notify.Show();
     }
 
-    m_IsRecursiveSelfNotify=false;
+    m_IsRecursiveSelfNotify = false;
 }
 
 
@@ -365,7 +361,7 @@ void EntityInspectorDialogT::OnPropertyGridChanged(wxPropertyGridEvent& Event)
     // any change since selected properties are not updated (because the user could be in the process of editing a value).
     // Since the user is definitely finished editing this property we can safely clear the selection.
     // ClearSelection();
-    wxLogDebug("%s: %s value \"%s\": %s", __FUNCTION__, Event.GetValue().GetType(), Event.GetProperty()->GetLabel(), Event.GetValue().MakeString());
+    wxLogDebug("%s: property \"%s\": %s(\"%s\")", __FUNCTION__, Event.GetProperty()->GetLabel(), Event.GetValue().GetType(), Event.GetValue().MakeString());
 
     // In OnPropertyGridChanging(), we essentially and eventually call code like
     //

@@ -18,7 +18,7 @@ CommandPasteT::CommandPasteT(GuiDocumentT* GuiDocument, const ArrayT< IntrusiveP
     // Have to clone the windows here, so the command is the owner of these windows.
     for (unsigned long WinNr=0; WinNr<Windows.Size(); WinNr++)
     {
-        m_Windows.PushBack(Windows[WinNr]->Clone(true));
+        m_Windows.PushBack(new cf::GuiSys::WindowT(*Windows[WinNr], true));
 
         m_Windows[WinNr]->GetTransform()->SetPos(Vector2fT((WinNr + 1) * 20.0f, (WinNr + 1) * 10.0f));
     }

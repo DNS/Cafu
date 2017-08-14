@@ -10,9 +10,9 @@ This project is licensed under the terms of the MIT license.
 #include "ClientState.hpp"
 #include "Graphs.hpp"
 #include "ScrlInfo.hpp"
+#include "../PlayerCommand.hpp"
 #include "Fonts/Font.hpp"
 #include "Network/Network.hpp"
-#include "../../Games/PlayerCommand.hpp"
 
 
 struct lua_State;
@@ -65,13 +65,12 @@ class ClientStateInGameT : public ClientStateT
     FontT                  Font_f;
     CaClientWorldT*        World;
     bool                   IsLoadingWorld;        ///< True while the world is loaded, false at all other times. This is relevant only because cf::GuiSys::GuiMan->Yield() is called while loading, which in turn calls our Render() method.
-    bool                   WasLMBOnceUp;          ///< The left mouse button must be in the released (non-pressed, up) state after the world has been loaded. This variable is false until this has been the case!
 
     ScrollInfoT            ChatScrollInfo;
     ScrollInfoT            SystemScrollInfo;
     GraphsT                Graphs;
     unsigned long          ClientFrameNr;         ///< Counts the calls to Render(). Only used with Graphs; should be integrated there.
-    PlayerCommandT         PlayerCommand;         ///< The player command structure that collects the input until the next call to MainLoop().
+    PlayerCommandT         m_PlayerCommand;       ///< The player command structure that collects the input until the next call to MainLoop().
     unsigned int           m_PlayerCommandCount;  ///< The unique number of the next player command that is sent to the server (and locally processed for prediction).
     PathRecorderT*         m_PathRecorder;        ///< Records the path of this client in a pointfile that can be loaded into CaWE.
 };

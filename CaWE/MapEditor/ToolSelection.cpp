@@ -1043,7 +1043,7 @@ CommandT* ToolSelectionT::CloneDrag() const
             wxASSERT(Elem->GetParent()->GetRepres() == Elem);
 
             IntrusivePtrT<cf::GameSys::EntityT> OldEnt = Elem->GetParent()->GetEntity();
-            IntrusivePtrT<cf::GameSys::EntityT> NewEnt = OldEnt->Clone(true /*Recursive*/);
+            IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(*OldEnt, true /*Recursive*/);
 
             GetMapEnt(NewEnt)->CopyPrimitives(*GetMapEnt(OldEnt), true /*Recursive*/);
 

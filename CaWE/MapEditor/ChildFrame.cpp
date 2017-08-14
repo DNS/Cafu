@@ -411,8 +411,8 @@ ChildFrameT::ChildFrameT(ParentFrameT* Parent, MapDocumentT* MapDoc)
  // item3->AppendCheckItem(ID_MENU_MAP_SHOW_GRID_3D, wxT("Show 3D grid\tShift+R"), wxT("") );  item3->Check(ID_MENU_MAP_SHOW_GRID_3D, m_Doc->Is3DGridEnabled());  // Maybe later.
 
     wxMenu* item4 = new wxMenu;
-    item4->Append(ID_MENU_MAP_FINER_GRID, wxT("&Finer Grid\t["), wxT("") );
-    item4->Append(ID_MENU_MAP_COARSER_GRID, wxT("&Coarser Grid\t]"), wxT("") );
+    item4->Append(ID_MENU_MAP_FINER_GRID, wxT("&Finer Grid"), wxT("") );
+    item4->Append(ID_MENU_MAP_COARSER_GRID, wxT("&Coarser Grid"), wxT("") );
     item3->Append(ID_MENU_MAP_GRID_SETTINGS, wxT("&Grid settings"), item4 );
 
     item3->AppendSeparator();
@@ -1273,7 +1273,7 @@ void ChildFrameT::OnMenuEditCopy(wxCommandEvent& CE)
             wxASSERT(Elem->GetParent()->GetRepres() == Elem);
 
             IntrusivePtrT<cf::GameSys::EntityT> OldEnt = Elem->GetParent()->GetEntity();
-            IntrusivePtrT<cf::GameSys::EntityT> NewEnt = OldEnt->Clone(true /*Recursive*/);
+            IntrusivePtrT<cf::GameSys::EntityT> NewEnt = new cf::GameSys::EntityT(*OldEnt, true /*Recursive*/);
 
             GetMapEnt(NewEnt)->CopyPrimitives(*GetMapEnt(OldEnt), true /*Recursive*/);
 
@@ -1383,8 +1383,7 @@ namespace
                 throw cf::GameSys::WorldT::InitErrorT("Bad version in the cmap portion.");
 
             // Load the related `cent` file.
-            IntrusivePtrT<cf::GameSys::EntityT> ClipboardRoot = cf::GameSys::WorldT::LoadScript(
-                &MapDoc.GetScriptWorld(),
+            IntrusivePtrT<cf::GameSys::EntityT> ClipboardRoot = MapDoc.GetScriptWorld().LoadScript(
                 Clipboard_cent,   // Note the important "AsPrefab" flag in the line below!
                 cf::GameSys::WorldT::InitFlag_InlineCode | cf::GameSys::WorldT::InitFlag_OnlyStatic | cf::GameSys::WorldT::InitFlag_AsPrefab);
 
@@ -2012,8 +2011,7 @@ void ChildFrameT::LoadPrefab(const wxString& FileName)
         if (centFileName.Replace(".cmap", ".cent") == 0)
             centFileName += ".cent";
 
-        IntrusivePtrT<cf::GameSys::EntityT> PrefabRoot = cf::GameSys::WorldT::LoadScript(
-            &m_Doc->GetScriptWorld(),
+        IntrusivePtrT<cf::GameSys::EntityT> PrefabRoot = m_Doc->GetScriptWorld().LoadScript(
             centFileName.ToStdString(),     // Note the important "AsPrefab" flag in the line below!
             cf::GameSys::WorldT::InitFlag_OnlyStatic | cf::GameSys::WorldT::InitFlag_AsPrefab);
 
@@ -2194,7 +2192,7 @@ void ChildFrameT::OnMenuPrefabs(wxCommandEvent& CE)
             // them explicitly into the new space.
             // In order to achieve all this and to not accidentally modify something in the original source map,
             // we clone the source prefab and make all adjustments and processing with the temporary clone.
-            IntrusivePtrT<cf::GameSys::EntityT> Prefab = SelEnt->Clone(true /*Recursive*/);
+            IntrusivePtrT<cf::GameSys::EntityT> Prefab = new cf::GameSys::EntityT(*SelEnt, true /*Recursive*/);
 
             GetMapEnt(Prefab)->CopyPrimitives(*GetMapEnt(SelEnt), true /*Recursive*/);
 

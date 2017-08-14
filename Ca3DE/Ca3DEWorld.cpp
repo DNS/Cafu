@@ -77,10 +77,7 @@ Ca3DEWorldT::Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiS
             m_ClipWorld,
             &m_PhysicsWorld);
 
-        cf::GameSys::WorldT::LoadScript(
-            m_ScriptWorld,
-            ScriptName,
-            0 /*cf::GameSys::WorldT::InitFlag_OnlyStatic*/);
+        m_ScriptWorld->LoadScript(ScriptName, 0 /*cf::GameSys::WorldT::InitFlag_OnlyStatic*/);
     }
     catch (const cf::GameSys::WorldT::InitErrorT& IE)
     {
@@ -111,17 +108,16 @@ Ca3DEWorldT::Ca3DEWorldT(const char* FileName, ModelManagerT& ModelMan, cf::GuiS
     //     - CompGameEntityT instance and
     //     - EngineEntityT instance
     // for each entity in the script world (including the world (root) entity).
+    if (AllEnts.Size() != m_World->m_StaticEntityData.Size())
+        throw WorldT::LoadErrorT("The number of entities in the .cent file must match the number of entities in the .bsp file.");
+
     for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
     {
         // This is also checked in the `cf::GameSys::WorldT` ctor, see there for details.
         // It is repeated here as a reminder: entity IDs are used as indices into m_World->m_StaticEntityData[].
         assert(AllEnts[EntNr]->GetID() == EntNr);
 
-        IntrusivePtrT<CompGameEntityT> GE =
-            new CompGameEntityT(EntNr < m_World->m_StaticEntityData.Size() ? m_World->m_StaticEntityData[EntNr] : NULL);
-
-        AllEnts[EntNr]->SetApp(GE);
-
+        AllEnts[EntNr]->SetApp(new CompGameEntityT(m_World->m_StaticEntityData[EntNr]));
         CreateNewEntityFromBasicInfo(AllEnts[EntNr], 1 /*ServerFrameNr*/);
     }
 

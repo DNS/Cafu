@@ -14,6 +14,8 @@ This project is licensed under the terms of the MIT license.
 #include <stdexcept>
 
 
+namespace cf { namespace Network { class InStreamT; } }
+namespace cf { namespace Network { class OutStreamT; } }
 namespace cf { class UniScriptStateT; }
 namespace MatSys { class RenderMaterialT; }
 struct CaKeyboardEventT;
@@ -76,7 +78,7 @@ namespace cf
             /// Without this method, it is impossible to break cycles of IntrusivePtrT%s.
             void ObsoleteForceKill();
 
-            /// Assigns the given GUI to the global "gui" and loads the given script in order to initialize it.
+            /// Loads and runs the given script in order to initialize this GUI instance.
             /// @param ScriptName   The file name of the script to load or inline script code (if InitFlag_InlineCode is set).
             /// @param Flags        A combination of the flags in InitFlagsT.
             /// @throws Throws an InitErrorT object on problems initializing the GUI.
@@ -139,6 +141,15 @@ namespace cf
             /// Returns whether this GUI shows a mouse cursor.
             bool IsMouseShown() const { return MouseIsShown; }
 
+
+            /// See WindowT::Serialize() for details.
+            /// This method is only needed to serialize the mouse pos, there is no equivalent in cf::GameSys::WorldT.
+            void Serialize(cf::Network::OutStreamT& Stream) const;
+
+            /// See WindowT::Deserialize() for details.
+            /// This method is only needed to deserialize the mouse pos, there is no equivalent in cf::GameSys::WorldT.
+            void Deserialize(cf::Network::InStreamT& Stream, bool IsIniting);
+
             /// Renders this GUI.
             /// Note that this method does *not* setup any of the MatSys's model, view or projection matrices:
             /// it's up to the caller to do that.
@@ -166,7 +177,7 @@ namespace cf
 
 
             // The TypeSys related declarations for this class.
-            /*virtual*/ const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
+            const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
             static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
             static const cf::TypeSys::TypeInfoT TypeInfo;
 
@@ -200,9 +211,6 @@ namespace cf
             float                    MousePosY;         ///< The y-coordinate of the position of the mouse cursor.
             float                    m_MouseCursorSize; ///< The size of the mouse cursor.
             bool                     MouseIsShown;      ///< Whether the mouse cursor is shown. Non-interactive GUIs normally don't show a cursor.
-
-            // Gui variables (general purpose)... (Maus-unabhängig, z.B. aktuelle Lift-Position............. übers Netzwerk sync'en!!)
-            // ...
 
 
             // Methods called from Lua scripts on cf::GuiSys::GuiTs.

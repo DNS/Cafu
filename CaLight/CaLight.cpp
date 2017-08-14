@@ -1455,10 +1455,7 @@ int main(int ArgC, const char* ArgV[])
             NULL,       // No clip world for this instance.
             NULL);      // No physics world for this instance.
 
-        cf::GameSys::WorldT::LoadScript(
-            ScriptWorld,
-            ScriptName,
-            cf::GameSys::WorldT::InitFlag_OnlyStatic);
+        ScriptWorld->LoadScript(ScriptName, cf::GameSys::WorldT::InitFlag_OnlyStatic);
 
         ArrayT< IntrusivePtrT<cf::GameSys::EntityT> > AllEnts;
         ScriptWorld->GetRootEntity()->GetAll(AllEnts);

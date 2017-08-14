@@ -93,24 +93,26 @@ EngineEntityT::EngineEntityT(IntrusivePtrT<cf::GameSys::EntityT> Ent, unsigned l
 
 void EngineEntityT::PreThink(unsigned long ServerFrameNr)
 {
-    // 1. Ein Entity, der für dieses zu erstellende Frame 'ServerFrameNr' erst neu erzeugt wurde, soll nicht gleich denken!
-    //    Ein einfacher Vergleich '==' wäre ausreichend, '>=' nur zur Sicherheit.
-    //    Diese Zeile ist nur wg. "extern" erzeugten Entities (new-joined clients) hier.
+    // The goal of the Think() methods is to compute the state for frame ServerFrameNr.
+    // Thus, here, before the thinking starts, record the state of the previous frame.
+    //
+    // Note that if this entity has only been created in ServerFrameNr, there is no previous state to record.
+    // As our earliest state is `m_BaseLineFrameNr`, we must have `m_BaseLineFrameNr <= ServerFrameNr - 1`,
+    // thus `m_BaseLineFrameNr < ServerFrameNr`. (If `m_BaseLineFrameNr == ServerFrameNr` was allowed, this
+    // would imply that we had an old state at `m_OldStates[m_BaseLineFrameNr - 1]` and result in
+    // `m_BaseLine != m_OldStates[m_BaseLineFrameNr]`.)
     if (m_BaseLineFrameNr >= ServerFrameNr) return;
 
-    // 2. Alten 'Entity->State' des vorherigen (aber noch aktuellen!) Server-Frames erstmal speichern.
     m_OldStates[(ServerFrameNr-1) & (m_OldStates.Size()-1)] = GetState();
 }
 
 
 void EngineEntityT::Think(float FrameTime, unsigned long ServerFrameNr)
 {
-    // x. Ein Entity, der für dieses zu erstellende Frame 'ServerFrameNr' erst neu erzeugt wurde, soll nicht gleich denken!
-    //    Ein einfacher Vergleich '==' wäre ausreichend, '>=' nur zur Sicherheit.
+    // As detailed in PreThink().
     if (m_BaseLineFrameNr >= ServerFrameNr) return;
 
-    // 3. Jetzt neuen 'Entity->State' ausdenken.
- // Entity->Think(FrameTime, ServerFrameNr);
+    // This computes the state of the entity for frame ServerFrameNr.
     m_Entity->OnServerFrame(FrameTime);
 
     EntityStateFrameNr=ServerFrameNr;
@@ -244,7 +246,7 @@ bool EngineEntityT::ParseServerDeltaUpdateMessage(unsigned long DeltaFrameNr, un
 }
 
 
-void EngineEntityT::Predict(const PlayerCommandT& PlayerCommand)
+void EngineEntityT::Predict(const PlayerCommandT& PrevPlayerCommand, const PlayerCommandT& PlayerCommand)
 {
     if (!UsePrediction.GetValueBool())
         return;
@@ -260,7 +262,7 @@ void EngineEntityT::Predict(const PlayerCommandT& PlayerCommand)
 
     // Note that components other than CompHP should *not* Think/Repredict,
     // e.g. the player's CollisionModel component must not cause OnTrigger() callbacks!
-    CompHP->Think(PlayerCommand, false /*ThinkingOnServerSide*/);
+    CompHP->Think(PrevPlayerCommand, PlayerCommand, false /*ThinkingOnServerSide*/);
 }
 
 #endif   /* !DEDICATED */

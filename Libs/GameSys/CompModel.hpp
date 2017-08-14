@@ -45,15 +45,17 @@ namespace cf
             IntrusivePtrT<cf::GuiSys::GuiImplT> GetGui() const;
 
             // Base class overrides.
-            ComponentModelT* Clone() const;
-            const char* GetName() const { return "Model"; }
-            void UpdateDependencies(EntityT* Entity);
-            unsigned int GetEditorColor() const { return 0x00FFFF; }
-            BoundingBox3fT GetEditorBB() const;
-            BoundingBox3fT GetCullingBB() const;
-            bool Render(bool FirstPersonView, float LodDist) const;
-            void DoServerFrame(float t);
-            void DoClientFrame(float t);
+            ComponentModelT* Clone() const override;
+            const char* GetName() const override { return "Model"; }
+            void UpdateDependencies(EntityT* Entity) override;
+            unsigned int GetEditorColor() const override { return 0x00FFFF; }
+            BoundingBox3fT GetEditorBB() const override;
+            BoundingBox3fT GetCullingBB() const override;
+            bool Render(bool FirstPersonView, float LodDist) const override;
+            void DoSerialize(cf::Network::OutStreamT& Stream) const override;
+            void DoDeserialize(cf::Network::InStreamT& Stream, bool IsIniting) override;
+            void DoServerFrame(float t) override;
+            void DoClientFrame(float t) override;
 
 
             // The TypeSys related declarations for this class.
@@ -89,10 +91,10 @@ namespace cf
                 VarModelNameT(const VarModelNameT& Var, ComponentModelT& Comp);
 
                 // Base class overrides.
-                std::string GetExtraMessage() const { return m_ExtraMsg; }
-                void Serialize(cf::Network::OutStreamT& Stream) const;  ///< See base class documentation for details!
-                void Deserialize(cf::Network::InStreamT& Stream);
-                void Set(const std::string& v);
+                std::string GetExtraMessage() const override { return m_ExtraMsg; }
+                void Serialize(cf::Network::OutStreamT& Stream) const override;  ///< See base class documentation for details!
+                void Deserialize(cf::Network::InStreamT& Stream) override;
+                void Set(const std::string& v) override;
 
 
                 private:
@@ -112,8 +114,8 @@ namespace cf
                 VarModelAnimNrT(const VarModelAnimNrT& Var, ComponentModelT& Comp);
 
                 // Base class overrides.
-                void Set(const int& v);
-                void GetChoices(ArrayT<std::string>& Strings, ArrayT<int>& Values) const;
+                void Set(const int& v) override;
+                void GetChoices(ArrayT<std::string>& Strings, ArrayT<int>& Values) const override;
 
 
                 private:
@@ -133,7 +135,7 @@ namespace cf
                 VarModelSkinNrT(const VarModelSkinNrT& Var, ComponentModelT& Comp);
 
                 // Base class overrides.
-                void GetChoices(ArrayT<std::string>& Strings, ArrayT<int>& Values) const;
+                void GetChoices(ArrayT<std::string>& Strings, ArrayT<int>& Values) const override;
 
 
                 private:
@@ -152,7 +154,7 @@ namespace cf
                 VarGuiNameT(const VarGuiNameT& Var, ComponentModelT& Comp);
 
                 // Base class overrides.
-                void Set(const std::string& v);
+                void Set(const std::string& v) override;
 
 
                 private:

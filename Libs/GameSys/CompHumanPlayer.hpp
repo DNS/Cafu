@@ -8,10 +8,10 @@ This project is licensed under the terms of the MIT license.
 #define CAFU_GAMESYS_COMPONENT_HUMAN_PLAYER_HPP_INCLUDED
 
 #include "CompBase.hpp"
-#include "../../Games/PlayerCommand.hpp"      // TODO: This file must be moved (and/or its contents completely redesigned).
 #include "GuiSys/GuiImpl.hpp"
 
 class ParticleMaterialSetT;
+struct PlayerCommandT;
 
 
 namespace cf
@@ -38,9 +38,6 @@ namespace cf
             /// The destructor.
             ~ComponentHumanPlayerT();
 
-            /// A temporary method for compatibility with old code.
-            ArrayT<PlayerCommandT>& GetPlayerCommands() { return m_PlayerCommands; }
-
             /// Returns the player's current velocity (as learned from its PlayerPhysics component).
             Vector3dT GetPlayerVelocity() const;
 
@@ -54,10 +51,10 @@ namespace cf
             bool TraceCameraRay(const Vector3dT& Dir, Vector3dT& HitPoint, ComponentBaseT*& HitComp) const;
 
             /// A helper function for Think().
-            void CheckGUIs(bool ThinkingOnServerSide, bool HaveButtonClick) const;
+            bool CheckGUIs(const PlayerCommandT& PrevPC, const PlayerCommandT& PC, bool ThinkingOnServerSide) const;
 
-            /// A helper method (that does the actual work) for DoServerFrame() *and* the (re-)prediction in the client.
-            void Think(const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide);
+            /// The method that does the actual work for DoServerFrame() *and* the (re-)prediction in the client.
+            void Think(const PlayerCommandT& PrevPC, const PlayerCommandT& PC, bool ThinkingOnServerSide);
 
             /// Returns the ComponentCarriedWeaponT component of the currently active weapon,
             /// or NULL if currently no weapon is active.
@@ -141,7 +138,7 @@ namespace cf
 
             void FillMemberVars();                              ///< A helper method for the constructors.
             bool IsPlayerPrototype() const;                     ///< Is this component in a player prototype entity, or in a concrete player instance?
-            IntrusivePtrT<cf::GuiSys::GuiImplT> GetGuiHUD();    ///< Returns the GUI instance for the player's Head-Up Display.
+            IntrusivePtrT<cf::GuiSys::GuiImplT> GetHUD();       ///< Returns the GUI instance for the player's Head-Up Display.
 
             TypeSys::VarT<std::string>   m_PlayerName;          ///< The name that the player chose for himself.
             TypeSys::VarT<uint16_t>      m_RandomCount;         ///< Keeps track of the next random number that is returned by the GetRandom() methods.
@@ -153,8 +150,7 @@ namespace cf
             TypeSys::VarT<uint8_t>       m_NextWeaponNr;        ///< The next weapon to be drawn by SelectNextWeapon(). Like m_ActiveWeaponNr, this is an index number into the CarriedWeapon components of this entity, starting at 1. A value of 0 means "none".
             TypeSys::VarT<float>         m_HeadSway;            ///< The progress of one "head swaying" cycle in state FrozenSpectator.
 
-            ArrayT<PlayerCommandT>          m_PlayerCommands;   ///< The commands to be processed in the next Think() step.
-            IntrusivePtrT<GuiSys::GuiImplT> m_GuiHUD;           ///< The GUI instance for the player's Head-Up Display.
+            IntrusivePtrT<GuiSys::GuiImplT> m_HUD;              ///< The GUI instance for the player's Head-Up Display.
             ParticleMaterialSetT*           m_GenericMatSet;    ///< Resources needed to implement the temporary RegisterParticle() method.
             ParticleMaterialSetT*           m_WhiteSmokeMatSet; ///< Resources needed to implement the temporary RegisterParticle() method.
         };

@@ -66,14 +66,8 @@ namespace cf
             /// @param Recursive   Whether to recursively copy all children.
             WindowT(const WindowT& Window, bool Recursive=false);
 
-            /// The virtual copy constructor.
-            /// Callers can use this method to create a copy of this window without knowing its concrete type.
-            /// Overrides in derived classes use a covariant return type to facilitate use when the concrete type is known.
-            /// @param Recursive   Whether to recursively clone all children of this window.
-            virtual WindowT* Clone(bool Recursive=false) const;
-
-            /// The virtual destructor. Deletes this window and all its children.
-            virtual ~WindowT();
+            /// The destructor. Destructs this window and all its children.
+            ~WindowT();
 
 
             GuiImplT& GetGui() const { return m_Gui; }
@@ -168,23 +162,47 @@ namespace cf
             /// @returns The pointer to the desired window, or NULL if there is no window that contains `Pos`.
             IntrusivePtrT<WindowT> Find(const Vector2fT& Pos, bool OnlyVisible=true); // Method cannot be const because return type is not const -- see implementation.
 
+            /// Writes the current state of this window into the given stream.
+            /// This method is called to send the state of the window over the network, to save it to disk,
+            /// or to store it in the clipboard.
+            ///
+            /// @param Stream
+            ///   The stream to write the state data to.
+            ///
+            /// @param WithChildren
+            ///   Should the children be recursively serialized as well?
+            void Serialize(cf::Network::OutStreamT& Stream, bool WithChildren=false) const;
+
+            /// Reads the state of this window from the given stream, and updates the window accordingly.
+            /// This method is called after the state of the window has been received over the network,
+            /// has been loaded from disk, has been read from the clipboard, or must be "reset" for the purpose
+            /// of (re-)prediction.
+            ///
+            /// @param Stream
+            ///   The stream to read the state data from.
+            ///
+            /// @param IsIniting
+            ///   Used to indicate that the call is part of the construction / first-time initialization of the window.
+            ///   The implementation will use this to not wrongly process the event counters, interpolation, etc.
+            void Deserialize(cf::Network::InStreamT& Stream, bool IsIniting);
+
             /// Renders this window.
             /// Note that this method does *not* setup any of the MatSys's model, view or projection matrices: it's up to the caller to do that!
-            virtual void Render() const;
+            void Render() const;
 
             /// Keyboard input event handler.
             /// @param KE Keyboard event.
-            virtual bool OnInputEvent(const CaKeyboardEventT& KE);
+            bool OnInputEvent(const CaKeyboardEventT& KE);
 
             /// Mouse input event handler.
             /// @param ME Mouse event.
             /// @param PosX Mouse position x.
             /// @param PosY Mouse position y.
-            virtual bool OnInputEvent(const CaMouseEventT& ME, float PosX, float PosY);
+            bool OnInputEvent(const CaMouseEventT& ME, float PosX, float PosY);
 
             /// The clock-tick event handler.
             /// @param t The time in seconds since the last clock-tick.
-            virtual bool OnClockTickEvent(float t);
+            bool OnClockTickEvent(float t);
 
             /// Calls the Lua method with name `MethodName` of this window.
             /// This method is analogous to GuiI::CallLuaFunc(), see there for more details.
@@ -194,7 +212,7 @@ namespace cf
 
 
             // The TypeSys related declarations for this class.
-            virtual const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
+            const cf::TypeSys::TypeInfoT* GetType() const { return &TypeInfo; }
             static void* CreateInstance(const cf::TypeSys::CreateParamsT& Params);
             static const cf::TypeSys::TypeInfoT TypeInfo;
 
@@ -229,7 +247,7 @@ namespace cf
             GuiImplT&                               m_Gui;          ///< The GUI instance in which this window was created and exists. Useful in many regards, but especially for access to the underlying Lua state.
             WindowT*                                m_Parent;       ///< The parent of this window. May be NULL if there is no parent. In order to not create cycles of IntrusivePtrT's, the type is intentionally a raw pointer only.
             ArrayT< IntrusivePtrT<WindowT> >        m_Children;     ///< The list of children of this window.
-            float                                   m_Time;         ///< This windows local time (starting from 0.0).
+            float                                   m_Time;         ///< The local time (starting at 0.0) of this window.
             IntrusivePtrT<ComponentBaseT>           m_App;          ///< A component for the sole use by the application / implementation.
             IntrusivePtrT<ComponentBasicsT>         m_Basics;       ///< The component that defines the name and the "show" flag of this window.
             IntrusivePtrT<ComponentTransformT>      m_Transform;    ///< The component that defines the position, size and orientation of this window.

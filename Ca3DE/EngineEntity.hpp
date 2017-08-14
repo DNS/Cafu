@@ -7,7 +7,7 @@ This project is licensed under the terms of the MIT license.
 #ifndef CAFU_ENGINE_ENTITY_HPP_INCLUDED
 #define CAFU_ENGINE_ENTITY_HPP_INCLUDED
 
-#include "../Games/PlayerCommand.hpp"
+#include "PlayerCommand.hpp"
 #include "Math3D/Vector3.hpp"
 #include "Network/State.hpp"
 #include "Templates/Pointer.hpp"
@@ -45,7 +45,7 @@ class EngineEntityT
     // If such entities had not been previously prepared by this function, the implementation could not keep the state management right.
     void PreThink(unsigned long ServerFrameNr);
 
-    // Calculates the new state for the next frame 'ServerFrameNr', where 'FrameTime' seconds passed since the previous frame.
+    // Computes the new state for the next frame 'ServerFrameNr', where 'FrameTime' seconds passed since the previous frame.
     // Does nothing if the Entity was just new created for the frame 'ServerFrameNr', that is, CreationFrameNr>=ServerFrameNr.
     // Do not use this method for client side prediction -- it will not work (before calling this method, calls to 'PreThink()'
     // are required (as detailed above), which in turn maintain 'OldStates').
@@ -88,8 +88,8 @@ class EngineEntityT
     // Im Falle des Scheitersn bleibt die EngineEntityT Instanz unberührt.
     bool ParseServerDeltaUpdateMessage(unsigned long DeltaFrameNr, unsigned long ServerFrameNr, const ArrayT<uint8_t>* DeltaMessage);
 
-    /// Updates the (predicted) state of this entity according to the `PlayerCommand`.
-    void Predict(const PlayerCommandT& PlayerCommand);
+    /// Updates the (predicted) state of this entity according to `PrevPlayerCommand` and `PlayerCommand`.
+    void Predict(const PlayerCommandT& PrevPlayerCommand, const PlayerCommandT& PlayerCommand);
 
 
     private:

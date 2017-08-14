@@ -91,7 +91,7 @@ class VarVisitorHandlePropChangingEventT : public cf::TypeSys::VisitorT
 {
     public:
 
-    VarVisitorHandlePropChangingEventT(wxPropertyGridEvent& Event, DocAdapterI& DocAdapter);
+    VarVisitorHandlePropChangingEventT(wxPropertyGridEvent& Event, unsigned int Depth, DocAdapterI& DocAdapter);
     ~VarVisitorHandlePropChangingEventT();
 
     CommandT* TransferCommand();
@@ -117,44 +117,7 @@ class VarVisitorHandlePropChangingEventT : public cf::TypeSys::VisitorT
     private:
 
     wxPropertyGridEvent& m_Event;
-    DocAdapterI&         m_DocAdapter;
-    CommandT*            m_Command;
-};
-
-
-/// This visitor is similar to VarVisitorHandlePropChangingEventT:
-/// It creates a command for updating the value the value of the visited variable when a *sub-property*
-/// of the variable has changed. The given EVT_PG_CHANGING event refers to the change of the sub-property.
-class VarVisitorHandleSubChangingEventT : public cf::TypeSys::VisitorT
-{
-    public:
-
-    VarVisitorHandleSubChangingEventT(wxPropertyGridEvent& Event, DocAdapterI& DocAdapter);
-    ~VarVisitorHandleSubChangingEventT();
-
-    CommandT* TransferCommand();
-
-    void visit(cf::TypeSys::VarT<float>& Var);
-    void visit(cf::TypeSys::VarT<double>& Var);
-    void visit(cf::TypeSys::VarT<int>& Var);
-    void visit(cf::TypeSys::VarT<unsigned int>& Var);
-    void visit(cf::TypeSys::VarT<uint16_t>& Var);
-    void visit(cf::TypeSys::VarT<uint8_t>& Var);
-    void visit(cf::TypeSys::VarT<bool>& Var);
-    void visit(cf::TypeSys::VarT<std::string>& Var);
-    void visit(cf::TypeSys::VarT<Vector2fT>& Var);
-    void visit(cf::TypeSys::VarT<Vector3fT>& Var);
-    void visit(cf::TypeSys::VarT<Vector3dT>& Var);
-    void visit(cf::TypeSys::VarT<BoundingBox3dT>& Var);
-    void visit(cf::TypeSys::VarArrayT<uint32_t>& Var);
-    void visit(cf::TypeSys::VarArrayT<uint16_t>& Var);
-    void visit(cf::TypeSys::VarArrayT<uint8_t>& Var);
-    void visit(cf::TypeSys::VarArrayT<std::string>& Var);
-
-
-    private:
-
-    wxPropertyGridEvent& m_Event;
+    const unsigned int   m_Depth;
     DocAdapterI&         m_DocAdapter;
     CommandT*            m_Command;
 };

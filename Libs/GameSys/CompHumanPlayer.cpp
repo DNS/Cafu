@@ -15,6 +15,7 @@ This project is licensed under the terms of the MIT license.
 #include "World.hpp"
 
 #include "HumanPlayer/CompCarriedWeapon.hpp"
+#include "../Ca3DE/PlayerCommand.hpp"
 
 #include "ClipSys/ClipModel.hpp"
 #include "ClipSys/ClipWorld.hpp"
@@ -81,8 +82,7 @@ ComponentHumanPlayerT::ComponentHumanPlayerT()
       m_ActiveWeaponNr("ActiveWeaponNr", 0),
       m_NextWeaponNr("NextWeaponNr", 0),
       m_HeadSway("HeadSway", 0.0f),
-      m_PlayerCommands(),
-      m_GuiHUD(NULL)
+      m_HUD(NULL)
 {
     FillMemberVars();
 
@@ -103,8 +103,7 @@ ComponentHumanPlayerT::ComponentHumanPlayerT(const ComponentHumanPlayerT& Comp)
       m_ActiveWeaponNr(Comp.m_ActiveWeaponNr),
       m_NextWeaponNr(Comp.m_NextWeaponNr),
       m_HeadSway(Comp.m_HeadSway),
-      m_PlayerCommands(),
-      m_GuiHUD(NULL)
+      m_HUD(NULL)
 {
     FillMemberVars();
 
@@ -148,10 +147,10 @@ bool ComponentHumanPlayerT::IsPlayerPrototype() const
 // when the GetGui() method is called, because in the constructors it is impossile to know
 // or to learn if this ComponentHumanPlayerT instance is created on the server or the client,
 // and if it is the local, first-person human player, or somebody else.
-IntrusivePtrT<cf::GuiSys::GuiImplT> ComponentHumanPlayerT::GetGuiHUD()
+IntrusivePtrT<cf::GuiSys::GuiImplT> ComponentHumanPlayerT::GetHUD()
 {
     if (IsPlayerPrototype()) return NULL;
-    if (m_GuiHUD != NULL) return m_GuiHUD;
+    if (m_HUD != NULL) return m_HUD;
 
     // TODO:
     // if (on server) return NULL;
@@ -194,7 +193,7 @@ IntrusivePtrT<cf::GuiSys::GuiImplT> ComponentHumanPlayerT::GetGuiHUD()
 
     try
     {
-        m_GuiHUD = new cf::GuiSys::GuiImplT(
+        m_HUD = new cf::GuiSys::GuiImplT(
             World.GetScriptState(),
             World.GetGuiResources());
 
@@ -208,7 +207,7 @@ IntrusivePtrT<cf::GuiSys::GuiImplT> ComponentHumanPlayerT::GetGuiHUD()
             StackCheckerT StackChecker(LuaState);
             ScriptBinderT Binder(LuaState);
 
-            Binder.Push(m_GuiHUD);
+            Binder.Push(m_HUD);
             Binder.Push(IntrusivePtrT<ComponentHumanPlayerT>(this));
             lua_setfield(LuaState, -2, "Player");
             Binder.Push(IntrusivePtrT<EntityT>(GetEntity()));
@@ -216,26 +215,26 @@ IntrusivePtrT<cf::GuiSys::GuiImplT> ComponentHumanPlayerT::GetGuiHUD()
             lua_pop(LuaState, 1);
         }
 
-        m_GuiHUD->LoadScript(GuiName);
+        m_HUD->LoadScript(GuiName);
 
         // Active status is not really relevant for our Gui that is not managed by the GuiMan,
         // but still make sure that clock tick events are properly propagated to all windows.
-        m_GuiHUD->Activate();
+        m_HUD->Activate();
     }
     catch (const cf::GuiSys::GuiImplT::InitErrorT& IE)
     {
         // Need a new GuiImplT instance here, as the one allocated above is in unknown state.
-        m_GuiHUD = new cf::GuiSys::GuiImplT(
+        m_HUD = new cf::GuiSys::GuiImplT(
             World.GetScriptState(),
             World.GetGuiResources());
 
         // This one must not throw again...
-        m_GuiHUD->LoadScript(
+        m_HUD->LoadScript(
             cf::String::Replace(FallbackGUI, "%s", "Could not load GUI\n" + GuiName + "\n\n" + IE.what()),
             cf::GuiSys::GuiImplT::InitFlag_InlineCode);
     }
 
-    return m_GuiHUD;
+    return m_HUD;
 }
 
 
@@ -335,10 +334,11 @@ ComponentHumanPlayerT* ComponentHumanPlayerT::Clone() const
 }
 
 
-void ComponentHumanPlayerT::CheckGUIs(bool ThinkingOnServerSide, bool HaveButtonClick) const
+bool ComponentHumanPlayerT::CheckGUIs(const PlayerCommandT& PrevPC, const PlayerCommandT& PC, bool ThinkingOnServerSide) const
 {
     ArrayT< IntrusivePtrT<EntityT> > AllEnts;
 
+    // TODO: Can this be done better than a linear search through all entities in the world?  (see same comment below)
     GetEntity()->GetWorld().GetRootEntity()->GetAll(AllEnts);
 
     for (unsigned int EntNr = 0; EntNr < AllEnts.Size(); EntNr++)
@@ -356,36 +356,11 @@ void ComponentHumanPlayerT::CheckGUIs(bool ThinkingOnServerSide, bool HaveButton
 
             IntrusivePtrT<ComponentModelT> CompModel = static_pointer_cast<ComponentModelT>(Components[CompNr]);
 
-            // TODO: Also deal with the GUI when this is a REPREDICTION run???
-            //
-            // Answer: Normally not, because what is done during prediction is only for eye candy,
-            // and repeating it in REprediction would e.g. trigger/schedule interpolations *twice* (or in fact even more often).
-            //
-            // On the other hand, compare this to what happens when the player e.g. enters his name into a text field.
-            // The string with the name would be part of the "relevant GUI state" (state that is sync'ed over the network).
-            // As such, the string would ONLY be handled correctly when REprediction runs are applies to GUIs as they are applied
-            // to HumanPlayerTs (assuming the string is also handled in normal initial prediction).
-            // Example: The player enters "abc" on the client and prediction updates the string, but the server then sends a message
-            // that the player was force-moved by an explosion and the "abc" string was actually typed into the wall next to the GUI.
-            //
-            // ==> Either we have to run prediction AND REpredection with the GUIs,
-            //     OR we treat them like any other entity and ONLY update them on the server-side.
-            //
-            // ==> Conflict of interests: Only if the GUIs interpolation timers were a part of the "GUI state" would they work properly,
-            //     (which doesn't make much sense), or if we ran GUIs in prediction (but not REprediction) only (no good in the above example).
-            //
-            // ==> Solution: Update the relevant GUI state only ever on the server-side, and run GUI updates in prediction only
-            //               (but never in REprediction).
-            //
-            // ==> How do we separate the two???
-            //     ...
-
             // 1. Has this component an interactive GUI at all?
             IntrusivePtrT<cf::GuiSys::GuiImplT> Gui = CompModel->GetGui();
 
             if (Gui.IsNull()) continue;
             if (!Gui->GetIsInteractive()) continue;
-
 
             // 2. Can we retrieve the plane of its screen panel?
             Vector3fT GuiOrigin;
@@ -403,14 +378,12 @@ void ComponentHumanPlayerT::CheckGUIs(bool ThinkingOnServerSide, bool HaveButton
             GuiAxisX  = M2W.Mul0(GuiAxisX);
             GuiAxisY  = M2W.Mul0(GuiAxisY);
 
-
             // 3. Are we looking roughly into the screen normal?
             const Vector3fT GuiNormal = normalize(cross(GuiAxisY, GuiAxisX), 0.0f);
             const Plane3fT  GuiPlane  = Plane3fT(GuiNormal, dot(GuiOrigin, GuiNormal));
             const Vector3fT ViewDir   = GetCameraViewDirWS().AsVectorOfFloat();
 
             if (-dot(ViewDir, GuiPlane.Normal) < 0.001f) continue;
-
 
             // 4. Does our view ray hit the screen panel?
             // (I've obtained the equation for r by rolling the corresponding Plane3T<T>::GetIntersection() method out.)
@@ -438,40 +411,57 @@ void ComponentHumanPlayerT::CheckGUIs(bool ThinkingOnServerSide, bool HaveButton
             // TODO: Is somebody else using this GUI, too? It is useful to check this in order to avoid "race conditions"
             //       on the server, with two entities competing for the mouse pointer, causing frequent pointer "jumps"
             //       and thus possibly building up an ever growing set of interpolations in each frame.
-            Gui->SetMousePos(px * 640.0f, py * 480.0f);
 
-            CaMouseEventT ME;
-
-            ME.Type  =CaMouseEventT::CM_MOVE_X;
-            ME.Amount=0;
-
-            Gui->ProcessDeviceEvent(ME);
-
-            // Process mouse button events only on the server side.
-            // Note that this is a somewhat *arbitrary* compromise to the question "Where do we stop / how far do we go in"
-            // client prediction.
-            // Drawing the line here means that GUIs should be programmed in a way such that mouse movements do *not* affect
-            // world state -- only mouse clicks can do that. (In fact, we should probably also keep mouse movement events from
-            // the GUI when this is a *reprediction* run, as detailed in the (much older) comment above.)
             if (ThinkingOnServerSide)
             {
-                if (HaveButtonClick)
+                // GUIs are parts of models that are components of other entities.
+                // Just like any other entity (that is not the local human player entity),
+                // their state can only be modified on the server.
+                Gui->SetMousePos(px * 640.0f, py * 480.0f);
+
+                CaMouseEventT ME;
+
+                ME.Type = CaMouseEventT::CM_MOVE_X;
+                ME.Amount = 0;
+                Gui->ProcessDeviceEvent(ME);
+
+                const bool PrevDown = PrevPC.IsDown(PCK_Fire1) || (PrevPC.Keys >> 28) == 10;
+                const bool ThisDown = PC.IsDown(PCK_Fire1) || (PC.Keys >> 28) == 10;
+
+                if (!PrevDown && ThisDown)
                 {
+                    // Button went down.
                     ME.Type = CaMouseEventT::CM_BUTTON0;
-
-                    ME.Amount = 1;  // Button down.
+                    ME.Amount = 1;
                     Gui->ProcessDeviceEvent(ME);
-
-                    ME.Amount = 0;  // Button up.
+                }
+                else if (PrevDown && !ThisDown)
+                {
+                    // Button went up.
+                    ME.Type = CaMouseEventT::CM_BUTTON0;
+                    ME.Amount = 0;
                     Gui->ProcessDeviceEvent(ME);
                 }
             }
+
+            return true;
         }
     }
+
+    return false;
 }
 
 
-void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool ThinkingOnServerSide)
+/*
+Human players are a special case: They are driven by player commands *only* and the
+client and server implementations call this method directly.
+Note that if `ThinkingOnServerSide == false`, no other entity must be modified but this!
+The behaviour of this method must depend on this entity's state alone so that,
+if the entity's state is reset (with the EntityT::Deserialize() method),
+another call to Think() with the same parameters yields exactly the same entity state.
+This is an important requirement for the prediction feature of the clients.
+*/
+void ComponentHumanPlayerT::Think(const PlayerCommandT& PrevPC, const PlayerCommandT& PC, bool ThinkingOnServerSide)
 {
     if (IsPlayerPrototype()) return;
 
@@ -479,7 +469,7 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
     IntrusivePtrT<ComponentModelT> Model3rdPerson = dynamic_pointer_cast<ComponentModelT>(GetEntity()->GetComponent("Model"));
 
     if (CompPlayerPhysics == NULL) return;      // The presence of CompPlayerPhysics is mandatory...
-    if (Model3rdPerson == NULL) return;         // The presence of CompPlayerPhysics is mandatory...
+    if (Model3rdPerson == NULL) return;         // The presence of Model3rdPerson is mandatory...
 
     switch (m_StateOfExistence.Get())
     {
@@ -489,10 +479,10 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
             {
                 cf::math::AnglesfT Angles(GetEntity()->GetTransform()->GetQuatPS());       // We actually rotate the entity.
 
-                Angles.yaw() -= PlayerCommand.DeltaHeading / 8192.0f * 45.0f;
+                Angles.yaw() -= PC.DeltaHeading / 8192.0f * 45.0f;
 
-                if (PlayerCommand.Keys & PCK_TurnLeft ) Angles.yaw() += 120.0f * PlayerCommand.FrameTime;
-                if (PlayerCommand.Keys & PCK_TurnRight) Angles.yaw() -= 120.0f * PlayerCommand.FrameTime;
+                if (PC.IsDown(PCK_TurnLeft )) Angles.yaw() += 120.0f * PC.FrameTime;
+                if (PC.IsDown(PCK_TurnRight)) Angles.yaw() -= 120.0f * PC.FrameTime;
 
                 Angles.pitch() = 0.0f;
                 Angles.roll()  = 0.0f;
@@ -504,19 +494,19 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
             {
                 cf::math::AnglesfT Angles(GetEntity()->GetChildren()[0]->GetTransform()->GetQuatPS());     // We update the camera, not the entity.
 
-                const int dp = PlayerCommand.DeltaPitch;
+                const int dp = PC.DeltaPitch;
                 Angles.pitch() += (dp < 32768 ? dp : dp - 65536) / 8192.0f * 45.0f;
 
-                if (PlayerCommand.Keys & PCK_LookUp  ) Angles.pitch() -= 120.0f * PlayerCommand.FrameTime;
-                if (PlayerCommand.Keys & PCK_LookDown) Angles.pitch() += 120.0f * PlayerCommand.FrameTime;
+                if (PC.IsDown(PCK_LookUp  )) Angles.pitch() -= 120.0f * PC.FrameTime;
+                if (PC.IsDown(PCK_LookDown)) Angles.pitch() += 120.0f * PC.FrameTime;
 
                 if (Angles.pitch() >  90.0f) Angles.pitch() =  90.0f;
                 if (Angles.pitch() < -90.0f) Angles.pitch() = -90.0f;
 
-                const int db = PlayerCommand.DeltaBank;
+                const int db = PC.DeltaBank;
                 Angles.roll() += (db < 32768 ? db : db - 65536) / 8192.0f * 45.0f;
 
-                if (PlayerCommand.Keys & PCK_CenterView)
+                if (PC.IsDown(PCK_CenterView))
                 {
                     Angles.yaw()   = 0.0f;
                     Angles.pitch() = 0.0f;
@@ -527,28 +517,24 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
             }
 
 
-            VectorT             WishVelocity;
-            bool                WishJump=false;
-            const Vector3dT     Vel     = cf::math::Matrix3x3fT(GetEntity()->GetTransform()->GetQuatWS()).GetAxis(0).AsVectorOfDouble() * 240.0;
-            const unsigned long Keys    =PlayerCommand.Keys;
+            VectorT         WishVelocity;
+            const Vector3dT Vel = cf::math::Matrix3x3fT(GetEntity()->GetTransform()->GetQuatWS()).GetAxis(0).AsVectorOfDouble() * 240.0;
 
-            if (Keys & PCK_MoveForward ) WishVelocity=             VectorT( Vel.x,  Vel.y, 0);
-            if (Keys & PCK_MoveBackward) WishVelocity=WishVelocity+VectorT(-Vel.x, -Vel.y, 0);
-            if (Keys & PCK_StrafeLeft  ) WishVelocity=WishVelocity+VectorT(-Vel.y,  Vel.x, 0);
-            if (Keys & PCK_StrafeRight ) WishVelocity=WishVelocity+VectorT( Vel.y, -Vel.x, 0);
-
-            if (Keys & PCK_Jump        ) WishJump=true;
-         // if (Keys & PCK_Duck        ) ;
-            if (Keys & PCK_Walk        ) WishVelocity=scale(WishVelocity, 0.5);
+            if (PC.IsDown(PCK_MoveForward )) WishVelocity =                VectorT( Vel.x,  Vel.y, 0);
+            if (PC.IsDown(PCK_MoveBackward)) WishVelocity = WishVelocity + VectorT(-Vel.x, -Vel.y, 0);
+            if (PC.IsDown(PCK_StrafeLeft  )) WishVelocity = WishVelocity + VectorT(-Vel.y,  Vel.x, 0);
+            if (PC.IsDown(PCK_StrafeRight )) WishVelocity = WishVelocity + VectorT( Vel.y, -Vel.x, 0);
+         // if (PC.IsDown(PCK_Duck        )) ;
+            if (PC.IsDown(PCK_Walk        )) WishVelocity = scale(WishVelocity, 0.5);
 
             VectorT       WishVelLadder;
             const VectorT ViewLadder = GetCameraViewDirWS() * 150.0;
 
             // TODO: Also take LATERAL movement into account.
             // TODO: All this needs a HUGE clean-up! Can probably put a lot of this stuff into Physics::MoveHuman.
-            if (Keys & PCK_MoveForward ) WishVelLadder=WishVelLadder+ViewLadder;
-            if (Keys & PCK_MoveBackward) WishVelLadder=WishVelLadder-ViewLadder;
-            if (Keys & PCK_Walk        ) WishVelLadder=scale(WishVelLadder, 0.5);
+            if (PC.IsDown(PCK_MoveForward )) WishVelLadder = WishVelLadder+ViewLadder;
+            if (PC.IsDown(PCK_MoveBackward)) WishVelLadder = WishVelLadder-ViewLadder;
+            if (PC.IsDown(PCK_Walk        )) WishVelLadder = scale(WishVelLadder, 0.5);
 
             /*if (Clients[ClientNr].move_noclip)
             {
@@ -567,43 +553,51 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
             }
             else */
             {
-                VectorT XYVel    = CompPlayerPhysics->GetVelocity(); XYVel.z = 0;
-                double  OldSpeed = length(XYVel);
+                const bool WishJump = !PrevPC.IsDown(PCK_Jump) && PC.IsDown(PCK_Jump);
+
+                VectorT XYVel = CompPlayerPhysics->GetVelocity();
+                XYVel.z = 0;
+                const double OldSpeed = length(XYVel);
 
                 CompPlayerPhysics->SetMember("StepHeight", 18.5);
-                CompPlayerPhysics->MoveHuman(PlayerCommand.FrameTime, WishVelocity.AsVectorOfFloat(), WishVelLadder.AsVectorOfFloat(), WishJump);
+                CompPlayerPhysics->MoveHuman(PC.FrameTime, WishVelocity.AsVectorOfFloat(), WishVelLadder.AsVectorOfFloat(), WishJump);
 
-                XYVel = CompPlayerPhysics->GetVelocity(); XYVel.z = 0;
-                double NewSpeed = length(XYVel);
+                XYVel = CompPlayerPhysics->GetVelocity();
+                XYVel.z = 0;
+                const double NewSpeed = length(XYVel);
 
                 if (OldSpeed <= 40.0 && NewSpeed > 40.0) Model3rdPerson->SetMember("Animation", 3);
                 if (OldSpeed >= 40.0 && NewSpeed < 40.0) Model3rdPerson->SetMember("Animation", 1);
             }
 
-            // GameWorld->ModelAdvanceFrameTime() is called on client side in Draw().
-
-
-            // Check if any key for firing the currently active weapon was pressed.
-            IntrusivePtrT<ComponentCarriedWeaponT> CarriedWeapon = GetActiveWeapon();
-
-            if (CarriedWeapon != NULL)
+            // Check if the player is operating any GUIs.
+            if (CheckGUIs(PrevPC, PC, ThinkingOnServerSide))
             {
-                if (PlayerCommand.Keys & PCK_Fire1) CarriedWeapon->CallLuaMethod("FirePrimary",   0, "b", ThinkingOnServerSide);
-                if (PlayerCommand.Keys & PCK_Fire2) CarriedWeapon->CallLuaMethod("FireSecondary", 0, "b", ThinkingOnServerSide);
+                // The player is controlling a GUI, so don't let him have control over his
+                // active weapon at the same time.
+            }
+            else
+            {
+                // Check if any key for firing the currently active weapon was pressed.
+                IntrusivePtrT<ComponentCarriedWeaponT> CarriedWeapon = GetActiveWeapon();
+
+                if (CarriedWeapon != NULL)
+                {
+                    if (PC.IsDown(PCK_Fire1)) CarriedWeapon->CallLuaMethod("FirePrimary",   0, "b", ThinkingOnServerSide);
+                    if (PC.IsDown(PCK_Fire2)) CarriedWeapon->CallLuaMethod("FireSecondary", 0, "b", ThinkingOnServerSide);
+                }
             }
 
             // Check if any key for changing the current weapon was pressed.
-            if (Keys >> 28)
+            if (PC.Keys >> 28)
             {
                 IntrusivePtrT<ComponentScriptT> Script =
                     dynamic_pointer_cast<ComponentScriptT>(GetEntity()->GetComponent("Script"));
 
                 if (Script != NULL)
-                    Script->CallLuaMethod("ChangeWeapon", 0, "i", Keys >> 28);
+                    Script->CallLuaMethod("ChangeWeapon", 0, "i", PC.Keys >> 28);
             }
 
-            // Check if any GUIs must be updated.
-            CheckGUIs(ThinkingOnServerSide, (Keys >> 28) == 10);
             break;
         }
 
@@ -612,7 +606,7 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
             const float MIN_CAMERA_HEIGHT = -20.0f;
 
             CompPlayerPhysics->SetMember("StepHeight", 4.0);
-            CompPlayerPhysics->MoveHuman(PlayerCommand.FrameTime, Vector3fT(), Vector3fT(), false);
+            CompPlayerPhysics->MoveHuman(PC.FrameTime, Vector3fT(), Vector3fT(), false);
 
             IntrusivePtrT<ComponentTransformT> CameraTrafo = GetEntity()->GetChildren()[0]->GetTransform();
 
@@ -622,8 +616,8 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                 Vector3fT          Origin(CameraTrafo->GetOriginPS());
                 cf::math::AnglesfT Angles(CameraTrafo->GetQuatPS());
 
-                Origin.z -= 80.0f * PlayerCommand.FrameTime;
-                Angles.roll() += PlayerCommand.FrameTime * 200.0f;
+                Origin.z -= 80.0f * PC.FrameTime;
+                Angles.roll() += PC.FrameTime * 200.0f;
 
                 CameraTrafo->SetOriginPS(Origin);
                 CameraTrafo->SetQuatPS(cf::math::QuaternionfT(Angles));
@@ -671,7 +665,7 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
             {
                 const float Pi           = 3.14159265359f;
                 const float SecPerSwing  = 15.0f;
-                const float PC_FrameTime = std::min(PlayerCommand.FrameTime, 0.05f);    // Avoid jumpiness with very low FPS.
+                const float PC_FrameTime = std::min(PC.FrameTime, 0.05f);    // Avoid jumpiness with very low FPS.
 
                 float SwayTime   = m_HeadSway.Get();
                 float SwingAngle = sin(SwayTime) * 1.1f;    // +/- 1.1°
@@ -696,10 +690,11 @@ void ComponentHumanPlayerT::Think(const PlayerCommandT& PlayerCommand, bool Thin
                 GetEntity()->GetChildren()[0]->GetTransform()->SetQuatPS(cf::math::QuaternionfT(Angles));
             }
 
-            // TODO: We want the player to release the button between respawns in order to avoid permanent "respawn-flickering"
-            //       that otherwise may occur if the player keeps the button continuously pressed down.
-            //       These are the same technics that also apply to the "jump"-button.
-            if ((PlayerCommand.Keys & PCK_Fire1)==0) break;  // "Fire" button not pressed.
+            // Make sure that players that were killed while holding the fire button don't immediately respawn:
+            // the button must be released, then pressed again in order to leave the FrozenSpectator state.
+            const bool WentDown = !PrevPC.IsDown(PCK_Fire1) && PC.IsDown(PCK_Fire1);
+
+            if (!WentDown) break;
 
             ArrayT< IntrusivePtrT<EntityT> > AllEnts;
             GetEntity()->GetWorld().GetRootEntity()->GetAll(AllEnts);
@@ -942,7 +937,7 @@ BoundingBox3fT ComponentHumanPlayerT::GetCullingBB() const
 void ComponentHumanPlayerT::PostRender(bool FirstPersonView)
 {
     if (IsPlayerPrototype()) return;
-    if (GetGuiHUD() == NULL) return;
+    if (GetHUD() == NULL) return;
 
     MatSys::Renderer->PushMatrix(MatSys::RendererI::PROJECTION);
     MatSys::Renderer->PushMatrix(MatSys::RendererI::MODEL_TO_WORLD);
@@ -954,7 +949,7 @@ void ComponentHumanPlayerT::PostRender(bool FirstPersonView)
     MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());
     MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW,  MatrixT());
 
-    GetGuiHUD()->Render();
+    GetHUD()->Render();
 
     MatSys::Renderer->PopMatrix(MatSys::RendererI::PROJECTION);
     MatSys::Renderer->PopMatrix(MatSys::RendererI::MODEL_TO_WORLD);
@@ -964,77 +959,20 @@ void ComponentHumanPlayerT::PostRender(bool FirstPersonView)
 
 void ComponentHumanPlayerT::DoServerFrame(float t)
 {
-    // **********************************************************************************************************************************************
-    // IMPORTANT NOTE:
-    //
-    // Although the Think() functions of all entity classes (children of BaseEntityT) are only ever called on the SERVER-SIDE,
-    // and you should always think of them as ONLY EVER BEING CALLED ON THE SERVER-SIDE, the truth is that there is an exception:
-    // For EntHumanPlayerT entities (but no other entity classes!), this function is also called on the client-side for prediction.
-    // You should still think of this function as ONLY EVER BEING CALLED ON THE SERVER-SIDE,
-    // but the above mentioned exception implies that this function must always be deterministic (that is, reproducible).
-    // That especially means:
-    // 1. Calls to rand()-like functions are NOT allowed! Rather, you have to use something like
-    //        LookupTables::RandomUShort[PlayerCommands[PCNr].Nr & 0xFFF]
-    //    in order to obtain pseudo-random numbers from PlayerCommands[PCNr].Nr. Related examples are found in the code below.
-    // 2. This function must NOT have a state besides the member variable 'EntHumanPlayerT::State'.
-    //    That is, you can NOT introduce and use additional private or protected member variables, because the
-    //    client-side prediction will only take the State variable (and no additional private variables) into account!
-    //    If you did anyway, this function would not be reproducible by the State variable alone,
-    //    and thus violate the most vital requirement for prediction.
-    //    As a solution, do only use member variables of State for all your state management!
-    //    This seems sometimes problematic and like working-around-the-corner, but you will find that very often you can exploit
-    //    one or more of the existing variables in State for your purposes! Examples are found in the code below,
-    //    where the next weapon animation sequence is simply determined by the previous weapon animation sequence!
-    //    If that in rare cases does not work, use for example one of the unused HaveAmmo or HaveAmmoInWeapon variables.
-    //    It should also be noted that having *constant* state is perfectly acceptable.
-    //    For example, if you load something from disk and/or precalculate something in the constructor (thus both on client and server side),
-    //    it is perfectly fine if you refer to this data later from Think() - just don't modify it!
-    //    I make heavy use of this feature in the MOD for the USAF, where complicated spatial paths are precalculated and stored as "constant state".
-    //
-    // Another special case (not related to prediction) is the fact that the Think()ing of EntHumanPlayerT entities
-    // is driven by PlayerCommands, and NOT by the usual FrameTime and ServerFrameNr parameters of this function.
-    // It is the task of this function to process all the PlayerCommands that are available
-    // (fed by the server by calling the EntHumanPlayerT::ProcessConfigString() function appropriately),
-    // and thus the regular parameters 'FrameTime' and 'ServerFrameNr' MUST NOT BE USED!
-    // (Moreover, the client-side prediction has no idea what to pass-in here anyway, and thus always passes 'FrameTime=-1.0' and 'ServerFrameNr=0'.)
-    //
-    // Unfortunately, there is an exception to the exception:
-    // Sometimes, we want to or have to do things that should only occur on server-side (and thus be exempted from prediction), like
-    // a) modifying other (usually non-predicted) entities (like calling another entities TakeDamage() function), or
-    // b) creating new entities (e.g. a thrown face-hugger, a fired missile, ...) (not possible on client-side).
-    // Against my initial statement above, this requires a concious consideration if this is a regular server-side thinking call,
-    // or a client-side prediction call.
-    // Whether we are on server-side or not is determined by the ThinkingOnServerSide variable as shown below.
-    // The code below also has examples (partially hidden in the subfunctions it calls) for both cases a) and b).
-    //
-    // Note that all this applies ONLY to HumanPlayerT::Think()! All OTHER entities are NOT affected!
-    // **********************************************************************************************************************************************
+    // Human players are a special case: They are driven by player commands *only*,
+    // as this is an important requirement for the prediction feature of the clients.
+    // Thus, the client and server implementations call our Think() method directly,
+    // see there for details.
 
-    for (unsigned int PCNr = 0; PCNr < m_PlayerCommands.Size(); PCNr++)
-    {
-        Think(m_PlayerCommands[PCNr], true /*ThinkingOnServerSide*/);
-    }
-
-    m_PlayerCommands.Overwrite();
-
-
-    // It is important that we advance the time on the server-side GUI, too, so that it can
-    // for example work off the "pending interpolations" that the GUI scripts can create.
-    //
-    // TODO: Check if this is true, especially in the light of client prediction.
-    //       Maybe we should move all HUD GUI code into its own component, thereby
-    //       isolating it from all other Human Player concerns, especially prediction?!
-    //
-    // if (GetGuiHUD() != NULL)
-    //     GetGuiHUD()->DistributeClockTickEvents(t);
-    assert(m_GuiHUD == NULL);
+    // Should we move all HUD code into its own component, cleanly separating the code?
+    assert(m_HUD == NULL);
 }
 
 
 void ComponentHumanPlayerT::DoClientFrame(float t)
 {
-    if (GetGuiHUD() != NULL)
-        GetGuiHUD()->DistributeClockTickEvents(t);
+    if (GetHUD() != NULL)
+        GetHUD()->DistributeClockTickEvents(t);
 
     // // Handle any state driven effects of the currently carried weapon.
     // if (GetHaveWeapons() & (1 << GetActiveWeaponSlot()))

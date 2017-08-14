@@ -29,9 +29,7 @@ env.StaticLibrary(
 
 
 
-# The model loader classes are in a separate library in order to not have to compile many unrelated source files
-# with their header search paths, and to keep them from cfsLib, which is linked to Cafu with "--whole-archive"
-# and thus would involve all related external libraries as well.
+# TODO: Either integrate this into cfsLib above or integrate the above model loaders here.
 envModelLoaders = env.Clone()
 
 if sys.platform == "win32":
@@ -40,6 +38,10 @@ if sys.platform == "win32":
         {"vc8": "vs2005", "vc9": "vs2008", "vc10": "vs2010", "vc11": "vs2012", "vc12": "vs2013", "vc14": "vs2015"}[compiler]
 
     if os.path.exists(Dir("#/ExtLibs/fbx/include").abspath) and os.path.exists(Dir(fbx_lib_path).abspath):
+        envModelLoaders.Append(CPPDEFINES=["HAVE_FBX_SDK"])
+        envModelLoaders.Append(CPPPATH=["#/ExtLibs/fbx/include"])
+elif sys.platform == "linux2":
+    if os.path.exists(Dir("#/ExtLibs/fbx/include").abspath):
         envModelLoaders.Append(CPPDEFINES=["HAVE_FBX_SDK"])
         envModelLoaders.Append(CPPPATH=["#/ExtLibs/fbx/include"])
 

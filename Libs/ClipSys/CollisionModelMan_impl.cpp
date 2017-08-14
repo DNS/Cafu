@@ -66,6 +66,18 @@ const CollisionModelT* CollModelManImplT::GetCM(const std::string& FileName)
         try
         {
             MapFileReadHeader(TP);
+            MapFileEntityT Worldspawn(0, TP);
+
+            // Move the map primitives of all other entities into the "worldspawn" entity.
+            // This code is analogous to that in `CaBSP/LoadWorld.cpp`.
+            while (!TP.IsAtEOF())
+            {
+                const MapFileEntityT E(0, TP);
+
+                // Should other types of primitives (terrains, plants, models) be moved as well?
+                Worldspawn.MFBrushes.PushBack(E.MFBrushes);
+                Worldspawn.MFPatches.PushBack(E.MFPatches);
+            }
 
             // TODO: Account for the first map file entity to come with terrains! (Must keep the terrain instance in cmInfoT.)
             const ArrayT<CollisionModelStaticT::TerrainRefT> ShTe;
@@ -74,8 +86,15 @@ const CollisionModelT* CollModelManImplT::GetCM(const std::string& FileName)
             const double COLLISION_MODEL_MAX_CURVE_LENGTH = -1.0;
             const double COLLISION_MODEL_MIN_NODE_SIZE    = 40.0;
 
-            CollisionModelStaticT* CM = new CollisionModelStaticT(MapFileEntityT(0, TP), ShTe, true /*Use generic brushes.*/,
+            CollisionModelStaticT* CM = new CollisionModelStaticT(Worldspawn, ShTe, true /*Use generic brushes.*/,
                 MapT::RoundEpsilon, MapT::MinVertexDist, COLLISION_MODEL_MAX_CURVE_ERROR, COLLISION_MODEL_MAX_CURVE_LENGTH, COLLISION_MODEL_MIN_NODE_SIZE);
+
+            if (!CM->GetBoundingBox().IsInited())
+            {
+                Console->Warning("Collision model \"" + FileName + "\" has no solid objects.\n");
+                delete CM;
+                return NULL;
+            }
 
             cmi.Instance = CM;
         }

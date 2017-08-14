@@ -171,6 +171,8 @@ Map.PlayerPrototype = world:new("EntityT", "PlayerPrototype")
 Map.PlayerPrototype.Camera = world:new("EntityT", "Camera")
 Map.PlayerPrototype.FirstPerson = world:new("EntityT", "FirstPerson")
 Map.PlayerPrototype.FirstPerson.WeaponSound = world:new("EntityT", "WeaponSound")
+Map.CompanyBot = world:new("EntityT", "CompanyBot")
+Map.CompanyBot.Lantern = world:new("EntityT", "Lantern")
 
 
 -- Set the worlds root entity.
@@ -340,6 +342,8 @@ Map:AddChild(Map.PlayerPrototype)
 Map.PlayerPrototype:AddChild(Map.PlayerPrototype.Camera)
 Map.PlayerPrototype:AddChild(Map.PlayerPrototype.FirstPerson)
 Map.PlayerPrototype.FirstPerson:AddChild(Map.PlayerPrototype.FirstPerson.WeaponSound)
+Map:AddChild(Map.CompanyBot)
+Map.CompanyBot:AddChild(Map.CompanyBot.Lantern)
 
 
 -- Initialization of the entity contents ("constructors").
@@ -2373,7 +2377,6 @@ function Map.PlayerPrototype:OnInit()
     c4:set("Velocity", 0, 0, 0)
     c4:set("Dimensions", -16, -16, -36, 16, 16, 36)
     c4:set("StepHeight", 18.5)
-    c4:set("OldWishJump", false)
 
     local c5 = world:new("ComponentInventoryT")
 
@@ -2510,13 +2513,62 @@ function Map.PlayerPrototype.FirstPerson:OnInit()
 end
 
 function Map.PlayerPrototype.FirstPerson.WeaponSound:OnInit()
-    self:GetTransform():set("Origin", 16.000008, -9.059906e-006, 0)
-    self:GetTransform():set("Orientation", 0, 0, -2.9802322e-008)
+    self:GetTransform():set("Origin", 16, 0, 0)
+    self:GetTransform():set("Orientation", 0, 0, 0)
 
     local c1 = world:new("ComponentSoundT")
     c1:set("Name", "")
     c1:set("AutoPlay", false)
     c1:set("Interval", 0)
+
+    self:AddComponent(c1)
+end
+
+function Map.CompanyBot:OnInit()
+    self:GetTransform():set("Origin", 216, 280, -248)
+    self:GetTransform():set("Orientation", 0, 0, 0.70710677)
+
+    local c1 = world:new("ComponentModelT")
+    c1:set("Show", true)
+    c1:set("Name", "Games/DeathMatch/Models/Players/Sentinel/Sentinel.cmdl")
+    c1:set("Animation", -1)
+    c1:set("Skin", -1)
+    c1:set("Scale", 1)
+    c1:set("Gui", "")
+    c1:set("IsSubmodel", false)
+    c1:set("Is1stPerson", false)
+
+    local c2 = world:new("ComponentModelT")
+    c2:set("Show", true)
+    c2:set("Name", "Games/DeathMatch/Models/Weapons/Shotgun/Shotgun_p.cmdl")
+    c2:set("Animation", -1)
+    c2:set("Skin", -1)
+    c2:set("Scale", 1)
+    c2:set("Gui", "")
+    c2:set("IsSubmodel", true)
+    c2:set("Is1stPerson", false)
+
+    local c3 = world:new("ComponentPlayerPhysicsT")
+    c3:set("Velocity", 0, 0, 0)
+    c3:set("Dimensions", -12, -12, -36, 12, 12, 36)
+    c3:set("StepHeight", 24)
+
+    local c4 = world:new("ComponentScriptT")
+    c4:set("Name", "Games/DeathMatch/Scripts/CompanyBot.lua")
+    c4:set("ScriptCode", "")
+
+    self:AddComponent(c1, c2, c3, c4)
+end
+
+function Map.CompanyBot.Lantern:OnInit()
+    self:GetTransform():set("Origin", 20, 0, 56)
+    self:GetTransform():set("Orientation", 0, 0, 0)
+
+    local c1 = world:new("ComponentPointLightT")
+    c1:set("On", true)
+    c1:set("Color", 0, 0.5019608, 0.5019608)
+    c1:set("Radius", 100)
+    c1:set("ShadowType", 1)
 
     self:AddComponent(c1)
 end

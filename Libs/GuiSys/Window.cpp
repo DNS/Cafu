@@ -5,12 +5,15 @@ This project is licensed under the terms of the MIT license.
 */
 
 #include "Window.hpp"
+#include "AllComponents.hpp"
 #include "WindowCreateParams.hpp"
 #include "CompBase.hpp"
 #include "GuiImpl.hpp"
 #include "GuiResources.hpp"
+
 #include "ConsoleCommands/Console.hpp"
 #include "MaterialSystem/Renderer.hpp"
+#include "Network/State.hpp"
 #include "TypeSys.hpp"
 #include "UniScriptState.hpp"
 
@@ -99,16 +102,10 @@ WindowT::WindowT(const WindowT& Window, bool Recursive)
     {
         for (unsigned long ChildNr=0; ChildNr<Window.m_Children.Size(); ChildNr++)
         {
-            m_Children.PushBack(Window.m_Children[ChildNr]->Clone(Recursive));
+            m_Children.PushBack(new WindowT(*Window.m_Children[ChildNr], Recursive));
             m_Children[ChildNr]->m_Parent=this;
         }
     }
-}
-
-
-WindowT* WindowT::Clone(bool Recursive) const
-{
-    return new WindowT(*this, Recursive);
 }
 
 
@@ -332,6 +329,127 @@ IntrusivePtrT<WindowT> WindowT::Find(const Vector2fT& Pos, bool OnlyVisible)
     const Vector2fT Abs2 = Abs1 + m_Transform->GetSize();
 
     return (Pos.x < Abs1.x || Pos.y < Abs1.y || Pos.x > Abs2.x || Pos.y > Abs2.y) ? NULL : this;
+}
+
+
+// Note that this method is the twin of Deserialize(), whose implementation it must match.
+void WindowT::Serialize(cf::Network::OutStreamT& Stream, bool WithChildren) const
+{
+    assert(m_App == NULL);
+    m_Basics->Serialize(Stream);
+    m_Transform->Serialize(Stream);
+
+    // Serialize the "custom" components.
+    assert(m_Components.Size() < 256);
+    Stream << uint8_t(m_Components.Size());
+
+    for (unsigned int CompNr = 0; CompNr < m_Components.Size(); CompNr++)
+    {
+        assert(m_Components[CompNr]->GetType()->TypeNr < 256);
+        Stream << uint8_t(m_Components[CompNr]->GetType()->TypeNr);
+
+        m_Components[CompNr]->Serialize(Stream);
+    }
+
+    // Recursively serialize the children (if requested).
+    Stream << WithChildren;
+
+    if (WithChildren)
+    {
+        Stream << uint32_t(m_Children.Size());
+
+        for (unsigned int ChildNr = 0; ChildNr < m_Children.Size(); ChildNr++)
+            m_Children[ChildNr]->Serialize(Stream, WithChildren);
+    }
+}
+
+
+// Note that this method is the twin of Serialize(), whose implementation it must match.
+void WindowT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
+{
+    assert(m_App == NULL);
+    m_Basics->Deserialize(Stream, IsIniting);
+    m_Transform->Deserialize(Stream, IsIniting);
+
+    // Deserialize the "custom" components.
+    uint8_t NumComponents = 0;
+    Stream >> NumComponents;
+
+    while (m_Components.Size() > NumComponents)
+    {
+        // Remove any extra components, updating the dependencies as required.
+        // (This is not efficient whenever multiple components are removed...)
+        DeleteComponent(m_Components.Size() - 1);
+    }
+
+    for (unsigned int CompNr = 0; CompNr < NumComponents; CompNr++)
+    {
+        uint8_t CompTypeNr = 0;
+        Stream >> CompTypeNr;
+
+        bool IsNew = false;
+
+        if (CompNr >= m_Components.Size())
+        {
+            // Note that if `TI == NULL`, there really is not much that we can do.
+            const cf::TypeSys::TypeInfoT* TI = GetComponentTIM().FindTypeInfoByNr(CompTypeNr);
+            IntrusivePtrT<ComponentBaseT> Comp(static_cast<ComponentBaseT*>(TI->CreateInstance(cf::TypeSys::CreateParamsT())));
+
+            // Add the component, updating the dependencies as required.
+            // (This is not efficient whenever multiple components are added...)
+            AddComponent(Comp);
+            IsNew = true;
+        }
+
+        if (m_Components[CompNr]->GetType()->TypeNr != CompTypeNr)
+        {
+            // Note that if `TI == NULL`, there really is not much that we can do.
+            const cf::TypeSys::TypeInfoT* TI = GetComponentTIM().FindTypeInfoByNr(CompTypeNr);
+            IntrusivePtrT<ComponentBaseT> Comp(static_cast<ComponentBaseT*>(TI->CreateInstance(cf::TypeSys::CreateParamsT())));
+
+            // Replace the component, updating the dependencies as required.
+            // (This is not efficient whenever multiple components are replaced...)
+            DeleteComponent(CompNr);
+            AddComponent(Comp, CompNr);
+            IsNew = true;
+        }
+
+        m_Components[CompNr]->Deserialize(Stream, IsIniting);
+
+        if (IsNew)
+        {
+            // The component was newly added to an entity that exists in a live map.
+            // Consequently, we must run the post-load stuff here.
+            m_Components[CompNr]->OnPostLoad(false);
+            m_Components[CompNr]->CallLuaMethod("OnInit", 0);
+        }
+    }
+
+
+    // Recursively deserialize the children (if requested).
+    bool WithChildren = false;
+    Stream >> WithChildren;
+
+    if (WithChildren)
+    {
+        uint32_t NumChildren = 0;
+        Stream >> NumChildren;
+
+        while (m_Children.Size() > NumChildren)
+            m_Children.DeleteBack();
+
+        for (unsigned int ChildNr = 0; ChildNr < NumChildren; ChildNr++)
+        {
+            if (ChildNr >= m_Children.Size())
+            {
+                IntrusivePtrT<WindowT> NewWin = new WindowT(WindowCreateParamsT(m_Gui));
+
+                m_Children.PushBack(NewWin);
+            }
+
+            m_Children[ChildNr]->Deserialize(Stream, IsIniting);
+        }
+    }
 }
 
 

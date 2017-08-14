@@ -15,6 +15,7 @@ This project is licensed under the terms of the MIT license.
 #include "MaterialSystem/Material.hpp"
 #include "MaterialSystem/Mesh.hpp"
 #include "MaterialSystem/Renderer.hpp"
+#include "Network/State.hpp"
 #include "OpenGL/OpenGLWindow.hpp"  // Just for the Ca*EventT classes...
 #include "String.hpp"
 #include "TypeSys.hpp"
@@ -211,6 +212,9 @@ void GuiImplT::LoadScript(const std::string& GuiScriptName, int Flags)
         throw InitErrorT(Msg);
     }
 
+    // This is the parameter for the lua_pcall().
+    // Script code will fetch it via the "..." ellipsis operator like this:
+    //     local gui = ...
     Binder.Push(IntrusivePtrT<GuiImplT>(this));
 
     if (lua_pcall(LuaState, 1, 0, 0) != 0)
@@ -404,6 +408,32 @@ void GuiImplT::SetMousePos(float MousePosX_, float MousePosY_)
 void GuiImplT::SetShowMouse(bool ShowMouse_)
 {
     MouseIsShown=ShowMouse_;
+}
+
+
+// Note that this method is the twin of Deserialize(), whose implementation it must match.
+void GuiImplT::Serialize(cf::Network::OutStreamT& Stream) const
+{
+    assert(m_IsInited);
+
+    Stream << MousePosX;
+    Stream << MousePosY;
+    Stream << m_MouseCursorSize;
+
+    RootWindow->Serialize(Stream, true /*WithChildren*/);
+}
+
+
+// Note that this method is the twin of Serialize(), whose implementation it must match.
+void GuiImplT::Deserialize(cf::Network::InStreamT& Stream, bool IsIniting)
+{
+    assert(m_IsInited);
+
+    Stream >> MousePosX;
+    Stream >> MousePosY;
+    Stream >> m_MouseCursorSize;
+
+    RootWindow->Deserialize(Stream, IsIniting);
 }
 
 
