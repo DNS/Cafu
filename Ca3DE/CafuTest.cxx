@@ -125,61 +125,6 @@ class ConsolesResourceT
 };
 
 
-class GameInfosT
-{
-    public:
-
-    GameInfosT()
-    {
-        const std::vector<std::string> GameNames = PlatformAux::GetDirectory("Games", 'd');
-
-        for (size_t i = 0; i < GameNames.size(); i++)
-            m_AllGameInfos.PushBack(GameInfoT(GameNames[i]));
-
-        if (m_AllGameInfos.Size() == 0)
-            throw std::runtime_error("Could not find any game in the Games subdirectory.");
-
-        m_GameInfo = m_AllGameInfos[0];
-    }
-
-    const GameInfoT& getCurrentGameInfo() const
-    {
-        return m_GameInfo;
-    }
-
-    bool setGame(const std::string& Name)
-    {
-        for (unsigned int i = 0; i < m_AllGameInfos.Size(); i++)
-            if (m_AllGameInfos[i].GetName() == Name)
-            {
-                m_GameInfo = m_AllGameInfos[i];
-                return true;
-            }
-
-        return false;
-    }
-
-    std::string getList() const
-    {
-        std::string GamesList;
-
-        for (unsigned int i = 0; i < m_AllGameInfos.Size(); i++)
-        {
-            if (i > 0) GamesList += ", ";
-            GamesList += m_AllGameInfos[i].GetName();
-        }
-
-        return GamesList;
-    }
-
-
-    private:
-
-    ArrayT<GameInfoT> m_AllGameInfos;   ///< The game infos for all games/MODs known and available to us.
-    GameInfoT         m_GameInfo;       ///< The info of the game that was elected to run (one of those in m_AllGameInfos).
-};
-
-
 class WinSockResourceT
 {
     public:

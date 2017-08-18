@@ -156,8 +156,7 @@ AppCafuT::AppCafuT()
       m_Locale(NULL),
       m_ConBuffer(new cf::ConsoleStringBufferT()),
       m_ConFile(NULL),
-      m_AllGameInfos(),
-      m_GameInfo(),
+      m_GameInfos(),    // This might throw an std::runtime_error that we don't catch anywhere. Also see CafuTest.cxx for the intended approach.
       m_IsCustomVideoMode(false),
       m_MainFrame(NULL)
 {
@@ -250,21 +249,6 @@ bool AppCafuT::OnInit()
         wxLogDebug("Program locale set to \"C\".");
     }
 
-    // Iterate through the "Games" subdirectory in order to find all available games.
-    const std::vector<std::string> GameNames = PlatformAux::GetDirectory("Games", 'd');
-
-    for (size_t i = 0; i < GameNames.size(); i++)
-        m_AllGameInfos.PushBack(GameInfoT(GameNames[i]));
-
-    if (m_AllGameInfos.Size() == 0)
-    {
-        wxMessageBox("List \"GameLibs\" in file CompilerSetup.py is empty.", "Improperly configured");
-        OnExit();
-        return false;
-    }
-
-    m_GameInfo = m_AllGameInfos[0];
-
     ConsoleInterpreter->RunCommand("dofile('config.lua');");
 
     // Parse the command line.
@@ -275,18 +259,10 @@ bool AppCafuT::OnInit()
 
     try
     {
-        std::string GamesList;
-
-        for (unsigned int i = 0; i < m_AllGameInfos.Size(); i++)
-        {
-            if (i > 0) GamesList += ", ";
-            GamesList += m_AllGameInfos[i].GetName();
-        }
-
         // These may throw e.g. SpecificationException, but such exceptions are easily fixed permanently.
         const TCLAP::ValueArg<std::string> argLog     ("l", "log",            "Logs all console messages into the specified file.", false, "", "filename", cmd);
         const TCLAP::ValueArg<std::string> argConsole ("c", "console",        "Runs the given commands in the console, as if appended to the config.lua file.", false, "", "lua-script", cmd);
-        const TCLAP::ValueArg<std::string> argSvGame  ("g", "sv-game",        "Name of the game (MOD) that the server should run. Available: " + GamesList + ".", false, m_AllGameInfos[0].GetName(), "string", cmd);
+        const TCLAP::ValueArg<std::string> argSvGame  ("g", "sv-game",        "Name of the game (MOD) that the server should run. Available: " + m_GameInfos.getList() + ".", false, m_GameInfos.getCurrentGameInfo().GetName(), "string", cmd);
         const TCLAP::ValueArg<std::string> argSvWorld ("w", "sv-world",       "Name of the world that the server should run. Case sensitive!", false, Options_ServerWorldName.GetValueString(), "string", cmd);
         const TCLAP::ValueArg<int>         argSvPort  ("o", "sv-port",        "Server port number.", false, Options_ServerPortNr.GetValueInt(), "number", cmd);
         const TCLAP::SwitchArg             argClNoFS  ("n", "cl-no-fs",       "Don't switch to full-screen, use a plain window instead.", cmd);
@@ -325,16 +301,7 @@ bool AppCafuT::OnInit()
 
         if (true)
         {
-            unsigned int i = 0;
-
-            for (i = 0; i < m_AllGameInfos.Size(); i++)
-                if (argSvGame.getValue() == m_AllGameInfos[i].GetName())
-                {
-                    m_GameInfo = m_AllGameInfos[i];
-                    break;
-                }
-
-            if (i >= m_AllGameInfos.Size())
+            if (!m_GameInfos.setGame(argSvGame.getValue()))
                 throw TCLAP::ArgParseException("Unknown game \"" + argSvGame.getValue() + "\"", "sv-game");
         }
 
@@ -384,13 +351,15 @@ bool AppCafuT::OnInit()
     catch (const WinSockT::BadVersion&  /*E*/) { wxMessageBox("WinSock version 2.0 not supported."); OnExit(); return false; }
 
 
-    cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_LOCAL_PATH, "./", "");
- // cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_LOCAL_PATH, "Games/" + m_GameInfo.GetName() + "/", "");
-    // cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_ZIP_ARCHIVE, "Games/" + m_GameInfo.GetName() + "/Textures/TechDemo.zip", "Games/" + m_GameInfo.GetName() + "/Textures/TechDemo/", "Ca3DE");
-    // cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_ZIP_ARCHIVE, "Games/" + m_GameInfo.GetName() + "/Textures/SkyDomes.zip", "Games/" + m_GameInfo.GetName() + "/Textures/SkyDomes/", "Ca3DE");
+    const std::string& gn = m_GameInfos.getCurrentGameInfo().GetName();
 
-    MaterialManager->RegisterMaterialScriptsInDir("Games/" + m_GameInfo.GetName() + "/Materials", "Games/" + m_GameInfo.GetName() + "/");
-    SoundShaderManager->RegisterSoundShaderScriptsInDir("Games/" + m_GameInfo.GetName() + "/SoundShader", "Games/" + m_GameInfo.GetName() + "/");
+    cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_LOCAL_PATH, "./", "");
+ // cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_LOCAL_PATH, "Games/" + gn + "/", "");
+    // cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_ZIP_ARCHIVE, "Games/" + gn + "/Textures/TechDemo.zip", "Games/" + gn + "/Textures/TechDemo/", "Ca3DE");
+    // cf::FileSys::FileMan->MountFileSystem(cf::FileSys::FS_TYPE_ZIP_ARCHIVE, "Games/" + gn + "/Textures/SkyDomes.zip", "Games/" + gn + "/Textures/SkyDomes/", "Ca3DE");
+
+    MaterialManager->RegisterMaterialScriptsInDir("Games/" + gn + "/Materials", "Games/" + gn + "/");
+    SoundShaderManager->RegisterSoundShaderScriptsInDir("Games/" + gn + "/SoundShader", "Games/" + gn + "/");
 
 
     // The console variable VideoModes is initialized here, because under wxGTK, using wxDisplay requires
@@ -476,7 +445,7 @@ bool AppCafuT::OnInit()
 
 
     // Create the main frame.
-    m_MainFrame=new MainFrameT(m_GameInfo);
+    m_MainFrame=new MainFrameT(m_GameInfos.getCurrentGameInfo());
     SetTopWindow(m_MainFrame);
 
     return true;

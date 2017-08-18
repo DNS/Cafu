@@ -61,8 +61,7 @@ class AppCafuT : public wxApp
     wxLocale*                       m_Locale;
     cf::ConsoleStringBufferT*       m_ConBuffer;          ///< The console that buffers all output.
     cf::ConsoleFileT*               m_ConFile;            ///< The console that logs all output into a file (can be NULL if not used).
-    ArrayT<GameInfoT>               m_AllGameInfos;       ///< The game infos for all games/MODs known and available to us.
-    GameInfoT                       m_GameInfo;           ///< The info of the game that was elected to run (one of those in m_AllGameInfos).
+    GameInfosT                      m_GameInfos;          ///< The GameInfoTs available to us.
     bool                            m_IsCustomVideoMode;  ///< Whether we successfully set a custom video mode (screen resolution) during initialization.
     wxVideoMode                     m_CurrentMode;        ///< The video mode that we're currently using.
     MainFrameT*                     m_MainFrame;          ///< The Cafu application main frame.
