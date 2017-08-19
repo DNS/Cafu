@@ -22,9 +22,6 @@ class MainFrameT : public wxFrame
     /// The constructor.
     MainFrameT(const GameInfoT& GameInfo);
 
-    /// Returns the main OpenGL 3D canvas.
-    MainCanvasT* GetMainCanvas() { return m_MainCanvas; }
-
 
     private:
 

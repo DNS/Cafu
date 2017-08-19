@@ -4,6 +4,16 @@ Copyright (c) Carsten Fuchs and other contributors.
 This project is licensed under the terms of the MIT license.
 */
 
+/**************************************/
+/***                                ***/
+/***          Cafu Engine           ***/
+/***                                ***/
+/*** Dass ich erkenne, was die Welt ***/
+/*** im Innersten zusammenhält.     ***/
+/***   -- Goethe, Faust             ***/
+/***                                ***/
+/**************************************/
+
 #include "ClipSys/CollisionModelMan_impl.hpp"
 #include "ConsoleCommands/ConsoleInterpreterImpl.hpp"
 #include "ConsoleCommands/ConsoleComposite.hpp"
@@ -337,10 +347,6 @@ int main(int argc, char* argv[])
     //        extern ConVarT Options_ClientDisplayBPP;
     //        extern ConVarT Options_ClientDisplayRefresh;
     //    }
-
-        // Create the main frame.
-        //m_MainFrame=new MainFrameT(m_GameInfo);
-        //SetTopWindow(m_MainFrame);
 
         WinSockResourceT WinSockRes;
         cf::glfwLibraryT glfwLib;
