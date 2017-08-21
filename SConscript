@@ -54,25 +54,25 @@ envTools.Program('TerrainViewer', "CaTools/TerrainViewer.cpp")
 
 
 if False:
-    envCafuTest = env.Clone()
+    envCafuXX = env.Clone()
 
-    envCafuTest.Append(CPPPATH=['ExtLibs/lua/src'])
-    envCafuTest.Append(CPPPATH=['ExtLibs/bullet/src'])
-    envCafuTest.Append(CPPPATH=['ExtLibs/glfw/include'])
-    envCafuTest.Append(CPPPATH=['ExtLibs/tclap/include'])
+    envCafuXX.Append(CPPPATH=['ExtLibs/lua/src'])
+    envCafuXX.Append(CPPPATH=['ExtLibs/bullet/src'])
+    envCafuXX.Append(CPPPATH=['ExtLibs/glfw/include'])
+    envCafuXX.Append(CPPPATH=['ExtLibs/tclap/include'])
 
-    envCafuTest.Append(LIBS=Split("SceneGraph MatSys SoundSys ClipSys cfsLib cfs_jpeg bulletdynamics bulletcollision bulletmath glfw lightwave lua minizip png z"))
+    envCafuXX.Append(LIBS=Split("SceneGraph MatSys SoundSys ClipSys cfsLib cfs_jpeg bulletdynamics bulletcollision bulletmath glfw lightwave lua minizip png z"))
 
     if sys.platform=="win32":
-        WinResource = envCafuTest.RES("Ca3DE/Cafu.rc")
-        envCafuTest.Append(LIBS=Split("gdi32 opengl32 user32 shell32 wsock32"))   # opengl32 is for glReadPixels.
+        WinResource = envCafuXX.RES("Ca3DE/Cafu.rc")
+        envCafuXX.Append(LIBS=Split("gdi32 opengl32 user32 shell32 wsock32"))   # opengl32 is for glReadPixels.
 
     elif sys.platform=="linux2":
         WinResource = []
 
         # -Wl,-rpath,.           is so that also the . directory is searched for dynamic libraries when they're opened.
         # -Wl,--export-dynamic   is so that the exe exports its symbols so that the MatSys, SoundSys and game .so libs can in turn resolve theirs.
-        envCafuTest.Append(LINKFLAGS=['-Wl,-rpath,.', '-Wl,--export-dynamic'])
+        envCafuXX.Append(LINKFLAGS=['-Wl,-rpath,.', '-Wl,--export-dynamic'])
 
         # pthread is needed because some libraries that we load (possibly indirectly), e.g. the libCg.so and libopenal.so, use functions
         # from the pthread library, but have not been linked themselves against it. They rely on the executable to be linked appropriately
@@ -81,9 +81,9 @@ if False:
         # "Note that dlopen()ing an MT library from non-MT executable is not supported on most platforms, certainly not on Linux."
         # [1] http://groups.google.de/group/gnu.gcc.help/browse_thread/thread/1e8f8dfd6027d7fa/
         # rt is required in order to resolve clock_gettime() in openal-soft.
-        envCafuTest.Append(LIBS=Split("GL rt pthread"))
+        envCafuXX.Append(LIBS=Split("GL rt pthread"))
 
-    appCafuTest = envCafuTest.Program('Ca3DE/CafuTest',
+    appCafuTest = envCafuXX.Program('Ca3DE/CafuTest',
         ["Ca3DE/" + cpp for cpp in Split("Ca3DEWorld.cpp ConDefs.cpp EngineEntity.cpp GameInfo.cpp Resources.cpp CafuTest.cxx ClientMainWindow.cxx")] +
         Glob("Ca3DE/Client/*.cpp") +
         Glob("Ca3DE/Server/*.cpp") +
@@ -131,23 +131,25 @@ elif sys.platform=="linux2":
 
 
 if True:
-    envCafu = wxEnv.Clone()
+    envCafuWx = wxEnv.Clone()
 
-    envCafu.Append(CPPPATH=['ExtLibs/lua/src'])
-    envCafu.Append(CPPPATH=['ExtLibs/bullet/src'])
-    envCafu.Append(CPPPATH=['ExtLibs/tclap/include'])
+    envCafuWx.Append(CPPPATH=['ExtLibs/lua/src'])
+    envCafuWx.Append(CPPPATH=['ExtLibs/bullet/src'])
+    envCafuWx.Append(CPPPATH=['ExtLibs/glfw/include'])
+    envCafuWx.Append(CPPPATH=['ExtLibs/tclap/include'])
 
-    envCafu.Append(LIBS=Split("SceneGraph MatSys SoundSys ClipSys cfsLib cfs_jpeg bulletdynamics bulletcollision bulletmath lightwave lua minizip png z"))
+    envCafuWx.Append(LIBS=Split("SceneGraph MatSys SoundSys ClipSys cfsLib cfs_jpeg bulletdynamics bulletcollision bulletmath glfw lightwave lua minizip png z"))
 
     if sys.platform=="win32":
-        WinResource = envCafu.RES("Ca3DE/Cafu.rc")
+        WinResource = envCafuWx.RES("Ca3DE/Cafu.rc")
+      # envCafuXX.Append(LIBS=Split("gdi32 opengl32 user32 shell32 wsock32"))   # opengl32 is for glReadPixels.
 
     elif sys.platform=="linux2":
         WinResource = []
 
         # -Wl,-rpath,.           is so that also the . directory is searched for dynamic libraries when they're opened.
         # -Wl,--export-dynamic   is so that the exe exports its symbols so that the MatSys, SoundSys and game .so libs can in turn resolve theirs.
-        envCafu.Append(LINKFLAGS=['-Wl,-rpath,.', '-Wl,--export-dynamic'])
+        envCafuWx.Append(LINKFLAGS=['-Wl,-rpath,.', '-Wl,--export-dynamic'])
 
         # pthread is needed because some libraries that we load (possibly indirectly), e.g. the libCg.so and libopenal.so, use functions
         # from the pthread library, but have not been linked themselves against it. They rely on the executable to be linked appropriately
@@ -156,13 +158,19 @@ if True:
         # "Note that dlopen()ing an MT library from non-MT executable is not supported on most platforms, certainly not on Linux."
         # [1] http://groups.google.de/group/gnu.gcc.help/browse_thread/thread/1e8f8dfd6027d7fa/
         # rt is required in order to resolve clock_gettime() in openal-soft.
-        envCafu.Append(LIBS=Split("GL rt pthread"))
+        envCafuWx.Append(LIBS=Split("GL rt pthread"))
 
-    appCafu = envCafu.Program('Ca3DE/Cafu',
+    appCafuWx = envCafuWx.Program('Ca3DE/CafuWx',
         Glob("Ca3DE/*.cpp") +
         Glob("Ca3DE/Client/*.cpp") +
         Glob("Ca3DE/Server/*.cpp") +
         ["Libs/MainWindow/MainWindowWx.cpp"] +
+        CommonWorldObject + ["Common/CompGameEntity.cpp", "Common/WorldMan.cpp"] + WinResource)
+
+    appCafu = envCafuWx.Program('Ca3DE/Cafu',
+        ["Ca3DE/" + cpp for cpp in Split("Ca3DEWorld.cpp ConDefs.cpp EngineEntity.cpp GameInfo.cpp Resources.cpp CafuTest.cxx ClientMainWindow.cxx")] +
+        Glob("Ca3DE/Client/*.cpp") +
+        Glob("Ca3DE/Server/*.cpp") +
         CommonWorldObject + ["Common/CompGameEntity.cpp", "Common/WorldMan.cpp"] + WinResource)
 
 
