@@ -380,7 +380,11 @@ int main(int argc, char* argv[])
 
         // The default values for the window creations hints look just right for our purposes,
         // see http://www.glfw.org/docs/latest/window_guide.html#window_hints_values for details.
-        ClientMainWindowT win(GameInfos.getCurrentGameInfo(), 1024, 768, "Cafu Engine", NULL);
+        ClientMainWindowT win(GameInfos.getCurrentGameInfo(),
+                              Options_ClientWindowSizeX.GetValueInt(),
+                              Options_ClientWindowSizeY.GetValueInt(),
+                              "Cafu Engine",
+                              Options_ClientFullScreen.GetValueBool() ? glfwGetPrimaryMonitor() : NULL);
         glfwMainWindowT   MainWin(win, ClientMainWindowT::getGlfwKey);
 
         // TODO: Set a taskbar icon?

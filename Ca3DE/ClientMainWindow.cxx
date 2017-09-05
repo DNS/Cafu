@@ -209,13 +209,10 @@ void ClientMainWindowT::KeyEvent(int key, int scancode, int action, int mods)
 
             case GLFW_KEY_F11:
             {
-                // TODO!
-                //if (!wxGetApp().IsCustomVideoMode())
-                //{
-                //    // Switching full-screen mode with F11 only makes sense if we didn't set a custom video mode (screen resolution).
-                //    // See AppCafuT::OnInit() for more details.
-                //    m_Parent->ShowFullScreen(!m_Parent->IsFullScreen());
-                //}
+                // In full screen mode, F11 switches to windowed mode.
+                // In windowed mode, F11 switches to full screen mode at desktop resolution,
+                // Ctrl+F11 switches to full screen mode at the previously used resolution.
+                toggleFullScreen(mods == GLFW_MOD_CONTROL);
                 return;
             }
         }

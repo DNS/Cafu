@@ -19,6 +19,8 @@ namespace cf
         public:
 
         /// The constructor. Throws a std::runtime_error on failure.
+        /// `width` and `height` are assumed to be valid full screen sizes,
+        /// even if only a windowed window is opened (`monitor` is `NULL`).
         glfwWindowT(int width, int height, const char* title, GLFWmonitor* monitor=0);
 
         /// The destructor.
@@ -42,6 +44,7 @@ namespace cf
         void getMouseCursorPos(double& posX, double& posY) const;
         int  getWindowAttrib(int attrib) const;
         void getWindowSize(unsigned int& width, unsigned int& height) const;
+        void toggleFullScreen(bool mode_change);
         bool isKeyPressed(int key) const;
         bool isMouseButtonPressed(int button) const;
 
@@ -49,6 +52,10 @@ namespace cf
         private:
 
         GLFWwindow* m_win;
+        int         m_last_fs_width;
+        int         m_last_fs_height;
+        int         m_last_win_width;
+        int         m_last_win_height;
     };
 }
 

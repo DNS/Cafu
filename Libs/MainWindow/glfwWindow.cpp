@@ -60,8 +60,14 @@ static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 
 glfwWindowT::glfwWindowT(int width, int height, const char* title, GLFWmonitor* monitor)
-    : m_win(NULL)
+    : m_win(NULL),
+      m_last_fs_width(width),
+      m_last_fs_height(height),
+      m_last_win_width(width),
+      m_last_win_height(height)
 {
+    printf("Opening %s of size %ix%i.\n", monitor ? "full screen window" : "window", width, height);
+
     // The default values for the window creations hints look just right for our purposes,
     // see http://www.glfw.org/docs/latest/window_guide.html#window_hints_values for details.
     m_win = glfwCreateWindow(width, height, title, monitor, NULL);
@@ -145,7 +151,56 @@ int glfwWindowT::getWindowAttrib(int attrib) const
 
 void glfwWindowT::getWindowSize(unsigned int& width, unsigned int& height) const
 {
+    width = 0;
+    height = 0;
+
     glfwGetWindowSize(m_win, (int*)&width, (int*)&height);
+}
+
+
+void glfwWindowT::toggleFullScreen(bool mode_change)
+{
+    if (glfwGetWindowMonitor(m_win) == NULL)
+    {
+        // Switch from windowed to full screen.
+        glfwGetWindowSize(m_win, &m_last_win_width, &m_last_win_height);
+
+        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+
+        if (mode_change)
+        {
+            printf("Switching to full screen mode %ix%i.\n", m_last_fs_width, m_last_fs_height);
+            glfwSetWindowMonitor(m_win, monitor, 0, 0, m_last_fs_width, m_last_fs_height, GLFW_DONT_CARE);
+        }
+        else
+        {
+            const GLFWvidmode* mode = glfwGetVideoMode(monitor);  // We're windowed, so this is the desktop mode.
+
+            printf("Switching to desktop full screen mode (%ix%i).\n", mode->width, mode->height);
+            glfwSetWindowMonitor(m_win, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+        }
+    }
+    else
+    {
+        // Switch from full screen to windowed.
+        int fs_width;
+        int fs_height;
+
+        glfwGetWindowSize(m_win, &fs_width, &fs_height);
+
+        printf("Switching to window of size %ix%i.\n", m_last_win_width, m_last_win_height);
+        glfwSetWindowMonitor(m_win, NULL, 320, 240, m_last_win_width, m_last_win_height, GLFW_DONT_CARE);
+
+        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);  // We're windowed now, so this is the desktop mode.
+
+        if (fs_width != mode->width || fs_height != mode->height)
+        {
+            // The previous full screen mode was not the desktop full screen mode.
+            m_last_fs_width  = fs_width;
+            m_last_fs_height = fs_height;
+        }
+    }
 }
 
 
