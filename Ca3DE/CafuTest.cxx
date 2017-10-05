@@ -32,6 +32,7 @@ This project is licensed under the terms of the MIT license.
 #include "GuiSys/Window.hpp"
 #include "MainWindow/glfwLibrary.hpp"
 #include "MainWindow/glfwMainWindow.hpp"
+#include "MainWindow/glfwMonitor.hpp"
 #include "MaterialSystem/MaterialManagerImpl.hpp"
 #include "Network/Network.hpp"
 #include "SoundSystem/SoundShaderManagerImpl.hpp"
@@ -333,50 +334,24 @@ int main(int argc, char* argv[])
         MaterialManager->RegisterMaterialScriptsInDir("Games/" + gn + "/Materials", "Games/" + gn + "/");
         SoundShaderManager->RegisterSoundShaderScriptsInDir("Games/" + gn + "/SoundShader", "Games/" + gn + "/");
 
-        // The console variable VideoModes is initialized here, because under wxGTK, using wxDisplay requires
-        // that the wxWidgets library (and thus GTK) is initialized first.
-        // Note that the format of the VideoModes string is fixed - it is parsed by the Main Menu GUI in order to populate the choice box.
-    //    static ConVarT VideoModes("VideoModes", GetVideoModes(), ConVarT::FLAG_MAIN_EXE | ConVarT::FLAG_READ_ONLY, "The list of video modes that are available on your system.");
-    //
-    //    extern ConVarT Options_ClientFullScreen;
-    //
-    //    if (Options_ClientFullScreen.GetValueBool())
-    //    {
-    //        extern ConVarT Options_ClientWindowSizeX;
-    //        extern ConVarT Options_ClientWindowSizeY;
-    //        extern ConVarT Options_ClientDisplayBPP;
-    //        extern ConVarT Options_ClientDisplayRefresh;
-    //    }
-
         WinSockResourceT WinSockRes;
         cf::glfwLibraryT glfwLib;
 
+#if 0
         int num_monitors = 0;
         GLFWmonitor** monitors = glfwGetMonitors(&num_monitors);
 
         Console->Print("Monitors:\n");
         for (int i = 0; i < num_monitors; i++)
         {
-            GLFWmonitor* m = monitors[i];
-
-            int xpos, ypos;
-            glfwGetMonitorPos(m, &xpos, &ypos);
-
-            int widthMM, heightMM;
-            glfwGetMonitorPhysicalSize(m, &widthMM, &heightMM);
-
-            Console->Print(cf::va("%s (pos (%i, %i), size %imm * %imm)\n", glfwGetMonitorName(m), xpos, ypos, widthMM, heightMM));
-
-            int num_modes;
-            const GLFWvidmode* modes = glfwGetVideoModes(m, &num_modes);
-
-            for (int j = 0; j < num_modes; j++)
-            {
-                const GLFWvidmode& mode = modes[j];
-
-                Console->Print(cf::va("    %4i * %4i, 16:%4.1f, %i %i %i, %iHz\n", mode.width, mode.height, 16.0f * mode.height / mode.width, mode.redBits, mode.greenBits, mode.blueBits, mode.refreshRate));
-            }
+            cf::glfwMonitorT mon(monitors[i]);
+            mon.printAllModes();
         }
+#endif
+
+        // Note that the format of the VideoModes string is fixed - it is parsed by the Main Menu GUI in order to populate the choice box.
+        const std::string vid_modes = cf::glfwMonitorT(glfwGetPrimaryMonitor()).getUserChoiceList();
+        static ConVarT VideoModes("VideoModes", vid_modes, ConVarT::FLAG_MAIN_EXE | ConVarT::FLAG_READ_ONLY, "The list of video modes that are available on your system.");
 
         // The default values for the window creations hints look just right for our purposes,
         // see http://www.glfw.org/docs/latest/window_guide.html#window_hints_values for details.

@@ -11,7 +11,7 @@ env.StaticLibrary(
                     ConsoleCommands/Console.cpp ConsoleCommands/Console_Lua.cpp ConsoleCommands/ConsoleComposite.cpp ConsoleCommands/ConsoleStdout.cpp ConsoleCommands/ConsoleStringBuffer.cpp ConsoleCommands/ConsoleWarningsOnly.cpp ConsoleCommands/ConsoleFile.cpp
                     Fonts/Font.cpp Fonts/FontTT.cpp
                     FileSys/FileManImpl.cpp FileSys/FileSys_LocalPath.cpp FileSys/FileSys_ZipArchive_GV.cpp FileSys/File_local.cpp FileSys/File_memory.cpp FileSys/Password.cpp
-                    MainWindow/glfwLibrary.cpp MainWindow/glfwMainWindow.cpp MainWindow/glfwWindow.cpp
+                    MainWindow/glfwLibrary.cpp MainWindow/glfwMainWindow.cpp MainWindow/glfwMonitor.cpp MainWindow/glfwWindow.cpp
                     MapFile.cpp
                     Models/Loader.cpp Models/Loader_ase.cpp Models/Loader_cmdl.cpp Models/Loader_dlod.cpp Models/Loader_dummy.cpp Models/Loader_lwo.cpp Models/Loader_md5.cpp
                     Models/Loader_mdl.cpp Models/Loader_mdl_hl1.cpp Models/Loader_mdl_hl2.cpp Models/Loader_mdl_hl2_vtf.cpp Models/AnimExpr.cpp Models/AnimPose.cpp
