@@ -211,6 +211,9 @@ class CommandLineArgumentsT
         : m_QuitNormally(false)
     {
         // Parse the command line.
+        // Possible alternatives to TCLAP:
+        //   - https://github.com/jarro2783/cxxopts
+        //   - search for "python argparse c++"
         std::ostringstream consoleOutputStream;
         TCLAP::StdOutput   stdOutput(consoleOutputStream, consoleOutputStream);
         TCLAP::CmdLine     cmd("Cafu Engine", stdOutput, ' ', "'" __DATE__ "'");
@@ -362,7 +365,6 @@ int main(int argc, char* argv[])
                               Options_ClientFullScreen.GetValueBool() ? glfwGetPrimaryMonitor() : NULL);
         glfwMainWindowT   MainWin(win, ClientMainWindowT::getGlfwKey);
 
-        // TODO: Set a taskbar icon?
         win.makeContextCurrent();
         win.Init(ConsolesRes.GetConComposite(), ConsolesRes.GetConBuffer().GetBuffer(), MainWin);
         win.triggerFramebufferSizeEvent();

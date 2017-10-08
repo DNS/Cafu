@@ -58,24 +58,6 @@ void ClientMainWindowT::Init(cf::CompositeConsoleT& CC, const std::string& Conso
 {
     if (!m_Resources)
     {
-        // dc.SetBackground(*wxBLACK_BRUSH);
-        // dc.Clear();
-        // dc.SetBackgroundMode(wxTRANSPARENT);
-        // dc.SetTextForeground(wxColour(255, 200, 0));
-        // dc.DrawText("Initializing Cafu...", 10, 40);
-
-        // This code is in this place due to a few peculiarities of OpenGL under GTK that do not exist under MSW:
-        //   - An OpenGL context can only be made current with a canvas that is shown on the screen.
-        //   - Relying on EVT_SHOW however is not a good approach, see the discussions at
-        //     <http://thread.gmane.org/gmane.comp.lib.wxwidgets.general/68490> and
-        //     <http://thread.gmane.org/gmane.comp.lib.wxwidgets.general/70607> for details.
-        // Consequently, the first and best opportunity for initialization is here.
-//        wxASSERT(this->IsShownOnScreen());
-
-        // If this call was in the ctor, it would trigger an assertion in debug build and yield an invalid (unusable)
-        // OpenGL context in release builds (the GL code in the MatSys::Renderer->IsSupported() methods would fail).
-//        this->SetCurrent(*m_GLContext);
-
         try
         {
             m_Resources = new ResourcesT(CC, ConsoleText, m_GameInfo, MainWin);

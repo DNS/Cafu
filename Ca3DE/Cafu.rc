@@ -1,26 +1,31 @@
 // *****************************************************************************
 // *** Reference documentation about .rc resource files can be found in      ***
-// *** the Microsoft Platform SDK docs...                                    ***
-// *** (I've been surprisingly UNsuccessful with Google or the MSDN search!) ***
+// *** the Microsoft Platform SDK docs.                                      ***
 // *****************************************************************************
 
-#include "wx/msw/wx.rc"
+// #include "wx/msw/wx.rc"
+
+// We don't use manifests at this time.
+// 1 24 "Cafu-x86.manifest"
+// 1 24 "Cafu-amd64.manifest"
 
 
 // ************************
 // *** Application Icon ***
 // ************************
 
-// Note that if the icon name "aaaa" is changed here, it must also be changed in C++ code!
-// This is because this icon is also used as the parent-frame icon.
+// This is the icon that is used for the Cafu.exe file.
 aaaa ICON "Cafu-icon.ico"
+
+// This is the icon that is used for the frame and the taskbar when a new GLFW window is opened.
+GLFW_ICON ICON "Cafu-icon.ico"
 
 
 // ***************************
 // *** Version Information ***
 // ***************************
 
-VS_VERSION_INFO VERSIONINFO
+1 VERSIONINFO
  FILEVERSION 1,0,0,0
  PRODUCTVERSION 1,0,0,0
  FILEFLAGSMASK 0x3fL
@@ -41,7 +46,7 @@ BEGIN
             VALUE "FileDescription", "Cafu Engine"
             VALUE "FileVersion", "1.0.0.0"
             VALUE "InternalName", "Cafu"
-            VALUE "LegalCopyright", "Copyright © 2002-2010 Carsten Fuchs Software"
+            VALUE "LegalCopyright", "© 2018 Carsten Fuchs Software"
             VALUE "OriginalFilename", "Cafu.exe"
             VALUE "ProductName", "Cafu Engine"
             VALUE "ProductVersion", "1.0.0.0"
