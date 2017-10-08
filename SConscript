@@ -53,6 +53,41 @@ envTools.Program('TerrainViewer', "CaTools/TerrainViewer.cpp")
 
 
 
+envCafu = env.Clone()
+envCafu.Append(CPPPATH=['ExtLibs/lua/src'])
+envCafu.Append(CPPPATH=['ExtLibs/bullet/src'])
+envCafu.Append(CPPPATH=['ExtLibs/glfw/include'])
+envCafu.Append(CPPPATH=['ExtLibs/tclap/include'])
+envCafu.Append(LIBS=Split("SceneGraph MatSys SoundSys ClipSys cfsLib cfs_jpeg bulletdynamics bulletcollision bulletmath glfw lightwave lua minizip png z"))
+
+if sys.platform=="win32":
+    WinResource = envCafu.RES("Ca3DE/Cafu.rc")
+    envCafu.Append(LIBS=Split("gdi32 opengl32 user32 shell32 wsock32"))   # opengl32 is for glReadPixels.
+
+elif sys.platform=="linux2":
+    WinResource = []
+
+    # -Wl,-rpath,.           is so that also the . directory is searched for dynamic libraries when they're opened.
+    # -Wl,--export-dynamic   is so that the exe exports its symbols so that the MatSys, SoundSys and game .so libs can in turn resolve theirs.
+    envCafu.Append(LINKFLAGS=['-Wl,-rpath,.', '-Wl,--export-dynamic'])
+
+    # pthread is needed because some libraries that we load (possibly indirectly), e.g. the libCg.so and libopenal.so, use functions
+    # from the pthread library, but have not been linked themselves against it. They rely on the executable to be linked appropriately
+    # in order to resolve the pthread symbols. Paul Pluzhnikov states in a newsgroup posting (see [1]) that even if the .so libs were
+    # linked against libpthread.so, the main exe still *must* link with -lpthread, too, because:
+    # "Note that dlopen()ing an MT library from non-MT executable is not supported on most platforms, certainly not on Linux."
+    # [1] http://groups.google.de/group/gnu.gcc.help/browse_thread/thread/1e8f8dfd6027d7fa/
+    # rt is required in order to resolve clock_gettime() in openal-soft.
+    envCafu.Append(LIBS=Split("GL rt pthread"))
+
+appCafu = envCafu.Program('Ca3DE/Cafu',
+    Glob("Ca3DE/*.cpp") +
+    Glob("Ca3DE/Client/*.cpp") +
+    Glob("Ca3DE/Server/*.cpp") +
+    CommonWorldObject + ["Common/CompGameEntity.cpp", "Common/WorldMan.cpp"] + WinResource)
+
+
+
 # Create a common construction environment for our wxWidgets-based programs (Cafu and CaWE).
 wxEnv = env.Clone()
 
@@ -89,41 +124,6 @@ if sys.platform=="win32":
 elif sys.platform=="linux2":
     wxEnv.ParseConfig(Dir("#/ExtLibs/wxWidgets").abspath + "/build-gtk/wx-config --cxxflags --libs std,aui,gl,propgrid | sed 's/-l\\S*jpeg\\S*\\ //g'")
     wxEnv.Append(LIBS=Split("cairo pangocairo-1.0 X11"))
-
-
-
-envCafu = wxEnv.Clone()
-
-envCafu.Append(CPPPATH=['ExtLibs/lua/src'])
-envCafu.Append(CPPPATH=['ExtLibs/bullet/src'])
-envCafu.Append(CPPPATH=['ExtLibs/tclap/include'])
-
-envCafu.Append(LIBS=Split("SceneGraph MatSys SoundSys ClipSys cfsLib cfs_jpeg bulletdynamics bulletcollision bulletmath lightwave lua minizip png z"))
-
-if sys.platform=="win32":
-    WinResource = envCafu.RES("Ca3DE/Cafu.rc")
-
-elif sys.platform=="linux2":
-    WinResource = []
-
-    # -Wl,-rpath,.           is so that also the . directory is searched for dynamic libraries when they're opened.
-    # -Wl,--export-dynamic   is so that the exe exports its symbols so that the MatSys, SoundSys and game .so libs can in turn resolve theirs.
-    envCafu.Append(LINKFLAGS=['-Wl,-rpath,.', '-Wl,--export-dynamic'])
-
-    # pthread is needed because some libraries that we load (possibly indirectly), e.g. the libCg.so and libopenal.so, use functions
-    # from the pthread library, but have not been linked themselves against it. They rely on the executable to be linked appropriately
-    # in order to resolve the pthread symbols. Paul Pluzhnikov states in a newsgroup posting (see [1]) that even if the .so libs were
-    # linked against libpthread.so, the main exe still *must* link with -lpthread, too, because:
-    # "Note that dlopen()ing an MT library from non-MT executable is not supported on most platforms, certainly not on Linux."
-    # [1] http://groups.google.de/group/gnu.gcc.help/browse_thread/thread/1e8f8dfd6027d7fa/
-    # rt is required in order to resolve clock_gettime() in openal-soft.
-    envCafu.Append(LIBS=Split("GL rt pthread"))
-
-appCafu = envCafu.Program('Ca3DE/Cafu',
-    Glob("Ca3DE/*.cpp") +
-    Glob("Ca3DE/Client/*.cpp") +
-    Glob("Ca3DE/Server/*.cpp") +
-    CommonWorldObject + ["Common/CompGameEntity.cpp", "Common/WorldMan.cpp"] + WinResource)
 
 
 

@@ -15,6 +15,11 @@ namespace cf
     /// The String namespace gathers auxiliary string functions that are not found in that standard library.
     namespace String
     {
+        inline bool startsWith(const std::string& s, const std::string& prefix)
+        {
+            return s.compare(0, prefix.length(), prefix) == 0;
+        }
+
         /// Returns whether the given string \c String ends with the given \c Suffix.
         inline bool EndsWith(const std::string& String, const std::string& Suffix)
         {

@@ -4,9 +4,7 @@ Copyright (c) Carsten Fuchs and other contributors.
 This project is licensed under the terms of the MIT license.
 */
 
-#include "../AppCafu.hpp"
-#include "../MainCanvas.hpp"
-#include "../MainFrame.hpp"
+#include "../GameInfo.hpp"
 #include "../NetConst.hpp"
 
 #include "ClientStateInGame.hpp"
@@ -22,6 +20,7 @@ This project is licensed under the terms of the MIT license.
 #include "MaterialSystem/Renderer.hpp"
 #include "MaterialSystem/TextureMap.hpp"
 #include "SoundSystem/SoundSys.hpp"
+#include "MainWindow/MainWindow.hpp"
 #include "Math3D/Angles.hpp"
 #include "Math3D/Matrix.hpp"
 #include "Network/Network.hpp"
@@ -395,7 +394,10 @@ static std::string              LoadingProgressText="";
 
 void ClientStateInGameT::Render(float FrameTime)
 {
-    const wxSize FrameSize=wxGetApp().GetMainFrame()->GetClientSize();
+    const unsigned int fbWidth  = Client.m_MainWin.GetFrameBufferWidth();
+    const unsigned int fbHeight = Client.m_MainWin.GetFrameBufferHeight();
+    const float ffbWidth  = float(fbWidth);
+    const float ffbHeight = float(fbHeight);
 
     Graphs.ClearForFrame(ClientFrameNr);
 
@@ -422,7 +424,7 @@ void ClientStateInGameT::Render(float FrameTime)
             MatSys::Renderer->SetMatrix(MatSys::RendererI::PROJECTION,
                 // Note that the far plane is located at infinity for our stencil shadows implementation!
                 // A fovY of 67.5 corresponds to a fovX of 90.0 when the aspect ratio is 4:3.
-                MatrixT::GetProjPerspectiveMatrix(67.5f, float(FrameSize.GetWidth())/float(FrameSize.GetHeight()), 4.0f, -1.0f));
+                MatrixT::GetProjPerspectiveMatrix(67.5f, ffbWidth / ffbHeight, 4.0f, -1.0f));
 
             // MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());   // Setup by World->Draw().
             // MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW,  MatrixT());
@@ -437,7 +439,7 @@ void ClientStateInGameT::Render(float FrameTime)
             static ConVarT ShowFrameRate("showFPS", false, ConVarT::FLAG_MAIN_EXE, "Toggles whether the frames-per-second number is shown.");
             static ConVarT ShowPosition("showPos", false, ConVarT::FLAG_MAIN_EXE, "Toggles whether the current players position is shown.");
 
-            if (ShowFrameRate.GetValueBool()) Font_f.Print(FrameSize.GetWidth()-100, FrameSize.GetHeight()-16, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("FPS %5.1f", 1.0f/FrameTime));
+            if (ShowFrameRate.GetValueBool()) Font_f.Print(fbWidth-100, fbHeight-16, ffbWidth, ffbHeight, 0x00FFFFFF, cf::va("FPS %5.1f", 1.0f/FrameTime));
 
             if (ShowPosition.GetValueBool())
             {
@@ -449,11 +451,11 @@ void ClientStateInGameT::Render(float FrameTime)
 
                 const Vector3fT Origin = CameraTrafo->GetOriginWS();
 
-                Font_f.Print(FrameSize.GetWidth()-130, 15, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("X %10.1f", Origin.x));
-                Font_f.Print(FrameSize.GetWidth()-130, 35, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("Y %10.1f", Origin.y));
-                Font_f.Print(FrameSize.GetWidth()-130, 55, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("Z %10.1f", Origin.z));
-                Font_f.Print(FrameSize.GetWidth()-130, 75, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("Hdg %8.1f", cf::math::AnglesfT(CameraTrafo->GetQuatWS()).yaw()));
-             // Font_f.Print(FrameSize.GetWidth()-100, FrameSize.GetHeight()-32, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00FFFFFF, cf::va("L %4u %c", LeafNr, LeafContents));
+                Font_f.Print(fbWidth-130, 15, ffbWidth, ffbHeight, 0x00FFFFFF, cf::va("X %10.1f", Origin.x));
+                Font_f.Print(fbWidth-130, 35, ffbWidth, ffbHeight, 0x00FFFFFF, cf::va("Y %10.1f", Origin.y));
+                Font_f.Print(fbWidth-130, 55, ffbWidth, ffbHeight, 0x00FFFFFF, cf::va("Z %10.1f", Origin.z));
+                Font_f.Print(fbWidth-130, 75, ffbWidth, ffbHeight, 0x00FFFFFF, cf::va("Hdg %8.1f", cf::math::AnglesfT(CameraTrafo->GetQuatWS()).yaw()));
+             // Font_f.Print(fbWidth-100, fbHeight-32, ffbWidth, ffbHeight, 0x00FFFFFF, cf::va("L %4u %c", LeafNr, LeafContents));
             }
 
             /*if (ShowLeaf)
@@ -468,7 +470,7 @@ void ClientStateInGameT::Render(float FrameTime)
         }
         else
         {
-            Font_f.Print(30, FrameSize.GetHeight()*2/3, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00004080, "Receiving entity baselines...");
+            Font_f.Print(30, fbHeight*2/3, ffbWidth, ffbHeight, 0x00004080, "Receiving entity baselines...");
         }
     }
     else
@@ -482,7 +484,7 @@ void ClientStateInGameT::Render(float FrameTime)
 
             MatSys::Renderer->SetMatrix(MatSys::RendererI::MODEL_TO_WORLD, MatrixT());
             MatSys::Renderer->SetMatrix(MatSys::RendererI::WORLD_TO_VIEW,  MatrixT());
-            MatSys::Renderer->SetMatrix(MatSys::RendererI::PROJECTION,     MatrixT::GetProjOrthoMatrix(0.0f, float(FrameSize.GetWidth()), float(FrameSize.GetHeight()), 0.0f, -1.0f, 1.0f));
+            MatSys::Renderer->SetMatrix(MatSys::RendererI::PROJECTION,     MatrixT::GetProjOrthoMatrix(0.0f, ffbWidth, ffbHeight, 0.0f, -1.0f, 1.0f));
 
             MatSys::Renderer->SetCurrentRenderAction(MatSys::RendererI::AMBIENT);
 
@@ -498,10 +500,10 @@ void ClientStateInGameT::Render(float FrameTime)
                 // Do floating-point (rather than unsigned long) math for the origin, or else we get into trouble with negative numbers.
                 // The coordinates have also been tested with a hor. and ver. stripe pattern texture for making sure that there is no
                 // inadvertent scaling by plus or minus one pixel.
-                M.Vertices[0].SetOrigin(FrameSize.GetWidth()/2.0f-512.0f, FrameSize.GetHeight()/2.0f-256.0f-20.0f); // links  oben
-                M.Vertices[1].SetOrigin(FrameSize.GetWidth()/2.0f+512.0f, FrameSize.GetHeight()/2.0f-256.0f-20.0f); // rechts oben
-                M.Vertices[2].SetOrigin(FrameSize.GetWidth()/2.0f+512.0f, FrameSize.GetHeight()/2.0f+256.0f-20.0f); // rechts unten
-                M.Vertices[3].SetOrigin(FrameSize.GetWidth()/2.0f-512.0f, FrameSize.GetHeight()/2.0f+256.0f-20.0f); // links  unten
+                M.Vertices[0].SetOrigin(fbWidth/2.0f-512.0f, fbHeight/2.0f-256.0f-20.0f); // links  oben
+                M.Vertices[1].SetOrigin(fbWidth/2.0f+512.0f, fbHeight/2.0f-256.0f-20.0f); // rechts oben
+                M.Vertices[2].SetOrigin(fbWidth/2.0f+512.0f, fbHeight/2.0f+256.0f-20.0f); // rechts unten
+                M.Vertices[3].SetOrigin(fbWidth/2.0f-512.0f, fbHeight/2.0f+256.0f-20.0f); // links  unten
 
                 MatSys::Renderer->SetCurrentMaterial(LogoRenderMat);
                 MatSys::Renderer->RenderMesh(M);
@@ -509,14 +511,14 @@ void ClientStateInGameT::Render(float FrameTime)
 
 
         #if 0
-            const unsigned long BarHalfWidth=FrameSize.GetWidth()/2-40;
+            const unsigned long BarHalfWidth=fbWidth/2-40;
 
             // Render the left end of the loading bar.
             {
-                M.Vertices[0].SetOrigin(FrameSize.GetWidth()/2-BarHalfWidth-16, FrameSize.GetHeight()*9/10-20   );
-                M.Vertices[1].SetOrigin(FrameSize.GetWidth()/2-BarHalfWidth   , FrameSize.GetHeight()*9/10-20   );
-                M.Vertices[2].SetOrigin(FrameSize.GetWidth()/2-BarHalfWidth   , FrameSize.GetHeight()*9/10-20+32);
-                M.Vertices[3].SetOrigin(FrameSize.GetWidth()/2-BarHalfWidth-16, FrameSize.GetHeight()*9/10-20+32);
+                M.Vertices[0].SetOrigin(fbWidth/2-BarHalfWidth-16, fbHeight*9/10-20   );
+                M.Vertices[1].SetOrigin(fbWidth/2-BarHalfWidth   , fbHeight*9/10-20   );
+                M.Vertices[2].SetOrigin(fbWidth/2-BarHalfWidth   , fbHeight*9/10-20+32);
+                M.Vertices[3].SetOrigin(fbWidth/2-BarHalfWidth-16, fbHeight*9/10-20+32);
 
                 MatSys::Renderer->SetCurrentMaterial(LoadingBarLMat);
                 MatSys::Renderer->RenderMesh(M);
@@ -524,10 +526,10 @@ void ClientStateInGameT::Render(float FrameTime)
 
             // Render the center left (filled) part of the loading bar.
             {
-                M.Vertices[0].SetOrigin(FrameSize.GetWidth()/2-BarHalfWidth                               , FrameSize.GetHeight()*9/10-20   );
-                M.Vertices[1].SetOrigin(FrameSize.GetWidth()/2-BarHalfWidth+2*BarHalfWidth*ProgressPercent, FrameSize.GetHeight()*9/10-20   );
-                M.Vertices[2].SetOrigin(FrameSize.GetWidth()/2-BarHalfWidth+2*BarHalfWidth*ProgressPercent, FrameSize.GetHeight()*9/10-20+32);
-                M.Vertices[3].SetOrigin(FrameSize.GetWidth()/2-BarHalfWidth                               , FrameSize.GetHeight()*9/10-20+32);
+                M.Vertices[0].SetOrigin(fbWidth/2-BarHalfWidth                               , fbHeight*9/10-20   );
+                M.Vertices[1].SetOrigin(fbWidth/2-BarHalfWidth+2*BarHalfWidth*ProgressPercent, fbHeight*9/10-20   );
+                M.Vertices[2].SetOrigin(fbWidth/2-BarHalfWidth+2*BarHalfWidth*ProgressPercent, fbHeight*9/10-20+32);
+                M.Vertices[3].SetOrigin(fbWidth/2-BarHalfWidth                               , fbHeight*9/10-20+32);
 
                 MatSys::Renderer->SetCurrentMaterial(LoadingBar1Mat);
                 MatSys::Renderer->RenderMesh(M);
@@ -535,10 +537,10 @@ void ClientStateInGameT::Render(float FrameTime)
 
             // Render the center right (not yet filled) part of the loading bar.
             {
-                M.Vertices[0].SetOrigin(FrameSize.GetWidth()/2-BarHalfWidth+2*BarHalfWidth*ProgressPercent, FrameSize.GetHeight()*9/10-20   );
-                M.Vertices[1].SetOrigin(FrameSize.GetWidth()/2+BarHalfWidth                               , FrameSize.GetHeight()*9/10-20   );
-                M.Vertices[2].SetOrigin(FrameSize.GetWidth()/2+BarHalfWidth                               , FrameSize.GetHeight()*9/10-20+32);
-                M.Vertices[3].SetOrigin(FrameSize.GetWidth()/2-BarHalfWidth+2*BarHalfWidth*ProgressPercent, FrameSize.GetHeight()*9/10-20+32);
+                M.Vertices[0].SetOrigin(fbWidth/2-BarHalfWidth+2*BarHalfWidth*ProgressPercent, fbHeight*9/10-20   );
+                M.Vertices[1].SetOrigin(fbWidth/2+BarHalfWidth                               , fbHeight*9/10-20   );
+                M.Vertices[2].SetOrigin(fbWidth/2+BarHalfWidth                               , fbHeight*9/10-20+32);
+                M.Vertices[3].SetOrigin(fbWidth/2-BarHalfWidth+2*BarHalfWidth*ProgressPercent, fbHeight*9/10-20+32);
 
                 MatSys::Renderer->SetCurrentMaterial(LoadingBar0Mat);
                 MatSys::Renderer->RenderMesh(M);
@@ -546,10 +548,10 @@ void ClientStateInGameT::Render(float FrameTime)
 
             // Render the right end of the loading bar.
             {
-                M.Vertices[0].SetOrigin(FrameSize.GetWidth()/2+BarHalfWidth   , FrameSize.GetHeight()*9/10-20   );
-                M.Vertices[1].SetOrigin(FrameSize.GetWidth()/2+BarHalfWidth+16, FrameSize.GetHeight()*9/10-20   );
-                M.Vertices[2].SetOrigin(FrameSize.GetWidth()/2+BarHalfWidth+16, FrameSize.GetHeight()*9/10-20+32);
-                M.Vertices[3].SetOrigin(FrameSize.GetWidth()/2+BarHalfWidth   , FrameSize.GetHeight()*9/10-20+32);
+                M.Vertices[0].SetOrigin(fbWidth/2+BarHalfWidth   , fbHeight*9/10-20   );
+                M.Vertices[1].SetOrigin(fbWidth/2+BarHalfWidth+16, fbHeight*9/10-20   );
+                M.Vertices[2].SetOrigin(fbWidth/2+BarHalfWidth+16, fbHeight*9/10-20+32);
+                M.Vertices[3].SetOrigin(fbWidth/2+BarHalfWidth   , fbHeight*9/10-20+32);
 
                 MatSys::Renderer->SetCurrentMaterial(LoadingBarRMat);
                 MatSys::Renderer->RenderMesh(M);
@@ -563,28 +565,28 @@ void ClientStateInGameT::Render(float FrameTime)
             const unsigned long CharWidth=10;
 
             #ifdef DEBUG
-                LoadingFont->Print(FrameSize.GetWidth()/2-34*CharWidth/2, FrameSize.GetHeight()*9/10+12, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00800000, "Version: " __DATE__" [Debug build], "+LoadingProgressText);
+                LoadingFont->Print(fbWidth/2-34*CharWidth/2, fbHeight*9/10+12, ffbWidth, ffbHeight, 0x00800000, "Version: " __DATE__" [Debug build], "+LoadingProgressText);
             #else
-                LoadingFont->Print(FrameSize.GetWidth()/2-20*CharWidth/2, FrameSize.GetHeight()*9/10+12, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00800000, "Version: " __DATE__);
+                LoadingFont->Print(fbWidth/2-20*CharWidth/2, fbHeight*9/10+12, ffbWidth, ffbHeight, 0x00800000, "Version: " __DATE__);
             #endif
 
             if (LoadingProgressPercent>0)
-                LoadingFont->Print(FrameSize.GetWidth()/2-10*CharWidth/2, FrameSize.GetHeight()*9/10+30, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00800000, cf::va("Loading... %.0f%%", LoadingProgressPercent*100.0f));
+                LoadingFont->Print(fbWidth/2-10*CharWidth/2, fbHeight*9/10+30, ffbWidth, ffbHeight, 0x00800000, cf::va("Loading... %.0f%%", LoadingProgressPercent*100.0f));
             else
-                LoadingFont->Print(FrameSize.GetWidth()/2-10*CharWidth/2, FrameSize.GetHeight()*9/10+30, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00800000, "Loading...");
+                LoadingFont->Print(fbWidth/2-10*CharWidth/2, fbHeight*9/10+30, ffbWidth, ffbHeight, 0x00800000, "Loading...");
         }
         else
         {
             // We have no world yet, and are currently not loading one,
             // which means that we're still waiting for a SC1_WorldInfo message.
-            Font_f.Print(5, 200, FrameSize.GetWidth(), FrameSize.GetHeight(), 0x00DDFFBB, "Waiting for SC1_WorldInfo message...");
+            Font_f.Print(5, 200, ffbWidth, ffbHeight, 0x00DDFFBB, "Waiting for SC1_WorldInfo message...");
         }
     }
 
     // Zeichne die restlichen Dinge, die unabhängig von der World sind.
     static ConVarT ShowGraphs("showGraphs", false, ConVarT::FLAG_MAIN_EXE, "Toggles whether some FPS graphs are shown.");
 
-    if (ShowGraphs.GetValueBool()) Graphs.Draw(ClientFrameNr);
+    if (ShowGraphs.GetValueBool()) Graphs.Draw(ClientFrameNr, fbWidth, fbHeight);
 
     for (const char* s=DequeueString(); s!=NULL; s=DequeueString())
     {
@@ -592,9 +594,9 @@ void ClientStateInGameT::Render(float FrameTime)
         SystemScrollInfo.Print(s);
     }
 
-    ChatScrollInfo  .Draw(Font_v, 5, FrameSize.GetHeight()-10-140, FrameSize.GetWidth(), FrameSize.GetHeight());
+    ChatScrollInfo  .Draw(Font_v, 5, fbHeight-10-140, ffbWidth, ffbHeight);
     ChatScrollInfo  .AdvanceTime(FrameTime);
-    SystemScrollInfo.Draw(Font_v, 5, 15, FrameSize.GetWidth(), FrameSize.GetHeight());
+    SystemScrollInfo.Draw(Font_v, 5, 15, ffbWidth, ffbHeight);
     SystemScrollInfo.AdvanceTime(FrameTime);
 
 
@@ -629,6 +631,8 @@ void ClientStateInGameT::ProcessConnectionLessPacket(NetDataT& InData, const Net
 }
 
 
+static MainWindowT* globalMainWinPtr = NULL;     // A hack...
+
 static void WorldLoadingProgressFunction(float ProgressPercent, const char* ProgressText)
 {
     LoadingProgressPercent=ProgressPercent;
@@ -645,7 +649,9 @@ static void WorldLoadingProgressFunction(float ProgressPercent, const char* Prog
     cf::GuiSys::GuiMan->RenderAll();
 
     MatSys::Renderer->EndFrame();
-    wxGetApp().GetMainFrame()->GetMainCanvas()->SwapBuffers();
+
+    assert(globalMainWinPtr);
+    globalMainWinPtr->SwapBuffers();
 
     SoundSystem->Update();
 }
@@ -714,7 +720,9 @@ void ClientStateInGameT::ParseServerPacket(NetDataT& InData)
                 {
                     // World is deleted above.
                     IsLoadingWorld=true;
+                    globalMainWinPtr = &Client.m_MainWin;
                     World=new CaClientWorldT(PathName, Client.m_ModelMan, Client.m_GuiRes, WorldLoadingProgressFunction, OurEntityID);
+                    globalMainWinPtr = NULL;
                     IsLoadingWorld=false;
 
                     ConsoleInterpreter->RunCommand("StartLevelIntroMusic()");   // This function must be provided in "config.lua".
