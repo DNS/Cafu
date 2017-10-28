@@ -7,6 +7,8 @@ This project is licensed under the terms of the MIT license.
 #include "GameInfo.hpp"
 #include "PlatformAux.hpp"
 
+#include <stdexcept>
+
 
 GameInfoT::GameInfoT(const std::string& GameName)
     : m_GameName(GameName)

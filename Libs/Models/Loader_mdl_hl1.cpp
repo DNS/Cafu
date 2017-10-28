@@ -88,7 +88,7 @@ LoaderHL1mdlT::LoaderHL1mdlT(const std::string& FileName, int Flags)
         // AnimationData[0] wird niemals initialisiert oder verwendet, denn diese Information ist schon Bestandteil von ModelData!
         for (int SeqGroupNr=1; SeqGroupNr<StudioHeader->NumSeqGroups; SeqGroupNr++)
         {
-            char NumStr[10];
+            char NumStr[12];
             sprintf(NumStr, "%02d", SeqGroupNr);
 
             InFile=fopen((BaseName+NumStr+".mdl").c_str(), "rb");

@@ -117,6 +117,7 @@ void CaServerWorldT::Think(float FrameTime, const ArrayT<ClientInfoT*>& ClientIn
         {
             const bool ok = m_ScriptWorld->GetRootEntity()->RemoveChild(Ent);
             assert(ok);
+            (void)ok;   // Unused variable in release builds.
 
             Console->Print(cf::va("Entity %lu (\"%s\") is no longer referred to by any client, removed.\n", EntNr, Ent->GetBasics()->GetEntityName().c_str()));
             delete m_EngineEntities[EntNr];

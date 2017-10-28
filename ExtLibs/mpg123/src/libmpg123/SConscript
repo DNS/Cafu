@@ -7,7 +7,7 @@ env_mpg123 = env.Clone()
 
 env_mpg123.Append(CPPDEFINES=["OPT_GENERIC"])
 
-if sys.platform=="linux2":
+if sys.platform.startswith("linux"):
     # This library will be linked to a .so, thus we have to compile with -fpic.
     env_mpg123.Append(CCFLAGS=["-fpic"])
 

@@ -5,7 +5,7 @@ Import('env')
 
 env_ogg=env.Clone()
 
-if sys.platform=="linux2":
+if sys.platform.startswith("linux"):
     # This library will be linked to a .so, thus we have to compile with -fpic.
     env_ogg.Append(CCFLAGS=["-fpic"])
 

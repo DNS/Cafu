@@ -137,14 +137,14 @@ std::string glfwMonitorT::getUserChoiceList() const
     for (size_t i = 0; i < ModeList.size(); i++)
     {
         float mi_ar = float(ModeList[i].width) / float(ModeList[i].height);
-        float mi_df = fabs(phys_ar - mi_ar);
+        float mi_df = abs(phys_ar - mi_ar);
 
         for (size_t j = i + 1; j < ModeList.size(); j++)
         {
             if (abs(ModeList[i].width - ModeList[j].width) < 80)
             {
                 const float mj_ar = float(ModeList[j].width) / float(ModeList[j].height);
-                const float mj_df = fabs(phys_ar - mj_ar);
+                const float mj_df = abs(phys_ar - mj_ar);
 
                 if (mj_df < mi_df)
                 {
@@ -190,7 +190,7 @@ std::string glfwMonitorT::getUserChoiceList() const
     for (size_t i = 0; i < ModeList.size() && ModeList.size() > 3; i++)
     {
         const float mi_ar = float(ModeList[i].width) / float(ModeList[i].height);
-        const float mi_df = fabs(phys_ar - mi_ar);
+        const float mi_df = abs(phys_ar - mi_ar);
 
         if (mi_df >= 0.1f)
         {

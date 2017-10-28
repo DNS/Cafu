@@ -12,7 +12,7 @@ envMapCompilers.Append(LIBS=Split("SceneGraph MatSys SoundSys ClipSys cfsLib Cli
 
 if sys.platform=="win32":
     envMapCompilers.Append(LIBS=Split("wsock32"))
-elif sys.platform=="linux2":
+elif sys.platform.startswith("linux"):
     pass # envMapCompilers.Append(LIBS=Split(""))
 
 CommonWorldObject = envMapCompilers.StaticObject("Common/World.cpp")
@@ -38,7 +38,7 @@ if sys.platform=="win32":
     # shell32 is required by glfw, which uses DragQueryFile() etc.
     envTools.Append(LIBS=Split("SceneGraph MatSys ClipSys cfsLib cfs_jpeg bulletcollision bulletmath glfw lua minizip lightwave png z")
                        + Split("gdi32 opengl32 user32 shell32"))
-elif sys.platform=="linux2":
+elif sys.platform.startswith("linux"):
     envTools.Append(CPPPATH=['/usr/include/freetype2'])  # As of 2009-09-10, this line is to become unnecessary in the future, see /usr/include/ftbuild.h for details.
     envTools.Append(LINKFLAGS=['-Wl,-rpath,.'])          # Have dlopen() consider "." when searching for SOs (e.g. libCg.so).
     envTools.Append(LINKFLAGS=['-Wl,--export-dynamic'])  # Have our symbols available for dynamically loaded SOs (e.g. the renderer DLLs).
@@ -64,7 +64,7 @@ if sys.platform=="win32":
     WinResource = envCafu.RES("Ca3DE/Cafu.rc")
     envCafu.Append(LIBS=Split("gdi32 opengl32 user32 shell32 wsock32"))   # opengl32 is for glReadPixels.
 
-elif sys.platform=="linux2":
+elif sys.platform.startswith("linux"):
     WinResource = []
 
     # -Wl,-rpath,.           is so that also the . directory is searched for dynamic libraries when they're opened.
@@ -78,7 +78,7 @@ elif sys.platform=="linux2":
     # "Note that dlopen()ing an MT library from non-MT executable is not supported on most platforms, certainly not on Linux."
     # [1] http://groups.google.de/group/gnu.gcc.help/browse_thread/thread/1e8f8dfd6027d7fa/
     # rt is required in order to resolve clock_gettime() in openal-soft.
-    envCafu.Append(LIBS=Split("GL rt pthread"))
+    envCafu.Append(LIBS=Split("GL X11 Xrandr Xinerama Xxf86vm Xcursor rt dl pthread"))
 
 appCafu = envCafu.Program('Ca3DE/Cafu',
     Glob("Ca3DE/*.cpp") +
@@ -121,7 +121,7 @@ if sys.platform=="win32":
     wxEnv.Append(CPPPATH=[wxPath+'/include'])   # This must be appended *after* the LibPath-specific paths.
     wxEnv.Append(LIBS=Split("advapi32 comctl32 comdlg32 gdi32 ole32 oleaut32 opengl32 rpcrt4 shell32 user32 winspool wsock32"))
 
-elif sys.platform=="linux2":
+elif sys.platform.startswith("linux"):
     wxEnv.ParseConfig(Dir("#/ExtLibs/wxWidgets").abspath + "/build-gtk/wx-config --cxxflags --libs std,aui,gl,propgrid | sed 's/-l\\S*jpeg\\S*\\ //g'")
     wxEnv.Append(LIBS=Split("cairo pangocairo-1.0 X11"))
 
@@ -152,7 +152,7 @@ if sys.platform=="win32":
             ("debug" if buildMode == "dbg" else "release")])
         envCaWE.Append(LIBS=["libfbxsdk-md"])
 
-elif sys.platform=="linux2":
+elif sys.platform.startswith("linux"):
     envCaWE.Append(CPPPATH=['/usr/include/freetype2'])  # As of 2009-09-10, this line is to become unnecessary in the future, see /usr/include/ftbuild.h for details.
     envCaWE.Append(LINKFLAGS=['-Wl,-rpath,.'])          # Have dlopen() consider "." when searching for SOs (e.g. libCg.so).
     envCaWE.Append(LINKFLAGS=['-Wl,--export-dynamic'])  # Have our symbols available for dynamically loaded SOs (e.g. the renderer DLLs).

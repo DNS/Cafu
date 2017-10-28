@@ -15,7 +15,7 @@ if sys.platform=="win32":
         env_freealut.Append(LIBPATH=['#/ExtLibs/openal-win/libs/Win64'])
     env_freealut.Append(LIBS=Split("OpenAL32"))
 
-elif sys.platform=="linux2":
+elif sys.platform.startswith("linux"):
     env_freealut.Append(CPPDEFINES=['HAVE_STDINT_H', 'ALUT_EXPORTS', '_MBCS', 'ALUT_BUILD_LIBRARY', 'HAVE_STAT', 'HAVE_UNISTD_H', 'HAVE_BASETSD_H', 'HAVE_NANOSLEEP', 'HAVE_TIME_H'])
     env_freealut.Append(CPPPATH=['include', '#/ExtLibs/openal-soft/include'])
 

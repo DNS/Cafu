@@ -40,7 +40,7 @@ if sys.platform == "win32":
     if os.path.exists(Dir("#/ExtLibs/fbx/include").abspath) and os.path.exists(Dir(fbx_lib_path).abspath):
         envModelLoaders.Append(CPPDEFINES=["HAVE_FBX_SDK"])
         envModelLoaders.Append(CPPPATH=["#/ExtLibs/fbx/include"])
-elif sys.platform == "linux2":
+elif sys.platform.startswith("linux"):
     if os.path.exists(Dir("#/ExtLibs/fbx/include").abspath):
         envModelLoaders.Append(CPPDEFINES=["HAVE_FBX_SDK"])
         envModelLoaders.Append(CPPPATH=["#/ExtLibs/fbx/include"])
@@ -82,7 +82,7 @@ envRenderers = env.Clone()
 
 MatSys_CommonObjectsList = envRenderers.SharedObject(["MaterialSystem/Common/DepRelMatrix.cpp", "MaterialSystem/Common/OpenGLState.cpp", "MaterialSystem/Common/OpenGLEx.cpp"])
 
-if sys.platform=="linux2":
+if sys.platform.startswith("linux"):
     envRenderers.Append(LINKFLAGS=["Libs/MaterialSystem/Common/linker-script"])
 
 
@@ -114,7 +114,7 @@ if not platform.machine().startswith("arm"):
     if sys.platform=="win32":
         LibList=Split("cfsLib png cfs_jpeg z MatSys opengl32.lib glu32.lib cg cgGL")
         if envRenderers["TARGET_ARCH"]!="x86": LibPath += ".x64"
-    elif sys.platform=="linux2":
+    elif sys.platform.startswith("linux"):
         LibList=Split("Cg CgGL GLU")
         if platform.machine()=="x86_64": LibPath += ".x64"
     else:
@@ -141,7 +141,7 @@ if not platform.machine().startswith("arm"):
     if sys.platform=="win32":
         LibList=Split("cfsLib png cfs_jpeg z MatSys opengl32.lib glu32.lib cg cgGL")
         if envRenderers["TARGET_ARCH"]!="x86": LibPath += ".x64"
-    elif sys.platform=="linux2":
+    elif sys.platform.startswith("linux"):
         LibList=Split("Cg CgGL GLU")
         if platform.machine()=="x86_64": LibPath += ".x64"
     else:
@@ -194,7 +194,7 @@ envRenderers.SharedLibrary(
 
 envSoundSys = env.Clone()
 
-if sys.platform=="linux2":
+if sys.platform.startswith("linux"):
     envSoundSys.Append(LINKFLAGS=["Libs/SoundSystem/Common/linker-script"])
 
 envSoundSys.SharedLibrary(
@@ -210,14 +210,14 @@ envSoundSys.Append(CPPPATH=['#/ExtLibs/fmod/api/inc'])
 if sys.platform=="win32":
     envSoundSys.Append(LIBPATH=['#/ExtLibs/fmod/api/lib'])
     envSoundSys.Append(LIBS=Split("cfsLib SoundSys fmodvc"))
-elif sys.platform=="linux2":
+elif sys.platform.startswith("linux"):
     envSoundSys.Append(LINKFLAGS=["Libs/SoundSystem/Common/linker-script"])
     envSoundSys.Append(LIBPATH=['#/ExtLibs/fmod/api'])
     envSoundSys.Append(LIBS=["SoundSys", "fmod-3.75"])
 
 # We have the FMod libraries only for 32-bit platforms...
 if not platform.machine().startswith("arm"):
-    if (sys.platform=="win32" and envSoundSys["TARGET_ARCH"]=="x86") or (sys.platform=="linux2" and platform.machine()!="x86_64"):
+    if (sys.platform=="win32" and envSoundSys["TARGET_ARCH"]=="x86") or (sys.platform.startswith("linux") and platform.machine()!="x86_64"):
         envSoundSys.SharedLibrary(
             target="SoundSystem/SoundSysFMOD3",
             source=[os.path.join("SoundSystem/SoundSysFMOD3", x) for x in Split("""
@@ -236,7 +236,7 @@ if sys.platform=="win32":
         envSoundSys.Append(LIBPATH=['#/ExtLibs/openal-win/libs/Win32'])
     else:
         envSoundSys.Append(LIBPATH=['#/ExtLibs/openal-win/libs/Win64'])
-elif sys.platform=="linux2":
+elif sys.platform.startswith("linux"):
     envSoundSys.Append(CPPPATH=['#/ExtLibs/openal-soft/include'])
     envSoundSys.Append(LIBS=Split("openal alut mpg123 vorbisfile vorbis ogg"))
     envSoundSys.Append(LINKFLAGS=["Libs/SoundSystem/Common/linker-script"])

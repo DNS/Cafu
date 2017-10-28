@@ -6,7 +6,7 @@ Import('env')
 # if sys.platform=="win32":
 #     # These sources are only required when for building a DLL version of libnoise.
 #     Win32Sources=["src/win32/dllmain.cpp", "src/win32/libnoise.def"]
-# elif sys.platform=="linux2":
+# elif sys.platform.startswith("linux"):
 #     Win32Sources=[]
 
 

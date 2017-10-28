@@ -19,7 +19,7 @@ DecomprFiles = Split("""jdapimin.c jdapistd.c jdarith.c jdtrans.c jdatasrc.c jdm
 
 env_jpeg=env.Clone()
 
-if sys.platform=="linux2":
+if sys.platform.startswith("linux"):
     # -Wno-main is required because libjpeg has local variables with name "main", which otherwise trigger "warning: main is usually a function".
     env_jpeg.Append(CCFLAGS=["-Wno-main"])
 

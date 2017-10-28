@@ -104,7 +104,7 @@ static const char* GetTimeSinceProgramStart()
     const unsigned long Min     =(TotalSec/60) % 60;
     const unsigned long Hour    =TotalSec/3600;
 
-    static char TimeString[16];
+    static char TimeString[24];
     sprintf(TimeString, "%2lu:%2lu:%2lu", Hour, Min, Sec);
 
     return TimeString;

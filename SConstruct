@@ -6,7 +6,7 @@ Decider("MD5-timestamp")
 SetOption("implicit_cache", 1)
 
 # Print an empty line, so that there is a better visual separation at the command line between successive calls.
-print ""
+print("")
 
 
 try:
@@ -46,13 +46,13 @@ def CheckFormatting(start_dir, QuickMode):
         try:
             QuickRefCO = os.path.getmtime(".gitattributes") + 3600
         except:
-            print 'Could not determine mtime for ".gitattributes".'
+            print('Could not determine mtime for ".gitattributes".')
 
     for root, dirs, files in os.walk(start_dir):
         # print root, dirs
 
         if not dirs and not files:
-            print root, "is empty"
+            print(root, "is empty")
 
         for filename in files:
             if os.path.splitext(filename)[1] in [".h", ".hpp", ".c", ".cpp", ".lua", ".py", ".cmat", ".cgui", ""]:
@@ -100,7 +100,7 @@ def CheckFormatting(start_dir, QuickMode):
                     if c["NewL_Unix"]: c_NewL_Unix += 1
 
                     if c["tabs"] or c["trailing_ws"] or c["NewL_Mac"] or c["NewL_Other"] or (c["NewL_Dos"] and c["NewL_Unix"]):
-                        print pathname, c
+                        print(pathname, c)
                         if False:
                             FixFormatting(pathname, Lines)
                         ProblemsCount += 1
@@ -109,7 +109,7 @@ def CheckFormatting(start_dir, QuickMode):
                     if filename in ["MainMenu_init.cgui", "MainMenu_main.cgui"]:
                         continue
 
-                    print pathname, "is not properly UTF-8 encoded"
+                    print(pathname, "is not properly UTF-8 encoded")
                     ProblemsCount += 1
                     # subprocess.Popen(["iconv", "-f", "iso-8859-1", "-t", "utf-8", pathname, "-o", "xy.tmp"]).wait()
                     # subprocess.Popen(["mv", "-f", "xy.tmp", pathname]).wait()
@@ -125,22 +125,22 @@ def CheckFormatting(start_dir, QuickMode):
     t2 = time.time()
 
     if ProblemsCount:
-        print ""
+        print("")
 
     if QuickCount:
-        print "{} source files checked in {:.2f}s ({} files skipped due to quick mode).".format(CheckedCount, t2 - t1, QuickCount)
+        print("{} source files checked in {:.2f}s ({} files skipped due to quick mode).".format(CheckedCount, t2 - t1, QuickCount))
     else:
-        print "{} source files checked in {:.2f}s.".format(CheckedCount, t2 - t1)
+        print("{} source files checked in {:.2f}s.".format(CheckedCount, t2 - t1))
 
     if c_NewL_Dos and c_NewL_Unix:
-        print "Files with DOS-style  newlines:", c_NewL_Dos
-        print "Files with Unix-style newlines:", c_NewL_Unix
+        print("Files with DOS-style  newlines:", c_NewL_Dos)
+        print("Files with Unix-style newlines:", c_NewL_Unix)
 
     if ProblemsCount:
-        print "\nError: The formatting of the above {} indicated source files is unexpected.".format(ProblemsCount)
+        print("\nError: The formatting of the above {} indicated source files is unexpected.".format(ProblemsCount))
         Exit(1)
 
-    print ""
+    print("")
 
 
 if hasattr(CompilerSetup, "checkSourceFormatting") and CompilerSetup.checkSourceFormatting:
@@ -384,10 +384,10 @@ if sys.platform=="win32":
         ### Win32, unknown compiler ###
         ###############################
 
-        print "Unknown compiler " + envCommon["MSVC_VERSION"] + " on platform " + sys.platform + "."
+        print("Unknown compiler " + envCommon["MSVC_VERSION"] + " on platform " + sys.platform + ".")
         Exit(1)
 
-elif sys.platform=="linux2":
+elif sys.platform.startswith("linux"):
     ErrorMsg = "Please install the %s library (development files)!\nOn many systems, the required package is named %s (possibly with a different version number)."
     conf = Configure(envCommon)
 
@@ -398,11 +398,11 @@ elif sys.platform=="linux2":
         #Exit(1)
 
     if not conf.CheckLibWithHeader("png", "png.h", "c"):
-        print ErrorMsg % ("png", "libpng12-dev")
+        print(ErrorMsg % ("png", "libpng12-dev"))
         Exit(1)
 
     if not conf.CheckLibWithHeader("z", "zlib.h", "c"):
-        print ErrorMsg % ("zlib", "zlib1g-dev")
+        print(ErrorMsg % ("zlib", "zlib1g-dev"))
         Exit(1)
 
     envCommon = conf.Finish()
@@ -422,7 +422,7 @@ elif sys.platform=="linux2":
         conf = Configure(envCommon, custom_tests = {'CheckOverrideIdentifier' : CheckOverrideIdentifier})
 
         if not conf.CheckOverrideIdentifier():
-            print "C++11 `override` identifier is not supported (defining an empty macro as a work-around)."
+            print("C++11 `override` identifier is not supported (defining an empty macro as a work-around).")
             conf.env.Append(CPPDEFINES = [("override", "")])
 
         envCommon = conf.Finish()
@@ -445,11 +445,11 @@ elif sys.platform=="linux2":
         ### Linux, unknown compiler ###
         ###############################
 
-        print "Unknown compiler " + envCommon["CXX"] + " on platform " + sys.platform + "."
+        print("Unknown compiler " + envCommon["CXX"] + " on platform " + sys.platform + ".")
         Exit(1)
 
 else:
-    print "Unknown platform '" + sys.platform + "'."
+    print("Unknown platform '" + sys.platform + "'.")
     Exit(1)
 
 envDebug  .Append(CPPDEFINES=["DEBUG"]);
@@ -493,7 +493,7 @@ ExtLibsList = [
 
 if sys.platform=="win32":
     ExtLibsList.remove("openal-soft")   # OpenAL-Soft is not built on Windows, use the OpenAL Windows SDK there.
-else:   # sys.platform=="linux2"
+else:   # sys.platform.startswith("linux")
     ExtLibsList.remove("freetype")      # We use the system copies of these libraries.
     ExtLibsList.remove("libpng")
     ExtLibsList.remove("zlib")
@@ -523,9 +523,9 @@ if not envCommon.GetOption('clean'):
             if (result!=0): envDebug.  Exit(result);
             result=envRelease.Execute("nmake /nologo /f makefile.vc BUILD=release SHARED=0 COMPILER_PREFIX="+compiler+target_cpu, chdir="ExtLibs/wxWidgets/build/msw");
             if (result!=0): envRelease.Exit(result);
-            print "";   # Print just another empty line for better visual separation.
+            print("");   # Print just another empty line for better visual separation.
 
-    elif sys.platform=="linux2":
+    elif sys.platform.startswith("linux"):
         # This automatic compilation of wxGTK requires that some library packages have been installed already,
         # e.g. libgtk2.0-dev, libgl1-mesa-dev and libglu1-mesa-dev under Ubuntu 8.04.
         # See the documentation at http://www.cafu.de/wiki/ for more details!
@@ -561,7 +561,7 @@ if sys.platform=="win32":
         envRelease.Install(".", ["#/ExtLibs/Cg/bin.x64/cg.dll", "#/ExtLibs/Cg/bin.x64/cgGL.dll"]);
         envRelease.Install(".", ["#/ExtLibs/openal-win/libs/Win64/OpenAL32.dll", "#/ExtLibs/openal-win/libs/Win64/wrap_oal.dll"]);
 
-elif sys.platform=="linux2":
+elif sys.platform.startswith("linux"):
     if platform.machine()!="x86_64":
         envRelease.Install(".", ["#/ExtLibs/Cg/lib/libCg.so", "#/ExtLibs/Cg/lib/libCgGL.so"]);
         envRelease.Install(".", ["#/ExtLibs/fmod/api/libfmod-3.75.so"]);
@@ -606,7 +606,7 @@ elif compiler=="g++":
     envProfile_Cafu.Append(CCFLAGS=Split("-funsigned-char -Wall -Werror -Wno-char-subscripts -fno-strict-aliasing"));
 
 else:
-    print "Unknown compiler " + compiler + " when updating the build environments."
+    print("Unknown compiler " + compiler + " when updating the build environments.")
     Exit(1)
 
 
