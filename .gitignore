@@ -36,3 +36,6 @@
 
 *.dia~
 *.pyc
+
+# Visual Studio creates the .vs directory when working with CMake.
+/.vs

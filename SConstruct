@@ -55,7 +55,7 @@ def CheckFormatting(start_dir, QuickMode):
             print(root, "is empty")
 
         for filename in files:
-            if os.path.splitext(filename)[1] in [".h", ".hpp", ".c", ".cpp", ".lua", ".py", ".cmat", ".cgui", ""]:
+            if os.path.splitext(filename)[1] in [".h", ".hpp", ".c", ".cpp", ".lua", ".py", ".cmat", ".cgui", ""] or filename in ["CMakeLists.txt"]:
                 pathname = os.path.join(root, filename)
 
                 if QuickMode:
@@ -118,7 +118,7 @@ def CheckFormatting(start_dir, QuickMode):
             if "CaWE" in root and excl in dirs:
                 dirs.remove(excl)
 
-        for excl in [".git", ".svn", ".sconf_temp", "build", "ExtLibs", "out"]:
+        for excl in [".git", ".svn", ".sconf_temp", "build", "ExtLibs", "out", ".vs"]:
             if excl in dirs:
                 dirs.remove(excl)
 
