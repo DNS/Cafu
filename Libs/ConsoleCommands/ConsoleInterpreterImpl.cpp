@@ -367,7 +367,7 @@ std::string ConsoleInterpreterImplT::LineCompletion(const std::string& LineBegin
 // calls e.g. RunCommand("MusicLoad()").
 bool ConsoleInterpreterImplT::RunCommand(const std::string& Input)
 {
-#ifdef DEBUG
+#ifndef NDEBUG
     static unsigned long ReentrancyCount=0;
     ReentrancyCount++;
 #endif
@@ -380,7 +380,7 @@ bool ConsoleInterpreterImplT::RunCommand(const std::string& Input)
         Console->Print(std::string(ErrorMsg!=NULL ? ErrorMsg : "Unknown error.")+"\n");
 
         lua_pop(LuaState, 1);
-#ifdef DEBUG
+#ifndef NDEBUG
     ReentrancyCount--;
 #endif
         assert(ReentrancyCount>0 || StackHasCafuTable());

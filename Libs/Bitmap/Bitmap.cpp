@@ -88,7 +88,7 @@ static uint32_t ReadTgaPixel(cf::FileSys::InFileI* TgaFile, char ImagePixelSize)
     char Blue;  TgaFile->Read(&Blue,  sizeof(Blue ));
     char Green; TgaFile->Read(&Green, sizeof(Green));
     char Red;   TgaFile->Read(&Red,   sizeof(Red  ));
-    char Alpha; if (ImagePixelSize==32) TgaFile->Read(&Alpha, sizeof(Alpha)); else Alpha=0xFF;
+    char Alpha; if (ImagePixelSize==32) TgaFile->Read(&Alpha, sizeof(Alpha)); else Alpha=char(0xFF);
 
     const uint32_t b=Blue;
     const uint32_t g=Green;
