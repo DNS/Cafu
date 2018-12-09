@@ -1,0 +1,6 @@
+====== The Object Properties Dialog ======
+
+<color #CC0000/#FFD6D6>This dialog is obsolete since CaWE release 8.02 (February 2008). If you employ CaWE version 8.02 or newer, please refer to the new [[mapping:cawe:dialogs:entityinspector|Entity Inspector]] dialog instead. The new [[mapping:cawe:dialogs:entityinspector|Entity Inspector]] dialog subsumes all functionality of the Object Properties dialog.
+</color>
+
+This dialog will be revised and documented later.

@@ -1,0 +1,36 @@
+====== Your First Map ======
+
+The flash tutorial below introduces you to the basic features and concepts of CaWE and demonstrates how you can create your first map. It starts with opening a new map file in the Cafu World Editor CaWE, then walks you step-by-step through the construction process. At the end, the map is compiled and run in the Cafu engine.
+
+The tutorial assumes that you have already installed CaWE and completed the initial one-time configuration as described in section [[mapping:cawe:install]].
+
+Although the tutorial does not require any previous knowledge, it is helpful to read the preceding "Getting started" chapters either before starting or while working through the tutorial.
+
+
+===== Tutorial Contents Overview =====
+
+  - Verification of essential settings in the [[mapping:cawe:dialogs:options|CaWE Options]] dialog.
+  - Opening of a new map file in which a single room will be built.
+  - Creation of the first brush for the floor.
+    * Use of the [[mapping:cawe:materialbrowser|Material Browser]] to select an appropriate material.
+    * Use of the [[mapping:cawe:editingtools:newbrush|New Brush]] tool to create a brush outline.
+    * Dragging of the outline and updating of the 3D camera position.
+  - Creation of the second brush for the left wall analogous to the first.
+    * Zooming in the 2D views and more advanced manipulation of the brush outline.
+  - Creation of the third brush for the right wall by employing the clone-dragging technique of the [[mapping:cawe:editingtools:selection|Selection]] tool.
+  - Creation of the fourth brush for the back wall by using the "Copy" and "Paste" items of the [[mapping:cawe:menureference:edit|Edit]] menu.
+    * Includes the transformation of a selected object to (re-)shape it as desired.
+  - Creation of the fifth brush for the front wall as a copy of the back wall by use of the related keyboard shortcuts.
+  - The ceiling brush (sixth brush) is created by clone-dragging it from the floor brush.
+  - Application of a sky material to the ceiling brush as a post-creation step.
+  - Demonstration of the difference between the [[mapping:cawe:views|render modes]] "3D Full Mats" and "3D Edit Mats".
+  - Placement of an ''info_player_start'' entity near the center of the room, using the [[mapping:cawe:editingtools:newentity|New Entity]] tool.
+  - The map is [[mapping:compiling_new|compiled and run]] in the Cafu engine.
+
+
+===== The Flash Tutorial =====
+
+[[http://www.cafu.de/flash/Your_First_Map.htm|{{:starttutorial.png |Start Tutorial}}]]
+
+Click [[http://www.cafu.de/flash/Your_First_Map.htm|here]] to start the flash tutorial.
+<clear>

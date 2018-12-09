@@ -1,0 +1,11 @@
+====== The Goto Brush/Entity Dialog ======
+
+This dialog can be accessed by clicking on the related item in [[mapping:cawe:menureference:map]].
+
+If you got an invalid brush or entity on your map, the compiler will tell you the number of the according brush/entity, so you can select it with this tool and it will be marked and centered in the views.
+
+{{:mapping:cawe:dialogs:dialog_gotobrush.png }}
+
+  * **Entity Number**: Enter the number of the brush you want to find here.
+  * **Brush Number**: Enter the number of the entity you want to find here.
+  * **Search visible brushes only**: Toggles if only visible brushes/entities are considered in the search.
