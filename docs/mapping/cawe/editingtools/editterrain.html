@@ -1,0 +1,474 @@
+
+<h1 class="sectionedit1" id="the_edit_terrain_tool">The Edit Terrain Tool</h1>
+<div class="level1">
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:cawe_toolbar_terrainedit.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:cawe_toolbar_terrainedit.png"><img src="/_media/mapping:cawe:editingtools:cawe_toolbar_terrainedit.png?w=80&amp;tok=d002f6" class="medialeft" alt="" width="80" /></a>
+</p>
+
+<p>
+The Edit Terrain Tool allows users to easily manipulate the surface structure of a terrain.<br/>
+
+<br/>
+
+The surface structure of a terrain is stored in a height map containing elevation values that build up the terrain. Each elevation value lies within a certain value range whereas higher values mean a higher terrain elevation at this position (please refer to the <a href="https://en.wikipedia.org/wiki/Heightmap" class="interwiki iw_wp" title="https://en.wikipedia.org/wiki/Heightmap">Heightmap</a> Wikipedia article for more information on height maps).<br/>
+
+To visualize this elevation values 3-dimensionally the engine create a smooth terrain surface model from the height map.<br/>
+
+<br/>
+
+This tool lets the user modify the elevation values of a terrain by presenting them as a 2-dimensional height map that can be edited similar to a paint program as well as a 3-dimensional surface structure.<br/>
+
+<br/>
+
+You can activate the Edit Terrain tool by clicking on the related icon marked in the left screen or by pressing the <code>SHIFT+F</code> keyboard shortcut.<br/>
+
+<br/>
+
+To create an editable terrain please refer to <a href="/mapping:cawe:editingtools:newterrain" class="wikilink1" title="mapping:cawe:editingtools:newterrain">The New Terrain Tool</a>.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;The Edit Terrain Tool&quot;,&quot;hid&quot;:&quot;the_edit_terrain_tool&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:1,&quot;range&quot;:&quot;1-1125&quot;} -->
+<h2 class="sectionedit2" id="general">General</h2>
+<div class="level2">
+
+<p>
+The tool is mainly composed of three parts:
+</p>
+<ul>
+<li class="level1"><div class="li"> The 2-dimensional terrain height map representation in the top-down 2D view.</div>
+</li>
+<li class="level2"><div class="li"> The 3-dimensional terrain surface representation in the 3D view.</div>
+</li>
+<li class="level2"><div class="li"> The terrain editor dialog.</div>
+</li>
+</ul>
+
+<p>
+The 2D and 3D view let you select and modify terrains with your mouse and therefore incorporate the tools main functionality. The dialog lets you change tool parameters and select different terrain editor sub tools (informations on tool parameters and sub tools are explained in detail below).<br/>
+
+<br/>
+
+<a href="/_detail/mapping:cawe:editingtools:terraineditor_tool3d.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:terraineditor_tool3d.png"><img src="/_media/mapping:cawe:editingtools:terraineditor_tool3d.png" class="mediaright" alt="" /></a> <a href="/_detail/mapping:cawe:editingtools:terraineditor_tool2d.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:terraineditor_tool2d.png"><img src="/_media/mapping:cawe:editingtools:terraineditor_tool2d.png" class="mediaright" alt="" /></a>
+The terrain editor always works within a adjustable circular area that is visualized in the top down 2D view as well as in the 3D view as seen in the images on the right.<br/>
+
+<br/>
+
+To modify a terrain you first have to select one by clicking on it. Then you can see the red circle at the position of your mouse cursor (if it is inside the bounds of the selected terrain) showing the area of the terrain that will be affected by the currently active sub tool.<br/>
+
+<br/>
+
+By left clicking you can modify the terrain in the area of effect. You can even hold down the left mouse button and move the mouse to easily modify the terrain along your mouse movements.<br/>
+
+<br/>
+
+This tool handling is the same in the 2D and 3D views and allows to easily switch between 2D and 3D view editing according to the user preference.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;General&quot;,&quot;hid&quot;:&quot;general&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:2,&quot;range&quot;:&quot;1126-2588&quot;} -->
+<h2 class="sectionedit3" id="the_top_down_2d_view">The (top down) 2D View</h2>
+<div class="level2">
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:terraineditor_2dview_nosel.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:terraineditor_2dview_nosel.png"><img src="/_media/mapping:cawe:editingtools:terraineditor_2dview_nosel.png?w=200&amp;tok=fbb662" class="mediaright" alt="" width="200" /></a>
+When a terrain isn&#039;t selected by the terrain editor it is rendered like every other brush so just its center point and bounding box is visible (in the same way as it is rendered if the terrain editor tool is inactive).<br/>
+
+<br/>
+
+To select a terrain for editing you have to click either on the edges of its bounding box or on its center point in the same way as with <a href="/mapping:cawe:editingtools:selection" class="wikilink1" title="mapping:cawe:editingtools:selection">The Selection Tool</a>.
+</p>
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:terraineditor_2dview.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:terraineditor_2dview.png"><img src="/_media/mapping:cawe:editingtools:terraineditor_2dview.png?w=200&amp;tok=4c8fc5" class="medialeft" alt="" width="200" /></a>
+When a terrain is selected its height map is rendered in a gray scale mode in the 2D view. Looking at the image to the left you can see that higher elevations are rendered brighter whereas lower elevations are rendered darker. This lets the user easily assess and modify a terrains surface structure even from a non 3-dimensional view.<br/>
+
+<br/>
+
+The tool cursor (the red circle) shows the current tool position and affected area and will always be set to the mouse position in the 2D view (as long as the mouse is positioned inside the bounding box of the terrain).<br/>
+
+<br/>
+
+<a href="/_detail/mapping:cawe:editingtools:terraineditor_2dview_context.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:terraineditor_2dview_context.png"><img src="/_media/mapping:cawe:editingtools:terraineditor_2dview_context.png" class="mediaright" alt="" /></a>
+The 2D view has a context menu when the terrain editor tool is active. It lets you adjust the appearance of the terrain in the 2D view.
+</p>
+<ul>
+<li class="level1"><div class="li"> Height map 1:1 zoom: Zooms the 2D view so each elevation value of the terrains height data will be rendered as one pixel in the 2D view.</div>
+</li>
+<li class="level1"><div class="li"> View color</div>
+</li>
+</ul>
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:terraineditor_gradientgrey.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:terraineditor_gradientgrey.png"><img src="/_media/mapping:cawe:editingtools:terraineditor_gradientgrey.png" class="media" alt="" /></a> <a href="/_detail/mapping:cawe:editingtools:terraineditor_gradientrainbow.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:terraineditor_gradientrainbow.png"><img src="/_media/mapping:cawe:editingtools:terraineditor_gradientrainbow.png" class="media" alt="" /></a> <a href="/_detail/mapping:cawe:editingtools:terraineditor_gradientdebug.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:terraineditor_gradientdebug.png"><img src="/_media/mapping:cawe:editingtools:terraineditor_gradientdebug.png" class="media" alt="" /></a>
+</p>
+<ul>
+<li class="level1"><div class="li"> Greyscale: Renders the height map in a greyscale gradient from black to white where black represents the lowest elevation and white the highest elevation.</div>
+</li>
+<li class="level3"><div class="li"> Rainbow: Renders the height map in a rainbow gradient from blue to red where blue represents the lowest elevation and red the highest elevation.</div>
+</li>
+<li class="level3"><div class="li"> Debug: Renders the height map in repeating greyscale gradients from black to white. This mode is useful to make detailed terrain modifications where the spectrum of the other color gradients would be to small to see the differences.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;The (top down) 2D View&quot;,&quot;hid&quot;:&quot;the_top_down_2d_view&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:3,&quot;range&quot;:&quot;2589-4827&quot;} -->
+<h2 class="sectionedit4" id="the_3d_view">The 3D View</h2>
+<div class="level2">
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:terraineditor_3dview.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:terraineditor_3dview.png"><img src="/_media/mapping:cawe:editingtools:terraineditor_3dview.png?w=200&amp;tok=eb030b" class="mediaright" alt="" width="200" /></a>
+A terrains surface structure is rendered in the 3D view surface regardless if the tool is active or inactive or if the terrain is selected by the terrain editor or not.<br/>
+
+The only difference is that you will see the circular tool cursor on the terrains surface if the terrain is selected and the tool is active.<br/>
+
+<br/>
+
+To select a terrain in the 3D view you just click on it in the same way as with <a href="/mapping:cawe:editingtools:selection" class="wikilink1" title="mapping:cawe:editingtools:selection">The Selection Tool</a>.<br/>
+
+<br/>
+
+The tool position is placed where the mouse cursor hits the terrain, so in contrary to the 2D view where you work from a top down view onto the terrain, you can modify the terrain 3-dimensionally and easily work on the slope of a mountain for example.<br/>
+
+An exception of this rule takes effect when the tool is actively used (e.g. the user flattens a part of the terrain). To avoid “jumping” of the tool cursor it is no longer placed where the mouse cursor hits the terrain but instead on a even plane. This makes using the tool in the 3D view more intuitive.<br/>
+
+<br/>
+
+Since the terrain editor tool visualizes changes to the terrains height data in real time, the surface of the terrain must also be updated each time the user modifies the terrain.<br/>
+
+Because updating the terrain surface is a costly operation, a faster operation is used to update the terrain surface while actively working with a tool (e.g. raising parts of a terrain with the left mouse button down). In consequence the terrain surface will be updated with smaller detail in real time and the final high quality terrain surface is calculated when the user stops using an editing tool (releases the left mouse button).
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;The 3D View&quot;,&quot;hid&quot;:&quot;the_3d_view&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:4,&quot;range&quot;:&quot;4828-6538&quot;} -->
+<h2 class="sectionedit5" id="the_terrain_editor_dialog">The Terrain Editor Dialog</h2>
+<div class="level2">
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:terraineditor_dialog.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:terraineditor_dialog.png"><img src="/_media/mapping:cawe:editingtools:terraineditor_dialog.png" class="mediaright" alt="" /></a>
+Where the views allow you to modify the terrains height data at the tool position, the terrain editor dialog allows you to select different sub tools of the terrain editor and to adjust parameters for this tools. Furthermore you can change properties of the whole terrain with it.<br/>
+
+<br/>
+
+At the top of the dialog you can see the toolbar with buttons for each sub tools (these sub tools are explained in the next chapter).<br/>
+
+<br/>
+
+Following are 3 tool option sliders that let you adjust tool functionality:
+</p>
+<ul>
+<li class="level1"><div class="li"> Radius: The radius determines the size of the circular area of effect at the current tool position.</div>
+</li>
+<li class="level1"><div class="li"> Hardness: The hardness describes if the changes made in the circular area of effect should smoothly blend into the surrounding or have a hard edge at the border of the area of effect.</div>
+</li>
+<li class="level1"><div class="li"> Tool effect: The tool effect has different meanings for different sub tools, but can usually be pictured as the intensity with which the tool is used.</div>
+</li>
+</ul>
+
+<p>
+<br/>
+
+At the bottom of the dialog you can find options that affect the whole terrain.
+</p>
+<ul>
+<li class="level1"><div class="li"> Resolution: The resolution of the terrain height data (elevation values). This has nothing to do with terrains size. The size is determined by the terrains bounding box (which can be scaled like every other brush with <a href="/mapping:cawe:editingtools:selection" class="wikilink1" title="mapping:cawe:editingtools:selection">The Selection Tool</a>). The resolution determines the number of height values that build up the terrains surface. A higher value usually means that a terrain surface is smoother and more detailed.</div>
+</li>
+<li class="level1"><div class="li"> Import: You can import the terrains height data from various file formats including greyscale images in BMP, JPG, PNG and PGM format as well as <a href="http://www.planetside.co.uk/terragen/" class="urlextern" title="http://www.planetside.co.uk/terragen/" rel="nofollow">Terragen</a> files. </div>
+</li>
+<li class="level1"><div class="li"> Export: Exporting the terrain into a greyscale image (same formats as stated above) or <a href="http://www.planetside.co.uk/terragen/" class="urlextern" title="http://www.planetside.co.uk/terragen/" rel="nofollow">Terragen</a> file is possible as well.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;The Terrain Editor Dialog&quot;,&quot;hid&quot;:&quot;the_terrain_editor_dialog&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:5,&quot;range&quot;:&quot;6539-8478&quot;} -->
+<h3 class="sectionedit6" id="terrain_generation">Terrain Generation</h3>
+<div class="level3">
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:terraineditor_generate.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:terraineditor_generate.png"><img src="/_media/mapping:cawe:editingtools:terraineditor_generate.png" class="mediaright" alt="" /></a> If you have created a new empty terrain and you haven&#039;t got any height data at hand to create its surface, it is often desirable to automatically generate a basic terrain.
+</p>
+
+<p>
+The terrain generation dialog allows for this. By specifying a set of input parameters it lets you create different base terrains and shows the result in real time in a preview window.
+</p>
+<ul>
+<li class="level1"><div class="li"> Frequency: A high frequency results in a bumpy surface with many hills and valleys whereas a low frequency will create fewer broader hills and valleys.</div>
+</li>
+<li class="level1"><div class="li"> Lacunarity:  A multiplier that determines how quickly the frequency increases for each successive octave in the Perlin-noise  function. The frequency of each successive octave is equal to the product of the previous octave&#039;s frequency and the lacunarity value.</div>
+</li>
+<li class="level1"><div class="li"> Octaves: A higher value adds structural detail to the terrain to the terrain so its surface becomes more natural.</div>
+</li>
+<li class="level1"><div class="li"> Persistence: A high value increases the surface contrast which results in steeper slopes between hills and valleys.</div>
+</li>
+<li class="level1"><div class="li"> Seed: Determines the random arrangement of hills and valleys for a terrain. You can play with this value to get different results that have all the same characteristics defined by the other parameters above. Note that the resulting terrain from a seed will always be the same (modified by the other parameters of course), so you can always recreate the same terrain again by using the same seed.</div>
+</li>
+</ul>
+
+<p>
+You can also find very good and more technical descriptions of these parameters in the <a href="http://libnoise.sourceforge.net/glossary/index.html" class="urlextern" title="http://libnoise.sourceforge.net/glossary/index.html" rel="nofollow">libnoise glossary</a>.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Terrain Generation&quot;,&quot;hid&quot;:&quot;terrain_generation&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:6,&quot;range&quot;:&quot;8479-10149&quot;} -->
+<h2 class="sectionedit7" id="the_terrain_editor_sub_tools">The Terrain Editor Sub Tools</h2>
+<div class="level2">
+
+<p>
+Since modifying terrains isn&#039;t a matter that can be handled by a single tool, the terrain editor consists of several sub tools that modify the terrain in their own way.<br/>
+
+</p>
+<div class="table sectionedit8"><table class="inline">
+	<thead>
+	<tr class="row0">
+		<th class="col0"> Tip </th>
+	</tr>
+	</thead>
+	<tr class="row1">
+		<td class="col0"> While working on your terrain you can undo/redo each step you made by either using <a href="/mapping:cawe:menureference:edit" class="wikilink1" title="mapping:cawe:menureference:edit">The Edit Menu</a> or the undo/redo shortcuts <code>CTRL-Y</code> and <code>CTRL-Z</code>. This allows you to easily try something with the terrain and undo it if the results are not what you expected. </td>
+	</tr>
+</table></div>
+<!-- EDIT{&quot;target&quot;:&quot;table&quot;,&quot;name&quot;:&quot;&quot;,&quot;hid&quot;:&quot;table&quot;,&quot;secid&quot;:8,&quot;range&quot;:&quot;10364-10659&quot;} -->
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;The Terrain Editor Sub Tools&quot;,&quot;hid&quot;:&quot;the_terrain_editor_sub_tools&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:7,&quot;range&quot;:&quot;10150-10660&quot;} -->
+<h3 class="sectionedit9" id="the_raise_tool">The Raise Tool</h3>
+<div class="level3">
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:terraineditor_tool_raise.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:terraineditor_tool_raise.png"><img src="/_media/mapping:cawe:editingtools:terraineditor_tool_raise.png" class="media" alt="" /></a>
+</p>
+
+<p>
+This tool allows you to raise the terrain inside the tools area of effect. A high hardness will result in hard edges along the tool circles border and the tool effect determines the amount of world units by which the terrain is raised.<br/>
+
+The following images show the usage of the raise tool with a low and high hardness:<br/>
+
+<a href="/_detail/mapping:cawe:editingtools:subtool_raise1.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_raise1.png"><img src="/_media/mapping:cawe:editingtools:subtool_raise1.png?w=100&amp;tok=dae2e5" class="media" alt="" width="100" /></a><a href="/_detail/mapping:cawe:editingtools:subtool_raise2.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_raise2.png"><img src="/_media/mapping:cawe:editingtools:subtool_raise2.png?w=100&amp;tok=f4e3b2" class="media" alt="" width="100" /></a>
+<a href="/_detail/mapping:cawe:editingtools:subtool_raise3.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_raise3.png"><img src="/_media/mapping:cawe:editingtools:subtool_raise3.png?w=100&amp;tok=411075" class="media" alt="" width="100" /></a><a href="/_detail/mapping:cawe:editingtools:subtool_raise4.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_raise4.png"><img src="/_media/mapping:cawe:editingtools:subtool_raise4.png?w=100&amp;tok=fb9f07" class="media" alt="" width="100" /></a>
+<a href="/_detail/mapping:cawe:editingtools:subtool_raise5.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_raise5.png"><img src="/_media/mapping:cawe:editingtools:subtool_raise5.png?w=100&amp;tok=aea392" class="media" alt="" width="100" /></a><a href="/_detail/mapping:cawe:editingtools:subtool_raise6.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_raise6.png"><img src="/_media/mapping:cawe:editingtools:subtool_raise6.png?w=100&amp;tok=befb70" class="media" alt="" width="100" /></a>
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;The Raise Tool&quot;,&quot;hid&quot;:&quot;the_raise_tool&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:9,&quot;range&quot;:&quot;10661-11393&quot;} -->
+<h3 class="sectionedit10" id="the_lower_tool">The Lower Tool</h3>
+<div class="level3">
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:terraineditor_tool_lower.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:terraineditor_tool_lower.png"><img src="/_media/mapping:cawe:editingtools:terraineditor_tool_lower.png" class="media" alt="" /></a>
+</p>
+
+<p>
+This tools lowers the terrain inside the tool circle. A high hardness results in hard edges along the tool border and the tool effect determines how much the terrain is lowered.<br/>
+
+Note that you can easily switch between the raise and lower tool using the middle mouse button.
+The following images show the usage of the lower tool with a low and high hardness:<br/>
+
+<a href="/_detail/mapping:cawe:editingtools:subtool_lower1.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_lower1.png"><img src="/_media/mapping:cawe:editingtools:subtool_lower1.png?w=100&amp;tok=0cae86" class="media" alt="" width="100" /></a><a href="/_detail/mapping:cawe:editingtools:subtool_lower2.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_lower2.png"><img src="/_media/mapping:cawe:editingtools:subtool_lower2.png?w=100&amp;tok=ce51d0" class="media" alt="" width="100" /></a>
+<a href="/_detail/mapping:cawe:editingtools:subtool_lower3.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_lower3.png"><img src="/_media/mapping:cawe:editingtools:subtool_lower3.png?w=100&amp;tok=9eab55" class="media" alt="" width="100" /></a><a href="/_detail/mapping:cawe:editingtools:subtool_lower4.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_lower4.png"><img src="/_media/mapping:cawe:editingtools:subtool_lower4.png?w=100&amp;tok=c434b4" class="media" alt="" width="100" /></a>
+<a href="/_detail/mapping:cawe:editingtools:subtool_lower5.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_lower5.png"><img src="/_media/mapping:cawe:editingtools:subtool_lower5.png?w=100&amp;tok=1a6d26" class="media" alt="" width="100" /></a><a href="/_detail/mapping:cawe:editingtools:subtool_lower6.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_lower6.png"><img src="/_media/mapping:cawe:editingtools:subtool_lower6.png?w=100&amp;tok=92bcac" class="media" alt="" width="100" /></a>
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;The Lower Tool&quot;,&quot;hid&quot;:&quot;the_lower_tool&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:10,&quot;range&quot;:&quot;11394-12163&quot;} -->
+<h3 class="sectionedit11" id="the_flatten_tool">The Flatten Tool</h3>
+<div class="level3">
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:terraineditor_tool_flatten.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:terraineditor_tool_flatten.png"><img src="/_media/mapping:cawe:editingtools:terraineditor_tool_flatten.png" class="media" alt="" /></a>
+</p>
+
+<p>
+The flatten tool like its name says flattens the terrain in its area of effect. The tool effect has no meaning for it and is therefore not accessible. The hardness works as with every other tool.<br/>
+
+The special thing about the flatten tool (and also the following two tools) is that it needs a reference height value. This is the height everything is flattened to.<br/>
+
+To get a reference value you have to pick up one from the existing terrain elevations. This is either done by activating the Eyedropper mode by holding down the <code>ALT</code> key and then clicking on the position from which you want to pick up the height value (this works regardless of the activated sub tool).<br/>
+
+Another way to pick up a height value is to use the middle mouse button (this only works for the flatten, fill and ablate sub tool).<br/>
+
+<br/>
+
+The following screenshots show usage of the flatten tool with a reference height between the two hills visible in the screens. As you can see everything is flattened to the same height.
+</p>
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:subtool_flatten1.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_flatten1.png"><img src="/_media/mapping:cawe:editingtools:subtool_flatten1.png?w=100&amp;tok=1a43b7" class="media" alt="" width="100" /></a><a href="/_detail/mapping:cawe:editingtools:subtool_flatten2.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_flatten2.png"><img src="/_media/mapping:cawe:editingtools:subtool_flatten2.png?w=133&amp;tok=4be2dc" class="media" alt="" width="133" /></a>
+<a href="/_detail/mapping:cawe:editingtools:subtool_flatten3.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_flatten3.png"><img src="/_media/mapping:cawe:editingtools:subtool_flatten3.png?w=100&amp;tok=2d9824" class="media" alt="" width="100" /></a><a href="/_detail/mapping:cawe:editingtools:subtool_flatten4.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_flatten4.png"><img src="/_media/mapping:cawe:editingtools:subtool_flatten4.png?w=133&amp;tok=94e87a" class="media" alt="" width="133" /></a>
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;The Flatten Tool&quot;,&quot;hid&quot;:&quot;the_flatten_tool&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:11,&quot;range&quot;:&quot;12164-13475&quot;} -->
+<h3 class="sectionedit12" id="the_fill_tool">The Fill Tool</h3>
+<div class="level3">
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:terraineditor_tool_fill.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:terraineditor_tool_fill.png"><img src="/_media/mapping:cawe:editingtools:terraineditor_tool_fill.png" class="media" alt="" /></a>
+</p>
+
+<p>
+Works in the same way as the flatten tool with the exception that only those parts of the terrain are flattened that lie below the reference height value. This allows you to easily fill up valleys while leaving mountains as they are.<br/>
+
+<br/>
+
+Using the fill tool with the same reference height as in the example above results in the flattening of all parts of the terrain except the top of the first hill.
+</p>
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:subtool_flatten1.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_flatten1.png"><img src="/_media/mapping:cawe:editingtools:subtool_flatten1.png?w=100&amp;tok=1a43b7" class="media" alt="" width="100" /></a><a href="/_detail/mapping:cawe:editingtools:subtool_flatten2.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_flatten2.png"><img src="/_media/mapping:cawe:editingtools:subtool_flatten2.png?w=133&amp;tok=4be2dc" class="media" alt="" width="133" /></a>
+<a href="/_detail/mapping:cawe:editingtools:subtool_fill3.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_fill3.png"><img src="/_media/mapping:cawe:editingtools:subtool_fill3.png?w=100&amp;tok=a730bc" class="media" alt="" width="100" /></a><a href="/_detail/mapping:cawe:editingtools:subtool_fill4.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_fill4.png"><img src="/_media/mapping:cawe:editingtools:subtool_fill4.png?w=133&amp;tok=dfffd5" class="media" alt="" width="133" /></a>
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;The Fill Tool&quot;,&quot;hid&quot;:&quot;the_fill_tool&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:12,&quot;range&quot;:&quot;13476-14179&quot;} -->
+<h3 class="sectionedit13" id="the_ablate_tool">The Ablate Tool</h3>
+<div class="level3">
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:terraineditor_tool_ablate.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:terraineditor_tool_ablate.png"><img src="/_media/mapping:cawe:editingtools:terraineditor_tool_ablate.png" class="media" alt="" /></a>
+</p>
+
+<p>
+Works in the same way as the flatten tool with the exception that only those parts of the terrain are flattened that lie above the reference height value. This allows you to easily ablate mountains while leaving valleys as they are.<br/>
+
+<br/>
+
+As shown below the ablate tool only cuts the top of the first hill and leaves everything else as it was.
+</p>
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:subtool_flatten1.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_flatten1.png"><img src="/_media/mapping:cawe:editingtools:subtool_flatten1.png?w=100&amp;tok=1a43b7" class="media" alt="" width="100" /></a><a href="/_detail/mapping:cawe:editingtools:subtool_flatten2.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_flatten2.png"><img src="/_media/mapping:cawe:editingtools:subtool_flatten2.png?w=133&amp;tok=4be2dc" class="media" alt="" width="133" /></a>
+<a href="/_detail/mapping:cawe:editingtools:subtool_ablate3.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_ablate3.png"><img src="/_media/mapping:cawe:editingtools:subtool_ablate3.png?w=100&amp;tok=efa4be" class="media" alt="" width="100" /></a><a href="/_detail/mapping:cawe:editingtools:subtool_ablate4.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_ablate4.png"><img src="/_media/mapping:cawe:editingtools:subtool_ablate4.png?w=133&amp;tok=df826d" class="media" alt="" width="133" /></a>
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;The Ablate Tool&quot;,&quot;hid&quot;:&quot;the_ablate_tool&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:13,&quot;range&quot;:&quot;14180-14832&quot;} -->
+<h3 class="sectionedit14" id="the_blur_tool">The Blur Tool</h3>
+<div class="level3">
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:terraineditor_tool_blur.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:terraineditor_tool_blur.png"><img src="/_media/mapping:cawe:editingtools:terraineditor_tool_blur.png" class="media" alt="" /></a>
+</p>
+
+<p>
+The blur tool will soften the terrain by reducing the elevation difference between the height values in the area of effect. The result is a smoother less edged terrain surface.<br/>
+
+The tool effect determines how much the terrain surface is blurred/smoothened.
+</p>
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:subtool_blur1.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_blur1.png"><img src="/_media/mapping:cawe:editingtools:subtool_blur1.png?w=100&amp;tok=c88d98" class="media" alt="" width="100" /></a><a href="/_detail/mapping:cawe:editingtools:subtool_blur2.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_blur2.png"><img src="/_media/mapping:cawe:editingtools:subtool_blur2.png?w=100&amp;tok=9cb658" class="media" alt="" width="100" /></a>
+<a href="/_detail/mapping:cawe:editingtools:subtool_blur3.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_blur3.png"><img src="/_media/mapping:cawe:editingtools:subtool_blur3.png?w=100&amp;tok=bb71c3" class="media" alt="" width="100" /></a><a href="/_detail/mapping:cawe:editingtools:subtool_blur4.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_blur4.png"><img src="/_media/mapping:cawe:editingtools:subtool_blur4.png?w=100&amp;tok=3e65a1" class="media" alt="" width="100" /></a>
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;The Blur Tool&quot;,&quot;hid&quot;:&quot;the_blur_tool&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:14,&quot;range&quot;:&quot;14833-15386&quot;} -->
+<h3 class="sectionedit15" id="the_sharpen_tool">The Sharpen Tool</h3>
+<div class="level3">
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:terraineditor_tool_sharpen.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:terraineditor_tool_sharpen.png"><img src="/_media/mapping:cawe:editingtools:terraineditor_tool_sharpen.png" class="media" alt="" /></a>
+</p>
+
+<p>
+This is the contrary to the blur tool. It sharpens the edges of a terrain surface by increasing the elevation difference between height values and thus creating a more rocky/edgier terrain surface.<br/>
+
+Again the tool effect determines how intensive the sharpening is.
+</p>
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:subtool_sharpen1.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_sharpen1.png"><img src="/_media/mapping:cawe:editingtools:subtool_sharpen1.png?w=100&amp;tok=9acdbd" class="media" alt="" width="100" /></a><a href="/_detail/mapping:cawe:editingtools:subtool_sharpen2.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_sharpen2.png"><img src="/_media/mapping:cawe:editingtools:subtool_sharpen2.png?w=100&amp;tok=d9c288" class="media" alt="" width="100" /></a>
+<a href="/_detail/mapping:cawe:editingtools:subtool_sharpen3.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_sharpen3.png"><img src="/_media/mapping:cawe:editingtools:subtool_sharpen3.png?w=100&amp;tok=a02ad1" class="media" alt="" width="100" /></a><a href="/_detail/mapping:cawe:editingtools:subtool_sharpen4.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_sharpen4.png"><img src="/_media/mapping:cawe:editingtools:subtool_sharpen4.png?w=100&amp;tok=98f608" class="media" alt="" width="100" /></a>
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;The Sharpen Tool&quot;,&quot;hid&quot;:&quot;the_sharpen_tool&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:15,&quot;range&quot;:&quot;15387-15966&quot;} -->
+<h3 class="sectionedit16" id="the_noise_tool">The Noise Tool</h3>
+<div class="level3">
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:terraineditor_tool_noise.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:terraineditor_tool_noise.png"><img src="/_media/mapping:cawe:editingtools:terraineditor_tool_noise.png" class="media" alt="" /></a>
+</p>
+
+<p>
+The noise tool raises and lowers parts of the terrain in the area of effect at random. This makes the terrain in this area bumpier and adds structure to a flat surface.<br/>
+
+The tool effect determines the maximal height difference between the current elevation and the randomly chosen one. A high tool effect makes the terrain more bumpy a low tool effect less.
+</p>
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:subtool_noise1.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_noise1.png"><img src="/_media/mapping:cawe:editingtools:subtool_noise1.png?w=100&amp;tok=721b06" class="media" alt="" width="100" /></a><a href="/_detail/mapping:cawe:editingtools:subtool_noise2.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_noise2.png"><img src="/_media/mapping:cawe:editingtools:subtool_noise2.png?w=100&amp;tok=5b4a21" class="media" alt="" width="100" /></a>
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;The Noise Tool&quot;,&quot;hid&quot;:&quot;the_noise_tool&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:16,&quot;range&quot;:&quot;15967-16520&quot;} -->
+<h3 class="sectionedit17" id="the_road_tool">The Road Tool</h3>
+<div class="level3">
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:terraineditor_tool_road.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:terraineditor_tool_road.png"><img src="/_media/mapping:cawe:editingtools:terraineditor_tool_road.png" class="media" alt="" /></a>
+</p>
+
+<p>
+Unless you want to leave your terrains completely natural realistic roads are an important part of them. A road is an even plane that runs along a specific path through the terrain and might also have a slope between its starting and end point.<br/>
+
+The road tool lets you specify the path that builds up the road and automatically creates a slope between the elevation at the roads beginning and end.<br/>
+
+To create the roads path you have to click onto different points inside your terrain that make up the final road path. You can also hold down your left mouse button and continuously create road points while moving the mouse to create smooth curves.<br/>
+
+To finally create the road, you have to press the <code>RETURN</code> key and the road is constructed. You can also undo road points by clicking the middle mouse button or pressing the <code>BACK</code> key.<br/>
+
+The hardness determines if the road has a sharp edge to the surrounding terrain or smoothly blends into the terrain.
+</p>
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:subtool_road1.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_road1.png"><img src="/_media/mapping:cawe:editingtools:subtool_road1.png?w=100&amp;tok=5fb2ce" class="media" alt="" width="100" /></a><a href="/_detail/mapping:cawe:editingtools:subtool_road2.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_road2.png"><img src="/_media/mapping:cawe:editingtools:subtool_road2.png?w=133&amp;tok=d79daa" class="media" alt="" width="133" /></a>
+<a href="/_detail/mapping:cawe:editingtools:subtool_road3.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_road3.png"><img src="/_media/mapping:cawe:editingtools:subtool_road3.png?w=100&amp;tok=579b5d" class="media" alt="" width="100" /></a><a href="/_detail/mapping:cawe:editingtools:subtool_road4.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_road4.png"><img src="/_media/mapping:cawe:editingtools:subtool_road4.png?w=100&amp;tok=99d748" class="media" alt="" width="100" /></a>
+<a href="/_detail/mapping:cawe:editingtools:subtool_road5.png?id=mapping%3Acawe%3Aeditingtools%3Aeditterrain" class="media" title="mapping:cawe:editingtools:subtool_road5.png"><img src="/_media/mapping:cawe:editingtools:subtool_road5.png?w=133&amp;tok=4b8578" class="media" alt="" width="133" /></a>
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;The Road Tool&quot;,&quot;hid&quot;:&quot;the_road_tool&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:17,&quot;range&quot;:&quot;16521-17830&quot;} -->
+<h2 class="sectionedit18" id="creating_textures_for_a_terrain">Creating textures for a terrain</h2>
+<div class="level2">
+
+<p>
+At this point you can&#039;t create terrain textures using <abbr title="Cafu World Editor">CaWE</abbr> and have therefore to rely on other external tools. Assigning a texture is done using <a href="/mapping:cawe:editingtools:editfaceprops" class="wikilink1" title="mapping:cawe:editingtools:editfaceprops">The Edit Surface Properties Tool</a>.<br/>
+
+To create a texture you have to export your terrains height data and import it in an external program that allows you to create a surface texture for your terrain.<br/>
+
+Possible solutions are <a href="http://www.planetside.co.uk/terragen/" class="urlextern" title="http://www.planetside.co.uk/terragen/" rel="nofollow">Terragen</a> and <a href="http://www.world-machine.com/" class="urlextern" title="http://www.world-machine.com/" rel="nofollow">World Machine</a>.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Creating textures for a terrain&quot;,&quot;hid&quot;:&quot;creating_textures_for_a_terrain&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:18,&quot;range&quot;:&quot;17831-18361&quot;} -->
+<h2 class="sectionedit19" id="keyboard_shortcuts">Keyboard shortcuts</h2>
+<div class="level2">
+<ul>
+<li class="level1 node"><div class="li"> <code>SHIFT+F</code>:</div>
+<ul>
+<li class="level2"><div class="li"> Activates the Terrain Editor tool.</div>
+</li>
+</ul>
+</li>
+<li class="level1 node"><div class="li"> <code>ALT</code>:</div>
+<ul>
+<li class="level2"><div class="li"> Activates the Eyedropper mode that lets the user pick up a reference height value.</div>
+</li>
+</ul>
+</li>
+<li class="level1 node"><div class="li"> <code>ENTER</code>: </div>
+<ul>
+<li class="level2"><div class="li"> If the Road sub tool is active a road is constructed from the available road reference points.</div>
+</li>
+</ul>
+</li>
+<li class="level1 node"><div class="li"> <code>BACK</code>: </div>
+<ul>
+<li class="level2"><div class="li"> Removes the last set road reference point.</div>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Keyboard shortcuts&quot;,&quot;hid&quot;:&quot;keyboard_shortcuts&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:19,&quot;range&quot;:&quot;18362-&quot;} -->

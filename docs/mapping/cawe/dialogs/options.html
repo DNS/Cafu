@@ -1,0 +1,198 @@
+
+<h1 class="sectionedit1" id="the_configure_cawe_options_dialog">The Configure CaWE Options Dialog</h1>
+<div class="level1">
+
+<p>
+This dialog is opened by selecting <strong>Configure <abbr title="Cafu World Editor">CaWE</abbr>…</strong> from <a href="/mapping:cawe:menureference:file" class="wikilink1" title="mapping:cawe:menureference:file">The File Menu</a>.
+</p>
+
+<p>
+It is used to configure the general appearance and handling of <abbr title="Cafu World Editor">CaWE</abbr>.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;The Configure CaWE Options Dialog&quot;,&quot;hid&quot;:&quot;the_configure_cawe_options_dialog&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:1,&quot;range&quot;:&quot;1-219&quot;} -->
+<h2 class="sectionedit2" id="game_configurations">Game Configurations</h2>
+<div class="level2">
+
+<p>
+<a href="/_detail/mapping:cawe:dialogs:dialog_configure_gameconfig.png?id=mapping%3Acawe%3Adialogs%3Aoptions" class="media" title="mapping:cawe:dialogs:dialog_configure_gameconfig.png"><img src="/_media/mapping:cawe:dialogs:dialog_configure_gameconfig.png" class="medialeft" alt="" /></a>
+</p>
+
+<p>
+This tab contains configuration options for game configurations. Each map has to use a game configuration in order to work. 
+</p>
+
+<p>
+Game configurations are automatically created from the subdirectories of /Games that have a game data file (.fgd) with the same name as the directory in it. For example /Games/Deathmatch/Deathmatch.fgd is a valid game configuration with the name Deathmatch.
+</p>
+
+<p>
+In this tab you can edit properties for game configurations that will be used when editing a map that uses this game configuration.
+</p>
+<ul>
+<li class="level1"><div class="li"> <strong>Game Configuration Selection</strong>: Selects the game configuration to adjust its properties. </div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong>Default Point Entity class</strong>: Sets the Point Entity class that is selected by default when a new map is opened/created.</div>
+</li>
+<li class="level1"><div class="li"> <strong>Default Brush Entity class</strong>: Sets the Brush Entity class that is selected by default when a new map is opened/created.</div>
+</li>
+<li class="level1"><div class="li"> <strong>Default texture scale</strong>: Sets the default texture scale for this profile.</div>
+</li>
+<li class="level1"><div class="li"> <strong>Default lightmap scale</strong>: Sets the default lightmap scale for this profile.</div>
+</li>
+<li class="level1"><div class="li"> <strong>Cordon texture</strong>: This option is not implemented at this time.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Game Configurations&quot;,&quot;hid&quot;:&quot;game_configurations&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:2,&quot;range&quot;:&quot;220-1412&quot;} -->
+<h2 class="sectionedit3" id="general">General</h2>
+<div class="level2">
+
+<p>
+<a href="/_detail/mapping:cawe:dialogs:dialog_configure_general.png?id=mapping%3Acawe%3Adialogs%3Aoptions" class="media" title="mapping:cawe:dialogs:dialog_configure_general.png"><img src="/_media/mapping:cawe:dialogs:dialog_configure_general.png" class="medialeft" alt="" /></a>
+</p>
+
+<p>
+This tab contains general configuration options for the editor to control its behavior. The paths to the executables in this tab are very important so <abbr title="Cafu World Editor">CaWE</abbr> can find them to compile and run edited maps.
+</p>
+<ul>
+<li class="level1"><div class="li"> <strong>Undo Levels</strong>: Sets the maximum number of actions performed by the editor that can be revoked.</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong>Allow grouping/ungrouping while Ignore Groups is checked</strong>: Toggles if you can group or ungroup selected objects even if the <strong>Ignore Groups</strong> Option from the <a href="/mapping:cawe:editingtools:selection" class="wikilink1" title="mapping:cawe:editingtools:selection"> Selection Tool</a> options bar is checked.</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong>Stretch arches to fit original bounding rectangle</strong>: This option stretches a arch to fit the bounding rectangle when created. If this options is not selected the size of the arch will be determined by the size of the bounding rectangle as well as the parameters set in the arch creation dialog (see <a href="/mapping:cawe:editingtools:newbrush" class="wikilink1" title="mapping:cawe:editingtools:newbrush">The New Brush Tool</a>).</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong>Executables</strong></div>
+</li>
+</ul>
+
+<p>
+The path of executables used to compile and run maps can be configured here in case the user changed their paths or wants to use different ones.
+</p>
+<ul>
+<li class="level1"><div class="li"> <strong>Engine executable</strong>: Sets the path to the Cafu executable. </div>
+</li>
+<li class="level2"><div class="li"> <strong><abbr title="Cafu Binary Space Partitioning">CaBSP</abbr> executable</strong>: Sets the path to the <abbr title="Cafu Binary Space Partitioning">CaBSP</abbr> executable.</div>
+</li>
+<li class="level2"><div class="li"> <strong><abbr title="Cafu Potentially Visibility Set">CaPVS</abbr> executable</strong>: Sets the path to the <abbr title="Cafu Potentially Visibility Set">CaPVS</abbr> executable.</div>
+</li>
+<li class="level2"><div class="li"> <strong><abbr title="Cafu Radiosity Lighting">CaLight</abbr> executable</strong>: Sets the path to the <abbr title="Cafu Radiosity Lighting">CaLight</abbr> executable.</div>
+</li>
+</ul>
+
+<p>
+At the bottom of this tab, the path to your configuration data is shown.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;General&quot;,&quot;hid&quot;:&quot;general&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:3,&quot;range&quot;:&quot;1413-2902&quot;} -->
+<h2 class="sectionedit4" id="d_views">2D Views</h2>
+<div class="level2">
+
+<p>
+<a href="/_detail/mapping:cawe:dialogs:dialog_configure_2dviews.png?id=mapping%3Acawe%3Adialogs%3Aoptions" class="media" title="mapping:cawe:dialogs:dialog_configure_2dviews.png"><img src="/_media/mapping:cawe:dialogs:dialog_configure_2dviews.png" class="medialeft" alt="" /></a>
+</p>
+
+<p>
+This tab holds configuration options that define the appearance of the editors 2D views.
+</p>
+<ul>
+<li class="level1 node"><div class="li"> <strong>Options</strong></div>
+<ul>
+<li class="level2"><div class="li"> <strong>Crosshair cursor</strong>: This option is not implemented at this time.</div>
+</li>
+<li class="level2"><div class="li"> <strong>Default to 15 degree rotations</strong>: If rotating an object this sets the rotation steps to 15 degree instead of smooth rotating. Note that you can still rotate objects smoothly by pressing <code>SHIFT</code> while rotating.</div>
+</li>
+<li class="level2"><div class="li"> <strong>Display scrollbars</strong>: Toggles the display of scrollbars in the 2D views.</div>
+</li>
+<li class="level2"><div class="li"> <strong>Draw vertices</strong>: Toggles display of objects vertices in a 2D view.</div>
+</li>
+<li class="level2"><div class="li"> <strong>White-on-Black color scheme</strong>: Switches between white grid on black background and black grid on white background modes.</div>
+</li>
+<li class="level2"><div class="li"> <strong>Keep group when done dragging</strong>: When cloning objects from a VisGroup, this option adds the cloned objects to the same VisGroup after dragging them.</div>
+</li>
+<li class="level2"><div class="li"> <strong>Center on camera after movement in 3D</strong>: This option is not implemented at this time.</div>
+</li>
+<li class="level2"><div class="li"> <strong>Use Visgroup colors for object lines</strong>: Toggles if the line color defined in the <a href="/mapping:cawe:dialogs:editvisgroups" class="wikilink2" title="mapping:cawe:dialogs:editvisgroups" rel="nofollow">Edit VisGroups</a> dialog is used to display the objects that belong to this group in a 2D view.</div>
+</li>
+<li class="level2"><div class="li"> <strong>Arrow keys nudge selected object/vertice</strong>: If activated the arrow keys can be used to move objects or vertices.</div>
+</li>
+<li class="level2"><div class="li"> <strong>Reorient primitives on creation in the active 2D view</strong>: When creating a brush in a 2D view, this brushes top side is per default oriented in the direction of the top down 2D view. If this option is activated the top side of the brush will be oriented in the direction of the 2D view in which the brush has been created.</div>
+</li>
+<li class="level2"><div class="li"> <strong>Automatic infinite selection in 2D windows (no ENTER)</strong>: If dragging a selection box, this option determines if the objects in the selection box are selected instantly after the mouse button is released.</div>
+</li>
+<li class="level2"><div class="li"> <strong>Selection box selects by center handles only</strong>: Determines if the center handle of objects has to lie within a selection box for the object to be selected. Otherwise any object that lies partially in the selection box is selected.</div>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="level1 node"><div class="li"> <strong>Grid</strong></div>
+<ul>
+<li class="level2"><div class="li"> <strong>Size</strong>: Defines the default grid size.</div>
+</li>
+<li class="level2"><div class="li"> <strong>Intensity</strong>: Adjusts the grids color intensity.</div>
+</li>
+<li class="level2"><div class="li"> <strong>Highlight every 64 units</strong>: If checked, a grid line is highlighted every 64 units.</div>
+</li>
+<li class="level2"><div class="li"> <strong>Highlight every 1024 units</strong>: If checked, a grid line is highlighted every 1024 units.</div>
+</li>
+<li class="level2"><div class="li"> <strong>Highlight every <em>X</em> grid lines</strong>: If a grid line is the <em>X</em>. grid line in a row, it is highlighted.</div>
+</li>
+<li class="level2"><div class="li"> <strong>Hide grid smaller than 4 pixel</strong>: If the distance between two grid lines gets smaller than 4 pixels in a 2D view, the grid lines are no longer displayed.</div>
+</li>
+<li class="level2"><div class="li"> <strong>Dotted Grid</strong>: Toggles between a grid with solid lines or dots.</div>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;2D Views&quot;,&quot;hid&quot;:&quot;d_views&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:4,&quot;range&quot;:&quot;2903-5689&quot;} -->
+<h2 class="sectionedit5" id="d_views1">3D Views</h2>
+<div class="level2">
+
+<p>
+<a href="/_detail/mapping:cawe:dialogs:dialog_configure_3dviews.png?id=mapping%3Acawe%3Adialogs%3Aoptions" class="media" title="mapping:cawe:dialogs:dialog_configure_3dviews.png"><img src="/_media/mapping:cawe:dialogs:dialog_configure_3dviews.png" class="medialeft" alt="" /></a>
+</p>
+
+<p>
+This tab holds configuration options that define the appearance of the editors 3D view.
+</p>
+<ul>
+<li class="level1 node"><div class="li"> <strong>Performance</strong></div>
+<ul>
+<li class="level2"><div class="li"> <strong>Animate models</strong> With this option activated, models are animated in the editor.</div>
+</li>
+<li class="level2"><div class="li"> <strong>Back clipping plane</strong> Sets the back clipping plane in the editors 3D view. With high values even geometry far away from the camera is rendered. This option has a huge impact on the performance of the editor, especially in big maps.</div>
+</li>
+<li class="level2"><div class="li"> <strong>Model render distance</strong> Determines the distance at which models are rendered as bounding boxes instead of the real model meshes.</div>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="level1 node"><div class="li"> <strong>Navigation</strong></div>
+<ul>
+<li class="level2"><div class="li"> <strong>Reverse mouse Y axis (aircraft style)</strong> Toggles reversion of the Y axis of the mouse, when changing the cameras view direction in a 3D view with the mouse.</div>
+</li>
+<li class="level2"><div class="li"> <strong>Forward speed</strong> Sets the maximum speed when moving forward in a 3D view.</div>
+</li>
+<li class="level2"><div class="li"> <strong>Time to top speed (msec)</strong> Adjusts the time until a movement in a 3D view speeds up to its maximum speed.</div>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;3D Views&quot;,&quot;hid&quot;:&quot;d_views1&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:5,&quot;range&quot;:&quot;5690-&quot;} -->

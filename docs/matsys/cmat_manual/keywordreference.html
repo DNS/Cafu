@@ -1,0 +1,277 @@
+
+<h1 class="sectionedit1" id="keyword_reference">Keyword Reference</h1>
+<div class="level1">
+
+<p>
+This section lists all keywords that are allowed in the body of a materials definition.
+</p>
+
+<p>
+Some of the keywords influence the automatic selection of the shader for the material, others just give more control over the shader that is eventually used for the material, for making better use of the features of that shader, increasing its usefulness.
+</p>
+
+<p>
+Note that the built-in shaders of all <abbr title="Cafu Material System">MatSys</abbr> renderers were written to comply to the documentation of the keywords below, or rather, the documentation was written to reflect the implementation of the built-in shaders.
+If you employ a custom shader (e.g. a self-written one) instead, there is no guarantee that this shader interprets and implements the keywords in an identical manner, because the shader is flexible and free to do anything that its author made it to. This is where you need a documentation that is specific to that shader, see <a href="/matsys:cmat_manual:shaderspecifications#built-in_special-purpose_shaders" class="wikilink1" title="matsys:cmat_manual:shaderspecifications">Built-in_special-purpose_Shaders</a> for the built-in ones.
+</p>
+
+<p>
+In general, most keywords should occur only once per material definition. If such a keyword is stated several times, only its last occurrence is taken into account, overriding its previous statements. The order in which such keywords are specified in the body of the material definition is irrelevant, you may state the keywords in any order.
+</p>
+
+<p>
+However, some keywords are allowed to occur several times, for example for enumerating textures or numbers. For such keywords, the order in which they appear <em>is</em> important. Keywords with this feature are explicitly mentioned below. <br/>
+<img src="/lib/images/smileys/fixme.gif" class="icon" alt="FIXME" /> We should get rid of this exception by changing the syntax to e.g. <strong><code>shaderParamExpr ($expr1, $expr2, …, $exprN)</code></strong>.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Keyword Reference&quot;,&quot;hid&quot;:&quot;keyword_reference&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:1,&quot;range&quot;:&quot;1-1738&quot;} -->
+<h2 class="sectionedit2" id="shader_specifications">Shader Specifications</h2>
+<div class="level2">
+<ul>
+<li class="level1"><div class="li"> <strong><code>AmbientShader $name</code></strong></div>
+</li>
+<li class="level1"><div class="li"> <strong><code>LightShader $name</code></strong></div>
+</li>
+</ul>
+
+<p>
+These keywords are used to override the automatic shader selection.
+They are explained in detail in section <a href="/matsys:cmat_manual:shaderspecifications" class="wikilink1" title="matsys:cmat_manual:shaderspecifications">Shader Specifications</a>.
+</p>
+
+<p>
+<em>The precise meaning of all other keywords is “vague”, that is, they depends on the implementation by the selected shader</em> <img src="/lib/images/smileys/icon_exclaim.gif" class="icon" alt=":!:" />
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Shader Specifications&quot;,&quot;hid&quot;:&quot;shader_specifications&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:2,&quot;range&quot;:&quot;1739-2122&quot;} -->
+<h2 class="sectionedit3" id="texture_map_specifications">Texture Map Specifications</h2>
+<div class="level2">
+<ul>
+<li class="level1"><div class="li"> <strong><code>diffusemap $mc</code></strong></div>
+</li>
+<li class="level1"><div class="li"> <strong><code>normalmap $mc</code></strong></div>
+</li>
+<li class="level1"><div class="li"> <strong><code>specularmap $mc</code></strong></div>
+</li>
+<li class="level1"><div class="li"> <strong><code>lumamap $mc</code></strong></div>
+</li>
+<li class="level1"><div class="li"> <strong><code>lightmap $mc</code></strong></div>
+</li>
+<li class="level1"><div class="li"> <strong><code>shlmap $mc</code></strong></div>
+</li>
+<li class="level1"><div class="li"> <strong><code>cubeMap $mc</code></strong></div>
+</li>
+<li class="level1"><div class="li"> <strong><code>cubeMap2 $mc</code></strong></div>
+</li>
+<li class="level1"><div class="li"> <strong><code>shaderParamMapC $mc</code></strong></div>
+</li>
+</ul>
+
+<p>
+With these keywords you specify texture map compositions <strong><code>$mc</code></strong> for use with this material. The keywords and texture map compositions are explained in detail in section <a href="/matsys:cmat_manual:texturemapspecifications" class="wikilink1" title="matsys:cmat_manual:texturemapspecifications">Texture Map Specifications</a>.
+</p>
+
+<p>
+The <strong><code>shaderParamMapC</code></strong> keyword is special, as it can occur arbitrarily often! You can use it to pass an arbitrary number of texture-maps to the shader. Materials that employ a custom shader that for example combines several diffuse-maps and several normal-maps might use this keyword in order to list all the textures that the shader employs.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Texture Map Specifications&quot;,&quot;hid&quot;:&quot;texture_map_specifications&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:3,&quot;range&quot;:&quot;2123-2972&quot;} -->
+<h2 class="sectionedit4" id="custom_data">Custom Data</h2>
+<div class="level2">
+<ul>
+<li class="level1"><div class="li"> <strong><code>shaderParamExpr $expr</code></strong></div>
+</li>
+<li class="level1"><div class="li"> <strong><code>shaderParamMapC $mc</code></strong></div>
+</li>
+</ul>
+
+<p>
+These two expressions are used to pass additional information to custom shaders.
+They can occur arbitrarily often in a material definition, so their order is important. <br/>
+
+<img src="/lib/images/smileys/fixme.gif" class="icon" alt="FIXME" />: This should be <strong><code>shaderParamExpr ($expr1, …)</code></strong> etc. in order to get rid of the order requirement.
+</p>
+
+<p>
+The meaning of the expressions and map compositions that you pass to the shader with these keywords entirely depends on how the shader interprets them! The <a href="/matsys:cmat_manual:shaderspecifications#the_terrain_shader" class="wikilink1" title="matsys:cmat_manual:shaderspecifications">Terrain</a> shader is a good example that employs these keywords. <br/>
+
+<img src="/lib/images/smileys/fixme.gif" class="icon" alt="FIXME" />: Provide more details here. <br/>
+
+<img src="/lib/images/smileys/fixme.gif" class="icon" alt="FIXME" />: The terrain shader should employ <strong><code>shaderParamMapC</code></strong> rather than <strong><code>lumamap</code></strong> for its detail-map… <br/>
+
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Custom Data&quot;,&quot;hid&quot;:&quot;custom_data&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:4,&quot;range&quot;:&quot;2973-3789&quot;} -->
+<h2 class="sectionedit5" id="rendering_options_universal">Rendering Options (Universal)</h2>
+<div class="level2">
+
+<p>
+The following material parameters are <em>global rendering parameters</em>.
+They affect the entire material, but only how it is rendered, that is, its “looks”.
+These parameters are never looked at or taken into account by the map compile tools.
+</p>
+<ul>
+<li class="level1"><div class="li"> <strong><code>noDraw</code></strong> If specified, this material does not render at all, it becomes invisible. This is probably mostly useful for debugging. (For mappers: <code>noDraw</code> does <em>not</em> cause <abbr title="Cafu Binary Space Partitioning">CaBSP</abbr> to remove any faces from the world. If you want faces to be actually removed, you should rather use the <code>meta_XXX_TODO</code> keyword in order to make <abbr title="Cafu Binary Space Partitioning">CaBSP</abbr> remove them right from the start.)</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>noShadows</code></strong> This material never casts shadows. Note that shadow-casting can also be controlled on a per-model and per-lightsource basis.</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>twoSided</code></strong> Normally, the back or “inside” faces of materials are not rendered. This renders both sides of the material. Useful for “indefinitely” thin objects like metal grates and fences, spider webs, … Note that two-sided faces are currently not properly lit by dynamic light when seen from the back side.</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>depthOffset $num</code></strong> This sets the polygonal depth offset. Z-buffer values of meshes that are rendered with this material are slightly offset as defined by $num, which should normally be a negative number. Materials that employ <code>depthOffset -1.0</code> are for example used internally by <abbr title="Cafu World Editor">CaWE</abbr>, in order to render the highlighting of selected objects.</div>
+</li>
+</ul>
+<ul>
+<li class="level1 node"><div class="li"> <strong><code>polygonMode $pm</code></strong> This sets the polygon mode of a mesh. <abbr title="Cafu World Editor">CaWE</abbr> employs this keyword for rendering the objects in the 3D wire-frame mode. <code>$pm</code> must be one of</div>
+<ul>
+<li class="level2"><div class="li"> <strong><code>filled</code></strong></div>
+</li>
+<li class="level2"><div class="li"> <strong><code>wireframe</code></strong></div>
+</li>
+<li class="level2"><div class="li"> <strong><code>points</code></strong></div>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Rendering Options (Universal)&quot;,&quot;hid&quot;:&quot;rendering_options_universal&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:5,&quot;range&quot;:&quot;3790-5511&quot;} -->
+<h2 class="sectionedit6" id="rendering_options_ambient_only">Rendering Options (Ambient only)</h2>
+<div class="level2">
+
+<p>
+The following parameters do only affect the ambient contribution of a material (as implemented by the Material Systems ambient default shaders).
+The map compile tools never look at these parameters.
+Some of these parameters take expressions as their arguments, which are denoted by <code>$expr</code>.
+Expressions can be simple numbers or more complex constructs, they are discussed in greater detail in subsection <a href="#expressions" title="matsys:cmat_manual:keywordreference ↵" class="wikilink1">Expressions</a>.
+</p>
+<ul>
+<li class="level1"><div class="li"> <strong><code>alphaTest $expr</code></strong> Activates the alpha test with the result of <code>$expr</code> as the reference value. The alpha test passes if and only if the alpha value of the ambient contribution (which normally comes from the diffuse-map) is greater than the reference value. Note that the reference value can be specified as an expression, that is, it can be <em>varying over time</em>. This can produce interesting effects (i.e. materials that appear to grow or shrink) if the diffuse-map comes with an appropriate alpha channel. Negative values turn the alpha test off. The test is off by default.</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>blendFunc $src_factor $dst_factor</code></strong> This parameter determines the blend function for the ambient contribution of the material. <code>$src_factor</code> and <code>$dst_factor</code> must be one of <code>zero</code>, <code>one</code>, <code>dst_color</code>, <code>src_color</code>, <code>one_minus_dst_color</code>, <code>one_minus_src_color</code>, <code>dst_alpha</code>, <code>src_alpha</code>, <code>one_minus_dst_alpha</code>, or <code>one_minus_src_alpha</code>. Note that not all combinations make sense. Using <code>blendFunc</code> will be documented in greater detail in future releases of this text. Per default, blending is turned off.</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>red $expr</code></strong></div>
+</li>
+<li class="level1"><div class="li"> <strong><code>green $expr</code></strong></div>
+</li>
+<li class="level1"><div class="li"> <strong><code>blue $expr</code></strong></div>
+</li>
+<li class="level1"><div class="li"> <strong><code>alpha $expr</code></strong></div>
+</li>
+<li class="level1"><div class="li"> <strong><code>rgb $expr</code></strong></div>
+</li>
+<li class="level1"><div class="li"> <strong><code>rgba $expr</code></strong> These parameters all define expressions for (channels of) the color with which the ambient contribution is modulated. I have defined the default ambient shaders such that for materials that have luma-maps, only the luma-map is modulated. Materials that have no luma-map get the entire ambient contribution modulated. This allows to create effects such as panels that have flickering LEDs, glowing lights etc. Note that you can specify different expressions for different color channels. That is, if you have a luma-map for a computer panel that has both red and green LEDs, you can for example have the red LEDs morse SOS, while the green LEDs change gradually by a sinus function. The default expression for all color channels is 1.0 (identity).</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>ambientMask $turnoff</code></strong> This specifies into which framebuffer channel should <em>not</em> be written when rendering the ambient pass. <code>$turnoff</code> must be a combination of the characters <code>r</code>, <code>g</code>, <code>b</code>, <code>a</code> and <code>d</code>, where <code>r</code> refers to the red color channel, <code>g</code>, <code>b</code> and <code>a</code> refer to the green, blue and alpha color channels respectively, and <code>d</code> refers to the depth buffer value. <br/>
+For example, <code>ambientMask d</code> is used with many particle (sprites) material definitions, in order to avoid that particles change the contents of the depth buffer, in order to meet the fact that particles are often rendered in an unsorted, additive manner. <code>ambientMask d</code> is also used for sky-dome material defs, so that we are able to render e.g. far away missiles or other objects in the sky that would otherwise be rejected by the depth test against the (nearer) sky dome polygons. <br/>
+Note that employing <code>ambientMask d</code>, that is, <em>not</em> writing into the depth buffer during the ambient pass, also makes dynamic lighting of such affected meshes impossible. Therefore, <code>ambientMask d</code> should always be combined with <code>LightShader none</code> and <code>noDynLight</code>.  <img src="/lib/images/smileys/fixme.gif" class="icon" alt="FIXME" />: The <abbr title="Cafu Material System">MatSys</abbr> should issue a warning if that is not the case. <br/>
+Another example for employing this keyword is <code>ambientMask gb</code>, which makes sure that nothing gets rendered into the green and blue color channels, leaving only red (and alpha and depth). This yields an effect similar to Doom3, when you see only red while the player has a foreboding vision.</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>useMeshColors</code></strong> Additionally to the above color definitions, this will modulate the materials color with the colors that are specified with the vertices of the mesh that is to be rendered. This option does currently only work in a very limited set of shaders, and is mostly useful internally in <abbr title="Cafu World Editor">CaWE</abbr>, the Cafu World Editor, e.g. for rendering wire-frame stuff. You will rarely ever need this in a real-world material script.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Rendering Options (Ambient only)&quot;,&quot;hid&quot;:&quot;rendering_options_ambient_only&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:6,&quot;range&quot;:&quot;5512-9975&quot;} -->
+<h2 class="sectionedit7" id="rendering_options_light_only">Rendering Options (Light only)</h2>
+<div class="level2">
+<ul>
+<li class="level1"><div class="li"> <strong><code>noDynLight</code></strong> If specified, this material does not receive any light from dynamic light sources, only the ambient contribution is rendered. (Technically, the material does not even get a per-light-source shader assigned.) Useful e.g. for sky domes, additive effects like particles, translucent surfaces like water and glass etc.</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>lightMask $turnoff</code></strong> This is very similar to <code>ambientMask</code>, but it only affects the per-lightsource passes. This keyword is currently not used in any Cafu material.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Rendering Options (Light only)&quot;,&quot;hid&quot;:&quot;rendering_options_light_only&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:7,&quot;range&quot;:&quot;9976-10537&quot;} -->
+<h2 class="sectionedit8" id="other_keywords">Other Keywords</h2>
+<div class="level2">
+
+<p>
+There are also keywords that define other aspects of the material that are not directly related to their rendering.
+</p>
+<ul>
+<li class="level1 node"><div class="li"> <strong><code>clip $c1, $c2, …</code></strong> Defines for whom or for which purposes the material is considered solid in clipping (collision detection) computations. This is mostly interesting in game related settings (e.g. with player or monster clip brushes), but also programs like <abbr title="Cafu Binary Space Partitioning">CaBSP</abbr> and <abbr title="Cafu Radiosity Lighting">CaLight</abbr> perform clip and ray trace tests that in turn are affected by this keyword. <br/>
+<code>$c1, $c2, …</code> must be a comma-separated list of at least one of the flags below. The default setting (i.e. if you do not use the <code>clip</code> keyword at all), is <code>clip all</code>. When you use <code>clip</code>, the value is first cleared (reset to <code>nothing</code>) and then additively rebuilt from the parameter list. <br/>
+Here is an explanation of the individual flags:</div>
+<ul>
+<li class="level2"><div class="li"> <code>nothing</code> means that a surface with this material clips against nothing, it is non-solid.</div>
+</li>
+<li class="level2"><div class="li"> <code>players</code> means that the surface is solid to players.</div>
+</li>
+<li class="level2"><div class="li"> <code>monsters</code> means that the surface is solid to monsters (AI entities).</div>
+</li>
+<li class="level2"><div class="li"> <code>moveables</code> means that the surface is solid to moveable entities.</div>
+</li>
+<li class="level2"><div class="li"> <code>ik</code> means that the surface is solid to IK.</div>
+</li>
+<li class="level2"><div class="li"> <code>projectiles</code> means that the surface is solid to the projectiles of weapons (e.g. water surfaces, but not sky).</div>
+</li>
+<li class="level2"><div class="li"> <code>sight</code> means that the surface blocks line-of-sight tests (used e.g. for AI).</div>
+</li>
+<li class="level2"><div class="li"> <code>bspPortals</code> means that the surface clips portals, that is, it is solid to the flood-fill operation of <abbr title="Cafu Binary Space Partitioning">CaBSP</abbr>. <br/>
+<img src="/lib/images/smileys/icon_exclaim.gif" class="icon" alt=":!:" /> Note that each Cafu map must <em>entirely be sealed</em> by materials with the <code>bspPortals</code> property, or else <abbr title="Cafu Binary Space Partitioning">CaBSP</abbr> will not be able to flood-fill it properly and report that the map has a leak. <br/>
+Developers, note that this means that maps can be made where objects can fall out of the map (e.g. through the floor). Considering the clip-world only, this can be desirable e.g. for rockets that are fired into the sky, even though Cafu has to treat them specially for drawing (render objects in non-PVS “outer” leaves). <abbr title="Cafu Binary Space Partitioning">CaBSP</abbr> issues a warning if it ever finds a material that has <code>bspPortals</code>, but not both <code>players</code> and <code>monsters</code> set, in order to make you aware that in such places, players or monsters could fall out of the map.</div>
+</li>
+<li class="level2"><div class="li"> <code>radiance</code> means that the surface blocks the transfer of light energy in the Radiosity computations of <abbr title="Cafu Radiosity Lighting">CaLight</abbr> (most walls do, but for example glass and decals usually don&#039;t).</div>
+</li>
+<li class="level2"><div class="li"> <code>all</code> means that the surface is solid to all of the above (but not the <code>trigger</code> flag below).</div>
+</li>
+<li class="level2"><div class="li"> <code>trigger</code> means that the surface is part of a trigger volume. Entities that have trigger volumes can detect when something enters their volume and then take special actions. For example, a player that walks into a trigger volume can cause a script function to be run that in turn opens a door and spawns some monsters. The <code>trigger</code> flag is normally not combined with any of the other flags, but for special cases it is still possible to write e.g. <code>clip monsters, trigger</code> to define a material that is solid only to monsters and a trigger to everything else (e.g. players).</div>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>surfaceType $st</code></strong> Defines the type of the surface. <code>$st</code> must be one of <code>none</code>, <code>stone</code>, <code>metal</code>, <code>sand</code>, <code>wood</code>, <code>liquid</code>, <code>glass</code>, or <code>plastic</code>. The meaning of the surface types is solely defined by the game code, it will usually use them to play footstep sounds, ricochet effects, etc.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Other Keywords&quot;,&quot;hid&quot;:&quot;other_keywords&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:8,&quot;range&quot;:&quot;10538-14026&quot;} -->
+<h2 class="sectionedit9" id="meta_keywords">Meta Keywords</h2>
+<div class="level2">
+
+<p>
+Finally, here are the meta-parameters that are taken into account by the Cafu map compile tools.
+These parameters are not directly related to the rendering of the material.
+</p>
+<ul>
+<li class="level1"><div class="li"> <strong><code>meta_radiantExitance $r $g $b $scale</code></strong> Radiant exitance RGB values plus intensity (scale). Used whenever a material should also be a source of radiosity light, as computed by <abbr title="Cafu Radiosity Lighting">CaLight</abbr>. The radiant exitance is defined by <code>$r</code>, <code>$g</code> and <code>$b</code>, scaled by <code>$scale</code>.</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>meta_radiantExitance_byImage</code></strong> Radiant Exitance RGB values from image file. Used by <abbr title="Cafu Radiosity Lighting">CaLight</abbr>, plus  Radiant Exitance intensity (scale) for the RGB values from image file. Used by <abbr title="Cafu Radiosity Lighting">CaLight</abbr>, but not yet implemented.</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>meta_sunlight ($r $g $b) ($x $y $z)</code></strong> This keyword states that the materials casts (radiosity) sunlight. The first three numbers define the irradiance of the sunlight in Watt/m^2 for the red, green and blue wavelengths. As the light actually comes from a very far away lightsource (the sun, moon, etc.), it is not cast by the materials itself, but rather <em>through</em> them, like sunlight shining through a window. The second triple of numbers specify the directional vector of the incoming light rays. The <code>$z</code> number should always be negative, so that the light appears to come from above. <br/>
+In the file <code>Games/DeathMatch/Materials/SkyDomes.<abbr title="Cafu material script file.">cmat</abbr></code> you can see exemplary use of this keyword.</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>meta_alphaModulatesRadiosityLight</code></strong> Makes <abbr title="Cafu Radiosity Lighting">CaLight</abbr> handle the <code>diffusemap</code> alpha channel and the $alpha and $rgba keywords properly. For fences, grates, glass, water, etc. Not yet implemented.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Meta Keywords&quot;,&quot;hid&quot;:&quot;meta_keywords&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:9,&quot;range&quot;:&quot;14027-&quot;} -->

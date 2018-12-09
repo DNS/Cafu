@@ -1,0 +1,221 @@
+
+<h1 class="sectionedit1" id="the_entity_inspector_dialog">The Entity Inspector Dialog</h1>
+<div class="level1">
+
+<p>
+This dialog presents detailed information about your map and its entities.
+It shows you the hierarchically structured list of entities that your map is composed of,
+allows you to inspect the properties of each entity, and provides a built-in source code editor for the map script.
+</p>
+
+<p>
+The dialog is opened by selecting the <strong>Entity Inspector</strong> item from the <a href="/mapping:cawe:menureference:edit" class="wikilink1" title="mapping:cawe:menureference:edit">Edit</a> menu.
+</p>
+
+<p>
+The following text describes the three “tabs” that implement the main features of the dialog.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;The Entity Inspector Dialog&quot;,&quot;hid&quot;:&quot;the_entity_inspector_dialog&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:1,&quot;range&quot;:&quot;1-542&quot;} -->
+<h2 class="sectionedit2" id="entity_report">Entity Report</h2>
+<div class="level2">
+
+<p>
+<a href="/_detail/mapping:cawe:dialogs:dialog_entity_inspector_page1.png?id=mapping%3Acawe%3Adialogs%3Aentityinspector" class="media" title="mapping:cawe:dialogs:dialog_entity_inspector_page1.png"><img src="/_media/mapping:cawe:dialogs:dialog_entity_inspector_page1.png" class="medialeft" alt="" /></a>
+</p>
+
+<p>
+The Entity Report keeps a list of all entities that exist in the map.
+It is used to easily manage, find and select individual entities, and thus provides a convenient alternative to locating entities in your map manually.
+</p>
+
+<p>
+The entities are listed by the name of their entity class and their instance name, if one has given, e.g. “<code>static_detail_model (TreasureChest)</code>”.
+Clicking on a list entry selects the related entity in the 2D and 3D views of the map as well.
+You can select multiple entities at the same time by holding the <code>CTRL</code> or <code>SHIFT</code> key while clicking on an entry:
+this works just like in Windows Explorer.
+The presented list is sorted in alphabetical order and can be filtered by several options as described below.
+</p>
+<ul>
+<li class="level1"><div class="li"> <strong>Go to</strong>: Centers the 2D views on the selected entities.</div>
+</li>
+<li class="level1"><div class="li"> <strong>Delete</strong>: Deletes the selected entities (both from the list and from the map).</div>
+</li>
+</ul>
+<ul>
+<li class="level1 node"><div class="li"> <strong>Filter</strong>: The controls in the filter box determine which entities are included in the list above.</div>
+<ul>
+<li class="level2"><div class="li"> <strong>Brush Entities</strong>: When checked, the brush-based entities are included in the list.</div>
+</li>
+<li class="level2"><div class="li"> <strong>Point Entities</strong>: When checked, the point-based entities are included in the list.</div>
+</li>
+<li class="level2"><div class="li"> <strong>Include hidden Entities</strong>: When checked, entities are included even though they are normally hidden (as part of a VisGroup) in the 2D and 3D views.</div>
+</li>
+<li class="level2"><div class="li"> <strong>By Key/Value</strong>: You can reduce the list of entities to those whose properties match the given key/value pattern.</div>
+</li>
+<li class="level2"><div class="li"> <strong>Exact</strong>: Toggles if the key/value pattern has to be an exact match, or if partial match counts as well.</div>
+</li>
+<li class="level2"><div class="li"> <strong>By Entity Class</strong>: If checked, only entities of the specified entity class are shown.</div>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Entity Report&quot;,&quot;hid&quot;:&quot;entity_report&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:2,&quot;range&quot;:&quot;543-2289&quot;} -->
+<h2 class="sectionedit3" id="properties">Properties</h2>
+<div class="level2">
+
+<p>
+<a href="/_detail/mapping:cawe:dialogs:dialog_entity_inspector_page2.png?id=mapping%3Acawe%3Adialogs%3Aentityinspector" class="media" title="mapping:cawe:dialogs:dialog_entity_inspector_page2.png"><img src="/_media/mapping:cawe:dialogs:dialog_entity_inspector_page2.png" class="medialeft" alt="" /></a>
+</p>
+
+<p>
+The Properties tab is one of the most important dialogs in <abbr title="Cafu World Editor">CaWE</abbr>, because it allows you to inspect, set and modify all of the advanced attributes of the currently selected entity.
+</p>
+
+<p>
+The properties are presented in tabular form as pairs of <em>keys</em> (on the left) and their related <em>values</em> (on the right):
+The <em>set of keys</em> that are available for an entity is defined by the entity&#039;s class. It can therefore not be changed directly within <abbr title="Cafu World Editor">CaWE</abbr>.
+Adding, removing or renaming keys is only possible via the game&#039;s <code>EntityClassDefs.lua</code> script, which contains the definitions of all entity classes for a game. Updating this script possibly affects all maps of a game, and is consequently normally never done for an individual map,
+but in the early planning stages of a <abbr title="MODification, a self-contained game for the Cafu Engine">MOD</abbr>.
+</p>
+
+<p>
+Changing the <em>values</em> however is the daily bread and butter of a mapper.
+Therefore, doing so is not only easy, but it has also been made as convenient as possible.
+In most cases, you just click into the desired value field and enter a new value directly.
+For each variable (that is, a key/value pair), also the variables <em>type</em> is known to <abbr title="Cafu World Editor">CaWE</abbr>, which is uses to assist you entering correct values:
+</p>
+<ul>
+<li class="level1"><div class="li"> keys that only accept integer values do not accept commas, periods or letters,</div>
+</li>
+<li class="level1"><div class="li"> keys that accept boolean values or a choice from an enumeration act accordingly,</div>
+</li>
+<li class="level1"><div class="li"> keys that expect colors will provide you a color chooser and an automatic preview,</div>
+</li>
+<li class="level1"><div class="li"> keys whose values are multi-line strings come with an appropriate editor,</div>
+</li>
+<li class="level1"><div class="li"> keys that expect file names (e.g. for sounds, models, etc.) will provide you with a three-dots “…” browse button (which is <em>very helpful</em> <img src="/lib/images/smileys/icon_exclaim.gif" class="icon" alt=":!:" />),</div>
+</li>
+<li class="level1"><div class="li"> and so on.</div>
+</li>
+</ul>
+
+<p>
+We&#039;re currently working on improving this feature further, e.g. with “Play” buttons for listening to sound files, a preview facility also for model files, etc.
+</p>
+
+<p>
+Note that at the top of the dialog, there is a summary about the number of selected entities and their classes.
+At the bottom of the dialog, a short help text for the currently selected key is provided.
+Help is also available in form of tool-tips for the key the mouse pointer is currently over.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Properties&quot;,&quot;hid&quot;:&quot;properties&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:3,&quot;range&quot;:&quot;2290-4511&quot;} -->
+<h3 class="sectionedit4" id="classname">Classname</h3>
+<div class="level3">
+
+<p>
+Changing the class of an entity is a special action, because it corresponds to deleting the entity and re-instantiating it under a different class but with the same properties. Nonetheless, you can use the special <code>classname</code> property to change an entity&#039;s class like any other property:
+You&#039;re provided with a choice box that contains all possible new classes for that entity, and just making the selection reincarnates the entity as an object of the new class.
+</p>
+
+<p>
+Please note that currently there is a restriction that brush-based (solid) entities can only be converted into entity&#039;s of classes that are brush-based, too. Similarly, entities that are point-based can only be converted into entity&#039;s that are point-based, too.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Classname&quot;,&quot;hid&quot;:&quot;classname&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:4,&quot;range&quot;:&quot;4512-5262&quot;} -->
+<h3 class="sectionedit5" id="undefined_properties">Undefined Properties</h3>
+<div class="level3">
+
+<p>
+Sometimes entities come with key/value pairs that have no corresponding definition in their entity class.
+Such key/value pairs can occur occasionally e.g. when an entity was converted to a different class (see below), an entity class got a variable definition removed after a map has already been made with it, or when an entity has been imported from an entirely different game.
+The entity might then bring in a key named e.g. <code>light_pulse_frq</code> that is utterly unknown in the context of the current games entity definitions.
+</p>
+
+<p>
+Another but similar case occurs when the entity&#039;s class name is unknown among all entity classes of the current game.
+This typically happens when you try to import for example an entity of class “stuffed_animal” of a children&#039;s game into a game about aliens or robots, or in any other case when the current game just knows nothing about the imported entity class.
+</p>
+
+<p>
+In these cases, there is no corresponding definition for such keys in the game definition.
+<abbr title="Cafu World Editor">CaWE</abbr> therefore collects such occurrences separately and keeps them under the special category “Undefined Properties”.
+</p>
+
+<p>
+Because undefined properties are not dealt with by the game in any way, you&#039;re free to change and modify them at will.
+You can even right-click them to open a context menu that allows you to rename them, to add new ones or to delete them.
+</p>
+
+<p>
+In most practical cases, you&#039;ll want to get rid of undefined keys though, which can be achieved by renaming them to something meaningful,
+by deleting them, by changing the entire entity class to something else, or a combination thereof.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Undefined Properties&quot;,&quot;hid&quot;:&quot;undefined_properties&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:5,&quot;range&quot;:&quot;5263-6877&quot;} -->
+<h3 class="sectionedit6" id="background_colors">Background Colors</h3>
+<div class="level3">
+
+<p>
+The property grid employs several background colors in order to indicate certain conditions of the values:
+</p>
+<ul>
+<li class="level1"><div class="li"> <span style='color:#000000; background-color:#FFFFFF;'>White background</span> indicates that this is just a normal value.</div>
+</li>
+<li class="level1"><div class="li"> <span style='color:#000000; background-color:#CCDDFF;'>Light blue background</span> also indicates a normal value that also happens to be the entity class&#039;s default value for this variable.</div>
+</li>
+<li class="level1"><div class="li"> <span style='color:#000000; background-color:#FFDDCC;'>Light orange background</span> is used whenever multiple entities are selected that have <em>different</em> values for the <em>same</em> key. You can still enter a new value for such keys: The key of each selected entity will then be set to the same new value and the background color will change back to white accordingly.</div>
+</li>
+<li class="level1"><div class="li"> <span style='color:#000000; background-color:#FF9797;'>Light red background</span> is currently used at only one occasion: When you set a <code>model</code> key and have not yet specified a value for a <code>collisionModel</code>, the <code>collisionModel</code> variable is temporarily highlighted with this color in order to remind you to also set a collision model.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Background Colors&quot;,&quot;hid&quot;:&quot;background_colors&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:6,&quot;range&quot;:&quot;6878-7931&quot;} -->
+<h3 class="sectionedit7" id="working_with_multiple_entities">Working with multiple entities</h3>
+<div class="level3">
+
+<p>
+The Properties tab works also very well when <em>more</em> than a single entity is selected, or in fact, any number of them is selected at the same time.
+In order to present you the properties of multiple entities, <abbr title="Cafu World Editor">CaWE</abbr> “overlays” them for you,
+so that even great amounts of simultaneously selected entities remain easy to understand and manage.
+</p>
+
+<p>
+In order to achieve this, <abbr title="Cafu World Editor">CaWE</abbr> makes sure that properties that are candidates for layering, but otherwise incompatible with each other for any reason (e.g. because the property is known only to some but not all of the entities, or defined multiply with different types), are treated specially as “mixed” properties. A property that is marked as “mixed” has attributes in one entity that are non-existent or different in another, which generally makes them incompatible to each other.
+</p>
+
+<p>
+Such mixed properties are therefore listed in another separate category, and they are protected from editing (“read-only”). This makes sure that you can see such affected properties, but not inadvertently get nonsensical values written into lots of entities. Note that this is not a restriction, because it&#039;s just another way of saying: <em>“Stop! If you assign a value to this property, there is at least one entity affected for which doing this makes no sense at all.”</em>
+</p>
+
+<p>
+If you still want to edit a property that is listed as “mixed”, there is an easy way to overcome the problem:
+Just select fewer entities until the entity that was the reason for the property being listed as “mixed” is gone.
+When no conflicts remain, the property gets re-listed among the normal properties, and you can edit it freely.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Working with multiple entities&quot;,&quot;hid&quot;:&quot;working_with_multiple_entities&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:7,&quot;range&quot;:&quot;7932-9609&quot;} -->
+<h2 class="sectionedit8" id="map_script">Map Script</h2>
+<div class="level2">
+
+<p>
+In the Map Script tab, you can view and edit the source code of the maps current script.
+</p>
+
+<p>
+<img src="/lib/images/smileys/fixme.gif" class="icon" alt="FIXME" /> This feature is not yet implemented – I&#039;m very sorry. Both the functionality and the documentation will be provided later.
+However, please note that the game code and the Cafu engine already fully implement and support map scripting!
+Use any text editor of your choice in order to program your map scripts independently and outside of <abbr title="Cafu World Editor">CaWE</abbr>. In fact, all the example scripts that come with the Cafu releases have been written that way. <img src="/lib/images/smileys/icon_wink.gif" class="icon" alt=";-)" />
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Map Script&quot;,&quot;hid&quot;:&quot;map_script&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:8,&quot;range&quot;:&quot;9610-&quot;} -->

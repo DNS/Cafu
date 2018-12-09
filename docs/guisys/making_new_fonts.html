@@ -1,0 +1,92 @@
+
+<h1 class="sectionedit1" id="the_font_wizardcreating_new_fonts">The Font Wizard: Creating new fonts</h1>
+<div class="level1">
+
+<p>
+Preparing new fonts for rendering text within a <abbr title="Graphical User Interface">GUI</abbr> is very easy.
+The key idea is to convert a font file (e.g. one of those installed with your <abbr title="Operating System">OS</abbr>, or downloaded from the Internet) to a set of graphics files that the Cafu GuiSys can use:
+</p>
+
+<p>
+<a href="/_detail/fontwizard:fontwizard_0.png?id=guisys%3Amaking_new_fonts" class="media" title="fontwizard:fontwizard_0.png"><img src="/_media/fontwizard:fontwizard_0.png" class="mediaright" title="Open the Font Wizard" alt="Open the Font Wizard" /></a> Start <abbr title="Cafu World Editor">CaWE</abbr> and select the related menu item to open the Font Wizard. <br style="clear:both" />
+</p>
+
+<p>
+<a href="/_detail/fontwizard:fontwizard_1.png?id=guisys%3Amaking_new_fonts" class="media" title="fontwizard:fontwizard_1.png"><img src="/_media/fontwizard:fontwizard_1.png" class="mediaright" title="Step 1" alt="Step 1" /></a> Step 1: The welcome page. <br style="clear:both" />
+</p>
+
+<p>
+<a href="/_detail/fontwizard:fontwizard_2.png?id=guisys%3Amaking_new_fonts" class="media" title="fontwizard:fontwizard_2.png"><img src="/_media/fontwizard:fontwizard_2.png" class="mediaright" title="Step 2" alt="Step 2" /></a> Step 2: Click the “<code>…</code>” browse button to select the desired font, or enter the filename directly into the related field.
+</p>
+
+<p>
+<strong>Microsoft Windows</strong> users, please note that for some versions of Windows, most notably <strong>Windows 7</strong>, Microsoft has chosen to special-case the related “File Open” dialog so that the system folder <code>C:\Windows\Fonts</code> cannot be browsed. (The problem is neither related to access rights nor is it specific to <abbr title="Cafu World Editor">CaWE</abbr>.)
+</p>
+
+<p>
+In order to overcome the problem, i.e. if you want to use a system font from <code>C:\Windows\Fonts</code> with the Font Wizard, we recommend to either
+</p>
+<ul>
+<li class="level1"><div class="li"> type the path and file name of the desired font manually into the input field, or</div>
+</li>
+<li class="level1"><div class="li"> at the command prompt copy the desired font files from <code>C:\Windows\Fonts</code> into any other directory, then use the “<code>…</code>” browse button to select the related file. <br style="clear:both" /></div>
+</li>
+</ul>
+
+<p>
+<a href="/_detail/fontwizard:fontwizard_3.png?id=guisys%3Amaking_new_fonts" class="media" title="fontwizard:fontwizard_3.png"><img src="/_media/fontwizard:fontwizard_3.png" class="mediaright" title="Step 3" alt="Step 3" /></a> Step 3: Check the preview of the generated font texture. Optionally click the button to see a preview of all generated texture images.<br style="clear:both" />
+</p>
+
+<p>
+<a href="/_detail/fontwizard:fontwizard_4.png?id=guisys%3Amaking_new_fonts" class="media" title="fontwizard:fontwizard_4.png"><img src="/_media/fontwizard:fontwizard_4.png" class="mediaright" title="Step 4" alt="Step 4" /></a> Step 4: Enter the name under which you would like to save the font. A new directory is created with the given name and all files related to the font are saved into this directory.<br style="clear:both" />
+</p>
+
+<p>
+<a href="/_detail/fontwizard:fontwizard_5.png?id=guisys%3Amaking_new_fonts" class="media" title="fontwizard:fontwizard_5.png"><img src="/_media/fontwizard:fontwizard_5.png" class="mediaright" title="Step 5" alt="Step 5" /></a> Step 5: Use the indicated name in the <abbr title="Graphical User Interface">GUI</abbr> Editor or a <abbr title="Graphical User Interface">GUI</abbr> script to activate the new font (see below for details).<br style="clear:both" />
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;The Font Wizard: Creating new fonts&quot;,&quot;hid&quot;:&quot;the_font_wizardcreating_new_fonts&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:1,&quot;range&quot;:&quot;1-1976&quot;} -->
+<h2 class="sectionedit2" id="creating_fonts_at_the_command_prompt">Creating fonts at the command prompt</h2>
+<div class="level2">
+
+<p>
+As an alternative to the above, fonts can also be created with the <code>MakeFont</code> program at the command prompt. Here is the sequence of commands that creates the same font as above:
+</p>
+<pre class="code dos">d:\Dev\Cafu<span class="sy0">&gt;</span> <a href="http://www.ss64.com/nt/cd.html"><span class="kw3">cd</span></a> Fonts
+d:\Dev\Cafu\Fonts<span class="sy0">&gt;</span> <a href="http://www.ss64.com/nt/mkdir.html"><span class="kw3">mkdir</span></a> Segoe
+d:\Dev\Cafu\Fonts<span class="sy0">&gt;</span> <a href="http://www.ss64.com/nt/cd.html"><span class="kw3">cd</span></a> Segoe
+d:\Dev\Cafu\Fonts\Segoe<span class="sy0">&gt;</span>..\..\MakeFont.exe C:\Windows\Fonts\segoe.ttf -m=Segoe
+The Cafu Font Maker, version July 01 2009.
+&nbsp;
+Portions of this software are copyright <span class="sy0">(</span>c<span class="sy0">)</span> 2006 The FreeType Project
+<span class="sy0">(</span>www.freetype.org<span class="sy0">)</span>. All rights reserved.</pre>
+
+<p>
+<code>MakeFont</code> takes two parameters: the name of the font file whose font you want to use with Cafu GUIs, and the base name of the font materials. The base name is specified as <code>-m=&lt;base_name&gt;</code>. Although <code>MakeFont</code> will also work if you omit the <code>-m=…</code> part, your fonts will not work properly without it, so please make sure to include it. (The Cafu <abbr title="Cafu Material System">MatSys</abbr> needs this option in order to be able to render the fonts properly.)
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Creating fonts at the command prompt&quot;,&quot;hid&quot;:&quot;creating_fonts_at_the_command_prompt&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:2,&quot;range&quot;:&quot;1977-2976&quot;} -->
+<h2 class="sectionedit3" id="using_the_newly_created_font">Using the newly created font</h2>
+<div class="level2">
+
+<p>
+<a href="/_detail/fontwizard:new_font_gui_editor.png?id=guisys%3Amaking_new_fonts" class="media" title="fontwizard:new_font_gui_editor.png"><img src="/_media/fontwizard:new_font_gui_editor.png" class="mediaright" title="Activate the new font in the GUI Editor" alt="Activate the new font in the GUI Editor" /></a> Your font is now ready to be used in a <abbr title="Graphical User Interface">GUI</abbr>. Its name always begins with <code>Fonts/</code>, followed by the previously chosen font name. In our example above, the font name is <code>Fonts/Segoe</code>.
+</p>
+
+<p>
+In the <abbr title="Graphical User Interface">GUI</abbr> Editor, enter the font name into the appropriate field of the window that should use the font.
+</p>
+
+<p>
+Alternatively, if you edit the <abbr title="Graphical User Interface">GUI</abbr> script manually, just add
+</p>
+<pre class="code lua">    self<span class="sy0">:</span>set<span class="br0">&#40;</span><span class="st0">&quot;font&quot;</span><span class="sy0">,</span> <span class="st0">&quot;Fonts/Segoe&quot;</span><span class="br0">&#41;</span><span class="sy0">;</span></pre>
+
+<p>
+to the appropriate <code>OnInit()</code> function to use the new font.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Using the newly created font&quot;,&quot;hid&quot;:&quot;using_the_newly_created_font&quot;,&quot;codeblockOffset&quot;:1,&quot;secid&quot;:3,&quot;range&quot;:&quot;2977-&quot;} -->

@@ -1,0 +1,137 @@
+
+<h1 class="sectionedit1" id="user_faq">User FAQ</h1>
+<div class="level1">
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;User FAQ&quot;,&quot;hid&quot;:&quot;user_faq&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:1,&quot;range&quot;:&quot;1-24&quot;} -->
+<h2 class="sectionedit2" id="why_does_my_personal_firewall_report_cafuexe">Why does my Personal Firewall report Cafu.exe?</h2>
+<div class="level2">
+
+<p>
+When you start Cafu, it internally starts a client and a server, then connects to itself when a new map is loaded.
+This is done even for pure single-player games, and thus your Windows or Personal Firewall reports that <code>Cafu.exe</code> is establishing a network connection.
+</p>
+
+<p>
+Therefore, please set your firewall to not block Cafu from network access.
+If you do not plan to host a Cafu game server or join a Cafu internet game, there is of course no harm in blocking access from and to the internet for <code>Cafu.exe</code>, but for single-player games, basic access to the local network is required.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Why does my Personal Firewall report Cafu.exe?&quot;,&quot;hid&quot;:&quot;why_does_my_personal_firewall_report_cafuexe&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:2,&quot;range&quot;:&quot;25-673&quot;} -->
+<h2 class="sectionedit3" id="cafu_reports_an_initialization_error_what_can_i_do">Cafu reports an &quot;Initialization Error&quot;, what can I do?</h2>
+<div class="level2">
+
+<p>
+<a href="/_detail/cafu_init_error.png?id=general%3Afaqs_users" class="media" title="cafu_init_error.png"><img src="/_media/cafu_init_error.png?w=240&amp;tok=8b8dbd" class="mediaright" title="Cafu Initialization Error" alt="Cafu Initialization Error" width="240" /></a>
+If you see an initialization error similar to the one in the image to the right, the most frequent cause is that the drivers for your sound or graphics hardware are outdated or incomplete (e.g. missing an OpenGL implementation). Please install or update the drivers for your hardware first, then try again.
+</p>
+
+<p>
+If that doesn&#039;t help, run <code>Cafu.exe</code> from the <a href="https://en.wikipedia.org/wiki/Command_Prompt" class="interwiki iw_wp" title="https://en.wikipedia.org/wiki/Command_Prompt">command prompt</a> with the <code>-log console.txt</code> option. For example:
+</p>
+<pre class="code bash"><span class="sy0">&gt;</span> Cafu.exe <span class="re5">-log</span> console.txt</pre>
+
+<p>
+The contents of the newly generated file <code>console.txt</code> might give you a clue about why the initialization error occurred. If it doesn&#039;t, please post both the error message and the contents of the <code>console.txt</code> file at our <a href="http://forum.cafu.de" class="urlextern" title="http://forum.cafu.de" rel="nofollow">forum</a> or <a href="http://www.cafu.de/support/mailing-lists" class="urlextern" title="http://www.cafu.de/support/mailing-lists" rel="nofollow">mailing-lists</a>.
+</p>
+
+<p>
+Note that you can run
+</p>
+<pre class="code bash"><span class="sy0">&gt;</span> Cafu.exe <span class="re5">--help</span></pre>
+
+<p>
+to see a list of all available command line options. They might be useful to work around the problem, and if you post at the forums, we might ask you to try some of them to further narrow the problem down.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Cafu reports an \&quot;Initialization Error\&quot;, what can I do?&quot;,&quot;hid&quot;:&quot;cafu_reports_an_initialization_error_what_can_i_do&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:3,&quot;range&quot;:&quot;674-1878&quot;} -->
+<h2 class="sectionedit4" id="why_do_you_use_opengl_i_think_that_directx_is_better">Why do you use OpenGL? I think that DirectX is better.</h2>
+<div class="level2">
+
+<p>
+Here are some features of OpenGL that made us choose it as the main rendering <abbr title="Application Programming Interface">API</abbr>:
+</p>
+<ul>
+<li class="level1"><div class="li">  very well documented,</div>
+</li>
+<li class="level1"><div class="li">  portable and available on many platforms,</div>
+</li>
+<li class="level1"><div class="li">  simple to use,</div>
+</li>
+<li class="level1"><div class="li">  independent industry standard,</div>
+</li>
+<li class="level1"><div class="li">  powerful extension mechanism that makes it possible to support the latest features of new 3D graphics boards immediately.</div>
+</li>
+</ul>
+
+<p>
+You may also find <a href="http://blog.wolfire.com/2010/01/Why-you-should-use-OpenGL-and-not-DirectX" class="urlextern" title="http://blog.wolfire.com/2010/01/Why-you-should-use-OpenGL-and-not-DirectX" rel="nofollow">this blog message</a> interesting.  <img src="/lib/images/smileys/icon_wink.gif" class="icon" alt=";-)" />
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Why do you use OpenGL? I think that DirectX is better.&quot;,&quot;hid&quot;:&quot;why_do_you_use_opengl_i_think_that_directx_is_better&quot;,&quot;codeblockOffset&quot;:2,&quot;secid&quot;:4,&quot;range&quot;:&quot;1879-2420&quot;} -->
+<h2 class="sectionedit5" id="why_is_the_image_quality_low_how_can_i_improve_it">Why is the image quality low? How can I improve it?</h2>
+<div class="level2">
+
+<p>
+In normal operation, the Cafu engine provides state-of-the-art image quality that is achieved by employing the latest methods in rendering technology.
+However, if the image quality is lower than you expected or not as good as shown in the <a href="http://www.cafu.de/gallery" class="urlextern" title="http://www.cafu.de/gallery" rel="nofollow">reference screenshots at the Cafu website</a>, these are the common causes for reduced image quality:
+</p>
+<ul>
+<li class="level1"><div class="li"> If your graphics board is of an older make and model, it might not have a programmable GPU. Programmable GPUs however are required for rendering the sophisticated image effects of the Cafu engine. As a consequence, if Cafu has detected that no programmable GPU is present on your system, it automatically falls back into the best compatible mode that still works on your system. Normally you should also see an info message about this situation, but it is easy to miss the message. <br/>
+Unfortunately, the fall-back mode cannot provide the image quality that programmable GPUs can provide, as then the lighting and shadows have to be computed per-vertex rather than per-pixel, or their effects even have to be disabled entirely. In this case, you will see no dynamic lighting and no shadows at all. <br/>
+If this situation applies to your system, nothing can be done about it but getting a more recent graphics card.</div>
+</li>
+<li class="level1"><div class="li"> The texture detail in the initial options dialog is only set to “medium” quality by default. We have chosen that setting in order to not disappoint the FPS freaks among you, because higher quality normally also reduces the FPS. You can set the texture detail to the “high” setting in order to get higher texture resolution and thus higher image quality. Please note that the “high” quality setting can sometimes considerably lower the frame-rate, depending on the details of your graphics board. You may also want to read the other <abbr title="Frequently Asked Questions">FAQ</abbr> about low FPS in this regard.</div>
+</li>
+<li class="level1"><div class="li"> The default display resolution of Cafu is 1024*768. That setting has been proven a good compromise between image quality and frame-rate, but you might increase it within the console in order to increase the image quality. 2048*1536 looks really cool, but then the FPS is also lower.  <img src="/lib/images/smileys/icon_wink.gif" class="icon" alt=";-)" /></div>
+</li>
+<li class="level1"><div class="li"> Some graphics boards with early generations of programmable GPUs are inherently limited in the image quality that they can provide (at a reasonable performance). For example, GPUs that are based on the NV2X series of NVidia GPUs do show specular highlights that look “blocky”. Nothing can be done about that (except getting a more recent 3D board with at least NV3X or ATI Radeon 9600 or higher support).</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Why is the image quality low? How can I improve it?&quot;,&quot;hid&quot;:&quot;why_is_the_image_quality_low_how_can_i_improve_it&quot;,&quot;codeblockOffset&quot;:2,&quot;secid&quot;:5,&quot;range&quot;:&quot;2421-5042&quot;} -->
+<h2 class="sectionedit6" id="why_is_the_frame-rate_fps_low_how_can_i_improve_it">Why is the frame-rate (FPS) low? How can I improve it?</h2>
+<div class="level2">
+
+<p>
+During the past few years, many people have become used to use 3D engines that employ relatively old rendering technologies on relatively new graphics accelerator boards. This combination, observed in games like Counter-Strike, Quake3 and similar, achieved impressive frame-rates (often a hundred FPS and more) and fluid display updates.
+</p>
+
+<p>
+The difference with Cafu is that Cafu employs dynamic, per-pixel lighting and shadows. The underlying rendering techniques are much more sophisticated than previous rendering methods, and relatively new. Despite a thoroughly optimized implementation, these techniques inherently cause lower frame-rates than older the techniques. In fact, if you compare Cafu to comparable 3D engines that are in the same category (only very few are, like Doom3), Cafu beats surprisingly well.  ;)
+</p>
+
+<p>
+There are many factors that have an effect on rendering performance. You can tweak some of them in order to manipulate the frame-rate, but the actual change in frame-rate much depends on your computer system and its components. Some of the suggestions below may even have no observable effect on your system at all. This is because every system has a different bottle-neck, and only finding and removing the bottle-neck yields the greatest effect.
+</p>
+
+<p>
+Here is a list of options and suggestions that might help with the performance. You may simply try them out, and see what works best for your system. However, please note that most of these options <em>will buy you faster rendering at the cost of decreased image quality</em>.
+</p>
+<ul>
+<li class="level1"><div class="li"> <strong>Vertical synchronization.</strong> People frequently report that their frame-rate seems to be capped to 60 or 30 (or another multiple of 15) FPS. This is usually because <em>vertical synchronization</em> is enabled for your graphics board. Please see the Wikipedia article at <a href="https://en.wikipedia.org/wiki/Vertical_synchronization" class="interwiki iw_wp" title="https://en.wikipedia.org/wiki/Vertical_synchronization">Vertical_synchronization</a> for technical details on the matter. <br/>
+Find the related setting in the control panel of your graphics driver to disable the vertical synchronization. Your graphics driver and board will then render the frames without the delay inherent to vertical synchronization, which in turn increases the FPS.</div>
+</li>
+<li class="level1"><div class="li"> <strong>Video memory and texture size.</strong> If your graphics board has too little video memory to store all the textures simultaneously that Cafu needs for rendering a single frame, the FPS usually suffers significantly. In this case you can set a lower texture quality in the initial Options dialog. <br/>
+This effectively scales all textures down to not exceed a maximum size, and therefore improves the chances that they all fit into video RAM simultaneously. Another option is to add physical memory to your graphics board. 128 <abbr title="Megabyte">MB</abbr> normally work well, 256 <abbr title="Megabyte">MB</abbr> are even better and can store the textures even in maximum resolution.</div>
+</li>
+<li class="level1"><div class="li"> <strong>Display resolution.</strong> The default display resolution of Cafu is 1024*768. That setting has been proven a good compromise between image quality and frame-rate, but you might decrease it within the console in order to increase the frame-rate. Reducing to 800*600 or even to 640*480 helps a lot.</div>
+</li>
+<li class="level1"><div class="li"> <strong>Pixel fill-rate.</strong> A common reason for low FPS is that dynamic lighting and shadows consume a <em>very high pixel fill-rate</em>. Besides reducing the display resolution as mentioned above, an effective way to improve FPS in this case is to turn dynamic lighting and shadow effects entirely off. <br/>
+One way to achieve this is to set the <code>cl_maxLights</code> console variable to <code>0</code>.  This can be done in the game console or by putting the statement<pre class="code lua">cl_maxLights<span class="sy0">=</span><span class="nu0">0</span><span class="sy0">;</span></pre>
+
+<p>
+ into your <code>config.lua</code> file. <br/>
+When Cafu is run from the command-line, it is also possible to specify a renderer DLL that makes use of less graphics features. For example, you might try the OpenGL 1.2 renderer in order to increase the FPS:
+</p>
+<pre class="code">C:\Cafu-9.06&gt; Cafu.exe -clRenderer ..\Libs\build\win32\vc8\release\MaterialSystem\RendererOpenGL12.dll</pre>
+</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Why is the frame-rate (FPS) low? How can I improve it?&quot;,&quot;hid&quot;:&quot;why_is_the_frame-rate_fps_low_how_can_i_improve_it&quot;,&quot;codeblockOffset&quot;:2,&quot;secid&quot;:6,&quot;range&quot;:&quot;5043-&quot;} -->

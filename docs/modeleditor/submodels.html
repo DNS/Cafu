@@ -1,0 +1,34 @@
+
+<h1 class="sectionedit1" id="submodels">Submodels</h1>
+<div class="level1">
+
+<p>
+
+Submodels are models whose skeleton is (partially) aligned to the skeleton of their parent model.
+</p>
+
+<p>
+The most prominent examples for submodels are weapon models that are combined with player models: Each player model can be combined with any weapon model, and the animation sequences of either combine naturally with each other:
+</p>
+
+<p>
+<a href="/lib/exe/fetch.php?tok=5b26f1&amp;media=http%3A%2F%2Fwww.cafu.de%2Fimages%2Fgallery%2Fcawe-model-editor%2Fmodel-editor-4.png" class="media" title="http://www.cafu.de/images/gallery/cawe-model-editor/model-editor-4.png"><img src="/lib/exe/fetch.php?w=720&amp;tok=43fdf5&amp;media=http%3A%2F%2Fwww.cafu.de%2Fimages%2Fgallery%2Fcawe-model-editor%2Fmodel-editor-4.png" class="mediacenter" alt="" width="720" /></a>
+</p>
+
+<p>
+It&#039;s typically the job of the game code to load and combine parent models with their submodels, but the Model Editor implements this feature as well so that you can inspect loaded submodels easily:
+</p>
+
+<p>
+Press the “<strong>+</strong>” button in the <strong>Submodels</strong> dialog in order to load a new submodel.
+</p>
+
+<p>
+In theory, you can load more than one submodel per parent model, although that only makes sense if you load e.g. different weapon models for the left and right hands of the player, or child monsters that are carried in different locations in the parent monster, etc.
+</p>
+
+<p>
+The “<strong>-</strong>” button unloads the selected submodels again.
+</p>
+
+</div>

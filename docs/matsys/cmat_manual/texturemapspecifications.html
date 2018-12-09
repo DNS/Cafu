@@ -1,0 +1,299 @@
+
+<h1 class="sectionedit1" id="texture_map_specifications">Texture Map Specifications</h1>
+<div class="level1">
+
+<p>
+The simplest form of a material definition is to only specify the texture map images that compose the material.
+The previous example, repeated here, was an example for such a simple definition:
+</p>
+<pre class="code">    Textures/Kai/3r_metpan01        // Material definitions start with the material name.
+    {
+        diffusemap  Textures/Kai/3r_metpan01_diff.png     // This line says which texture is used as diffuse-map.
+        normalmap   Textures/Kai/3r_metpan01_norm.png
+        specularmap Textures/Kai/3r_metpan01_spec.png
+        lightmap    $lightmap
+    }</pre>
+
+<p>
+A texture map specification starts with a keyword (e.g. <code>diffusemap</code>) and is followed by a “map composition”.
+</p>
+
+<p>
+Map compositions are normally just the path plus file name of a texture image relative to the <abbr title="MODification, a self-contained game for the Cafu Engine">MOD</abbr> directory, like for example <code>Textures/Kai/3r_metpan01_diff.png</code>. However, map compositions can also be more complex constructs as explained in the next section <a href="/matsys:cmat_manual:texturemapspecifications#map_compositions" class="wikilink1" title="matsys:cmat_manual:texturemapspecifications">Map Compositions</a>.
+</p>
+
+<p>
+The initial keyword (<code>diffusemap</code> etc.) defines how the texture image is used in dynamic lighting computations during rendering. This is very similar to Doom3 materials, and both Cafu and Doom3 implement in this regard a form of the <em>Phong lighting model</em>.
+</p>
+
+<p>
+Here comes a list of all available keywords for texture map specifications, along with a short description of their default meaning. (The default is dynamic Phong lighting, which however can be overridden, as explained at <a href="/matsys:cmat_manual:shaderspecifications" class="wikilink1" title="matsys:cmat_manual:shaderspecifications">Shader Specifications</a>.)
+</p>
+<ul>
+<li class="level1"><div class="li"> <strong><code>diffusemap</code></strong> The texture map image that defines the diffuse color (or diffuse reflectivity) of the material. The alpha channel of the diffuse-map specifies the translucency of the material.</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>normalmap</code></strong> The texture map image that specifies the color-encoded normal-map of the materials surface. The normal vectors must be specified in tangent space, range compressed (-1 to 1 maps to 0 to 1), and the y-axis points top-down. Note that heightmaps can be converted into normal-maps as described in section <a href="/matsys:cmat_manual:texturemapspecifications#map_compositions" class="wikilink1" title="matsys:cmat_manual:texturemapspecifications">Map Compositions</a> below.</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>specularmap</code></strong> The image for the materials specular highlights.</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>lumamap</code></strong> This texture map image defines the luminance for this material. Note that the light emittance that is defined here is local only (as is a general property of the Phong lighting model). It is not cast onto other surfaces.</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>lightmap</code></strong> This materials lightmap image. This image is normally computed and provided by the Cafu engine or the program (e.g. the material viewer or <abbr title="Cafu World Editor">CaWE</abbr>) with which you use the material. Although you can provide texture map file names as with the above keywords, that rarely ever makes sense. Normally, simply specify the special lightmap <code>$lightmap</code> in combination with the <code>lightmap</code> keyword in order to use whatever lightmap the Cafu engine provides for this material. This is demonstrated in the preceding example. <br/>
+<img src="/lib/images/smileys/icon_exclaim.gif" class="icon" alt=":!:" /> If you don&#039;t use this keyword at all, or specify something different than <code>$lightmap</code>, the compile tools will not cover surfaces that use this material with a lightmap, and these surfaces will neither receive nor reflect Radiosity light. Note that for many effect materials, this is desired and very useful behaviour, as for example with decals, skies, water surfaces etc.</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>shlmap</code></strong> The image that contains color-encoded coefficients for <em>Spherical Harmonic Lighting</em> for this material. As for lightmaps, you may specify arbitrary texture map file names with this keyword, but normally just use <code>$shlmap</code> in order to let the engine supply the proper SHL map.</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>cubeMap</code></strong> A six-sided cube-map image that is used e.g. for environmental mapping. Normally, cube-map specifications are per default <em>ignored</em>, because they are not regularly used with Phong lighting. Instead, they are specially activated as described in section <a href="/matsys:cmat_manual:shaderspecifications" class="wikilink1" title="matsys:cmat_manual:shaderspecifications">Shader Specifications</a>. As a single cube-map is actually composed of six individual images, a special convention for its file name is employed: A <code>&#039;#&#039;</code> character in the file name is automatically replaced with the six possible cube-map suffixes _px, _nx, _py, _ny, _pz and _nz. For example, consider this material definition from the <code>Cafu-9.06/Games/DeathMatch/Materials/SkyDomes.<abbr title="Cafu material script file.">cmat</abbr></code> file: <pre class="code">    Textures/SkyDomes/PK_BrightDay2
+    {
+        AmbientShader A_SkyDome
+        LightShader   none      // == noDynLight
+
+        // The &#039;#&#039; in the next line is auto-replaced with the relevant suffixes (_px, _ny, ...).
+        cubeMap Textures/SkyDomes/PK_BrightDay2#.png, wrapS clampToEdge, wrapT clampToEdge
+
+        // ...
+    }</pre>
+
+<p>
+ This example has keywords and elements that will be explained further below, but for now observe that the file name that is assigned to the cube-map is <code>Textures/SkyDomes/PK_BrightDay2#.png</code>. When the Material System loads the six individual images from disk, it will therefore load them from the files <code>Textures/SkyDomes/PK_BrightDay2_px.png</code>, <code>Textures/SkyDomes/PK_BrightDay2_nx.png</code>, <code>Textures/SkyDomes/PK_BrightDay2_py.png</code>, and so on.
+</p>
+</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>cubeMap2</code></strong> This is like the above <code>cubeMap</code> keyword. It allows you to specify a second cube-map for special-purpose shaders that require two cube-maps. This keyword too is normally ignored unless a shader is specified that makes use of it. See <a href="/matsys:cmat_manual:shaderspecifications" class="wikilink1" title="matsys:cmat_manual:shaderspecifications">Shader Specifications</a> for more details.</div>
+</li>
+</ul>
+
+<p>
+You can specify arbitrary combinations of these keywords in one material, as only the <code>diffusemap</code> keyword is mandatory.
+However, if you use the same keyword more than once, only the last occurrence is considered. The order of the keywords occurrences is not relevant.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Texture Map Specifications&quot;,&quot;hid&quot;:&quot;texture_map_specifications&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:1,&quot;range&quot;:&quot;1-5838&quot;} -->
+<h2 class="sectionedit2" id="map_compositions">Map Compositions</h2>
+<div class="level2">
+
+<p>
+Texture map image specifications with the above keywords can not only be simple file names, but also be more powerful <strong>Map Compositions</strong>. A map composition is a description of how a <em>single</em> texture map image is composited from several source images on disk.
+Here is an example for a simple material whose normal-map is defined by a complex map composition:
+</p>
+<pre class="code">    Textures/Kai/barrel_rst
+    {
+        diffusemap Textures/Kai/barrel_rst_diff.png
+        normalmap  combineNMs(MyNm1.png, hm2nm(add(MyHm2.jpg, MyHm3.tga)))
+        lightmap   $lightmap
+    }</pre>
+
+<p>
+(This example is overly complex for demonstration purposes, and not really meaningful. Real-life examples are normally much simpler.)
+</p>
+
+<p>
+The expressions that are valid to define a map composition are defined as follows.
+Please note that the <em>arbitrary nesting</em> of expressions is expressly permitted, yielding great freedom for artists.
+</p>
+<ul>
+<li class="level1"><div class="li"> <strong><code>filename</code></strong> This is the most simple expression: a path plus a filename, as e.g. <code>Textures/Kai/barrel_rst_diff.png</code> in the above example for the <code>diffusemap</code>. The path is relative to the directory of the <abbr title="MODification, a self-contained game for the Cafu Engine">MOD</abbr> for which this material script was written. Supported file extensions include png, tga, jpg and bmp.</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>add(e1, e2)</code></strong> This expression adds the colors of <code>e1</code> and <code>e2</code>, where <code>e1</code> and <code>e2</code> can be arbitrary sub-expressions. The resulting RGBA values are clamped to 1.0.</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>mul(e1, e2)</code></strong> This expression multiplies/modulates/filters the colors of <code>e1</code> and <code>e2</code>.</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>combineNMs(e1, e2)</code></strong> Treats the colors of <code>e1</code> and <code>e2</code> as color-compressed normal vectors, and combines or “adds” them in a mathematically correct fashion. (This it <em>not</em> the same as the <code>add(…)</code> operation.)</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>hm2nm(e1, scale)</code></strong> Assumes that <code>e1</code> is a gray-scale heightmap and converts it into a normal-map. The relative height of the heightmap is scaled by factor <code>scale</code> in order to weaken or pronounce the resulting effect. Values between 1.0 and 10.0 are normal use, but numbers greater than 10.0, less than 1.0, or even negative numbers are allowed, too.</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>flipNMyAxis(e1)</code></strong> Considers the colors of <code>e1</code> as color compressed normal-vectors, and flips their y-component. This is useful for normal-maps that have their y-component pointing into the wrong direction. Such normal-maps occurred in the early days of dynamic lighting or were created for other programs than Cafu. This function is for fixing such cases, and should rarely be needed.</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>renormalize(e1)</code></strong> Considers the colors of <code>e1</code> as color compressed normal-vectors, and renormalizes them (scales them to unit length). This is mostly useful for testing and debugging.</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>blue2alpha(e1)</code></strong> This function is for use with old diffuse-maps. It replaces the alpha channel of <code>e1</code> with value 0.0 (transparent) if the RGB color at this pixel is pure blue (0.0, 0.0, 1.0), and 1.0 (opaque) otherwise. Moreover, pure blue pixels are replaced with the average pixel color of the non-blue pixels in order to account for texture filtering.</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>(automatic scaling)</code></strong> Whenever you employ one of the above expressions to combine the results of two expressions <code>e1</code> and <code>e2</code> that have different lateral dimensions, <code>e2</code> is automatically scaled to match the size of <code>e1</code>.</div>
+</li>
+</ul>
+
+<p>
+You can apply map composition expressions to <em>all</em> above mentioned texture map specification keywords,
+i.e. they work with <code>diffusemap</code>, <code>normalmap</code>, <code>specularmap</code>, <code>cubemap</code>, etc.
+</p>
+
+<p>
+Technically, a map composition is completed before the Cafu engine or the graphics board see them.
+In other words, the engine or the 3D hardware never see the individual images, only the composite result.
+<em>Everything that is done by these composition steps could also be pre-worked by the artist in an image processing software. There would be <strong>no</strong> difference for the engine, the hardware, or in the resource (memory) consumption.</em>
+Note that this feature has nothing to do with dynamic lighting or how a texture map image is combined
+with images of other texture map specification keywords!
+</p>
+
+<p>
+Finally, you can specify several comma-separated options for the map composition:
+</p>
+<ul>
+<li class="level1 node"><div class="li"> <strong><code>minFilter</code></strong> This controls MipMap usage and the filter that is used for texture minification. While the default setting usually looks best and also yields the best performance on modern graphics hardware, sometimes it is desireable to turn filtering off and accept some aliasing, as for example for font textures. The <code>minFilter</code> keyword must be followed by one of the filter methods</div>
+<ul>
+<li class="level2"><div class="li"> <strong><code>nearest</code></strong> or <strong><code>point</code></strong></div>
+</li>
+<li class="level2"><div class="li"> <strong><code>linear</code></strong> or <strong><code>bilinear</code></strong></div>
+</li>
+<li class="level2"><div class="li"> <strong><code>nearest_mipmap_nearest</code></strong></div>
+</li>
+<li class="level2"><div class="li"> <strong><code>nearest_mipmap_linear</code></strong></div>
+</li>
+<li class="level2"><div class="li"> <strong><code>linear_mipmap_nearest</code></strong></div>
+</li>
+<li class="level2"><div class="li"> <strong><code>linear_mipmap_linear</code></strong> or <strong><code>trilinear</code></strong> (This is the default.)</div>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="level1 node"><div class="li"> <strong><code>magFilter</code></strong> This controls the filter that is used for texture magnification and must be followed by one of</div>
+<ul>
+<li class="level2"><div class="li"> <strong><code>nearest</code></strong> or <strong><code>point</code></strong> (There is almost never a reason to use this, except for very rare and special purposes, like some kinds of debugging.)</div>
+</li>
+<li class="level2"><div class="li"> <strong><code>linear</code></strong> or <strong><code>bilinear</code></strong> (This is the default and gives best results.)</div>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="level1 node"><div class="li"> <strong><code>wrapS</code></strong> This controls horizontal texture coordinate wrapping and must be followed by one of</div>
+<ul>
+<li class="level2"><div class="li"> <strong><code>repeat</code></strong> for repeating the texture in horizontal direction. This is the default.</div>
+</li>
+<li class="level2"><div class="li"> <strong><code>clamp</code></strong> for clamping the texture in horizontal direction, taking the border color into account. As the Cafu <abbr title="Cafu Material System">MatSys</abbr> never uses or sets the border color, using <code>clamp</code> is rarely ever useful.</div>
+</li>
+<li class="level2"><div class="li"> <strong><code>clampToEdge</code></strong> for clamping the texture in horizontal direction to its edge color. Often useful with cube-maps or terrain base images.</div>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="level1 node"><div class="li"> <strong><code>wrapT</code></strong> This controls vertical texture coordinate wrapping and must be followed by one of</div>
+<ul>
+<li class="level2"><div class="li"> <strong><code>repeat</code></strong> for repeating the texture in vertical direction. This is the default.</div>
+</li>
+<li class="level2"><div class="li"> <strong><code>clamp</code></strong> for clamping the texture in vertical direction, taking the border color into account. As the Cafu <abbr title="Cafu Material System">MatSys</abbr> never uses or sets the border color, using <code>clamp</code> is rarely ever useful.</div>
+</li>
+<li class="level2"><div class="li"> <strong><code>clampToEdge</code></strong> for clamping the texture in vertical direction to its edge color. Often useful with cube-maps or terrain base images.</div>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>noScaleDown</code></strong> specifies that the texture image is never scaled down, not even if the user selects a medium or low texture detail setting for tuning the graphics performance. Useful for fonts, HUDs, lightmaps (implicitly), some model textures (see example below), and everything else that must not get mixed up or blurred by image filtering. Also used e.g. for the Cafu splash screen logo, which would get blurred otherwise (look into <code>Games/DeathMatch/Materials/Splash.<abbr title="Cafu material script file.">cmat</abbr></code> if you want to toy around with it  a little <img src="/lib/images/smileys/icon_smile.gif" class="icon" alt=":-)" /> ).</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>noCompression</code></strong> exempts this texture image from being stored in a compressed format in video memory, even if the user generally enabled texture compression for tuning the graphics performance. <br/>
+In the Cafu engine, texture compression is by default enabled for all texture images except normal-maps. Although Cafu automatically selects and employs the latest and highest quality compression method that the graphics driver offers (this even works when the Cafu executable is <em>older</em> than the driver!), sometimes the compression process comes with some loss of image detail or introduces small artifacts. <code>noCompression</code> can then be used to ensure no compression for a particular texture.</div>
+</li>
+</ul>
+<ul>
+<li class="level1"><div class="li"> <strong><code>useCompression</code></strong> is more or less the opposite of <code>noCompression</code>: it turns compression back on. Normally there is no reason to ever use this keyword. It exits for symmetry to <code>noCompression</code> and because <code>noCompression</code> is the default for normal-maps: if you want to have compression enabled for a particular normal-map, specifying <code>useCompression</code> will turn it on. However, please note that compression artifacts in normal-maps tend to disturb the lighting computations so much that the generated output images drop to questionable quality. <br/>
+Also note that <code>useCompression</code> is “weak”: If the user generally disables all compression, it will have no effect.</div>
+</li>
+</ul>
+
+<p>
+The meaning of the <code>minFilter</code>, <code>magFilter</code>, <code>wrapS</code> and <code>wrapT</code> options is analogous to their respective meanings in the OpenGL and DirectX APIs. The OpenGL Programming Guide (the “Red Book”) about OpenGL version 1.2 and higher has a good explanation about these options. Although the text is specific to OpenGL, the same concepts apply to the above mentioned options. The “Red Book” for version 1.1 does not address the <code>clampToEdge</code> option, but its text is available online at <a href="http://www.rush3d.com/reference/opengl-redbook-1.1/chapter09.html" class="urlextern" title="http://www.rush3d.com/reference/opengl-redbook-1.1/chapter09.html" rel="nofollow">http://www.rush3d.com/reference/opengl-redbook-1.1/chapter09.html</a>.
+</p>
+
+<p>
+The options <code>noScaleDown</code> and <code>minFilter bilinear</code> are often combined, because both scaling down textures for better graphics performance as well as using <code>trilinear</code> filtering for rendering have a tendency to mix the colors of neighboring pixels. In some cases such as font textures, even the <code>bilinear</code> filtering is too much mix-up, requiring us to combine <code>noScaleDown</code> with <code>minFilter nearest</code>.
+</p>
+
+</div>
+
+<h4 id="options_example_1">Options Example 1</h4>
+<div class="level4">
+
+<p>
+Here is an example from <code>Games/DeathMatch/Materials/Fonts.<abbr title="Cafu material script file.">cmat</abbr></code> that demonstrates how the options are used:
+</p>
+<pre class="code">    Fonts/Arial
+    {
+        diffusemap ../../Fonts/Arial.png, minFilter nearest, magFilter nearest, noScaleDown
+        // ...
+    }</pre>
+
+</div>
+
+<h4 id="options_example_2">Options Example 2</h4>
+<div class="level4">
+
+<p>
+Another example for the <code>noScaleDown</code> and <code>minFilter</code> keywords.
+</p>
+
+<p>
+<a href="/_detail/matsys:example_nomipmaps_1.png?id=matsys%3Acmat_manual%3Atexturemapspecifications" class="media" title="matsys:example_nomipmaps_1.png"><img src="/_media/matsys:example_nomipmaps_1.png" class="medialeft" alt="" /></a> This is a typical skin texture that a modeller has produced for application to one of his model meshes. <br style="clear:both" />
+</p>
+
+<p>
+<a href="/_detail/matsys:example_nomipmaps_2.png?id=matsys%3Acmat_manual%3Atexturemapspecifications" class="media" title="matsys:example_nomipmaps_2.png"><img src="/_media/matsys:example_nomipmaps_2.png" class="medialeft" alt="" /></a> A straightforward material definition would look like this:
+</p>
+<pre class="code">    Models/Players/Trinity/trinityskin3
+    {
+        diffusemap Models/Players/Trinity_Skin_diff.png
+
+        red   ambientLightRed
+        green ambientLightGreen
+        blue  ambientLightBlue
+    }</pre>
+
+<p>
+The image to the left shows the result of the this material definition being applied to a model mesh.
+Notice the small glitch in the image, which is a result of mipmaps being applied to the above shown texture: Mip-mapping mixes black pixels of the hair with adjacent, bright pixels of the skin, yielding the intermediate colors that are marked in the result image to the left.
+Such glitches are even more disturbing and better visible with animated models, e.g. when the head of the model slightly turns.
+</p>
+
+<p>
+Note that these kinds of artifacts are <em>no</em> bugs, they are a normal result from mipmap filtering. <br style="clear:both" />
+</p>
+
+<p>
+<a href="/_detail/matsys:example_nomipmaps_3.png?id=matsys%3Acmat_manual%3Atexturemapspecifications" class="media" title="matsys:example_nomipmaps_3.png"><img src="/_media/matsys:example_nomipmaps_3.png" class="medialeft" alt="" /></a> With the <code>noScaleDown</code> and <code>minFilter bilinear</code> keywords applied in the material script, the glitch disappears as shown here:
+</p>
+<pre class="code">    Models/Players/Trinity/trinityskin3
+    {
+        diffusemap Models/Players/Trinity_Skin_diff.png, minFilter bilinear, noScaleDown
+
+        red   ambientLightRed
+        green ambientLightGreen
+        blue  ambientLightBlue
+    }</pre>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Map Compositions&quot;,&quot;hid&quot;:&quot;map_compositions&quot;,&quot;codeblockOffset&quot;:2,&quot;secid&quot;:2,&quot;range&quot;:&quot;5839-&quot;} -->

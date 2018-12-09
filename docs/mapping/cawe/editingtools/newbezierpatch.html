@@ -1,0 +1,163 @@
+
+<h1 class="sectionedit1" id="the_new_bezier_patch_tool">The New Bezier Patch Tool</h1>
+<div class="level1">
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:cawe_toolbar_newbezierpatch.png?id=mapping%3Acawe%3Aeditingtools%3Anewbezierpatch" class="media" title="mapping:cawe:editingtools:cawe_toolbar_newbezierpatch.png"><img src="/_media/mapping:cawe:editingtools:cawe_toolbar_newbezierpatch.png?w=80&amp;tok=e6ce24" class="medialeft" alt="" width="80" /></a>
+</p>
+
+<p>
+The New Bezier Patch tool is an easy to use tool, if you want to create curved surfaces such as pipes or uneven floors.
+</p>
+
+<p>
+A Bezier Patch is in its pure form a plane with a grid of vertices (with variable grid density), that can be moved to change the form of the Bezier Patch.
+</p>
+
+<p>
+To activate the tool, use the related icon from the tool bar or press <code>SHIFT</code>+<code>P</code>.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;The New Bezier Patch Tool&quot;,&quot;hid&quot;:&quot;the_new_bezier_patch_tool&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:1,&quot;range&quot;:&quot;1-474&quot;} -->
+<h2 class="sectionedit2" id="the_tool_options_bar">The Tool Options Bar</h2>
+<div class="level2">
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:cawe_tooloptionsbar_newbezierpatch.png?id=mapping%3Acawe%3Aeditingtools%3Anewbezierpatch" class="media" title="mapping:cawe:editingtools:cawe_tooloptionsbar_newbezierpatch.png"><img src="/_media/mapping:cawe:editingtools:cawe_tooloptionsbar_newbezierpatch.png" class="media" alt="" /></a>
+</p>
+
+<p>
+The Tool Options Bar lets you choose from different source forms, that a created Bezier Patch will adopt at the beginning.
+Possible forms are:
+</p>
+<ul>
+<li class="level1"><div class="li"> <strong>Flat</strong>: A simple flat plane.</div>
+</li>
+<li class="level1"><div class="li"> <strong>Cylinder</strong>: A Bezier Patch bent into a cylindric form without bottom or top. </div>
+</li>
+<li class="level1"><div class="li"> <strong>Open Box</strong>: A rectangular box without bottom or top.</div>
+</li>
+<li class="level1"><div class="li"> <strong>Half Cylinder</strong>: A Bezier Patch bent into a half cylinder.</div>
+</li>
+<li class="level1"><div class="li"> <strong>Quarter Cylinder</strong>: A Bezier Patch bent into a quarter cylinder.</div>
+</li>
+<li class="level1"><div class="li"> <strong>Edge Pipe</strong>: Basic form to easily create edges of pipes.</div>
+</li>
+<li class="level1"><div class="li"> <strong>Cone</strong>: A Bezier Patch bent into a simple cone.</div>
+</li>
+<li class="level1"><div class="li"> <strong>Sphere</strong>: A Bezier Patch bent into a spherical form.</div>
+</li>
+<li class="level1"><div class="li"> <strong>Convex Endcap</strong>: Creates a quarter cylinder convex endcap.</div>
+</li>
+<li class="level1"><div class="li"> <strong>Concave Endcap</strong>: Creates a quarter cylinder concave endcap.</div>
+</li>
+</ul>
+
+<p>
+The Checkboxes <strong>with convex endcaps</strong> and <strong>with concave endcaps</strong> determine whether a newly created bezier patch should have fitting endcaps at creation.
+</p>
+
+<p>
+The fields <strong>width</strong> and <strong>height</strong> define the number of vertices on the two axis of the Bezier Patch. 
+Higher values mean a higher density of vertices.
+</p>
+
+<p>
+Note that these options are not available for all basic bezier patch forms.
+</p>
+
+<p>
+The <strong>Subdivs Horz</strong> and <strong>Subdivs Vert</strong> controls adjust the subdivisions of a bezier patch in x or y direction. A higher value means a more seamless bezier patch surface. You can also use these two controls to adjust the subdivisions of a currently selected bezier patch.
+</p>
+
+<p>
+Values of -1 mean, that the number of subdivisions is chosen automatically.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;The Tool Options Bar&quot;,&quot;hid&quot;:&quot;the_tool_options_bar&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:2,&quot;range&quot;:&quot;475-2086&quot;} -->
+<h2 class="sectionedit3" id="creating_a_bezier_patch">Creating a Bezier Patch</h2>
+<div class="level2">
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:beziercreate.png?id=mapping%3Acawe%3Aeditingtools%3Anewbezierpatch" class="media" title="mapping:cawe:editingtools:beziercreate.png"><img src="/_media/mapping:cawe:editingtools:beziercreate.png" class="medialeft" alt="" /></a>
+</p>
+
+<p>
+To create a new patch you have to drag a box in a 2D view that defines the size of the Bezier Patch (note that the box has to be spatial even if you want to create a <strong>Flat</strong> Bezier Patch).
+After the box is created you can then resize it to your liking.
+Finally press <code>ENTER</code> to create the Bezier Patch in its chosen source form.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Creating a Bezier Patch&quot;,&quot;hid&quot;:&quot;creating_a_bezier_patch&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:3,&quot;range&quot;:&quot;2087-2506&quot;} -->
+<h2 class="sectionedit4" id="forming_a_bezier_patch">Forming a Bezier Patch</h2>
+<div class="level2">
+
+<p>
+To form a Bezier Patch you have to activate <a href="/mapping:cawe:editingtools:selection" class="wikilink1" title="mapping:cawe:editingtools:selection">The Selection Tool</a> and select the patch you want to form.
+</p>
+
+<p>
+Forming the patch is done by activating <a href="/mapping:cawe:editingtools:morph" class="wikilink1" title="mapping:cawe:editingtools:morph">The Edit Vertices (Morph) Tool</a>.
+Now you can see all control vertices of the Bezier Patch in the 2D views as well as in the 3D view.
+You can drag control vertices in both views to form the patch in the same way you drag vertices of brushes (see <a href="/mapping:cawe:editingtools:morph" class="wikilink1" title="mapping:cawe:editingtools:morph">here</a>).
+</p>
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:bezierform3.png?id=mapping%3Acawe%3Aeditingtools%3Anewbezierpatch" class="media" title="mapping:cawe:editingtools:bezierform3.png"><img src="/_media/mapping:cawe:editingtools:bezierform3.png" class="media" alt="" /></a> <a href="/_detail/mapping:cawe:editingtools:bezierform2.png?id=mapping%3Acawe%3Aeditingtools%3Anewbezierpatch" class="media" title="mapping:cawe:editingtools:bezierform2.png"><img src="/_media/mapping:cawe:editingtools:bezierform2.png" class="media" alt="" /></a> <a href="/_detail/mapping:cawe:editingtools:bezierform1.png?id=mapping%3Acawe%3Aeditingtools%3Anewbezierpatch" class="media" title="mapping:cawe:editingtools:bezierform1.png"><img src="/_media/mapping:cawe:editingtools:bezierform1.png" class="media" alt="" /></a>
+</p>
+
+<p>
+In this example the center vertice is selected and moved up in a side view.
+</p>
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:bezierform5.png?id=mapping%3Acawe%3Aeditingtools%3Anewbezierpatch" class="media" title="mapping:cawe:editingtools:bezierform5.png"><img src="/_media/mapping:cawe:editingtools:bezierform5.png" class="media" alt="" /></a> <a href="/_detail/mapping:cawe:editingtools:bezierform2.png?id=mapping%3Acawe%3Aeditingtools%3Anewbezierpatch" class="media" title="mapping:cawe:editingtools:bezierform2.png"><img src="/_media/mapping:cawe:editingtools:bezierform2.png" class="media" alt="" /></a> <a href="/_detail/mapping:cawe:editingtools:bezierform4.png?id=mapping%3Acawe%3Aeditingtools%3Anewbezierpatch" class="media" title="mapping:cawe:editingtools:bezierform4.png"><img src="/_media/mapping:cawe:editingtools:bezierform4.png" class="media" alt="" /></a>
+</p>
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:bezierformed.png?id=mapping%3Acawe%3Aeditingtools%3Anewbezierpatch" class="media" title="mapping:cawe:editingtools:bezierformed.png"><img src="/_media/mapping:cawe:editingtools:bezierformed.png" class="media" alt="" /></a>
+</p>
+
+<p>
+Altough only the center vertice has been moved, the Bezier Patch has changed its form creating a smooth bump instead of a peak.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Forming a Bezier Patch&quot;,&quot;hid&quot;:&quot;forming_a_bezier_patch&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:4,&quot;range&quot;:&quot;2507-3538&quot;} -->
+<h2 class="sectionedit5" id="applying_materials_to_bezier_patches">Applying materials to Bezier Patches</h2>
+<div class="level2">
+
+<p>
+Materials are applied onto bezier patch surfaces using <a href="/mapping:cawe:editingtools:editfaceprops" class="wikilink1" title="mapping:cawe:editingtools:editfaceprops">The Edit Surface Properties Tool</a>.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Applying materials to Bezier Patches&quot;,&quot;hid&quot;:&quot;applying_materials_to_bezier_patches&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:5,&quot;range&quot;:&quot;3539-3690&quot;} -->
+<h2 class="sectionedit6" id="new_bezier_patch_tool_keyboard_shortcuts">New Bezier Patch tool keyboard shortcuts</h2>
+<div class="level2">
+<ul>
+<li class="level1 node"><div class="li"> <code>ESC</code></div>
+<ul>
+<li class="level2"><div class="li"> Back to Selection tool.</div>
+</li>
+</ul>
+</li>
+<li class="level1 node"><div class="li"> <code>ENTER</code></div>
+<ul>
+<li class="level2"><div class="li"> If Bezier Box is opened → create Bezier Patch.</div>
+</li>
+</ul>
+</li>
+<li class="level1 node"><div class="li"> <code>ALT</code></div>
+<ul>
+<li class="level2"><div class="li"> Temporarily ignore grid snap while creating a Bezier box</div>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;New Bezier Patch tool keyboard shortcuts&quot;,&quot;hid&quot;:&quot;new_bezier_patch_tool_keyboard_shortcuts&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:6,&quot;range&quot;:&quot;3691-&quot;} -->
