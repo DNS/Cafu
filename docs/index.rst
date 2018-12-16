@@ -105,10 +105,7 @@ Welcome to Cafu Engine's documentation!
     cppdev/codingconventions
     cppdev/gamecodeoverview
     cppdev/startnewgame
-    modding/addingnewdmentities
     cppdev/fbxsdk
-    appendix/flashtutswithwink
-    appendix/pts2csv
 
     start
     mapping/cawe/tutorials/water
