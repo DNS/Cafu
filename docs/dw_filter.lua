@@ -26,3 +26,49 @@ function Div(div)
 
     return div.content
 end
+
+
+function Link(link)
+    if false then
+        print("")
+        print("neuer Link:")
+
+        io.write("content: ")
+        for k,v in pairs(link.content) do
+            if v.tag == "Str" then
+                io.write("'" .. v.text .. "' ")
+            else
+                io.write(v.tag .. " ")
+            end
+        end
+        io.write("\n")
+
+        print("target: " .. link.target)
+        print("title: " .. link.title)
+        print("id: " .. link.attr.identifier)
+        printTable("classes: ", link.attr.classes)
+        printTable("attribs: ", link.attr.attributes)
+     -- print("tag: " .. link.tag .. "  " .. link.t)
+    end
+
+    if #link.attr.classes > 0 and link.attr.classes[1] == "wikilink1" then
+        -- print("~~~~~~~~~~~~~~")
+        tg = ""
+        for k,v in pairs(link.content) do
+            if v.tag == "Str" then
+                tg = tg .. v.text
+            elseif v.tag == "Space" then
+                tg = tg .. "_"
+            else
+                print("Unbekannter Inhalt in Link! " .. v.tag)
+                tg = tg .. v.tag
+            end
+        end
+        tg = tg:lower()
+        -- print("---------> neu: " .. tg)
+
+        return pandoc.RawInline("rst", ":ref:`" .. tg .. "`")
+    end
+
+    return link
+end
