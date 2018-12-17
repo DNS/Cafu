@@ -109,9 +109,6 @@ Welcome to Cafu Engine's documentation!
 
     start
     mapping/cawe/tutorials/water
-    playground/neues_flugzeug
-    playground/playground
-    playground/themes
 
 
 Indices and tables
