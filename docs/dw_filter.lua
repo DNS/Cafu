@@ -119,3 +119,25 @@ function Image(img)
 
     return img
 end
+
+
+function CodeBlock(cb)
+    if true then
+        print("")
+        print("neuer CodeBlock:")
+        print("text: " .. cb.text)
+        print("id: " .. cb.attr.identifier)
+        printTable("classes: ", cb.attr.classes)
+        printTable("attribs: ", cb.attr.attributes)
+     -- print("tag: " .. cb.tag .. "  " .. cb.t)
+    end
+
+    if #cb.attr.classes > 0 and cb.attr.classes[1] == "code" then
+        table.remove(cb.attr.classes, 1)
+    end
+    if #cb.attr.classes > 0 and cb.attr.classes[1] == "dos" then
+        cb.attr.classes[1] = "doscon"
+    end
+
+    return cb
+end
