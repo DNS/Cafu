@@ -112,9 +112,6 @@ Welcome to Cafu Engine's documentation!
     playground/neues_flugzeug
     playground/playground
     playground/themes
-    wiki/dokuwiki
-    wiki/syntax
-    wiki/welcome
 
 
 Indices and tables
