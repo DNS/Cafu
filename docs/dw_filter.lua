@@ -110,6 +110,14 @@ function Image(img)
      -- print("tag: " .. img.tag .. "  " .. img.t)
     end
 
+    if img.src:find("lib/images/smileys/icon_exclaim.gif") then return pandoc.Strong("(!)") end
+    if img.src:find("lib/images/smileys/icon_question.gif") then return pandoc.Strong("(?)") end
+    if img.src:find("lib/images/smileys/icon_wink.gif") then return pandoc.Str("😉") end
+    if img.src:find("lib/images/smileys/icon_lol.gif") then return pandoc.Str("😃") end
+    if img.src:find("lib/images/smileys/icon_smile.gif") then return pandoc.Str("🙂") end
+    if img.src:find("lib/images/smileys/icon_biggrin.gif") then return pandoc.Str("😀") end
+    if img.src:find("lib/images/smileys/fixme.gif") then return pandoc.Strong("(FIXME!)") end
+
     if img.src:find("/_media/") then
         img.src = img.src:gsub("/_media/", "/images/")
         img.src = img.src:gsub(":", "/")
@@ -122,7 +130,7 @@ end
 
 
 function CodeBlock(cb)
-    if true then
+    if false then
         print("")
         print("neuer CodeBlock:")
         print("text: " .. cb.text)
