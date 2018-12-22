@@ -8,15 +8,18 @@ end
 
 -- This function strips wrapper <div> elements that are not needed
 -- and cause redundant `container::` blocks in reStructuredText output.
--- For example, <li><div class="li">...</div></li> becomes <li>...</li>.
+-- Examples:
+--     <div class="level1"><p>...</p><p>...</p></div> becomes <p>...</p><p>...</p>
+--     <li><div class="li">list item text</div></li> becomes <li>list item text</li>
+--     <div class="table"><table>...</table></div> becomes <table>...</table>
 function Div(div)
     if div.attr.identifier ~= "" then return end
     if #div.attr.attributes ~= 0 then return end
-    if #div.attr.classes ~= 1 then return end
+    if #div.attr.classes < 1 then return end
 
     c = div.attr.classes[1]
     if c ~= "level1" and c ~= "level2" and c ~= "level3" and c ~= "level4" and c ~= "level5" and
-       c ~= "li" then
+       c ~= "li" and c ~= "table" then
         return
     end
 

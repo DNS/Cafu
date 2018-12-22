@@ -6,8 +6,7 @@ for root, dirs, files in os.walk("."):
     for fn in files:
         if fn.endswith(".html"):
             p = os.path.join(root, fn)
-          # if "modeleditor" in p and "scenesetup" in p:      # for testing
-            if True:
+            if len(sys.argv) < 2 or sys.argv[1] in p:
                 print(p)
                 subprocess.Popen(["pandoc", p, "--lua-filter", "dw_filter.lua", "-o", p.replace(".html", ".rst")]).wait()
 
