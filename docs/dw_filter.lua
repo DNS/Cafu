@@ -81,8 +81,10 @@ function Link(link)
     -- Replace <a href="/_detail/..."><img .../></a> with <img .../>.
     -- DokuWiki produced low-res editions of the images and linked to their full-res counterparts.
     -- As we always use the full-res editions, we don't need the wrapper link.
-    if #link.attr.classes > 0 and link.attr.classes[1] == "media" and link.target:sub(1, 9) == "/_detail/" then
-        return link.content
+    if #link.attr.classes > 0 and link.attr.classes[1] == "media" then
+        if link.target:sub(1, 9) == "/_detail/" or link.target:sub(1, 9) == "/lib/exe/" then
+            return link.content
+        end
     end
 
     return link
@@ -125,6 +127,11 @@ function Image(img)
         img.src = img.src:gsub("/_media/", "/images/")
         img.src = img.src:gsub(":", "/")
         img.src = img.src:gsub("%?.*", "")
+        -- print(" ----> " .. img.src)
+    end
+
+    if img.src:find("/lib/exe/") then
+        img.src = img.src:gsub(".*%%2F", "/images/")
         -- print(" ----> " .. img.src)
     end
 
