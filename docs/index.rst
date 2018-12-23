@@ -65,7 +65,6 @@ Welcome to Cafu Engine's documentation!
     mapping/compiling_new
     mapping/compiling
     mapping/creatingterrainheightmaps
-    ### guisys/guieditor
     guisys/making_new_fonts
     guisys/guifiles
     modeleditor/introduction
@@ -96,9 +95,6 @@ Welcome to Cafu Engine's documentation!
     matsys/cmat_manual/shaderspecifications
     matsys/cmat_manual/expressionsandtables
     matsys/cmat_manual/keywordreference
-    ### matsys/for_shaderwriters
-    ### matsys/for_apiusers
-    ### matsys/for_developers
     cppdev/gettingstarted
     cppdev/ides
     cppdev/submitpatches
@@ -109,6 +105,14 @@ Welcome to Cafu Engine's documentation!
 
     start
     mapping/cawe/tutorials/water
+
+
+.. comment
+    In DokuWiki times, it was intended to add these pages. Is this still desired?
+    # guisys/guieditor
+    # matsys/for_shaderwriters
+    # matsys/for_apiusers
+    # matsys/for_developers
 
 
 Indices and tables
