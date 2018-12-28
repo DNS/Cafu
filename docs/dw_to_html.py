@@ -15,3 +15,7 @@ for root, dirs, files in os.walk("."):
             print(out_name)
             with open(out_name, encoding='utf-8', mode='w') as f:
                 f.write(s)
+
+    for excl in [".git", "_build", "_static", "_templates"]:
+        if excl in dirs:
+            dirs.remove(excl)

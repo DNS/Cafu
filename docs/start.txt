@@ -152,9 +152,12 @@ This manual describes how the Cafu engine can be modified to implement own ideas
     - [[MatSys::cmat_Manual::ShaderSpecifications]]
     - [[MatSys::cmat_Manual::ExpressionsAndTables]]
     - [[MatSys::cmat_Manual::KeywordReference]]
-  - [[MatSys::For_ShaderWriters|The Shader Writers Perspective]]
-  - [[MatSys::For_APIUsers|The API Users Perspective]]
-  - [[MatSys::For_Developers|The Developers Perspective]]
+
+/*
+    - [[MatSys::For_ShaderWriters|The Shader Writers Perspective]]
+    - [[MatSys::For_APIUsers|The API Users Perspective]]
+    - [[MatSys::For_Developers|The Developers Perspective]]
+*/
 
 ==== At the Core: The Cafu Source Code ====
   - [[cppDev::GettingStarted]]
@@ -165,10 +168,5 @@ This manual describes how the Cafu engine can be modified to implement own ideas
   - Selected Topics
     - [[cppDev::GameCodeOverview]]
     - [[cppDev::StartNewGame]]
-    - [[Modding::AddingNewDMEntities]]
+    - [[cppDev::LoadingGameWorlds]]
     - [[cppDev::FbxSDK]]
-
-==== Appendix ====
-  - [[BecomingAnEditor]]
-  - [[Appendix::FlashTutsWithWink]]
-  - [[Appendix::pts2csv]]

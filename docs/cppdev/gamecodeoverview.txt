@@ -36,34 +36,6 @@ so that the Cafu Engine can find and load them when it is newly initializing the
 The following sub-sections list and explain most of these "fixed" files and directories.
 
 
-==== EntityClassDefs.lua ====
-
-File ''EntityClassDefs.lua'' defines all entity types that can occur in the game.
-The file is read both by the world editor CaWE and the actual game code.
-For each entity type, it specifies details like names, dimensions, properties, etc.
-
-
-==== Code/ ====
-
-Directory ''Code/'' contains the source code for the implementation of this game.
-
-The source code is compiled into a program library that is linked to the Cafu Engine executable when the software is built. Multiple game libraries can be linked to the Cafu Engine at the same time, so that the user can choose at runtime which one should be used.
-
-When SCons builds the game library, it places the generated binary files into subdirectory
-    Code/build/...
-where ''%%...%%'' is a path that is automatically created by the build system according to your platform, compiler and build variant.
-When it proceeds, SCons will automatically pick up the generated files from there to link them to Cafu, so normally you never have to deal with them yourself.
-
-/* The program libraries are known as "DLLs" (dynamic link libraries) under Windows, and "SOs" (shared objects) under Linux. Independent of the platform, this library with the binary code is referred to as "DLL" in this documentation, and it is kept in another subdirectory of ''Code/'' as well.
-
-The DLL is expected to have the same name as the game, and thus expected to be found in
-    Games/DeathMatch/Code/build/.../DeathMatch.dll     (Windows)
-    Games/DeathMatch/Code/build/.../DeathMatch.so      (Linux)
-where ''%%...%%'' is a path that is automatically created by the build system according to your platform, compiler and build variant.
-The ''%%...%%'' path is also known to the Cafu Engine so that it can load the library. */
-
-See section [[#the_game_source_code|The game source code]] for more details about the game source code.
-
 
 ==== GUIs/ ====
 
@@ -124,21 +96,6 @@ The ''Worlds/'' directory is also the right place for [[http://api.cafu.de/lua/|
   * A map scripts must be placed into the ''Worlds/'' directory "next" to the compiled world file. That is, the script must have the same base name as the world, but suffix ''.lua'' instead of ''.cw''.
   * The map script is //not// compiled along with the ''.cw'' file: You can change it at any time, and the changes become effective as soon as the world is loaded/restarted the next time. In fact, it is even possible to [[general:developer_faq#how_do_i_dynamically_reload_the_map_script_in-game|update a map script while the game is running]], that is, //without interrupting it//.
 
-
-===== The game source code =====
-
-The source code for the game library is in ''Code/'', inside which you can organize and arrange the source files at will.
-
-To get familiar with the code, a good start is to check out the
-[[http://api.cafu.de/c++/classcf_1_1GameSys_1_1GameI.html|cf::GameSys::GameI]] interface,
-and its implementation in ''GameImplT'', and to continue from there.
-
-The core engine will call the methods of the ''cf::GameSys::GameI'' interface, e.g. those to have new entities created after a map file has been loaded or when another player joins the game, and it's the job of the game code to provide implementations for these methods.
-See the code for class ''GameImplT'' in order to see how it was done for the DeathMatch game.
-
-With the ''GameEntityI'' pointers to newly created entities, the engine will also call the virtual methods in the ''GameEntityI'' interface, in order to let entities know about events or to have them carry out tasks.
-These methods too are supposed to be overridden by the concrete entity implementation, and are in fact the essence of implementing a game:
-An entity is considered a state machine that lives in a virtual world, interacting with the world and other entities, and for example its ''GameEntityI::Think()'' method is expected to update it over a small amount of time whenever the method is called (by the server code inside the engine).
 
 
 ===== Exploring the code =====
