@@ -38,12 +38,12 @@ Additional notes:
 </li>
 <li class="level1"><div class="li"> There is no audio track in this video.</div>
 </li>
-<li class="level1"><div class="li"> Use the <a href="/mapping:cawe:editingtools:newentity" class="wikilink1" title="mapping:cawe:editingtools:newentity">New Entity</a> tool for placing the newly created <code>.cmdl</code> model into a map. Watch the <a href="http://www.cafu.de/flash/Placing_a_Model.htm" class="urlextern" title="http://www.cafu.de/flash/Placing_a_Model.htm" rel="nofollow">Placing a Model</a> tutorial for related information.</div>
+<li class="level1"><div class="li"> Use the <a href="/mapping:cawe:editingtools:newentity#the_new_entity_tool" class="wikilink1" title="mapping:cawe:editingtools:newentity">New Entity</a> tool for placing the newly created <code>.cmdl</code> model into a map. Watch the <a href="http://www.cafu.de/flash/Placing_a_Model.htm" class="urlextern" title="http://www.cafu.de/flash/Placing_a_Model.htm" rel="nofollow">Placing a Model</a> tutorial for related information.</div>
 </li>
 <li class="level1"><div class="li"> If you want to make adjustments later, both the <code>.cmdl</code> model as well as the material definitions can be edited as shown above also <em>after</em> the model has been placed into a map or world file. The changes will take effect when the program is next restarted.</div>
 </li>
 <li class="level1"><div class="li"> In the video, why did we <em>close</em> the model window before editing the material definitions?<br/>
-When you save a model file, the Model Editor <em>overwrites</em> the <code>_editor.<abbr title="Cafu material script file.">cmat</abbr></code> file as explained at <a href="/modeleditor:modelfiles" class="wikilink1" title="modeleditor:modelfiles">Model Files Explained</a>. In fact, we should never have hand-edited the <code>_editor.<abbr title="Cafu material script file.">cmat</abbr></code> file, but do all edits in <code>.<abbr title="Cafu material script file.">cmat</abbr></code> (without the <code>_editor</code> part) instead, but we thought it&#039;s too difficult to explain that in the video.  <img src="/lib/images/smileys/icon_wink.gif" class="icon" alt=";-)" /> <br/>
+When you save a model file, the Model Editor <em>overwrites</em> the <code>_editor.<abbr title="Cafu material script file.">cmat</abbr></code> file as explained at <a href="/modeleditor:modelfiles#model_files_explained" class="wikilink1" title="modeleditor:modelfiles">Model Files Explained</a>. In fact, we should never have hand-edited the <code>_editor.<abbr title="Cafu material script file.">cmat</abbr></code> file, but do all edits in <code>.<abbr title="Cafu material script file.">cmat</abbr></code> (without the <code>_editor</code> part) instead, but we thought it&#039;s too difficult to explain that in the video.  <img src="/lib/images/smileys/icon_wink.gif" class="icon" alt=";-)" /> <br/>
 Additionally, the Model Editor had to re-read the new material definitions anyway, so even if our edits were made in the right file, we had to close and reopen the model.</div>
 </li>
 </ul>
@@ -64,11 +64,11 @@ There are two main methods for scaling a model:
 </ul>
 
 <p>
-The <a href="/modeleditor:skeleton" class="wikilink1" title="modeleditor:skeleton">Joint Inspector</a> can transform individual joints of the model, but only for the <em>bind pose</em>. It is mostly useful for static, non-animated models, but even then only if there is a special requirement that the Transform dialog cannot handle.
+The <a href="/modeleditor:skeleton#skeleton" class="wikilink1" title="modeleditor:skeleton">Joint Inspector</a> can transform individual joints of the model, but only for the <em>bind pose</em>. It is mostly useful for static, non-animated models, but even then only if there is a special requirement that the Transform dialog cannot handle.
 </p>
 
 <p>
-The <a href="/modeleditor:transform" class="wikilink1" title="modeleditor:transform">Transform dialog</a> is much easier to use, as it transforms the entire model (the whole skeleton): the transformation is applied to all currently selected animation sequences. If no animation sequence is selected at all, the “bind pose” is transformed.
+The <a href="/modeleditor:transform#transformstranslate_rotate_and_scale" class="wikilink1" title="modeleditor:transform">Transform dialog</a> is much easier to use, as it transforms the entire model (the whole skeleton): the transformation is applied to all currently selected animation sequences. If no animation sequence is selected at all, the “bind pose” is transformed.
 </p>
 
 </div>
@@ -77,7 +77,7 @@ The <a href="/modeleditor:transform" class="wikilink1" title="modeleditor:transf
 <div class="level3">
 
 <p>
-In some cases, importing animations is very easy: Use the “<strong>+</strong>” button in the <a href="/modeleditor:animations" class="wikilink1" title="modeleditor:animations">Animations</a> pane as demonstrated in the above video.
+In some cases, importing animations is very easy: Use the “<strong>+</strong>” button in the <a href="/modeleditor:animations#animations" class="wikilink1" title="modeleditor:animations">Animations</a> pane as demonstrated in the above video.
 </p>
 
 <p>
@@ -98,7 +98,7 @@ Creating variants of a model by sharing or re-using elements of another model is
 </p>
 
 <p>
-The solution is to manually edit the <code>cmdl</code> model file, which is a Lua script as documented at <a href="/modeleditor:modelfiles" class="wikilink1" title="modeleditor:modelfiles">Model Files Explained</a>.
+The solution is to manually edit the <code>cmdl</code> model file, which is a Lua script as documented at <a href="/modeleditor:modelfiles#model_files_explained" class="wikilink1" title="modeleditor:modelfiles">Model Files Explained</a>.
 </p>
 
 <p>

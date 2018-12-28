@@ -55,30 +55,42 @@ function Link(link)
      -- print("tag: " .. link.tag .. "  " .. link.t)
     end
 
-    -- Turns <a href="..."> HTML hyperlinks into internal references in RST, where appropriate.
-    -- For example, <a href="/modeleditor:mainwindow" class="wikilink1" title="modeleditor:mainwindow">The Main Window</a>
-    -- becomes :ref:`the_main_window` in RST.
+    -- Turns <a href="..." class="wikilink1"> HTML hyperlinks into internal references in RST, where appropriate.
+    -- For example,
+    -- turn <a href="/general:developer_faq#how_do_i_dynamically_reload_the_map_script_in-game" class="wikilink1" title="general:developer_faq">update a map script while the game is running</a>
+    -- into :ref:`update a map script while the game is running <how_do_i_dynamically_reload_the_map_script_in-game>`
+    --
     -- See https://groups.google.com/d/msg/pandoc-discuss/Nqv_6TyQZa0/_7lf0O-PCAAJ for details.
     if #link.attr.classes > 0 and link.attr.classes[1] == "wikilink1" then
         -- print("~~~~~~~~~~~~~~")
-        tg = ""
+        local content = ""
         for k,v in pairs(link.content) do
             if v.tag == "Str" then
-                tg = tg .. v.text
+                content = content .. v.text
             elseif v.tag == "Space" then
-                tg = tg .. "_"
+                content = content .. " "
             else
                 print("Unbekannter Inhalt in Link! " .. v.tag)
-                tg = tg .. v.tag
+                content = content .. v.tag
             end
         end
-        tg = tg:lower()
-        -- print("---------> neu: " .. tg)
 
-        return pandoc.RawInline("rst", ":ref:`" .. tg .. "`")
+        local target
+
+        if link.target:find("#") then
+            target = link.target:gsub(".*%#", "")
+            -- print("### mit  Anchor: " .. content .. " --> " .. target)
+        else
+            -- We should never get here: after `fix_a_href_attribs.py`, our input
+            -- files no longer contain any corresponding link targets.
+            target = content:lower():gsub(" ", "_")
+            print("### ohne Anchor: " .. content .. " --> " .. target)
+        end
+
+        return pandoc.RawInline("rst", ":ref:`" .. content .. " <" .. target .. ">`")
     end
 
-    -- Replace <a href="/_detail/..."><img .../></a> with <img .../>.
+    -- Replace <a href="/_detail/..." class="media"><img .../></a> with <img .../>.
     -- DokuWiki produced low-res editions of the images and linked to their full-res counterparts.
     -- As we always use the full-res editions, we don't need the wrapper link.
     if #link.attr.classes > 0 and link.attr.classes[1] == "media" then

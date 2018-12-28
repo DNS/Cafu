@@ -36,7 +36,7 @@ Radiosity methods compute lighting based on a physical model, and it is the natu
 </p>
 
 <p>
-The big downside of Radiosity is that it requires a preprocessing step. This preprocessing step can be computationally very expensive and thus take a long time to complete. It is implemented in a special tool called “<abbr title="Cafu Radiosity Lighting">CaLight</abbr>”, which is one of the map compilers that are covered in sections <a href="/mapping:compiling_new" class="wikilink1" title="mapping:compiling_new">Compiling Maps for Cafu</a> and <a href="/mapping:compiling" class="wikilink1" title="mapping:compiling">Compiling Maps at the Command-Line</a>.
+The big downside of Radiosity is that it requires a preprocessing step. This preprocessing step can be computationally very expensive and thus take a long time to complete. It is implemented in a special tool called “<abbr title="Cafu Radiosity Lighting">CaLight</abbr>”, which is one of the map compilers that are covered in sections <a href="/mapping:compiling_new#compiling_maps_for_cafu" class="wikilink1" title="mapping:compiling_new">Compiling Maps for Cafu</a> and <a href="/mapping:compiling#compiling_maps_at_the_command-line" class="wikilink1" title="mapping:compiling">Compiling Maps at the Command-Line</a>.
 </p>
 
 <p>
@@ -74,10 +74,10 @@ Any primitive (brush or Bezier patch) surface that you place in a Cafu map can b
 That means that a surface becomes an area light source when it has a material applied to it which in turn is defined to emit Radiosity light.
 </p>
 <ul>
-<li class="level1"><div class="li"> In order to place an area light source, use the <a href="/mapping:cawe:editingtools:editfaceprops" class="wikilink1" title="mapping:cawe:editingtools:editfaceprops">Edit Surfaces</a> tool to apply an appropriately defined material to the desired brush or Bezier patch surface. You can learn which materials cast Radiosity area light by clicking on them once in the <a href="/mapping:cawe:materialbrowser" class="wikilink1" title="mapping:cawe:materialbrowser">Material Browser</a>. The bar at the bottom will show “Radiant Exitance” information on the selected material, if any.<br/>
+<li class="level1"><div class="li"> In order to place an area light source, use the <a href="/mapping:cawe:editingtools:editfaceprops#the_edit_surface_properties_tool" class="wikilink1" title="mapping:cawe:editingtools:editfaceprops">Edit Surfaces</a> tool to apply an appropriately defined material to the desired brush or Bezier patch surface. You can learn which materials cast Radiosity area light by clicking on them once in the <a href="/mapping:cawe:materialbrowser#the_material_browser" class="wikilink1" title="mapping:cawe:materialbrowser">Material Browser</a>. The bar at the bottom will show “Radiant Exitance” information on the selected material, if any.<br/>
 Tip: Filter for materials with the string “light” in their name. This heightens the chance to find a relevant material quickly.</div>
 </li>
-<li class="level1"><div class="li"> In order to change the definition of a new or existing material to emit light, make sure that the <code>meta_radiantExitance</code> keyword is employed. Please refer to the Material Systems <a href="/matsys:cmat_manual:keywordreference" class="wikilink1" title="matsys:cmat_manual:keywordreference">Keyword Reference</a> for more details.<br/>
+<li class="level1"><div class="li"> In order to change the definition of a new or existing material to emit light, make sure that the <code>meta_radiantExitance</code> keyword is employed. Please refer to the Material Systems <a href="/matsys:cmat_manual:keywordreference#keyword_reference" class="wikilink1" title="matsys:cmat_manual:keywordreference">Keyword Reference</a> for more details.<br/>
 Note that the effect of changing the definition of an <em>existing</em> material is <em>global</em>. That is, if the material is used elsewhere (in another map), also the other map will be affected when <abbr title="Cafu Radiosity Lighting">CaLight</abbr> is run next.</div>
 </li>
 </ul>
@@ -89,7 +89,7 @@ Note that the effect of changing the definition of an <em>existing</em> material
 
 <p>
 You can also place <em>point light sources</em> to participate in the Radiosity lighting process.
-This is easily achieved with the <a href="/mapping:cawe:editingtools:newlight" class="wikilink1" title="mapping:cawe:editingtools:newlight">New Light tool</a>, whose documentation explains the placement and parameter setup in detail.
+This is easily achieved with the <a href="/mapping:cawe:editingtools:newlight#the_new_light_tool" class="wikilink1" title="mapping:cawe:editingtools:newlight">New Light tool</a>, whose documentation explains the placement and parameter setup in detail.
 </p>
 
 </div>
@@ -101,11 +101,11 @@ This is easily achieved with the <a href="/mapping:cawe:editingtools:newlight" c
 Adding sun- or moonlight to a map works analogously to adding an area light source: Just apply a “sky” material to any surface, and if the material is defined to emit skylight, everything else will happen automatically:
 </p>
 <ul>
-<li class="level1"><div class="li"> The <a href="/mapping:cawe:materialbrowser" class="wikilink1" title="mapping:cawe:materialbrowser">Material Browser</a> browser informs you whenever a material with “Irradiance” values is selected.</div>
+<li class="level1"><div class="li"> The <a href="/mapping:cawe:materialbrowser#the_material_browser" class="wikilink1" title="mapping:cawe:materialbrowser">Material Browser</a> browser informs you whenever a material with “Irradiance” values is selected.</div>
 </li>
-<li class="level1"><div class="li"> The material definition can be changed according to the Material Systems <a href="/matsys:cmat_manual:keywordreference" class="wikilink1" title="matsys:cmat_manual:keywordreference">Keyword Reference</a>, see the <code>meta_sunlight</code> keyword.</div>
+<li class="level1"><div class="li"> The material definition can be changed according to the Material Systems <a href="/matsys:cmat_manual:keywordreference#keyword_reference" class="wikilink1" title="matsys:cmat_manual:keywordreference">Keyword Reference</a>, see the <code>meta_sunlight</code> keyword.</div>
 </li>
-<li class="level1"><div class="li"> You may refer to the <a href="/mapping:cawe:yourfirstmap" class="wikilink1" title="mapping:cawe:yourfirstmap">Your First Map</a> tutorial to see an example. It&#039;s actually that easy!</div>
+<li class="level1"><div class="li"> You may refer to the <a href="/mapping:cawe:yourfirstmap#your_first_map" class="wikilink1" title="mapping:cawe:yourfirstmap">Your First Map</a> tutorial to see an example. It&#039;s actually that easy!</div>
 </li>
 </ul>
 
