@@ -1,5 +1,5 @@
 
-<h1 class="sectionedit1" id="texture_map_specifications">Texture Map Specifications</h1>
+<h1 class="sectionedit1" id="matsys_cmat_manual_texturemapspecifications_texture_map_specifications">Texture Map Specifications</h1>
 <div class="level1">
 
 <p>
@@ -27,7 +27,7 @@ The initial keyword (<code>diffusemap</code> etc.) defines how the texture image
 </p>
 
 <p>
-Here comes a list of all available keywords for texture map specifications, along with a short description of their default meaning. (The default is dynamic Phong lighting, which however can be overridden, as explained at <a href="/matsys:cmat_manual:shaderspecifications#shader_specifications" class="wikilink1" title="matsys:cmat_manual:shaderspecifications">Shader Specifications</a>.)
+Here comes a list of all available keywords for texture map specifications, along with a short description of their default meaning. (The default is dynamic Phong lighting, which however can be overridden, as explained at <a href="/matsys:cmat_manual:shaderspecifications#matsys_cmat_manual_shaderspecifications_shader_specifications" class="wikilink1" title="matsys:cmat_manual:shaderspecifications">Shader Specifications</a>.)
 </p>
 <ul>
 <li class="level1"><div class="li"> <strong><code>diffusemap</code></strong> The texture map image that defines the diffuse color (or diffuse reflectivity) of the material. The alpha channel of the diffuse-map specifies the translucency of the material.</div>
@@ -55,7 +55,7 @@ Here comes a list of all available keywords for texture map specifications, alon
 </li>
 </ul>
 <ul>
-<li class="level1"><div class="li"> <strong><code>cubeMap</code></strong> A six-sided cube-map image that is used e.g. for environmental mapping. Normally, cube-map specifications are per default <em>ignored</em>, because they are not regularly used with Phong lighting. Instead, they are specially activated as described in section <a href="/matsys:cmat_manual:shaderspecifications#shader_specifications" class="wikilink1" title="matsys:cmat_manual:shaderspecifications">Shader Specifications</a>. As a single cube-map is actually composed of six individual images, a special convention for its file name is employed: A <code>&#039;#&#039;</code> character in the file name is automatically replaced with the six possible cube-map suffixes _px, _nx, _py, _ny, _pz and _nz. For example, consider this material definition from the <code>Cafu-9.06/Games/DeathMatch/Materials/SkyDomes.<abbr title="Cafu material script file.">cmat</abbr></code> file: <pre class="code">    Textures/SkyDomes/PK_BrightDay2
+<li class="level1"><div class="li"> <strong><code>cubeMap</code></strong> A six-sided cube-map image that is used e.g. for environmental mapping. Normally, cube-map specifications are per default <em>ignored</em>, because they are not regularly used with Phong lighting. Instead, they are specially activated as described in section <a href="/matsys:cmat_manual:shaderspecifications#matsys_cmat_manual_shaderspecifications_shader_specifications" class="wikilink1" title="matsys:cmat_manual:shaderspecifications">Shader Specifications</a>. As a single cube-map is actually composed of six individual images, a special convention for its file name is employed: A <code>&#039;#&#039;</code> character in the file name is automatically replaced with the six possible cube-map suffixes _px, _nx, _py, _ny, _pz and _nz. For example, consider this material definition from the <code>Cafu-9.06/Games/DeathMatch/Materials/SkyDomes.<abbr title="Cafu material script file.">cmat</abbr></code> file: <pre class="code">    Textures/SkyDomes/PK_BrightDay2
     {
         AmbientShader A_SkyDome
         LightShader   none      // == noDynLight
@@ -73,7 +73,7 @@ Here comes a list of all available keywords for texture map specifications, alon
 </li>
 </ul>
 <ul>
-<li class="level1"><div class="li"> <strong><code>cubeMap2</code></strong> This is like the above <code>cubeMap</code> keyword. It allows you to specify a second cube-map for special-purpose shaders that require two cube-maps. This keyword too is normally ignored unless a shader is specified that makes use of it. See <a href="/matsys:cmat_manual:shaderspecifications#shader_specifications" class="wikilink1" title="matsys:cmat_manual:shaderspecifications">Shader Specifications</a> for more details.</div>
+<li class="level1"><div class="li"> <strong><code>cubeMap2</code></strong> This is like the above <code>cubeMap</code> keyword. It allows you to specify a second cube-map for special-purpose shaders that require two cube-maps. This keyword too is normally ignored unless a shader is specified that makes use of it. See <a href="/matsys:cmat_manual:shaderspecifications#matsys_cmat_manual_shaderspecifications_shader_specifications" class="wikilink1" title="matsys:cmat_manual:shaderspecifications">Shader Specifications</a> for more details.</div>
 </li>
 </ul>
 
