@@ -43,7 +43,7 @@ Expressions are defined recursively as follows:
 </li>
 </ul>
 <ul>
-<li class="level1"><div class="li"> <strong><code>$table[ $expr ]</code></strong> A table look-up. The value of the table at position <code>$expr</code> is returned. The details of the look-up depend on the tables definition. The default tables <code>sinTable</code> and <code>cosTable</code> are always predefined. Custom tables can be defined as described in subsection <a href="#tables" title="matsys:cmat_manual:expressionsandtables ↵" class="wikilink1">Tables</a>. Note that table look-ups are normalized. That is, all table elements are accessed by indices between 0.0 and 1.0, that is, the fractional part of <code>$expr</code>.</div>
+<li class="level1"><div class="li"> <strong><code>$table[ $expr ]</code></strong> A table look-up. The value of the table at position <code>$expr</code> is returned. The details of the look-up depend on the tables definition. The default tables <code>sinTable</code> and <code>cosTable</code> are always predefined. Custom tables can be defined as described in subsection <a href="#expr_and_tables_tables" title="matsys:cmat_manual:expressionsandtables ↵" class="wikilink1">Tables</a>. Note that table look-ups are normalized. That is, all table elements are accessed by indices between 0.0 and 1.0, that is, the fractional part of <code>$expr</code>.</div>
 </li>
 </ul>
 <ul>
@@ -80,12 +80,12 @@ The following variables are defined:
 </ul>
 
 <p>
-Tables and table look-ups are described in subsection <a href="#tables" title="matsys:cmat_manual:expressionsandtables ↵" class="wikilink1">Tables</a>.
+Tables and table look-ups are described in subsection <a href="#expr_and_tables_tables" title="matsys:cmat_manual:expressionsandtables ↵" class="wikilink1">Tables</a>.
 </p>
 
 </div>
 <!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Expressions&quot;,&quot;hid&quot;:&quot;expressions&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:2,&quot;range&quot;:&quot;421-3013&quot;} -->
-<h2 class="sectionedit3">Tables</h2>
+<h2 class="sectionedit3" id="expr_and_tables_tables">Tables</h2>
 <div class="level2">
 
 <p>
