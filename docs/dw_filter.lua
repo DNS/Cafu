@@ -6,6 +6,37 @@ function printTable(label, t)
     io.write("\n")
 end
 
+
+function printPandoc(x, indent)
+    indent = indent or ""
+    io.write(indent)
+
+    for k, v in pairs(x) do
+        if v.tag == "Str" then
+            io.write("'" .. v.text .. "'")
+        elseif v.tag == "Code" then
+            io.write("`" .. v.text .. "`")
+        elseif v.tag == "Space" then
+            io.write("_")
+        elseif v.tag == "Plain" then
+            io.write("'''")
+            printPandoc(v.content, "")
+            io.write("'''")
+        elseif v.tag == "Strong" then
+            io.write("*")
+            printPandoc(v.content, "")
+            io.write("*")
+        elseif v.tag == nil then
+            io.write("[\n")
+            printPandoc(v, indent .. "    ")
+            io.write("\n" .. indent .. "]\n" .. indent)
+        else
+            io.write("<" .. v.tag .. ">")
+        end
+    end
+end
+
+
 -- This function strips wrapper <div> elements that are not needed
 -- and cause redundant `container::` blocks in reStructuredText output.
 -- Examples:
@@ -29,6 +60,82 @@ function Div(div)
     -- printTable("classes: ", div.attr.classes)
 
     return div.content
+end
+
+
+--[[
+-- The only purpose of this function is to examine how DLs are represented in Pandoc.
+function DefinitionList(dl)
+    if true then
+        print("\nneue DefinitionList:")
+        printPandoc(dl.content)
+    end
+end
+--]]
+
+
+-- This function turns Bullet Lists, that should have been Definition Lists, into such.
+function BulletList(ul)
+    if false then
+        print("\nneue BulletList, " .. #ul.content .. " items:")
+        printPandoc(ul.content)
+    end
+
+    local num_strong = 0
+
+    for num, item in pairs(ul.content) do
+        -- Normally, each item (bullet point) is a Plain element that contains Inline elements.
+        -- Sometimes, items contain more than one element, e.g. nested lists.
+        assert(#item >= 1)  -- usually #item == 1, sometimes more
+        assert(item[1].tag == "Plain")
+
+        if item[1].content[1].tag == "Strong" then
+            num_strong = num_strong + 1
+        else
+            -- This works, but this way we cannot consider the `ul` as a whole.
+            -- return ul
+        end
+    end
+
+    if num_strong ~= #ul.content then
+        return
+    end
+
+    -- print("--> to DefinitionList")
+
+    -- Assemble the new DefinitionList from the now well-known BulletList.
+    dl = {}
+    for num, item in pairs(ul.content) do
+        local c = {}
+        local first = 2
+        if item[1].content[2].tag == "Str" and item[1].content[2].text == ":" then
+            first = 3
+        end
+
+        for i = first, #item[1].content do
+            -- print(item[1].content[i])
+            c[#c + 1] = item[1].content[i]
+        end
+
+        if #c == 0 then
+            print("Definition is empty:")
+            printPandoc(item[1])
+        end
+
+        -- print("item1: ")
+        -- printPandoc(item[1])
+        -- print("c:     ")
+        -- printPandoc(pandoc.Plain(c))
+
+        dl[num] = {
+            item[1].content[1].content,     -- the term: Plain > Strong > content
+            -- {pandoc.Str "Test", pandoc.Space(), pandoc.Str "Term"},
+
+            { { pandoc.Plain(c), item[2], item[3], item[4] } }  -- the definition
+        }
+    end
+
+    return pandoc.DefinitionList(dl)
 end
 
 

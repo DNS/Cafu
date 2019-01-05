@@ -28,12 +28,7 @@ However, some keywords are allowed to occur several times, for example for enume
 <!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Keyword Reference&quot;,&quot;hid&quot;:&quot;keyword_reference&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:1,&quot;range&quot;:&quot;1-1738&quot;} -->
 <h2 class="sectionedit2" id="matsys_cmat_manual_keywordreference_shader_specifications">Shader Specifications</h2>
 <div class="level2">
-<ul>
-<li class="level1"><div class="li"> <strong><code>AmbientShader $name</code></strong></div>
-</li>
-<li class="level1"><div class="li"> <strong><code>LightShader $name</code></strong></div>
-</li>
-</ul>
+<p><code>AmbientShader $name</code>, <code>LightShader $name</code></p>
 
 <p>
 These keywords are used to override the automatic shader selection.
@@ -48,26 +43,17 @@ They are explained in detail in section <a href="/matsys:cmat_manual:shaderspeci
 <!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Shader Specifications&quot;,&quot;hid&quot;:&quot;shader_specifications&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:2,&quot;range&quot;:&quot;1739-2122&quot;} -->
 <h2 class="sectionedit3" id="matsys_cmat_manual_keywordreference_texture_map_specifications">Texture Map Specifications</h2>
 <div class="level2">
-<ul>
-<li class="level1"><div class="li"> <strong><code>diffusemap $mc</code></strong></div>
-</li>
-<li class="level1"><div class="li"> <strong><code>normalmap $mc</code></strong></div>
-</li>
-<li class="level1"><div class="li"> <strong><code>specularmap $mc</code></strong></div>
-</li>
-<li class="level1"><div class="li"> <strong><code>lumamap $mc</code></strong></div>
-</li>
-<li class="level1"><div class="li"> <strong><code>lightmap $mc</code></strong></div>
-</li>
-<li class="level1"><div class="li"> <strong><code>shlmap $mc</code></strong></div>
-</li>
-<li class="level1"><div class="li"> <strong><code>cubeMap $mc</code></strong></div>
-</li>
-<li class="level1"><div class="li"> <strong><code>cubeMap2 $mc</code></strong></div>
-</li>
-<li class="level1"><div class="li"> <strong><code>shaderParamMapC $mc</code></strong></div>
-</li>
-</ul>
+<p>
+<code>diffusemap $mc</code>,
+<code>normalmap $mc</code>,
+<code>specularmap $mc</code>,
+<code>lumamap $mc</code>,
+<code>lightmap $mc</code>,
+<code>shlmap $mc</code>,
+<code>cubeMap $mc</code>,
+<code>cubeMap2 $mc</code>,
+<code>shaderParamMapC $mc</code>
+</p>
 
 <p>
 With these keywords you specify texture map compositions <strong><code>$mc</code></strong> for use with this material. The keywords and texture map compositions are explained in detail in section <a href="/matsys:cmat_manual:texturemapspecifications#matsys_cmat_manual_texturemapspecifications_texture_map_specifications" class="wikilink1" title="matsys:cmat_manual:texturemapspecifications">Texture Map Specifications</a>.
@@ -81,12 +67,10 @@ The <strong><code>shaderParamMapC</code></strong> keyword is special, as it can 
 <!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Texture Map Specifications&quot;,&quot;hid&quot;:&quot;texture_map_specifications&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:3,&quot;range&quot;:&quot;2123-2972&quot;} -->
 <h2 class="sectionedit4">Custom Data</h2>
 <div class="level2">
-<ul>
-<li class="level1"><div class="li"> <strong><code>shaderParamExpr $expr</code></strong></div>
-</li>
-<li class="level1"><div class="li"> <strong><code>shaderParamMapC $mc</code></strong></div>
-</li>
-</ul>
+<p>
+<code>shaderParamExpr $expr</code>,
+<code>shaderParamMapC $mc</code>
+</p>
 
 <p>
 These two expressions are used to pass additional information to custom shaders.
@@ -133,11 +117,11 @@ These parameters are never looked at or taken into account by the map compile to
 <ul>
 <li class="level1 node"><div class="li"> <strong><code>polygonMode $pm</code></strong> This sets the polygon mode of a mesh. <abbr title="Cafu World Editor">CaWE</abbr> employs this keyword for rendering the objects in the 3D wire-frame mode. <code>$pm</code> must be one of</div>
 <ul>
-<li class="level2"><div class="li"> <strong><code>filled</code></strong></div>
+<li class="level2"><div class="li"> <code>filled</code></div>
 </li>
-<li class="level2"><div class="li"> <strong><code>wireframe</code></strong></div>
+<li class="level2"><div class="li"> <code>wireframe</code></div>
 </li>
-<li class="level2"><div class="li"> <strong><code>points</code></strong></div>
+<li class="level2"><div class="li"> <code>points</code></div>
 </li>
 </ul>
 </li>
@@ -163,17 +147,7 @@ Expressions can be simple numbers or more complex constructs, they are discussed
 </li>
 </ul>
 <ul>
-<li class="level1"><div class="li"> <strong><code>red $expr</code></strong></div>
-</li>
-<li class="level1"><div class="li"> <strong><code>green $expr</code></strong></div>
-</li>
-<li class="level1"><div class="li"> <strong><code>blue $expr</code></strong></div>
-</li>
-<li class="level1"><div class="li"> <strong><code>alpha $expr</code></strong></div>
-</li>
-<li class="level1"><div class="li"> <strong><code>rgb $expr</code></strong></div>
-</li>
-<li class="level1"><div class="li"> <strong><code>rgba $expr</code></strong> These parameters all define expressions for (channels of) the color with which the ambient contribution is modulated. I have defined the default ambient shaders such that for materials that have luma-maps, only the luma-map is modulated. Materials that have no luma-map get the entire ambient contribution modulated. This allows to create effects such as panels that have flickering LEDs, glowing lights etc. Note that you can specify different expressions for different color channels. That is, if you have a luma-map for a computer panel that has both red and green LEDs, you can for example have the red LEDs morse SOS, while the green LEDs change gradually by a sinus function. The default expression for all color channels is 1.0 (identity).</div>
+<li class="level1"><div class="li"> <strong><code>red $expr</code>, <code>green $expr</code>, <code>blue $expr</code>, <code>alpha $expr</code>, <code>rgb $expr</code>, <code>rgba $expr</code></strong> These parameters all define expressions for (channels of) the color with which the ambient contribution is modulated. I have defined the default ambient shaders such that for materials that have luma-maps, only the luma-map is modulated. Materials that have no luma-map get the entire ambient contribution modulated. This allows to create effects such as panels that have flickering LEDs, glowing lights etc. Note that you can specify different expressions for different color channels. That is, if you have a luma-map for a computer panel that has both red and green LEDs, you can for example have the red LEDs morse SOS, while the green LEDs change gradually by a sinus function. The default expression for all color channels is 1.0 (identity).</div>
 </li>
 </ul>
 <ul>
