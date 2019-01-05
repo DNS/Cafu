@@ -1,0 +1,100 @@
+.. _manifestcafu_package_contents:
+
+Manifest: Cafu Package Contents
+===============================
+
+|Manifest| Extracting the Cafu zip package for installation creates a
+new directory on your hard-disk that contains all Cafu related files.
+This section provides an overview of how the most important
+subdirectories and their contents are structured.
+
+Cafu-9.06
+   This is the top-level directory that contains everything else that is
+   related to this release of Cafu.
+
+   ExtLibs
+      A directory that contains **ext**\ ernal **lib**\ raries. These
+      are auxiliary libraries by other parties that Cafu relies upon.
+      You don't need them for normal use, but if you compile your own
+      game DLL or other Cafu programs, the compiler and linker will
+      refer to the header and object files here.
+   Projects
+      This directory contains all the actual, Cafu specific programs and
+      content (both the Cafu libraries as well as the Cafu engine
+      itself).
+
+      Cafu
+         This is the Cafu engine itself, and all its related programs
+         and content.
+
+         CaWE
+            A set of auxiliary files that CaWE, the Cafu World Editor,
+            loads on startup.
+         Fonts
+            This directory contains definition files for the fonts that
+            are used on all Cafu graphical user interfaces (“GUIs”).
+            Examples include the 2D GUIs like the main menu that you see
+            right after program start, as well as the 3D GUIs that you
+            encounter in-game throughout the Cafu worlds.
+         Games
+            The Cafu engine loads game implementations (MODs)
+            dynamically. Each subdirectory herein contains a separate
+            game, and everything that is specific to that game.
+
+            DeathMatch
+               This is the first (and currently only) “example game”
+               that comes with Cafu. If you want to make your own MOD or
+               game, you might want to start by duplicating this
+               directory, placing the duplicate next to it and then
+               start modifying it.
+
+               Code
+                  All the C++ headers and code for the DeathMatch game
+                  are here. It also contains a precompiled DLL so that
+                  it works for everyone right out of the box.
+               GUIs
+                  The scripts that define all the 2D and 3D GUIs are
+                  contained here.
+               Maps
+                  The map files in their “source-code” form: When you
+                  edit a map with CaWE, it is loaded and saved here.
+               Materials
+                  Materials define the looks of all surfaces. Their
+                  definitions are stored in ``cmat`` files here.
+               Models
+                  All model files (e.g. for player models, monsters,
+                  etc.) are kept in this directory.
+               Music
+                  The ``mp3`` and ``ogg`` music files that play at level
+                  start are stored here.
+               Sounds
+                  Sound effect files like shotgun or pistol shots,
+                  explosions etc. are placed in this directory.
+               Terrains
+                  The terrain files are all kept here.
+               Textures
+                  This directory contains the source texture images that
+                  the materials (see Materials directory) refer to.
+               Worlds
+                  This directory contains the maps after they have been
+                  processed and compiled by the Cafu compile tools.
+                  These are the world files that the Cafu engine loads
+                  when a new level begins. The CaWE documentation
+                  explains how maps (from the Maps directory) are
+                  compiled into the world files (that are kept here).
+
+         Misc
+            This directory contains miscellaneous auxiliary files for
+            the Cafu engine.
+
+      Libs
+         These are our program libraries that are specific to Cafu,
+         developed exclusively by Carsten Fuchs Software for Cafu.
+         Normal releases only contain a subset of the C++ header and
+         object files that are required to build new game DLLs. The
+         complete set of libraries as well as their implementation is
+         included with the Cafu source-code edition.
+
+.. |Manifest| image:: /images/general/manifest.png
+   :class: mediaright
+
