@@ -356,10 +356,10 @@ there!
 Programmers should definitively have a look at the other sections in
 this chapter
 (:ref:`At the Core: The Cafu Source Code <at_the_corethe_cafu_source_code>`),
-such as :ref:`IDEs and Text Editors <ides_and_text_editors>` or
+such as
 :ref:`Starting your own Game <starting_your_own_game>`. If instead you
 prefer to dig into the source code right away – just pick your favorite
-piece of code, and start reading and hacking.
+piece of code and start reading and hacking.
 
 Consider :ref:`Using the Autodesk FBX SDK <using_the_autodesk_fbx_sdk>`
 in order to add support for several additional file formats in the Model

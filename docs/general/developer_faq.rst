@@ -63,8 +63,7 @@ possibly Makefiles on Linux) is a maintenance nightmare that borders on
 the impossible. For these reasons, we have chosen to use
 `SCons <http://www.scons.org/>`__ as the build system for the Cafu
 Engine. SCons meets the above requirements, and it can still be used
-automatically and conveniently from most
-:ref:`IDEs and Text Editors <ides_and_text_editors>`.
+automatically and conveniently from most text editors.
 
 Alas, we realize that having true Visual Studio project and solution
 files (and similar native files for other IDEs) would still be nice to
@@ -74,11 +73,9 @@ have. We therefore started looking into these programs:
 -  `Bakefile <https://github.com/vslavik/bakefile>`__
 -  `CMake <http://www.cmake.org>`__
 
-These all look very promising, but each has problems of its own, and
+These all look very promising, but each has problems of its own and
 until today nobody ever finished a complete, working solution. If you
 would like to help improving the situation, it would be very welcome.
-Until then, please use one of the solutions described in
-:ref:`IDEs and Text Editors <ides_and_text_editors>`.
 
 What is the maximum number of network players?
 ----------------------------------------------

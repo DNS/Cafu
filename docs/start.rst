@@ -3,18 +3,14 @@
 The Cafu Documentation
 ======================
 
-| Welcome to the Cafu Documentation!
-| The purpose of this Wiki is to provide documentation about using and
-  editing the `Cafu Engine <http://www.cafu.de>`__. For developers, all
-  aspects of Cafu related editing like mapping, modding, modelling,
-  texturing, etc. are covered.
+Welcome to the Cafu Documentation!
 
-The Cafu Engine “root” website is at http://www.cafu.de
+The purpose of this Wiki is to provide documentation about using and
+editing the `Cafu Engine <http://www.cafu.de>`__. For developers, all
+aspects of Cafu related editing like mapping, modding, modelling,
+texturing, etc. are covered.
 
-As with all Wikis, this site lives from its readers contributions. If
-you want to help, please read
-:ref:`Becoming an Editor <becoming_an_editor>` for an explanation on how
-you can edit and create new pages — it's easy!
+The Cafu Engine website is at http://www.cafu.de
 
 Cafu User Manual
 ----------------
@@ -36,12 +32,6 @@ released periodically to demonstrate the features of the Cafu Engine.
    -  :ref:`Keyboard Layout <keyboard_layout>`
    -  :ref:`The Command Console <the_command_console>`
 
-#. :ref:`Further Information <further_information>`
-
-   -  :ref:`Windows and Linux specifics <windows_and_linux_specifics>`
-   -  :ref:`Known Issues <known_issues>`
-   -  :ref:`Contact and Support <contact_and_support>`
-
 #. :ref:`User FAQ <user_faq>`
 
 Game and Application Developer Manual
@@ -55,7 +45,6 @@ the Cafu engine.
 General
 ~~~~~~~
 
-#. :ref:`Manifest: Cafu Package Contents <manifestcafu_package_contents>`
 #. :ref:`Developer FAQ <developer_faq>`
 
 The Map Editor
@@ -215,8 +204,6 @@ At the Core: The Cafu Source Code
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #. :ref:`Getting Started with the Cafu Source Code <getting_started_with_the_cafu_source_code>`
-#. :ref:`IDEs and Text Editors <ides_and_text_editors>`
-   (:ref:`Video <cppdev_ides_video>`)
 #. :ref:`How to Submit Patches <how_to_submit_patches>`
 #. :ref:`Coding Conventions <coding_conventions>`
 #. `C++ Reference Documentation <http://api.cafu.de/c++/>`__

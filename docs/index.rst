@@ -10,13 +10,11 @@ Welcome to Cafu Engine's documentation!
     :maxdepth: 2
     :caption: Contents:
 
-    becominganeditor
+    start
     usermanual/quickstart
     usermanual/installation
     usermanual/running
-    usermanual/furtherinformation
     general/faqs_users
-    general/manifest
     general/developer_faq
     mapping/cawe/install
     mapping/cawe/intro
@@ -62,6 +60,7 @@ Welcome to Cafu Engine's documentation!
     mapping/cawe/editingtools/newentity
     mapping/cawe/leaks
     mapping/cawe/tutorials/sky
+    mapping/cawe/tutorials/water
     mapping/compiling_new
     mapping/compiling
     mapping/creatingterrainheightmaps
@@ -96,16 +95,12 @@ Welcome to Cafu Engine's documentation!
     matsys/cmat_manual/expressionsandtables
     matsys/cmat_manual/keywordreference
     cppdev/gettingstarted
-    cppdev/ides
     cppdev/submitpatches
     cppdev/codingconventions
     cppdev/gamecodeoverview
     cppdev/startnewgame
     cppdev/loadinggameworlds
     cppdev/fbxsdk
-
-    start
-    mapping/cawe/tutorials/water
 
 
 .. comment
