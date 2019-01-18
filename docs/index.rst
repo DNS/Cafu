@@ -7,7 +7,7 @@ Welcome to Cafu Engine's documentation!
 =======================================
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 3
     :caption: Contents:
 
     usermanual/index

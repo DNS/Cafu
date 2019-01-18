@@ -11,3 +11,4 @@ Getting Started
     cawe/mainwindow
     cawe/views
     cawe/materialbrowser
+    cawe/yourfirstmap

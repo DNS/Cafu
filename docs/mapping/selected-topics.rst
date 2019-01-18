@@ -13,6 +13,5 @@ Selected Topics
     cawe/lighting
     cawe/porting
 
-    cawe/yourfirstmap
     cawe/tutorials/sky
     cawe/tutorials/water
