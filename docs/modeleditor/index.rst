@@ -10,16 +10,8 @@ The Model Editor
     introduction
     mainwindow
     howtos
-    skeleton
-    meshes
-    skins
-    gui_fixtures
-    animations
-    channels
-    scenesetup
-    submodels
-    level-of-detail_models
-    transform
+    model-elements
+    program-dialogs
     menureference
     modelfiles
     ../modelling/dependenciesamongmodels

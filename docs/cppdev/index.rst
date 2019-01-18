@@ -10,7 +10,4 @@ At the Core: The Cafu Source Code
     gettingstarted
     submitpatches
     codingconventions
-    gamecodeoverview
-    startnewgame
-    loadinggameworlds
-    fbxsdk
+    selected-topics

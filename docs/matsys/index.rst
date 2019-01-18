@@ -10,10 +10,6 @@ The Material System
     introduction
     matviewer
     cmat_manual
-    cmat_manual/texturemapspecifications
-    cmat_manual/shaderspecifications
-    cmat_manual/expressionsandtables
-    cmat_manual/keywordreference
 
 
 .. comment
