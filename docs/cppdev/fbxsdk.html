@@ -1,0 +1,64 @@
+
+<h1 class="sectionedit1" id="using_the_autodesk_fbx_sdk">Using the Autodesk FBX SDK</h1>
+<div class="level1">
+
+<p>
+<a href="/lib/exe/fetch.php?tok=97f867&amp;media=http%3A%2F%2Fimages.autodesk.com%2Fadsk%2Fimages%2Fautodesk_fbx_badge_150x265.jpg" class="media" title="http://images.autodesk.com/adsk/images/autodesk_fbx_badge_150x265.jpg"><img src="/lib/exe/fetch.php?tok=97f867&amp;media=http%3A%2F%2Fimages.autodesk.com%2Fadsk%2Fimages%2Fautodesk_fbx_badge_150x265.jpg" class="mediaright" title="images.autodesk.com_adsk_images_autodesk_fbx_badge_150x265.jpg" alt="images.autodesk.com_adsk_images_autodesk_fbx_badge_150x265.jpg" /></a>
+When you build Cafu from source, support for several file formats is provided by Cafu&#039;s own source code so that the Model Editor can import static and animated models in the most important file formats.
+</p>
+
+<p>
+Optionally, it is possible to have the build scripts account for and use the Autodesk FBX SDK in order enable the Model Editor to import model files in these additional file formats as well:
+</p>
+<ul>
+<li class="level1"><div class="li"> Autodesk FBX (<code>.fbx</code>), version 6.0 to 7.2</div>
+</li>
+<li class="level1"><div class="li"> Autodesk AutoCAD DXF (<code>.dxf</code>), version 13 and earlier</div>
+</li>
+<li class="level1"><div class="li"> Collada DAE (<code>.dae</code>), version 1.5 and earlier</div>
+</li>
+<li class="level1"><div class="li"> 3D Studio 3DS (<code>.3ds</code>), all versions</div>
+</li>
+<li class="level1"><div class="li"> Alias OBJ (<code>.obj</code>), all versions</div>
+</li>
+</ul>
+
+<p>
+The FBX SDK is a separate download from Autodesk that we cannot distribute together with Cafu: The combined file size for all platforms is <em>massive</em>, Autodesk prefers that software vendors don&#039;t redistribute their SDK and in fact requires prior written permission, and we&#039;re happy to maintain a certain degree of independence, for example when we want to use Cafu with compilers or on platforms where the FBX SDK is not available.
+</p>
+
+<p>
+Therefore, we made the use of the Autodesk FBX SDK very easy, but entirely optional. If you don&#039;t use it, all that you&#039;re missing is that the Model Editor cannot load the above mentioned file formats. (When we make official binary releases of Cafu, we always ship with FBX support enabled.)
+</p>
+
+<p>
+Follow these steps in order to activate support for FBX:
+</p>
+<ol>
+<li class="level1 node"><div class="li"> Download the Autodesk FBX SDK from <a href="http://www.autodesk.com/fbx" class="urlextern" title="http://www.autodesk.com/fbx" rel="nofollow">http://www.autodesk.com/fbx</a> </div>
+<ul>
+<li class="level2"><div class="li"> The download requires a one-time registration, but it&#039;s free.</div>
+</li>
+<li class="level2"><div class="li"> You just need the FBX SDK, <em>not</em> the FBX Extensions SDK.</div>
+</li>
+<li class="level2"><div class="li"> At this time, we use version 2017.1 of the FBX SDK, but any later version should work as well.</div>
+</li>
+</ul>
+</li>
+<li class="level1 node"><div class="li"> Run the installer to extract the SDK contents into a convenient location. Their installer is exceptionally nice, it neither modifies the Start Menu nor the Windows Registry, but just extracts the files into a directory.</div>
+<ul>
+<li class="level2"><div class="li"> Assuming that your top level Cafu source code directory is <code>Cafu/</code>, you can directly install the FBX SDK into <code>Cafu/ExtLibs/fbx/</code>. <br/>
+Make sure that the installer doesn&#039;t automatically append another directory for the SDK version, and if it asks if you would like to keep a copy of the old FBX installation, answer “No” (otherwise it first renames <code>Cafu/ExtLibs/fbx/</code> to <code>Cafu/ExtLibs/fbx.old/</code>, creating an (easily fixed) problem if you use Git).</div>
+</li>
+<li class="level2"><div class="li"> Alternatively, just install the FBX SDK into a convenient location first (e.g. into a temporary directory or the default directory suggested by the installer), then copy or move the contents into <code>Cafu/ExtLibs/fbx/</code>. <br/>
+(Under Linux, we recommend to <em>not</em> install into the suggested <code>/usr</code> directory. Better install into a temporary directory in your home folder, no root privileges required.)</div>
+</li>
+</ul>
+</li>
+<li class="level1"><div class="li"> As a result from the previous step, make sure that you now have directories <code>examples</code>, <code>include</code> and <code>lib</code> (and possibly others) immediately below <code>Cafu/ExtLibs/fbx/</code>.</div>
+</li>
+<li class="level1"><div class="li"> (Re-)Run SCons as described at <a href="/cppdev:gettingstarted#getting_started_with_the_cafu_source_code" class="wikilink1" title="cppdev:gettingstarted">Getting Started with the Cafu Source Code</a> in order to automatically recompile with FBX support enabled.</div>
+</li>
+</ol>
+
+</div>

@@ -1,0 +1,199 @@
+
+<h1 class="sectionedit1" id="compiling_maps_at_the_command-line">Compiling Maps at the Command-Line</h1>
+<div class="level1">
+
+<p>
+When you have finished editing a map in <abbr title="Cafu World Editor">CaWE</abbr>, you&#039;ll want to run it with Cafu.
+The engine however requires that the map is in a precomputed form, and this section describes how you
+turn your map into a fully precomputed world file.
+</p>
+
+<p>
+In order to use <abbr title="Cafu Binary Space Partitioning">CaBSP</abbr>, <abbr title="Cafu Potentially Visibility Set">CaPVS</abbr> and <abbr title="Cafu Radiosity Lighting">CaLight</abbr> “by hand” (rather than <a href="/mapping:compiling_new#compiling_maps_for_cafu" class="wikilink1" title="mapping:compiling_new">from within CaWE</a>), you should be familiar with the command-line interface of Windows or Linux, because these programs just cannot be started by a simple double-click on them.
+</p>
+
+<p>
+Under Windows, you can open the command-line window by opening “Programs → Accessories → Command Prompt” (in German: “Programme → Zubehör → Eingabeaufforderung”) from the Start menu. Initially, the window shows the directory you are currently in. You can browse into the parent directory by typing <code>cd ..</code>, as for example in
+</p>
+<pre class="code">  C:\Windows&gt; cd ..
+  C:\&gt;</pre>
+
+<p>
+and you can enter a directory by typing
+</p>
+<pre class="code">  C:\&gt; cd directoryname
+  C:\directoryname&gt;</pre>
+
+<p>
+(Replace “directoryname” with the name of the directory that you want to open.) Other useful commands are <code>dir</code> that shows all files that are in the directory you are currently in and <code>e:</code> (for example) to change the current hard drive. 
+</p>
+
+<p>
+In order to run the programs with the commands presented below, you&#039;ll first have to browse into the directory they are in (which is the <code>Cafu-9.06</code> directory).
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Compiling Maps at the Command-Line&quot;,&quot;hid&quot;:&quot;compiling_maps_at_the_command-line&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:1,&quot;range&quot;:&quot;1-1409&quot;} -->
+<h2 class="sectionedit2">Compiling step 1: CaBSP</h2>
+<div class="level2">
+
+<p>
+This program takes a <abbr title="Cafu Map File. Create them with CaWE, turn them into cw files with CaBSP.">cmap</abbr> map file and creates a <abbr title="Cafu world file. A cw file is created from a cmap file with CaBSP.">cw</abbr> (Cafu world) file from it.
+Example:
+</p>
+<pre class="code">    C:\Cafu-9.06&gt; CaBSP Games/DeathMatch/Maps/MyMap.cmap Games/DeathMatch/Worlds/MyMap.cw</pre>
+
+<p>
+<img src="/lib/images/smileys/icon_exclaim.gif" class="icon" alt=":!:" /> <strong>WARNING:</strong> The specified destination file (<code>Games/DeathMatch/Worlds/MyMap.<abbr title="Cafu world file. A cw file is created from a cmap file with CaBSP.">cw</abbr></code> in the above example) gets
+overwritten without prior notice! This is also true for mis-spelt file names.
+For example, if you type <code>Games/DeathMatch/Maps/MyMap.<abbr title="Cafu Map File. Create them with CaWE, turn them into cw files with CaBSP.">cmap</abbr></code> instead of
+<code>Games/DeathMatch/Worlds/MyMap.<abbr title="Cafu world file. A cw file is created from a cmap file with CaBSP.">cw</abbr></code> – catastrophe!
+As with most other computer software, in order to prevent a disaster,
+please <em>backup your files <strong>before</strong> you begin</em>!
+</p>
+
+<p>
+For quick tests during world development, you might want to skip the next two compiling steps
+(<abbr title="Cafu Potentially Visibility Set">CaPVS</abbr> and <abbr title="Cafu Radiosity Lighting">CaLight</abbr>). You can run the file obtained from the <abbr title="Cafu Binary Space Partitioning">CaBSP</abbr> tool directly in the Cafu engine.
+It will be unlit and without PVS information (which results in a lower frame rate),
+but is usually sufficient for early tests.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Compiling step 1: CaBSP&quot;,&quot;hid&quot;:&quot;compiling_step_1cabsp&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:2,&quot;range&quot;:&quot;1410-2401&quot;} -->
+<h2 class="sectionedit3">Compiling step 2: CaPVS</h2>
+<div class="level2">
+
+<p>
+This program creates the <em>Potentially Visibility Set</em> for your worlds. Example:
+</p>
+<pre class="code">    C:\Cafu-9.06&gt; CaPVS Games/DeathMatch/Worlds/MyMap.cw</pre>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Compiling step 2: CaPVS&quot;,&quot;hid&quot;:&quot;compiling_step_2capvs&quot;,&quot;codeblockOffset&quot;:1,&quot;secid&quot;:3,&quot;range&quot;:&quot;2402-2594&quot;} -->
+<h3 class="sectionedit4">The CaPVS compile switches</h3>
+<div class="level3">
+
+<p>
+Even though the latest versions of <abbr title="Cafu Potentially Visibility Set">CaPVS</abbr> have become fast enough to deal with even the most complex worlds within
+reasonable time bounds, sometimes it may still be preferable to obtain faster results (at the cost of accuracy).
+</p>
+
+<p>
+Before you read on, though, my advice is to simply skip the rest of this section, and continue with the next.
+Why? Well, the compile switches introduced below were made at a time when <abbr title="Cafu Potentially Visibility Set">CaPVS</abbr> was inherently slower.
+Since then, it has undergone many algorithmic improvements, and the switches were only left for safety and as a last resort.
+I hardly ever use them myself (although their implementation is interesting), and nowadays never use them for release compiles
+(the worst world I have takes 27 hours on a 866 <abbr title="Megahertz">MHz</abbr> Pentium III this way).
+During world development, you should skip <abbr title="Cafu Potentially Visibility Set">CaPVS</abbr> entirely rather than trying to tune it for faster compilation.
+Also keep in mind that the proper use of <code>func_detail_object</code> entities can have a big impact on
+performance in general, and on <abbr title="Cafu Potentially Visibility Set">CaPVS</abbr> compile time in particular.
+</p>
+
+<p>
+Anyway, the latest version of this tool has two new command line switches that were made to lower its compile times
+by effectively trading quality for speed. Both switches control the creation of <em>SuperLeaves</em>.
+To understand what SuperLeaves are, you must first have a rough idea what <em>leaves</em> are:
+Leaves are spatial convex cells into which <abbr title="Cafu Binary Space Partitioning">CaBSP</abbr> subdivides your world and in which the action of the game takes place later on.
+Simplified spoken, you can imagine that each room of your world corresponds to a leaf.
+<abbr title="Cafu Potentially Visibility Set">CaPVS</abbr> then determines the PVS by calculating if any unobstructed lines of sight exist between any pair of two leaves.
+It is not only the sheer number of leaves that makes the computation so slow, but also their
+spatial relations among each other.
+In some cases, there are unnecessarily too many leaves for the purposes of <abbr title="Cafu Potentially Visibility Set">CaPVS</abbr>, and it is preferable to merge some of them.
+Thus, a <em>SuperLeaf</em> is a set or a group of simple leaves.
+One could say that SuperLeaves subdivide the world in cells as leaves do, but the subdivision is “coarser” than with the simple leaves.
+When you run <abbr title="Cafu Potentially Visibility Set">CaPVS</abbr> on a world, it tells you how many SuperLeaves it constructed from the simple leaves.
+By default (without command line switches), the SuperLeaves are identical to the simple leaves, as is their number.
+</p>
+
+<p>
+Now about the actual switches:
+Running <abbr title="Cafu Potentially Visibility Set">CaPVS</abbr> without any parameters (not even a world name) will print out a self-explaining usage information.
+I&#039;ll not repeat it here, but rather give you some tips on the usage of the two mentioned switches.
+Note that you always trade quality for speed, but the compromise is usually a very good one
+(quality remains high even for quite fast compiles).
+</p>
+
+<p>
+In general, try to reduce the compile time with care.
+If the situation was actually hopeless before, it does not make sense to use the switches to bring
+the compile time down to a few minutes or seconds. (That would be more like not running <abbr title="Cafu Potentially Visibility Set">CaPVS</abbr> at all.)
+Rather, a good idea would be to send me an email with a brief description of the problem, along with the world you are trying to compile
+(I&#039;ll only believe that you created a world that&#039;s too hard for <abbr title="Cafu Potentially Visibility Set">CaPVS</abbr> after I&#039;ve seen it myself <img src="/lib/images/smileys/icon_wink.gif" class="icon" alt=";-)" /> ).
+</p>
+
+<p>
+Then, consider two strategies:
+You can either choose to work “top-down” by choosing the parameters such that the number of SuperLeaves
+is gradually reduced in small steps. The quality remains high, but the downside is that you possibly have
+to wait another long time until you know if the reduction was enough.
+</p>
+
+<p>
+Thus, I&#039;d recommend a “bottom-up” approach:
+Initially reduce the number of SuperLeaves a lot, start with a quite small number.
+If <abbr title="Cafu Potentially Visibility Set">CaPVS</abbr> then takes only a few minutes, but you want it rather to spend some hours,
+adjust the parameter values carefully so that the number of SuperLeaves increases slowly and gradually.
+You&#039;ll probably have to re-try and experiment a few times until you get a feel of it.
+</p>
+
+<p>
+Finally, you should prefer the <code>-minAreaSL</code> switch over the <code>-maxRecDepthSL</code> switch,
+because the former is more sensitive to the actual world geometry.
+Do not worry about high numbers on <code>-minAreaSL</code>.
+When I last used it, I usually had values ranging from 1,000,000 to 5,000,000.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;The CaPVS compile switches&quot;,&quot;hid&quot;:&quot;the_capvs_compile_switches&quot;,&quot;codeblockOffset&quot;:2,&quot;secid&quot;:4,&quot;range&quot;:&quot;2595-6872&quot;} -->
+<h2 class="sectionedit5">Compiling step 3: CaLight</h2>
+<div class="level2">
+
+<p>
+This program calculates the lighting for a map.
+This program can take very long too, but you have better control over it
+by specifying command line switches. Examples:
+</p>
+<pre class="code">    C:\Cafu-9.06&gt; CaLight
+    C:\Cafu-9.06&gt; CaLight Games/DeathMatch/Worlds/MyMap.cw
+    C:\Cafu-9.06&gt; CaLight Games/DeathMatch/Worlds/MyMap.cw -BlockSize 8 -StopUE 2
+    C:\Cafu-9.06&gt; CaLight Games/DeathMatch/Worlds/MyMap.cw -fast</pre>
+
+<p>
+The first line prints out detailed usage information for the <abbr title="Cafu Radiosity Lighting">CaLight</abbr> tool,
+the second line runs default lighting, which is recommended for most cases.
+The third and fourth lines are for very fast lighting, which is useful for quick tests during map development.
+</p>
+
+<p>
+Please note that it is almost never reasonable to set BlockSize below 3
+and StopUE below 0.1 for highest quality lighting, even though that is possible
+(some of the worlds of the Cafu demo releases were compiled with a StopUE of 0.05).
+</p>
+
+<p>
+During the second phase of the computations (“bounce lighting”), note that you can interrupt the program
+by pressing the <code>SPACE</code> button. That&#039;s sometimes useful for quick tests during map development.
+</p>
+
+<p>
+Finally, a word about memory consumption: <abbr title="Cafu Radiosity Lighting">CaLight</abbr> requires <em>plenty</em> of it! I would recommend to run <abbr title="Cafu Radiosity Lighting">CaLight</abbr> only on computers with at least 1 <abbr title="Gigabyte">GB</abbr> of RAM, it may or may not run with less.
+If <em>permanent swapping</em> (extensive disk activity) occurs during the bounce lighting phase of <abbr title="Cafu Radiosity Lighting">CaLight</abbr>, better abort it!
+Under such circumstances, it will proceed <em>very</em> slow anyway, and the lengthy swap activity is certainly not healthy for your hard-disk. <img src="/lib/images/smileys/icon_exclaim.gif" class="icon" alt=":!:" />
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Compiling step 3: CaLight&quot;,&quot;hid&quot;:&quot;compiling_step_3calight&quot;,&quot;codeblockOffset&quot;:2,&quot;secid&quot;:5,&quot;range&quot;:&quot;6873-8484&quot;} -->
+<h2 class="sectionedit6">Done: Running the world with Cafu</h2>
+<div class="level2">
+
+<p>
+If not already there, copy your world into the <code>Games/DeathMatch/Worlds</code> directory
+if you made the world for the DeathMatch <abbr title="MODification, a self-contained game for the Cafu Engine">MOD</abbr>, or into the <code>Games/OtherMOD/Worlds</code>
+directory of the <abbr title="MODification, a self-contained game for the Cafu Engine">MOD</abbr> you made the world for.
+Then simply run <code>Cafu.exe</code> as stated in the user manual of the current demo release.
+Your world will be listed among the other worlds in the dialogs world list (“server options”).
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Done: Running the world with Cafu&quot;,&quot;hid&quot;:&quot;donerunning_the_world_with_cafu&quot;,&quot;codeblockOffset&quot;:3,&quot;secid&quot;:6,&quot;range&quot;:&quot;8485-&quot;} -->

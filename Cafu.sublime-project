@@ -1,0 +1,9 @@
+{
+	"folders":
+	[
+		{
+			"path": ".",
+			"folder_exclude_patterns": [".git", "docs/_build", "Doxygen/cpp/out", "Doxygen/scripting/out"]
+		}
+	]
+}

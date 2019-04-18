@@ -1,0 +1,83 @@
+
+<h1 class="sectionedit1" id="compiling_maps_for_cafu">Compiling Maps for Cafu</h1>
+<div class="level1">
+
+<p>
+When you have finished editing a map in <abbr title="Cafu World Editor">CaWE</abbr>, you’ll want to run it with Cafu. The engine however requires that the map is in a precomputed form, and this section describes how you turn your map into a fully precomputed world file. The process of turning your <strong><abbr title="Cafu Map File. Create them with CaWE, turn them into cw files with CaBSP.">cmap</abbr> map file</strong> into a for the engine usable <strong><abbr title="Cafu world file. A cw file is created from a cmap file with CaBSP.">cw</abbr> world file</strong> is called <em>compiling</em>.
+</p>
+
+<p>
+As to not force you to run the compile procedure for all your <abbr title="Cafu Map File. Create them with CaWE, turn them into cw files with CaBSP.">cmap</abbr> files <a href="/mapping:compiling#compiling_maps_at_the_command-line" class="wikilink1" title="mapping:compiling">by hand</a>, the <abbr title="Cafu World Editor">CaWE</abbr> mapping editor provides a “Compile” menu with which you can easily and very conveniently accomplish this task. In this section, you&#039;ll learn how to use it.
+</p>
+
+<p>
+<a href="/_detail/mapping:tut_compile1s.jpg?id=mapping%3Acompiling_new" class="media" title="mapping:tut_compile1s.jpg"><img src="/_media/mapping:tut_compile1s.jpg" class="mediaright" title="tut_compile1s.jpg" alt="tut_compile1s.jpg" /></a> You will find the “Compile” menu in the top menu bar of <abbr title="Cafu World Editor">CaWE</abbr>. It&#039;s items can roughly be separated into three distinct groups: The upper group tells <abbr title="Cafu World Editor">CaWE</abbr> <em>what</em> to do, the middle group says <em>how</em> to do it and the lower group is for <em>stopping</em> the compile process early. The function of all items is explained in greater detail below:
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Compiling Maps for Cafu&quot;,&quot;hid&quot;:&quot;compiling_maps_for_cafu&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:1,&quot;range&quot;:&quot;1-1034&quot;} -->
+<h2 class="sectionedit2">Step 1: The compile steps</h2>
+<div class="level2">
+
+<p>
+The upper group of menu items tells <abbr title="Cafu World Editor">CaWE</abbr> which steps of the compile process should be run. You can turn the individual parts on or off by checking or unchecking the mark in the appropriate line.
+</p>
+<ol>
+<li class="level1"><div class="li"> <strong>Save Map:</strong> Saves the map. Checking this does exactly the same as a click on the “File → Save” menu item before compiling the map. Having this checked is practical and recommended when you work on a map and want to test it “live” in the Cafu engine every now and then, because it makes sure that the compilers pick up the latest version of your map with the most recent changes.</div>
+</li>
+<li class="level1"><div class="li"> <strong>Run <abbr title="Cafu Binary Space Partitioning">CaBSP</abbr>:</strong> This is the crucial step that runs the <abbr title="Cafu Binary Space Partitioning">CaBSP</abbr> compiler on your map. <abbr title="Cafu Binary Space Partitioning">CaBSP</abbr> takes your map file and creates a world file for use by the Cafu engine from it (the map file is not modified). As all other compilation steps build on this one and the generated <abbr title="Cafu world file. A cw file is created from a cmap file with CaBSP.">cw</abbr> file, you cannot turn it off to omit <abbr title="Cafu Binary Space Partitioning">CaBSP</abbr>.</div>
+</li>
+<li class="level1"><div class="li"> <strong>Run <abbr title="Cafu Potentially Visibility Set">CaPVS</abbr>:</strong> Runs the <abbr title="Cafu Potentially Visibility Set">CaPVS</abbr> compiler on the intermediate result obtained from <abbr title="Cafu Binary Space Partitioning">CaBSP</abbr>. <abbr title="Cafu Potentially Visibility Set">CaPVS</abbr> precomputes the PVS (Potentially Visibility Set) for the world file. This can be a lengthy process on its own, and you may wish to skip it when you&#039;re just testing your map. However, it also has a potential for improving the rendering performance of your map significantly, so you should never leave this out for release maps.</div>
+</li>
+<li class="level1"><div class="li"> <strong>Run <abbr title="Cafu Radiosity Lighting">CaLight</abbr>:</strong> Runs the <abbr title="Cafu Radiosity Lighting">CaLight</abbr> compiler on your map, which precomputes the static lighting of your maps by using physically accurate Radiosity methods. <abbr title="Cafu Radiosity Lighting">CaLight</abbr> too can take very much time to complete, and should therefore never be run without a preceding <abbr title="Cafu Potentially Visibility Set">CaPVS</abbr> pass. However, for testing you may want to skip <abbr title="Cafu Radiosity Lighting">CaLight</abbr> as well as <abbr title="Cafu Potentially Visibility Set">CaPVS</abbr>, because your map will be full-bright when <abbr title="Cafu Radiosity Lighting">CaLight</abbr> is not run, which may be sufficient for checking e.g. the geometry or entity placement during map development.</div>
+</li>
+<li class="level1"><div class="li"> <strong>Start Engine:</strong> If this entry is checked, Cafu will automatically be launched with your map when the compiling process is finished.</div>
+</li>
+</ol>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Step 1: The compile steps&quot;,&quot;hid&quot;:&quot;step_1the_compile_steps&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:2,&quot;range&quot;:&quot;1035-3040&quot;} -->
+<h2 class="sectionedit3">Step 2: Starting the compile process</h2>
+<div class="level2">
+
+<p>
+After you have selected which steps should be included in the compile process, you can start it with varying quality settings by clicking on one of the three items of the middle group (“Quick”, “Normal”, or “High Quality”).
+These settings mostly affect the quality of the lighting generated by <abbr title="Cafu Radiosity Lighting">CaLight</abbr>, and therefore have a direct impact on its run-time.
+</p>
+
+<p>
+After you started the compile process, a console window opens, showing compile details and progress information.
+Note that you can simply close the console window at any time and continue to work on your map while the compilation process keeps running in the background. Just use the “View → Screen Elements → Console” menu to toggle the console window on and off. The three menu items to start a compile will be grayed-out while another compilation is running, so that starting two compile processes simultaneously is not possible.
+</p>
+
+<p>
+However, you can stop the entire currently running compilation process prematurely by clicking on the “Compile → Abort” menu item.
+</p>
+
+<p>
+If you activated the “Start Engine” item, Cafu will be started when the compile process is complete and you&#039;ll just have to click on “OK” in the Cafu dialog to start and play your map!
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Step 2: Starting the compile process&quot;,&quot;hid&quot;:&quot;step_2starting_the_compile_process&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:3,&quot;range&quot;:&quot;3041-4302&quot;} -->
+<h2 class="sectionedit4">Tips, Tricks and Trouble-shooting</h2>
+<div class="level2">
+
+<p>
+Using the “Compile” menu requires that you have setup the “Configuration” dialog of <abbr title="Cafu World Editor">CaWE</abbr> completely and properly. If a compiler cannot be run correctly, please check if you got all the executable file names right in this dialog. Please refer to <a href="/mapping:cawe:install#installation_initial_configuration_and_de-installation" class="wikilink1" title="mapping:cawe:install">Installation, Initial Configuration and De-Installation</a> for more details.
+</p>
+
+<p>
+If your map turns out to be pitch-black when run in the engine after the last compilation step, a likely cause is that you kept the <abbr title="Cafu Radiosity Lighting">CaLight</abbr> compiler enabled, but did not place any radiosity light source (i.e. no light or sky material). For checking this quickly, just disable <abbr title="Cafu Radiosity Lighting">CaLight</abbr> in the “Compile” menu, then start the compilation again and review the result in the Cafu engine. Thereafter, you may want to place some light sources into your map by applying materials that cast radiosity light, and re-enable <abbr title="Cafu Radiosity Lighting">CaLight</abbr> again in order to compute a proper, realistic radiosity solution.
+</p>
+
+<p>
+For quick tests during map development, you can save a lot of compile time by turning off the <abbr title="Cafu Potentially Visibility Set">CaPVS</abbr> and <abbr title="Cafu Radiosity Lighting">CaLight</abbr> compile steps. You may get very low frame-rates and only full-bright lighting, but that&#039;s usually fine for checking the map geometry. When you&#039;re done, or about to release your map for others, you definitively should compile it once with <abbr title="Cafu Potentially Visibility Set">CaPVS</abbr> and <abbr title="Cafu Radiosity Lighting">CaLight</abbr> enabled, in order to obtain the maximum speed and quality.
+</p>
+
+<p>
+Very advanced users can also compile their maps manually at the command-line. This offers the possibility for further customisations of the compile process. Compiling maps at the command-line is explained <a href="/mapping:compiling#compiling_maps_at_the_command-line" class="wikilink1" title="mapping:compiling">here</a>.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Tips, Tricks and Trouble-shooting&quot;,&quot;hid&quot;:&quot;tips_tricks_and_trouble-shooting&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:4,&quot;range&quot;:&quot;4303-&quot;} -->

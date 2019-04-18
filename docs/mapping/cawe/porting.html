@@ -1,0 +1,59 @@
+
+<h1 class="sectionedit1" id="importing_maps_from_other_games_editors">Importing Maps from other Games/Editors</h1>
+<div class="level1">
+
+<p>
+If you have already made maps with other editors for games like Half-Life 1, Half-Life 2, Quake 3 or Doom 3,
+you possibly wish to use them with <abbr title="Cafu World Editor">CaWE</abbr> and Cafu as well. For this purpose, several importers are provided that can load such maps directly into <abbr title="Cafu World Editor">CaWE</abbr>.
+</p>
+
+<p>
+<a href="/_detail/mapping:cawe:importmaps.png?id=mapping%3Acawe%3Aporting" class="media" title="mapping:cawe:importmaps.png"><img src="/_media/mapping:cawe:importmaps.png" class="medialeft" title="The &quot;File Open&quot; dialog also imports maps from other games and editors." alt="The &quot;File Open&quot; dialog also imports maps from other games and editors." /></a> In order to import a foreign map, just activate the <strong>File → Open…</strong> menu item or press <strong>CTRL+O</strong> in order to open the file open dialog.
+</p>
+
+<p>
+The drop-down box near the bottom presents a list of all file types that <abbr title="Cafu World Editor">CaWE</abbr> can directly load or import.
+Just choose the desired file type and proceed to open a map file of that type as usual.
+</p>
+
+<p>
+After the import, there are normally two additional problems that you may encounter: material and entity mismatches.
+</p>
+
+<p>
+<em>Material mismatches</em> are caused by the fact that the material systems of all game engines are different from each other. While we can create new materials in Cafu under the same names as those that occur in the imported map, converting the used textures and other material details is generally not feasible. Some importers therefore substitute all material occurrences in the imported map file with native Cafu materials that are valid, but have different names.
+</p>
+
+<p>
+In all cases, you&#039;ll have to re-texture the imported map manually with native <abbr title="Cafu World Editor">CaWE</abbr> materials.
+This is recommended and frequently desired for best results anyway.
+Employing the powerful <a href="/mapping:cawe:editingtools:editfaceprops#the_edit_surface_properties_tool" class="wikilink1" title="mapping:cawe:editingtools:editfaceprops">Edit Surfaces</a> tool and the <a href="/mapping:cawe:dialogs:replacematerials#the_replace_materials_dialog" class="wikilink1" title="mapping:cawe:dialogs:replacematerials">Replace Materials</a> dialog gets the job quickly and conveniently done. Making use of the “Only show USED materials” checkbox in the <a href="/mapping:cawe:materialbrowser#the_material_browser" class="wikilink1" title="mapping:cawe:materialbrowser">Material Browser</a> is also helpful.
+</p>
+
+<p>
+The following list summarizes what you have to know and consider about <em>entity mismatches</em>:
+</p>
+<ul>
+<li class="level1 node"><div class="li"> Because the existing entities in your world were defined and made for another game, they will mismatch with the Cafu <abbr title="MODification, a self-contained game for the Cafu Engine">MOD</abbr> entity definitions! Note that there are two kinds of mismatch:</div>
+<ol>
+<li class="level2"><div class="li"> Some entities exist both in the other game as well as Cafu (for example translucent brushes, ladders, …), but their names and/or their properties differ.</div>
+</li>
+<li class="level2"><div class="li"> Other entities only exist in the other game and Cafu has no equivalent entity at all, or vice versa! For example, Cafu DeathMatch has different weapons, but unfortunately lacks of many of the advanced entities of other games. I am very sorry, but at present you have to find some kind of work-around in such cases. However, I am doing my best to improve the situation in the future.</div>
+</li>
+</ol>
+</li>
+<li class="level1 node"><div class="li"> Here are some suggestions to fix the entity mismatchings:</div>
+<ol>
+<li class="level2"><div class="li"> It&#039;s probably the safest (easiest, but most expensive) to simply delete <em>all</em> existing entities from your world, and only keep the geometry. Then, recreate them from the Cafu (DeathMatch) entities.</div>
+</li>
+<li class="level2"><div class="li"> In many cases it might be preferable to simply open the <strong>Properties</strong> dialog for each entity, and to reset their properties there. Just make sure that you actually check out each individual property tag.</div>
+</li>
+<li class="level2"><div class="li"> If you are very experienced, you might solve many mismatchings directly by loading the <code>map</code> file into a text editor.</div>
+</li>
+</ol>
+</li>
+<li class="level1"><div class="li"> Although Cafu ignores unknown entities (e.g. entities left from other games), and fills-in default values for unknown properties, it is still best to do the conversion carefully in order to avoid unexpected results. For example, be specially careful with <code>func_wall</code> entities: you&#039;ll have to reset their <em>rendermode</em> properties (translucent, blue becomes invisible, …) <em>explicitly</em>!</div>
+</li>
+</ul>
+
+</div>

@@ -1,0 +1,130 @@
+
+<h1 class="sectionedit1" id="the_model_editorintroduction">The Model Editor: Introduction</h1>
+<div class="level1">
+
+<p>
+The Cafu Model Editor answers the question:
+</p>
+<div class="table sectionedit2"><table class="inline">
+	<tr class="row0">
+		<td class="col0 centeralign">  <em>“How do I get my models into Cafu?”</em>  </td>
+	</tr>
+</table></div>
+<!-- EDIT{&quot;target&quot;:&quot;table&quot;,&quot;name&quot;:&quot;&quot;,&quot;hid&quot;:&quot;table&quot;,&quot;secid&quot;:2,&quot;range&quot;:&quot;91-136&quot;} -->
+<p>
+<a href="/_detail/modeleditor:teaser.png?id=modeleditor%3Aintroduction" class="media" title="modeleditor:teaser.png"><img src="/_media/modeleditor:teaser.png?w=256&amp;tok=3770a5" class="mediaright" alt="" width="256" /></a>
+Thus, its purpose is to:
+</p>
+<ul>
+<li class="level1"><div class="li"> load and import model files,</div>
+</li>
+<li class="level1"><div class="li"> support many file formats (see below for a list),</div>
+</li>
+<li class="level1"><div class="li"> let you inspect the loaded model both graphically and structurally,</div>
+</li>
+<li class="level1"><div class="li"> enable you to tweak and adapt the model (e.g. import additional animations, remove unused skeleton nodes, etc.)</div>
+</li>
+<li class="level1"><div class="li"> set or adjust all Cafu-specific settings (such as animation properties, <abbr title="Graphical User Interface">GUI</abbr> panels, collision details, etc.),</div>
+</li>
+<li class="level1"><div class="li"> assign and edit render materials,</div>
+</li>
+<li class="level1"><div class="li"> save the resulting model in Cafu&#039;s own file format.</div>
+</li>
+</ul>
+
+<p>
+Summarized, the Cafu Model Editor makes your models ready for use in the Map Editor and the Cafu Engine.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;The Model Editor: Introduction&quot;,&quot;hid&quot;:&quot;the_model_editorintroduction&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:1,&quot;range&quot;:&quot;1-787&quot;} -->
+<h2 class="sectionedit3">What the Model Editor is not</h2>
+<div class="level2">
+
+<p>
+The Cafu Model Editor is <em>not</em>, despite its name, a general-purpose editor that lets you shape meshes or create a model from scratch: There are many commercial and free programs for this purpose already that we don&#039;t intend to rival.
+In fact, model artists use one or more of these programs early in the work pipeline to create and shape the model, then use the Cafu Model Editor as described above.
+</p>
+
+<p>
+Also, with the Model Editor we don&#039;t attempt to provide a graphical user interface that saves you from editing script code: <a href="/modeleditor:modelfiles#model_files_explained" class="wikilink1" title="modeleditor:modelfiles">Many models files are scripts</a>, and accessing some features is only possible by editing the script code in these files.
+Our goal is to employ the Model Editor for everything that is hard or impossible to accomplish with model scripts or otherwise. Tasks that are best solved in script code are left in script code, for which we provide thorough documentation in order to make them easy to understand and master.
+</p>
+
+<p>
+With these key ideas, we can achieve the most effective solutions for all tasks about models.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;What the Model Editor is not&quot;,&quot;hid&quot;:&quot;what_the_model_editor_is_not&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:3,&quot;range&quot;:&quot;788-1879&quot;} -->
+<h2 class="sectionedit4">Starting the Model Editor</h2>
+<div class="level2">
+
+<p>
+<a href="/_detail/modeleditor:open_new.png?id=modeleditor%3Aintroduction" class="media" title="modeleditor:open_new.png"><img src="/_media/modeleditor:open_new.png" class="mediaright" title="Start the Model Editor via the File-New or File-Open menu items." alt="Start the Model Editor via the File-New or File-Open menu items." /></a>
+Like the other asset editors, the Model Editor is a part of <abbr title="Cafu World Editor">CaWE</abbr>.
+You start it via menu items
+</p>
+<ul>
+<li class="level1"><div class="li"> File → Open… (Ctrl+O) <em>or</em></div>
+</li>
+<li class="level1"><div class="li"> File → New → New Model (Ctrl+Shift+N)</div>
+</li>
+</ul>
+
+<p>
+With both menu items, you&#039;re next presented the <strong>File Open</strong> dialog to open a previously created model.
+</p>
+
+<p>
+Check out the <a href="/modeleditor:mainwindow#the_main_window" class="wikilink1" title="modeleditor:mainwindow">Main Window</a> and the <a href="/modeleditor:howtos#modeleditor_howtos_how-tos" class="wikilink1" title="modeleditor:howtos">How-Tos</a> for the next steps.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Starting the Model Editor&quot;,&quot;hid&quot;:&quot;starting_the_model_editor&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:4,&quot;range&quot;:&quot;1880-2405&quot;} -->
+<h2 class="sectionedit5" id="modeleditor_introduction_supported_file_formats">Supported File Formats</h2>
+<div class="level2">
+
+<p>
+At this time, the following file formats are supported:
+</p>
+<div class="table sectionedit6"><table class="inline">
+	<thead>
+	<tr class="row0">
+		<th class="col0"> Extension </th><th class="col1"> Description </th>
+	</tr>
+	</thead>
+	<tr class="row1">
+		<td class="col0"> <code>.cmdl</code> </td><td class="col1"> Cafu Engine native model file format </td>
+	</tr>
+	<tr class="row2">
+		<td class="col0"> <code>.3ds</code> </td><td class="col1"> 3D Studio 3DS </td>
+	</tr>
+	<tr class="row3">
+		<td class="col0"> <code>.ase</code> </td><td class="col1"> Ascii Scene Export, 3D Studio Max ASE </td>
+	</tr>
+	<tr class="row4">
+		<td class="col0"> <code>.dxf</code> </td><td class="col1"> Autodesk AutoCAD DXF </td>
+	</tr>
+	<tr class="row5">
+		<td class="col0"> <code>.dae</code> </td><td class="col1"> Collada DAE </td>
+	</tr>
+	<tr class="row6">
+		<td class="col0"> <code>.fbx</code> </td><td class="col1"> Autodesk FBX </td>
+	</tr>
+	<tr class="row7">
+		<td class="col0"> <code>.lwo</code> </td><td class="col1"> Lightwave Object LWO </td>
+	</tr>
+	<tr class="row8">
+		<td class="col0"> <code>.md5</code> </td><td class="col1"> Doom3 / Quake4 MD5 </td>
+	</tr>
+	<tr class="row9">
+		<td class="col0"> <code>.mdl</code> </td><td class="col1"> Half-Life1 MDL </td>
+	</tr>
+	<tr class="row10">
+		<td class="col0"> <code>.obj</code> </td><td class="col1"> Alias OBJ </td>
+	</tr>
+</table></div>
+<!-- EDIT{&quot;target&quot;:&quot;table&quot;,&quot;name&quot;:&quot;&quot;,&quot;hid&quot;:&quot;table1&quot;,&quot;secid&quot;:6,&quot;range&quot;:&quot;2499-2877&quot;} -->
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Supported File Formats&quot;,&quot;hid&quot;:&quot;supported_file_formats&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:5,&quot;range&quot;:&quot;2406-&quot;} -->

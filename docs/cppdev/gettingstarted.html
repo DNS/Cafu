@@ -1,0 +1,375 @@
+
+<h1 class="sectionedit1" id="getting_started_with_the_cafu_source_code">Getting Started with the Cafu Source Code</h1>
+<div class="level1">
+
+
+
+<p>
+This text explains how you get and compile the Cafu source code.
+</p>
+
+<p>
+Most steps that are explained below are only necessary once, when you get and compile the Cafu source code for the first time.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Getting Started with the Cafu Source Code&quot;,&quot;hid&quot;:&quot;getting_started_with_the_cafu_source_code&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:1,&quot;range&quot;:&quot;1-310&quot;} -->
+<h2 class="sectionedit2">Getting the Source Code</h2>
+<div class="level2">
+
+<p>
+This section explains how you obtain the Cafu source code by checking it out from its <a href="https://bitbucket.org/cafu/cafu" class="urlextern" title="https://bitbucket.org/cafu/cafu" rel="nofollow">Git repository</a>.
+</p>
+
+<p>
+Git is a version control system that allows the Cafu developers to work on their copy of the source code independently of each other, and to distribute the latest version of the source code to other developers at any time.
+Moreover, many developers prefer to manage their project independently in their own version control system, but also wish to integrate the latest changes (e.g. bug-fixes and new features) from the official Cafu repository into theirs from time to time: Git makes the synchronization of the projects code with the original Cafu source code as convenient and automatic as possible.
+If you don&#039;t know Git yet, have a look at the <a href="http://git-scm.com" class="urlextern" title="http://git-scm.com" rel="nofollow">Git website</a> and the <a href="http://git-scm.com/documentation" class="urlextern" title="http://git-scm.com/documentation" rel="nofollow">Git documentation</a>. The “Pro Git” book is very well written and available for free in several languages.
+</p>
+
+<p>
+For Windows and many other systems, you can get Git from the <a href="http://git-scm.com/downloads" class="urlextern" title="http://git-scm.com/downloads" rel="nofollow">Git downloads</a> page. Popular Git clients with a graphical user interface are available at the Git downloads page as well.
+</p>
+
+<p>
+With most Linux distributions, installing Git via the systems package manager is usually preferred. For example, under Ubuntu:
+</p>
+<pre class="code bash"><span class="sy0">&gt;</span> <span class="kw2">sudo</span> <span class="kw2">apt-get install</span> <span class="kw2">git</span> gitk</pre>
+
+<p>
+Then check out the source code at the command-line under Windows or Linux with this command:
+</p>
+<pre class="code bash"><span class="sy0">&gt;</span> <span class="kw2">git clone</span> <span class="re5">--recursive</span> https:<span class="sy0">//</span>bitbucket.org<span class="sy0">/</span>cafu<span class="sy0">/</span>cafu.git Cafu</pre>
+
+<p>
+Note the <code>--recursive</code> option in the command above: it makes sure that submodules are automatically checked out as well. As we keep the texture images for the DeathMatch example game in a submodule, it is convenient to have them checked out along with the main repository. Be prepared though that this adds approximately 180 MiB to the download volume.
+</p>
+
+<p>
+Our Git project page is <a href="https://bitbucket.org/cafu/cafu" class="urlextern" title="https://bitbucket.org/cafu/cafu" rel="nofollow">https://bitbucket.org/cafu/cafu</a>, where you can browse the repository online, create forks, post pull requests, and find additional help about Git.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Getting the Source Code&quot;,&quot;hid&quot;:&quot;getting_the_source_code&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:2,&quot;range&quot;:&quot;311-2428&quot;} -->
+<h2 class="sectionedit3">Python and SCons</h2>
+<div class="level2">
+
+<p>
+Cafu uses <a href="http://www.scons.org/" class="urlextern" title="http://www.scons.org/" rel="nofollow">SCons</a> as its software build system on all supported platforms.
+SCons is a modern replacement for <code>make</code> and <code>Makefiles</code>.
+SCons requires the <a href="http://www.python.org" class="urlextern" title="http://www.python.org" rel="nofollow">Python scripting language</a> to be installed,
+so that you have to get and install both Python and SCons on your computer.
+
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Python and SCons&quot;,&quot;hid&quot;:&quot;python_and_scons&quot;,&quot;codeblockOffset&quot;:2,&quot;secid&quot;:3,&quot;range&quot;:&quot;2429-2899&quot;} -->
+<h3 class="sectionedit4">Windows</h3>
+<div class="level3">
+
+<p>
+Under Windows,
+</p>
+<ul>
+<li class="level1"><div class="li"> first get and install Python <strong>2.7</strong> (<em>not</em> one of the newer, but backwards-incompatible 3.x editions!) from <a href="http://www.python.org/download/" class="urlextern" title="http://www.python.org/download/" rel="nofollow">http://www.python.org/download/</a>,</div>
+</li>
+<li class="level1"><div class="li"> then get and install SCons <strong>2.3</strong> (or any later version) from <a href="http://www.scons.org/download.php" class="urlextern" title="http://www.scons.org/download.php" rel="nofollow">http://www.scons.org/download.php</a>.</div>
+</li>
+</ul>
+
+<p>
+If in doubt, pick the Windows installers for both Python 2.7 and SCons 2.3: they are easy to use, lightweight, and automatically setup the proper environment variables.
+</p>
+
+<p>
+Important notes:
+</p>
+<ul>
+<li class="level1"><div class="li"> Pick the <strong>32-bit</strong> edition of Python even on 64-bit systems! (Unfortunately, SCons does not yet work with the 64-bit builds of Python.) That is, <a href="http://www.python.org/ftp/python/2.7.12/python-2.7.12.msi" class="urlextern" title="http://www.python.org/ftp/python/2.7.12/python-2.7.12.msi" rel="nofollow">python-2.7.12.msi</a> is the right file for all Windows systems.</div>
+</li>
+<li class="level1"><div class="li"> On Windows 7, 8 and 10, run the SCons installer via right-click, then select <strong>“Run as administrator”</strong>.</div>
+</li>
+</ul>
+
+<p>
+That is normally all, but you may wish to check if the Python installer added Python&#039;s <code>Scripts</code> directory to the <code>PATH</code> environment variable of your system.
+For example, if Python was installed in <code>C:\Python27</code>, then <code>PATH</code> should contain both <code>C:\Python27</code> and <code>C:\Python27\Scripts</code>.
+Otherwise, you have to add the proper directories manually: See <a href="http://support.microsoft.com/kb/310519" class="urlextern" title="http://support.microsoft.com/kb/310519" rel="nofollow">http://support.microsoft.com/kb/310519</a> and <a href="http://vlaurie.com/computers2/Articles/environment.htm" class="urlextern" title="http://vlaurie.com/computers2/Articles/environment.htm" rel="nofollow">http://vlaurie.com/computers2/Articles/environment.htm</a> for additional information.
+</p>
+
+
+
+<p>
+In order to verify that everything is working correctly, open a new command prompt and enter <code>scons -v</code>:
+</p>
+<pre class="code">&gt; scons -v
+SCons by Steven Knight et al.:
+        script: v2.3.0, 2013/03/03 09:48:35, by garyo on reepicheep
+        engine: v2.3.0, 2013/03/03 09:48:35, by garyo on reepicheep
+        engine path: [&#039;C:\\Python27\\Scripts\\..\\Lib\\site-packages\\scons-2.3.0\\SCons&#039;]
+Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013 The SCons Foundation</pre>
+
+<p>
+The report of the SCons version indicates that both Python and SCons are ready for use.
+Please make sure that you use SCons version <strong>2.3 or newer</strong>, older versions don&#039;t work!
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Windows&quot;,&quot;hid&quot;:&quot;windows&quot;,&quot;codeblockOffset&quot;:2,&quot;secid&quot;:4,&quot;range&quot;:&quot;2900-5420&quot;} -->
+<h3 class="sectionedit5">Linux</h3>
+<div class="level3">
+
+<p>
+Under Linux, just use the systems package manager in order to install SCons.
+The package manager will automatically install SCons and all software that SCons depends on, such as Python. For example, under Ubuntu:
+</p>
+<pre class="code bash"><span class="sy0">&gt;</span> <span class="kw2">sudo</span> <span class="kw2">apt-get install</span> scons</pre>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Linux&quot;,&quot;hid&quot;:&quot;linux&quot;,&quot;codeblockOffset&quot;:3,&quot;secid&quot;:5,&quot;range&quot;:&quot;5421-5701&quot;} -->
+<h2 class="sectionedit6">Linux Packages</h2>
+<div class="level2">
+
+<p>
+Additional software packages must be installed on a Linux system before the Cafu source code can be compiled.
+</p>
+
+<p>
+On a fresh, newly installed Debian or Ubuntu system, you&#039;ll need the following packages.
+They can be installed at the command prompt with the <code>apt-get install</code> command, or via the easy to use “Synaptic Package Manager”.
+Similar packages and package managers also exist on RedHat Linux, SuSE, etc., where you can proceed analogously.
+</p>
+<ul>
+<li class="level1"><div class="li"> A graphics driver with 3D hardware acceleration (the right driver is usually auto-detected and installed by the “Driver Manager”).</div>
+</li>
+<li class="level1"><div class="li"> <strong>build-essential</strong> – The compiler and basic tools required to compile C and C++ programs.</div>
+</li>
+<li class="level1"><div class="li"> <strong>libgtk2.0-dev</strong> – Developer files for GTK 2.0, needed for building wxGTK.</div>
+</li>
+<li class="level1"><div class="li"> <strong>libgl1-mesa-dev</strong> and <strong>libglu1-mesa-dev</strong> – OpenGL developer files, needed for building wxGTK and the Cafu rendering subsystem.</div>
+</li>
+<li class="level1"><div class="li"> <strong>libxxf86vm-dev</strong> – An interface to the XFree86-VidModeExtension extension.</div>
+</li>
+<li class="level1"><div class="li"> <strong>libasound2-dev</strong> – ALSA developer files, needed for building OpenAL-Soft.</div>
+</li>
+</ul>
+
+<p>
+Make sure that when you&#039;re done, all packages from the list and their dependencies are installed on your Linux system.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Linux Packages&quot;,&quot;hid&quot;:&quot;linux_packages&quot;,&quot;codeblockOffset&quot;:4,&quot;secid&quot;:6,&quot;range&quot;:&quot;5702-6909&quot;} -->
+<h2 class="sectionedit7">Compiler Setup</h2>
+<div class="level2">
+
+<p>
+Cafu can be compiled as 32-bit and 64-bit software on all platforms.
+The following compilers are supported:
+</p>
+<div class="table sectionedit8"><table class="inline">
+	<thead>
+	<tr class="row0">
+		<th class="col0"> Windows </th><th class="col1"> Remarks </th>
+	</tr>
+	</thead>
+	<tr class="row1">
+		<td class="col0"> Visual C++ 2015<br/>
+Visual C++ 2013<br/>
+Visual C++ 2012<br/>
+Visual C++ 2010 </td><td class="col1"> You can use the free Express Editions with Cafu. They are available at <a href="http://www.microsoft.com/express/vc/" class="urlextern" title="http://www.microsoft.com/express/vc/" rel="nofollow">http://www.microsoft.com/express/vc/</a> and automatically install the related Microsoft Windows SDK. </td>
+	</tr>
+	<tr class="row2">
+		<td class="col0"> </td><td class="col1"> </td>
+	</tr>
+	<tr class="row3">
+		<th class="col0"> Linux </th><th class="col1"> Remarks </th>
+	</tr>
+	<tr class="row4">
+		<td class="col0"> GCC 4.4+ </td><td class="col1"> The GNU Compiler Collection with its C++ front-end, version 4.4 or any newer version. </td>
+	</tr>
+</table></div>
+<!-- EDIT{&quot;target&quot;:&quot;table&quot;,&quot;name&quot;:&quot;&quot;,&quot;hid&quot;:&quot;table&quot;,&quot;secid&quot;:8,&quot;range&quot;:&quot;7047-7484&quot;} -->
+<p>
+The Cafu-specific compiler setup is fully automatic:
+No action is required in this step, and you can directly proceed to the next.
+</p>
+
+<p>
+Optionally, if you want to change the default settings now or later, here is an overview of how it works:
+</p>
+<ol>
+<li class="level1"><div class="li"> When SCons is run in the next step, it first determines if file <code>Cafu/CompilerSetup.py</code> already exists. If it doesn&#039;t (e.g. when you do this for the first time), it automatically creates the file as a copy of <code>Cafu/CompilerSetup.py.tmpl</code>.</div>
+</li>
+<li class="level1"><div class="li"> Alternatively, you can also copy <code>Cafu/CompilerSetup.py.tmpl</code> to <code>Cafu/CompilerSetup.py</code> manually. This is only required once, and only if you want to edit <code>Cafu/CompilerSetup.py</code> before SCons is run for the first time.</div>
+</li>
+<li class="level1"><div class="li"> You can edit <code>Cafu/CompilerSetup.py</code> in order to set the compiler and tools that are used to build Cafu, and to set the target architecture (such as <code>x86</code> or <code>x86_64</code>) that it is build for. Each setting is well documented, so you should have no problems to make the desired changes. <br/>
+The default settings automatically determine the latest installed compiler and the current architecture, so in most cases the file works out-of-the-box and you have to change nothing at all. Also if you have doubts about the right settings, just continue and use the file as-is.</div>
+</li>
+</ol>
+
+<p>
+If you do this for the first time, we recommend that you don&#039;t bother with <code>Cafu/CompilerSetup.py</code> at all. Just let the automatism determine the settings and come back later if desired or required.
+</p>
+
+</div>
+
+<h3>64-bit Windows with Visual C++ 2010 or 2012 Express Editions</h3>
+<div class="level4">
+
+<p>
+On 64-bit Windows systems, SCons tries to find a 64-bit compiler, but Visual C++ 2010 Express Edition comes with a 32-bit compiler only. To tell SCons to use the 32-bit compiler instead, please edit file <code>Cafu/CompilerSetup.py</code> as described <a href="http://forum.cafu.de/viewtopic.php?p=4360#p4360" class="urlextern" title="http://forum.cafu.de/viewtopic.php?p=4360#p4360" rel="nofollow">here</a>.
+</p>
+
+<p>
+Even though the Visual C++ 2012 Express Edition comes with a 64-bit compiler, at this time the <a href="http://forum.cafu.de/viewtopic.php?p=4360#p4360" class="urlextern" title="http://forum.cafu.de/viewtopic.php?p=4360#p4360" rel="nofollow">same edits</a> must be done for it as well.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Compiler Setup&quot;,&quot;hid&quot;:&quot;compiler_setup&quot;,&quot;codeblockOffset&quot;:4,&quot;secid&quot;:7,&quot;range&quot;:&quot;6910-9538&quot;} -->
+<h2 class="sectionedit9">Compiling the Source Code</h2>
+<div class="level2">
+
+<p>
+You are now ready compile the Cafu source code.
+At the command prompt, change into the top-level <code>Cafu</code> directory (where also the files <code>CompilerSetup.py(.tmpl)</code> and <code>SConstruct</code> are), then start the compilation with:
+</p>
+<pre class="code">&gt; scons</pre>
+
+<p>
+When you do this for the first time, be prepared that it will take a while:
+Everything is being built from scratch, once for the debug and once for the release build.
+When you repeat the same command in the future, e.g. after source code changes or updates, only the minimum set of files will be rebuilt and the entire process will complete <em>much</em> faster.
+</p>
+
+<p>
+Under Linux, if you have a multi-core system, you can speed this up by having several build jobs run in parallel:
+</p>
+<pre class="code">&gt; scons -j N</pre>
+
+<p>
+where N is the maximum number of jobs to start simultaneously. For example, try <code>-j 4</code> on a quad-core machine.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Compiling the Source Code&quot;,&quot;hid&quot;:&quot;compiling_the_source_code&quot;,&quot;codeblockOffset&quot;:4,&quot;secid&quot;:9,&quot;range&quot;:&quot;9539-10440&quot;} -->
+<h2 class="sectionedit10">Adding Binary Assets</h2>
+<div class="level2">
+
+<p>
+You may use the time while the build process is running to download some supplemental files.
+These files are not strictly required, but will help you with trying out the newly compiled programs as described below.
+</p>
+
+<p>
+We recommend that you download and extract the following files:
+</p>
+<div class="table sectionedit11"><table class="inline">
+	<thead>
+	<tr class="row0">
+		<th class="col0"> Download </th><th class="col1"> Extract into </th>
+	</tr>
+	</thead>
+	<tr class="row1">
+		<td class="col0"> <a href="http://www.cafu.de/files/Textures.zip" class="urlextern" title="http://www.cafu.de/files/Textures.zip" rel="nofollow">Textures.zip</a> </td><td class="col1"> <code>Cafu/Games/DeathMatch/Textures</code> </td>
+	</tr>
+	<tr class="row2">
+		<td class="col0"> <a href="http://www.cafu.de/files/Worlds.zip" class="urlextern" title="http://www.cafu.de/files/Worlds.zip" rel="nofollow">Worlds.zip</a> </td><td class="col1"> <code>Cafu/Games/DeathMatch/Worlds</code> </td>
+	</tr>
+</table></div>
+<!-- EDIT{&quot;target&quot;:&quot;table&quot;,&quot;name&quot;:&quot;&quot;,&quot;hid&quot;:&quot;table1&quot;,&quot;secid&quot;:11,&quot;range&quot;:&quot;10755-10968&quot;} -->
+<p>
+Note that although these files are zip archives, they are for use on all platforms (Windows and Linux).
+With these files, you can immediately run the Cafu engine and see some example worlds when the compilation has finished.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Adding Binary Assets&quot;,&quot;hid&quot;:&quot;adding_binary_assets&quot;,&quot;codeblockOffset&quot;:6,&quot;secid&quot;:10,&quot;range&quot;:&quot;10441-11196&quot;} -->
+<h2 class="sectionedit12">Running the new Programs</h2>
+<div class="level2">
+
+<p>
+When the SCons script has finished, all Cafu programs have been built in several variants:
+</p>
+<ul>
+<li class="level1"><div class="li"> The <code>debug</code> variant contains additional program information and no code optimizations, and is often used during development and for finding and fixing bugs.</div>
+</li>
+<li class="level1"><div class="li"> The <code>release</code> variant has program optimizations enabled in order to maximize the execution speed and contains no debug information. This variant is usually shipped to end users.</div>
+</li>
+<li class="level1"><div class="li"> The <code>profile</code> variant is not built by default. It is similar to the <code>release</code> variant, but also has debug information in order to make it suitable for use with a performance profiler.</div>
+</li>
+</ul>
+
+<p>
+As all variants can be built for each compiler on each platform, the build process organizes the binaries in a directory hierarchy of the form
+</p>
+<pre class="code"> build/$platform/$compiler/$variant </pre>
+
+<p>
+That is, if your compiler is Visual C++ 2015 (abbreviated as <code>vc14</code>) and your platform is Windows (abbreviated as <code>win32</code>), and you want to run the release variant of the new programs, then the related binaries are relative to the path 
+</p>
+<pre class="code"> build/win32/vc14/release/ </pre>
+
+<p>
+Another important consideration is that all programs assume the top-level <code>Cafu</code> directory as their working directory.
+</p>
+
+<p>
+Combining these facts provides you with several options on how you can run the new programs:
+</p>
+<ol>
+<li class="level1"><div class="li"> Copy the programs of the platform, compiler and build variant of your choice from <code>Cafu/build/$platform/$compiler/$variant/…</code> directly into the <code>Cafu</code> directory. This is what we do for the prepackaged binary releases, as end-users can then simply and directly double-click each executable in the Windows Explorer.</div>
+</li>
+<li class="level1"><div class="li"> Create a Windows link (<code>.lnk</code>) or batch (<code>.bat</code>) file in the proper working directory that calls the desired program in its original location.</div>
+</li>
+<li class="level1"><div class="li"> For developers, the most flexible and recommended approach is to run the program directly from the command prompt: First change the current working directory to <code>Cafu</code>, then type the relative path to the desired program (<a href="https://en.wikipedia.org/wiki/Tab_completion" class="interwiki iw_wp" title="https://en.wikipedia.org/wiki/Tab_completion">TAB completion</a> – also on Windows – proves to be a great help here!). <br/>
+For example, running the debug version of <abbr title="Cafu World Editor">CaWE</abbr> under Windows looks like this (note that the example also shows the current working directory at the left, the actual command follows the <code>&gt;</code> character): <pre class="code"> D:\Cafu&gt; build\win32\vc14\debug\CaWE\CaWE.exe </pre>
+
+<p>
+ Running the release version of Cafu under Linux looks like this: 
+</p>
+<pre class="code"> ~/Cafu&gt; ./build/linux2/g++/release/Ca3DE/Cafu </pre>
+</div>
+</li>
+</ol>
+
+<p>
+If you have downloaded the binary assets as instructed above, you can now run your self-compiled Cafu engine
+e.g. at <code>build\win32\vc14\release\Ca3DE\Cafu.exe</code> and try one of the included demo levels! <img src="/lib/images/smileys/icon_lol.gif" class="icon" alt="LOL" />
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Running the new Programs&quot;,&quot;hid&quot;:&quot;running_the_new_programs&quot;,&quot;codeblockOffset&quot;:6,&quot;secid&quot;:12,&quot;range&quot;:&quot;11197-13952&quot;} -->
+<h2 class="sectionedit13">What next?</h2>
+<div class="level2">
+
+<p>
+Congratulations! When you get here, you have managed to successfully compile the Cafu source code and run the resulting binaries.
+You may now wish to familiarize yourself more completely with the world of Cafu.
+</p>
+
+<p>
+One way to do this is to approach Cafu from a map designers perspective, for example by exploring the Cafu World Editor <abbr title="Cafu World Editor">CaWE</abbr>.
+<abbr title="Cafu World Editor">CaWE</abbr> is not only a map editor, it also contains the <abbr title="Graphical User Interface">GUI</abbr> editor, a font conversion tool, a materials viewer and a model editor.
+<abbr title="Cafu World Editor">CaWE</abbr> can also act as a bridge towards scripting: map scripting, <abbr title="Graphical User Interface">GUI</abbr> scripting, materials scripting and vegetation scripting are
+powerful features in Cafu, and it doesn&#039;t stop there!
+</p>
+
+<p>
+Programmers should definitively have a look at the other sections in this chapter (<a href="/start#at_the_corethe_cafu_source_code" class="wikilink1" title="start">At the Core: The Cafu Source Code</a>), such as <a href="/cppdev:ides#ides_and_text_editors" class="wikilink1" title="cppdev:ides">IDEs and Text Editors</a> or <a href="/cppdev:startnewgame#starting_your_own_game" class="wikilink1" title="cppdev:startnewgame">Starting your own Game</a>. If instead you prefer to dig into the source code right away – just pick your favorite piece of code, and start reading and hacking.
+</p>
+
+<p>
+Consider <a href="/cppdev:fbxsdk#using_the_autodesk_fbx_sdk" class="wikilink1" title="cppdev:fbxsdk">Using the Autodesk FBX SDK</a> in order to add support for several additional file formats in the Model Editor.
+</p>
+
+<p>
+Or you just browse the files and folders in the <code>Cafu</code> directory, and start with whatever you feel most attracted to.
+</p>
+
+<p>
+In any case, if you have questions or comments, or if you need help, post a message at the <a href="http://forum.cafu.de" class="urlextern" title="http://forum.cafu.de" rel="nofollow">support forums</a> at any time!
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;What next?&quot;,&quot;hid&quot;:&quot;what_next&quot;,&quot;codeblockOffset&quot;:10,&quot;secid&quot;:13,&quot;range&quot;:&quot;13953-&quot;} -->

@@ -1,0 +1,143 @@
+
+<h1 class="sectionedit1" id="the_edit_vertices_morph_tool">The Edit Vertices (Morph) Tool</h1>
+<div class="level1">
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:cawe_toolbar_editvertices.png?id=mapping%3Acawe%3Aeditingtools%3Amorph" class="media" title="mapping:cawe:editingtools:cawe_toolbar_editvertices.png"><img src="/_media/mapping:cawe:editingtools:cawe_toolbar_editvertices.png?w=80&amp;tok=48df21" class="medialeft" alt="" width="80" /></a> The “Edit Vertices” tool (also called the “Morph” tool) allows you to edit the individual vertices of a brush and the control vertices of a bezier patch. (Please refer to <a href="/mapping:cawe:editingtools:newbrush#the_new_brush_tool" class="wikilink1" title="mapping:cawe:editingtools:newbrush">The New Brush Tool</a> and <a href="/mapping:cawe:editingtools:newbezierpatch#the_new_bezier_patch_tool" class="wikilink1" title="mapping:cawe:editingtools:newbezierpatch">The New Bezier Patch Tool</a> in order to learn more about how brushes and bezier patches are created.)
+</p>
+
+<p>
+The vertices are the corner points of brushes. Being able to spatially manipulate them indiviually allows you to shape brushes in arbitrary ways that are difficult if not impossible to achieve with the other tools.
+Also the shape of bezier patches is controlled by special vertices that are called the <em>control vertices</em> of the patch. Modifying these control vertices indirectly modifies the shape of the bezier patch, so that they can be brought into every possible form.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;The Edit Vertices (Morph) Tool&quot;,&quot;hid&quot;:&quot;the_edit_vertices_morph_tool&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:1,&quot;range&quot;:&quot;1-921&quot;} -->
+<h2 class="sectionedit2" id="mapping_cawe_editingtools_morph_overview">Overview</h2>
+<div class="level2">
+
+<p>
+Here is an overview of how the Edit Vertices tool is used: <br/>
+
+(Click each of the images below to see them in their larger, natural size.)
+</p>
+<ol>
+<li class="level1"><div class="li"> <a href="/_detail/mapping:cawe:editingtools:editvertices_simple1.png?id=mapping%3Acawe%3Aeditingtools%3Amorph" class="media" title="mapping:cawe:editingtools:editvertices_simple1.png"><img src="/_media/mapping:cawe:editingtools:editvertices_simple1.png?w=100&amp;tok=f2c1b2" class="mediaright" alt="" width="100" /></a> Select the object (brush or bezier patch) whose vertices you want to edit with the <a href="/mapping:cawe:editingtools:selection#the_selection_tool" class="wikilink1" title="mapping:cawe:editingtools:selection">Selection tool</a> first. You can also select multiple objects for vertex editing at the same time, but it&#039;s not recommended. <br style="clear:both" /></div>
+</li>
+<li class="level1"><div class="li"> <a href="/_detail/mapping:cawe:editingtools:editvertices_simple2.png?id=mapping%3Acawe%3Aeditingtools%3Amorph" class="media" title="mapping:cawe:editingtools:editvertices_simple2.png"><img src="/_media/mapping:cawe:editingtools:editvertices_simple2.png?w=100&amp;tok=ce2fcd" class="mediaright" alt="" width="100" /></a> Activate the Edit Vertices (Morph) tool by clicking on the related button on the Tools toolbar or by pressing the <code>SHIFT+V</code> shortcut key. <br style="clear:both" /></div>
+</li>
+<li class="level1"><div class="li"> <a href="/_detail/mapping:cawe:editingtools:editvertices_simple3.png?id=mapping%3Acawe%3Aeditingtools%3Amorph" class="media" title="mapping:cawe:editingtools:editvertices_simple3.png"><img src="/_media/mapping:cawe:editingtools:editvertices_simple3.png?w=100&amp;tok=5133e6" class="mediaright" alt="" width="100" /></a> Use the mouse to select or drag the vertex or edge handles. The vertex handles are shown as white squares, the edge handles as yellow squares. When you left-click to select individual handles, note that you can use the <code>CTRL</code> key in order to “toggle” the selection. (This works very much as with files in the Windows Explorer.) Selection and dragging works both in the 2D as well as the 3D views. <br style="clear:both" /></div>
+</li>
+<li class="level1"><div class="li"> <a href="/_detail/mapping:cawe:editingtools:editvertices_simple4.png?id=mapping%3Acawe%3Aeditingtools%3Amorph" class="media" title="mapping:cawe:editingtools:editvertices_simple4.png"><img src="/_media/mapping:cawe:editingtools:editvertices_simple4.png?w=100&amp;tok=8a7d6b" class="mediaright" alt="" width="100" /></a> When done, just leave the Morph tool e.g. by switching back to the <a href="/mapping:cawe:editingtools:selection#the_selection_tool" class="wikilink1" title="mapping:cawe:editingtools:selection">Selection tool</a>. <abbr title="Cafu World Editor">CaWE</abbr> will then render the resulting brush as usual. <br style="clear:both" /></div>
+</li>
+</ol>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Overview&quot;,&quot;hid&quot;:&quot;overview&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:2,&quot;range&quot;:&quot;922-2330&quot;} -->
+<h2 class="sectionedit3">The Convex-Hull Principle</h2>
+<div class="level2">
+
+<p>
+For the purpose of editing brushes, the <abbr title="Cafu World Editor">CaWE</abbr> Edit Vertices tool is implemented according to the “convex-hull principle”.
+Roughly said, a convex-hull is the smallest space that contains a set of vertices. For a more thorough but mathematical definition please see the Wikipedia article <a href="https://en.wikipedia.org/wiki/Convex_hull" class="interwiki iw_wp" title="https://en.wikipedia.org/wiki/Convex_hull">here</a>.
+</p>
+
+<p>
+However, most <abbr title="Cafu World Editor">CaWE</abbr> users are already familiar with convex-hulls from another aspect of mapping, because they occur in a broader context: brushes! Each and every (valid) brush that you create with the <a href="/mapping:cawe:editingtools:newbrush#the_new_brush_tool" class="wikilink1" title="mapping:cawe:editingtools:newbrush">New Brush tool</a> is a convex hull of its vertices, and it stays that way no matter how you scale, rotate, shear, clip or morph it later.
+</p>
+
+<p>
+Therefore, the morph tool operates by switching back and forth between the normal representation of a brush as you are used to, and it&#039;s convex hull representation. When you activate the Morph tool, the selected brush is first converted into its convex hull representation. Then, when you drag its vertices, you are actually dragging the vertices of the convex hull, and when you&#039;re done, the convex hull is just converted back into the normal brush representation.
+This works so well because brushes are per definition just another representation of the vertices of a convex hull – switching back and forth is mathematically a straightforward operation.
+</p>
+
+<p>
+As a consequence, while it is impossible to use any of the other <abbr title="Cafu World Editor">CaWE</abbr> tools to turn a valid brush into an “invalid” brush (whatever that is), this statement also holds for the <abbr title="Cafu World Editor">CaWE</abbr> Morph tool! That is, it is quasi <em>impossible</em> to turn a valid brush into an invalid brush by dragging a vertex or edge handle<sup><a href="#fn__1" class="fn_top">1)</a></sup>. This property makes <abbr title="Cafu World Editor">CaWE</abbr> different from map editors of other engines (e.g. the Valve Hammer Editor 4.0), where it is <em>really easy</em> to accidentally turn a valid into an invalid brush (which means lost work) with the Morph tool.
+</p>
+
+<p>
+In summary, the convex-hull principle that is implemented in the <abbr title="Cafu World Editor">CaWE</abbr> Morph tool is a very powerful concept that makes vertex editing very simple and intuitive, and at the same time <em>guarantees</em> that you cannot accidentally make an invalid brush. Just try the <abbr title="Cafu World Editor">CaWE</abbr> Morph tool out for a while – and you won&#039;t go back to other map editors!  <img src="/lib/images/smileys/icon_wink.gif" class="icon" alt=";-)" />
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;The Convex-Hull Principle&quot;,&quot;hid&quot;:&quot;the_convex-hull_principle&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:3,&quot;range&quot;:&quot;2331-4914&quot;} -->
+<h2 class="sectionedit4">The Tool Options Bar</h2>
+<div class="level2">
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:cawe_tooloptionsbar_editvertices.png?id=mapping%3Acawe%3Aeditingtools%3Amorph" class="media" title="mapping:cawe:editingtools:cawe_tooloptionsbar_editvertices.png"><img src="/_media/mapping:cawe:editingtools:cawe_tooloptionsbar_editvertices.png" class="mediaright" alt="" /></a>
+When you activate the tool, the tool options bar shows controls that are specific to the Morph tool:
+</p>
+
+<p>
+At the <code>Edit</code> radio buttons you can choose whether you would like to edit only the vertices (represented by white handles), only the edges (yellow handles), or both. Usually it&#039;s the easiest to leave the setting at both, but if you have a preference you can set it here. Note that only brushes have edges, the concept does not apply to bezier patches.
+</p>
+
+<p>
+The <code>Insert Vertices</code> button inserts a new vertex into the center of a selected brush. It does only work if you have exactly one brush selected. That is, if you have instead a bezier patch patch selected or more than one brush or even a mix of multiple objects, it will just do nothing except for presenting you a message box that explains the exactly-one-brush requirement.
+</p>
+
+<p>
+The inserted vertex will initially be located in the center of the brush. Thus, according to the convex-hull principle, it will be “loose” and initially <em>not</em> affect the shape of the brush. However, when you start to drag this vertex so that it becomes relevant for the convex hull, <abbr title="Cafu World Editor">CaWE</abbr> will automatically create the new shape of the brush according to the convex-hull principle.
+</p>
+
+<p>
+The next section has a series of images that demonstrate how you use the <code>Insert Vertices</code> button at the example of a cube that gets two vertices added to form a more complex brush.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;The Tool Options Bar&quot;,&quot;hid&quot;:&quot;the_tool_options_bar&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:4,&quot;range&quot;:&quot;4915-6420&quot;} -->
+<h2 class="sectionedit5">Face Splitting and Removal</h2>
+<div class="level2">
+
+<p>
+Adding new faces to or removing existing faces from brushes naturally follows from the convex-hull principle. Please refer to the following image series in order to learn how new faces are added to a simple brush by first clicking the <code>Insert Vertex</code> button and then dragging the newly inserted vertex. In the second and fifth image, the new vertices that were inserted by a click on the <code>Insert Vertex</code> button have been selected (red squares) for better visual accentuation. The respectively next images (the third and sixth) show the result of these vertices being dragged into new positions.<br/>
+
+(Click each of the images to see them in their larger, natural size.)
+</p>
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:editvertices_insertvertex1.png?id=mapping%3Acawe%3Aeditingtools%3Amorph" class="media" title="mapping:cawe:editingtools:editvertices_insertvertex1.png"><img src="/_media/mapping:cawe:editingtools:editvertices_insertvertex1.png?w=100&amp;tok=b0c05c" class="media" alt="" width="100" /></a>
+<a href="/_detail/mapping:cawe:editingtools:editvertices_insertvertex2.png?id=mapping%3Acawe%3Aeditingtools%3Amorph" class="media" title="mapping:cawe:editingtools:editvertices_insertvertex2.png"><img src="/_media/mapping:cawe:editingtools:editvertices_insertvertex2.png?w=100&amp;tok=74ba9e" class="media" alt="" width="100" /></a>
+<a href="/_detail/mapping:cawe:editingtools:editvertices_insertvertex3.png?id=mapping%3Acawe%3Aeditingtools%3Amorph" class="media" title="mapping:cawe:editingtools:editvertices_insertvertex3.png"><img src="/_media/mapping:cawe:editingtools:editvertices_insertvertex3.png?w=100&amp;tok=fcc2da" class="media" alt="" width="100" /></a>
+<a href="/_detail/mapping:cawe:editingtools:editvertices_insertvertex4.png?id=mapping%3Acawe%3Aeditingtools%3Amorph" class="media" title="mapping:cawe:editingtools:editvertices_insertvertex4.png"><img src="/_media/mapping:cawe:editingtools:editvertices_insertvertex4.png?w=100&amp;tok=06728f" class="media" alt="" width="100" /></a>
+<a href="/_detail/mapping:cawe:editingtools:editvertices_insertvertex5.png?id=mapping%3Acawe%3Aeditingtools%3Amorph" class="media" title="mapping:cawe:editingtools:editvertices_insertvertex5.png"><img src="/_media/mapping:cawe:editingtools:editvertices_insertvertex5.png?w=100&amp;tok=287fe6" class="media" alt="" width="100" /></a>
+<a href="/_detail/mapping:cawe:editingtools:editvertices_insertvertex6.png?id=mapping%3Acawe%3Aeditingtools%3Amorph" class="media" title="mapping:cawe:editingtools:editvertices_insertvertex6.png"><img src="/_media/mapping:cawe:editingtools:editvertices_insertvertex6.png?w=100&amp;tok=6835e4" class="media" alt="" width="100" /></a>
+<a href="/_detail/mapping:cawe:editingtools:editvertices_insertvertex7.png?id=mapping%3Acawe%3Aeditingtools%3Amorph" class="media" title="mapping:cawe:editingtools:editvertices_insertvertex7.png"><img src="/_media/mapping:cawe:editingtools:editvertices_insertvertex7.png?w=100&amp;tok=f86c26" class="media" alt="" width="100" /></a>
+</p>
+
+<p>
+Faces are removed again my dragging one or more of their related vertices back “into” (somewhere near the center) of the brush or just onto other vertices. According to the convex hull principle, they then cannot contribute to the convex hull and thus the brush any more – the face has been removed. (Just read the above image sequence in reverse to see how this works.)
+</p>
+
+<p>
+Note that for brushes, the Morph tool automatically eliminates duplicate vertices. That is, if you drag one vertex exactly onto another so that you cannot tell them apart any more, <abbr title="Cafu World Editor">CaWE</abbr> will just remove the duplicate vertex. This is also why pressing the <code>Insert Vertices</code> button does apparently nothing when it is pressed several times in a row: It just creates vertices all in the same place (the exact center of the brush), which are immediately collected again because they are duplicates of each other.
+</p>
+
+<p>
+For bezier patches, being able to have multiple individual vertices all in the same place is sometimes a crucial feature, so the removal of duplicates does not apply.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Face Splitting and Removal&quot;,&quot;hid&quot;:&quot;face_splitting_and_removal&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:5,&quot;range&quot;:&quot;6421-8640&quot;} -->
+<h2 class="sectionedit6">Shaping Bezier Patches</h2>
+<div class="level2">
+
+<p>
+When you use the Morph tool to edit the control vertices of bezier patches, the concepts of edges, convex hulls, vertex insertions and duplicate removals do not apply, but otherwise the tool behaves naturally and analogously to editing the corner vertices of brushes.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Shaping Bezier Patches&quot;,&quot;hid&quot;:&quot;shaping_bezier_patches&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:6,&quot;range&quot;:&quot;8641-8945&quot;} -->
+<h3 class="sectionedit7">Selecting vertices individually</h3>
+<div class="level3">
+
+<p>
+With bezier patches, it frequently occurs that multiple vertices are in the exact same position, overlaying each other. This is often intentionally and required to achieve certain spatial shapes. When you click on such vertices in the 2D views, they all get selected at the same time. This is usually what is wanted, but if instead you want to selected the vertices separately, just clear the selection and then click on the vertex in the <em>3D view</em>. Contrary to the 2D views, selecting vertices in the 3D view only ever selects <em>one vertex at a time</em>. Although the situation looks visually the same as before in the 2D views, you can now use the mouse to drag the single vertex in the 2D or 3D views without affecting the others in the same place.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Selecting vertices individually&quot;,&quot;hid&quot;:&quot;selecting_vertices_individually&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:7,&quot;range&quot;:&quot;8946-&quot;} --><div class="footnotes">
+<div class="fn"><sup><a href="#fnt__1" class="fn_bot">1)</a></sup> 
+<div class="content">To be honest, there <em>is</em> a way to create invalid brushes with the <abbr title="Cafu World Editor">CaWE</abbr> Morph tool, namely when you create a zero-volume brush by dragging too many vertices “onto” each other (into the same spatial position). <abbr title="Cafu World Editor">CaWE</abbr> will then reconstruct the original brush when you try to exit the Morph tool in that situation.</div></div>
+</div>

@@ -1,0 +1,41 @@
+
+<h1 class="sectionedit1" id="the_new_terrain_tool">The New Terrain Tool</h1>
+<div class="level1">
+
+<p>
+<a href="/_detail/mapping:cawe:editingtools:cawe_toolbar_newterrain.png?id=mapping%3Acawe%3Aeditingtools%3Anewterrain" class="media" title="mapping:cawe:editingtools:cawe_toolbar_newterrain.png"><img src="/_media/mapping:cawe:editingtools:cawe_toolbar_newterrain.png" class="medialeft" alt="" /></a> The “New Terrain” tool helps you to create new terrains. These terrains can be very large, have very good rendering performance, and are specially treated by the Cafu engine.
+</p>
+
+<p>
+The “New Terrain” tool is activated by either clicking on its related button on the Tools toolbar, or by pressing the <code>Shift+T</code> keyboard shortcut.
+</p>
+
+<p>
+When you activate the tool, the tool options bar shows controls for creating new terrains: <br/>
+
+<a href="/_detail/mapping:cawe:editingtools:cawe_tooloptionsbar_newterrain.png?id=mapping%3Acawe%3Aeditingtools%3Anewterrain" class="media" title="mapping:cawe:editingtools:cawe_tooloptionsbar_newterrain.png"><img src="/_media/mapping:cawe:editingtools:cawe_tooloptionsbar_newterrain.png" class="media" alt="" /></a>
+</p>
+
+<p>
+The <code>New terrain heightmap name</code> determines the file that is used as the heightmap image that defines the shape of the new terrain. Use the combobox to select a previously used heightmap file, or use the <code>Browse</code> button to select a new file from disk. Note that the supported file formats include the most common image file formats (<code>jpg</code>, <code>png</code>, <code>tga</code> and <code>bmp</code>) as well as <em>Terragen</em> (<code>ter</code>) and <em>portable graymap</em> (<code>pgm</code>) files. Also note that heightmaps <em>need</em> to be grayscale and need to be power of two + 1. For example, a 512&times;512 heightmap needs to be 513&times;513 to work correctly in Cafu. A 1024&times;1024 needs to be 1025&times;1025. And so on.
+The section <a href="/mapping:creatingterrainheightmaps#creating_height-maps_for_your_terrains" class="wikilink1" title="mapping:creatingterrainheightmaps">Creating Height-Maps for your Terrains</a> explains how you can create your own height-maps for use here.
+</p>
+
+<p>
+The two checkboxes to the right control whether sky walls, a sky ceiling and a floor are created automatically with the terrain. Although terrains are often used for large outdoor areas, they must still exist “inside a room”. That is, terrains must be bounded by brushes that form four walls, a ceiling and a floor. With the two checkboxes, you can control whether <abbr title="Cafu World Editor">CaWE</abbr> should automatically create such bounding elements for you together with the new terrain (recommended!). You can later always edit or delete the so created walls (they are regular brushes), e.g. in order to make a doorway to some indoor or underground area of your map.
+</p>
+
+<p>
+Finally, you have to pick a material for the new terrains surface, which you can conveniently do as usual with the Materials toolbar.
+</p>
+
+<p>
+Note that all these attributes determine how the new terrain will be initially created. Of course, you can also review and change all these aspects for existing terrains later.
+</p>
+
+<p>
+With everything being setup, you create the new terrain in the same manner as you create new brushes: Draw a box in the 2D views. The box determines the bounds of the new terrain, both laterally as well as the height of the lowest and highest points.
+When you&#039;re satisfied with the position and size of the box, press <code>RETURN</code> or right-click in one of the views to confirm the terrain creation.
+</p>
+
+</div>

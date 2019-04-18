@@ -1,0 +1,213 @@
+====== The Edit Terrain Tool ======
+
+{{:mapping:cawe:editingtools:cawe_toolbar_terrainedit.png?80 }}
+
+The Edit Terrain Tool allows users to easily manipulate the surface structure of a terrain.\\
+\\
+The surface structure of a terrain is stored in a height map containing elevation values that build up the terrain. Each elevation value lies within a certain value range whereas higher values mean a higher terrain elevation at this position (please refer to the [[wp>Heightmap|Heightmap]] Wikipedia article for more information on height maps).\\
+To visualize this elevation values 3-dimensionally the engine create a smooth terrain surface model from the height map.\\
+\\
+This tool lets the user modify the elevation values of a terrain by presenting them as a 2-dimensional height map that can be edited similar to a paint program as well as a 3-dimensional surface structure.\\
+\\
+You can activate the Edit Terrain tool by clicking on the related icon marked in the left screen or by pressing the ''SHIFT+F'' keyboard shortcut.\\
+\\
+To create an editable terrain please refer to [[mapping:cawe:editingtools:newterrain]].
+
+===== General =====
+
+The tool is mainly composed of three parts:  
+  * The 2-dimensional terrain height map representation in the top-down 2D view.
+  * The 3-dimensional terrain surface representation in the 3D view.
+  * The terrain editor dialog.
+
+The 2D and 3D view let you select and modify terrains with your mouse and therefore incorporate the tools main functionality. The dialog lets you change tool parameters and select different terrain editor sub tools (informations on tool parameters and sub tools are explained in detail below).\\
+\\
+{{ :mapping:cawe:editingtools:terraineditor_tool3d.png}} {{ :mapping:cawe:editingtools:terraineditor_tool2d.png}} 
+The terrain editor always works within a adjustable circular area that is visualized in the top down 2D view as well as in the 3D view as seen in the images on the right.\\
+\\
+To modify a terrain you first have to select one by clicking on it. Then you can see the red circle at the position of your mouse cursor (if it is inside the bounds of the selected terrain) showing the area of the terrain that will be affected by the currently active sub tool.\\
+\\
+By left clicking you can modify the terrain in the area of effect. You can even hold down the left mouse button and move the mouse to easily modify the terrain along your mouse movements.\\
+\\
+This tool handling is the same in the 2D and 3D views and allows to easily switch between 2D and 3D view editing according to the user preference.
+
+===== The (top down) 2D View =====
+
+{{ :mapping:cawe:editingtools:terraineditor_2dview_nosel.png?200}}
+When a terrain isn't selected by the terrain editor it is rendered like every other brush so just its center point and bounding box is visible (in the same way as it is rendered if the terrain editor tool is inactive).\\
+\\
+To select a terrain for editing you have to click either on the edges of its bounding box or on its center point in the same way as with [[mapping:cawe:editingtools:selection]].
+
+{{:mapping:cawe:editingtools:terraineditor_2dview.png?200 }}
+When a terrain is selected its height map is rendered in a gray scale mode in the 2D view. Looking at the image to the left you can see that higher elevations are rendered brighter whereas lower elevations are rendered darker. This lets the user easily assess and modify a terrains surface structure even from a non 3-dimensional view.\\
+\\
+The tool cursor (the red circle) shows the current tool position and affected area and will always be set to the mouse position in the 2D view (as long as the mouse is positioned inside the bounding box of the terrain).\\
+\\
+{{ :mapping:cawe:editingtools:terraineditor_2dview_context.png}}
+The 2D view has a context menu when the terrain editor tool is active. It lets you adjust the appearance of the terrain in the 2D view.
+  * Height map 1:1 zoom: Zooms the 2D view so each elevation value of the terrains height data will be rendered as one pixel in the 2D view.
+  * View color
+{{:mapping:cawe:editingtools:terraineditor_gradientgrey.png}} {{:mapping:cawe:editingtools:terraineditor_gradientrainbow.png}} {{:mapping:cawe:editingtools:terraineditor_gradientdebug.png}}
+      * Greyscale: Renders the height map in a greyscale gradient from black to white where black represents the lowest elevation and white the highest elevation.
+      * Rainbow: Renders the height map in a rainbow gradient from blue to red where blue represents the lowest elevation and red the highest elevation.
+      * Debug: Renders the height map in repeating greyscale gradients from black to white. This mode is useful to make detailed terrain modifications where the spectrum of the other color gradients would be to small to see the differences.
+
+
+===== The 3D View =====
+{{ :mapping:cawe:editingtools:terraineditor_3dview.png?200}}
+A terrains surface structure is rendered in the 3D view surface regardless if the tool is active or inactive or if the terrain is selected by the terrain editor or not.\\
+The only difference is that you will see the circular tool cursor on the terrains surface if the terrain is selected and the tool is active.\\
+\\
+To select a terrain in the 3D view you just click on it in the same way as with [[mapping:cawe:editingtools:selection]].\\
+\\
+The tool position is placed where the mouse cursor hits the terrain, so in contrary to the 2D view where you work from a top down view onto the terrain, you can modify the terrain 3-dimensionally and easily work on the slope of a mountain for example.\\
+An exception of this rule takes effect when the tool is actively used (e.g. the user flattens a part of the terrain). To avoid "jumping" of the tool cursor it is no longer placed where the mouse cursor hits the terrain but instead on a even plane. This makes using the tool in the 3D view more intuitive.\\
+\\
+Since the terrain editor tool visualizes changes to the terrains height data in real time, the surface of the terrain must also be updated each time the user modifies the terrain.\\
+Because updating the terrain surface is a costly operation, a faster operation is used to update the terrain surface while actively working with a tool (e.g. raising parts of a terrain with the left mouse button down). In consequence the terrain surface will be updated with smaller detail in real time and the final high quality terrain surface is calculated when the user stops using an editing tool (releases the left mouse button).
+
+===== The Terrain Editor Dialog =====
+
+{{ :mapping:cawe:editingtools:terraineditor_dialog.png}}
+Where the views allow you to modify the terrains height data at the tool position, the terrain editor dialog allows you to select different sub tools of the terrain editor and to adjust parameters for this tools. Furthermore you can change properties of the whole terrain with it.\\
+\\
+At the top of the dialog you can see the toolbar with buttons for each sub tools (these sub tools are explained in the next chapter).\\
+\\
+Following are 3 tool option sliders that let you adjust tool functionality:
+  * Radius: The radius determines the size of the circular area of effect at the current tool position.
+  * Hardness: The hardness describes if the changes made in the circular area of effect should smoothly blend into the surrounding or have a hard edge at the border of the area of effect.
+  * Tool effect: The tool effect has different meanings for different sub tools, but can usually be pictured as the intensity with which the tool is used.
+\\
+At the bottom of the dialog you can find options that affect the whole terrain.
+  * Resolution: The resolution of the terrain height data (elevation values). This has nothing to do with terrains size. The size is determined by the terrains bounding box (which can be scaled like every other brush with [[mapping:cawe:editingtools:selection]]). The resolution determines the number of height values that build up the terrains surface. A higher value usually means that a terrain surface is smoother and more detailed.
+  * Import: You can import the terrains height data from various file formats including greyscale images in BMP, JPG, PNG and PGM format as well as [[http://www.planetside.co.uk/terragen/|Terragen]] files. 
+  * Export: Exporting the terrain into a greyscale image (same formats as stated above) or [[http://www.planetside.co.uk/terragen/|Terragen]] file is possible as well.
+
+==== Terrain Generation ====
+
+{{ :mapping:cawe:editingtools:terraineditor_generate.png}} If you have created a new empty terrain and you haven't got any height data at hand to create its surface, it is often desirable to automatically generate a basic terrain.
+
+The terrain generation dialog allows for this. By specifying a set of input parameters it lets you create different base terrains and shows the result in real time in a preview window.
+
+  * Frequency: A high frequency results in a bumpy surface with many hills and valleys whereas a low frequency will create fewer broader hills and valleys.
+  * Lacunarity:  A multiplier that determines how quickly the frequency increases for each successive octave in the Perlin-noise  function. The frequency of each successive octave is equal to the product of the previous octave's frequency and the lacunarity value.
+  * Octaves: A higher value adds structural detail to the terrain to the terrain so its surface becomes more natural.
+  * Persistence: A high value increases the surface contrast which results in steeper slopes between hills and valleys.
+  * Seed: Determines the random arrangement of hills and valleys for a terrain. You can play with this value to get different results that have all the same characteristics defined by the other parameters above. Note that the resulting terrain from a seed will always be the same (modified by the other parameters of course), so you can always recreate the same terrain again by using the same seed.
+
+You can also find very good and more technical descriptions of these parameters in the [[http://libnoise.sourceforge.net/glossary/index.html|libnoise glossary]].
+
+===== The Terrain Editor Sub Tools =====
+
+Since modifying terrains isn't a matter that can be handled by a single tool, the terrain editor consists of several sub tools that modify the terrain in their own way.\\
+
+^ Tip ^
+| While working on your terrain you can undo/redo each step you made by either using [[mapping:cawe:menureference:edit]] or the undo/redo shortcuts ''CTRL-Y'' and ''CTRL-Z''. This allows you to easily try something with the terrain and undo it if the results are not what you expected. |
+
+==== The Raise Tool ==== 
+{{:mapping:cawe:editingtools:terraineditor_tool_raise.png}}
+
+This tool allows you to raise the terrain inside the tools area of effect. A high hardness will result in hard edges along the tool circles border and the tool effect determines the amount of world units by which the terrain is raised.\\
+The following images show the usage of the raise tool with a low and high hardness:\\
+{{:mapping:cawe:editingtools:subtool_raise1.png?100}}{{:mapping:cawe:editingtools:subtool_raise2.png?100}}
+{{:mapping:cawe:editingtools:subtool_raise3.png?100}}{{:mapping:cawe:editingtools:subtool_raise4.png?100}}
+{{:mapping:cawe:editingtools:subtool_raise5.png?100}}{{:mapping:cawe:editingtools:subtool_raise6.png?100}}
+
+==== The Lower Tool ====
+{{:mapping:cawe:editingtools:terraineditor_tool_lower.png}}
+
+This tools lowers the terrain inside the tool circle. A high hardness results in hard edges along the tool border and the tool effect determines how much the terrain is lowered.\\
+Note that you can easily switch between the raise and lower tool using the middle mouse button.
+The following images show the usage of the lower tool with a low and high hardness:\\
+{{:mapping:cawe:editingtools:subtool_lower1.png?100}}{{:mapping:cawe:editingtools:subtool_lower2.png?100}}
+{{:mapping:cawe:editingtools:subtool_lower3.png?100}}{{:mapping:cawe:editingtools:subtool_lower4.png?100}}
+{{:mapping:cawe:editingtools:subtool_lower5.png?100}}{{:mapping:cawe:editingtools:subtool_lower6.png?100}}
+
+==== The Flatten Tool ====
+{{:mapping:cawe:editingtools:terraineditor_tool_flatten.png}}
+
+The flatten tool like its name says flattens the terrain in its area of effect. The tool effect has no meaning for it and is therefore not accessible. The hardness works as with every other tool.\\
+The special thing about the flatten tool (and also the following two tools) is that it needs a reference height value. This is the height everything is flattened to.\\
+To get a reference value you have to pick up one from the existing terrain elevations. This is either done by activating the Eyedropper mode by holding down the ''ALT'' key and then clicking on the position from which you want to pick up the height value (this works regardless of the activated sub tool).\\
+Another way to pick up a height value is to use the middle mouse button (this only works for the flatten, fill and ablate sub tool).\\
+\\
+The following screenshots show usage of the flatten tool with a reference height between the two hills visible in the screens. As you can see everything is flattened to the same height.
+
+{{:mapping:cawe:editingtools:subtool_flatten1.png?100}}{{:mapping:cawe:editingtools:subtool_flatten2.png?133}}
+{{:mapping:cawe:editingtools:subtool_flatten3.png?100}}{{:mapping:cawe:editingtools:subtool_flatten4.png?133}}
+
+==== The Fill Tool ====
+{{:mapping:cawe:editingtools:terraineditor_tool_fill.png}}
+
+Works in the same way as the flatten tool with the exception that only those parts of the terrain are flattened that lie below the reference height value. This allows you to easily fill up valleys while leaving mountains as they are.\\
+\\
+Using the fill tool with the same reference height as in the example above results in the flattening of all parts of the terrain except the top of the first hill.
+
+{{:mapping:cawe:editingtools:subtool_flatten1.png?100}}{{:mapping:cawe:editingtools:subtool_flatten2.png?133}}
+{{:mapping:cawe:editingtools:subtool_fill3.png?100}}{{:mapping:cawe:editingtools:subtool_fill4.png?133}}
+
+==== The Ablate Tool ====
+{{:mapping:cawe:editingtools:terraineditor_tool_ablate.png}}
+
+Works in the same way as the flatten tool with the exception that only those parts of the terrain are flattened that lie above the reference height value. This allows you to easily ablate mountains while leaving valleys as they are.\\
+\\
+As shown below the ablate tool only cuts the top of the first hill and leaves everything else as it was.
+
+{{:mapping:cawe:editingtools:subtool_flatten1.png?100}}{{:mapping:cawe:editingtools:subtool_flatten2.png?133}}
+{{:mapping:cawe:editingtools:subtool_ablate3.png?100}}{{:mapping:cawe:editingtools:subtool_ablate4.png?133}}
+
+==== The Blur Tool ====
+{{:mapping:cawe:editingtools:terraineditor_tool_blur.png}}
+
+The blur tool will soften the terrain by reducing the elevation difference between the height values in the area of effect. The result is a smoother less edged terrain surface.\\
+The tool effect determines how much the terrain surface is blurred/smoothened.
+
+{{:mapping:cawe:editingtools:subtool_blur1.png?100}}{{:mapping:cawe:editingtools:subtool_blur2.png?100}}
+{{:mapping:cawe:editingtools:subtool_blur3.png?100}}{{:mapping:cawe:editingtools:subtool_blur4.png?100}}
+
+==== The Sharpen Tool ====
+{{:mapping:cawe:editingtools:terraineditor_tool_sharpen.png}}
+
+This is the contrary to the blur tool. It sharpens the edges of a terrain surface by increasing the elevation difference between height values and thus creating a more rocky/edgier terrain surface.\\
+Again the tool effect determines how intensive the sharpening is.
+
+{{:mapping:cawe:editingtools:subtool_sharpen1.png?100}}{{:mapping:cawe:editingtools:subtool_sharpen2.png?100}}
+{{:mapping:cawe:editingtools:subtool_sharpen3.png?100}}{{:mapping:cawe:editingtools:subtool_sharpen4.png?100}}
+
+==== The Noise Tool ====
+{{:mapping:cawe:editingtools:terraineditor_tool_noise.png}}
+
+The noise tool raises and lowers parts of the terrain in the area of effect at random. This makes the terrain in this area bumpier and adds structure to a flat surface.\\
+The tool effect determines the maximal height difference between the current elevation and the randomly chosen one. A high tool effect makes the terrain more bumpy a low tool effect less.
+
+{{:mapping:cawe:editingtools:subtool_noise1.png?100}}{{:mapping:cawe:editingtools:subtool_noise2.png?100}}
+
+==== The Road Tool ====
+{{:mapping:cawe:editingtools:terraineditor_tool_road.png}}
+
+Unless you want to leave your terrains completely natural realistic roads are an important part of them. A road is an even plane that runs along a specific path through the terrain and might also have a slope between its starting and end point.\\
+The road tool lets you specify the path that builds up the road and automatically creates a slope between the elevation at the roads beginning and end.\\
+To create the roads path you have to click onto different points inside your terrain that make up the final road path. You can also hold down your left mouse button and continuously create road points while moving the mouse to create smooth curves.\\
+To finally create the road, you have to press the ''RETURN'' key and the road is constructed. You can also undo road points by clicking the middle mouse button or pressing the ''BACK'' key.\\
+The hardness determines if the road has a sharp edge to the surrounding terrain or smoothly blends into the terrain.
+
+{{:mapping:cawe:editingtools:subtool_road1.png?100}}{{:mapping:cawe:editingtools:subtool_road2.png?133}}
+{{:mapping:cawe:editingtools:subtool_road3.png?100}}{{:mapping:cawe:editingtools:subtool_road4.png?100}}
+{{:mapping:cawe:editingtools:subtool_road5.png?133}}
+
+===== Creating textures for a terrain =====
+
+At this point you can't create terrain textures using CaWE and have therefore to rely on other external tools. Assigning a texture is done using [[mapping:cawe:editingtools:editfaceprops]].\\
+To create a texture you have to export your terrains height data and import it in an external program that allows you to create a surface texture for your terrain.\\
+Possible solutions are [[http://www.planetside.co.uk/terragen/|Terragen]] and [[http://www.world-machine.com/|World Machine]].
+
+===== Keyboard shortcuts =====
+
+  * ''SHIFT+F'':
+    * Activates the Terrain Editor tool.
+  * ''ALT'':
+    * Activates the Eyedropper mode that lets the user pick up a reference height value.
+  * ''ENTER'': 
+    * If the Road sub tool is active a road is constructed from the available road reference points.
+  * ''BACK'': 
+    * Removes the last set road reference point.

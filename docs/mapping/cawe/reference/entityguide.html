@@ -1,0 +1,183 @@
+
+<h1 class="sectionedit1" id="entity_guide">Entity Guide</h1>
+<div class="level1">
+
+<p>
+An entity is an object that has characteristics which are different to the normal world brushes. There are two kinds of entities in Cafu. These include brush-based entities and point-based entities.
+</p>
+<ul>
+<li class="level1"><div class="li"> <strong>Point-based entities</strong> exist at a specific coordinate in space and be can be thought of as a reference point. Although these entities may refer to objects that actually have a volume, for example a monster, they are only treated as points in <abbr title="Cafu World Editor">CaWE</abbr>, and the Cafu engine provides the volume later in the game. An example is a monster entity: In <abbr title="Cafu World Editor">CaWE</abbr>, it just represents the point where the monster will be, in Cafu, it will actually be there.</div>
+</li>
+<li class="level1"><div class="li"> <strong>Brush-based entities</strong> are related to at least one brush or bezier patch and thus have a volume. Examples for brush based entities include doors and platforms, bodies of water, area triggers, etc.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Entity Guide&quot;,&quot;hid&quot;:&quot;entity_guide&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:1,&quot;range&quot;:&quot;1-877&quot;} -->
+<h2 class="sectionedit2">Brush-Based Entities</h2>
+<div class="level2">
+
+<p>
+Solid entities are world brushes that have extra characteristics. Note: This list is not fully complete.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Brush-Based Entities&quot;,&quot;hid&quot;:&quot;brush-based_entities&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:2,&quot;range&quot;:&quot;878-1016&quot;} -->
+<h3 class="sectionedit3">func_illusionary</h3>
+<div class="level3">
+
+<p>
+This is a func_wall with no clipping. The player can walk through a func_illusionary, making it useful for secret paths.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;func_illusionary&quot;,&quot;hid&quot;:&quot;func_illusionary&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:3,&quot;range&quot;:&quot;1017-1165&quot;} -->
+<h3 class="sectionedit4">func_water</h3>
+<div class="level3">
+
+<p>
+This is the entity for water.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;func_water&quot;,&quot;hid&quot;:&quot;func_water&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:4,&quot;range&quot;:&quot;1166-1217&quot;} -->
+<h3 class="sectionedit5">func_ladder</h3>
+<div class="level3">
+
+<p>
+The player can climb up a func_ladder. Please note that this entity is invisible, so you need to place a textured brush <strong>behind</strong> it.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;func_ladder&quot;,&quot;hid&quot;:&quot;func_ladder&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:5,&quot;range&quot;:&quot;1218-1375&quot;} -->
+<h3 class="sectionedit6">func_breakable</h3>
+<div class="level3">
+
+<p>
+This is a breakable object. You can set the material as glass, wood, metal, flesh, cinder block, ceiling tile, computer, unbreakable glass or rocks. You can also set the strength of the object.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;func_breakable&quot;,&quot;hid&quot;:&quot;func_breakable&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:6,&quot;range&quot;:&quot;1376-1595&quot;} -->
+<h3 class="sectionedit7">func_particle_generator</h3>
+<div class="level3">
+
+<p>
+This entity emits particles. It could be used for fire, water etc.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;func_particle_generator&quot;,&quot;hid&quot;:&quot;func_particle_generator&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:7,&quot;range&quot;:&quot;1596-1697&quot;} -->
+<h3 class="sectionedit8">func_pushable</h3>
+<div class="level3">
+
+<p>
+This is an object that the player can push around the map.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;func_pushable&quot;,&quot;hid&quot;:&quot;func_pushable&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:8,&quot;range&quot;:&quot;1698-1782&quot;} -->
+<h3 class="sectionedit9">func_terrain</h3>
+<div class="level3">
+
+<p>
+This is the entity used to add a terrain to a world. You must specify a heightmap for the terrain, and a detail texture. See <a href="/mapping:creatingterrainheightmaps#creating_height-maps_for_your_terrains" class="wikilink1" title="mapping:creatingterrainheightmaps">Creating heightmaps for your terrains</a> and the NewMaterials document for more info about terrains.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;func_terrain&quot;,&quot;hid&quot;:&quot;func_terrain&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:9,&quot;range&quot;:&quot;1783-2067&quot;} -->
+<h2 class="sectionedit10">Point Entities</h2>
+<div class="level2">
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Point Entities&quot;,&quot;hid&quot;:&quot;point_entities&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:10,&quot;range&quot;:&quot;2068-2095&quot;} -->
+<h3 class="sectionedit11">info_player_start</h3>
+<div class="level3">
+
+<p>
+The info_player_start is the spawn point for the character(s). You must have at least one in any map you create, and you must ensure that <strong>every</strong> info_player_start is inside the map. 
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;info_player_start&quot;,&quot;hid&quot;:&quot;info_player_start&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:11,&quot;range&quot;:&quot;2096-2310&quot;} -->
+<h3 class="sectionedit12">PointLight</h3>
+<div class="level3">
+
+<p>
+This is a light to complement the texture area lights. You used to have to put one of these in front of every surface that emitted light, but now you should not need to use this entity much, as any texture that looks like a light will emit light in the game.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;PointLight&quot;,&quot;hid&quot;:&quot;pointlight&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:12,&quot;range&quot;:&quot;2311-2591&quot;} -->
+<h3 class="sectionedit13">static_detail_model</h3>
+<div class="level3">
+
+<p>
+<em>Note: This entity is specific to the Deathmatch mod.</em><br/>
+
+This is a model that is included in a map, usually just for visual effect. You can specify an external model, how big it should be (scale), and if applicable, which animated sequence it should be performing. This entity can be used for anything that would be difficult to model out of brushes in <abbr title="Cafu World Editor">CaWE</abbr>. 
+</p>
+
+<p>
+Please note that this entity doesn&#039;t clip, so you need to put a clip brush around the model if you don&#039;t want the player to be able to walk through it.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;static_detail_model&quot;,&quot;hid&quot;:&quot;static_detail_model&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:13,&quot;range&quot;:&quot;2592-3137&quot;} -->
+<h3 class="sectionedit14">Weapons, Ammo and items</h3>
+<div class="level3">
+
+<p>
+<em>Note: The following entities are specific to the Deathmatch mod.</em><br/>
+
+These entities are the weapons, ammo and items in the deathmatch mod. These all start with weapon\_, ammo\_, or item\_. Some of the operational weapons included in the deathmatch mod are:
+</p>
+<ul>
+<li class="level1"><div class="li"> weapon_shotgun (Shotgun)</div>
+</li>
+<li class="level1"><div class="li"> weapon_357handgun (357 Handgun)</div>
+</li>
+<li class="level1"><div class="li"> weapon_9mmAR (Assult Rifle)</div>
+</li>
+<li class="level1"><div class="li"> weapon_crossbow (Crossbow)</div>
+</li>
+<li class="level1"><div class="li"> weapon_rpg (RPG Launcher)</div>
+</li>
+<li class="level1"><div class="li"> weapon_handgrenade (Grenade)</div>
+</li>
+</ul>
+
+<p>
+Some other weapons are included, but most of them don&#039;t work.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Weapons, Ammo and items&quot;,&quot;hid&quot;:&quot;weapons_ammo_and_items&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:14,&quot;range&quot;:&quot;3138-3681&quot;} -->
+<h3 class="sectionedit15">Monsters</h3>
+<div class="level3">
+
+<p>
+<em>Note: The following entities are specific to the Deathmatch mod.</em><br/>
+
+These are basically NPCs (Non-Player Characters). They can be animals, allies or enemies. The deathmatch mod currently contains three types of monsters:
+</p>
+<ul>
+<li class="level1"><div class="li"> monster_butterfly - A group of three butterflies that fly around in circles.</div>
+</li>
+<li class="level1"><div class="li"> monster_companybot - The default Trinity bot that follows you around.</div>
+</li>
+<li class="level1"><div class="li"> monster_eagle - An eagle which flies overhead. Requires a lot of space.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Monsters&quot;,&quot;hid&quot;:&quot;monsters&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:15,&quot;range&quot;:&quot;3682-4159&quot;} -->
+<h3 class="sectionedit16">Tree</h3>
+<div class="level3">
+
+<p>
+<img src="/lib/images/smileys/fixme.gif" class="icon" alt="FIXME" /> I don&#039;t know what this is…
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Tree&quot;,&quot;hid&quot;:&quot;tree&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:16,&quot;range&quot;:&quot;4160-&quot;} -->

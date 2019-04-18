@@ -1,0 +1,269 @@
+
+<h1 class="sectionedit1" id="creating_teleporter_stations">Creating Teleporter Stations</h1>
+<div class="level1">
+
+<p>
+This tutorial shows how a network of teleporter stations can be added to a game map:
+A set of teleporter stations is distributed throughout the map. Each station has a graphical user interface that the player can use to select the station that he wants to teleport to, and to activate the teleportation.
+</p>
+
+<p>
+The tutorial involves the placement of new entities into the map, <abbr title="Graphical User Interface">GUI</abbr> scripting and map scripting. As such, it is also a gentle introduction into Cafu game scripting.
+</p>
+
+<p>
+All tasks are demonstrated using the sample map <strong>BPWxBeta</strong> that is included with Cafu.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Creating Teleporter Stations&quot;,&quot;hid&quot;:&quot;creating_teleporter_stations&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:1,&quot;range&quot;:&quot;1-608&quot;} -->
+<h2 class="sectionedit2">Creating the teleporter controls GUI</h2>
+<div class="level2">
+
+<p>
+<a href="/_detail/mapping:cawe:tutorials:teleporter:teleporter_gui.png?id=mapping%3Acawe%3Ateleporters" class="media" title="mapping:cawe:tutorials:teleporter:teleporter_gui.png"><img src="/_media/mapping:cawe:tutorials:teleporter:teleporter_gui.png?w=320&amp;tok=c24cd2" class="mediaright" title="The GUI for the controls of the teleporter station." alt="The GUI for the controls of the teleporter station." width="320" /></a>
+Each teleporter station is supposed to have a <abbr title="Graphical User Interface">GUI</abbr> that the player can use to control which other station he wants to teleport to, and to activate the teleportation.
+</p>
+
+<p>
+We use the <abbr title="Graphical User Interface">GUI</abbr> editor component of <abbr title="Cafu World Editor">CaWE</abbr> in order to create the new <abbr title="Graphical User Interface">GUI</abbr>, an example is shown in the image.
+</p>
+
+<p>
+The next section explains how the new <abbr title="Graphical User Interface">GUI</abbr> is scripted to properly react to player input:
+The <code>&lt;</code> and <code>&gt;</code> buttons should increment or decrement the number of the station that the player is being teleported to, and the big button below should actually trigger the teleportation. <br style="clear:both" />
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Creating the teleporter controls GUI&quot;,&quot;hid&quot;:&quot;creating_the_teleporter_controls_gui&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:2,&quot;range&quot;:&quot;609-1337&quot;} -->
+<h2 class="sectionedit3">Writing custom code for the teleporter controls GUI</h2>
+<div class="level2">
+
+<p>
+When the <abbr title="Graphical User Interface">GUI</abbr> was saved in the <abbr title="Graphical User Interface">GUI</abbr> editor, it automatically wrote two files:
+</p>
+<ul>
+<li class="level1"><div class="li"> <code>Teleporter_init.cgui</code> and</div>
+</li>
+<li class="level1"><div class="li"> <code>Teleporter_main.cgui</code></div>
+</li>
+</ul>
+
+<p>
+The first file contains the actual data that the <abbr title="Graphical User Interface">GUI</abbr> editor loads and saves, the second file is for your hand-made customizations.
+In short, note that the first file is overwritten whenever the <abbr title="Graphical User Interface">GUI</abbr> editor saves a <abbr title="Graphical User Interface">GUI</abbr> file, whereas the second file is only created once as an empty stub file. The <abbr title="Graphical User Interface">GUI</abbr> editor touches the second file never again, so that you can use it for hand-written customizations.
+</p>
+
+<p>
+We now edit file <code>Teleporter_main.cgui</code> and enter the following script code:
+</p>
+<pre class="code lua"><span class="kw3">dofile</span><span class="br0">&#40;</span><span class="st0">&quot;Games/DeathMatch/GUIs/Teleporter_init.cgui&quot;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+&nbsp;
+<span class="kw1">function</span> ButtonMinus<span class="sy0">:</span>OnMouseEnter<span class="br0">&#40;</span><span class="br0">&#41;</span>
+    self<span class="sy0">:</span>set<span class="br0">&#40;</span><span class="st0">&quot;borderColor&quot;</span><span class="sy0">,</span> <span class="nu0">1.0</span><span class="sy0">,</span> <span class="nu0">0.0</span><span class="sy0">,</span> <span class="nu0">0.0</span><span class="sy0">,</span> <span class="nu0">1.0</span><span class="br0">&#41;</span><span class="sy0">;</span>
+    self<span class="sy0">:</span>interpolate<span class="br0">&#40;</span><span class="st0">&quot;textScale&quot;</span><span class="sy0">,</span> <span class="nu0">2.2</span><span class="sy0">,</span> <span class="nu0">2.4</span><span class="sy0">,</span> <span class="nu0">500</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="kw1">end</span>
+&nbsp;
+<span class="kw1">function</span> ButtonMinus<span class="sy0">:</span>OnMouseLeave<span class="br0">&#40;</span><span class="br0">&#41;</span>
+    self<span class="sy0">:</span>set<span class="br0">&#40;</span><span class="st0">&quot;borderColor&quot;</span><span class="sy0">,</span> <span class="nu0">0</span><span class="sy0">,</span> <span class="nu0">0.333333</span><span class="sy0">,</span> <span class="nu0">0.490196</span><span class="sy0">,</span> <span class="nu0">0.5</span><span class="br0">&#41;</span><span class="sy0">;</span>
+    self<span class="sy0">:</span>interpolate<span class="br0">&#40;</span><span class="st0">&quot;textScale&quot;</span><span class="sy0">,</span> <span class="nu0">2.4</span><span class="sy0">,</span> <span class="nu0">2.2</span><span class="sy0">,</span> <span class="nu0">500</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="kw1">end</span>
+&nbsp;
+<span class="kw1">function</span> ButtonMinus<span class="sy0">:</span>OnMouseButtonUp<span class="br0">&#40;</span><span class="br0">&#41;</span>
+    <span class="kw1">local</span> NodeNr<span class="sy0">=</span><span class="kw3">tonumber</span><span class="br0">&#40;</span>DestNode<span class="sy0">:</span>get<span class="br0">&#40;</span><span class="st0">&quot;text&quot;</span><span class="br0">&#41;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+    <span class="kw1">if</span> <span class="br0">&#40;</span>NodeNr<span class="sy0">&gt;</span><span class="nu0">1</span><span class="br0">&#41;</span> <span class="kw1">then</span>
+        DestNode<span class="sy0">:</span>set<span class="br0">&#40;</span><span class="st0">&quot;text&quot;</span><span class="sy0">,</span> NodeNr<span class="sy0">-</span><span class="nu0">1</span><span class="br0">&#41;</span><span class="sy0">;</span>
+    <span class="kw1">end</span>
+&nbsp;
+    <span class="kw1">return</span> <span class="kw4">true</span><span class="sy0">;</span>
+<span class="kw1">end</span>
+&nbsp;
+&nbsp;
+<span class="kw1">function</span> ButtonPlus<span class="sy0">:</span>OnMouseEnter<span class="br0">&#40;</span><span class="br0">&#41;</span>
+    self<span class="sy0">:</span>set<span class="br0">&#40;</span><span class="st0">&quot;borderColor&quot;</span><span class="sy0">,</span> <span class="nu0">1.0</span><span class="sy0">,</span> <span class="nu0">0.0</span><span class="sy0">,</span> <span class="nu0">0.0</span><span class="sy0">,</span> <span class="nu0">1.0</span><span class="br0">&#41;</span><span class="sy0">;</span>
+    self<span class="sy0">:</span>interpolate<span class="br0">&#40;</span><span class="st0">&quot;textScale&quot;</span><span class="sy0">,</span> <span class="nu0">2.2</span><span class="sy0">,</span> <span class="nu0">2.4</span><span class="sy0">,</span> <span class="nu0">500</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="kw1">end</span>
+&nbsp;
+<span class="kw1">function</span> ButtonPlus<span class="sy0">:</span>OnMouseLeave<span class="br0">&#40;</span><span class="br0">&#41;</span>
+    self<span class="sy0">:</span>set<span class="br0">&#40;</span><span class="st0">&quot;borderColor&quot;</span><span class="sy0">,</span> <span class="nu0">0</span><span class="sy0">,</span> <span class="nu0">0.333333</span><span class="sy0">,</span> <span class="nu0">0.490196</span><span class="sy0">,</span> <span class="nu0">0.5</span><span class="br0">&#41;</span><span class="sy0">;</span>
+    self<span class="sy0">:</span>interpolate<span class="br0">&#40;</span><span class="st0">&quot;textScale&quot;</span><span class="sy0">,</span> <span class="nu0">2.4</span><span class="sy0">,</span> <span class="nu0">2.2</span><span class="sy0">,</span> <span class="nu0">500</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="kw1">end</span>
+&nbsp;
+<span class="kw1">function</span> ButtonPlus<span class="sy0">:</span>OnMouseButtonUp<span class="br0">&#40;</span><span class="br0">&#41;</span>
+    <span class="kw1">local</span> NodeNr<span class="sy0">=</span><span class="kw3">tonumber</span><span class="br0">&#40;</span>DestNode<span class="sy0">:</span>get<span class="br0">&#40;</span><span class="st0">&quot;text&quot;</span><span class="br0">&#41;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+    <span class="kw1">if</span> <span class="br0">&#40;</span>NodeNr<span class="sy0">&lt;</span>MAX_NODES<span class="br0">&#41;</span> <span class="kw1">then</span>
+        DestNode<span class="sy0">:</span>set<span class="br0">&#40;</span><span class="st0">&quot;text&quot;</span><span class="sy0">,</span> NodeNr<span class="sy0">+</span><span class="nu0">1</span><span class="br0">&#41;</span><span class="sy0">;</span>
+    <span class="kw1">end</span>
+&nbsp;
+    <span class="kw1">return</span> <span class="kw4">true</span><span class="sy0">;</span>
+<span class="kw1">end</span>
+&nbsp;
+&nbsp;
+<span class="kw1">function</span> ButtonGo<span class="sy0">:</span>OnMouseEnter<span class="br0">&#40;</span><span class="br0">&#41;</span>
+    self<span class="sy0">:</span>set<span class="br0">&#40;</span><span class="st0">&quot;borderColor&quot;</span><span class="sy0">,</span> <span class="nu0">1.0</span><span class="sy0">,</span> <span class="nu0">0.0</span><span class="sy0">,</span> <span class="nu0">0.0</span><span class="sy0">,</span> <span class="nu0">1.0</span><span class="br0">&#41;</span><span class="sy0">;</span>
+    self<span class="sy0">:</span>interpolate<span class="br0">&#40;</span><span class="st0">&quot;textScale&quot;</span><span class="sy0">,</span> <span class="nu0">0.5</span><span class="sy0">,</span> <span class="nu0">0.52</span><span class="sy0">,</span> <span class="nu0">500</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="kw1">end</span>
+&nbsp;
+<span class="kw1">function</span> ButtonGo<span class="sy0">:</span>OnMouseLeave<span class="br0">&#40;</span><span class="br0">&#41;</span>
+    self<span class="sy0">:</span>set<span class="br0">&#40;</span><span class="st0">&quot;borderColor&quot;</span><span class="sy0">,</span> <span class="nu0">0</span><span class="sy0">,</span> <span class="nu0">0.333333</span><span class="sy0">,</span> <span class="nu0">0.490196</span><span class="sy0">,</span> <span class="nu0">0.498039</span><span class="br0">&#41;</span><span class="sy0">;</span>
+    self<span class="sy0">:</span>interpolate<span class="br0">&#40;</span><span class="st0">&quot;textScale&quot;</span><span class="sy0">,</span> <span class="nu0">0.52</span><span class="sy0">,</span> <span class="nu0">0.5</span><span class="sy0">,</span> <span class="nu0">500</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="kw1">end</span>
+&nbsp;
+<span class="kw1">function</span> ButtonGo<span class="sy0">:</span>OnMouseButtonUp<span class="br0">&#40;</span><span class="br0">&#41;</span>
+    <span class="kw1">local</span> origNr<span class="sy0">=</span>OUR_NODE_NR<span class="sy0">;</span>
+    <span class="kw1">local</span> destNr<span class="sy0">=</span>DestNode<span class="sy0">:</span>get<span class="br0">&#40;</span><span class="st0">&quot;text&quot;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+    game<span class="sy0">.</span>runMapCmd<span class="br0">&#40;</span><span class="st0">&quot;teleport(&quot;</span> <span class="sy0">..</span> origNr <span class="sy0">..</span> <span class="st0">&quot;, &quot;</span> <span class="sy0">..</span> destNr <span class="sy0">..</span> <span class="st0">&quot;);&quot;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+    <span class="kw1">return</span> <span class="kw4">true</span><span class="sy0">;</span>
+<span class="kw1">end</span>
+&nbsp;
+&nbsp;
+<span class="co1">-- This function is called as soon as the entity related to this GUI has been initialized.</span>
+<span class="co1">-- Note that our entities must have names like &quot;teleporter_2_of_5&quot; for this to work.</span>
+<span class="kw1">function</span> OnEntityInit<span class="br0">&#40;</span><span class="br0">&#41;</span>
+    <span class="co1">-- Figure out the total size of the teleportation network (number of nodes)</span>
+    <span class="co1">-- that this station is in, and which number this node/station has.</span>
+    OUR_NODE_NR<span class="sy0">,</span> MAX_NODES<span class="sy0">=</span><span class="kw3">string</span><span class="sy0">.</span>match<span class="br0">&#40;</span>gui<span class="sy0">:</span>getEntityName<span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">,</span> <span class="st0">&quot;(%d+)_of_(%d+)&quot;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+    OUR_NODE_NR<span class="sy0">=</span><span class="kw3">tonumber</span><span class="br0">&#40;</span>OUR_NODE_NR<span class="br0">&#41;</span> <span class="kw2">or</span> <span class="nu0">1</span><span class="sy0">;</span>
+    MAX_NODES  <span class="sy0">=</span><span class="kw3">tonumber</span><span class="br0">&#40;</span>MAX_NODES<span class="br0">&#41;</span> <span class="kw2">or</span> <span class="nu0">3</span><span class="sy0">;</span>
+&nbsp;
+    InfoStation<span class="sy0">:</span>set<span class="br0">&#40;</span><span class="st0">&quot;text&quot;</span><span class="sy0">,</span> <span class="st0">&quot;Station &quot;</span> <span class="sy0">..</span> OUR_NODE_NR<span class="br0">&#41;</span><span class="sy0">;</span>
+    DestNode<span class="sy0">:</span>set<span class="br0">&#40;</span><span class="st0">&quot;text&quot;</span><span class="sy0">,</span> <span class="br0">&#40;</span>OUR_NODE_NR <span class="sy0">%</span> MAX_NODES<span class="br0">&#41;</span><span class="sy0">+</span><span class="nu0">1</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="kw1">end</span></pre>
+
+<p>
+The first line of the script loads and runs the previously mentioned first file, that initializes the basics of the <abbr title="Graphical User Interface">GUI</abbr>. As such, the first line is crucial because it is responsibe  for “connecting” both files.
+</p>
+
+<p>
+After the <abbr title="Graphical User Interface">GUI</abbr> script is fully loaded, the Cafu Engine initializes the <abbr title="Graphical User Interface">GUI</abbr> by
+</p>
+<ul>
+<li class="level1"><div class="li"> first calling all <code>OnInit()</code> methods of all windows (they are defined in <code>Teleporter_init.cgui</code>),</div>
+</li>
+<li class="level1"><div class="li"> then calling all <code>OnInit2()</code> methods of each window (of which we have none at all, but if we had, they were in <code>Teleporter_main.cgui</code>),</div>
+</li>
+<li class="level1"><div class="li"> and finally calling function <code>OnEntityInit()</code> for 3D in-game GUIs such as ours.</div>
+</li>
+</ul>
+
+<p>
+The <code>OnEntityInit()</code> method is very important as is determines the number of this teleporter station (or “node”) and the total number of nodes, and saves both values in global variables for future use.
+It also updates the “Station XY” text of the <code>InfoStation</code> window that indicates to the player at which station he is currently standing, and sets a reasonable default for the destination station that we&#039;re teleporting to.
+</p>
+
+<p>
+All other methods are event handlers that the Cafu engine calls whenever the related event occurs. The <code>OnMouseEnter()</code> and <code>OnMouseLeave()</code> methods are only used for adding some visual eye candy, and so we won&#039;t further discuss them.
+</p>
+
+<p>
+The most interesting method is <code>ButtonGo:OnMouseButtonUp()</code>, that is called when the player presses the button that is supposed to activate the teleporter.
+However, note that this <abbr title="Graphical User Interface">GUI</abbr> script is like implementing the control software that runs on the teleporter station, just like a desktop program that would run on the station if the teleporter was real. As such, the <abbr title="Graphical User Interface">GUI</abbr> cannot implement the teleportation itself, but it must ask the map script to do it.
+</p>
+
+<p>
+The <abbr title="Graphical User Interface">GUI</abbr> can use the <code>runMapCmd()</code> function of the <code>game</code> object in order to ask the game script to do something. We will later write a game script function <code>teleport(origNr, destNr)</code> that does precisely that: Teleport a player from station <code>origNr</code> to station <code>destNr</code>, and thus when the player presses the button, we have this function called here.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Writing custom code for the teleporter controls GUI&quot;,&quot;hid&quot;:&quot;writing_custom_code_for_the_teleporter_controls_gui&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:3,&quot;range&quot;:&quot;1338-6351&quot;} -->
+<h2 class="sectionedit4">Placing teleporter stations in the game map</h2>
+<div class="level2">
+
+<p>
+<a href="/_detail/mapping:cawe:tutorials:teleporter:teleporter_entities.png?id=mapping%3Acawe%3Ateleporters" class="media" title="mapping:cawe:tutorials:teleporter:teleporter_entities.png"><img src="/_media/mapping:cawe:tutorials:teleporter:teleporter_entities.png?w=320&amp;tok=b44e0f" class="mediaright" title="The pair of entities for one teleporter station." alt="The pair of entities for one teleporter station." width="320" /></a>
+The next task is quite simple: We place the new teleporters into the map.
+To do so, use the <a href="/mapping:cawe:editingtools:newentity#the_new_entity_tool" class="wikilink1" title="mapping:cawe:editingtools:newentity">New Entity</a> tool in order to create two new entities whereever you want to have a teleporter station:
+</p>
+<ul>
+<li class="level1"><div class="li"> One <code>static_detail_model</code> that shows the big screen with the controls <abbr title="Graphical User Interface">GUI</abbr>, and</div>
+</li>
+<li class="level1"><div class="li"> one <code>info_generic</code> entity that indicates the source and destination point of the teleportation.</div>
+</li>
+</ul>
+
+<p>
+Note that you <em>must</em> name the <code>static_detail_model</code> with a name of the form <code>somename_X_of_Y</code>, where X is the number of this station and Y is the total number of the stations. This is because our <abbr title="Graphical User Interface">GUI</abbr> script above has been written to figure out these numbers from the name of the entity.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Placing teleporter stations in the game map&quot;,&quot;hid&quot;:&quot;placing_teleporter_stations_in_the_game_map&quot;,&quot;codeblockOffset&quot;:1,&quot;secid&quot;:4,&quot;range&quot;:&quot;6352-7240&quot;} -->
+<h2 class="sectionedit5">Implementing teleport() in the map script</h2>
+<div class="level2">
+
+<p>
+The final task is to write the above mentioned <code>teleport()</code> function in the map script: For the <strong>BPWxBeta</strong> example map, we create or open <code>Games/DeathMatch/Worlds/BPWxBeta.lua</code>, and enter the following code:
+</p>
+<pre class="code lua"><span class="co1">-- It's more readable to call wait(x) rather than coroutine.yield(x). </span>
+wait<span class="sy0">=</span><span class="kw3">coroutine.yield</span><span class="sy0">;</span>
+&nbsp;
+<span class="co1">-- This function reloads and runs this script again.</span>
+<span class="co1">-- Useful for working with and testing the script &quot;online&quot;,</span>
+<span class="co1">-- i.e. while the engine is running and without reloading the map!</span>
+<span class="kw1">function</span> reloadscript<span class="br0">&#40;</span><span class="br0">&#41;</span>
+    <span class="kw3">dofile</span><span class="br0">&#40;</span><span class="st0">&quot;Games/DeathMatch/Worlds/BPWxBeta.lua&quot;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+<span class="kw1">end</span>
+&nbsp;
+&nbsp;
+<span class="co1">-- This function is called by the teleporter GUI script when the user wants to teleport.</span>
+<span class="co1">-- origNr and destNr are numbers like 1 or 5 that indicate from and to which node in the</span>
+<span class="co1">-- teleportation network the teleportation should occur.</span>
+<span class="co1">--</span>
+<span class="co1">-- TODO/FIXME: It would be nice if we could learn from an additional parameter which</span>
+<span class="co1">--   (player) entity was actually operating the teleporter controls (i.e. who pressed</span>
+<span class="co1">--   the &quot;Go&quot; button on the related GUI).</span>
+<span class="kw1">function</span> teleport<span class="br0">&#40;</span>origNr<span class="sy0">,</span> destNr<span class="br0">&#41;</span>
+    <span class="co1">-- Prevent re-entrancy in the case that this method is called very quickly in succession.</span>
+    <span class="co1">-- This can happen with the current EntHumanPlayerT code, which is sort of a bug.</span>
+    <span class="kw1">if</span> <span class="br0">&#40;</span>isTeleporting<span class="br0">&#41;</span> <span class="kw1">then</span> <span class="kw1">return</span> <span class="kw4">true</span> <span class="kw1">end</span>
+&nbsp;
+    <span class="kw1">local</span> ox<span class="sy0">,</span> oy<span class="sy0">,</span> oz<span class="sy0">=</span><span class="kw3">_G</span><span class="br0">&#91;</span><span class="st0">&quot;info_generic_&quot;</span> <span class="sy0">..</span> origNr<span class="br0">&#93;</span><span class="sy0">:</span>GetOrigin<span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+    <span class="kw1">local</span> dx<span class="sy0">,</span> dy<span class="sy0">,</span> dz<span class="sy0">=</span><span class="kw3">_G</span><span class="br0">&#91;</span><span class="st0">&quot;info_generic_&quot;</span> <span class="sy0">..</span> destNr<span class="br0">&#93;</span><span class="sy0">:</span>GetOrigin<span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+    Console<span class="sy0">.</span>Print<span class="br0">&#40;</span><span class="st0">&quot;Teleporting from node &quot;</span> <span class="sy0">..</span> origNr <span class="sy0">..</span> <span class="st0">&quot; to node &quot;</span> <span class="sy0">..</span> destNr <span class="sy0">..</span> <span class="st0">&quot;, &quot;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+    Console<span class="sy0">.</span>Print<span class="br0">&#40;</span><span class="st0">&quot;which is at coordinate (&quot;</span> <span class="sy0">..</span> dx <span class="sy0">..</span> <span class="st0">&quot;, &quot;</span> <span class="sy0">..</span> dy <span class="sy0">..</span> <span class="st0">&quot;, &quot;</span> <span class="sy0">..</span> dz <span class="sy0">..</span> <span class="st0">&quot;).<span class="es1">\n</span>&quot;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+    <span class="co1">-- Teleport all entities with name &quot;Player*&quot; to the destination node.</span>
+    <span class="kw1">for</span> PlayerNr<span class="sy0">=</span><span class="nu0">1</span><span class="sy0">,</span> <span class="nu0">99</span> <span class="kw1">do</span>
+        <span class="kw1">local</span> PlayerEnt<span class="sy0">=</span><span class="kw3">_G</span><span class="br0">&#91;</span><span class="st0">&quot;Player&quot;</span> <span class="sy0">..</span> PlayerNr<span class="br0">&#93;</span><span class="sy0">;</span>
+&nbsp;
+        <span class="kw1">if</span> <span class="kw2">not</span> PlayerEnt <span class="kw1">then</span> <span class="kw1">break</span> <span class="kw1">end</span>
+&nbsp;
+        <span class="kw1">local</span> px<span class="sy0">,</span> py<span class="sy0">,</span> pz<span class="sy0">=</span>PlayerEnt<span class="sy0">:</span>GetOrigin<span class="br0">&#40;</span><span class="br0">&#41;</span><span class="sy0">;</span>
+&nbsp;
+        <span class="kw1">local</span> ax<span class="sy0">=</span>px<span class="sy0">-</span>ox<span class="sy0">;</span>
+        <span class="kw1">local</span> ay<span class="sy0">=</span>py<span class="sy0">-</span>oy<span class="sy0">;</span>
+        <span class="kw1">local</span> az<span class="sy0">=</span>pz<span class="sy0">-</span>oz<span class="sy0">;</span>
+&nbsp;
+        <span class="kw1">if</span> <span class="br0">&#40;</span>pz<span class="sy0">&gt;</span>oz <span class="kw2">and</span> <span class="kw3">math.sqrt</span><span class="br0">&#40;</span>ax<span class="sy0">*</span>ax <span class="sy0">+</span> ay<span class="sy0">*</span>ay <span class="sy0">+</span> az<span class="sy0">*</span>az<span class="br0">&#41;</span> <span class="sy0">&lt;</span> <span class="nu0">2000.0</span><span class="br0">&#41;</span> <span class="kw1">then</span>
+            <span class="co1">-- VARIANT 1:</span>
+            <span class="co1">-- When teleporting PlayerEnt to (dx+ax, dy+ay, dz+az), it is safe to teleport</span>
+            <span class="co1">-- multiple players all at the same time (continuing the loop), as their</span>
+            <span class="co1">-- relative positioning doesn't change.</span>
+            <span class="co1">-- However, depending on the map geometry, teleporting to (dx+ax, dy+ay, dz+az)</span>
+            <span class="co1">-- could teleport the player into solid matter, as it requires that at the dest</span>
+            <span class="co1">-- there is as much free space (in the same absolute direction) as at the origin.</span>
+            <span class="co1">-- PlayerEnt:SetOrigin(dx+ax, dy+ay, dz+az);</span>
+&nbsp;
+            <span class="co1">-- VARIANT 2:</span>
+            <span class="co1">-- When teleporting PlayerEnt to (dx, dy, dz+az), the results are much easier</span>
+            <span class="co1">-- to foresee, but this requires teleporting only one player at a time.</span>
+            PlayerEnt<span class="sy0">:</span>SetOrigin<span class="br0">&#40;</span>dx<span class="sy0">,</span> dy<span class="sy0">,</span> dz<span class="sy0">+</span>az<span class="br0">&#41;</span><span class="sy0">;</span>
+            <span class="kw1">break</span><span class="sy0">;</span>
+&nbsp;
+            <span class="co1">-- TODO/FIXME: We should check that the destination space is actually free</span>
+            <span class="co1">--   from other players and entities before we relocate PlayerEnt there!</span>
+        <span class="kw1">end</span>
+    <span class="kw1">end</span>
+&nbsp;
+    isTeleporting<span class="sy0">=</span><span class="kw4">true</span><span class="sy0">;</span>
+    wait<span class="br0">&#40;</span><span class="nu0">0.5</span><span class="br0">&#41;</span><span class="sy0">;</span>
+    isTeleporting<span class="sy0">=</span><span class="kw4">false</span><span class="sy0">;</span>
+<span class="kw1">end</span></pre>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Implementing teleport() in the map script&quot;,&quot;hid&quot;:&quot;implementing_teleport_in_the_map_script&quot;,&quot;codeblockOffset&quot;:1,&quot;secid&quot;:5,&quot;range&quot;:&quot;7241-&quot;} -->

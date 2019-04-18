@@ -1,0 +1,77 @@
+
+<h1 class="sectionedit1" id="installation_initial_configuration_and_de-installation">Installation, Initial Configuration and De-Installation</h1>
+<div class="level1">
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Installation, Initial Configuration and De-Installation&quot;,&quot;hid&quot;:&quot;installation_initial_configuration_and_de-installation&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:1,&quot;range&quot;:&quot;1-71&quot;} -->
+<h2 class="sectionedit2" id="mapping_cawe_install_installation">Installation</h2>
+<div class="level2">
+
+<p>
+The <abbr title="Cafu World Editor">CaWE</abbr> editor is included with the regular Cafu releases, and as such requires no explicit installation:
+After unzipping the packed file, simply change into the <code>Cafu-x.y</code> directory. Under Windows, then double-click on <code>RunCaWE.bat</code>. Under Linux, click <code><abbr title="Cafu World Editor">CaWE</abbr>-run</code> in the <code>Projects/Cafu/</code> sub-directory.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;Installation&quot;,&quot;hid&quot;:&quot;installation&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:2,&quot;range&quot;:&quot;72-413&quot;} -->
+<h2 class="sectionedit3">First-Time Configuration</h2>
+<div class="level2">
+
+<p>
+<span style='color:#CC0000; background-color:#FFD6D6;'>This section is relevant to <abbr title="Cafu World Editor">CaWE</abbr> releases <strong>before February 2008 (version 8.02) only</strong>.
+If you have version 8.02 or newer, the initial setup is fully automatic and you can skip this section safely.
+You may still check out the <a href="/mapping:cawe:dialogs:options#the_configure_cawe_options_dialog" class="wikilink1" title="mapping:cawe:dialogs:options">Configure CaWE Options</a> dialog anytime later.
+</span>
+</p>
+
+<p>
+<abbr title="Cafu World Editor">CaWE</abbr> requires some basic configuration for normal use, and thus asks you for providing at least one game (or “<abbr title="MODification, a self-contained game for the Cafu Engine">MOD</abbr>”) configuration when it is first run:
+</p>
+<ol>
+<li class="level1"><div class="li"> <a href="/_detail/mapping:cawe:firstrun_nogameconfigs.png?id=mapping%3Acawe%3Ainstall" class="media" title="mapping:cawe:firstrun_nogameconfigs.png"><img src="/_media/mapping:cawe:firstrun_nogameconfigs.png" class="medialeft" alt="" /></a> After clicking on <strong>OK</strong>, <abbr title="Cafu World Editor">CaWE</abbr> will automatically show you the related configuration dialog. <br style="clear:both" /> <br/>
+</div>
+</li>
+<li class="level1"><div class="li"> <a href="/_detail/mapping:cawe:firstrun_emptyconfigdialog.png?id=mapping%3Acawe%3Ainstall" class="media" title="mapping:cawe:firstrun_emptyconfigdialog.png"><img src="/_media/mapping:cawe:firstrun_emptyconfigdialog.png?w=300&amp;tok=acccb4" class="medialeft" alt="" width="300" /></a> Here, click on <strong>Add New</strong> for adding a new game configuration. You will then be asked for the desired name of the new config. <br style="clear:both" /> <br/>
+</div>
+</li>
+<li class="level1"><div class="li"> <a href="/_detail/mapping:cawe:firstrun_addnewgame.png?id=mapping%3Acawe%3Ainstall" class="media" title="mapping:cawe:firstrun_addnewgame.png"><img src="/_media/mapping:cawe:firstrun_addnewgame.png" class="medialeft" alt="" /></a> You can enter anything here, i.e. normally something that reminds you what <abbr title="MODification, a self-contained game for the Cafu Engine">MOD</abbr> this config is related to, like “Cafu DeathMatch”. <br style="clear:both" /> <br/>
+</div>
+</li>
+<li class="level1"><div class="li"> Next you have to fill-in where the Game Data File is located. This is a file with <code>.fgd</code> suffix. One such file is already provided with the Cafu package: the <code>DeathMatch.fgd</code> file in the <code>Projects/Cafu/Games/DeathMatch</code> subdirectory. Click on the related <strong>Browse…</strong> button and locate the file. <br/>
+<br/>
+</div>
+</li>
+<li class="level1"><div class="li"> <a href="/_detail/mapping:cawe:firstrun_filledin.png?id=mapping%3Acawe%3Ainstall" class="media" title="mapping:cawe:firstrun_filledin.png"><img src="/_media/mapping:cawe:firstrun_filledin.png" class="medialeft" alt="" /></a> Finally, fill-in the rest of the dialog appropriately such that it eventually looks like this. The paths will of course be different for you, depending on where you installed the Cafu package and its version. See the next step however for an alternative setup. <br style="clear:both" /> <br/>
+</div>
+</li>
+<li class="level1"><div class="li"> <a href="/_detail/mapping:cawe:firstrun_filledin_rel.png?id=mapping%3Acawe%3Ainstall" class="media" title="mapping:cawe:firstrun_filledin_rel.png"><img src="/_media/mapping:cawe:firstrun_filledin_rel.png" class="medialeft" alt="" /></a> Alternatively to the previous step, you can also fill-in relative paths as shown in this image. This is the preferred method, because it works better with future versions of <abbr title="Cafu World Editor">CaWE</abbr>, makes upgrading to a newer version of Cafu and <abbr title="Cafu World Editor">CaWE</abbr> easier, solves some problems with map compilation some people were reporting, and will become the default with future releases of <abbr title="Cafu World Editor">CaWE</abbr>! <br/>
+Please note that under Linux, you have to use forward-slashes as the path separator (e.g. <code>Games/DeathMatch</code>) and executable files must be referred to like e.g. <code>./<abbr title="Cafu Radiosity Lighting">CaLight</abbr></code>. <br style="clear:both" /></div>
+</li>
+</ol>
+<blockquote><div class="no">
+ All settings in this dialog can be revised <em>later at any time</em> via the <strong>File → Configure <abbr title="Cafu World Editor">CaWE</abbr>…</strong> menu.<br/>
+ Adding new or additional game configurations at that time may however require to restart <abbr title="Cafu World Editor">CaWE</abbr> for the settings to take effect.</div></blockquote>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;First-Time Configuration&quot;,&quot;hid&quot;:&quot;first-time_configuration&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:3,&quot;range&quot;:&quot;414-2954&quot;} -->
+<h2 class="sectionedit4" id="mapping_cawe_install_de-installation">De-Installation</h2>
+<div class="level2">
+
+<p>
+<abbr title="Cafu World Editor">CaWE</abbr>, as all other Cafu related software, has been designed to interfere with your computer and operating system as little as possible.
+In general, it is enough to delete the directory that the packed file was unzipped to during installation, and all traces of <abbr title="Cafu World Editor">CaWE</abbr> are gone.
+</p>
+
+<p>
+There is one exception though: When run, <abbr title="Cafu World Editor">CaWE</abbr> stores your configuration settings in a newly created directory.
+This directory is located in the “home” directory of the current user. The exact place on your harddisk depends on your <abbr title="Operating System">OS</abbr>
+and even on its version, but <abbr title="Cafu World Editor">CaWE</abbr> states the full path to it both in the <strong>Configuration</strong> dialog (<strong>General</strong> tab),
+and in the <strong>About</strong> dialog box that is accessible via the <strong>Help → About</strong> menu.
+</p>
+
+<p>
+<a href="/_detail/mapping:cawe:deinst_pathtocfg_configure.png?id=mapping%3Acawe%3Ainstall" class="media" title="mapping:cawe:deinst_pathtocfg_configure.png"><img src="/_media/mapping:cawe:deinst_pathtocfg_configure.png?w=300&amp;tok=147da8" class="media" alt="" width="300" /></a> <a href="/_detail/mapping:cawe:deinst_pathtocfg_about.png?id=mapping%3Acawe%3Ainstall" class="media" title="mapping:cawe:deinst_pathtocfg_about.png"><img src="/_media/mapping:cawe:deinst_pathtocfg_about.png?w=300&amp;tok=5aad9e" class="media" alt="" width="300" /></a>
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;De-Installation&quot;,&quot;hid&quot;:&quot;de-installation&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:4,&quot;range&quot;:&quot;2955-&quot;} -->

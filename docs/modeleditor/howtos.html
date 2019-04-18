@@ -1,0 +1,114 @@
+
+<h1 class="sectionedit1" id="modeleditor_howtos_how-tos">How-Tos</h1>
+<div class="level1">
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;How-Tos&quot;,&quot;hid&quot;:&quot;how-tos&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:1,&quot;range&quot;:&quot;1-23&quot;} -->
+<h2 class="sectionedit2">How do I ...</h2>
+<div class="level2">
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;How do I ...&quot;,&quot;hid&quot;:&quot;how_do_i&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:2,&quot;range&quot;:&quot;24-49&quot;} -->
+<h3 class="sectionedit3" id="get_my_model_into_cafu">... get my model into Cafu?</h3>
+<div class="level3">
+
+<!--
+<div style="text-align: center; clear: both;">
+
+<object style="height: 570px; width: 720px">
+<param name="movie" value="http://www.youtube.com/v/Q3KJm-Ph_5o?version=3&feature=player_detailpage&hd=1&rel=0"></param>
+<param name="allowFullScreen" value="true"></param>
+<param name="allowScriptAccess" value="always"></param>
+<embed src="http://www.youtube.com/v/Q3KJm-Ph_5o?version=3&feature=player_detailpage&hd=1&rel=0" type="application/x-shockwave-flash" allowfullscreen="true" allowScriptAccess="always" width="720" height="540"></embed>
+</object>
+
+</div>
+-->
+
+<!-- Embedding a Youtube video in HTML is nice, but we need something that also works in RST. -->
+<p>
+See <a href="https://youtu.be/Q3KJm-Ph_5o">this video</a> for details.
+</p>
+
+<p>
+Additional notes:
+</p>
+<ul>
+<li class="level1"><div class="li"> When watching the video, change the playback quality to “720p HD” if possible.</div>
+</li>
+<li class="level1"><div class="li"> There is no audio track in this video.</div>
+</li>
+<li class="level1"><div class="li"> Use the <a href="/mapping:cawe:editingtools:newentity#the_new_entity_tool" class="wikilink1" title="mapping:cawe:editingtools:newentity">New Entity</a> tool for placing the newly created <code>.cmdl</code> model into a map. Watch the <a href="http://www.cafu.de/flash/Placing_a_Model.htm" class="urlextern" title="http://www.cafu.de/flash/Placing_a_Model.htm" rel="nofollow">Placing a Model</a> tutorial for related information.</div>
+</li>
+<li class="level1"><div class="li"> If you want to make adjustments later, both the <code>.cmdl</code> model as well as the material definitions can be edited as shown above also <em>after</em> the model has been placed into a map or world file. The changes will take effect when the program is next restarted.</div>
+</li>
+<li class="level1"><div class="li"> In the video, why did we <em>close</em> the model window before editing the material definitions?<br/>
+When you save a model file, the Model Editor <em>overwrites</em> the <code>_editor.<abbr title="Cafu material script file.">cmat</abbr></code> file as explained at <a href="/modeleditor:modelfiles#model_files_explained" class="wikilink1" title="modeleditor:modelfiles">Model Files Explained</a>. In fact, we should never have hand-edited the <code>_editor.<abbr title="Cafu material script file.">cmat</abbr></code> file, but do all edits in <code>.<abbr title="Cafu material script file.">cmat</abbr></code> (without the <code>_editor</code> part) instead, but we thought it&#039;s too difficult to explain that in the video.  <img src="/lib/images/smileys/icon_wink.gif" class="icon" alt=";-)" /> <br/>
+Additionally, the Model Editor had to re-read the new material definitions anyway, so even if our edits were made in the right file, we had to close and reopen the model.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;... get my model into Cafu?&quot;,&quot;hid&quot;:&quot;get_my_model_into_cafu&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:3,&quot;range&quot;:&quot;50-1923&quot;} -->
+<h3 class="sectionedit4">... scale my model?</h3>
+<div class="level3">
+
+<p>
+There are two main methods for scaling a model:
+</p>
+<ul>
+<li class="level1"><div class="li"> via the Skeleton / the Joint Inspector</div>
+</li>
+<li class="level1"><div class="li"> via the Transform dialog</div>
+</li>
+</ul>
+
+<p>
+The <a href="/modeleditor:skeleton#modeleditor_skeleton_skeleton" class="wikilink1" title="modeleditor:skeleton">Joint Inspector</a> can transform individual joints of the model, but only for the <em>bind pose</em>. It is mostly useful for static, non-animated models, but even then only if there is a special requirement that the Transform dialog cannot handle.
+</p>
+
+<p>
+The <a href="/modeleditor:transform#transformstranslate_rotate_and_scale" class="wikilink1" title="modeleditor:transform">Transform dialog</a> is much easier to use, as it transforms the entire model (the whole skeleton): the transformation is applied to all currently selected animation sequences. If no animation sequence is selected at all, the “bind pose” is transformed.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;... scale my model?&quot;,&quot;hid&quot;:&quot;scale_my_model&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:4,&quot;range&quot;:&quot;1924-2633&quot;} -->
+<h3 class="sectionedit5">... import animations from other models?</h3>
+<div class="level3">
+
+<p>
+In some cases, importing animations is very easy: Use the “<strong>+</strong>” button in the <a href="/modeleditor:animations#modeleditor_animations_animations" class="wikilink1" title="modeleditor:animations">Animations</a> pane as demonstrated in the above video.
+</p>
+
+<p>
+However, this works only if the animations are stored in separate files that are compatible with the already loaded mesh. This is specifically the case with <code>md5anim</code>s for their related <code>md5mesh</code> file.
+</p>
+
+<p>
+We will extend this functionality in the future. Until then and for all other cases, see the next How-To about generically sharing and re-using elements.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;... import animations from other models?&quot;,&quot;hid&quot;:&quot;import_animations_from_other_models&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:5,&quot;range&quot;:&quot;2634-3197&quot;} -->
+<h3 class="sectionedit6">... share and re-use animations, skins etc. from other models?</h3>
+<div class="level3">
+
+<p>
+Creating variants of a model by sharing or re-using elements of another model is a straightforward idea, but generally not easy to implement: For example, it&#039;s easy to share meshes and animations when the skeleton is an exact match, but much harder to do otherwise.
+</p>
+
+<p>
+The solution is to manually edit the <code>cmdl</code> model file, which is a Lua script as documented at <a href="/modeleditor:modelfiles#model_files_explained" class="wikilink1" title="modeleditor:modelfiles">Model Files Explained</a>.
+</p>
+
+<p>
+For example, copying and pasting the definition of an animation from one player model into another (that has a compatible, matching skeleton), tends to work very well.
+</p>
+
+<p>
+It is also possible to use Lua&#039;s <code>dofile()</code> statement to include models into each other, which we intent to augment in the future to load globals from one model file into a table of another, as to keep the global namespace of the current model clean.
+All variants of such file inclusion however suffer the problem that it creates a dependency of one file on another. This may be exactly what you want, or maybe not – where in the latter case falling back to copy and paste is probably the better solution.
+</p>
+
+</div>
+<!-- EDIT{&quot;target&quot;:&quot;section&quot;,&quot;name&quot;:&quot;... share and re-use animations, skins etc. from other models?&quot;,&quot;hid&quot;:&quot;share_and_re-use_animations_skins_etc_from_other_models&quot;,&quot;codeblockOffset&quot;:0,&quot;secid&quot;:6,&quot;range&quot;:&quot;3198-&quot;} -->
