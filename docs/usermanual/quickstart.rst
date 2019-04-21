@@ -3,6 +3,9 @@
 Quick Start
 ===========
 
+The User Documentation describes the *Cafu Engine Demo* packages that are
+released periodically to demonstrate the features of the Cafu Engine.
+
 |mainmenu.jpg| |newgame.jpg|
 
 This section is intended for advanced users who are experienced with
