@@ -1,5 +1,0 @@
-====== The New Decal Tool ======
-
-{{:mapping:cawe:editingtools:cawe_toolbar_newdecal.png?80 }}
-
-The New Decal tool is not yet implemented.

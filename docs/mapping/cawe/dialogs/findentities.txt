@@ -1,9 +1,0 @@
-====== The Find Entities Dialog ======
-
-This dialog can be activated using the related item from [[mapping:cawe:menureference:edit]].
-
-It is used to find entities by a given name.
-
-{{:mapping:cawe:dialogs:dialog_findentities.png }} Enter the name of the entity you want to find in the name field.
-
-By pressing **OK** a search is started and the found entities will be selected on the map.

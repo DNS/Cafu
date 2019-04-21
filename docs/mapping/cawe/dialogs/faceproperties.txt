@@ -1,4 +1,0 @@
-====== The Surface Properties Dialog ======
-
-This dialog represents the settings of the [[mapping:cawe:editingtools:editfaceprops|Edit Surface Properties Tool]].
-Please refer to the [[mapping:cawe:editingtools:editfaceprops|Edit Surface Properties Tool]] documentation for more information.
