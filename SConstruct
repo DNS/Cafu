@@ -118,7 +118,7 @@ def CheckFormatting(start_dir, QuickMode):
             if "CaWE" in root and excl in dirs:
                 dirs.remove(excl)
 
-        for excl in [".git", ".svn", ".sconf_temp", "build", "ExtLibs", "out", ".vs"]:
+        for excl in [".git", ".svn", ".sconf_temp", "build", "docs", "ExtLibs", "out", ".vs"]:
             if excl in dirs:
                 dirs.remove(excl)
 
